@@ -1,0 +1,14 @@
+*~
+*.gz
+*.la
+*.lo
+*.o
+*.pyc
+*.deps/
+.dirstamp
+.libs/
+Makefile
+autom4te.cache/
+config.log
+config.status
+libtool
