@@ -109,8 +109,9 @@ CONFIG_CLEAN_VPATH_FILES =
 LTLIBRARIES = $(noinst_LTLIBRARIES)
 libiroha_la_LIBADD =
 am__dirstamp = $(am__leading_dot)dirstamp
-am_libiroha_la_OBJECTS = src/iroha/iroha.lo src/builder/exp_builder.lo \
-	src/builder/reader.lo src/writer/writer.lo
+am_libiroha_la_OBJECTS = src/iroha/iroha.lo src/iroha/i_design.lo \
+	src/builder/exp_builder.lo src/builder/reader.lo \
+	src/design/design_tool.lo src/writer/writer.lo
 libiroha_la_OBJECTS = $(am_libiroha_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -390,10 +391,13 @@ iroha_LDADD = libiroha.la
 noinst_LTLIBRARIES = libiroha.la
 libiroha_la_SOURCES = \
  src/iroha/common.h \
- src/iroha/iroha.h src/iroha/iroha.cpp \
+ src/iroha/design_tool_api.h \
+ src/iroha/iroha.cpp src/iroha/iroha.h \
+ src/iroha/i_design.cpp src/iroha/i_design.h \
  src/iroha/writer_api.h \
  src/builder/exp_builder.cpp src/builder/exp_builder.h \
  src/builder/reader.cpp src/builder/reader.h \
+ src/design/design_tool.cpp src/design/design_tool.h \
  src/writer/writer.cpp src/writer/writer.h
 
 all: all-recursive
@@ -452,6 +456,8 @@ src/iroha/$(DEPDIR)/$(am__dirstamp):
 	@: > src/iroha/$(DEPDIR)/$(am__dirstamp)
 src/iroha/iroha.lo: src/iroha/$(am__dirstamp) \
 	src/iroha/$(DEPDIR)/$(am__dirstamp)
+src/iroha/i_design.lo: src/iroha/$(am__dirstamp) \
+	src/iroha/$(DEPDIR)/$(am__dirstamp)
 src/builder/$(am__dirstamp):
 	@$(MKDIR_P) src/builder
 	@: > src/builder/$(am__dirstamp)
@@ -462,6 +468,14 @@ src/builder/exp_builder.lo: src/builder/$(am__dirstamp) \
 	src/builder/$(DEPDIR)/$(am__dirstamp)
 src/builder/reader.lo: src/builder/$(am__dirstamp) \
 	src/builder/$(DEPDIR)/$(am__dirstamp)
+src/design/$(am__dirstamp):
+	@$(MKDIR_P) src/design
+	@: > src/design/$(am__dirstamp)
+src/design/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) src/design/$(DEPDIR)
+	@: > src/design/$(DEPDIR)/$(am__dirstamp)
+src/design/design_tool.lo: src/design/$(am__dirstamp) \
+	src/design/$(DEPDIR)/$(am__dirstamp)
 src/writer/$(am__dirstamp):
 	@$(MKDIR_P) src/writer
 	@: > src/writer/$(am__dirstamp)
@@ -539,6 +553,8 @@ mostlyclean-compile:
 	-rm -f src/*.$(OBJEXT)
 	-rm -f src/builder/*.$(OBJEXT)
 	-rm -f src/builder/*.lo
+	-rm -f src/design/*.$(OBJEXT)
+	-rm -f src/design/*.lo
 	-rm -f src/iroha/*.$(OBJEXT)
 	-rm -f src/iroha/*.lo
 	-rm -f src/writer/*.$(OBJEXT)
@@ -550,6 +566,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/main.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/builder/$(DEPDIR)/exp_builder.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/builder/$(DEPDIR)/reader.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/design/$(DEPDIR)/design_tool.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/iroha/$(DEPDIR)/i_design.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/iroha/$(DEPDIR)/iroha.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/writer/$(DEPDIR)/writer.Plo@am__quote@
 
@@ -583,6 +601,7 @@ mostlyclean-libtool:
 clean-libtool:
 	-rm -rf .libs _libs
 	-rm -rf src/builder/.libs src/builder/_libs
+	-rm -rf src/design/.libs src/design/_libs
 	-rm -rf src/iroha/.libs src/iroha/_libs
 	-rm -rf src/writer/.libs src/writer/_libs
 
@@ -921,6 +940,8 @@ distclean-generic:
 	-rm -f src/$(am__dirstamp)
 	-rm -f src/builder/$(DEPDIR)/$(am__dirstamp)
 	-rm -f src/builder/$(am__dirstamp)
+	-rm -f src/design/$(DEPDIR)/$(am__dirstamp)
+	-rm -f src/design/$(am__dirstamp)
 	-rm -f src/iroha/$(DEPDIR)/$(am__dirstamp)
 	-rm -f src/iroha/$(am__dirstamp)
 	-rm -f src/writer/$(DEPDIR)/$(am__dirstamp)
@@ -936,7 +957,7 @@ clean-am: clean-binPROGRAMS clean-generic clean-libtool \
 
 distclean: distclean-recursive
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
-	-rm -rf src/$(DEPDIR) src/builder/$(DEPDIR) src/iroha/$(DEPDIR) src/writer/$(DEPDIR)
+	-rm -rf src/$(DEPDIR) src/builder/$(DEPDIR) src/design/$(DEPDIR) src/iroha/$(DEPDIR) src/writer/$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-libtool distclean-tags
@@ -984,7 +1005,7 @@ installcheck-am:
 maintainer-clean: maintainer-clean-recursive
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
 	-rm -rf $(top_srcdir)/autom4te.cache
-	-rm -rf src/$(DEPDIR) src/builder/$(DEPDIR) src/iroha/$(DEPDIR) src/writer/$(DEPDIR)
+	-rm -rf src/$(DEPDIR) src/builder/$(DEPDIR) src/design/$(DEPDIR) src/iroha/$(DEPDIR) src/writer/$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 

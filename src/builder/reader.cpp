@@ -142,6 +142,7 @@ string Reader::ReadToken() {
     c = CurrentChar();
   }
   if (*c == ';') {
+    column_ = cur_line_.size();
     goto again;
   }
   // Seek the end of token.

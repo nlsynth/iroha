@@ -14,8 +14,11 @@ iroha_LDADD = libiroha.la
 noinst_LTLIBRARIES = libiroha.la
 libiroha_la_SOURCES = \
  src/iroha/common.h \
- src/iroha/iroha.h src/iroha/iroha.cpp \
+ src/iroha/design_tool_api.h \
+ src/iroha/iroha.cpp src/iroha/iroha.h \
+ src/iroha/i_design.cpp src/iroha/i_design.h \
  src/iroha/writer_api.h \
  src/builder/exp_builder.cpp src/builder/exp_builder.h \
  src/builder/reader.cpp src/builder/reader.h \
+ src/design/design_tool.cpp src/design/design_tool.h \
  src/writer/writer.cpp src/writer/writer.h

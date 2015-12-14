@@ -17,7 +17,7 @@ void Writer::Write(const string &fn) {
 }
 
 void Writer::WriteModule(const IModule *mod) {
-  *os_ << "(MODULE MOD ";
+  *os_ << "(MODULE " << mod->name_ << " ";
   for (auto *tab : mod->tables_) {
     WriteTable(tab);
   }

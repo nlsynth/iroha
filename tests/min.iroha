@@ -1,3 +1,4 @@
+;; $ iroha tests/min.iroha
 (MODULE M001
  (TABLE
   (STATE)

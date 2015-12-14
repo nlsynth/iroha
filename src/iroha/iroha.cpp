@@ -1,6 +1,7 @@
 #include "iroha/iroha.h"
 
 #include "builder/exp_builder.h"
+#include "design/design_tool.h"
 #include "writer/writer.h"
 
 namespace iroha {
@@ -14,6 +15,10 @@ IDesign *Iroha::ReadDesignFromFile(const string &fn) {
 
 WriterAPI *Iroha::CreateWriter(const IDesign *design) {
   return new Writer(design);
+}
+
+DesignToolAPI *Iroha::CreateDesignTool(IDesign *design) {
+  return new DesignTool(design);
 }
 
 }  // namespace iroha

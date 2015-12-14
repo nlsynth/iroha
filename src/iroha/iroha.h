@@ -6,28 +6,11 @@
 #define _iroha_iroha_h_
 
 #include "iroha/common.h"
+#include "iroha/design_tool_api.h"
+#include "iroha/i_design.h"
 #include "iroha/writer_api.h"
 
 namespace iroha {
-
-class IState {
-public:
-};
-  
-class ITable {
-public:
-  vector<IState *> states_;
-};
-
-class IModule {
-public:
-  vector<ITable *> tables_;
-};
-
-class IDesign {
-public:
-  vector<IModule *> modules_;
-};
 
 // High level APIs and factory methods.
 class Iroha {
@@ -35,6 +18,8 @@ public:
   static void Init();
   static IDesign *ReadDesignFromFile(const string &fn);
   static WriterAPI *CreateWriter(const IDesign *design);
+  // Set design nullptr to create a new design.
+  static DesignToolAPI *CreateDesignTool(IDesign *design);
 };
 
 }  // namespace iroha

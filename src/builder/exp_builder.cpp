@@ -24,7 +24,7 @@ IDesign *ExpBuilder::Build(vector<Exp *> &exps) {
       continue;
     }
     if (root->vec[0]->atom.str == "MODULE") {
-      IModule *module = BuildModule(root);
+      IModule *module = BuildModule(root, design);
       if (module) {
 	design->modules_.push_back(module);
       } else {
@@ -40,17 +40,17 @@ IDesign *ExpBuilder::Build(vector<Exp *> &exps) {
   return design;
 }
 
-IModule *ExpBuilder::BuildModule(Exp *e) {
+IModule *ExpBuilder::BuildModule(Exp *e, IDesign *design) {
   if (e->vec.size() < 3) {
     SetError();
     return nullptr;
   }
-  IModule *module = new IModule;
+  IModule *module = new IModule(design, e->vec[1]->atom.str);
   for (int i = 2; i < e->vec.size(); ++i) {
     if (e->vec[i]->vec.size() == 0) {
       SetError();
     } else if (e->vec[i]->vec[0]->atom.str == "TABLE") {
-      ITable *table = BuildTable(e->vec[i]);
+      ITable *table = BuildTable(e->vec[i], module);
       if (table) {
 	module->tables_.push_back(table);
       } else {
@@ -63,19 +63,19 @@ IModule *ExpBuilder::BuildModule(Exp *e) {
   return module;
 }
 
-ITable *ExpBuilder::BuildTable(Exp *e) {
-  ITable *table = new ITable;
+ITable *ExpBuilder::BuildTable(Exp *e, IModule *module) {
+  ITable *table = new ITable(module);
   for (int i = 1; i < e->vec.size(); ++i) {
     if (e->vec[i]->vec[0]->atom.str == "STATE") {
-      IState *state = BuildState(e->vec[i]);
+      IState *state = BuildState(e->vec[i], table);
       table->states_.push_back(state);
     }
   }
   return table;
 }
 
-IState *ExpBuilder::BuildState(Exp *e) {
-  return new IState;
+IState *ExpBuilder::BuildState(Exp *e, ITable *table) {
+  return new IState(table);
 }
 
 void ExpBuilder::SetError() {
