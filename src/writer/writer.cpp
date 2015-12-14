@@ -17,7 +17,7 @@ void Writer::Write(const string &fn) {
 }
 
 void Writer::WriteModule(const IModule *mod) {
-  *os_ << "(MODULE " << mod->name_ << " ";
+  *os_ << "(MODULE " << mod->GetName() << " ";
   for (auto *tab : mod->tables_) {
     WriteTable(tab);
   }
@@ -33,7 +33,7 @@ void Writer::WriteTable(const ITable *tab) {
 }
 
 void Writer::WriteState(const IState *st) {
-  *os_ << "(STATE)";
+  *os_ << "(STATE " << st->GetId() << ")";
 }
 
 }  // namespace iroha

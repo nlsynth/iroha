@@ -110,8 +110,9 @@ LTLIBRARIES = $(noinst_LTLIBRARIES)
 libiroha_la_LIBADD =
 am__dirstamp = $(am__leading_dot)dirstamp
 am_libiroha_la_OBJECTS = src/iroha/iroha.lo src/iroha/i_design.lo \
-	src/builder/exp_builder.lo src/builder/reader.lo \
-	src/design/design_tool.lo src/writer/writer.lo
+	src/iroha/logging.lo src/builder/exp_builder.lo \
+	src/builder/reader.lo src/design/design_tool.lo \
+	src/writer/writer.lo
 libiroha_la_OBJECTS = $(am_libiroha_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -394,6 +395,7 @@ libiroha_la_SOURCES = \
  src/iroha/design_tool_api.h \
  src/iroha/iroha.cpp src/iroha/iroha.h \
  src/iroha/i_design.cpp src/iroha/i_design.h \
+ src/iroha/logging.cpp src/iroha/logging.h \
  src/iroha/writer_api.h \
  src/builder/exp_builder.cpp src/builder/exp_builder.h \
  src/builder/reader.cpp src/builder/reader.h \
@@ -457,6 +459,8 @@ src/iroha/$(DEPDIR)/$(am__dirstamp):
 src/iroha/iroha.lo: src/iroha/$(am__dirstamp) \
 	src/iroha/$(DEPDIR)/$(am__dirstamp)
 src/iroha/i_design.lo: src/iroha/$(am__dirstamp) \
+	src/iroha/$(DEPDIR)/$(am__dirstamp)
+src/iroha/logging.lo: src/iroha/$(am__dirstamp) \
 	src/iroha/$(DEPDIR)/$(am__dirstamp)
 src/builder/$(am__dirstamp):
 	@$(MKDIR_P) src/builder
@@ -569,6 +573,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/design/$(DEPDIR)/design_tool.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/iroha/$(DEPDIR)/i_design.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/iroha/$(DEPDIR)/iroha.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/iroha/$(DEPDIR)/logging.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/writer/$(DEPDIR)/writer.Plo@am__quote@
 
 .cpp.o:

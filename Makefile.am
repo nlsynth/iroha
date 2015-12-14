@@ -17,6 +17,7 @@ libiroha_la_SOURCES = \
  src/iroha/design_tool_api.h \
  src/iroha/iroha.cpp src/iroha/iroha.h \
  src/iroha/i_design.cpp src/iroha/i_design.h \
+ src/iroha/logging.cpp src/iroha/logging.h \
  src/iroha/writer_api.h \
  src/builder/exp_builder.cpp src/builder/exp_builder.h \
  src/builder/reader.cpp src/builder/reader.h \

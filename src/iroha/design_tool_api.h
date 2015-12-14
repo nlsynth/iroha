@@ -10,6 +10,8 @@ namespace iroha {
 class DesignToolAPI {
 public:
   virtual IDesign *GetDesign() = 0;
+  // If table == nullptr, process all tables in current design.
+  virtual void ValidateStateId(ITable *table) = 0;
 };
 
 }  // namespace iroha

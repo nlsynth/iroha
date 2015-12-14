@@ -10,7 +10,9 @@ namespace iroha {
 class DesignTool : public DesignToolAPI {
 public:
   explicit DesignTool(IDesign *design);
+
   virtual IDesign *GetDesign() override;
+  virtual void ValidateStateId(ITable *table) override;
 
 private:
   IDesign *design_;

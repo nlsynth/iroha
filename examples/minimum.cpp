@@ -15,9 +15,15 @@ int main(int argc, char **argv) {
   table->states_.push_back(st1);
   table->states_.push_back(st2);
 
-  iroha::WriterAPI *writer = iroha::Iroha::CreateWriter(design);
+  table->SetInitialState(st1);
+
+  DesignToolAPI *tool = Iroha::CreateDesignTool(design);
+  tool->ValidateStateId(NULL);
+
+  iroha::WriterAPI *writer = Iroha::CreateWriter(design);
   writer->Write("/dev/stdout");
 
+  delete tool;
   delete writer;
   delete design;
 
