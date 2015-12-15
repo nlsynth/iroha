@@ -33,7 +33,28 @@ void Writer::WriteTable(const ITable *tab) {
 }
 
 void Writer::WriteState(const IState *st) {
-  *os_ << "(STATE " << st->GetId() << ")";
+  *os_ << "(STATE " << st->GetId();
+  for (auto *insn : st->insns_) {
+    *os_ << " ";
+    WriteInsn(insn);
+  }
+  *os_ << ")";
+}
+
+void Writer::WriteInsn(const IInsn *insn) {
+  *os_ << "(INSN ";
+  const IResource *res = insn->GetResource();
+  *os_ << res->GetClass()->GetName();
+  *os_ << " (";
+  bool is_first = true;
+  for (IState *st : insn->target_states_) {
+    if (!is_first) {
+      *os_ << " ";
+    }
+    is_first = false;
+    *os_ << st->GetId();
+  }
+  *os_ << "))";
 }
 
 }  // namespace iroha

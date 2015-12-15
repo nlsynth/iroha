@@ -18,6 +18,7 @@ int main(int argc, char **argv) {
   table->SetInitialState(st1);
 
   DesignToolAPI *tool = Iroha::CreateDesignTool(design);
+  tool->SetNextState(st1, st2);
   tool->ValidateStateId(NULL);
 
   iroha::WriterAPI *writer = Iroha::CreateWriter(design);

@@ -26,6 +26,9 @@ public:
   Pool<IModule> modules_;
   Pool<ITable> tables_;
   Pool<IState> states_;
+  Pool<IResource> resources_;
+  Pool<IResourceClass> resource_classes_;
+  Pool<IInsn> insns_;
 };
 
 }  // namespace iroha

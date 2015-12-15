@@ -10,10 +10,33 @@ class IDesign;
 class IModule;
 class IState;
 class ITable;
+class IResourceClass;
 class ObjectPool;
+
+// Type of resource.
+// e.g. 'adder' is a resource class and '32 bit adder' is a resource.
+class IResourceClass {
+public:
+  IResourceClass(const string &name, bool is_exclusive, IDesign *design);
+  IDesign *GetDesign();
+  bool IsExclusive();
+  const string &GetName() const;
+
+private:
+  const string name_;
+  IDesign *design_;
+  bool is_exclusive_;
+};
 
 class IResource {
 public:
+  IResource(ITable *table, IResourceClass *resource_class);
+  ITable *GetTable();
+  IResourceClass *GetClass() const;
+
+private:
+  ITable *table_;
+  IResourceClass *resource_class_;
 };
 
 class IRegister {
@@ -26,7 +49,12 @@ public:
 
 class IInsn {
 public:
-  IState *state_;
+  IInsn(IResource *resource);
+  IResource *GetResource() const;
+
+  vector<IState *> target_states_;
+
+private:
   IResource *resource_;
 };
 
@@ -37,6 +65,8 @@ public:
   ITable *GetTable();
   int GetId() const;
   void SetId(int id);
+
+  vector<IInsn *> insns_;
 
 private:
   ITable *table_;
@@ -90,6 +120,7 @@ public:
   ObjectPool *GetObjectPool();
 
   vector<IModule *> modules_;
+  vector<IResourceClass *> resource_classes_;
 
 private:
   ObjectPool *objects_;

@@ -112,7 +112,7 @@ am__dirstamp = $(am__leading_dot)dirstamp
 am_libiroha_la_OBJECTS = src/iroha/iroha.lo src/iroha/i_design.lo \
 	src/iroha/logging.lo src/builder/exp_builder.lo \
 	src/builder/reader.lo src/design/design_tool.lo \
-	src/writer/writer.lo
+	src/design/resource_class.lo src/writer/writer.lo
 libiroha_la_OBJECTS = $(am_libiroha_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -400,6 +400,7 @@ libiroha_la_SOURCES = \
  src/builder/exp_builder.cpp src/builder/exp_builder.h \
  src/builder/reader.cpp src/builder/reader.h \
  src/design/design_tool.cpp src/design/design_tool.h \
+ src/design/resource_class.cpp src/design/resource_class.h \
  src/writer/writer.cpp src/writer/writer.h
 
 all: all-recursive
@@ -479,6 +480,8 @@ src/design/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) src/design/$(DEPDIR)
 	@: > src/design/$(DEPDIR)/$(am__dirstamp)
 src/design/design_tool.lo: src/design/$(am__dirstamp) \
+	src/design/$(DEPDIR)/$(am__dirstamp)
+src/design/resource_class.lo: src/design/$(am__dirstamp) \
 	src/design/$(DEPDIR)/$(am__dirstamp)
 src/writer/$(am__dirstamp):
 	@$(MKDIR_P) src/writer
@@ -571,6 +574,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/builder/$(DEPDIR)/exp_builder.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/builder/$(DEPDIR)/reader.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/design/$(DEPDIR)/design_tool.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/design/$(DEPDIR)/resource_class.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/iroha/$(DEPDIR)/i_design.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/iroha/$(DEPDIR)/iroha.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/iroha/$(DEPDIR)/logging.Plo@am__quote@

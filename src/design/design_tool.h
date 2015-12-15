@@ -13,8 +13,11 @@ public:
 
   virtual IDesign *GetDesign() override;
   virtual void ValidateStateId(ITable *table) override;
+  virtual void SetNextState(IState *cur, IState *next) override;
 
 private:
+  IResource *GetResourceByName(ITable *table, const string &name);
+
   IDesign *design_;
 };
 

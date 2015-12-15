@@ -2,6 +2,8 @@
 
 #include <set>
 
+#include "design/resource_class.h"
+
 namespace iroha {
 
 DesignTool::DesignTool(IDesign *design) {
@@ -43,6 +45,23 @@ void DesignTool::ValidateStateId(ITable *table) {
       ++last_id;
     }
   }
+}
+
+void DesignTool::SetNextState(IState *cur, IState *next) {
+  ITable *table = cur->GetTable();
+  IResource *tr = GetResourceByName(table, resource::kTransition);
+  IInsn *insn = new IInsn(tr);
+  insn->target_states_.push_back(next);
+  cur->insns_.push_back(insn);
+}
+
+IResource *DesignTool::GetResourceByName(ITable *table, const string &name) {
+  for (auto *res : table->resources_) {
+    if (res->GetClass()->GetName() == name) {
+      return res;
+    }
+  }
+  return nullptr;
 }
 
 }  // namespace iroha

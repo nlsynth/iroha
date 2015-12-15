@@ -12,6 +12,7 @@ public:
   virtual IDesign *GetDesign() = 0;
   // If table == nullptr, process all tables in current design.
   virtual void ValidateStateId(ITable *table) = 0;
+  virtual void SetNextState(IState *cur, IState *next) = 0;
 };
 
 }  // namespace iroha
