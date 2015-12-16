@@ -2,6 +2,7 @@
 
 #include "builder/exp_builder.h"
 #include "design/design_tool.h"
+#include "opt/optimizer.h"
 #include "writer/writer.h"
 
 namespace iroha {
@@ -19,6 +20,10 @@ WriterAPI *Iroha::CreateWriter(const IDesign *design) {
 
 DesignToolAPI *Iroha::CreateDesignTool(IDesign *design) {
   return new DesignTool(design);
+}
+
+OptAPI *Iroha::CreateOptimizer(IDesign *design) {
+  return new Optimizer(design);
 }
 
 }  // namespace iroha

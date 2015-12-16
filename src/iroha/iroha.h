@@ -8,6 +8,7 @@
 #include "iroha/common.h"
 #include "iroha/design_tool_api.h"
 #include "iroha/i_design.h"
+#include "iroha/opt_api.h"
 #include "iroha/writer_api.h"
 
 namespace iroha {
@@ -20,6 +21,7 @@ public:
   static WriterAPI *CreateWriter(const IDesign *design);
   // Set design nullptr to create a new design.
   static DesignToolAPI *CreateDesignTool(IDesign *design);
+  static OptAPI *CreateOptimizer(IDesign *design);
 };
 
 }  // namespace iroha

@@ -41,10 +41,15 @@ private:
 
 class IRegister {
 public:
-  ITable *table_;
+  IRegister(ITable *table);
+  ITable *GetTable() const;
+
   uint64_t initial_value_;
   bool has_initial_value_;
   bool state_local_;
+
+private:
+  ITable *table_;
 };
 
 class IInsn {

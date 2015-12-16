@@ -21,9 +21,13 @@ int main(int argc, char **argv) {
   tool->SetNextState(st1, st2);
   tool->ValidateStateId(NULL);
 
+  OptAPI *opt = Iroha::CreateOptimizer(design);
+  opt->ApplyPhase("a_phase");
+
   iroha::WriterAPI *writer = Iroha::CreateWriter(design);
   writer->Write("/dev/stdout");
 
+  delete opt;
   delete tool;
   delete writer;
   delete design;

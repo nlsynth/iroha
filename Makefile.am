@@ -23,4 +23,7 @@ libiroha_la_SOURCES = \
  src/builder/reader.cpp src/builder/reader.h \
  src/design/design_tool.cpp src/design/design_tool.h \
  src/design/resource_class.cpp src/design/resource_class.h \
- src/writer/writer.cpp src/writer/writer.h
+ src/opt/optimizer.cpp src/opt/optimizer.h \
+ src/writer/exp_writer.cpp src/writer/exp_writer.h \
+ src/writer/writer.cpp src/writer/writer.h \
+ src/writer/verilog/verilog_writer.cpp src/writer/verilog/verilog_writer.h

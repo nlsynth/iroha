@@ -26,12 +26,12 @@ Please read src/main.cpp and src/iroha/iroha.h for more details.
 
 -- TODOs
 
-* P0: End to end features other than optimizers
-* P1: Write an output module for a language HTML? Verilog?
-* P1: API to build from IR C++.
-* P2: Memory management
-* P2: Document
-* P3: Error handling
+* P1: Register data type
+* P1: Document
+* P1: More examples
+* P2: Values wider than 64bits
+* P2: Pluggable optimizer and writer
+* P2: Error handling
 
 -- Source tree
 
@@ -39,9 +39,15 @@ Please read src/main.cpp and src/iroha/iroha.h for more details.
     * Libraries and commands.
 * src/builder
     * Code to build Iroha data structures.
+* src/design
+    * Code to manipulate design IR.
 * src/iroha
     * Public header files of libraries manipulate on Iroha data structures.
     * Basic API layer code.
+* src/opt
+    * Optimizers
+* src/writer
+    * Code to write design IR as a file.
 * tests/
     * Test input.
 

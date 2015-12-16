@@ -28,6 +28,7 @@ public:
   Pool<IState> states_;
   Pool<IResource> resources_;
   Pool<IResourceClass> resource_classes_;
+  Pool<IRegister> registers_;
   Pool<IInsn> insns_;
 };
 

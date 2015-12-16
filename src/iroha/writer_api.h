@@ -8,7 +8,8 @@ namespace iroha {
 
 class WriterAPI {
 public:
-  virtual void Write(const string &fn) = 0;
+  virtual bool Write(const string &fn) = 0;
+  virtual bool SetLanguage(const string &lang) = 0;
 };
 
 }  // namespace iroha

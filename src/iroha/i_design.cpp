@@ -6,7 +6,8 @@
 
 namespace iroha {
 
-IResourceClass::IResourceClass(const string &name, bool is_exclusive, IDesign *design)
+IResourceClass::IResourceClass(const string &name, bool is_exclusive,
+			       IDesign *design)
   : name_(name), design_(design), is_exclusive_(is_exclusive) {
 }
 
@@ -32,6 +33,18 @@ IResourceClass *IResource::GetClass() const {
 }
 
 ITable *IResource::GetTable() {
+  return table_;
+}
+
+IRegister::IRegister(ITable *table)
+  : initial_value_(0), has_initial_value_(false),
+    state_local_(false), table_(table) {
+  IDesign *design =
+    table->GetModule()->GetDesign();
+  design->GetObjectPool()->registers_.Add(this);
+}
+
+ITable *IRegister::GetTable() const {
   return table_;
 }
 

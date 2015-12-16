@@ -7,24 +7,15 @@
 namespace iroha {
 
 class IDesign;
-class IInsn;
-class IModule;
-class IState;
-class ITable;
 
 class Writer : public WriterAPI {
 public:
   Writer(const IDesign *design);
-  virtual void Write(const string &fn) override;
+  virtual bool Write(const string &fn) override;
+  virtual bool SetLanguage(const string &lang) override;
 
-private:
-  void WriteModule(const IModule *mod);
-  void WriteTable(const ITable *tab);
-  void WriteState(const IState *st);
-  void WriteInsn(const IInsn *insn);
-  
   const IDesign *design_;
-  ostream *os_;
+  string language_;
 };
   
 }  // namespace iroha

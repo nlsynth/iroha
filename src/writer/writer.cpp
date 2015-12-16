@@ -2,59 +2,32 @@
 
 #include <fstream>
 #include "iroha/iroha.h"
+#include "writer/exp_writer.h"
+#include "writer/verilog/verilog_writer.h"
 
 namespace iroha {
 
 Writer::Writer(const IDesign *design) : design_(design) {
 }
 
-void Writer::Write(const string &fn) {
-  os_ = new ofstream(fn);
-  for (auto *mod : design_->modules_) {
-    WriteModule(mod);
+bool Writer::Write(const string &fn) {
+  unique_ptr<ostream> os(new ofstream(fn));
+  if (os.get() == nullptr) {
+    return false;
   }
-  delete os_;
+  if (language_ == "verilog") {
+    verilog::VerilogWriter writer(design_, *os);
+    writer.Write();
+  } else {
+    ExpWriter writer(design_, *os);
+    writer.Write();
+  }
+  return true;
 }
 
-void Writer::WriteModule(const IModule *mod) {
-  *os_ << "(MODULE " << mod->GetName() << " ";
-  for (auto *tab : mod->tables_) {
-    WriteTable(tab);
-  }
-  *os_ << ")\n";
-}
-
-void Writer::WriteTable(const ITable *tab) {
-  *os_ << "(TABLE ";
-  for (auto *st : tab->states_) {
-    WriteState(st);
-  }
-  *os_ << ")";
-}
-
-void Writer::WriteState(const IState *st) {
-  *os_ << "(STATE " << st->GetId();
-  for (auto *insn : st->insns_) {
-    *os_ << " ";
-    WriteInsn(insn);
-  }
-  *os_ << ")";
-}
-
-void Writer::WriteInsn(const IInsn *insn) {
-  *os_ << "(INSN ";
-  const IResource *res = insn->GetResource();
-  *os_ << res->GetClass()->GetName();
-  *os_ << " (";
-  bool is_first = true;
-  for (IState *st : insn->target_states_) {
-    if (!is_first) {
-      *os_ << " ";
-    }
-    is_first = false;
-    *os_ << st->GetId();
-  }
-  *os_ << "))";
+bool Writer::SetLanguage(const string &lang) {
+  language_ = lang;
+  return true;
 }
 
 }  // namespace iroha
