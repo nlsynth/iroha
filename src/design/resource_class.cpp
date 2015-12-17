@@ -2,6 +2,7 @@
 
 #include "iroha/i_design.h"
 #include "iroha/logging.h"
+#include "iroha/resource_class.h"
 
 namespace iroha {
 

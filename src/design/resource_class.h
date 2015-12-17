@@ -2,15 +2,9 @@
 #ifndef _design_resource_class_h_
 #define _design_resource_class_h_
 
+#include "iroha/resource_class.h"
+
 namespace iroha {
-
-namespace resource {
-const char kSet[] = "set";
-const char kTransition[] = "tr";
-}  // namespace resource
-
-class IDesign;
-class IResourceClass;
 
 void InstallResourceClasses(IDesign *design);
 IResourceClass *GetTransitionResourceClassFromDesign(IDesign *design);

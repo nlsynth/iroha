@@ -6,13 +6,6 @@
 
 namespace iroha {
 
-class IDesign;
-class IModule;
-class IState;
-class ITable;
-class IResourceClass;
-class ObjectPool;
-
 // Type of resource.
 // e.g. 'adder' is a resource class and '32 bit adder' is a resource.
 class IResourceClass {
@@ -39,17 +32,49 @@ private:
   IResourceClass *resource_class_;
 };
 
+// Value type. This object is not managed by memory pool.
+class IValueType {
+public:
+  IValueType();
+
+  // Width 0 means a scalar value e.g. 'reg v;'.
+  int GetWidth();
+  void SetWidth(int width);
+  bool IsEnum();
+  void SetIsEnum(bool is_enum);
+
+private:
+  int width_;
+  bool is_enum_;
+};
+
+// Literal value. This object is not managed by memory pool.
+class IValue {
+public:
+  IValue();
+  uint64_t value_;
+  IValueType type_;
+};
+
 class IRegister {
 public:
-  IRegister(ITable *table);
+  IRegister(ITable *table, const string &name);
   ITable *GetTable() const;
+  const string &GetName() const;
 
-  uint64_t initial_value_;
-  bool has_initial_value_;
+  void SetInitialValue(IValue &value);
+  const IValue &GetInitialValue() const;
+  bool HasInitialValue() const;
+
+  IValueType value_type_;
   bool state_local_;
+  bool is_const_;
 
 private:
   ITable *table_;
+  string name_;
+  IValue initial_value_;
+  bool has_initial_value_;
 };
 
 class IInsn {
@@ -57,6 +82,8 @@ public:
   IInsn(IResource *resource);
   IResource *GetResource() const;
 
+  vector<IRegister *> inputs_;
+  vector<IRegister *> outputs_;
   vector<IState *> target_states_;
 
 private:
@@ -90,6 +117,7 @@ public:
 
   vector<IState *> states_;
   vector<IResource *> resources_;
+  vector<IRegister *> registers_;
 
 private:
   IModule *module_;

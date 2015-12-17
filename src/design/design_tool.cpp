@@ -49,16 +49,60 @@ void DesignTool::ValidateStateId(ITable *table) {
 
 void DesignTool::SetNextState(IState *cur, IState *next) {
   ITable *table = cur->GetTable();
-  IResource *tr = GetResourceByName(table, resource::kTransition);
+  IResource *tr = FindResourceByName(table, resource::kTransition);
   IInsn *insn = new IInsn(tr);
   insn->target_states_.push_back(next);
   cur->insns_.push_back(insn);
 }
 
-IResource *DesignTool::GetResourceByName(ITable *table, const string &name) {
+IResource *DesignTool::GetResource(ITable *table, const string &class_name) {
+  IResource *res = FindResourceByName(table, class_name);
+  if (res) {
+    return res;
+  }
+  IDesign *design = table->GetModule()->GetDesign();
+  IResourceClass *rc = FindResourceClass(design, class_name);
+  res = new IResource(table, rc);
+  table->resources_.push_back(res);
+  return res;
+}
+
+IRegister *DesignTool::AllocRegister(ITable *table, const string &name,
+				     int width) {
+  IRegister *reg = new IRegister(table, name);
+  reg->value_type_.SetWidth(width);
+  table->registers_.push_back(reg);
+  return reg;
+}
+
+IRegister *DesignTool::AllocConstNum(ITable *table, const string &name,
+				     int width, uint64_t value) {
+  IRegister *reg = new IRegister(table, name);
+  IValue v;
+  v.value_ = value;
+  v.type_.SetIsEnum(false);
+  v.type_.SetWidth(width);
+
+  reg->SetInitialValue(v);
+  reg->is_const_ = true;
+  table->registers_.push_back(reg);
+  return reg;
+}
+
+IResource *DesignTool::FindResourceByName(ITable *table, const string &name) {
   for (auto *res : table->resources_) {
     if (res->GetClass()->GetName() == name) {
       return res;
+    }
+  }
+  return nullptr;
+}
+
+IResourceClass *DesignTool::FindResourceClass(IDesign *design,
+					      const string &class_name) {
+  for (auto *rc : design->resource_classes_) {
+    if (rc->GetName() == class_name) {
+      return rc;
     }
   }
   return nullptr;

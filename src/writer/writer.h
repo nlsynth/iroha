@@ -6,11 +6,10 @@
 
 namespace iroha {
 
-class IDesign;
-
 class Writer : public WriterAPI {
 public:
   Writer(const IDesign *design);
+
   virtual bool Write(const string &fn) override;
   virtual bool SetLanguage(const string &lang) override;
 

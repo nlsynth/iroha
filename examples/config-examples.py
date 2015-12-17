@@ -13,7 +13,7 @@ ofh.write('\trm ' + ' '.join(EXAMPLES) + '\n')
 for e in EXAMPLES:
     ofh.write(e + '.o\t: ' + e + '.cpp\n')
     ofh.write('\tg++ -std=c++11 -I../src -c ' + e + '.cpp\n\n')
-    ofh.write(e + '\t: ' + e + '.o\n')
+    ofh.write(e + '\t: ../libiroha.la ' + e + '.o\n')
     ofh.write('\t../libtool --tag=CXX --mode=link g++ -o ' + e + ' ' + e + '.o ../libiroha.la')
 
 print('Generated Makefile. Please run \'make\'')

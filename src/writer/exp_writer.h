@@ -6,12 +6,6 @@
 
 namespace iroha {
 
-class IDesign;
-class IInsn;
-class IModule;
-class IState;
-class ITable;
-
 class ExpWriter {
 public:
   ExpWriter(const IDesign *design, ostream &os);
@@ -23,6 +17,8 @@ private:
   void WriteTable(const ITable *tab);
   void WriteState(const IState *st);
   void WriteInsn(const IInsn *insn);
+  void WriteRegisters(const ITable *tab);
+  void WriteInsnParams(const vector<IRegister *> &regs);
 
   const IDesign *design_;
   ostream &os_;

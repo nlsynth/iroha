@@ -66,12 +66,22 @@ IModule *ExpBuilder::BuildModule(Exp *e, IDesign *design) {
 ITable *ExpBuilder::BuildTable(Exp *e, IModule *module) {
   ITable *table = new ITable(module);
   for (int i = 1; i < e->vec.size(); ++i) {
-    if (e->vec[i]->vec[0]->atom.str == "STATE") {
+    if (e->vec[i]->vec.size() == 0) {
+      SetError();
+      return nullptr;
+    }
+    const string &tag = e->vec[i]->vec[0]->atom.str;
+    if (tag == "REGISTERS") {
+      BuildRegisters(e->vec[i], table);
+    } else if (tag == "STATE") {
       IState *state = BuildState(e->vec[i], table);
       table->states_.push_back(state);
     }
   }
   return table;
+}
+
+void ExpBuilder::BuildRegisters(Exp *e, ITable *table) {
 }
 
 IState *ExpBuilder::BuildState(Exp *e, ITable *table) {

@@ -26,9 +26,12 @@ Please read src/main.cpp and src/iroha/iroha.h for more details.
 
 -- TODOs
 
+* P1: Array and memory
+* P1: Port I/O
 * P1: Register data type
 * P1: Document
 * P1: More examples
+* P2: Delete API objects automatically
 * P2: Values wider than 64bits
 * P2: Pluggable optimizer and writer
 * P2: Error handling

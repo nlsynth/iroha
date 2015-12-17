@@ -24,6 +24,7 @@ private:
   IModule *BuildModule(Exp *e, IDesign *design);
   ITable *BuildTable(Exp *e, IModule *module);
   IState *BuildState(Exp *e, ITable *table);
+  void BuildRegisters(Exp *e, ITable *table);
   void SetError();
   bool HasError();
 

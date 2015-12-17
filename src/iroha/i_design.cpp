@@ -36,9 +36,31 @@ ITable *IResource::GetTable() {
   return table_;
 }
 
-IRegister::IRegister(ITable *table)
-  : initial_value_(0), has_initial_value_(false),
-    state_local_(false), table_(table) {
+IValueType::IValueType() : width_(32), is_enum_(false) {
+}
+
+int IValueType::GetWidth() {
+  return width_;
+}
+
+bool IValueType::IsEnum() {
+  return is_enum_;
+}
+
+void IValueType::SetIsEnum(bool is_enum) {
+  is_enum_ = is_enum;
+}
+
+void IValueType::SetWidth(int width) {
+  width_ = width;
+}
+
+IValue::IValue() : value_(0) {
+}
+
+IRegister::IRegister(ITable *table, const string &name)
+  : state_local_(false), is_const_(false), table_(table),
+    name_(name), has_initial_value_(false) {
   IDesign *design =
     table->GetModule()->GetDesign();
   design->GetObjectPool()->registers_.Add(this);
@@ -48,6 +70,24 @@ ITable *IRegister::GetTable() const {
   return table_;
 }
 
+const string &IRegister::GetName() const {
+  return name_;
+}
+
+void IRegister::SetInitialValue(IValue &value) {
+  has_initial_value_ = true;
+  initial_value_ = value;
+  value_type_ = value.type_;
+}
+
+const IValue &IRegister::GetInitialValue() const {
+  return initial_value_;
+}
+
+bool IRegister::HasInitialValue() const {
+  return has_initial_value_;
+}
+  
 IInsn::IInsn(IResource *resource) : resource_(resource) {
   IDesign *design =
     resource_->GetTable()->GetModule()->GetDesign();
