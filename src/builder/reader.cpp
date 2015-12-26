@@ -130,7 +130,9 @@ bool Reader::EnsureLine() {
 
 string Reader::ReadToken() {
   if (!unread_token_.empty()) {
-    return std::move(unread_token_);
+    string tmp = unread_token_;
+    unread_token_.clear();
+    return tmp;
   }
  again:
   if (!EnsureLine()) {
