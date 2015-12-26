@@ -18,15 +18,15 @@ IDesign *build_design() {
   IResource *assign = tool->GetResource(table, resource::kSet);
   IInsn *insn = new IInsn(assign);
   IRegister *dst = tool->AllocRegister(table, "dst_reg", 32);
-  IRegister *src = tool->AllocConstNum(table, "src_reg", 32, 123);
+  IRegister *src = tool->AllocConstNum(table, 32, 123);
   insn->inputs_.push_back(src);
   insn->outputs_.push_back(dst);
   
   st1->insns_.push_back(insn);
 
   table->SetInitialState(st1);
-  tool->SetNextState(st1, st2);
-  tool->ValidateStateId(NULL);
+  tool->AddNextState(st1, st2);
+  tool->ValidateIds(NULL);
 
   delete tool;
 

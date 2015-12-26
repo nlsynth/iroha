@@ -5,6 +5,8 @@
 #include "iroha/design_tool_api.h"
 #include "iroha/i_design.h"
 
+#include <set>
+
 namespace iroha {
 
 class DesignTool : public DesignToolAPI {
@@ -12,18 +14,32 @@ public:
   explicit DesignTool(IDesign *design);
 
   virtual IDesign *GetDesign() override;
-  virtual void ValidateStateId(ITable *table) override;
-  virtual void SetNextState(IState *cur, IState *next) override;
+  virtual void ValidateIds(ITable *table) override;
+  virtual IInsn *AddNextState(IState *cur, IState *next) override;
   virtual IResource *GetResource(ITable *table,
 				 const string &class_name) override;
+  virtual IResource *GetBinOpResource(ITable *table,
+				      const string &class_name,
+				      int width) override;
+  virtual IResource *CreateEmbedResource(ITable *table,
+					 const string &mod_name,
+					 const string &fn) override;
   virtual IRegister *AllocRegister(ITable *table, const string &name,
 				   int width) override;
-  virtual IRegister *AllocConstNum(ITable *table, const string &name,
+  virtual IRegister *AllocConstNum(ITable *table,
 				   int width, uint64_t value) override;
+  virtual void SetRegisterInitialValue(uint64_t value,
+				       IRegister *reg) override;
 
 private:
   IResource *FindResourceByName(ITable *table, const string &name);
+  IInsn *FindInsnByResource(IState *state, IResource *res);
   IResourceClass *FindResourceClass(IDesign *design, const string &name);
+  void ValidateStateId(ITable *table);
+  void ValidateInsnId(ITable *table);
+  void ValidateRegisterId(ITable *table);
+  void ValidateResourceId(ITable *table);
+  void ValidateTableId(IModule *mod);
 
   IDesign *design_;
 };

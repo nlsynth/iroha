@@ -3,6 +3,8 @@
 #include "design/object_pool.h"
 #include "design/resource_class.h"
 #include "iroha/logging.h"
+#include "iroha/resource_params.h"
+#include "iroha/stl_util.h"
 
 namespace iroha {
 
@@ -24,8 +26,23 @@ bool IResourceClass::IsExclusive() {
 }
 
 IResource::IResource(ITable *table, IResourceClass *resource_class)
-  : table_(table), resource_class_(resource_class) {
-  table->GetModule()->GetDesign()->GetObjectPool()->resources_.Add(this);
+  : table_(table), resource_class_(resource_class),
+    params_(new ResourceParams), id_(-1) {
+  ObjectPool *pool =
+    table->GetModule()->GetDesign()->GetObjectPool();
+  pool->resources_.Add(this);
+  pool->resource_params_.Add(params_);
+}
+
+IResource::~IResource() {
+}
+
+int IResource::GetId() const {
+  return id_;
+}
+
+void IResource::SetId(int id) {
+  id_ = id;
 }
 
 IResourceClass *IResource::GetClass() const {
@@ -36,19 +53,15 @@ ITable *IResource::GetTable() {
   return table_;
 }
 
-IValueType::IValueType() : width_(32), is_enum_(false) {
+ResourceParams *IResource::GetParams() const {
+  return params_;
 }
 
-int IValueType::GetWidth() {
+IValueType::IValueType() : width_(32) {
+}
+
+int IValueType::GetWidth() const {
   return width_;
-}
-
-bool IValueType::IsEnum() {
-  return is_enum_;
-}
-
-void IValueType::SetIsEnum(bool is_enum) {
-  is_enum_ = is_enum;
 }
 
 void IValueType::SetWidth(int width) {
@@ -59,8 +72,8 @@ IValue::IValue() : value_(0) {
 }
 
 IRegister::IRegister(ITable *table, const string &name)
-  : state_local_(false), is_const_(false), table_(table),
-    name_(name), has_initial_value_(false) {
+  : table_(table), name_(name), id_(-1),
+    has_initial_value_(false), is_const_(false), state_local_(false) {
   IDesign *design =
     table->GetModule()->GetDesign();
   design->GetObjectPool()->registers_.Add(this);
@@ -72,6 +85,14 @@ ITable *IRegister::GetTable() const {
 
 const string &IRegister::GetName() const {
   return name_;
+}
+
+int IRegister::GetId() const {
+  return id_;
+}
+
+void IRegister::SetId(int id) {
+  id_ = id;
 }
 
 void IRegister::SetInitialValue(IValue &value) {
@@ -87,8 +108,24 @@ const IValue &IRegister::GetInitialValue() const {
 bool IRegister::HasInitialValue() const {
   return has_initial_value_;
 }
-  
-IInsn::IInsn(IResource *resource) : resource_(resource) {
+
+void IRegister::SetConst(bool c) {
+  is_const_ = c;
+}
+
+bool IRegister::IsConst() const {
+  return is_const_;
+}
+
+void IRegister::SetStateLocal(bool s) {
+  state_local_ = s;
+}
+
+bool IRegister::IsStateLocal() const {
+  return state_local_;
+}
+
+IInsn::IInsn(IResource *resource) : resource_(resource), id_(-1) {
   IDesign *design =
     resource_->GetTable()->GetModule()->GetDesign();
   design->GetObjectPool()->insns_.Add(this);
@@ -96,6 +133,14 @@ IInsn::IInsn(IResource *resource) : resource_(resource) {
 
 IResource *IInsn::GetResource() const {
   return resource_;
+}
+
+int IInsn::GetId() const {
+  return id_;
+}
+
+void IInsn::SetId(int id) {
+  id_ = id;
 }
 
 IState::IState(ITable *table) : table_(table), id_(-1) {
@@ -114,13 +159,15 @@ void IState::SetId(int id) {
   id_ = id;
 }
 
-ITable::ITable(IModule *module) : module_(module), initial_state_(nullptr) {
+ITable::ITable(IModule *module)
+  : module_(module), id_(-1), initial_state_(nullptr) {
   module->GetDesign()->GetObjectPool()->tables_.Add(this);
 
   // Add transition resource.
   IResourceClass *tr_class =
     GetTransitionResourceClassFromDesign(module->GetDesign());
   IResource *tr = new IResource(this, tr_class);
+  tr->SetId(1);
   resources_.push_back(tr);
 }
 
@@ -128,12 +175,20 @@ IModule *ITable::GetModule() {
   return module_;
 }
 
+int ITable::GetId() const {
+  return id_;
+}
+
+void ITable::SetId(int id) {
+  id_ = id;
+}
+
 void ITable::SetInitialState(IState *state) {
   CHECK(state->GetTable() == this);
   initial_state_ = state;
 }
 
-IState *ITable::GetInitialState() {
+IState *ITable::GetInitialState() const {
   return initial_state_;
 }
 
@@ -146,20 +201,25 @@ const string &IModule::GetName() const {
   return name_;
 }
 
-IDesign *IModule::GetDesign() {
+IDesign *IModule::GetDesign() const {
   return design_;
 }
 
-IDesign::IDesign() : objects_(new ObjectPool) {
+IDesign::IDesign() : objects_(new ObjectPool), params_(new ResourceParams) {
   InstallResourceClasses(this);
 }
 
 IDesign::~IDesign() {
   delete objects_;
+  delete params_;
 }
 
 ObjectPool *IDesign::GetObjectPool() {
   return objects_;
+}
+
+ResourceParams *IDesign::GetParams() const{
+  return params_;
 }
 
 }  // namespace iroha

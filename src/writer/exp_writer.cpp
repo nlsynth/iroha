@@ -10,61 +10,111 @@ ExpWriter::ExpWriter(const IDesign *design, ostream &os)
 
 void ExpWriter::Write() {
   for (auto *mod : design_->modules_) {
-    WriteModule(mod);
+    WriteModule(*mod);
   }
 }
 
-void ExpWriter::WriteModule(const IModule *mod) {
-  os_ << "(MODULE " << mod->GetName() << "\n";
-  for (auto *tab : mod->tables_) {
-    WriteTable(tab);
+void ExpWriter::WriteModule(const IModule &mod) {
+  os_ << "(MODULE " << mod.GetName() << "\n";
+  for (auto *tab : mod.tables_) {
+    WriteTable(*tab);
   }
   os_ << ")\n";
 }
 
-void ExpWriter::WriteTable(const ITable *tab) {
-  os_ << "  (TABLE\n";
+void ExpWriter::WriteTable(const ITable &tab) {
+  os_ << "  (TABLE " << tab.GetId() << "\n";
   WriteRegisters(tab);
-  for (auto *st : tab->states_) {
-    WriteState(st);
+  WriteResources(tab);
+  WriteInitialState(tab);
+  for (auto *st : tab.states_) {
+    WriteState(*st);
   }
   os_ << "  )\n";
 }
 
-void ExpWriter::WriteRegisters(const ITable *tab) {
+void ExpWriter::WriteResources(const ITable &tab) {
+  os_ << "    (RESOURCES\n";
+  for (auto *res : tab.resources_) {
+    WriteResource(*res);
+  }
+  os_ << "    )\n";
+}
+
+void ExpWriter::WriteResource(const IResource &res) {
+  os_ << "      (RESOURCE " << res.GetId()
+      << " " << res.GetClass()->GetName() << "\n";
+  os_ << "        ";
+  WriteResourceTypes(res.input_types_);
+  os_ << " ";
+  WriteResourceTypes(res.output_types_);
+  os_ << "\n      )\n";
+}
+
+void ExpWriter::WriteInitialState(const ITable &tab) {
+  IState *st = tab.GetInitialState();
+  if (st) {
+    os_ << "    (INITIAL " << st->GetId() << ")\n";
+  }
+}
+
+void ExpWriter::WriteRegisters(const ITable &tab) {
   os_ << "    (REGISTERS\n";
-  for (auto *reg : tab->registers_) {
-    os_ << "      (REGISTER " << reg->GetName() << "\n";
-    os_ << "        (";
-    if (reg->is_const_) {
+  for (auto *reg : tab.registers_) {
+    os_ << "      (REGISTER " << reg->GetId() << " ";
+    const string &name = reg->GetName();
+    if (name.empty()) {
+      os_ << "()";
+    } else {
+      os_ << name;
+    }
+    os_ << "\n";
+    os_ << "        ";
+    if (reg->IsConst()) {
       os_ << "CONST";
-    } else if (reg->state_local_) {
+    } else if (reg->IsStateLocal()) {
       os_ << "WIRE";
     } else {
       os_ << "REG";
     }
-    os_ << ")\n";
+    os_ << " ";
+    WriteValueType(reg->value_type_);
+    os_ << " ";
+    if (reg->HasInitialValue()) {
+      WriteValue(reg->GetInitialValue());
+    } else {
+      os_ << "()";
+    }
+    os_ << "\n";
     os_ << "      )\n";
   }
   os_ << "    )\n";
 }
 
-void ExpWriter::WriteState(const IState *st) {
-  os_ << "    (STATE " << st->GetId() << "\n";
-  for (auto *insn : st->insns_) {
-    WriteInsn(insn);
+void ExpWriter::WriteValueType(const IValueType &type) {
+  os_ << type.GetWidth();
+}
+
+void ExpWriter::WriteValue(const IValue &value) {
+  os_ << value.value_;
+}
+
+void ExpWriter::WriteState(const IState &st) {
+  os_ << "    (STATE " << st.GetId() << "\n";
+  for (auto *insn : st.insns_) {
+    WriteInsn(*insn);
   }
   os_ << "    )\n";
 }
 
-void ExpWriter::WriteInsn(const IInsn *insn) {
-  os_ << "      (INSN ";
-  const IResource *res = insn->GetResource();
-  os_ << res->GetClass()->GetName();
+void ExpWriter::WriteInsn(const IInsn &insn) {
+  os_ << "      (INSN " << insn.GetId() << " ";
+  const IResource *res = insn.GetResource();
+  os_ << res->GetClass()->GetName() << " " << res->GetId();
   // Targets.
   os_ << " (";
   bool is_first = true;
-  for (IState *st : insn->target_states_) {
+  for (IState *st : insn.target_states_) {
     if (!is_first) {
       os_ << " ";
     }
@@ -72,10 +122,10 @@ void ExpWriter::WriteInsn(const IInsn *insn) {
     os_ << st->GetId();
   }
   os_ << ")";
-  // Outputs.
-  WriteInsnParams(insn->outputs_);
   // Inputs.
-  WriteInsnParams(insn->inputs_);
+  WriteInsnParams(insn.inputs_);
+  // Outputs.
+  WriteInsnParams(insn.outputs_);
   os_ << ")\n";
 }
 
@@ -86,11 +136,23 @@ void ExpWriter::WriteInsnParams(const vector<IRegister *> &regs) {
     if (!is_first) {
       os_ << " ";
     }
-    os_ << reg->GetName();
+    os_ << reg->GetId();
     is_first = false;
   }
   os_ << ")";
-    
+}
+
+void ExpWriter::WriteResourceTypes(const vector<IValueType> &types) {
+  os_ << "(";
+  bool is_first = true;
+  for (auto &type : types) {
+    if (!is_first) {
+      os_ << " ";
+    }
+    WriteValueType(type);
+    is_first = false;
+  }
+  os_ << ")";
 }
   
 }  // namespace iroha

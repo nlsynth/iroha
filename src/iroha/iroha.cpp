@@ -8,6 +8,7 @@
 namespace iroha {
 
 void Iroha::Init() {
+  Optimizer::Init();
 }
 
 IDesign *Iroha::ReadDesignFromFile(const string &fn) {

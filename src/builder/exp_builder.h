@@ -6,7 +6,8 @@
 #define _builder_exp_builder_h_
 
 #include "iroha/common.h"
-#include "iroha/iroha.h"
+
+#include <sstream>
 
 namespace iroha {
 
@@ -17,6 +18,7 @@ public:
   ExpBuilder();
 
   IDesign *Build(vector<Exp *> &exps);
+  ostream &SetError();
 
   static IDesign *ReadDesign(const string &fn);
 
@@ -25,10 +27,14 @@ private:
   ITable *BuildTable(Exp *e, IModule *module);
   IState *BuildState(Exp *e, ITable *table);
   void BuildRegisters(Exp *e, ITable *table);
-  void SetError();
+  IRegister *BuildRegister(Exp *e, ITable *table);
+  void BuildResources(Exp *e, ITable *table);
+  IResource *BuildResource(Exp *e, ITable *table);
+  void BuildParamTypes(Exp *e, vector<IValueType> *types);
   bool HasError();
 
   bool has_error_;
+  ostringstream errors_;
 };
 
 }  // namespace iroha

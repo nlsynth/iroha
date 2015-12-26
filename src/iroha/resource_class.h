@@ -11,6 +11,15 @@ const char kTransition[] = "tr";
 const char kSet[] = "set";
 const char kExtInput[] = "ext_input";
 const char kExtOutput[] = "ext_output";
+const char kEmbedded[] = "embedded";
+const char kAdd[] = "add";
+const char kSub[] = "sub";
+const char kGt[] = "gt";
+
+bool IsBinOp(const IResourceClass &rc);
+bool IsNumToNumBinOp(const IResourceClass &rc);
+bool IsNumToBoolBinOp(const IResourceClass &rc);
+
 }  // namespace resource
 }  // namespace iroha
 

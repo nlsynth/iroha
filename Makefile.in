@@ -109,12 +109,17 @@ CONFIG_CLEAN_VPATH_FILES =
 LTLIBRARIES = $(noinst_LTLIBRARIES)
 libiroha_la_LIBADD =
 am__dirstamp = $(am__leading_dot)dirstamp
-am_libiroha_la_OBJECTS = src/iroha/iroha.lo src/iroha/i_design.lo \
-	src/iroha/logging.lo src/builder/exp_builder.lo \
+am_libiroha_la_OBJECTS = src/iroha/common.lo src/iroha/iroha.lo \
+	src/iroha/i_design.lo src/iroha/logging.lo \
+	src/iroha/resource_class.lo src/iroha/resource_params.lo \
+	src/builder/exp_builder.lo src/builder/fsm_builder.lo \
 	src/builder/reader.lo src/design/design_tool.lo \
 	src/design/resource_class.lo src/opt/optimizer.lo \
-	src/writer/exp_writer.lo src/writer/writer.lo \
-	src/writer/verilog/verilog_writer.lo
+	src/writer/exp_writer.lo src/writer/module_template.lo \
+	src/writer/verilog/insn_writer.lo src/writer/verilog/module.lo \
+	src/writer/verilog/ports.lo src/writer/verilog/state.lo \
+	src/writer/verilog/table.lo \
+	src/writer/verilog/verilog_writer.lo src/writer/writer.lo
 libiroha_la_OBJECTS = $(am_libiroha_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -393,21 +398,31 @@ iroha_SOURCES = src/main.cpp
 iroha_LDADD = libiroha.la
 noinst_LTLIBRARIES = libiroha.la
 libiroha_la_SOURCES = \
- src/iroha/common.h \
+ src/iroha/common.cpp src/iroha/common.h \
  src/iroha/design_tool_api.h \
  src/iroha/iroha.cpp src/iroha/iroha.h \
  src/iroha/i_design.cpp src/iroha/i_design.h \
  src/iroha/logging.cpp src/iroha/logging.h \
- src/iroha/resource_class.h \
+ src/iroha/resource_class.cpp src/iroha/resource_class.h \
+ src/iroha/resource_params.cpp src/iroha/resource_params.h \
+ src/iroha/stl_util.h \
  src/iroha/writer_api.h \
  src/builder/exp_builder.cpp src/builder/exp_builder.h \
+ src/builder/fsm_builder.cpp src/builder/fsm_builder.h \
  src/builder/reader.cpp src/builder/reader.h \
  src/design/design_tool.cpp src/design/design_tool.h \
  src/design/resource_class.cpp src/design/resource_class.h \
  src/opt/optimizer.cpp src/opt/optimizer.h \
+ src/opt/phase.h \
  src/writer/exp_writer.cpp src/writer/exp_writer.h \
- src/writer/writer.cpp src/writer/writer.h \
- src/writer/verilog/verilog_writer.cpp src/writer/verilog/verilog_writer.h
+ src/writer/module_template.cpp src/writer/module_template.h \
+ src/writer/verilog/insn_writer.cpp src/writer/verilog/insn_writer.h \
+ src/writer/verilog/module.cpp src/writer/verilog/module.h \
+ src/writer/verilog/ports.cpp src/writer/verilog/ports.h \
+ src/writer/verilog/state.cpp src/writer/verilog/state.h \
+ src/writer/verilog/table.cpp src/writer/verilog/table.h \
+ src/writer/verilog/verilog_writer.cpp src/writer/verilog/verilog_writer.h \
+ src/writer/writer.cpp src/writer/writer.h
 
 all: all-recursive
 
@@ -463,11 +478,17 @@ src/iroha/$(am__dirstamp):
 src/iroha/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) src/iroha/$(DEPDIR)
 	@: > src/iroha/$(DEPDIR)/$(am__dirstamp)
+src/iroha/common.lo: src/iroha/$(am__dirstamp) \
+	src/iroha/$(DEPDIR)/$(am__dirstamp)
 src/iroha/iroha.lo: src/iroha/$(am__dirstamp) \
 	src/iroha/$(DEPDIR)/$(am__dirstamp)
 src/iroha/i_design.lo: src/iroha/$(am__dirstamp) \
 	src/iroha/$(DEPDIR)/$(am__dirstamp)
 src/iroha/logging.lo: src/iroha/$(am__dirstamp) \
+	src/iroha/$(DEPDIR)/$(am__dirstamp)
+src/iroha/resource_class.lo: src/iroha/$(am__dirstamp) \
+	src/iroha/$(DEPDIR)/$(am__dirstamp)
+src/iroha/resource_params.lo: src/iroha/$(am__dirstamp) \
 	src/iroha/$(DEPDIR)/$(am__dirstamp)
 src/builder/$(am__dirstamp):
 	@$(MKDIR_P) src/builder
@@ -476,6 +497,8 @@ src/builder/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) src/builder/$(DEPDIR)
 	@: > src/builder/$(DEPDIR)/$(am__dirstamp)
 src/builder/exp_builder.lo: src/builder/$(am__dirstamp) \
+	src/builder/$(DEPDIR)/$(am__dirstamp)
+src/builder/fsm_builder.lo: src/builder/$(am__dirstamp) \
 	src/builder/$(DEPDIR)/$(am__dirstamp)
 src/builder/reader.lo: src/builder/$(am__dirstamp) \
 	src/builder/$(DEPDIR)/$(am__dirstamp)
@@ -505,7 +528,7 @@ src/writer/$(DEPDIR)/$(am__dirstamp):
 	@: > src/writer/$(DEPDIR)/$(am__dirstamp)
 src/writer/exp_writer.lo: src/writer/$(am__dirstamp) \
 	src/writer/$(DEPDIR)/$(am__dirstamp)
-src/writer/writer.lo: src/writer/$(am__dirstamp) \
+src/writer/module_template.lo: src/writer/$(am__dirstamp) \
 	src/writer/$(DEPDIR)/$(am__dirstamp)
 src/writer/verilog/$(am__dirstamp):
 	@$(MKDIR_P) src/writer/verilog
@@ -513,9 +536,21 @@ src/writer/verilog/$(am__dirstamp):
 src/writer/verilog/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) src/writer/verilog/$(DEPDIR)
 	@: > src/writer/verilog/$(DEPDIR)/$(am__dirstamp)
+src/writer/verilog/insn_writer.lo: src/writer/verilog/$(am__dirstamp) \
+	src/writer/verilog/$(DEPDIR)/$(am__dirstamp)
+src/writer/verilog/module.lo: src/writer/verilog/$(am__dirstamp) \
+	src/writer/verilog/$(DEPDIR)/$(am__dirstamp)
+src/writer/verilog/ports.lo: src/writer/verilog/$(am__dirstamp) \
+	src/writer/verilog/$(DEPDIR)/$(am__dirstamp)
+src/writer/verilog/state.lo: src/writer/verilog/$(am__dirstamp) \
+	src/writer/verilog/$(DEPDIR)/$(am__dirstamp)
+src/writer/verilog/table.lo: src/writer/verilog/$(am__dirstamp) \
+	src/writer/verilog/$(DEPDIR)/$(am__dirstamp)
 src/writer/verilog/verilog_writer.lo:  \
 	src/writer/verilog/$(am__dirstamp) \
 	src/writer/verilog/$(DEPDIR)/$(am__dirstamp)
+src/writer/writer.lo: src/writer/$(am__dirstamp) \
+	src/writer/$(DEPDIR)/$(am__dirstamp)
 
 libiroha.la: $(libiroha_la_OBJECTS) $(libiroha_la_DEPENDENCIES) $(EXTRA_libiroha_la_DEPENDENCIES) 
 	$(AM_V_CXXLD)$(CXXLINK)  $(libiroha_la_OBJECTS) $(libiroha_la_LIBADD) $(LIBS)
@@ -601,15 +636,25 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/main.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/builder/$(DEPDIR)/exp_builder.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/builder/$(DEPDIR)/fsm_builder.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/builder/$(DEPDIR)/reader.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/design/$(DEPDIR)/design_tool.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/design/$(DEPDIR)/resource_class.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/iroha/$(DEPDIR)/common.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/iroha/$(DEPDIR)/i_design.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/iroha/$(DEPDIR)/iroha.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/iroha/$(DEPDIR)/logging.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/iroha/$(DEPDIR)/resource_class.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/iroha/$(DEPDIR)/resource_params.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/opt/$(DEPDIR)/optimizer.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/writer/$(DEPDIR)/exp_writer.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/writer/$(DEPDIR)/module_template.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/writer/$(DEPDIR)/writer.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/writer/verilog/$(DEPDIR)/insn_writer.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/writer/verilog/$(DEPDIR)/module.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/writer/verilog/$(DEPDIR)/ports.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/writer/verilog/$(DEPDIR)/state.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/writer/verilog/$(DEPDIR)/table.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/writer/verilog/$(DEPDIR)/verilog_writer.Plo@am__quote@
 
 .cpp.o:

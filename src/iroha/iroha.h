@@ -10,6 +10,7 @@
 #include "iroha/i_design.h"
 #include "iroha/opt_api.h"
 #include "iroha/resource_class.h"
+#include "iroha/resource_params.h"
 #include "iroha/writer_api.h"
 
 namespace iroha {

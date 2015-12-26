@@ -9,6 +9,7 @@ namespace iroha {
 enum LogSeverity {
   LOG_NONE,
   INFO,
+  ERROR,
   FATAL,
 };
 

@@ -30,6 +30,7 @@ public:
   Pool<IResourceClass> resource_classes_;
   Pool<IRegister> registers_;
   Pool<IInsn> insns_;
+  Pool<ResourceParams> resource_params_;
 };
 
 }  // namespace iroha

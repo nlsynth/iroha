@@ -1,6 +1,6 @@
 // -*- C++ -*-
-#ifndef _writer_writer_verilog_writer_h_
-#define _writer_writer_verilog_writer_h_
+#ifndef _writer_verilog_verilog_writer_h_
+#define _writer_verilog_verilog_writer_h_
 
 #include "iroha/common.h"
 
@@ -23,5 +23,5 @@ private:
 }  // namespace verilog
 }  // namespace iroha
 
-#endif  // _writer_writer_verilog_writer_h_
+#endif  // _writer_verilog_verilog_writer_h_
 

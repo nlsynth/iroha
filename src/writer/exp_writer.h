@@ -13,12 +13,18 @@ public:
   void Write();
 
 private:
-  void WriteModule(const IModule *mod);
-  void WriteTable(const ITable *tab);
-  void WriteState(const IState *st);
-  void WriteInsn(const IInsn *insn);
-  void WriteRegisters(const ITable *tab);
+  void WriteModule(const IModule &mod);
+  void WriteTable(const ITable &tab);
+  void WriteInitialState(const ITable &tab);
+  void WriteState(const IState &st);
+  void WriteInsn(const IInsn &insn);
+  void WriteRegisters(const ITable &tab);
+  void WriteResources(const ITable &tab);
+  void WriteResource(const IResource &res);
+  void WriteValue(const IValue &value);
+  void WriteValueType(const IValueType &type);
   void WriteInsnParams(const vector<IRegister *> &regs);
+  void WriteResourceTypes(const vector<IValueType> &types);
 
   const IDesign *design_;
   ostream &os_;
