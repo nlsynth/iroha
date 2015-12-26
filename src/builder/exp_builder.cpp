@@ -10,6 +10,9 @@ namespace iroha {
 
 IDesign *ExpBuilder::ReadDesign(const string &fn) {
   iroha::File *f = iroha::Reader::ReadFile(fn);
+  if (!f) {
+    return nullptr;
+  }
   if (f->exps.size()) {
     ExpBuilder builder;
     return builder.Build(f->exps);

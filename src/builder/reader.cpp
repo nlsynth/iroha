@@ -15,6 +15,10 @@ Exp::~Exp() {
 
 File *Reader::ReadFile(const string &fn) {
   std::ifstream *ifs = new std::ifstream(fn);
+  if (ifs->fail()) {
+    delete ifs;
+    return nullptr;
+  }
   std::unique_ptr<Reader> reader(new Reader(ifs));
   return reader->Read();
 }

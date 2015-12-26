@@ -14,6 +14,9 @@ TBD! WIP!
 (1) Try to read Iroha IR in S-expression and just dump it.
 
     > $ ./iroha tests/min.iroha
+    (or
+    > $ ./iroha -v tests/min.iroha
+    to get verilog output)
 
 (2) Examples to build Iroha IR from C++.
 
