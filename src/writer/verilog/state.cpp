@@ -66,11 +66,11 @@ void State::WriteTransition(ostream &os) {
   IRegister *cond = transition_insn_->inputs_[0];
   os << I << "  if (" << cond->GetName() << ") begin\n"
      << I << "    " << sv << " <= "
-     << table_->StateName(transition_insn_->target_states_[1]->GetId())
+     << "`" << table_->StateName(transition_insn_->target_states_[1]->GetId())
      << ";\n"
      << I << "  end else begin\n"
      << I << "    " << sv << " <= "
-     << table_->StateName(transition_insn_->target_states_[0]->GetId())
+     << "`" << table_->StateName(transition_insn_->target_states_[0]->GetId())
      << ";\n"
      << I << "  end\n";
 }
