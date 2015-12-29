@@ -5,6 +5,7 @@
 #include "iroha/i_design.h"
 #include "iroha/logging.h"
 #include "iroha/resource_class.h"
+#include "iroha/resource_params.h"
 
 namespace iroha {
 
@@ -181,7 +182,7 @@ IResource *ExpBuilder::BuildResource(Exp *e, ITable *table) {
     SetError() << "Only RESOURCE can be allowed";
     return nullptr;
   }
-  if (e->vec.size() != 5) {
+  if (e->vec.size() != 6) {
     SetError() << "Malformed RESOURCE";
     return nullptr;
   }
@@ -206,7 +207,18 @@ IResource *ExpBuilder::BuildResource(Exp *e, ITable *table) {
   res->SetId(id);
   BuildParamTypes(e->vec[3], &res->input_types_);
   BuildParamTypes(e->vec[4], &res->output_types_);
+  BuildResourceParams(e->vec[5], res->GetParams());
   return res;
+}
+
+void ExpBuilder::BuildResourceParams(Exp *e, ResourceParams *params) {
+  for (Exp *t : e->vec) {
+    vector<string> s;
+    for (int i = 1; i < t->vec.size(); ++i) {
+      s.push_back(t->vec[i]->atom.str);
+    }
+    params->SetValues(t->vec[0]->atom.str, s);
+  }
 }
 
 void ExpBuilder::BuildParamTypes(Exp *e, vector<IValueType> *types) {

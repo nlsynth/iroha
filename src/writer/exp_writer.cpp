@@ -1,6 +1,7 @@
 #include "writer/exp_writer.h"
 
 #include "iroha/i_design.h"
+#include "iroha/resource_params.h"
 
 namespace iroha {
 
@@ -48,6 +49,9 @@ void ExpWriter::WriteResource(const IResource &res) {
   WriteResourceTypes(res.input_types_);
   os_ << " ";
   WriteResourceTypes(res.output_types_);
+  os_ << "\n";
+  ResourceParams *params = res.GetParams();
+  WriteResourceParams(*params);
   os_ << "\n      )\n";
 }
 
@@ -154,5 +158,24 @@ void ExpWriter::WriteResourceTypes(const vector<IValueType> &types) {
   }
   os_ << ")";
 }
-  
+
+void ExpWriter::WriteResourceParams(const ResourceParams &params) {
+  os_ << "        (";
+  vector<string> keys = params.GetParamKeys();
+  bool is_first = true;
+  for (string &key : keys) {
+    if (!is_first) {
+      os_ << "\n         ";
+    }
+    os_ << "(" << key;
+    vector<string> values = params.GetValues(key);
+    for (string &value : values) {
+      os_ << " " << value;
+    }
+    os_ << ")";
+    is_first = false;
+  }
+  os_ << ")";
+}
+
 }  // namespace iroha

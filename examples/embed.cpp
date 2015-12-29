@@ -13,9 +13,13 @@ IDesign *build_design() {
   module->tables_.push_back(table);
   IState *st1 = new IState(table);
   table->states_.push_back(st1);
-  IResource *vmod = tool->CreateEmbedResource(table, "mod_hello", "hello.v");
-  (void)vmod;
+  table->SetInitialState(st1);
+  IResource *vmod =
+    tool->CreateEmbedResource(table, "mod_hello", "mod_hello.v");
+  IInsn *insn = new IInsn(vmod);
+  st1->insns_.push_back(insn);
 
+  tool->ValidateIds(NULL);
   delete tool;
 
   return design;

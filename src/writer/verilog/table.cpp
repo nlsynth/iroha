@@ -6,6 +6,7 @@
 #include "iroha/resource_params.h"
 #include "iroha/stl_util.h"
 #include "writer/module_template.h"
+#include "writer/verilog/embed.h"
 #include "writer/verilog/insn_writer.h"
 #include "writer/verilog/module.h"
 #include "writer/verilog/ports.h"
@@ -14,9 +15,10 @@
 namespace iroha {
 namespace verilog {
 
-Table::Table(ITable *table, Ports *ports, Module *mod,
+Table::Table(ITable *table, Ports *ports, Module *mod, Embed *embed,
 	     ModuleTemplate *tmpl, int nth)
-  : i_table_(table), ports_(ports), mod_(mod), tmpl_(tmpl), nth_(nth) {
+  : i_table_(table), ports_(ports), mod_(mod), embed_(embed),
+    tmpl_(tmpl), nth_(nth) {
   st_ = "st_" + Util::Itoa(nth);
 }
 
@@ -75,6 +77,9 @@ void Table::BuildResource() {
       params->GetExtOutputPort(&output_port, &width);
       ports_->AddPort(output_port, Port::OUTPUT, width);
     }
+    if (klass->GetName() == resource::kEmbedded) {
+      BuildEmbededResource(*res);
+    }
     if (resource::IsBinOp(*klass)) {
       BuildBinOpResource(*res);
     }
@@ -107,6 +112,13 @@ void Table::BuildBinOpResource(const IResource &res) {
   rs << " " << name + "_s1;\n";
 }
 
+void Table::BuildEmbededResource(const IResource &res) {
+  auto *params = res.GetParams();
+  embed_->RequestModule(*params);
+  ostream &is = tmpl_->GetStream(kEmbeddedInstanceSection);
+  embed_->BuildModuleInstantiation(res, *ports_, is);
+}
+
 void Table::BuildRegister() {
   ostream &rs = tmpl_->GetStream(kRegisterSection);
   ostream &is = tmpl_->GetStream(kInitialValueSection + Util::Itoa(nth_));
@@ -132,8 +144,12 @@ void Table::Write(ostream &os) {
     os << "!";
   }
   os << ports_->GetReset() << ") begin\n";
+  IState *st = i_table_->GetInitialState();
+  if (st == nullptr) {
+    LOG(FATAL) << "null initial state.\n";
+  }
   os << "      " << StateVariable() << " <= `"
-     << StateName(i_table_->GetInitialState()->GetId()) << ";\n";
+     << StateName(st->GetId()) << ";\n";
   os << tmpl_->GetContents(kInitialValueSection + Util::Itoa(nth_));
   os << "    end else begin\n";
   os << "      case (" << StateVariable() << ")\n";

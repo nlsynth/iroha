@@ -17,12 +17,15 @@
     (RESOURCES
       (RESOURCE 1 tr
         () ()
+        ()
       )
       (RESOURCE 2 gt
         (32 32) (0)
+        ()
       )
       (RESOURCE 3 add
         (32 32) (32)
+        ()
       )
     )
     (INITIAL 1)

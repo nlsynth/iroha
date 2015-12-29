@@ -158,6 +158,9 @@ IResource *DesignTool::CreateEmbedResource(ITable *table,
 					   const string &fn) {
   IDesign *design = table->GetModule()->GetDesign();
   IResourceClass *rc = FindResourceClass(design, resource::kEmbedded);
+  if (rc == nullptr) {
+    return nullptr;
+  }
   IResource *res = new IResource(table, rc);
   table->resources_.push_back(res);
   ResourceParams *params = res->GetParams();

@@ -1,5 +1,6 @@
 #include "iroha/resource_params.h"
 
+#include "iroha/logging.h"
 #include "iroha/stl_util.h"
 
 static const string boolToStr(bool b) {
@@ -23,40 +24,84 @@ public:
   ~ResourceParamValueSet() {
     STLDeleteValues(&params_);
   }
-  ResourceParamValue *LookupParam(const string &key,
-				  const string &dflt);
+  ResourceParamValue *GetParam(const string &key,
+			       bool cr,
+			       const string &dflt);
+  ResourceParamValue *LookupParam(const string &key) const;
+  vector<string> GetParamKeys() const;
+  vector<string> GetValues(const string &key) const;
+  void SetValues(const string &key, const vector<string> &values);
   bool GetBoolParam(const string &key,
-		    bool dflt);
+		    bool dflt) const;
   void SetBoolParam(const string &key, bool value);
   string GetStringParam(const string &key,
-			const string &dflt);
+			const string &dflt) const;
   void SetStringParam(const string &key, const string &value);
-  int GetIntParam(const string &key, int dflt);
+  int GetIntParam(const string &key, int dflt) const;
   void SetIntParam(const string &key, int value);
+
   vector<ResourceParamValue *> params_;
 };
 
-ResourceParamValue *ResourceParamValueSet::LookupParam(const string &key,
-						       const string &dflt) {
+ResourceParamValue *ResourceParamValueSet::GetParam(const string &key,
+						    bool cr,
+						    const string &dflt) {
+  ResourceParamValue *p = LookupParam(key);
+  if (p != nullptr) {
+    return p;
+  }
+  if (!cr) {
+    return nullptr;
+  }
+  p = new ResourceParamValue;
+  p->key_ = key;
+  if (!dflt.empty()) {
+    p->values_.push_back(dflt);
+  }
+  params_.push_back(p);
+  return p;
+}
+
+ResourceParamValue *ResourceParamValueSet::LookupParam(const string &key)
+  const {
   for (auto *p : params_) {
     if (p->key_ == key) {
       return p;
     }
   }
-  ResourceParamValue *p = nullptr;
-  if (!dflt.empty()) {
-    p = new ResourceParamValue;
-    p->key_ = key;
-    p->values_.push_back(dflt);
-    params_.push_back(p);
+  return nullptr;
+}
+
+vector<string> ResourceParamValueSet::GetParamKeys() const {
+  vector<string> v;
+  for (auto *p : params_) {
+    v.push_back(p->key_);
   }
-  return p;
+  return v;
+}
+
+vector<string> ResourceParamValueSet::GetValues(const string &key) const {
+  for (auto *p : params_) {
+    if (p->key_ == key) {
+      return p->values_;
+    }
+  }
+  vector<string> v;
+  return v;
+}
+
+void ResourceParamValueSet::SetValues(const string &key,
+				      const vector<string> &values) {
+  auto *param = GetParam(key, true, "");
+  param->values_ = values;
 }
 
 bool ResourceParamValueSet::GetBoolParam(const string &key,
-					 bool dflt) {
-  string d = boolToStr(dflt);
-  ResourceParamValue *p = LookupParam(key, d);
+					 bool dflt) const {
+  ResourceParamValue *p = LookupParam(key);
+  if (p == nullptr) {
+    return dflt;
+  }
   if (p->values_.size() > 0 && p->values_[0] == "true") {
     return true;
   }
@@ -64,30 +109,40 @@ bool ResourceParamValueSet::GetBoolParam(const string &key,
 }
 
 void ResourceParamValueSet::SetBoolParam(const string &key, bool value) {
-  auto *param = LookupParam(key, boolToStr(value));
+  auto *param = GetParam(key, true, boolToStr(value));
   param->values_.clear();
   param->values_.push_back(boolToStr(value));
 }
 
 string ResourceParamValueSet::GetStringParam(const string &key,
-					     const string &dflt) {
-  ResourceParamValue *p = LookupParam(key, dflt);
+					     const string &dflt) const {
+  ResourceParamValue *p = LookupParam(key);
+  if (p == nullptr) {
+    return dflt;
+  }
   if (p->values_.size() > 0) {
     return p->values_[0];
   }
   return string();
 }
+
 void ResourceParamValueSet::SetStringParam(const string &key,
 					   const string &value) {
-  auto *param = LookupParam(key, value);
+  auto *param = GetParam(key, true, "");
+  if (param == nullptr) {
+    CHECK(value.empty()) << "param should be non null if value is not empty";
+    return;
+  }
   param->values_.clear();
   param->values_.push_back(value);
 }
 
 int ResourceParamValueSet::GetIntParam(const string &key,
-				       int dflt) {
-  string a = Util::Itoa(dflt);
-  ResourceParamValue *p = LookupParam(key, a);
+				       int dflt) const {
+  ResourceParamValue *p = LookupParam(key);
+  if (p == nullptr) {
+    return dflt;
+  }
   if (p->values_.size() > 0) {
     return Util::Atoi(p->values_[0]);
   }
@@ -95,7 +150,7 @@ int ResourceParamValueSet::GetIntParam(const string &key,
 }
 
 void ResourceParamValueSet::SetIntParam(const string &key, int value) {
-  auto *param = LookupParam(key, Util::Itoa(value));
+  auto *param = GetParam(key, true, Util::Itoa(value));
   param->values_.clear();
   param->values_.push_back(Util::Itoa(value));
 }
@@ -108,6 +163,19 @@ ResourceParams::ResourceParams()
 
 ResourceParams::~ResourceParams() {
   delete values_;
+}
+
+vector<string> ResourceParams::GetParamKeys() const {
+  return values_->GetParamKeys();
+}
+
+vector<string> ResourceParams::GetValues(const string &key) const {
+  return values_->GetValues(key);
+}
+
+void ResourceParams::SetValues(const string &key,
+			       const vector<string> &values) {
+  values_->SetValues(key, values);
 }
 
 bool ResourceParams::GetResetPolarity() const {
@@ -142,6 +210,22 @@ void ResourceParams::SetEmbeddedModuleName(const string &mod,
 					   const string &fn) {
   values_->SetStringParam(resource::kEmbeddedModule, mod);
   values_->SetStringParam(resource::kEmbeddedModuleFile, fn);
+}
+
+string ResourceParams::GetEmbeddedModuleName() const {
+  return values_->GetStringParam(resource::kEmbeddedModule, "");
+}
+
+string ResourceParams::GetEmbeddedModuleFileName() const {
+  return values_->GetStringParam(resource::kEmbeddedModuleFile, "");
+}
+
+string ResourceParams::GetEmbeddedModuleClk() const {
+  return values_->GetStringParam(resource::kEmbeddedModuleClk, "clk");
+}
+
+string ResourceParams::GetEmbeddedModuleReset() const {
+  return values_->GetStringParam(resource::kEmbeddedModuleReset, "rst");
 }
 
 }  // namespace iroha

@@ -1,0 +1,31 @@
+// -*- C++ -*-
+#ifndef _writer_verilog_embed_h_
+#define _writer_verilog_embed_h_
+
+#include "iroha/common.h"
+
+#include <set>
+
+namespace iroha {
+namespace verilog {
+
+class Ports;
+
+class Embed {
+public:
+  ~Embed();
+  void RequestModule(const ResourceParams &params);
+  void BuildModuleInstantiation(const IResource &res,
+				const Ports &ports,
+				ostream &os);
+  // Writes embedded file contents.
+  bool Write(ostream &os);
+
+private:
+  set<string> files_;
+};
+
+}  // namespace verilog
+}  // namespace iroha
+
+#endif  // _writer_verilog_embed_h_

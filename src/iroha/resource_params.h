@@ -1,4 +1,8 @@
 // -*- C++ -*-
+//
+// Parameters of various kinds of resources like design, external I/O,
+// embedded module and so on.
+//
 #ifndef _iroha_resource_params_h_
 #define _iroha_resource_params_h_
 
@@ -15,12 +19,18 @@ const char kExtOutputPort[] = "output";
 const char kExtIOWidth[] = "width";
 const char kEmbeddedModule[] = "embedded_module";
 const char kEmbeddedModuleFile[] = "embedded_module_file";
+const char kEmbeddedModuleClk[] = "embedded_module_clk";
+const char kEmbeddedModuleReset[] = "embedded_module_reset";
 }  // namespace resource
 
 class ResourceParams {
 public:
   ResourceParams();
   ~ResourceParams();
+
+  vector<string> GetParamKeys() const;
+  vector<string> GetValues(const string &key) const;
+  void SetValues(const string &key, const vector<string> &values);
 
   bool GetResetPolarity() const;
   void SetResetPolarity(bool p);
@@ -31,6 +41,10 @@ public:
   void GetExtOutputPort(string *name, int *width);
 
   void SetEmbeddedModuleName(const string &mod, const string &fn);
+  string GetEmbeddedModuleName() const;
+  string GetEmbeddedModuleFileName() const;
+  string GetEmbeddedModuleClk() const;
+  string GetEmbeddedModuleReset() const;
 
 private:
   resource::ResourceParamValueSet *values_;

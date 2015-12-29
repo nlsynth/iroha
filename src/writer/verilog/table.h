@@ -12,14 +12,15 @@ class ModuleTemplate;
 
 namespace verilog {
 
+class Embed;
 class Module;
 class Ports;
 class State;
 
 class Table {
 public:
-  Table(ITable *table, Ports *ports, Module *mod, ModuleTemplate *tmpl,
-	int nth);
+  Table(ITable *table, Ports *ports, Module *mod, Embed *embed,
+	ModuleTemplate *tmpl, int nth);
   ~Table();
   void Build();
 
@@ -33,6 +34,7 @@ private:
   void BuildResource();
   void BuildRegister();
   void BuildBinOpResource(const IResource &res);
+  void BuildEmbededResource(const IResource &res);
 
   void CollectResourceCallers(const IResource &res,
 			      map<IState *, IInsn *> *callers);
@@ -46,6 +48,7 @@ private:
   ITable *i_table_;
   Ports *ports_;
   Module *mod_;
+  Embed *embed_;
   ModuleTemplate *tmpl_;
   int nth_;
   string st_;

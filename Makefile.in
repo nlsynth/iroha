@@ -116,9 +116,9 @@ am_libiroha_la_OBJECTS = src/iroha/common.lo src/iroha/iroha.lo \
 	src/builder/reader.lo src/design/design_tool.lo \
 	src/design/resource_class.lo src/opt/optimizer.lo \
 	src/writer/exp_writer.lo src/writer/module_template.lo \
-	src/writer/verilog/insn_writer.lo src/writer/verilog/module.lo \
-	src/writer/verilog/ports.lo src/writer/verilog/state.lo \
-	src/writer/verilog/table.lo \
+	src/writer/verilog/embed.lo src/writer/verilog/insn_writer.lo \
+	src/writer/verilog/module.lo src/writer/verilog/ports.lo \
+	src/writer/verilog/state.lo src/writer/verilog/table.lo \
 	src/writer/verilog/verilog_writer.lo src/writer/writer.lo
 libiroha_la_OBJECTS = $(am_libiroha_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
@@ -416,6 +416,7 @@ libiroha_la_SOURCES = \
  src/opt/phase.h \
  src/writer/exp_writer.cpp src/writer/exp_writer.h \
  src/writer/module_template.cpp src/writer/module_template.h \
+ src/writer/verilog/embed.cpp src/writer/verilog/embed.h \
  src/writer/verilog/insn_writer.cpp src/writer/verilog/insn_writer.h \
  src/writer/verilog/module.cpp src/writer/verilog/module.h \
  src/writer/verilog/ports.cpp src/writer/verilog/ports.h \
@@ -536,6 +537,8 @@ src/writer/verilog/$(am__dirstamp):
 src/writer/verilog/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) src/writer/verilog/$(DEPDIR)
 	@: > src/writer/verilog/$(DEPDIR)/$(am__dirstamp)
+src/writer/verilog/embed.lo: src/writer/verilog/$(am__dirstamp) \
+	src/writer/verilog/$(DEPDIR)/$(am__dirstamp)
 src/writer/verilog/insn_writer.lo: src/writer/verilog/$(am__dirstamp) \
 	src/writer/verilog/$(DEPDIR)/$(am__dirstamp)
 src/writer/verilog/module.lo: src/writer/verilog/$(am__dirstamp) \
@@ -650,6 +653,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/writer/$(DEPDIR)/exp_writer.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/writer/$(DEPDIR)/module_template.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/writer/$(DEPDIR)/writer.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/writer/verilog/$(DEPDIR)/embed.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/writer/verilog/$(DEPDIR)/insn_writer.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/writer/verilog/$(DEPDIR)/module.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/writer/verilog/$(DEPDIR)/ports.Plo@am__quote@

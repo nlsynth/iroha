@@ -30,6 +30,7 @@ private:
   IRegister *BuildRegister(Exp *e, ITable *table);
   void BuildResources(Exp *e, ITable *table);
   IResource *BuildResource(Exp *e, ITable *table);
+  void BuildResourceParams(Exp *e, ResourceParams *params);
   void BuildParamTypes(Exp *e, vector<IValueType> *types);
   bool HasError();
 

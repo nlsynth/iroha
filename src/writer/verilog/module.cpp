@@ -10,7 +10,8 @@
 namespace iroha {
 namespace verilog {
 
-Module::Module(const IModule *i_mod) : i_mod_(i_mod) {
+Module::Module(const IModule *i_mod, Embed *embed)
+  : i_mod_(i_mod), embed_(embed) {
   tmpl_.reset(new ModuleTemplate);
   ports_.reset(new Ports);
   reset_polarity_ = i_mod_->GetDesign()->GetParams()->GetResetPolarity();
@@ -21,7 +22,6 @@ Module::~Module() {
 }
 
 void Module::Write(ostream &os) {
-  Build();
   os << "module " << i_mod_->GetName() << "(";
   ports_->Output(Ports::PORT_NAME, os);
   os << ");\n";
@@ -37,7 +37,8 @@ void Module::Write(ostream &os) {
   for (auto *tab : tables_) {
     tab->Write(os);
   }
-  os << "endmodule\n";
+  os << tmpl_->GetContents(kEmbeddedInstanceSection);
+  os << "\nendmodule\n";
 }
 
 bool Module::GetResetPolarity() const {
@@ -54,7 +55,8 @@ void Module::Build() {
 
   int nth = 0;
   for (auto *i_table : i_mod_->tables_) {
-    Table *tab = new Table(i_table, ports_.get(), this, tmpl_.get(), nth);
+    Table *tab = new Table(i_table, ports_.get(), this, embed_,
+			   tmpl_.get(), nth);
     tab->Build();
     tables_.push_back(tab);
     ++nth;
