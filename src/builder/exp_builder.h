@@ -29,6 +29,7 @@ private:
   void BuildRegisters(Exp *e, ITable *table);
   IRegister *BuildRegister(Exp *e, ITable *table);
   void BuildResources(Exp *e, ITable *table);
+  void BuildArray(Exp *e, IResource *res);
   IResource *BuildResource(Exp *e, ITable *table);
   void BuildResourceParams(Exp *e, ResourceParams *params);
   void BuildParamTypes(Exp *e, vector<IValueType> *types);

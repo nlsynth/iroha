@@ -12,17 +12,15 @@ bool IsBinOp(const IResourceClass &rc) {
 
 bool IsNumToNumBinOp(const IResourceClass &rc) {
   const string &name = rc.GetName();
-  if (name == kAdd || name == kSub) {
-    return true;
-  }
-  return false;
+  return (name == kAdd || name == kSub);
 }
 
 bool IsNumToBoolBinOp(const IResourceClass &rc) {
-  if (rc.GetName() == kGt) {
-    return true;
-  }
-  return false;
+  return (rc.GetName() == kGt);
+}
+
+bool IsArray(const IResourceClass &rc) {
+  return (rc.GetName() == kArray);
 }
 
 }  // namespace resource

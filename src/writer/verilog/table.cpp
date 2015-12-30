@@ -83,6 +83,9 @@ void Table::BuildResource() {
     if (resource::IsBinOp(*klass)) {
       BuildBinOpResource(*res);
     }
+    if (resource::IsArray(*klass)) {
+      BuildArrayResource(*res);
+    }
   }
 }
 
@@ -110,6 +113,9 @@ void Table::BuildBinOpResource(const IResource &res) {
     LOG(FATAL) << "Unknown binop" << res_name;
   }
   rs << " " << name + "_s1;\n";
+}
+
+void Table::BuildArrayResource(const IResource &res) {
 }
 
 void Table::BuildEmbededResource(const IResource &res) {

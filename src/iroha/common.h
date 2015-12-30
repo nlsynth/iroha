@@ -11,6 +11,7 @@
 using namespace std;
 
 namespace iroha {
+class IArray;
 class IDesign;
 class IInsn;
 class IModule;

@@ -1,6 +1,7 @@
 #include "writer/exp_writer.h"
 
 #include "iroha/i_design.h"
+#include "iroha/resource_class.h"
 #include "iroha/resource_params.h"
 
 namespace iroha {
@@ -52,7 +53,29 @@ void ExpWriter::WriteResource(const IResource &res) {
   os_ << "\n";
   ResourceParams *params = res.GetParams();
   WriteResourceParams(*params);
-  os_ << "\n      )\n";
+  if (resource::IsArray(*(res.GetClass()))) {
+    WriteArrayDesc(res);
+  }
+  os_ << "      )\n";
+}
+
+void ExpWriter::WriteArrayDesc(const IResource &res) {
+  const IArray *array = res.GetArray();
+  os_ << "        (ARRAY ";
+  os_ << array->GetAddressWidth();
+  os_ << " ";
+  WriteValueType(array->GetDataType());
+  if (array->IsExternal()) {
+    os_ << " EXTERNAL";
+  } else {
+    os_ << " INTERNAL";
+  }
+  if (array->IsRam()) {
+    os_ << " RAM";
+  } else {
+    os_ << " ROM";
+  }
+  os_ << ")\n";
 }
 
 void ExpWriter::WriteInitialState(const ITable &tab) {
@@ -175,7 +198,7 @@ void ExpWriter::WriteResourceParams(const ResourceParams &params) {
     os_ << ")";
     is_first = false;
   }
-  os_ << ")";
+  os_ << ")\n";
 }
 
 }  // namespace iroha

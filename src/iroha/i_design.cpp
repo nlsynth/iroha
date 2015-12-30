@@ -25,9 +25,31 @@ bool IResourceClass::IsExclusive() {
   return is_exclusive_;
 }
 
+IArray::IArray(int address_width, const IValueType &data_type,
+	       bool is_external, bool is_ram)
+  : address_width_(address_width), data_type_(data_type),
+    is_external_(is_external), is_ram_(is_ram) {
+}
+
+int IArray::GetAddressWidth() const {
+  return address_width_;
+}
+
+const IValueType &IArray::GetDataType() const {
+  return data_type_;
+}
+
+bool IArray::IsExternal() const {
+  return is_external_;
+}
+
+bool IArray::IsRam() const {
+  return is_ram_;
+}
+
 IResource::IResource(ITable *table, IResourceClass *resource_class)
   : table_(table), resource_class_(resource_class),
-    params_(new ResourceParams), id_(-1) {
+    params_(new ResourceParams), id_(-1), array_(nullptr) {
   ObjectPool *pool =
     table->GetModule()->GetDesign()->GetObjectPool();
   pool->resources_.Add(this);
@@ -35,6 +57,9 @@ IResource::IResource(ITable *table, IResourceClass *resource_class)
 }
 
 IResource::~IResource() {
+  if (array_ != nullptr) {
+    delete array_;
+  }
 }
 
 int IResource::GetId() const {
@@ -55,6 +80,14 @@ ITable *IResource::GetTable() {
 
 ResourceParams *IResource::GetParams() const {
   return params_;
+}
+
+IArray *IResource::GetArray() const {
+  return array_;
+}
+
+void IResource::SetArray(IArray *array) {
+  array_ = array;
 }
 
 IValueType::IValueType() : width_(32) {

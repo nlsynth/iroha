@@ -17,6 +17,11 @@ public:
 				 const string &class_name) = 0;
   virtual IResource *GetBinOpResource(ITable *table,
 				      const string &class_name, int width) = 0;
+  virtual IResource *CreateArrayResource(ITable *table,
+					 int addres_width,
+					 int data_width,
+					 bool is_external,
+					 bool is_ram) = 0;
   virtual IResource *CreateEmbedResource(ITable *table,
 					 const string &mod_name,
 					 const string &fn) = 0;

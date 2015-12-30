@@ -34,6 +34,24 @@ private:
   int width_;
 };
 
+// This object is managed by IResource.
+class IArray {
+public:
+  IArray(int address_width, const IValueType &data_type,
+	 bool is_external, bool is_ram);
+
+  int GetAddressWidth() const;
+  const IValueType &GetDataType() const;
+  bool IsExternal() const;
+  bool IsRam() const;
+
+private:
+  int address_width_;
+  IValueType data_type_;
+  bool is_external_;
+  bool is_ram_;
+};
+
 class IResource {
 public:
   IResource(ITable *table, IResourceClass *resource_class);
@@ -43,6 +61,8 @@ public:
   void SetId(int id);
   IResourceClass *GetClass() const;
   ResourceParams *GetParams() const;
+  IArray *GetArray() const;
+  void SetArray(IArray *array);
 
   vector<IValueType> input_types_;
   vector<IValueType> output_types_;
@@ -52,6 +72,7 @@ private:
   IResourceClass *resource_class_;
   ResourceParams *params_;
   int id_;
+  IArray *array_;
 };
 
 // Literal value. This object is not managed by memory pool.

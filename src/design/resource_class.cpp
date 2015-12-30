@@ -23,6 +23,7 @@ void InstallResourceClasses(IDesign *design) {
   InstallResource(design, resource::kEmbedded, true);
   InstallResource(design, resource::kExtInput, true);
   InstallResource(design, resource::kExtOutput, true);
+  InstallResource(design, resource::kArray, true);
   InstallResource(design, resource::kGt, true);
   InstallResource(design, resource::kAdd, true);
   InstallResource(design, resource::kSub, true);

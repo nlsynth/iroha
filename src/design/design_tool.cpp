@@ -153,6 +153,26 @@ IResource *DesignTool::GetBinOpResource(ITable *table,
   return res;
 }
 
+IResource *DesignTool::CreateArrayResource(ITable *table,
+					   int address_width,
+					   int data_width,
+					   bool is_external,
+					   bool is_ram) {
+  IDesign *design = table->GetModule()->GetDesign();
+  IResourceClass *rc = FindResourceClass(design, resource::kArray);
+  if (rc == nullptr) {
+    return nullptr;
+  }
+  IResource *res = new IResource(table, rc);
+  IValueType data_type;
+  data_type.SetWidth(data_width);
+  IArray *array = new IArray(address_width, data_type,
+			     is_external, is_ram);
+  res->SetArray(array);
+  table->resources_.push_back(res);
+  return res;
+}
+
 IResource *DesignTool::CreateEmbedResource(ITable *table,
 					   const string &mod_name,
 					   const string &fn) {

@@ -32,16 +32,22 @@ Please read src/iroha/iroha.h, src/main.cpp examples/ for more details.
 
 -- TODOs
 
-* P1: Implementation and example of array and memory
-* P1: Implementation and example of Verilog embedding
+* P1: Implementation and example of sub module
+* P1: Implementation and example of channel
 * P1: More examples
 * P1: Document
+* P1: Low level synth phase
+* P1: Memory or array interface synth implementation
+* P1: Optimizer
 * P1: (Verilog writer) Support insn chaining.
 * P2: Delete API objects automatically
+* P2: ROM image data structure.
 * P2: Values wider than 64bits
 * P2: Pluggable optimizer and writer
 * P2: Error handling
 * P2: Pipeline can be built with multiple tables in a module OR multiple modules with one table in each module
+* P2: I/O for embedded verilog module
+* P2: Resource sharing between tables
 
 -- Source tree
 

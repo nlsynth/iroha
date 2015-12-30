@@ -1,11 +1,12 @@
 # Run this to generate Makefile, then run 'make'
 EXAMPLES = {
     'minimum' : {'minimum'},
+    'array' : {'array', 'example_common'},
     'embed' : {'embed', 'example_common'},
     'ext_io' : {'ext_io', 'example_common'},
     'loop' : {'loop', 'example_common'},
 }
-EXAMPLE_OBJS = ['example_common', 'embed', 'ext_io', 'loop', 'minimum']
+EXAMPLE_OBJS = ['example_common', 'array', 'embed', 'ext_io', 'loop', 'minimum']
 OUTPUT = 'Makefile'
 
 ofh = open(OUTPUT, 'w')

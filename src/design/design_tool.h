@@ -21,6 +21,11 @@ public:
   virtual IResource *GetBinOpResource(ITable *table,
 				      const string &class_name,
 				      int width) override;
+  virtual IResource *CreateArrayResource(ITable *table,
+					 int addres_width,
+					 int data_width,
+					 bool is_external,
+					 bool is_ram) override;
   virtual IResource *CreateEmbedResource(ITable *table,
 					 const string &mod_name,
 					 const string &fn) override;

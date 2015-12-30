@@ -182,7 +182,7 @@ IResource *ExpBuilder::BuildResource(Exp *e, ITable *table) {
     SetError() << "Only RESOURCE can be allowed";
     return nullptr;
   }
-  if (e->vec.size() != 6) {
+  if (e->vec.size() < 6) {
     SetError() << "Malformed RESOURCE";
     return nullptr;
   }
@@ -208,7 +208,52 @@ IResource *ExpBuilder::BuildResource(Exp *e, ITable *table) {
   BuildParamTypes(e->vec[3], &res->input_types_);
   BuildParamTypes(e->vec[4], &res->output_types_);
   BuildResourceParams(e->vec[5], res->GetParams());
+  for (int i = 6; i < e->vec.size(); ++i) {
+    if (e->vec[i]->vec.size() == 0) {
+      SetError() << "Empty additional resource parameter";
+      return nullptr;
+    }
+    if (e->vec[i]->vec[0]->atom.str == "ARRAY") {
+      BuildArray(e->vec[i], res);
+    } else {
+      SetError() << "Invalid additional resource parameter";
+      return nullptr;
+    }
+  }
   return res;
+}
+
+void ExpBuilder::BuildArray(Exp *e, IResource *res) {
+  if (e->vec.size() != 5) {
+    SetError() << "Malformed array description";
+    return;
+  }
+  int address_width = Util::Atoi(e->vec[1]->atom.str);
+  int data_width = Util::Atoi(e->vec[2]->atom.str);
+  bool is_external;
+  const string &v = e->vec[3]->atom.str;
+  if (v == "EXTERNAL") {
+    is_external = true;
+  } else if (v == "INTERNAL") {
+    is_external = false;
+  } else {
+    SetError() << "Array should be either INTERNAL or EXTERNAL";
+    return;
+  }
+  bool is_ram;
+  const string &w = e->vec[4]->atom.str;
+  if (w == "RAM") {
+    is_ram = true;
+  } else if (w == "ROM") {
+    is_ram = false;
+  } else {
+    SetError() << "Array should be either RAM or ROM";
+    return;
+  }
+  IValueType data_type;
+  data_type.SetWidth(data_width);
+  IArray *array = new IArray(address_width, data_type, is_external, is_ram);
+  res->SetArray(array);
 }
 
 void ExpBuilder::BuildResourceParams(Exp *e, ResourceParams *params) {
