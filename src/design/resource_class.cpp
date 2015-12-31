@@ -19,6 +19,7 @@ static void InstallResource(IDesign *design, const string &name,
 
 void InstallResourceClasses(IDesign *design) {
   InstallResource(design, resource::kSet, false);
+  InstallResource(design, resource::kSubModuleTask, true);
   InstallResource(design, resource::kTransition, true);
   InstallResource(design, resource::kEmbedded, true);
   InstallResource(design, resource::kExtInput, true);

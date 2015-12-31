@@ -44,6 +44,7 @@ void ExpWriter::WriteResources(const ITable &tab) {
 }
 
 void ExpWriter::WriteResource(const IResource &res) {
+  const IResourceClass &rc = *(res.GetClass());
   os_ << "      (RESOURCE " << res.GetId()
       << " " << res.GetClass()->GetName() << "\n";
   os_ << "        ";
@@ -53,8 +54,11 @@ void ExpWriter::WriteResource(const IResource &res) {
   os_ << "\n";
   ResourceParams *params = res.GetParams();
   WriteResourceParams(*params);
-  if (resource::IsArray(*(res.GetClass()))) {
+  if (resource::IsArray(rc)) {
     WriteArrayDesc(res);
+  }
+  if (resource::IsSubModuleTask(rc)) {
+    WriteSubModuleTask(res);
   }
   os_ << "      )\n";
 }
@@ -76,6 +80,11 @@ void ExpWriter::WriteArrayDesc(const IResource &res) {
     os_ << " ROM";
   }
   os_ << ")\n";
+}
+
+void ExpWriter::WriteSubModuleTask(const IResource &res) {
+  const IModule *mod = res.GetModule();
+  os_ << "        (MODULE " << mod->GetName() << ")\n";
 }
 
 void ExpWriter::WriteInitialState(const ITable &tab) {
@@ -138,6 +147,8 @@ void ExpWriter::WriteInsn(const IInsn &insn) {
   os_ << "      (INSN " << insn.GetId() << " ";
   const IResource *res = insn.GetResource();
   os_ << res->GetClass()->GetName() << " " << res->GetId();
+  // Details.
+  os_ << " ()";
   // Targets.
   os_ << " (";
   bool is_first = true;

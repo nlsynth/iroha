@@ -14,27 +14,26 @@ IDesign *build_design() {
   IState *st1 = new IState(table);
   table->states_.push_back(st1);
   table->SetInitialState(st1);
+  IState *st2 = new IState(table);
+  table->states_.push_back(st2);
+  tool->AddNextState(st1, st2);
 
   IResource *array =
     tool->CreateArrayResource(table, 10, 32,
 			      /* is_external */ false, /* is_ram */ true);
-  (void)array;
+  IRegister *addr = tool->AllocConstNum(table, 10, 0);
+  IRegister *write_data = tool->AllocConstNum(table, 32, 123);
+  IInsn *write_insn = new IInsn(array);
+  write_insn->inputs_.push_back(addr);
+  write_insn->inputs_.push_back(write_data);
+  st1->insns_.push_back(write_insn);
+  IInsn *read_insn = new IInsn(array);
+  read_insn->inputs_.push_back(addr);
+  IRegister *read_data = tool->AllocRegister(table, "x", 32);
+  read_insn->outputs_.push_back(read_data);
+  st2->insns_.push_back(read_insn);
 
   tool->ValidateIds(NULL);
   delete tool;
   return design;
-}
-
-int main(int argc, char **argv) {
-  example_init(argc, argv);
-
-  IDesign *design = build_design();
-  OptAPI *opt = Iroha::CreateOptimizer(design);
-  opt->ApplyPhase("a_phase");
-
-  example_write(design);
-
-  delete opt;
-  delete design;
-  return 0;
 }

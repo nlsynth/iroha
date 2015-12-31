@@ -17,6 +17,7 @@ void VerilogWriter::Write() {
   os_ << "// Generated from " << PACKAGE << "-" << VERSION << ".\n\n";
   vector<Module *> modules;
   Embed embed;
+
   for (IModule *imod : design_->modules_) {
     Module *mod = new Module(imod, &embed);
     mod->Build();

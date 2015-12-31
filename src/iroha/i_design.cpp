@@ -49,7 +49,7 @@ bool IArray::IsRam() const {
 
 IResource::IResource(ITable *table, IResourceClass *resource_class)
   : table_(table), resource_class_(resource_class),
-    params_(new ResourceParams), id_(-1), array_(nullptr) {
+    params_(new ResourceParams), id_(-1), array_(nullptr), module_(nullptr) {
   ObjectPool *pool =
     table->GetModule()->GetDesign()->GetObjectPool();
   pool->resources_.Add(this);
@@ -88,6 +88,14 @@ IArray *IResource::GetArray() const {
 
 void IResource::SetArray(IArray *array) {
   array_ = array;
+}
+
+IModule *IResource::GetModule() const {
+  return module_;
+}
+
+void IResource::SetModule(IModule *module) {
+  module_ = module;
 }
 
 IValueType::IValueType() : width_(32) {
@@ -226,7 +234,7 @@ IState *ITable::GetInitialState() const {
 }
 
 IModule::IModule(IDesign *design, const string &name)
-  : design_(design), name_(name) {
+  : design_(design), name_(name), parent_(nullptr) {
   design->GetObjectPool()->modules_.Add(this);
 }
 
@@ -236,6 +244,14 @@ const string &IModule::GetName() const {
 
 IDesign *IModule::GetDesign() const {
   return design_;
+}
+
+void IModule::SetParentModule(IModule *mod) {
+  parent_ = mod;
+}
+
+IModule *IModule::GetParentModule() const {
+  return parent_;
 }
 
 IDesign::IDesign() : objects_(new ObjectPool), params_(new ResourceParams) {

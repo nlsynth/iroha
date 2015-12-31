@@ -7,6 +7,15 @@
 
 namespace iroha {
 
+DesignToolAPI::~DesignToolAPI() {
+}
+
+OptAPI::~OptAPI() {
+}
+
+WriterAPI::~WriterAPI() {
+}
+
 void Iroha::Init() {
   Optimizer::Init();
 }

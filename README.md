@@ -48,6 +48,8 @@ Please read src/iroha/iroha.h, src/main.cpp examples/ for more details.
 * P2: Pipeline can be built with multiple tables in a module OR multiple modules with one table in each module
 * P2: I/O for embedded verilog module
 * P2: Resource sharing between tables
+* P2: Export optimizer API so that users can add own phase
+* P2: API to create copies of module, table and so on.
 
 -- Source tree
 

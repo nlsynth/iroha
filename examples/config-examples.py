@@ -5,8 +5,10 @@ EXAMPLES = {
     'embed' : {'embed', 'example_common'},
     'ext_io' : {'ext_io', 'example_common'},
     'loop' : {'loop', 'example_common'},
+    'sub_module' : {'sub_module', 'example_common'},
 }
-EXAMPLE_OBJS = ['example_common', 'array', 'embed', 'ext_io', 'loop', 'minimum']
+EXAMPLE_OBJS = ['example_common', 'array', 'embed', 'ext_io', 'loop',
+                'sub_module', 'minimum']
 OUTPUT = 'Makefile'
 
 ofh = open(OUTPUT, 'w')
@@ -19,7 +21,7 @@ ofh.write('\trm ' + ' '.join(EXAMPLES) + '\n')
 
 for e in EXAMPLE_OBJS:
     ofh.write(e + '.o\t: ' + e + '.cpp\n')
-    ofh.write('\tg++ -std=c++11 -g -I../src -c ' + e + '.cpp\n\n')
+    ofh.write('\tg++ -std=c++11 -Wall -g -I../src -c ' + e + '.cpp\n\n')
 
 for k, v in EXAMPLES.iteritems():
     objs = []

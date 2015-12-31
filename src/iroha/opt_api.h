@@ -8,6 +8,7 @@ namespace iroha {
 
 class OptAPI {
 public:
+  virtual ~OptAPI();
   virtual bool ApplyPhase(const string &name) = 0;
 };
 

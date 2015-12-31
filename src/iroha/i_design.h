@@ -63,6 +63,8 @@ public:
   ResourceParams *GetParams() const;
   IArray *GetArray() const;
   void SetArray(IArray *array);
+  IModule *GetModule() const;
+  void SetModule(IModule *module);
 
   vector<IValueType> input_types_;
   vector<IValueType> output_types_;
@@ -73,6 +75,7 @@ private:
   ResourceParams *params_;
   int id_;
   IArray *array_;
+  IModule *module_;
 };
 
 // Literal value. This object is not managed by memory pool.
@@ -175,12 +178,15 @@ public:
 
   IDesign *GetDesign() const;
   const string &GetName() const;
+  void SetParentModule(IModule *mod);
+  IModule *GetParentModule() const;
 
   vector<ITable *> tables_;
 
 private:
   IDesign *design_;
   string name_;
+  IModule *parent_;
 };
 
 // Represents a whole design including module hierarchy,

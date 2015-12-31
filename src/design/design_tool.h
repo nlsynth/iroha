@@ -14,6 +14,8 @@ public:
   explicit DesignTool(IDesign *design);
 
   virtual IDesign *GetDesign() override;
+  virtual IModule *GetRootModule() override;
+  virtual vector<IModule *> GetChildModules(IModule *mod) override;
   virtual void ValidateIds(ITable *table) override;
   virtual IInsn *AddNextState(IState *cur, IState *next) override;
   virtual IResource *GetResource(ITable *table,
@@ -29,6 +31,8 @@ public:
   virtual IResource *CreateEmbedResource(ITable *table,
 					 const string &mod_name,
 					 const string &fn) override;
+  virtual IResource *CreateSubModuleTaskResource(ITable *table,
+						 IModule *mod) override;
   virtual IRegister *AllocRegister(ITable *table, const string &name,
 				   int width) override;
   virtual IRegister *AllocConstNum(ITable *table,

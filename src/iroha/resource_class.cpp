@@ -23,5 +23,9 @@ bool IsArray(const IResourceClass &rc) {
   return (rc.GetName() == kArray);
 }
 
+bool IsSubModuleTask(const IResourceClass &rc) {
+  return (rc.GetName() == kSubModuleTask);
+}
+
 }  // namespace resource
 }  // namespace iroha

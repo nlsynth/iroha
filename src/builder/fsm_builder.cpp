@@ -72,7 +72,7 @@ void FsmBuilder::SetInitialState(Exp *e) {
 }
 
 IInsn *FsmBuilder::BuildInsn(Exp *e) {
-  if (e->vec.size() != 7) {
+  if (e->vec.size() != 8) {
     builder_->SetError() << "Malformed INSN";
     return nullptr;
   }
@@ -84,7 +84,7 @@ IInsn *FsmBuilder::BuildInsn(Exp *e) {
   }
   IInsn *insn = new IInsn(res);
   insn->SetId(Util::Atoi(e->vec[1]->atom.str));
-  for (auto *tr : e->vec[4]->vec) {
+  for (auto *tr : e->vec[5]->vec) {
     int st_id = Util::Atoi(tr->atom.str);
     IState *st = states_[st_id];
     if (!st) {
@@ -93,10 +93,10 @@ IInsn *FsmBuilder::BuildInsn(Exp *e) {
     }
     insn->target_states_.push_back(st);
   }
-  for (auto *input : e->vec[5]->vec) {
+  for (auto *input : e->vec[6]->vec) {
     BuildInsnParams(input, &insn->inputs_);
   }
-  for (auto *output : e->vec[6]->vec) {
+  for (auto *output : e->vec[7]->vec) {
     BuildInsnParams(output, &insn->outputs_);
   }
   return insn;

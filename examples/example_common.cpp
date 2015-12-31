@@ -4,6 +4,8 @@
 
 using namespace iroha;
 
+extern IDesign *build_design();
+
 static string output;
 static bool reset_polarity = true;
 
@@ -38,4 +40,18 @@ void example_write(IDesign *design) {
     writer->Write(output);
   }
   delete writer;
+}
+
+int main(int argc, char **argv) {
+  example_init(argc, argv);
+
+  IDesign *design = build_design();
+  OptAPI *opt = Iroha::CreateOptimizer(design);
+  opt->ApplyPhase("a_phase");
+
+  example_write(design);
+
+  delete opt;
+  delete design;
+  return 0;
 }
