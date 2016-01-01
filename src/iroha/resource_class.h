@@ -9,6 +9,7 @@ namespace resource {
 // NOTE(yt76): Enums instead of string?
 const char kTransition[] = "tr";
 const char kSet[] = "set";
+const char kSubModuleTaskCall[] = "sub_module_task_call";
 const char kSubModuleTask[] = "sub_module_task";
 const char kExtInput[] = "ext_input";
 const char kExtOutput[] = "ext_output";
@@ -22,6 +23,7 @@ bool IsBinOp(const IResourceClass &rc);
 bool IsNumToNumBinOp(const IResourceClass &rc);
 bool IsNumToBoolBinOp(const IResourceClass &rc);
 bool IsArray(const IResourceClass &rc);
+bool IsSubModuleTaskCall(const IResourceClass &rc);
 bool IsSubModuleTask(const IResourceClass &rc);
 
 }  // namespace resource

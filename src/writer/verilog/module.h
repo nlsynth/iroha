@@ -16,6 +16,7 @@ class Ports;
 class Table;
 
 static const char kEmbeddedInstanceSection[] = "embedded";
+static const char kSubModuleSection[] = "sub_modules";
 static const char kStateDeclSection[] = "state_decl";
 static const char kStateVarSection[] = "state_var";
 static const char kRegisterSection[] = "register";
@@ -30,6 +31,9 @@ public:
   void Build();
   void Write(ostream &os);
   bool GetResetPolarity() const;
+  const IModule *GetIModule() const;
+  const Ports *GetPorts() const;
+  void BuildChildModuleSection(vector<Module *> &mods);
 
 private:
 

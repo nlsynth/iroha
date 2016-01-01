@@ -17,7 +17,7 @@ ofh.write('all\t: ' + ' '.join(EXAMPLES) + '\n\n')
 
 ofh.write('clean\t:\n')
 ofh.write('\trm -f *.o\n')
-ofh.write('\trm ' + ' '.join(EXAMPLES) + '\n')
+ofh.write('\trm -f ' + ' '.join(EXAMPLES) + '\n')
 
 for e in EXAMPLE_OBJS:
     ofh.write(e + '.o\t: ' + e + '.cpp\n')

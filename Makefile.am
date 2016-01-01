@@ -27,6 +27,7 @@ libiroha_la_SOURCES = \
  src/builder/reader.cpp src/builder/reader.h \
  src/design/design_tool.cpp src/design/design_tool.h \
  src/design/resource_class.cpp src/design/resource_class.h \
+ src/design/util.cpp src/design/util.h \
  src/opt/optimizer.cpp src/opt/optimizer.h \
  src/opt/phase.h \
  src/writer/exp_writer.cpp src/writer/exp_writer.h \

@@ -15,15 +15,20 @@ IModule *create_module(DesignToolAPI *tool, const string &name) {
 
 IModule *create_sub_module(DesignToolAPI *tool) {
   IModule *mod = create_module(tool, "M_sub");
+  ITable *tab = mod->tables_[0];
+  IResource *res = tool->CreateTaskResource(tab);
+  IInsn *insn = new IInsn(res);
+  IState *st1 = tab->states_[0];
+  st1->insns_.push_back(insn);
   return mod;
 }
 
 IModule *create_root_module(DesignToolAPI *tool, IModule *sub_module) {
   IModule *mod = create_module(tool, "M_top");
   ITable *tab = mod->tables_[0];
-  IResource *res = tool->CreateSubModuleTaskResource(tab, sub_module);
-  IState *st1 = tab->states_[0];
+  IResource *res = tool->CreateSubModuleTaskCallResource(tab, sub_module);
   IInsn *insn = new IInsn(res);
+  IState *st1 = tab->states_[0];
   st1->insns_.push_back(insn);
   return mod;
 }

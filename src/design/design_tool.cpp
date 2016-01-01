@@ -37,31 +37,6 @@ IDesign *DesignTool::GetDesign() {
   return design_;
 }
 
-IModule *DesignTool::GetRootModule() {
-  IModule *root = nullptr;
-  for (auto *mod : design_->modules_) {
-    if (mod->GetParentModule() == nullptr) {
-      if (root == nullptr) {
-	root = mod;
-      } else {
-	// Don't allow multiple roots.
-	return nullptr;
-      }
-    }
-  }
-  return root;
-}
-
-vector<IModule *> DesignTool::GetChildModules(IModule *parent) {
-  vector<IModule *> v;
-  for (auto *mod : design_->modules_) {
-    if (mod->GetParentModule() == parent) {
-      v.push_back(mod);
-    }
-  }
-  return v;
-}
-
 void DesignTool::ValidateIds(ITable *table) {
   if (table == nullptr) {
     for (auto *mod : design_->modules_) {
@@ -213,15 +188,26 @@ IResource *DesignTool::CreateEmbedResource(ITable *table,
   return res;
 }
 
-IResource *DesignTool::CreateSubModuleTaskResource(ITable *table,
-						   IModule *mod) {
+IResource *DesignTool::CreateSubModuleTaskCallResource(ITable *table,
+						       IModule *mod) {
   IDesign *design = mod->GetDesign();
-  IResourceClass *rc = FindResourceClass(design, resource::kSubModuleTask);
+  IResourceClass *rc = FindResourceClass(design, resource::kSubModuleTaskCall);
   if (rc == nullptr) {
     return nullptr;
   }
   IResource *res = new IResource(table, rc);
   res->SetModule(mod);
+  table->resources_.push_back(res);
+  return res;
+}
+
+IResource *DesignTool::CreateTaskResource(ITable *table) {
+  IDesign *design = table->GetModule()->GetDesign();
+  IResourceClass *rc = FindResourceClass(design, resource::kSubModuleTask);
+  if (rc == nullptr) {
+    return nullptr;
+  }
+  IResource *res = new IResource(table, rc);
   table->resources_.push_back(res);
   return res;
 }

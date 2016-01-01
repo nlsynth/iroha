@@ -23,6 +23,10 @@ bool IsArray(const IResourceClass &rc) {
   return (rc.GetName() == kArray);
 }
 
+bool IsSubModuleTaskCall(const IResourceClass &rc) {
+  return (rc.GetName() == kSubModuleTaskCall);
+}
+
 bool IsSubModuleTask(const IResourceClass &rc) {
   return (rc.GetName() == kSubModuleTask);
 }

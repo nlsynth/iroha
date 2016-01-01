@@ -35,6 +35,7 @@ private:
   void BuildRegister();
   void BuildBinOpResource(const IResource &res);
   void BuildArrayResource(const IResource &res);
+  void BuildSubModuleTaskResource(const IResource &res);
   void BuildEmbededResource(const IResource &res);
 
   void CollectResourceCallers(const IResource &res,

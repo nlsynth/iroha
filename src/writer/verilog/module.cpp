@@ -1,5 +1,6 @@
 #include "writer/verilog/module.h"
 
+#include "design/util.h"
 #include "iroha/i_design.h"
 #include "iroha/resource_params.h"
 #include "iroha/stl_util.h"
@@ -38,11 +39,20 @@ void Module::Write(ostream &os) {
     tab->Write(os);
   }
   os << tmpl_->GetContents(kEmbeddedInstanceSection);
+  os << tmpl_->GetContents(kSubModuleSection);
   os << "\nendmodule\n";
 }
 
 bool Module::GetResetPolarity() const {
   return reset_polarity_;
+}
+
+const IModule *Module::GetIModule() const {
+  return i_mod_;
+}
+
+const Ports *Module::GetPorts() const {
+  return ports_.get();
 }
 
 void Module::Build() {
@@ -60,6 +70,19 @@ void Module::Build() {
     tab->Build();
     tables_.push_back(tab);
     ++nth;
+  }
+}
+
+void Module::BuildChildModuleSection(vector<Module *> &mods) {
+  ostream &is = tmpl_->GetStream(kSubModuleSection);
+  for (auto *mod : mods) {
+    const IModule *imod = mod->GetIModule();
+    is << "  " << imod->GetName() << " "
+       << "inst_" << imod->GetName() << "(";
+    is << "." << ports_->GetClk() << "(" << mod->GetPorts()->GetClk() << ")";
+    is << ", ." << ports_->GetReset() << "("
+       << mod->GetPorts()->GetClk() << ")";
+    is << ");\n";
   }
 }
 

@@ -57,8 +57,8 @@ void ExpWriter::WriteResource(const IResource &res) {
   if (resource::IsArray(rc)) {
     WriteArrayDesc(res);
   }
-  if (resource::IsSubModuleTask(rc)) {
-    WriteSubModuleTask(res);
+  if (resource::IsSubModuleTaskCall(rc)) {
+    WriteSubModuleTaskCall(res);
   }
   os_ << "      )\n";
 }
@@ -82,7 +82,7 @@ void ExpWriter::WriteArrayDesc(const IResource &res) {
   os_ << ")\n";
 }
 
-void ExpWriter::WriteSubModuleTask(const IResource &res) {
+void ExpWriter::WriteSubModuleTaskCall(const IResource &res) {
   const IModule *mod = res.GetModule();
   os_ << "        (MODULE " << mod->GetName() << ")\n";
 }

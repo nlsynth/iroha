@@ -14,8 +14,6 @@ class DesignToolAPI {
 public:
   virtual ~DesignToolAPI();
   virtual IDesign *GetDesign() = 0;
-  virtual IModule *GetRootModule() = 0;
-  virtual vector<IModule *> GetChildModules(IModule *mod) = 0;
   // If table == nullptr, process all tables in current design.
   virtual void ValidateIds(ITable *table) = 0;
   virtual IInsn *AddNextState(IState *cur, IState *next) = 0;
@@ -31,8 +29,9 @@ public:
   virtual IResource *CreateEmbedResource(ITable *table,
 					 const string &mod_name,
 					 const string &fn) = 0;
-  virtual IResource *CreateSubModuleTaskResource(ITable *tab,
-						 IModule *mod) = 0;
+  virtual IResource *CreateSubModuleTaskCallResource(ITable *tab,
+						     IModule *mod) = 0;
+  virtual IResource *CreateTaskResource(ITable *tab) = 0;
   virtual IRegister *AllocRegister(ITable *table, const string &name,
 				   int width) = 0;
   virtual IRegister *AllocConstNum(ITable *table,

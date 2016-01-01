@@ -114,11 +114,12 @@ am_libiroha_la_OBJECTS = src/iroha/common.lo src/iroha/iroha.lo \
 	src/iroha/resource_class.lo src/iroha/resource_params.lo \
 	src/builder/exp_builder.lo src/builder/fsm_builder.lo \
 	src/builder/reader.lo src/design/design_tool.lo \
-	src/design/resource_class.lo src/opt/optimizer.lo \
-	src/writer/exp_writer.lo src/writer/module_template.lo \
-	src/writer/verilog/embed.lo src/writer/verilog/insn_writer.lo \
-	src/writer/verilog/module.lo src/writer/verilog/ports.lo \
-	src/writer/verilog/state.lo src/writer/verilog/table.lo \
+	src/design/resource_class.lo src/design/util.lo \
+	src/opt/optimizer.lo src/writer/exp_writer.lo \
+	src/writer/module_template.lo src/writer/verilog/embed.lo \
+	src/writer/verilog/insn_writer.lo src/writer/verilog/module.lo \
+	src/writer/verilog/ports.lo src/writer/verilog/state.lo \
+	src/writer/verilog/table.lo \
 	src/writer/verilog/verilog_writer.lo src/writer/writer.lo
 libiroha_la_OBJECTS = $(am_libiroha_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
@@ -412,6 +413,7 @@ libiroha_la_SOURCES = \
  src/builder/reader.cpp src/builder/reader.h \
  src/design/design_tool.cpp src/design/design_tool.h \
  src/design/resource_class.cpp src/design/resource_class.h \
+ src/design/util.cpp src/design/util.h \
  src/opt/optimizer.cpp src/opt/optimizer.h \
  src/opt/phase.h \
  src/writer/exp_writer.cpp src/writer/exp_writer.h \
@@ -512,6 +514,8 @@ src/design/$(DEPDIR)/$(am__dirstamp):
 src/design/design_tool.lo: src/design/$(am__dirstamp) \
 	src/design/$(DEPDIR)/$(am__dirstamp)
 src/design/resource_class.lo: src/design/$(am__dirstamp) \
+	src/design/$(DEPDIR)/$(am__dirstamp)
+src/design/util.lo: src/design/$(am__dirstamp) \
 	src/design/$(DEPDIR)/$(am__dirstamp)
 src/opt/$(am__dirstamp):
 	@$(MKDIR_P) src/opt
@@ -643,6 +647,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/builder/$(DEPDIR)/reader.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/design/$(DEPDIR)/design_tool.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/design/$(DEPDIR)/resource_class.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/design/$(DEPDIR)/util.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/iroha/$(DEPDIR)/common.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/iroha/$(DEPDIR)/i_design.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/iroha/$(DEPDIR)/iroha.Plo@am__quote@

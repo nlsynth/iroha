@@ -74,7 +74,7 @@ IResourceClass *IResource::GetClass() const {
   return resource_class_;
 }
 
-ITable *IResource::GetTable() {
+ITable *IResource::GetTable() const {
   return table_;
 }
 

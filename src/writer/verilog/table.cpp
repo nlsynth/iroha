@@ -86,6 +86,9 @@ void Table::BuildResource() {
     if (resource::IsArray(*klass)) {
       BuildArrayResource(*res);
     }
+    if (resource::IsSubModuleTask(*klass)) {
+      BuildSubModuleTaskResource(*res);
+    }
   }
 }
 
@@ -116,6 +119,10 @@ void Table::BuildBinOpResource(const IResource &res) {
 }
 
 void Table::BuildArrayResource(const IResource &res) {
+}
+
+void Table::BuildSubModuleTaskResource(const IResource &res) {
+  ports_->AddPort("task_" + Util::Itoa(nth_) + "_en", Port::INPUT, 0);
 }
 
 void Table::BuildEmbededResource(const IResource &res) {

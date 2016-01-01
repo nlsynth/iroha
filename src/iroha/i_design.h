@@ -56,7 +56,7 @@ class IResource {
 public:
   IResource(ITable *table, IResourceClass *resource_class);
   ~IResource();
-  ITable *GetTable();
+  ITable *GetTable() const;
   int GetId() const;
   void SetId(int id);
   IResourceClass *GetClass() const;
