@@ -7,21 +7,25 @@
 namespace iroha {
 namespace verilog {
 
+class State;
 
 class InsnWriter {
 public:
-  InsnWriter(const IInsn *insn, ostream &os);
+  InsnWriter(const IInsn *insn, const State *st, ostream &os);
 
   void ExtInput();
   void ExtOutput();
   void Set();
   void BinOp();
+  void Print();
+  void Assert();
 
   static string RegisterName(const IRegister &reg);
   static string ResourceName(const IResource &res);
 
 private:
   const IInsn *insn_;
+  const State *st_;
   ostream &os_;
 };
 

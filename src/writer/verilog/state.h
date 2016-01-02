@@ -15,6 +15,7 @@ public:
 
   void Build();
   void Write(ostream &os);
+  const IState *GetIState() const;
 
 private:
   void WriteInsn(const IInsn *insn, ostream &os);

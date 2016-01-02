@@ -32,14 +32,13 @@ Please read src/iroha/iroha.h, src/main.cpp examples/ for more details.
 
 -- TODOs
 
-* P1: Implementation and example of sub module
+* P1: Sub module task
 * P1: Implementation and example of channel
 * P1: More examples
 * P1: Document
 * P1: Low level synth phase
 * P1: Memory or array interface synth implementation
 * P1: Optimizer
-* P1: Assert module
 * P1: (Verilog writer) Support insn chaining.
 * P2: Delete API objects automatically
 * P2: ROM image data structure.

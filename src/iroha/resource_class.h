@@ -9,6 +9,8 @@ namespace resource {
 // NOTE(yt76): Enums instead of string?
 const char kTransition[] = "tr";
 const char kSet[] = "set";
+const char kPrint[] = "print";
+const char kAssert[] = "assert";
 const char kSubModuleTaskCall[] = "sub_module_task_call";
 const char kSubModuleTask[] = "sub_module_task";
 const char kExtInput[] = "ext_input";

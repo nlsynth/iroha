@@ -32,8 +32,12 @@ void State::Write(ostream &os) {
   os << I << "end\n";
 }
 
+const IState *State::GetIState() const {
+  return i_state_;
+}
+
 void State::WriteInsn(const IInsn *insn, ostream &os) {
-  InsnWriter writer(insn, os);
+  InsnWriter writer(insn, this, os);
   auto *res = insn->GetResource();
   auto *rc = res->GetClass();
   const string &rc_name = rc->GetName();
@@ -47,6 +51,10 @@ void State::WriteInsn(const IInsn *insn, ostream &os) {
     writer.BinOp();
   } else if (rc_name == resource::kTransition) {
     // do nothing.
+  } else if (rc_name == resource::kPrint) {
+    writer.Print();
+  } else if (rc_name == resource::kAssert) {
+    writer.Assert();
   } else {
     // LOG(FATAL) << "Unsupported resource class:" << rc_name;
   }
