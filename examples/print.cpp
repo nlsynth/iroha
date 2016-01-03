@@ -26,7 +26,7 @@ IDesign *build_design() {
   st1->insns_.push_back(as_insn);
   table->SetInitialState(st1);
   tool->AddNextState(st1, st2);
-  tool->ValidateIds(NULL);
+  tool->Validate(NULL);
 
   delete tool;
   return design;

@@ -7,9 +7,10 @@ EXAMPLES = {
     'loop' : {'loop', 'example_common'},
     'sub_module' : {'sub_module', 'example_common'},
     'print' : {'print', 'example_common'},
+    'channel' : {'channel', 'example_common'},
 }
 EXAMPLE_OBJS = ['example_common', 'array', 'embed', 'ext_io', 'loop',
-                'sub_module', 'print', 'minimum']
+                'sub_module', 'print', 'minimum', 'channel']
 OUTPUT = 'Makefile'
 
 ofh = open(OUTPUT, 'w')

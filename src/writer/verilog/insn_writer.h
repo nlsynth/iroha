@@ -22,6 +22,7 @@ public:
 
   static string RegisterName(const IRegister &reg);
   static string ResourceName(const IResource &res);
+  static string ChannelDataPort(const IChannel &ic);
 
 private:
   const IInsn *insn_;

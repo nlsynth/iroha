@@ -3,27 +3,10 @@
 #include <set>
 
 #include "design/resource_class.h"
+#include "design/validator.h"
 #include "iroha/resource_params.h"
 
 namespace iroha {
-
-template<class T>
-static void ValidateId(vector<T *> &v, set<int> &used_ids) {
-  int last_id = 1;
-  for (T *t : v) {
-    if (t->GetId() < 0) {
-      // Use first unused id.
-      while (true) {
-	if (used_ids.find(last_id) == used_ids.end()) {
-	  break;
-	}
-	++last_id;
-      }
-      t->SetId(last_id);
-      ++last_id;
-    }
-  }
-}
 
 DesignTool::DesignTool(IDesign *design) {
   if (design == nullptr) {
@@ -37,67 +20,8 @@ IDesign *DesignTool::GetDesign() {
   return design_;
 }
 
-void DesignTool::ValidateIds(ITable *table) {
-  if (table == nullptr) {
-    for (auto *mod : design_->modules_) {
-      ValidateTableId(mod);
-      for (auto *tab : mod->tables_) {
-	ValidateStateId(tab);
-	ValidateInsnId(tab);
-	ValidateRegisterId(tab);
-	ValidateResourceId(tab);
-      }
-    }
-  } else {
-    ValidateStateId(table);
-    ValidateInsnId(table);
-    ValidateRegisterId(table);
-    ValidateResourceId(table);
-  }
-}
-
-void DesignTool::ValidateTableId(IModule *mod) {
-  set<int> used_ids;
-  for (auto *tab : mod->tables_) {
-    used_ids.insert(tab->GetId());
-  }
-  ValidateId(mod->tables_, used_ids);
-}
-
-void DesignTool::ValidateInsnId(ITable *table) {
-  set<int> used_ids;
-  vector<IInsn *> insns;
-  for (auto *st : table->states_) {
-    for (auto *insn : st->insns_) {
-      used_ids.insert(insn->GetId());
-      insns.push_back(insn);
-    }
-  }
-  ValidateId(insns, used_ids);
-}
-
-void DesignTool::ValidateStateId(ITable *table) {
-  set<int> used_ids;
-  for (auto *st : table->states_) {
-    used_ids.insert(st->GetId());
-  }
-  ValidateId(table->states_, used_ids);
-}
-
-void DesignTool::ValidateResourceId(ITable *table) {
-  set<int> used_ids;
-  for (auto *res : table->resources_) {
-    used_ids.insert(res->GetId());
-  }
-  ValidateId(table->resources_, used_ids);
-}
-
-void DesignTool::ValidateRegisterId(ITable *table) {
-  set<int> used_ids;
-  for (auto *reg : table->registers_) {
-    used_ids.insert(reg->GetId());
-  }
-  ValidateId(table->registers_, used_ids);
+void DesignTool::Validate(ITable *table) {
+  Validator::Validate(design_, table);
 }
 
 IInsn *DesignTool::AddNextState(IState *cur, IState *next) {

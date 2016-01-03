@@ -21,6 +21,8 @@ void InstallResourceClasses(IDesign *design) {
   InstallResource(design, resource::kSet, false);
   InstallResource(design, resource::kPrint, false);
   InstallResource(design, resource::kAssert, false);
+  InstallResource(design, resource::kChannelWrite, true);
+  InstallResource(design, resource::kChannelRead, false);
   InstallResource(design, resource::kSubModuleTaskCall, true);
   InstallResource(design, resource::kSubModuleTask, true);
   InstallResource(design, resource::kTransition, true);

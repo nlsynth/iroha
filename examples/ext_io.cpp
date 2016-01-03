@@ -37,7 +37,7 @@ IDesign *build_design() {
   table->SetInitialState(st1);
   tool->AddNextState(st1, st2);
   tool->AddNextState(st2, st3);
-  tool->ValidateIds(NULL);
+  tool->Validate(NULL);
 
   delete tool;
 

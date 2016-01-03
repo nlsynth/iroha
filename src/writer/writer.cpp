@@ -2,6 +2,7 @@
 
 #include <fstream>
 #include "iroha/iroha.h"
+#include "writer/connection.h"
 #include "writer/exp_writer.h"
 #include "writer/verilog/verilog_writer.h"
 
@@ -16,7 +17,9 @@ bool Writer::Write(const string &fn) {
     return false;
   }
   if (language_ == "verilog") {
-    verilog::VerilogWriter writer(design_, *os);
+    Connection conn(design_);
+    conn.Build();
+    verilog::VerilogWriter writer(design_, conn, *os);
     writer.Write();
   } else {
     ExpWriter writer(design_, *os);

@@ -53,7 +53,7 @@ IDesign *build_design() {
 
   table->SetInitialState(st1);
   tool->AddNextState(st3, st4);
-  tool->ValidateIds(NULL);
+  tool->Validate(NULL);
 
   delete tool;
 

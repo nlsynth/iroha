@@ -115,7 +115,8 @@ am_libiroha_la_OBJECTS = src/iroha/common.lo src/iroha/iroha.lo \
 	src/builder/exp_builder.lo src/builder/fsm_builder.lo \
 	src/builder/reader.lo src/design/design_tool.lo \
 	src/design/resource_class.lo src/design/util.lo \
-	src/opt/optimizer.lo src/writer/exp_writer.lo \
+	src/design/validator.lo src/opt/optimizer.lo \
+	src/writer/connection.lo src/writer/exp_writer.lo \
 	src/writer/module_template.lo src/writer/verilog/embed.lo \
 	src/writer/verilog/insn_writer.lo src/writer/verilog/module.lo \
 	src/writer/verilog/ports.lo src/writer/verilog/state.lo \
@@ -414,8 +415,10 @@ libiroha_la_SOURCES = \
  src/design/design_tool.cpp src/design/design_tool.h \
  src/design/resource_class.cpp src/design/resource_class.h \
  src/design/util.cpp src/design/util.h \
+ src/design/validator.cpp src/design/validator.h \
  src/opt/optimizer.cpp src/opt/optimizer.h \
  src/opt/phase.h \
+ src/writer/connection.cpp src/writer/connection.h \
  src/writer/exp_writer.cpp src/writer/exp_writer.h \
  src/writer/module_template.cpp src/writer/module_template.h \
  src/writer/verilog/embed.cpp src/writer/verilog/embed.h \
@@ -517,6 +520,8 @@ src/design/resource_class.lo: src/design/$(am__dirstamp) \
 	src/design/$(DEPDIR)/$(am__dirstamp)
 src/design/util.lo: src/design/$(am__dirstamp) \
 	src/design/$(DEPDIR)/$(am__dirstamp)
+src/design/validator.lo: src/design/$(am__dirstamp) \
+	src/design/$(DEPDIR)/$(am__dirstamp)
 src/opt/$(am__dirstamp):
 	@$(MKDIR_P) src/opt
 	@: > src/opt/$(am__dirstamp)
@@ -531,6 +536,8 @@ src/writer/$(am__dirstamp):
 src/writer/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) src/writer/$(DEPDIR)
 	@: > src/writer/$(DEPDIR)/$(am__dirstamp)
+src/writer/connection.lo: src/writer/$(am__dirstamp) \
+	src/writer/$(DEPDIR)/$(am__dirstamp)
 src/writer/exp_writer.lo: src/writer/$(am__dirstamp) \
 	src/writer/$(DEPDIR)/$(am__dirstamp)
 src/writer/module_template.lo: src/writer/$(am__dirstamp) \
@@ -648,6 +655,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/design/$(DEPDIR)/design_tool.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/design/$(DEPDIR)/resource_class.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/design/$(DEPDIR)/util.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/design/$(DEPDIR)/validator.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/iroha/$(DEPDIR)/common.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/iroha/$(DEPDIR)/i_design.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/iroha/$(DEPDIR)/iroha.Plo@am__quote@
@@ -655,6 +663,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/iroha/$(DEPDIR)/resource_class.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/iroha/$(DEPDIR)/resource_params.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/opt/$(DEPDIR)/optimizer.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/writer/$(DEPDIR)/connection.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/writer/$(DEPDIR)/exp_writer.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/writer/$(DEPDIR)/module_template.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/writer/$(DEPDIR)/writer.Plo@am__quote@

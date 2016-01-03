@@ -9,6 +9,7 @@
 namespace iroha {
 
 class IDesign;
+class Connection;
 
 namespace verilog {
 
@@ -17,7 +18,7 @@ class Module;
 
 class VerilogWriter {
 public:
-  VerilogWriter(const IDesign *design, ostream &os);
+  VerilogWriter(const IDesign *design, const Connection &conn, ostream &os);
   ~VerilogWriter();
 
   void Write();
@@ -27,6 +28,7 @@ private:
   void BuildHierarchy();
 
   const IDesign *design_;
+  const Connection &conn_;
   ostream &os_;
   vector<Module *> ordered_modules_;
   map<const IModule *, Module *> modules_;

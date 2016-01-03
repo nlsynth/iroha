@@ -19,7 +19,7 @@ IDesign *build_design() {
   IInsn *insn = new IInsn(vmod);
   st1->insns_.push_back(insn);
 
-  tool->ValidateIds(NULL);
+  tool->Validate(NULL);
   delete tool;
 
   return design;

@@ -28,8 +28,10 @@ libiroha_la_SOURCES = \
  src/design/design_tool.cpp src/design/design_tool.h \
  src/design/resource_class.cpp src/design/resource_class.h \
  src/design/util.cpp src/design/util.h \
+ src/design/validator.cpp src/design/validator.h \
  src/opt/optimizer.cpp src/opt/optimizer.h \
  src/opt/phase.h \
+ src/writer/connection.cpp src/writer/connection.h \
  src/writer/exp_writer.cpp src/writer/exp_writer.h \
  src/writer/module_template.cpp src/writer/module_template.h \
  src/writer/verilog/embed.cpp src/writer/verilog/embed.h \

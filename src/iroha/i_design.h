@@ -78,6 +78,28 @@ private:
   IModule *module_;
 };
 
+class IChannel {
+public:
+  IChannel(IDesign *design);
+
+  IDesign *GetDesign() const;
+  int GetId() const;
+  void SetId(int id);
+  const IValueType &GetValueType() const;
+  void SetValueType(const IValueType &value_type);
+  void SetWriter(IResource *res);
+  void SetReader(IResource *res);
+  IResource *GetWriter() const;
+  IResource *GetReader() const;
+
+private:
+  IDesign *design_;
+  int id_;
+  IValueType value_type_;
+  IResource *writer_;
+  IResource *reader_;
+};
+
 // Literal value. This object is not managed by memory pool.
 class IValue {
 public:
@@ -201,6 +223,7 @@ public:
 
   vector<IModule *> modules_;
   vector<IResourceClass *> resource_classes_;
+  vector<IChannel *> channels_;
 
 private:
   ObjectPool *objects_;

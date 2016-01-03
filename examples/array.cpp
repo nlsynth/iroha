@@ -33,7 +33,7 @@ IDesign *build_design() {
   read_insn->outputs_.push_back(read_data);
   st2->insns_.push_back(read_insn);
 
-  tool->ValidateIds(NULL);
+  tool->Validate(NULL);
   delete tool;
   return design;
 }

@@ -31,6 +31,7 @@ public:
   Pool<IRegister> registers_;
   Pool<IInsn> insns_;
   Pool<ResourceParams> resource_params_;
+  Pool<IChannel> channels_;
 };
 
 }  // namespace iroha

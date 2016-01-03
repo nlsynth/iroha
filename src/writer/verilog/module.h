@@ -6,6 +6,8 @@
 
 namespace iroha {
 
+class ChannelInfo;
+class Connection;
 class IModule;
 class ModuleTemplate;
 
@@ -25,7 +27,7 @@ static const char kInitialValueSection[] = "initial";
 
 class Module {
 public:
-  Module(const IModule *i_mod, Embed *embed);
+  Module(const IModule *i_mod, const Connection &conn, Embed *embed);
   ~Module();
 
   void Build();
@@ -36,8 +38,11 @@ public:
   void BuildChildModuleSection(vector<Module *> &mods);
 
 private:
+  void BuildChannelConnections(const ChannelInfo &ci);
+  void BuildChildModuleChannelWire(const IChannel &ch, ostream &is);
 
   const IModule *i_mod_;
+  const Connection &conn_;
   Embed *embed_;
   unique_ptr<ModuleTemplate> tmpl_;
   unique_ptr<Ports> ports_;

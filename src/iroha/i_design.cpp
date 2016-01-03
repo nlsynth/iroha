@@ -98,6 +98,47 @@ void IResource::SetModule(IModule *module) {
   module_ = module;
 }
 
+IChannel::IChannel(IDesign *design)
+  : design_(design), id_(-1), writer_(nullptr) , reader_(nullptr) {
+  design_->GetObjectPool()->channels_.Add(this);
+}
+
+IDesign *IChannel::GetDesign() const {
+  return design_;
+}
+
+int IChannel::GetId() const {
+  return id_;
+}
+
+void IChannel::SetId(int id) {
+  id_ = id;
+}
+
+const IValueType &IChannel::GetValueType() const {
+  return value_type_;
+}
+
+void IChannel::SetValueType(const IValueType &value_type) {
+  value_type_ = value_type;
+}
+
+void IChannel::SetWriter(IResource *res) {
+  writer_ = res;
+}
+
+void IChannel::SetReader(IResource *res) {
+  reader_ = res;
+}
+
+IResource *IChannel::GetWriter() const {
+  return writer_;
+}
+
+IResource *IChannel::GetReader() const {
+  return reader_;
+}
+
 IValueType::IValueType() : width_(32) {
 }
 

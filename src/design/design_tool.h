@@ -5,8 +5,6 @@
 #include "iroha/design_tool_api.h"
 #include "iroha/i_design.h"
 
-#include <set>
-
 namespace iroha {
 
 class DesignTool : public DesignToolAPI {
@@ -14,7 +12,7 @@ public:
   explicit DesignTool(IDesign *design);
 
   virtual IDesign *GetDesign() override;
-  virtual void ValidateIds(ITable *table) override;
+  virtual void Validate(ITable *table) override;
   virtual IInsn *AddNextState(IState *cur, IState *next) override;
   virtual IResource *GetResource(ITable *table,
 				 const string &class_name) override;
@@ -43,11 +41,6 @@ private:
   IResource *FindResourceByName(ITable *table, const string &name);
   IInsn *FindInsnByResource(IState *state, IResource *res);
   IResourceClass *FindResourceClass(IDesign *design, const string &name);
-  void ValidateStateId(ITable *table);
-  void ValidateInsnId(ITable *table);
-  void ValidateRegisterId(ITable *table);
-  void ValidateResourceId(ITable *table);
-  void ValidateTableId(IModule *mod);
 
   IDesign *design_;
 };

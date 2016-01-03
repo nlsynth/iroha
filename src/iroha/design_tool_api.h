@@ -15,7 +15,7 @@ public:
   virtual ~DesignToolAPI();
   virtual IDesign *GetDesign() = 0;
   // If table == nullptr, process all tables in current design.
-  virtual void ValidateIds(ITable *table) = 0;
+  virtual void Validate(ITable *table) = 0;
   virtual IInsn *AddNextState(IState *cur, IState *next) = 0;
   virtual IResource *GetResource(ITable *table,
 				 const string &class_name) = 0;

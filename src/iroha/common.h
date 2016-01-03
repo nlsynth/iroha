@@ -12,6 +12,7 @@ using namespace std;
 
 namespace iroha {
 class IArray;
+class IChannel;
 class IDesign;
 class IInsn;
 class IModule;

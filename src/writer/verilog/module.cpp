@@ -4,15 +4,17 @@
 #include "iroha/i_design.h"
 #include "iroha/resource_params.h"
 #include "iroha/stl_util.h"
+#include "writer/connection.h"
 #include "writer/module_template.h"
+#include "writer/verilog/insn_writer.h"
 #include "writer/verilog/ports.h"
 #include "writer/verilog/table.h"
 
 namespace iroha {
 namespace verilog {
 
-Module::Module(const IModule *i_mod, Embed *embed)
-  : i_mod_(i_mod), embed_(embed) {
+Module::Module(const IModule *i_mod, const Connection &conn, Embed *embed)
+  : i_mod_(i_mod), conn_(conn), embed_(embed) {
   tmpl_.reset(new ModuleTemplate);
   ports_.reset(new Ports);
   reset_polarity_ = i_mod_->GetDesign()->GetParams()->GetResetPolarity();
@@ -71,6 +73,11 @@ void Module::Build() {
     tables_.push_back(tab);
     ++nth;
   }
+
+  const ChannelInfo *ci = conn_.GetConnectionInfo(i_mod_);
+  if (ci != nullptr) {
+    BuildChannelConnections(*ci);
+  }
 }
 
 void Module::BuildChildModuleSection(vector<Module *> &mods) {
@@ -82,7 +89,46 @@ void Module::BuildChildModuleSection(vector<Module *> &mods) {
     is << "." << ports_->GetClk() << "(" << mod->GetPorts()->GetClk() << ")";
     is << ", ." << ports_->GetReset() << "("
        << mod->GetPorts()->GetClk() << ")";
+    const ChannelInfo *ci = conn_.GetConnectionInfo(imod);
+    if (ci != nullptr) {
+      for (auto *ch : ci->ext_writer_) {
+	BuildChildModuleChannelWire(*ch, is);
+      }
+      for (auto *ch : ci->ext_writer_path_) {
+	BuildChildModuleChannelWire(*ch, is);
+      }
+      for (auto *ch : ci->ext_reader_) {
+	BuildChildModuleChannelWire(*ch, is);
+      }
+      for (auto *ch : ci->ext_reader_path_) {
+	BuildChildModuleChannelWire(*ch, is);
+      }
+    }
     is << ");\n";
+  }
+}
+
+void Module::BuildChildModuleChannelWire(const IChannel &ch, ostream &is) {
+  string port = InsnWriter::ChannelDataPort(ch);
+  is << ", ." << port << "(" << port << ")";
+}
+
+void Module::BuildChannelConnections(const ChannelInfo &ci) {
+  for (auto *ch : ci.ext_writer_) {
+    int width = ch->GetValueType().GetWidth();
+    ports_->AddPort(InsnWriter::ChannelDataPort(*ch), Port::OUTPUT, width);
+  }
+  for (auto *ch : ci.ext_writer_path_) {
+    int width = ch->GetValueType().GetWidth();
+    ports_->AddPort(InsnWriter::ChannelDataPort(*ch), Port::OUTPUT_WIRE, width);
+  }
+  for (auto *ch : ci.ext_reader_) {
+    int width = ch->GetValueType().GetWidth();
+    ports_->AddPort(InsnWriter::ChannelDataPort(*ch), Port::INPUT, width);
+  }
+  for (auto *ch : ci.ext_reader_path_) {
+    int width = ch->GetValueType().GetWidth();
+    ports_->AddPort(InsnWriter::ChannelDataPort(*ch), Port::INPUT, width);
   }
 }
 

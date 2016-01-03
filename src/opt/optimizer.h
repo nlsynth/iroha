@@ -18,7 +18,7 @@ public:
 
   virtual bool ApplyPhase(const string &name) override;
 
-private:
+protected:
   IDesign *design_;
 
   static vector<Phase *> phases_;
