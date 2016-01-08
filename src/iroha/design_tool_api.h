@@ -21,6 +21,7 @@ public:
 				 const string &class_name) = 0;
   virtual IResource *GetBinOpResource(ITable *table,
 				      const string &class_name, int width) = 0;
+  virtual IResource *CreateShifterResource(ITable *table) = 0;
   virtual IResource *CreateArrayResource(ITable *table,
 					 int addres_width,
 					 int data_width,
@@ -37,7 +38,7 @@ public:
   virtual IRegister *AllocConstNum(ITable *table,
 				   int width, uint64_t value) = 0;
   virtual void SetRegisterInitialValue(uint64_t value, IRegister *reg) = 0;
-
+  virtual IInsn *CreateShiftInsn(IRegister *reg, bool to_left, int amount) = 0;
 };
 
 }  // namespace iroha

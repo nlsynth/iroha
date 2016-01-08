@@ -148,7 +148,7 @@ void ExpWriter::WriteInsn(const IInsn &insn) {
   const IResource *res = insn.GetResource();
   os_ << res->GetClass()->GetName() << " " << res->GetId();
   // Details.
-  os_ << " ()";
+  os_ << " (" << insn.GetOperand() << ")";
   // Targets.
   os_ << " (";
   bool is_first = true;

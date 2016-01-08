@@ -7,7 +7,6 @@
 namespace iroha {
 
 void InstallResourceClasses(IDesign *design);
-IResourceClass *GetTransitionResourceClassFromDesign(IDesign *design);
 
 }  // namespace iroha
 

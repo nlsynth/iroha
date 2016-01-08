@@ -10,6 +10,7 @@ class DesignUtil {
 public:
   static IModule *GetRootModule(const IDesign *design);
   static vector<IModule *> GetChildModules(const IModule *mod);
+  static IResourceClass *GetTransitionResourceClassFromDesign(IDesign *design);
 };
 
 }  // namespace iroha

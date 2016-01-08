@@ -21,11 +21,15 @@ const char kArray[] = "array";
 const char kEmbedded[] = "embedded";
 const char kAdd[] = "add";
 const char kSub[] = "sub";
+const char kXor[] = "xor";
 const char kGt[] = "gt";
+const char kShift[] = "shift";
 
-bool IsBinOp(const IResourceClass &rc);
-bool IsNumToNumBinOp(const IResourceClass &rc);
-bool IsNumToBoolBinOp(const IResourceClass &rc);
+bool IsExclusiveBinOp(const IResourceClass &rc);
+bool IsNumToNumExclusiveBinOp(const IResourceClass &rc);
+bool IsNumToBoolExclusiveBinOp(const IResourceClass &rc);
+bool IsLightBinOp(const IResourceClass &rc);
+bool IsBitArrangeOp(const IResourceClass &rc);
 bool IsArray(const IResourceClass &rc);
 bool IsSubModuleTaskCall(const IResourceClass &rc);
 bool IsSubModuleTask(const IResourceClass &rc);

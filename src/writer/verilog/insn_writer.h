@@ -16,7 +16,9 @@ public:
   void ExtInput();
   void ExtOutput();
   void Set();
-  void BinOp();
+  void ExclusiveBinOp();
+  void LightBinOp();
+  void BitArrangeOp();
   void Print();
   void Assert();
 

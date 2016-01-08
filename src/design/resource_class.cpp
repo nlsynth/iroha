@@ -33,16 +33,8 @@ void InstallResourceClasses(IDesign *design) {
   InstallResource(design, resource::kGt, true);
   InstallResource(design, resource::kAdd, true);
   InstallResource(design, resource::kSub, true);
-}
-
-IResourceClass *GetTransitionResourceClassFromDesign(IDesign *design) {
-  for (auto *rc : design->resource_classes_) {
-    if (rc->GetName() == resource::kTransition) {
-      return rc;
-    }
-  }
-  CHECK(false) << "Transition resource class is not installed?";
-  return nullptr;
+  InstallResource(design, resource::kXor, false);
+  InstallResource(design, resource::kShift, false);
 }
 
 }  // namespace iroha

@@ -10,9 +10,9 @@ TBD! WIP!
 (0) First of all, build the binary.
 
     > $ ./configure; make
-You may also have to (install and) run auto tools if you got this package from git.
+You may also have to (install automake, autoconf, libtool and) set up autotools if you got this package from git.
 
-    > $ aclocal; automake; autoconf
+    > $ autoreconf
 
 (1) Try to read Iroha IR in S-expression and just dump it.
 

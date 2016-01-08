@@ -142,6 +142,8 @@ public:
   IResource *GetResource() const;
   int GetId() const;
   void SetId(int id);
+  const string &GetOperand() const;
+  void SetOperand(const string &opr);
 
   vector<IRegister *> inputs_;
   vector<IRegister *> outputs_;
@@ -150,6 +152,7 @@ public:
 private:
   IResource *resource_;
   int id_;
+  string operand_;
 };
 
 // This can be a state in an FSM or a pipeline stage.

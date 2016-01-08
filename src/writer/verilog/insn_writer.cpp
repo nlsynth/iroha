@@ -1,6 +1,7 @@
 #include "writer/verilog/insn_writer.h"
 
 #include "iroha/i_design.h"
+#include "iroha/resource_class.h"
 #include "iroha/resource_params.h"
 #include "writer/verilog/state.h"
 
@@ -39,9 +40,37 @@ void InsnWriter::Set() {
       << RegisterName(*insn_->inputs_[0]) << ";\n";
 }
 
-void InsnWriter::BinOp() {
+void InsnWriter::ExclusiveBinOp() {
   os_ << I << insn_->outputs_[0]->GetName() << " <= "
       << ResourceName(*insn_->GetResource()) << "_d0;\n";
+}
+
+void InsnWriter::LightBinOp() {
+  os_ << I << insn_->outputs_[0]->GetName() << " <= "
+      << RegisterName(*insn_->inputs_[0]) << " ";
+  const string &rc = insn_->GetResource()->GetClass()->GetName();
+  if (rc == resource::kXor) {
+    os_ << "^";
+  } else {
+  }
+  os_ << " " << RegisterName(*insn_->inputs_[1]) << ";\n";
+}
+
+void InsnWriter::BitArrangeOp() {
+  const string &rc = insn_->GetResource()->GetClass()->GetName();
+  if (rc == resource::kShift) {
+    bool is_left = (insn_->GetOperand() == "left");
+    const IValue &value = insn_->inputs_[1]->GetInitialValue();
+    int amount = value.value_;
+    os_ << I << insn_->outputs_[0]->GetName() << " <= "
+	<< RegisterName(*insn_->inputs_[0]);
+    if (is_left) {
+      os_ << " << ";
+    } else {
+      os_ << " >> ";
+    }
+    os_ << amount << ";\n";
+  }
 }
 
 string InsnWriter::RegisterName(const IRegister &reg) {
@@ -59,7 +88,7 @@ string InsnWriter::ResourceName(const IResource &res) {
 string InsnWriter::ChannelDataPort(const IChannel &ic) {
   if (ic.GetReader() != nullptr) {
       if (ic.GetWriter() != nullptr) {
-	return "ext_data_" + Util::Itoa(ic.GetId());
+	return "channel_data_" + Util::Itoa(ic.GetId());
       } else {
 	return "ext_rdata_" + Util::Itoa(ic.GetId());
       }

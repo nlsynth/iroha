@@ -80,8 +80,8 @@ void Table::BuildResource() {
     if (klass->GetName() == resource::kEmbedded) {
       BuildEmbededResource(*res);
     }
-    if (resource::IsBinOp(*klass)) {
-      BuildBinOpResource(*res);
+    if (resource::IsExclusiveBinOp(*klass)) {
+      BuildExclusiveBinOpResource(*res);
     }
     if (resource::IsArray(*klass)) {
       BuildArrayResource(*res);
@@ -92,7 +92,7 @@ void Table::BuildResource() {
   }
 }
 
-void Table::BuildBinOpResource(const IResource &res) {
+void Table::BuildExclusiveBinOpResource(const IResource &res) {
   ostream &rs = tmpl_->GetStream(kResourceSection);
   const string &res_name = res.GetClass()->GetName();
   rs << "  // " << res_name << ":" << res.GetId() << "\n";

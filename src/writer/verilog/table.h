@@ -33,7 +33,7 @@ private:
   void BuildStateDecl();
   void BuildResource();
   void BuildRegister();
-  void BuildBinOpResource(const IResource &res);
+  void BuildExclusiveBinOpResource(const IResource &res);
   void BuildArrayResource(const IResource &res);
   void BuildSubModuleTaskResource(const IResource &res);
   void BuildEmbededResource(const IResource &res);

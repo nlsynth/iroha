@@ -84,6 +84,9 @@ IInsn *FsmBuilder::BuildInsn(Exp *e) {
   }
   IInsn *insn = new IInsn(res);
   insn->SetId(Util::Atoi(e->vec[1]->atom.str));
+  if (e->vec[4]->vec.size() > 0) {
+    insn->SetOperand(e->vec[4]->vec[0]->atom.str);
+  }
   for (auto *tr : e->vec[5]->vec) {
     int st_id = Util::Atoi(tr->atom.str);
     IState *st = states_[st_id];

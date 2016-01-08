@@ -5,18 +5,26 @@
 namespace iroha {
 namespace resource {
 
-bool IsBinOp(const IResourceClass &rc) {
-  return IsNumToNumBinOp(rc) ||
-    IsNumToBoolBinOp(rc);
+bool IsExclusiveBinOp(const IResourceClass &rc) {
+  return IsNumToNumExclusiveBinOp(rc) ||
+    IsNumToBoolExclusiveBinOp(rc);
 }
 
-bool IsNumToNumBinOp(const IResourceClass &rc) {
+bool IsNumToNumExclusiveBinOp(const IResourceClass &rc) {
   const string &name = rc.GetName();
   return (name == kAdd || name == kSub);
 }
 
-bool IsNumToBoolBinOp(const IResourceClass &rc) {
+bool IsNumToBoolExclusiveBinOp(const IResourceClass &rc) {
   return (rc.GetName() == kGt);
+}
+
+bool IsLightBinOp(const IResourceClass &rc) {
+  return (rc.GetName() == kXor);
+}
+
+bool IsBitArrangeOp(const IResourceClass &rc) {
+  return (rc.GetName() == kShift);
 }
 
 bool IsArray(const IResourceClass &rc) {

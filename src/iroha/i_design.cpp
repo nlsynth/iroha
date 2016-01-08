@@ -2,6 +2,7 @@
 
 #include "design/object_pool.h"
 #include "design/resource_class.h"
+#include "design/util.h"
 #include "iroha/logging.h"
 #include "iroha/resource_params.h"
 #include "iroha/stl_util.h"
@@ -225,6 +226,14 @@ void IInsn::SetId(int id) {
   id_ = id;
 }
 
+const string &IInsn::GetOperand() const {
+  return operand_;
+}
+
+void IInsn::SetOperand(const string &opr) {
+  operand_ = opr;
+}
+
 IState::IState(ITable *table) : table_(table), id_(-1) {
   table->GetModule()->GetDesign()->GetObjectPool()->states_.Add(this);
 }
@@ -247,7 +256,7 @@ ITable::ITable(IModule *module)
 
   // Add transition resource.
   IResourceClass *tr_class =
-    GetTransitionResourceClassFromDesign(module->GetDesign());
+    DesignUtil::GetTransitionResourceClassFromDesign(module->GetDesign());
   IResource *tr = new IResource(this, tr_class);
   tr->SetId(1);
   resources_.push_back(tr);

@@ -26,7 +26,7 @@ void DesignTool::Validate(ITable *table) {
 
 IInsn *DesignTool::AddNextState(IState *cur, IState *next) {
   ITable *table = cur->GetTable();
-  IResource *tr = FindResourceByName(table, resource::kTransition);
+  IResource *tr = FindResourceByClassName(table, resource::kTransition);
   IInsn *insn = FindInsnByResource(cur, tr);
   if (insn == nullptr) {
     insn = new IInsn(tr);
@@ -37,7 +37,7 @@ IInsn *DesignTool::AddNextState(IState *cur, IState *next) {
 }
 
 IResource *DesignTool::GetResource(ITable *table, const string &class_name) {
-  IResource *res = FindResourceByName(table, class_name);
+  IResource *res = FindResourceByClassName(table, class_name);
   if (res) {
     return res;
   }
@@ -70,7 +70,7 @@ IResource *DesignTool::GetBinOpResource(ITable *table,
   res->input_types_.push_back(t);
   res->input_types_.push_back(t);
 
-  if (resource::IsNumToBoolBinOp(*(res->GetClass()))) {
+  if (resource::IsNumToBoolExclusiveBinOp(*(res->GetClass()))) {
     t.SetWidth(0);
   }
   res->output_types_.push_back(t);
@@ -82,58 +82,36 @@ IResource *DesignTool::CreateArrayResource(ITable *table,
 					   int data_width,
 					   bool is_external,
 					   bool is_ram) {
-  IDesign *design = table->GetModule()->GetDesign();
-  IResourceClass *rc = FindResourceClass(design, resource::kArray);
-  if (rc == nullptr) {
-    return nullptr;
-  }
-  IResource *res = new IResource(table, rc);
+  IResource *res = CreateResource(table, resource::kArray);
   IValueType data_type;
   data_type.SetWidth(data_width);
   IArray *array = new IArray(address_width, data_type,
 			     is_external, is_ram);
   res->SetArray(array);
-  table->resources_.push_back(res);
   return res;
+}
+
+IResource *DesignTool::CreateShifterResource(ITable *table) {
+  return CreateResource(table, resource::kShift);
 }
 
 IResource *DesignTool::CreateEmbedResource(ITable *table,
 					   const string &mod_name,
 					   const string &fn) {
-  IDesign *design = table->GetModule()->GetDesign();
-  IResourceClass *rc = FindResourceClass(design, resource::kEmbedded);
-  if (rc == nullptr) {
-    return nullptr;
-  }
-  IResource *res = new IResource(table, rc);
-  table->resources_.push_back(res);
-  ResourceParams *params = res->GetParams();
-  params->SetEmbeddedModuleName(mod_name, fn);
+  IResource *res = CreateResource(table, resource::kEmbedded);
+  res->GetParams()->SetEmbeddedModuleName(mod_name, fn);
   return res;
 }
 
 IResource *DesignTool::CreateSubModuleTaskCallResource(ITable *table,
 						       IModule *mod) {
-  IDesign *design = mod->GetDesign();
-  IResourceClass *rc = FindResourceClass(design, resource::kSubModuleTaskCall);
-  if (rc == nullptr) {
-    return nullptr;
-  }
-  IResource *res = new IResource(table, rc);
+  IResource *res = CreateResource(table, resource::kSubModuleTaskCall);
   res->SetModule(mod);
-  table->resources_.push_back(res);
   return res;
 }
 
 IResource *DesignTool::CreateTaskResource(ITable *table) {
-  IDesign *design = table->GetModule()->GetDesign();
-  IResourceClass *rc = FindResourceClass(design, resource::kSubModuleTask);
-  if (rc == nullptr) {
-    return nullptr;
-  }
-  IResource *res = new IResource(table, rc);
-  table->resources_.push_back(res);
-  return res;
+  return CreateResource(table, resource::kSubModuleTask);
 }
 
 IRegister *DesignTool::AllocRegister(ITable *table, const string &name,
@@ -165,7 +143,23 @@ void DesignTool::SetRegisterInitialValue(uint64_t value,
   reg->SetInitialValue(v);
 }
 
-IResource *DesignTool::FindResourceByName(ITable *table, const string &name) {
+IInsn *DesignTool::CreateShiftInsn(IRegister *reg, bool to_left, int amount) {
+  ITable *table = reg->GetTable();
+  IResource *shifter = FindResourceByClassName(table, resource::kShift);
+  IInsn *insn = new IInsn(shifter);
+  if (to_left) {
+    insn->SetOperand("left");
+  } else {
+    insn->SetOperand("right");
+  }
+  insn->inputs_.push_back(reg);
+  IRegister *a = AllocConstNum(table, 32, amount);
+  insn->inputs_.push_back(a);
+  return insn;
+}
+
+IResource *DesignTool::FindResourceByClassName(ITable *table,
+					       const string &name) {
   for (auto *res : table->resources_) {
     if (res->GetClass()->GetName() == name) {
       return res;
@@ -191,6 +185,17 @@ IResourceClass *DesignTool::FindResourceClass(IDesign *design,
     }
   }
   return nullptr;
+}
+
+IResource *DesignTool::CreateResource(ITable *table, const string &name) {
+  IDesign *design = table->GetModule()->GetDesign();
+  IResourceClass *rc = FindResourceClass(design, name);
+  if (rc == nullptr) {
+    return nullptr;
+  }
+  IResource *res = new IResource(table, rc);
+  table->resources_.push_back(res);
+  return res;
 }
 
 }  // namespace iroha

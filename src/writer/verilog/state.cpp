@@ -47,8 +47,12 @@ void State::WriteInsn(const IInsn *insn, ostream &os) {
     writer.ExtInput();
   } else if (rc_name == resource::kExtOutput) {
     writer.ExtOutput();
-  } else if (resource::IsBinOp(*rc)) {
-    writer.BinOp();
+  } else if (resource::IsExclusiveBinOp(*rc)) {
+    writer.ExclusiveBinOp();
+  } else if (resource::IsLightBinOp(*rc)) {
+    writer.LightBinOp();
+  } else if (resource::IsBitArrangeOp(*rc)) {
+    writer.BitArrangeOp();
   } else if (rc_name == resource::kTransition) {
     // do nothing.
   } else if (rc_name == resource::kPrint) {

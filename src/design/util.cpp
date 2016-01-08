@@ -1,6 +1,8 @@
 #include "design/util.h"
 
 #include "iroha/i_design.h"
+#include "iroha/resource_class.h"
+#include "iroha/logging.h"
 
 namespace iroha {
 
@@ -28,6 +30,16 @@ vector<IModule *> DesignUtil::GetChildModules(const IModule *parent) {
     }
   }
   return v;
+}
+
+IResourceClass *DesignUtil::GetTransitionResourceClassFromDesign(IDesign *design) {
+  for (auto *rc : design->resource_classes_) {
+    if (rc->GetName() == resource::kTransition) {
+      return rc;
+    }
+  }
+  CHECK(false) << "Transition resource class is not installed?";
+  return nullptr;
 }
 
 }  // namespace iroha

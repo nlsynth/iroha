@@ -1,5 +1,6 @@
 #include "iroha/logging.h"
 
+#include <stdlib.h>
 #include <sstream>
 
 namespace iroha {

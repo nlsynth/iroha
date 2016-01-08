@@ -103,6 +103,12 @@ void Module::BuildChildModuleSection(vector<Module *> &mods) {
       for (auto *ch : ci->ext_reader_path_) {
 	BuildChildModuleChannelWire(*ch, is);
       }
+      for (auto *ch : ci->data_path_) {
+	BuildChildModuleChannelWire(*ch, is);
+      }
+      for (auto *ch : ci->reader_from_up_) {
+	BuildChildModuleChannelWire(*ch, is);
+      }
     }
     is << ");\n";
   }
@@ -127,6 +133,19 @@ void Module::BuildChannelConnections(const ChannelInfo &ci) {
     ports_->AddPort(InsnWriter::ChannelDataPort(*ch), Port::INPUT, width);
   }
   for (auto *ch : ci.ext_reader_path_) {
+    int width = ch->GetValueType().GetWidth();
+    ports_->AddPort(InsnWriter::ChannelDataPort(*ch), Port::INPUT, width);
+  }
+  for (auto *ch : ci.writer_to_down_) {
+    int width = ch->GetValueType().GetWidth();
+    ostream &rs = tmpl_->GetStream(kRegisterSection);
+    rs << "  reg ";
+    if (width > 0) {
+      rs << "[" << (width - 1) << ":0] ";
+    }
+    rs << InsnWriter::ChannelDataPort(*ch) << ";\n";
+  }
+  for (auto *ch : ci.reader_from_up_) {
     int width = ch->GetValueType().GetWidth();
     ports_->AddPort(InsnWriter::ChannelDataPort(*ch), Port::INPUT, width);
   }

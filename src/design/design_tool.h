@@ -19,6 +19,7 @@ public:
   virtual IResource *GetBinOpResource(ITable *table,
 				      const string &class_name,
 				      int width) override;
+  virtual IResource *CreateShifterResource(ITable *table) override;
   virtual IResource *CreateArrayResource(ITable *table,
 					 int addres_width,
 					 int data_width,
@@ -36,11 +37,13 @@ public:
 				   int width, uint64_t value) override;
   virtual void SetRegisterInitialValue(uint64_t value,
 				       IRegister *reg) override;
+  virtual IInsn *CreateShiftInsn(IRegister *reg, bool to_left, int amount) override;
 
 private:
-  IResource *FindResourceByName(ITable *table, const string &name);
+  IResource *FindResourceByClassName(ITable *table, const string &name);
   IInsn *FindInsnByResource(IState *state, IResource *res);
   IResourceClass *FindResourceClass(IDesign *design, const string &name);
+  IResource *CreateResource(ITable *table, const string &name);
 
   IDesign *design_;
 };
