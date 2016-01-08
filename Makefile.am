@@ -26,7 +26,6 @@ libiroha_la_SOURCES = \
  src/builder/fsm_builder.cpp src/builder/fsm_builder.h \
  src/builder/reader.cpp src/builder/reader.h \
  src/design/design_tool.cpp src/design/design_tool.h \
- src/design/resource_class.cpp src/design/resource_class.h \
  src/design/util.cpp src/design/util.h \
  src/design/validator.cpp src/design/validator.h \
  src/opt/optimizer.cpp src/opt/optimizer.h \

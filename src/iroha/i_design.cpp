@@ -1,9 +1,9 @@
 #include "iroha/i_design.h"
 
 #include "design/object_pool.h"
-#include "design/resource_class.h"
 #include "design/util.h"
 #include "iroha/logging.h"
+#include "iroha/resource_class.h"
 #include "iroha/resource_params.h"
 #include "iroha/stl_util.h"
 
@@ -305,7 +305,7 @@ IModule *IModule::GetParentModule() const {
 }
 
 IDesign::IDesign() : objects_(new ObjectPool), params_(new ResourceParams) {
-  InstallResourceClasses(this);
+  resource::InstallResourceClasses(this);
 }
 
 IDesign::~IDesign() {

@@ -34,6 +34,8 @@ bool IsArray(const IResourceClass &rc);
 bool IsSubModuleTaskCall(const IResourceClass &rc);
 bool IsSubModuleTask(const IResourceClass &rc);
 
+void InstallResourceClasses(IDesign *design);
+
 }  // namespace resource
 }  // namespace iroha
 

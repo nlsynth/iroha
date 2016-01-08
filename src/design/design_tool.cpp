@@ -2,8 +2,8 @@
 
 #include <set>
 
-#include "design/resource_class.h"
 #include "design/validator.h"
+#include "iroha/resource_class.h"
 #include "iroha/resource_params.h"
 
 namespace iroha {
