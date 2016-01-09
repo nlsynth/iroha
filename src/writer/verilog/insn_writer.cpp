@@ -1,5 +1,6 @@
 #include "writer/verilog/insn_writer.h"
 
+#include "iroha/logging.h"
 #include "iroha/i_design.h"
 #include "iroha/resource_class.h"
 #include "iroha/resource_params.h"
@@ -49,9 +50,14 @@ void InsnWriter::LightBinOp() {
   os_ << I << insn_->outputs_[0]->GetName() << " <= "
       << RegisterName(*insn_->inputs_[0]) << " ";
   const string &rc = insn_->GetResource()->GetClass()->GetName();
-  if (rc == resource::kXor) {
+  if (rc == resource::kBitAnd) {
+    os_ << "&";
+  } else if (rc == resource::kBitOr) {
+    os_ << "|";
+  } else if (rc == resource::kBitXor) {
     os_ << "^";
   } else {
+    LOG(FATAL) << "Unknown LightBinOp: " << rc;
   }
   os_ << " " << RegisterName(*insn_->inputs_[1]) << ";\n";
 }

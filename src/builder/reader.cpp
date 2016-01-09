@@ -14,12 +14,18 @@ Exp::~Exp() {
 }
 
 File *Reader::ReadFile(const string &fn) {
-  std::ifstream *ifs = new std::ifstream(fn);
+  std::istream *ifs;
+  unique_ptr<istream> ifs_deleter;
+  if (fn.empty() || fn == "-") {
+    ifs = &cin;
+  } else {
+    ifs = new std::ifstream(fn);
+    ifs_deleter.reset(ifs);
+  }
   if (ifs->fail()) {
-    delete ifs;
     return nullptr;
   }
-  std::unique_ptr<Reader> reader(new Reader(ifs));
+  std::unique_ptr<Reader> reader(new Reader(*ifs));
   return reader->Read();
 }
 
@@ -51,8 +57,7 @@ void Reader::DumpExp(Exp *s) {
   cout << ")";
 }
 
-Reader::Reader(istream *ifs) : column_(0), has_error_(false) {
-  ifs_.reset(ifs);
+Reader::Reader(istream &ifs) : ifs_(ifs), column_(0), has_error_(false) {
 }
 
 File *Reader::Read() {
@@ -116,10 +121,10 @@ Exp *Reader::ReadList() {
 bool Reader::EnsureLine() {
  again:
   if (column_ == cur_line_.size()) {
-    if (ifs_->eof()) {
+    if (ifs_.eof()) {
       return false;
     }
-    std::getline(*ifs_, cur_line_);
+    std::getline(ifs_, cur_line_);
     column_ = 0;
     if (cur_line_.empty()) {
       goto again;

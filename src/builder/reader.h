@@ -26,7 +26,7 @@ public:
 
 class Reader {
 public:
-  Reader(istream *ifs);
+  Reader(istream &ifs);
 
   File *Read();
 
@@ -44,7 +44,7 @@ private:
   void SetError();
   bool HasError();
   
-  std::unique_ptr<istream> ifs_;
+  istream &ifs_;
   string unread_token_;
   string cur_line_;
   int column_;

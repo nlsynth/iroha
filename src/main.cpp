@@ -10,6 +10,8 @@ int main(int argc, char **argv) {
   vector<string> files;
   bool verilog = false;
 
+  string output;
+
   for (int i = 1; i < argc; ++i) {
     const string arg(argv[i]);
     if (arg == "--version") {
@@ -18,6 +20,11 @@ int main(int argc, char **argv) {
     }
     if (arg == "-v") {
       verilog = true;
+      continue;
+    }
+    if (arg == "-o" && i + 1 < argc) {
+      output = string(argv[i + 1]);
+      ++i;
       continue;
     }
     files.push_back(arg);
@@ -35,7 +42,7 @@ int main(int argc, char **argv) {
     if (verilog) {
       writer->SetLanguage("verilog");
     }
-    writer->Write("/dev/stdout");
+    writer->Write(output);
   }
   return 0;
 }

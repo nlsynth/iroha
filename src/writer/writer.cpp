@@ -12,9 +12,16 @@ Writer::Writer(const IDesign *design) : design_(design) {
 }
 
 bool Writer::Write(const string &fn) {
-  unique_ptr<ostream> os(new ofstream(fn));
-  if (os.get() == nullptr) {
-    return false;
+  ostream *os;
+  unique_ptr<ostream> os_deleter;
+  if (fn.empty()) {
+    os = &cout;
+  } else {
+    os = new ofstream(fn);
+    if (os == nullptr) {
+      return false;
+    }
+    os_deleter.reset(os);
   }
   if (language_ == "verilog") {
     Connection conn(design_);

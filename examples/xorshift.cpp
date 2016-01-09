@@ -52,7 +52,7 @@ IDesign *build_design() {
   IResource *shifter = tool->CreateShifterResource(table);
 
   // Xor
-  IResource *xor_res = tool->GetBinOpResource(table, resource::kXor, 32);
+  IResource *xor_res = tool->GetBinOpResource(table, resource::kBitXor, 32);
 
   // FSM
   IState *st0 = new IState(table);

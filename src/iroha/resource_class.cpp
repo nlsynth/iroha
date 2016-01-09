@@ -22,7 +22,8 @@ bool IsNumToBoolExclusiveBinOp(const IResourceClass &rc) {
 }
 
 bool IsLightBinOp(const IResourceClass &rc) {
-  return (rc.GetName() == kXor);
+  const string &name = rc.GetName();
+  return (name == kBitAnd || name == kBitOr || name == kBitXor);
 }
 
 bool IsBitArrangeOp(const IResourceClass &rc) {
@@ -65,7 +66,9 @@ void InstallResourceClasses(IDesign *design) {
   InstallResource(design, resource::kGt, true);
   InstallResource(design, resource::kAdd, true);
   InstallResource(design, resource::kSub, true);
-  InstallResource(design, resource::kXor, false);
+  InstallResource(design, resource::kBitAnd, false);
+  InstallResource(design, resource::kBitOr, false);
+  InstallResource(design, resource::kBitXor, false);
   InstallResource(design, resource::kShift, false);
 }
 

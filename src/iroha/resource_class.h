@@ -21,7 +21,9 @@ const char kArray[] = "array";
 const char kEmbedded[] = "embedded";
 const char kAdd[] = "add";
 const char kSub[] = "sub";
-const char kXor[] = "xor";
+const char kBitAnd[] = "bit_and";
+const char kBitOr[] = "bit_or";
+const char kBitXor[] = "bit_xor";
 const char kGt[] = "gt";
 const char kShift[] = "shift";
 
