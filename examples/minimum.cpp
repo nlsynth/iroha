@@ -4,7 +4,7 @@ using namespace iroha;
 
 IDesign *build_design() {
   IDesign *design = new IDesign;
-  DesignToolAPI *tool = Iroha::CreateDesignTool(design);
+  DesignTool *tool = Iroha::CreateDesignTool(design);
 
   IModule *module = new IModule(design, "M");
   design->modules_.push_back(module);

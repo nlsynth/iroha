@@ -7,9 +7,6 @@
 
 namespace iroha {
 
-DesignToolAPI::~DesignToolAPI() {
-}
-
 OptAPI::~OptAPI() {
 }
 
@@ -28,7 +25,7 @@ WriterAPI *Iroha::CreateWriter(const IDesign *design) {
   return new Writer(design);
 }
 
-DesignToolAPI *Iroha::CreateDesignTool(IDesign *design) {
+DesignTool *Iroha::CreateDesignTool(IDesign *design) {
   return new DesignTool(design);
 }
 

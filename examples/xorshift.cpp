@@ -10,7 +10,7 @@
 
 using namespace iroha;
 
-void build_stage(DesignToolAPI *tool,
+void build_stage(DesignTool *tool,
 		 int amount, bool to_left,
 		 IRegister *reg, IRegister *tmp_reg,
 		 IState *st0, IState *st1,
@@ -31,7 +31,7 @@ void build_stage(DesignToolAPI *tool,
 
 IDesign *build_design() {
   IDesign *design = new IDesign;
-  DesignToolAPI *tool = Iroha::CreateDesignTool(design);
+  DesignTool *tool = Iroha::CreateDesignTool(design);
 
   IModule *module = new IModule(design, "XORSHIFT");
   design->modules_.push_back(module);

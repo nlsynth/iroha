@@ -5,8 +5,8 @@
 #ifndef _iroha_iroha_h_
 #define _iroha_iroha_h_
 
+#include "design/design_tool.h"
 #include "iroha/common.h"
-#include "iroha/design_tool_api.h"
 #include "iroha/i_design.h"
 #include "iroha/opt_api.h"
 #include "iroha/resource_class.h"
@@ -22,7 +22,7 @@ public:
   static IDesign *ReadDesignFromFile(const string &fn);
   static WriterAPI *CreateWriter(const IDesign *design);
   // Set design nullptr to create a new design.
-  static DesignToolAPI *CreateDesignTool(IDesign *design);
+  static DesignTool *CreateDesignTool(IDesign *design);
   static OptAPI *CreateOptimizer(IDesign *design);
 };
 

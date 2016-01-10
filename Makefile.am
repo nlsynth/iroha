@@ -14,7 +14,6 @@ iroha_LDADD = libiroha.la
 noinst_LTLIBRARIES = libiroha.la
 libiroha_la_SOURCES = \
  src/iroha/common.cpp src/iroha/common.h \
- src/iroha/design_tool_api.h \
  src/iroha/iroha.cpp src/iroha/iroha.h \
  src/iroha/i_design.cpp src/iroha/i_design.h \
  src/iroha/logging.cpp src/iroha/logging.h \

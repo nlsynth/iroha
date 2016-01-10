@@ -3,7 +3,7 @@
 
 using namespace iroha;
 
-IModule *create_module(DesignToolAPI *tool, const string &name) {
+IModule *create_module(DesignTool *tool, const string &name) {
   IModule *mod = new IModule(tool->GetDesign(), name);
   ITable *table = new ITable(mod);
   mod->tables_.push_back(table);
@@ -13,7 +13,7 @@ IModule *create_module(DesignToolAPI *tool, const string &name) {
   return mod;
 }
 
-IModule *create_sub_module(DesignToolAPI *tool) {
+IModule *create_sub_module(DesignTool *tool) {
   IModule *mod = create_module(tool, "M_sub");
   ITable *tab = mod->tables_[0];
   IResource *r = tool->GetResource(tab, resource::kChannelRead);
@@ -29,7 +29,7 @@ IModule *create_sub_module(DesignToolAPI *tool) {
   return mod;
 }
 
-IModule *create_root_module(DesignToolAPI *tool, IModule *sub_module) {
+IModule *create_root_module(DesignTool *tool, IModule *sub_module) {
   IModule *mod = create_module(tool, "M_top");
   ITable *tab = mod->tables_[0];
   IResource *w = tool->GetResource(tab, resource::kChannelWrite);
@@ -46,7 +46,7 @@ IDesign *build_design() {
   design->channels_.push_back(channel);
   IChannel *ext_channel = new IChannel(design);
   design->channels_.push_back(ext_channel);
-  DesignToolAPI *tool = Iroha::CreateDesignTool(design);
+  DesignTool *tool = Iroha::CreateDesignTool(design);
   IModule *sub = create_sub_module(tool);
   IModule *root = create_root_module(tool, sub);
   sub->SetParentModule(root);
