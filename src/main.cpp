@@ -9,6 +9,7 @@ void printVersion() {
 int main(int argc, char **argv) {
   vector<string> files;
   bool verilog = false;
+  bool html = false;
 
   string output;
   vector<string> opts;
@@ -21,6 +22,10 @@ int main(int argc, char **argv) {
     }
     if (arg == "-v") {
       verilog = true;
+      continue;
+    }
+    if (arg == "-h") {
+      html = true;
       continue;
     }
     if (arg == "-o" && i + 1 < argc) {
@@ -57,6 +62,9 @@ int main(int argc, char **argv) {
     iroha::WriterAPI *writer = iroha::Iroha::CreateWriter(design);
     if (verilog) {
       writer->SetLanguage("verilog");
+    }
+    if (html) {
+      writer->SetLanguage("html");
     }
     writer->Write(output);
   }

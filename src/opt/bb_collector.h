@@ -3,6 +3,9 @@
 #define _opt_bb_collector_h_
 
 #include "iroha/common.h"
+#include "opt/opt_util.h"
+
+#include <set>
 
 namespace iroha {
 namespace opt {
@@ -16,7 +19,16 @@ public:
   BBSet *Create();
 
 private:
+  void CollectEntries();
+  void CollectBBEntry(IState *es);
+  void CollectBB(IState *es, IState *next_st);
+  IState *GetOneNextState(IState *cur);
+
   ITable *table_;
+  BBSet *bbs_;
+  IResource *tr_;
+  set<IState *> bb_entries_;
+  map<IState *, TransitionInfo> transition_info_;
 };
 
 }  // namespace opt

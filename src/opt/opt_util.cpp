@@ -6,6 +6,9 @@
 namespace iroha {
 namespace opt {
 
+TransitionInfo::TransitionInfo() : nr_branch_(0), nr_join_(0) {
+}
+
 void OptUtil::CollectReachableStates(ITable *tab, set<IState *> *reachable) {
   map<IState *, set<IState *>> targets;
   CollectTransitionTargets(tab, &targets);
@@ -21,6 +24,24 @@ void OptUtil::CollectReachableStates(ITable *tab, set<IState *> *reachable) {
     for (auto n : nexts) {
       if (reachable->find(n) == reachable->end()) {
 	frontier.insert(n);
+      }
+    }
+  }
+}
+
+void OptUtil::CollectTransitionInfo(ITable *tab,
+				    map<IState *, TransitionInfo> *transition_info) {
+  IResource *tr = DesignUtil::FindTransitionResource(tab);
+  set<IState *> reachables;
+  CollectReachableStates(tab, &reachables);
+  for (auto st : reachables) {
+    TransitionInfo &info = (*transition_info)[st];
+    IInsn *tr_insn = DesignUtil::FindInsnByResource(st, tr);
+    if (tr_insn) {
+      info.nr_branch_ = tr_insn->target_states_.size();
+      for (auto target_st : tr_insn->target_states_) {
+	TransitionInfo &target_info = (*transition_info)[target_st];
+	++target_info.nr_join_;
       }
     }
   }

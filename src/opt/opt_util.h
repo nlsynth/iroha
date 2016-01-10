@@ -10,9 +10,19 @@
 namespace iroha {
 namespace opt {
 
+class TransitionInfo {
+public:
+  TransitionInfo();
+
+  int nr_branch_;
+  int nr_join_;
+};
+
 class OptUtil {
 public:
   static void CollectReachableStates(ITable *tab, set<IState *> *reachable);
+  static void CollectTransitionInfo(ITable *tab,
+				    map<IState *, TransitionInfo> *transition_info);
 
 private:
   static void CollectTransitionTargets(ITable *tab,

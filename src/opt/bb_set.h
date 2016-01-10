@@ -14,6 +14,7 @@ public:
 
 class BBSet {
 public:
+  ~BBSet();
   static BBSet *Create(ITable *table);
 
   vector<BB *> bbs_;
