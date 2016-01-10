@@ -178,6 +178,14 @@ void ResourceParams::SetValues(const string &key,
   values_->SetValues(key, values);
 }
 
+string ResourceParams::GetMappedName() const {
+  return values_->GetStringParam(resource::kMappedName, "");
+}
+
+void ResourceParams::SetMappedName(const string &name) {
+  values_->SetStringParam(resource::kMappedName, name);
+}
+
 bool ResourceParams::GetResetPolarity() const {
   return values_->GetBoolParam(resource::kResetPolarity, false);
 }

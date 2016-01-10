@@ -5,25 +5,29 @@
 #include "iroha/opt_api.h"
 #include "opt/phase.h"
 
-namespace iroha {
+#include <functional>
+#include <map>
 
-class IDesign;
+namespace iroha {
+namespace opt {
 
 class Optimizer : public OptAPI {
 public:
   Optimizer(IDesign *design);
 
   static void Init();
-  static void RegisterPhase(Phase *phase);
+  static void RegisterPhase(const string &name,
+			    function<Phase *()> factory);
 
   virtual bool ApplyPhase(const string &name) override;
 
 protected:
   IDesign *design_;
 
-  static vector<Phase *> phases_;
+  static map<string, function<Phase *()>> phases_;
 };
 
+}  // namespace opt
 }  // namespace iroha
 
 #endif  // _iroha_opt_optimizer_h_

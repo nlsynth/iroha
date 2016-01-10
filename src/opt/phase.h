@@ -5,13 +5,11 @@
 #include "iroha/common.h"
 
 namespace iroha {
+namespace opt {
 
 class Phase {
 public:
   virtual ~Phase();
-  virtual const string &GetName() const;
-
-  static void Register(Phase *phase);
 
   virtual bool ApplyForDesign(IDesign *design);
 
@@ -20,6 +18,7 @@ protected:
   virtual bool ApplyForTable(ITable *table);
 };
 
+}  // namespace opt
 }  // namespace iroha
 
 #endif  // _opt_phase_h_

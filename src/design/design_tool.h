@@ -37,14 +37,10 @@ public:
 				   int width, uint64_t value) override;
   virtual void SetRegisterInitialValue(uint64_t value,
 				       IRegister *reg) override;
-  virtual IInsn *CreateShiftInsn(IRegister *reg, bool to_left, int amount) override;
+  virtual IInsn *CreateShiftInsn(IRegister *reg, bool to_left,
+				 int amount) override;
 
 private:
-  IResource *FindResourceByClassName(ITable *table, const string &name);
-  IInsn *FindInsnByResource(IState *state, IResource *res);
-  IResourceClass *FindResourceClass(IDesign *design, const string &name);
-  IResource *CreateResource(ITable *table, const string &name);
-
   IDesign *design_;
 };
 

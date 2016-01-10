@@ -13,6 +13,7 @@ namespace iroha {
 namespace resource {
 class ResourceParamValueSet;
 
+const char kMappedName[] = "mapped_name";
 const char kResetPolarity[] = "reset_polarity";
 const char kExtInputPort[] = "input";
 const char kExtOutputPort[] = "output";
@@ -31,6 +32,9 @@ public:
   vector<string> GetParamKeys() const;
   vector<string> GetValues(const string &key) const;
   void SetValues(const string &key, const vector<string> &values);
+
+  string GetMappedName() const;
+  void SetMappedName(const string &name);
 
   bool GetResetPolarity() const;
   void SetResetPolarity(bool p);

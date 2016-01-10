@@ -28,8 +28,9 @@ libiroha_la_SOURCES = \
  src/design/design_tool.cpp src/design/design_tool.h \
  src/design/util.cpp src/design/util.h \
  src/design/validator.cpp src/design/validator.h \
+ src/opt/array_to_mem.cpp src/opt/array_to_mem.h \
  src/opt/optimizer.cpp src/opt/optimizer.h \
- src/opt/phase.h \
+ src/opt/phase.h src/opt/phase.cpp \
  src/writer/connection.cpp src/writer/connection.h \
  src/writer/exp_writer.cpp src/writer/exp_writer.h \
  src/writer/module_template.cpp src/writer/module_template.h \

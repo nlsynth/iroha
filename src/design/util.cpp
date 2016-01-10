@@ -42,4 +42,44 @@ IResourceClass *DesignUtil::GetTransitionResourceClassFromDesign(IDesign *design
   return nullptr;
 }
 
+IResource *DesignUtil::FindResourceByClassName(ITable *table,
+					       const string &name) {
+  for (auto *res : table->resources_) {
+    if (res->GetClass()->GetName() == name) {
+      return res;
+    }
+  }
+  return nullptr;
+}
+
+IInsn *DesignUtil::FindInsnByResource(IState *state, IResource *res) {
+  for (auto *insn : state->insns_) {
+    if (insn->GetResource() == res) {
+      return insn;
+    }
+  }
+  return nullptr;
+}
+
+IResourceClass *DesignUtil::FindResourceClass(IDesign *design,
+					      const string &class_name) {
+  for (auto *rc : design->resource_classes_) {
+    if (rc->GetName() == class_name) {
+      return rc;
+    }
+  }
+  return nullptr;
+}
+
+IResource *DesignUtil::CreateResource(ITable *table, const string &name) {
+  IDesign *design = table->GetModule()->GetDesign();
+  IResourceClass *rc = FindResourceClass(design, name);
+  if (rc == nullptr) {
+    return nullptr;
+  }
+  IResource *res = new IResource(table, rc);
+  table->resources_.push_back(res);
+  return res;
+}
+
 }  // namespace iroha

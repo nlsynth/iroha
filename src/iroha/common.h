@@ -30,6 +30,8 @@ class Util {
 public:
   static string Itoa(int i);
   static int Atoi(const string &a);
+  static void SplitStringUsing(const string &str, const char *delim,
+			       vector<string> *output);
 };
 
 }  // namespace iroha

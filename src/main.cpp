@@ -11,6 +11,7 @@ int main(int argc, char **argv) {
   bool verilog = false;
 
   string output;
+  vector<string> opts;
 
   for (int i = 1; i < argc; ++i) {
     const string arg(argv[i]);
@@ -27,6 +28,11 @@ int main(int argc, char **argv) {
       ++i;
       continue;
     }
+    if (arg == "-opt" && i + 1 < argc) {
+      iroha::Util::SplitStringUsing(argv[i + 1], ",", &opts);
+      ++i;
+      continue;
+    }
     files.push_back(arg);
   }
 
@@ -35,8 +41,18 @@ int main(int argc, char **argv) {
   for (string &fn : files) {
     iroha::IDesign *design = iroha::Iroha::ReadDesignFromFile(fn);
     if (design ==nullptr) {
-      cout << "Failed to read design from: " << fn << "\n";
+      cerr << "Failed to read design from: " << fn << "\n";
       continue;
+    }
+    iroha::OptAPI *optimizer = iroha::Iroha::CreateOptimizer(design);
+    bool has_opt_err = false;
+    for (string &phase : opts) {
+      if (!optimizer->ApplyPhase(phase)) {
+	has_opt_err = true;
+      }
+    }
+    if (has_opt_err) {
+      cerr << "Failed to optimize the design: " << fn << "\n";
     }
     iroha::WriterAPI *writer = iroha::Iroha::CreateWriter(design);
     if (verilog) {

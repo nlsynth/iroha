@@ -2,6 +2,7 @@
 
 #include <set>
 
+#include "design/util.h"
 #include "design/validator.h"
 #include "iroha/resource_class.h"
 #include "iroha/resource_params.h"
@@ -26,8 +27,9 @@ void DesignTool::Validate(ITable *table) {
 
 IInsn *DesignTool::AddNextState(IState *cur, IState *next) {
   ITable *table = cur->GetTable();
-  IResource *tr = FindResourceByClassName(table, resource::kTransition);
-  IInsn *insn = FindInsnByResource(cur, tr);
+  IResource *tr = DesignUtil::FindResourceByClassName(table,
+						      resource::kTransition);
+  IInsn *insn = DesignUtil::FindInsnByResource(cur, tr);
   if (insn == nullptr) {
     insn = new IInsn(tr);
     cur->insns_.push_back(insn);
@@ -37,12 +39,12 @@ IInsn *DesignTool::AddNextState(IState *cur, IState *next) {
 }
 
 IResource *DesignTool::GetResource(ITable *table, const string &class_name) {
-  IResource *res = FindResourceByClassName(table, class_name);
+  IResource *res = DesignUtil::FindResourceByClassName(table, class_name);
   if (res) {
     return res;
   }
   IDesign *design = table->GetModule()->GetDesign();
-  IResourceClass *rc = FindResourceClass(design, class_name);
+  IResourceClass *rc = DesignUtil::FindResourceClass(design, class_name);
   if (!rc) {
     return nullptr;
   }
@@ -61,7 +63,7 @@ IResource *DesignTool::GetBinOpResource(ITable *table,
     }
   }
   IDesign *design = table->GetModule()->GetDesign();
-  IResourceClass *rc = FindResourceClass(design, class_name);
+  IResourceClass *rc = DesignUtil::FindResourceClass(design, class_name);
   IResource *res = new IResource(table, rc);
   table->resources_.push_back(res);
 
@@ -82,7 +84,7 @@ IResource *DesignTool::CreateArrayResource(ITable *table,
 					   int data_width,
 					   bool is_external,
 					   bool is_ram) {
-  IResource *res = CreateResource(table, resource::kArray);
+  IResource *res = DesignUtil::CreateResource(table, resource::kArray);
   IValueType data_type;
   data_type.SetWidth(data_width);
   IArray *array = new IArray(address_width, data_type,
@@ -92,26 +94,27 @@ IResource *DesignTool::CreateArrayResource(ITable *table,
 }
 
 IResource *DesignTool::CreateShifterResource(ITable *table) {
-  return CreateResource(table, resource::kShift);
+  return DesignUtil::CreateResource(table, resource::kShift);
 }
 
 IResource *DesignTool::CreateEmbedResource(ITable *table,
 					   const string &mod_name,
 					   const string &fn) {
-  IResource *res = CreateResource(table, resource::kEmbedded);
+  IResource *res = DesignUtil::CreateResource(table, resource::kEmbedded);
   res->GetParams()->SetEmbeddedModuleName(mod_name, fn);
   return res;
 }
 
 IResource *DesignTool::CreateSubModuleTaskCallResource(ITable *table,
 						       IModule *mod) {
-  IResource *res = CreateResource(table, resource::kSubModuleTaskCall);
+  IResource *res = DesignUtil::CreateResource(table,
+					      resource::kSubModuleTaskCall);
   res->SetModule(mod);
   return res;
 }
 
 IResource *DesignTool::CreateTaskResource(ITable *table) {
-  return CreateResource(table, resource::kSubModuleTask);
+  return DesignUtil::CreateResource(table, resource::kSubModuleTask);
 }
 
 IRegister *DesignTool::AllocRegister(ITable *table, const string &name,
@@ -145,7 +148,8 @@ void DesignTool::SetRegisterInitialValue(uint64_t value,
 
 IInsn *DesignTool::CreateShiftInsn(IRegister *reg, bool to_left, int amount) {
   ITable *table = reg->GetTable();
-  IResource *shifter = FindResourceByClassName(table, resource::kShift);
+  IResource *shifter =
+    DesignUtil::FindResourceByClassName(table, resource::kShift);
   IInsn *insn = new IInsn(shifter);
   if (to_left) {
     insn->SetOperand("left");
@@ -156,46 +160,6 @@ IInsn *DesignTool::CreateShiftInsn(IRegister *reg, bool to_left, int amount) {
   IRegister *a = AllocConstNum(table, 32, amount);
   insn->inputs_.push_back(a);
   return insn;
-}
-
-IResource *DesignTool::FindResourceByClassName(ITable *table,
-					       const string &name) {
-  for (auto *res : table->resources_) {
-    if (res->GetClass()->GetName() == name) {
-      return res;
-    }
-  }
-  return nullptr;
-}
-
-IInsn *DesignTool::FindInsnByResource(IState *state, IResource *res) {
-  for (auto *insn : state->insns_) {
-    if (insn->GetResource() == res) {
-      return insn;
-    }
-  }
-  return nullptr;
-}
-
-IResourceClass *DesignTool::FindResourceClass(IDesign *design,
-					      const string &class_name) {
-  for (auto *rc : design->resource_classes_) {
-    if (rc->GetName() == class_name) {
-      return rc;
-    }
-  }
-  return nullptr;
-}
-
-IResource *DesignTool::CreateResource(ITable *table, const string &name) {
-  IDesign *design = table->GetModule()->GetDesign();
-  IResourceClass *rc = FindResourceClass(design, name);
-  if (rc == nullptr) {
-    return nullptr;
-  }
-  IResource *res = new IResource(table, rc);
-  table->resources_.push_back(res);
-  return res;
 }
 
 }  // namespace iroha

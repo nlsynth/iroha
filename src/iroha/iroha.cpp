@@ -17,7 +17,7 @@ WriterAPI::~WriterAPI() {
 }
 
 void Iroha::Init() {
-  Optimizer::Init();
+  opt::Optimizer::Init();
 }
 
 IDesign *Iroha::ReadDesignFromFile(const string &fn) {
@@ -33,7 +33,7 @@ DesignToolAPI *Iroha::CreateDesignTool(IDesign *design) {
 }
 
 OptAPI *Iroha::CreateOptimizer(IDesign *design) {
-  return new Optimizer(design);
+  return new opt::Optimizer(design);
 }
 
 }  // namespace iroha

@@ -1,28 +1,32 @@
 #include "opt/phase.h"
 
+#include "iroha/i_design.h"
+
 namespace iroha {
+namespace opt {
 
 Phase::~Phase() {
 }
 
-const string &Phase::GetName() const {
-  return "null";
-}
-
-void Phase::Register(Phase *phase) {
-  Optimizer::RegisterPhase(phase);
-}
-
 bool Phase::ApplyForDesign(IDesign *design) {
-  return true;
+  bool all_ok = true;
+  for (auto *mod : design->modules_) {
+    all_ok &= ApplyForModule(mod);
+  }
+  return all_ok;
 }
 
 bool Phase::ApplyForModule(IModule *module) {
-  return true;
+  bool all_ok = true;
+  for (auto *table : module->tables_) {
+    all_ok &= ApplyForTable(table);
+  }
+  return all_ok;
 }
 
 bool Phase::ApplyForTable(ITable *table) {
   return true;
 }
 
-}  // iroha
+}  // namespace opt
+}  // namespace iroha
