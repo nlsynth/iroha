@@ -116,12 +116,14 @@ am_libiroha_la_OBJECTS = src/iroha/common.lo src/iroha/iroha.lo \
 	src/builder/reader.lo src/design/design_tool.lo \
 	src/design/util.lo src/design/validator.lo \
 	src/opt/array_to_mem.lo src/opt/bb_collector.lo \
-	src/opt/bb_set.lo src/opt/bb_shrink.lo src/opt/optimizer.lo \
+	src/opt/bb_set.lo src/opt/bb_shrink.lo \
+	src/opt/debug_annotation.lo src/opt/optimizer.lo \
 	src/opt/opt_util.lo src/opt/phase.lo src/writer/connection.lo \
-	src/writer/exp_writer.lo src/writer/module_template.lo \
-	src/writer/verilog/embed.lo src/writer/verilog/insn_writer.lo \
-	src/writer/verilog/module.lo src/writer/verilog/ports.lo \
-	src/writer/verilog/state.lo src/writer/verilog/table.lo \
+	src/writer/exp_writer.lo src/writer/html_writer.lo \
+	src/writer/module_template.lo src/writer/verilog/embed.lo \
+	src/writer/verilog/insn_writer.lo src/writer/verilog/module.lo \
+	src/writer/verilog/ports.lo src/writer/verilog/state.lo \
+	src/writer/verilog/table.lo \
 	src/writer/verilog/verilog_writer.lo src/writer/writer.lo
 libiroha_la_OBJECTS = $(am_libiroha_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
@@ -419,11 +421,13 @@ libiroha_la_SOURCES = \
  src/opt/bb_collector.cpp src/opt/bb_collector.h \
  src/opt/bb_set.cpp src/opt/bb_set.h \
  src/opt/bb_shrink.cpp src/opt/bb_shrink.h \
+ src/opt/debug_annotation.cpp src/opt/debug_annotation.h \
  src/opt/optimizer.cpp src/opt/optimizer.h \
  src/opt/opt_util.cpp src/opt/opt_util.h \
  src/opt/phase.h src/opt/phase.cpp \
  src/writer/connection.cpp src/writer/connection.h \
  src/writer/exp_writer.cpp src/writer/exp_writer.h \
+ src/writer/html_writer.cpp src/writer/html_writer.h \
  src/writer/module_template.cpp src/writer/module_template.h \
  src/writer/verilog/embed.cpp src/writer/verilog/embed.h \
  src/writer/verilog/insn_writer.cpp src/writer/verilog/insn_writer.h \
@@ -538,6 +542,8 @@ src/opt/bb_set.lo: src/opt/$(am__dirstamp) \
 	src/opt/$(DEPDIR)/$(am__dirstamp)
 src/opt/bb_shrink.lo: src/opt/$(am__dirstamp) \
 	src/opt/$(DEPDIR)/$(am__dirstamp)
+src/opt/debug_annotation.lo: src/opt/$(am__dirstamp) \
+	src/opt/$(DEPDIR)/$(am__dirstamp)
 src/opt/optimizer.lo: src/opt/$(am__dirstamp) \
 	src/opt/$(DEPDIR)/$(am__dirstamp)
 src/opt/opt_util.lo: src/opt/$(am__dirstamp) \
@@ -553,6 +559,8 @@ src/writer/$(DEPDIR)/$(am__dirstamp):
 src/writer/connection.lo: src/writer/$(am__dirstamp) \
 	src/writer/$(DEPDIR)/$(am__dirstamp)
 src/writer/exp_writer.lo: src/writer/$(am__dirstamp) \
+	src/writer/$(DEPDIR)/$(am__dirstamp)
+src/writer/html_writer.lo: src/writer/$(am__dirstamp) \
 	src/writer/$(DEPDIR)/$(am__dirstamp)
 src/writer/module_template.lo: src/writer/$(am__dirstamp) \
 	src/writer/$(DEPDIR)/$(am__dirstamp)
@@ -679,11 +687,13 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/opt/$(DEPDIR)/bb_collector.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/opt/$(DEPDIR)/bb_set.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/opt/$(DEPDIR)/bb_shrink.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/opt/$(DEPDIR)/debug_annotation.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/opt/$(DEPDIR)/opt_util.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/opt/$(DEPDIR)/optimizer.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/opt/$(DEPDIR)/phase.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/writer/$(DEPDIR)/connection.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/writer/$(DEPDIR)/exp_writer.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/writer/$(DEPDIR)/html_writer.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/writer/$(DEPDIR)/module_template.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/writer/$(DEPDIR)/writer.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/writer/verilog/$(DEPDIR)/embed.Plo@am__quote@

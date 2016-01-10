@@ -1,8 +1,10 @@
 #include "opt/optimizer.h"
 
 #include "design/validator.h"
+#include "iroha/i_design.h"
 #include "opt/array_to_mem.h"
 #include "opt/bb_shrink.h"
+#include "opt/debug_annotation.h"
 #include "opt/phase.h"
 
 namespace iroha {
@@ -35,6 +37,10 @@ bool Optimizer::ApplyPhase(const string &name) {
     return true;
   }
   return false;
+}
+
+void Optimizer::EnableDebugAnnotation() {
+  design_->SetDebugAnnotation(new DebugAnnotation);
 }
 
 }  // namespace opt

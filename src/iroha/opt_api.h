@@ -10,6 +10,7 @@ class OptAPI {
 public:
   virtual ~OptAPI();
   virtual bool ApplyPhase(const string &name) = 0;
+  virtual void EnableDebugAnnotation() = 0;
 };
 
 }  // namespace iroha

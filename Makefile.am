@@ -31,11 +31,13 @@ libiroha_la_SOURCES = \
  src/opt/bb_collector.cpp src/opt/bb_collector.h \
  src/opt/bb_set.cpp src/opt/bb_set.h \
  src/opt/bb_shrink.cpp src/opt/bb_shrink.h \
+ src/opt/debug_annotation.cpp src/opt/debug_annotation.h \
  src/opt/optimizer.cpp src/opt/optimizer.h \
  src/opt/opt_util.cpp src/opt/opt_util.h \
  src/opt/phase.h src/opt/phase.cpp \
  src/writer/connection.cpp src/writer/connection.h \
  src/writer/exp_writer.cpp src/writer/exp_writer.h \
+ src/writer/html_writer.cpp src/writer/html_writer.h \
  src/writer/module_template.cpp src/writer/module_template.h \
  src/writer/verilog/embed.cpp src/writer/verilog/embed.h \
  src/writer/verilog/insn_writer.cpp src/writer/verilog/insn_writer.h \

@@ -6,6 +6,10 @@
 
 namespace iroha {
 
+namespace opt {
+class DebugAnnotation;
+}  // namespace opt
+
 // Type of resource.
 // e.g. 'adder' is a resource class and '32 bit adder' is a resource.
 class IResourceClass {
@@ -223,6 +227,8 @@ public:
 
   ResourceParams *GetParams() const;
   ObjectPool *GetObjectPool();
+  void SetDebugAnnotation(opt::DebugAnnotation *annotation);
+  opt::DebugAnnotation *GetDebugAnnotation() const;
 
   vector<IModule *> modules_;
   vector<IResourceClass *> resource_classes_;
@@ -231,6 +237,7 @@ public:
 private:
   ObjectPool *objects_;
   ResourceParams *params_;
+  opt::DebugAnnotation *annotation_;
 };
 
 }  // namespace iroha

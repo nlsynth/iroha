@@ -6,6 +6,7 @@
 #include "iroha/resource_class.h"
 #include "iroha/resource_params.h"
 #include "iroha/stl_util.h"
+#include "opt/debug_annotation.h"
 
 namespace iroha {
 
@@ -304,13 +305,16 @@ IModule *IModule::GetParentModule() const {
   return parent_;
 }
 
-IDesign::IDesign() : objects_(new ObjectPool), params_(new ResourceParams) {
+IDesign::IDesign() : objects_(new ObjectPool), params_(new ResourceParams), annotation_(nullptr) {
   resource::InstallResourceClasses(this);
 }
 
 IDesign::~IDesign() {
   delete objects_;
   delete params_;
+  if (annotation_ != nullptr) {
+    delete annotation_;
+  }
 }
 
 ObjectPool *IDesign::GetObjectPool() {
@@ -319,6 +323,17 @@ ObjectPool *IDesign::GetObjectPool() {
 
 ResourceParams *IDesign::GetParams() const{
   return params_;
+}
+
+void IDesign::SetDebugAnnotation(opt::DebugAnnotation *annotation) {
+  if (annotation_ != nullptr) {
+    delete annotation_;
+  }
+  annotation_ = annotation;
+}
+  
+opt::DebugAnnotation *IDesign::GetDebugAnnotation() const {
+  return annotation_;
 }
 
 }  // namespace iroha

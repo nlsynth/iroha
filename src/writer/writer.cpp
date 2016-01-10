@@ -4,6 +4,7 @@
 #include "iroha/iroha.h"
 #include "writer/connection.h"
 #include "writer/exp_writer.h"
+#include "writer/html_writer.h"
 #include "writer/verilog/verilog_writer.h"
 
 namespace iroha {
@@ -27,6 +28,9 @@ bool Writer::Write(const string &fn) {
     Connection conn(design_);
     conn.Build();
     verilog::VerilogWriter writer(design_, conn, *os);
+    writer.Write();
+  } else if (language_ == "html") {
+    HtmlWriter writer(design_, *os);
     writer.Write();
   } else {
     ExpWriter writer(design_, *os);

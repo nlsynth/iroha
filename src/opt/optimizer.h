@@ -1,6 +1,6 @@
 // -*- C++ -*-
-#ifndef _iroha_opt_optimizer_h_
-#define _iroha_opt_optimizer_h_
+#ifndef _opt_optimizer_h_
+#define _opt_optimizer_h_
 
 #include "iroha/opt_api.h"
 #include "opt/phase.h"
@@ -20,6 +20,7 @@ public:
 			    function<Phase *()> factory);
 
   virtual bool ApplyPhase(const string &name) override;
+  virtual void EnableDebugAnnotation() override;
 
 protected:
   IDesign *design_;
@@ -30,4 +31,4 @@ protected:
 }  // namespace opt
 }  // namespace iroha
 
-#endif  // _iroha_opt_optimizer_h_
+#endif  // _opt_optimizer_h_
