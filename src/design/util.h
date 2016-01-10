@@ -13,6 +13,7 @@ public:
   static IResourceClass *GetTransitionResourceClassFromDesign(IDesign *design);
 
   static IResource *FindResourceByClassName(ITable *table, const string &name);
+  static IResource *FindTransitionResource(ITable *table);
   static IInsn *FindInsnByResource(IState *state, IResource *res);
   static IResourceClass *FindResourceClass(IDesign *design, const string &name);
   static IResource *CreateResource(ITable *table, const string &name);

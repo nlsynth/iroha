@@ -2,6 +2,7 @@
 
 #include "design/validator.h"
 #include "opt/array_to_mem.h"
+#include "opt/bb_shrink.h"
 #include "opt/phase.h"
 
 namespace iroha {
@@ -14,6 +15,7 @@ Optimizer::Optimizer(IDesign *design) : design_(design) {
 
 void Optimizer::Init() {
   RegisterPhase("array_to_mem", &ArrayToMem::Create);
+  RegisterPhase("bb_shrink", &BBShrink::Create);
 }
 
 void Optimizer::RegisterPhase(const string &name,

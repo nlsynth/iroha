@@ -52,6 +52,10 @@ IResource *DesignUtil::FindResourceByClassName(ITable *table,
   return nullptr;
 }
 
+IResource *DesignUtil::FindTransitionResource(ITable *table) {
+  return FindResourceByClassName(table, resource::kTransition);
+}
+
 IInsn *DesignUtil::FindInsnByResource(IState *state, IResource *res) {
   for (auto *insn : state->insns_) {
     if (insn->GetResource() == res) {
