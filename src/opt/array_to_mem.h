@@ -17,6 +17,8 @@ private:
   virtual bool ApplyForTable(ITable *table);
 
   IResource *GetResource(IResource *array);
+  void AddMemInsn(IResource *mem, IState *st, IInsn *array_insn);
+  void DeleteArrayInsn(IState *st, IInsn *array_insn);
 };
 
 }  // namespace opt

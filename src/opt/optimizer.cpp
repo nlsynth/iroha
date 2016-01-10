@@ -1,5 +1,6 @@
 #include "opt/optimizer.h"
 
+#include "design/validator.h"
 #include "opt/array_to_mem.h"
 #include "opt/phase.h"
 
@@ -27,7 +28,11 @@ bool Optimizer::ApplyPhase(const string &name) {
   }
   auto factory = it->second;
   unique_ptr<Phase> phase(factory());
-  return phase->ApplyForDesign(design_);
+  if (phase->ApplyForDesign(design_)) {
+    Validator::Validate(design_, nullptr);
+    return true;
+  }
+  return false;
 }
 
 }  // namespace opt

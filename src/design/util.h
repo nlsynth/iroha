@@ -16,6 +16,7 @@ public:
   static IInsn *FindInsnByResource(IState *state, IResource *res);
   static IResourceClass *FindResourceClass(IDesign *design, const string &name);
   static IResource *CreateResource(ITable *table, const string &name);
+  static IInsn *GetTransitionInsn(IState *st);
 };
 
 }  // namespace iroha

@@ -83,6 +83,9 @@ void Table::BuildResource() {
     if (resource::IsExclusiveBinOp(*klass)) {
       BuildExclusiveBinOpResource(*res);
     }
+    if (resource::IsMapped(*klass)) {
+      BuildMappedResource(*res);
+    }
     if (resource::IsArray(*klass)) {
       BuildArrayResource(*res);
     }
@@ -119,6 +122,9 @@ void Table::BuildExclusiveBinOpResource(const IResource &res) {
 }
 
 void Table::BuildArrayResource(const IResource &res) {
+}
+
+void Table::BuildMappedResource(const IResource &res) {
 }
 
 void Table::BuildSubModuleTaskResource(const IResource &res) {

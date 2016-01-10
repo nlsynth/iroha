@@ -32,14 +32,15 @@ Please read src/iroha/iroha.h, src/main.cpp examples/ for more details.
 
 -- TODOs
 
+* P0: Document
 * P1: Sub module task
 * P1: In design channel
-* P1: More examples
-* P1: Document
-* P1: Low level synth phase
 * P1: Memory or array interface synth implementation
 * P1: Optimizer
 * P1: Verilog writer to support insn chaining
+* P1: Tidy up design/design_tool and design/util mess
+* P1: Basic Block APIs
+* P2: Set constraint not to split related insns
 * P2: Delete API objects automatically
 * P2: ROM image data structure.
 * P2: Values wider than 64bits
@@ -48,6 +49,7 @@ Please read src/iroha/iroha.h, src/main.cpp examples/ for more details.
 * P2: Pipeline can be built with multiple tables in a module OR multiple modules with one table in each module
 * P2: I/O for embedded verilog module
 * P2: Resource sharing between tables
+* P3: SSA conversion
 * P3: Export optimizer API so that users can add own phase
 * P3: API to create copies of module, table and so on.
 * P3: HTML writer

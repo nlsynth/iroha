@@ -2,6 +2,7 @@
 
 #include <map>
 
+#include "design/design_tool.h"
 #include "design/util.h"
 #include "iroha/i_design.h"
 #include "iroha/resource_class.h"
@@ -28,8 +29,55 @@ bool ArrayToMem::ApplyForTable(ITable *table) {
       array_to_mem[res] = mem_res;
     }
   }
-  // TODO(yt76): Implement the rest.
+  struct ArrayInsn {
+    IState *st;
+    IInsn *insn;
+  };
+  vector<ArrayInsn> insns;
+  for (IState *st : table->states_) {
+    for (IInsn *insn : st->insns_) {
+      if (insn->GetResource()->GetClass()->GetName() == resource::kArray) {
+	ArrayInsn ai;
+	ai.st = st;
+	ai.insn = insn;
+	insns.push_back(ai);
+      }
+    }
+  }
+  for (ArrayInsn &ai : insns) {
+    IResource *mem = array_to_mem[ai.insn->GetResource()];
+    AddMemInsn(mem, ai.st, ai.insn);
+  }
+  for (ArrayInsn &ai : insns) {
+    DeleteArrayInsn(ai.st, ai.insn);
+  }
   return true;
+}
+
+void ArrayToMem::AddMemInsn(IResource *mem, IState *st, IInsn *array_insn) {
+  if (array_insn->outputs_.size() == 0) {
+    // Write.
+    IInsn *insn = new IInsn(mem);
+    insn->SetOperand("sram_write");
+    st->insns_.push_back(insn);
+    insn->inputs_ = array_insn->inputs_;
+  } else {
+    // Read.
+    IInsn *addr_insn = new IInsn(mem);
+    addr_insn->SetOperand("sram_read_address");
+    addr_insn->inputs_ = array_insn->inputs_;
+    st->insns_.push_back(addr_insn);
+    // Data phase
+    IState *data_st = DesignTool::InsertNextState(st);
+    IInsn *data_insn = new IInsn(mem);
+    data_insn->SetOperand("sram_read_data");
+    data_insn->outputs_ = array_insn->outputs_;
+    data_st->insns_.push_back(data_insn);
+  }
+}
+
+void ArrayToMem::DeleteArrayInsn(IState *st, IInsn *array_insn) {
+  DesignTool::DeleteInsn(st, array_insn);
 }
 
 IResource *ArrayToMem::GetResource(IResource *array_res) {

@@ -26,16 +26,33 @@ void DesignTool::Validate(ITable *table) {
 }
 
 IInsn *DesignTool::AddNextState(IState *cur, IState *next) {
-  ITable *table = cur->GetTable();
-  IResource *tr = DesignUtil::FindResourceByClassName(table,
-						      resource::kTransition);
-  IInsn *insn = DesignUtil::FindInsnByResource(cur, tr);
-  if (insn == nullptr) {
-    insn = new IInsn(tr);
-    cur->insns_.push_back(insn);
-  }
+  IInsn *insn = DesignUtil::GetTransitionInsn(cur);
   insn->target_states_.push_back(next);
   return insn;
+}
+
+IState *DesignTool::InsertNextState(IState *st) {
+  ITable *table = st->GetTable();
+  auto it = table->states_.begin();
+  for (IState *cur_st : table->states_) {
+    if (cur_st == st) {
+      break;
+    }
+    ++it;
+  }
+  if (it == table->states_.end()) {
+    return nullptr;
+  }
+  IState *new_st = new IState(table);
+  IInsn *st_tr = DesignUtil::GetTransitionInsn(st);
+  IInsn *new_st_tr = DesignUtil::GetTransitionInsn(new_st);
+  new_st_tr->target_states_ = st_tr->target_states_;
+  st_tr->target_states_.clear();
+  AddNextState(st, new_st);
+  // inserts before |it|.
+  ++it;
+  table->states_.insert(it, new_st);
+  return new_st;
 }
 
 IResource *DesignTool::GetResource(ITable *table, const string &class_name) {
@@ -160,6 +177,20 @@ IInsn *DesignTool::CreateShiftInsn(IRegister *reg, bool to_left, int amount) {
   IRegister *a = AllocConstNum(table, 32, amount);
   insn->inputs_.push_back(a);
   return insn;
+}
+
+void DesignTool::DeleteInsn(IState *st, IInsn *insn) {
+  auto it = st->insns_.begin();
+  for (IInsn *cur : st->insns_) {
+    if (cur == insn) {
+      break;
+    }
+    ++it;
+  }
+  if (it == st->insns_.end()) {
+    return;
+  }
+  st->insns_.erase(it);
 }
 
 }  // namespace iroha

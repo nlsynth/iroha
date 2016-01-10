@@ -65,7 +65,8 @@ void State::WriteInsn(const IInsn *insn, ostream &os) {
 }
 
 void State::WriteTransition(ostream &os) {
-  if (transition_insn_ == nullptr) {
+  if (transition_insn_ == nullptr ||
+      transition_insn_->target_states_.size() == 0) {
     return;
   }
   const string &sv = table_->StateVariable();

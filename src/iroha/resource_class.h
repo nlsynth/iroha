@@ -34,6 +34,7 @@ bool IsNumToBoolExclusiveBinOp(const IResourceClass &rc);
 bool IsLightBinOp(const IResourceClass &rc);
 bool IsBitArrangeOp(const IResourceClass &rc);
 bool IsArray(const IResourceClass &rc);
+bool IsMapped(const IResourceClass &rc);
 bool IsSubModuleTaskCall(const IResourceClass &rc);
 bool IsSubModuleTask(const IResourceClass &rc);
 

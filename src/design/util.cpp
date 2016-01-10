@@ -82,4 +82,16 @@ IResource *DesignUtil::CreateResource(ITable *table, const string &name) {
   return res;
 }
 
+IInsn *DesignUtil::GetTransitionInsn(IState *st) {
+  ITable *table = st->GetTable();
+  IResource *tr = DesignUtil::FindResourceByClassName(table,
+						      resource::kTransition);
+  IInsn *insn = DesignUtil::FindInsnByResource(st, tr);
+  if (insn == nullptr) {
+    insn = new IInsn(tr);
+    st->insns_.push_back(insn);
+  }
+  return insn;
+}
+
 }  // namespace iroha
