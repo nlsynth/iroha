@@ -12,10 +12,11 @@ namespace opt {
 
 class BB;
 class BBSet;
+class DebugAnnotation;
 
 class BBCollector {
 public:
-  BBCollector(ITable *table);
+  BBCollector(ITable *table, DebugAnnotation *annotation);
   BBSet *Create();
 
 private:
@@ -23,8 +24,10 @@ private:
   void CollectBBEntry(IState *es);
   void CollectBB(IState *es, IState *next_st);
   IState *GetOneNextState(IState *cur);
+  void Annotate();
 
   ITable *table_;
+  DebugAnnotation *annotation_;
   BBSet *bbs_;
   IResource *tr_;
   set<IState *> bb_entries_;

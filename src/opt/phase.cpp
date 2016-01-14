@@ -5,10 +5,14 @@
 namespace iroha {
 namespace opt {
 
+Phase::Phase() : annotation_(nullptr) {
+}
+
 Phase::~Phase() {
 }
 
 bool Phase::ApplyForDesign(IDesign *design) {
+  annotation_ = design->GetDebugAnnotation();
   bool all_ok = true;
   for (auto *mod : design->modules_) {
     all_ok &= ApplyForModule(mod);

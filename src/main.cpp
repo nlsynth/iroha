@@ -50,6 +50,9 @@ int main(int argc, char **argv) {
       continue;
     }
     iroha::OptAPI *optimizer = iroha::Iroha::CreateOptimizer(design);
+    if (html) {
+      optimizer->EnableDebugAnnotation();
+    }
     bool has_opt_err = false;
     for (string &phase : opts) {
       if (!optimizer->ApplyPhase(phase)) {

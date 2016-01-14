@@ -7,8 +7,11 @@
 namespace iroha {
 namespace opt {
 
+class DebugAnnotation;
+
 class Phase {
 public:
+  Phase();
   virtual ~Phase();
 
   virtual bool ApplyForDesign(IDesign *design);
@@ -16,6 +19,8 @@ public:
 protected:
   virtual bool ApplyForModule(IModule *module);
   virtual bool ApplyForTable(ITable *table);
+
+  DebugAnnotation *annotation_;
 };
 
 }  // namespace opt

@@ -7,7 +7,8 @@
 namespace iroha {
 namespace opt {
 
-BBCollector::BBCollector(ITable *table) : table_(table), bbs_(new BBSet) {
+BBCollector::BBCollector(ITable *table, DebugAnnotation *annotation)
+  : table_(table), annotation_(annotation), bbs_(new BBSet) {
   tr_ = DesignUtil::FindTransitionResource(table_);
 }
 
@@ -15,6 +16,9 @@ BBSet *BBCollector::Create() {
   CollectEntries();
   for (IState *es : bb_entries_) {
     CollectBBEntry(es);
+  }
+  if (annotation_ != nullptr) {
+    Annotate();
   }
   return bbs_;
 }
@@ -60,7 +64,7 @@ void BBCollector::CollectBBEntry(IState *es) {
 	continue;
       }
       targets_seen.insert(next_st);
-      CollectBB(es, nullptr);
+      CollectBB(es, next_st);
     }
   }
 }
@@ -96,6 +100,10 @@ IState *BBCollector::GetOneNextState(IState *cur) {
     return nullptr;
   }
   return tr_insn->target_states_[0];
+}
+
+void BBCollector::Annotate() {
+  bbs_->Annotate(annotation_);
 }
 
 }  // namespace opt

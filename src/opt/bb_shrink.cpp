@@ -1,6 +1,7 @@
 #include "opt/bb_shrink.h"
 
 #include "opt/bb_set.h"
+#include "opt/debug_annotation.h"
 
 namespace iroha {
 namespace opt {
@@ -13,7 +14,7 @@ Phase *BBShrink::Create() {
 }
 
 bool BBShrink::ApplyForTable(ITable *table) {
-  unique_ptr<BBSet> bbs(BBSet::Create(table));
+  unique_ptr<BBSet> bbs(BBSet::Create(table, annotation_));
   for (BB *bb : bbs->bbs_) {
     ShrinkBB(bb);
   }

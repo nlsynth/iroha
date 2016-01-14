@@ -7,6 +7,8 @@
 namespace iroha {
 namespace opt {
 
+class DebugAnnotation;
+
 class BB {
 public:
   vector<IState *> states_;
@@ -15,7 +17,8 @@ public:
 class BBSet {
 public:
   ~BBSet();
-  static BBSet *Create(ITable *table);
+  static BBSet *Create(ITable *table, DebugAnnotation *annotation);
+  void Annotate(DebugAnnotation *annotation);
 
   vector<BB *> bbs_;
 };

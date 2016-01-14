@@ -6,6 +6,10 @@
 
 namespace iroha {
 
+namespace opt {
+class DebugAnnotation;
+}  // namespace opt
+
 class HtmlWriter {
 public:
   HtmlWriter(const IDesign *design, ostream &os);
@@ -20,10 +24,14 @@ private:
   void WriteState(const IState &st);
   void WriteInsn(const IInsn &insn);
   void WriteRegisters(const ITable &tab);
+  void WriteRegister(const IRegister &reg);
   void WriteResources(const ITable &tab);
+  void WriteResource(const IResource &res);
+  void WriteValue(const IValue &val);
 
   const IDesign *design_;
   ostream &os_;
+  const opt::DebugAnnotation *annotation_;
 };
 
 }  // namespace iroha
