@@ -1,12 +1,17 @@
 #include "example_common.h"
 #include "iroha/iroha.h"
 
-// y = SEED
+// This implements XORSHIFT32 random generator.
 //
-// y = y ^ (y << 13)
-// y = y ^ (y >> 17)
-// y = y ^ (y << 15)
-// return y
+// $ ./xorshift -v -o /tmp/a.v
+
+// y = NON_ZERO_SEED
+//
+// Repeat:
+//   y = y ^ (y << 13)
+//   y = y ^ (y >> 17)
+//   y = y ^ (y << 15)
+//   return y
 
 using namespace iroha;
 

@@ -7,6 +7,12 @@
 namespace iroha {
 namespace opt {
 
+BB::BB() {
+}
+
+BBSet::BBSet(ITable *table) : table_(table) {
+}
+
 BBSet::~BBSet() {
   STLDeleteValues(&bbs_);
 }
@@ -22,6 +28,10 @@ void BBSet::Annotate(DebugAnnotation *annotation) {
       annotation->State(st) << "bb:" << i;
     }
   }
+}
+
+ITable *BBSet::GetTable() const {
+  return table_;
 }
 
 }  // namespace opt

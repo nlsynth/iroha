@@ -21,8 +21,8 @@ public:
 
 private:
   void CollectEntries();
-  void CollectBBEntry(IState *es);
-  void CollectBB(IState *es, IState *next_st);
+  void CollectBBsFromEntry(IState *entry_st);
+  void CollectBB(IState *entry_st, IState *next_st);
   IState *GetOneNextState(IState *cur);
   void Annotate();
 

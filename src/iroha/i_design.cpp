@@ -59,9 +59,7 @@ IResource::IResource(ITable *table, IResourceClass *resource_class)
 }
 
 IResource::~IResource() {
-  if (array_ != nullptr) {
-    delete array_;
-  }
+  delete array_;
 }
 
 int IResource::GetId() const {
@@ -312,9 +310,7 @@ IDesign::IDesign() : objects_(new ObjectPool), params_(new ResourceParams), anno
 IDesign::~IDesign() {
   delete objects_;
   delete params_;
-  if (annotation_ != nullptr) {
-    delete annotation_;
-  }
+  delete annotation_;
 }
 
 ObjectPool *IDesign::GetObjectPool() {
@@ -326,9 +322,7 @@ ResourceParams *IDesign::GetParams() const{
 }
 
 void IDesign::SetDebugAnnotation(opt::DebugAnnotation *annotation) {
-  if (annotation_ != nullptr) {
-    delete annotation_;
-  }
+  delete annotation_;
   annotation_ = annotation;
 }
   

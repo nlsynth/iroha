@@ -51,7 +51,7 @@ Please read src/iroha/iroha.h, src/main.cpp examples/ for more details.
 * P3: SSA conversion
 * P3: Export optimizer API so that users can add own phase
 * P3: API to create copies of module, table and so on.
-* P3: C++ writer
+* P3: C++ writer or interpreter
 
 -- Source tree
 
@@ -70,6 +70,16 @@ Please read src/iroha/iroha.h, src/main.cpp examples/ for more details.
     * Code to write design IR as a file.
 * tests/
     * Test input.
+
+-- Glossary
+
+* Exclusive/Light resource
+    * Insn which uses an exclusive resource occupies it in the state (e.g. adder).
+    * Multiple insns in a same state can use a same light resource (e.g. assign).
+* Insn
+    * Instruction
+* BB
+    * Basic block
 
 -- format this document
 

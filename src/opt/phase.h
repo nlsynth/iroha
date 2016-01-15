@@ -2,12 +2,10 @@
 #ifndef _opt_phase_h_
 #define _opt_phase_h_
 
-#include "iroha/common.h"
+#include "opt/common.h"
 
 namespace iroha {
 namespace opt {
-
-class DebugAnnotation;
 
 class Phase {
 public:

@@ -6,14 +6,14 @@
 namespace iroha {
 namespace opt {
 
-BBShrink::~BBShrink() {
+BBShrinkPhase::~BBShrinkPhase() {
 }
 
-Phase *BBShrink::Create() {
-  return new BBShrink();
+Phase *BBShrinkPhase::Create() {
+  return new BBShrinkPhase();
 }
 
-bool BBShrink::ApplyForTable(ITable *table) {
+bool BBShrinkPhase::ApplyForTable(ITable *table) {
   unique_ptr<BBSet> bbs(BBSet::Create(table, annotation_));
   for (BB *bb : bbs->bbs_) {
     ShrinkBB(bb);
@@ -21,7 +21,7 @@ bool BBShrink::ApplyForTable(ITable *table) {
   return true;
 }
 
-void BBShrink::ShrinkBB(BB *bb) {
+void BBShrinkPhase::ShrinkBB(BB *bb) {
 }
 
 }  // namespace opt

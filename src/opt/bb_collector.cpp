@@ -8,14 +8,14 @@ namespace iroha {
 namespace opt {
 
 BBCollector::BBCollector(ITable *table, DebugAnnotation *annotation)
-  : table_(table), annotation_(annotation), bbs_(new BBSet) {
+  : table_(table), annotation_(annotation), bbs_(new BBSet(table)) {
   tr_ = DesignUtil::FindTransitionResource(table_);
 }
 
 BBSet *BBCollector::Create() {
   CollectEntries();
   for (IState *es : bb_entries_) {
-    CollectBBEntry(es);
+    CollectBBsFromEntry(es);
   }
   if (annotation_ != nullptr) {
     Annotate();
@@ -44,10 +44,10 @@ void BBCollector::CollectEntries() {
   bb_entries_.insert(table_->GetInitialState());
 }
 
-void BBCollector::CollectBBEntry(IState *es) {
-  IInsn *tr_insn = DesignUtil::FindInsnByResource(es, tr_);
+void BBCollector::CollectBBsFromEntry(IState *entry_st) {
+  IInsn *tr_insn = DesignUtil::FindInsnByResource(entry_st, tr_);
   if (tr_insn == nullptr) {
-    CollectBB(es, nullptr);
+    CollectBB(entry_st, nullptr);
   } else {
     set<IState *> targets_seen;
     for (IState *target_st : tr_insn->target_states_) {
@@ -64,14 +64,14 @@ void BBCollector::CollectBBEntry(IState *es) {
 	continue;
       }
       targets_seen.insert(next_st);
-      CollectBB(es, next_st);
+      CollectBB(entry_st, next_st);
     }
   }
 }
 
-void BBCollector::CollectBB(IState *es, IState *next_st) {
-  BB *bb = new BB;
-  bb->states_.push_back(es);
+void BBCollector::CollectBB(IState *entry_st, IState *next_st) {
+  BB *bb = new BB();
+  bb->states_.push_back(entry_st);
   IState *st = next_st;
   while (st != nullptr) {
     TransitionInfo &ti = transition_info_[st];

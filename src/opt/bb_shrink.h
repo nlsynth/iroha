@@ -1,4 +1,7 @@
 // -*- C++ -*-
+//
+// Moves insns in a basic block to earlier cycles.
+//
 #ifndef _opt_bb_shrink_h_
 #define _opt_bb_shrink_h_
 
@@ -9,9 +12,9 @@ namespace opt {
 
 class BB;
 
-class BBShrink : public Phase {
+class BBShrinkPhase : public Phase {
 public:
-  virtual ~BBShrink();
+  virtual ~BBShrinkPhase();
 
   static Phase *Create();
 
