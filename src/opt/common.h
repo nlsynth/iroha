@@ -4,6 +4,9 @@
 
 #include "iroha/common.h"
 
+#include <set>
+#include <map>
+
 namespace iroha {
 namespace opt {
 

@@ -18,9 +18,13 @@ public:
 
 class DataFlow {
 public:
+  ~DataFlow();
   static DataFlow *Create(BBSet *bbs, DebugAnnotation *annotation);
 
   void GetReachDefs(BB *bb, vector<RegDef *> *defs);
+
+  vector<RegDef *> all_defs_;
+  multimap<BB *, RegDef *> reaches_;
 };
 
 }  // namespace opt

@@ -8,7 +8,7 @@ namespace iroha {
 namespace opt {
 
 BBCollector::BBCollector(ITable *table, DebugAnnotation *annotation)
-  : table_(table), annotation_(annotation), bbs_(new BBSet(table)) {
+  : table_(table), annotation_(annotation), bset_(new BBSet(table)) {
   tr_ = DesignUtil::FindTransitionResource(table_);
 }
 
@@ -17,10 +17,13 @@ BBSet *BBCollector::Create() {
   for (IState *es : bb_entries_) {
     CollectBBsFromEntry(es);
   }
+  // Additional information.
+  SetStateBBMap();
+  SetBBTransition();
   if (annotation_ != nullptr) {
     Annotate();
   }
-  return bbs_;
+  return bset_;
 }
 
 void BBCollector::CollectEntries() {
@@ -88,7 +91,7 @@ void BBCollector::CollectBB(IState *entry_st, IState *next_st) {
     }
     st = next;
   }
-  bbs_->bbs_.push_back(bb);
+  bset_->bbs_.push_back(bb);
 }
 
 IState *BBCollector::GetOneNextState(IState *cur) {
@@ -102,8 +105,34 @@ IState *BBCollector::GetOneNextState(IState *cur) {
   return tr_insn->target_states_[0];
 }
 
+void BBCollector::SetStateBBMap() {
+  for (BB *bb : bset_->bbs_) {
+    for (IState *st : bb->states_) {
+      bset_->state_to_bb_[st] = bb;
+    }
+  }
+}
+
+void BBCollector::SetBBTransition() {
+  for (BB *bb : bset_->bbs_) {
+    for (IState *st : bb->states_) {
+      IInsn *tr_insn = DesignUtil::FindInsnByResource(st, tr_);
+      for (IState *target_st : tr_insn->target_states_) {
+	BB *target_bb = bset_->state_to_bb_[target_st];
+	if (target_bb == bb &&
+	    target_st != target_bb->states_[0]) {
+	  // Just a transition in this BB. Ignore it.
+	  continue;
+	}
+	bb->next_bbs_.insert(target_bb);
+	target_bb->prev_bbs_.insert(bb);
+      }
+    }
+  }
+}
+
 void BBCollector::Annotate() {
-  bbs_->Annotate(annotation_);
+  bset_->Annotate(annotation_);
 }
 
 }  // namespace opt

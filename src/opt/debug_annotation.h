@@ -14,10 +14,14 @@ class DebugAnnotation {
 public:
   ~DebugAnnotation();
 
+  ostream &Table(const ITable *tab);
+  string GetTableAnnotation(const ITable *tab) const;
+
   ostream &State(const IState *st);
   string GetStateAnnotation(const IState *st) const;
 
 private:
+  map<const ITable *, ostringstream> table_;
   map<const IState *, ostringstream> state_;
 };
 

@@ -36,7 +36,10 @@ void HtmlWriter::WriteModule(const IModule &mod) {
 
 void HtmlWriter::WriteTable(const ITable &tab) {
   os_ << "<div>\n"
-      << " table: " << tab.GetId() << "\n";
+      << " table: " << tab.GetId() << "<br>\n";
+  if (annotation_) {
+    os_ << " " << annotation_->GetTableAnnotation(&tab) << "\n";
+  }
   WriteRegisters(tab);
   WriteResources(tab);
   os_ << " <ul>\n";
