@@ -28,11 +28,15 @@ You may also have to (install automake, autoconf, libtool and) set up autotools 
     > $ make
     > $ ./minimum
 
+(3) Example to use optimizers
+    > $ ./examples/xorshift | ./iroha - -opt wire_insn,bb_shrink | ./iroha - -v -o /tmp/xor.v
+
 Please read src/iroha/iroha.h, src/main.cpp examples/ for more details.
 
 -- TODOs
 
 * P0: Document
+* P1: SSA conversion
 * P1: Optimizer debug output for intermediate IR
 * P1: Sub module task
 * P1: In design channel
@@ -46,7 +50,6 @@ Please read src/iroha/iroha.h, src/main.cpp examples/ for more details.
 * P2: Pipeline can be built with multiple tables in a module OR multiple modules with one table in each module
 * P2: I/O for embedded verilog module
 * P2: Resource sharing between tables
-* P3: SSA conversion
 * P3: Export optimizer API so that users can add own phase
 * P3: API to create copies of module, table and so on.
 * P3: C++ writer or interpreter

@@ -46,6 +46,9 @@ IDesign *build_design() {
   ResourceParams *params_output = ext_output->GetParams();
   params_output->SetExtOutputPort("data_out", 32);
 
+  // Print
+  IResource *print = DesignTool::GetResource(table, resource::kPrint);
+
   // Registers
   IRegister *y = DesignTool::AllocRegister(table, "y", 32);
   DesignTool::SetRegisterInitialValue(1, y);
@@ -87,6 +90,10 @@ IDesign *build_design() {
   IInsn *output_insn = new IInsn(ext_output);
   output_insn->inputs_.push_back(y);
   st0->insns_.push_back(output_insn);
+  // Print
+  IInsn *print_insn = new IInsn(print);
+  print_insn->inputs_.push_back(y);
+  st0->insns_.push_back(print_insn);
 
   table->SetInitialState(st0);
   DesignTool::Validate(design);

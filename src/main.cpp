@@ -45,7 +45,7 @@ int main(int argc, char **argv) {
 
   for (string &fn : files) {
     iroha::IDesign *design = iroha::Iroha::ReadDesignFromFile(fn);
-    if (design ==nullptr) {
+    if (design == nullptr) {
       cerr << "Failed to read design from: " << fn << "\n";
       continue;
     }

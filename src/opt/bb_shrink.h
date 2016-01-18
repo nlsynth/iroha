@@ -10,8 +10,6 @@
 namespace iroha {
 namespace opt {
 
-class BB;
-
 class BBShrinkPhase : public Phase {
 public:
   virtual ~BBShrinkPhase();
@@ -20,7 +18,21 @@ public:
 
 private:
   virtual bool ApplyForTable(ITable *table);
+};
+
+class BBShrink {
+public:
+  BBShrink(ITable *table,  DebugAnnotation *annotation);
+  bool Perform();
+
+private:
   void ShrinkBB(BB *bb);
+  IState *GetNextIfDead(IState *st);
+
+  ITable *table_;
+  DebugAnnotation *annotation_;
+  IResource *transition_;
+  set<IState *> dead_st_;
 };
 
 }  // namespace opt
