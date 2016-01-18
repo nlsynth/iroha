@@ -1,4 +1,4 @@
-#include "opt/bb_shrink.h"
+#include "opt/clean/empty_state.h"
 
 #include "design/design_util.h"
 #include "iroha/i_design.h"
@@ -8,25 +8,26 @@
 
 namespace iroha {
 namespace opt {
+namespace clean {
 
-BBShrinkPhase::~BBShrinkPhase() {
+CleanEmptyStatePhase::~CleanEmptyStatePhase() {
 }
 
-Phase *BBShrinkPhase::Create() {
-  return new BBShrinkPhase();
+Phase *CleanEmptyStatePhase::Create() {
+  return new CleanEmptyStatePhase();
 }
 
-bool BBShrinkPhase::ApplyForTable(ITable *table) {
-  BBShrink shrink(table, annotation_);
+bool CleanEmptyStatePhase::ApplyForTable(ITable *table) {
+  CleanEmptyState shrink(table, annotation_);
   return shrink.Perform();
 }
 
-BBShrink::BBShrink(ITable *table,  DebugAnnotation *annotation)
+CleanEmptyState::CleanEmptyState(ITable *table,  DebugAnnotation *annotation)
   : table_(table), annotation_(annotation) {
   transition_ = DesignUtil::FindTransitionResource(table);
 }
 
-bool BBShrink::Perform() {
+bool CleanEmptyState::Perform() {
   unique_ptr<BBSet> bbs(BBSet::Create(table_, annotation_));
   for (BB *bb : bbs->bbs_) {
     ShrinkBB(bb);
@@ -34,7 +35,7 @@ bool BBShrink::Perform() {
   return true;
 }
 
-void BBShrink::ShrinkBB(BB *bb) {
+void CleanEmptyState::ShrinkBB(BB *bb) {
   // Doesn't consider states in other BBs.
   dead_st_.clear();
   // Skips first status.
@@ -64,7 +65,7 @@ void BBShrink::ShrinkBB(BB *bb) {
   }
 }
 
-IState *BBShrink::GetNextIfDead(IState *st) {
+IState *CleanEmptyState::GetNextIfDead(IState *st) {
   if (dead_st_.find(st) == dead_st_.end()) {
     return st;
   }
@@ -77,5 +78,6 @@ IState *BBShrink::GetNextIfDead(IState *st) {
   return GetNextIfDead(tr_insn->target_states_[0]);
 }
 
+}  // namespace clean
 }  // namespace opt
 }  // namespace iroha

@@ -1,18 +1,19 @@
 // -*- C++ -*-
 //
-// Moves insns in a basic block to earlier cycles.
+// Kills empty states.
 //
-#ifndef _opt_bb_shrink_h_
-#define _opt_bb_shrink_h_
+#ifndef _opt_clean_empty_state_h_
+#define _opt_clean_empty_state_h_
 
 #include "opt/phase.h"
 
 namespace iroha {
 namespace opt {
+namespace clean {
 
-class BBShrinkPhase : public Phase {
+class CleanEmptyStatePhase : public Phase {
 public:
-  virtual ~BBShrinkPhase();
+  virtual ~CleanEmptyStatePhase();
 
   static Phase *Create();
 
@@ -20,9 +21,9 @@ private:
   virtual bool ApplyForTable(ITable *table);
 };
 
-class BBShrink {
+class CleanEmptyState {
 public:
-  BBShrink(ITable *table,  DebugAnnotation *annotation);
+  CleanEmptyState(ITable *table,  DebugAnnotation *annotation);
   bool Perform();
 
 private:
@@ -35,7 +36,8 @@ private:
   set<IState *> dead_st_;
 };
 
+}  // namespace clean
 }  // namespace opt
 }  // namespace iroha
 
-#endif  // _opt_bb_shrink_h_
+#endif  // _opt_clean_empty_state_h_

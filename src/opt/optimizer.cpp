@@ -3,7 +3,7 @@
 #include "design/validator.h"
 #include "iroha/i_design.h"
 #include "opt/array_to_mem.h"
-#include "opt/bb_shrink.h"
+#include "opt/clean/empty_state.h"
 #include "opt/debug_annotation.h"
 #include "opt/phase.h"
 #include "opt/wire/wire_insn.h"
@@ -18,7 +18,7 @@ Optimizer::Optimizer(IDesign *design) : design_(design) {
 
 void Optimizer::Init() {
   RegisterPhase("array_to_mem", &ArrayToMem::Create);
-  RegisterPhase("bb_shrink", &BBShrinkPhase::Create);
+  RegisterPhase("clean_empty_state", &clean::CleanEmptyStatePhase::Create);
   RegisterPhase("wire_insn", &wire::WireInsnPhase::Create);
 }
 

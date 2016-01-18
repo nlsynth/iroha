@@ -116,7 +116,7 @@ am_libiroha_la_OBJECTS = src/iroha/common.lo src/iroha/iroha.lo \
 	src/builder/reader.lo src/design/design_tool.lo \
 	src/design/design_util.lo src/design/validator.lo \
 	src/opt/array_to_mem.lo src/opt/bb_collector.lo \
-	src/opt/bb_set.lo src/opt/bb_shrink.lo \
+	src/opt/bb_set.lo src/opt/clean/empty_state.lo \
 	src/opt/debug_annotation.lo src/opt/optimizer.lo \
 	src/opt/opt_util.lo src/opt/phase.lo src/opt/data_flow.lo \
 	src/opt/data_flow_collector.lo src/opt/wire/wire_insn.lo \
@@ -422,7 +422,7 @@ libiroha_la_SOURCES = \
  src/opt/array_to_mem.cpp src/opt/array_to_mem.h \
  src/opt/bb_collector.cpp src/opt/bb_collector.h \
  src/opt/bb_set.cpp src/opt/bb_set.h \
- src/opt/bb_shrink.cpp src/opt/bb_shrink.h \
+ src/opt/clean/empty_state.cpp src/opt/empty_state.h \
  src/opt/common.h \
  src/opt/debug_annotation.cpp src/opt/debug_annotation.h \
  src/opt/optimizer.cpp src/opt/optimizer.h \
@@ -547,8 +547,14 @@ src/opt/bb_collector.lo: src/opt/$(am__dirstamp) \
 	src/opt/$(DEPDIR)/$(am__dirstamp)
 src/opt/bb_set.lo: src/opt/$(am__dirstamp) \
 	src/opt/$(DEPDIR)/$(am__dirstamp)
-src/opt/bb_shrink.lo: src/opt/$(am__dirstamp) \
-	src/opt/$(DEPDIR)/$(am__dirstamp)
+src/opt/clean/$(am__dirstamp):
+	@$(MKDIR_P) src/opt/clean
+	@: > src/opt/clean/$(am__dirstamp)
+src/opt/clean/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) src/opt/clean/$(DEPDIR)
+	@: > src/opt/clean/$(DEPDIR)/$(am__dirstamp)
+src/opt/clean/empty_state.lo: src/opt/clean/$(am__dirstamp) \
+	src/opt/clean/$(DEPDIR)/$(am__dirstamp)
 src/opt/debug_annotation.lo: src/opt/$(am__dirstamp) \
 	src/opt/$(DEPDIR)/$(am__dirstamp)
 src/opt/optimizer.lo: src/opt/$(am__dirstamp) \
@@ -684,6 +690,8 @@ mostlyclean-compile:
 	-rm -f src/iroha/*.lo
 	-rm -f src/opt/*.$(OBJEXT)
 	-rm -f src/opt/*.lo
+	-rm -f src/opt/clean/*.$(OBJEXT)
+	-rm -f src/opt/clean/*.lo
 	-rm -f src/opt/wire/*.$(OBJEXT)
 	-rm -f src/opt/wire/*.lo
 	-rm -f src/writer/*.$(OBJEXT)
@@ -710,13 +718,13 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/opt/$(DEPDIR)/array_to_mem.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/opt/$(DEPDIR)/bb_collector.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/opt/$(DEPDIR)/bb_set.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/opt/$(DEPDIR)/bb_shrink.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/opt/$(DEPDIR)/data_flow.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/opt/$(DEPDIR)/data_flow_collector.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/opt/$(DEPDIR)/debug_annotation.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/opt/$(DEPDIR)/opt_util.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/opt/$(DEPDIR)/optimizer.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/opt/$(DEPDIR)/phase.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/opt/clean/$(DEPDIR)/empty_state.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/opt/wire/$(DEPDIR)/wire_insn.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/writer/$(DEPDIR)/connection.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/writer/$(DEPDIR)/exp_writer.Plo@am__quote@
@@ -765,6 +773,7 @@ clean-libtool:
 	-rm -rf src/design/.libs src/design/_libs
 	-rm -rf src/iroha/.libs src/iroha/_libs
 	-rm -rf src/opt/.libs src/opt/_libs
+	-rm -rf src/opt/clean/.libs src/opt/clean/_libs
 	-rm -rf src/opt/wire/.libs src/opt/wire/_libs
 	-rm -rf src/writer/.libs src/writer/_libs
 	-rm -rf src/writer/verilog/.libs src/writer/verilog/_libs
@@ -1110,6 +1119,8 @@ distclean-generic:
 	-rm -f src/iroha/$(am__dirstamp)
 	-rm -f src/opt/$(DEPDIR)/$(am__dirstamp)
 	-rm -f src/opt/$(am__dirstamp)
+	-rm -f src/opt/clean/$(DEPDIR)/$(am__dirstamp)
+	-rm -f src/opt/clean/$(am__dirstamp)
 	-rm -f src/opt/wire/$(DEPDIR)/$(am__dirstamp)
 	-rm -f src/opt/wire/$(am__dirstamp)
 	-rm -f src/writer/$(DEPDIR)/$(am__dirstamp)
@@ -1127,7 +1138,7 @@ clean-am: clean-binPROGRAMS clean-generic clean-libtool \
 
 distclean: distclean-recursive
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
-	-rm -rf src/$(DEPDIR) src/builder/$(DEPDIR) src/design/$(DEPDIR) src/iroha/$(DEPDIR) src/opt/$(DEPDIR) src/opt/wire/$(DEPDIR) src/writer/$(DEPDIR) src/writer/verilog/$(DEPDIR)
+	-rm -rf src/$(DEPDIR) src/builder/$(DEPDIR) src/design/$(DEPDIR) src/iroha/$(DEPDIR) src/opt/$(DEPDIR) src/opt/clean/$(DEPDIR) src/opt/wire/$(DEPDIR) src/writer/$(DEPDIR) src/writer/verilog/$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-libtool distclean-tags
@@ -1175,7 +1186,7 @@ installcheck-am:
 maintainer-clean: maintainer-clean-recursive
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
 	-rm -rf $(top_srcdir)/autom4te.cache
-	-rm -rf src/$(DEPDIR) src/builder/$(DEPDIR) src/design/$(DEPDIR) src/iroha/$(DEPDIR) src/opt/$(DEPDIR) src/opt/wire/$(DEPDIR) src/writer/$(DEPDIR) src/writer/verilog/$(DEPDIR)
+	-rm -rf src/$(DEPDIR) src/builder/$(DEPDIR) src/design/$(DEPDIR) src/iroha/$(DEPDIR) src/opt/$(DEPDIR) src/opt/clean/$(DEPDIR) src/opt/wire/$(DEPDIR) src/writer/$(DEPDIR) src/writer/verilog/$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 

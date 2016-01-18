@@ -29,7 +29,7 @@ You may also have to (install automake, autoconf, libtool and) set up autotools 
     > $ ./minimum
 
 (3) Example to use optimizers
-    > $ ./examples/xorshift | ./iroha - -opt wire_insn,bb_shrink | ./iroha - -v -o /tmp/xor.v
+    > $ ./examples/xorshift | ./iroha - -opt wire_insn,clean_empty_state | ./iroha - -v -o /tmp/xor.v
 
 Please read src/iroha/iroha.h, src/main.cpp examples/ for more details.
 

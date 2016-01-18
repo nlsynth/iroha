@@ -30,7 +30,7 @@ libiroha_la_SOURCES = \
  src/opt/array_to_mem.cpp src/opt/array_to_mem.h \
  src/opt/bb_collector.cpp src/opt/bb_collector.h \
  src/opt/bb_set.cpp src/opt/bb_set.h \
- src/opt/bb_shrink.cpp src/opt/bb_shrink.h \
+ src/opt/clean/empty_state.cpp src/opt/empty_state.h \
  src/opt/common.h \
  src/opt/debug_annotation.cpp src/opt/debug_annotation.h \
  src/opt/optimizer.cpp src/opt/optimizer.h \
