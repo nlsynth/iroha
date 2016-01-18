@@ -4,6 +4,7 @@
 #include "iroha/i_design.h"
 #include "opt/array_to_mem.h"
 #include "opt/clean/empty_state.h"
+#include "opt/clean/unreachable_state.h"
 #include "opt/debug_annotation.h"
 #include "opt/phase.h"
 #include "opt/wire/wire_insn.h"
@@ -19,6 +20,8 @@ Optimizer::Optimizer(IDesign *design) : design_(design) {
 void Optimizer::Init() {
   RegisterPhase("array_to_mem", &ArrayToMem::Create);
   RegisterPhase("clean_empty_state", &clean::CleanEmptyStatePhase::Create);
+  RegisterPhase("clean_unreachable_state",
+		&clean::CleanUnreachableStatePhase::Create);
   RegisterPhase("wire_insn", &wire::WireInsnPhase::Create);
 }
 

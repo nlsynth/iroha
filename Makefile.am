@@ -31,6 +31,7 @@ libiroha_la_SOURCES = \
  src/opt/bb_collector.cpp src/opt/bb_collector.h \
  src/opt/bb_set.cpp src/opt/bb_set.h \
  src/opt/clean/empty_state.cpp src/opt/empty_state.h \
+ src/opt/clean/unreachable_state.cpp src/opt/unreachable_state.h \
  src/opt/common.h \
  src/opt/debug_annotation.cpp src/opt/debug_annotation.h \
  src/opt/optimizer.cpp src/opt/optimizer.h \
