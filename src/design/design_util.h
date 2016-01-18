@@ -1,6 +1,6 @@
 // -*- C++ -*-
-#ifndef _design_util_h_
-#define _design_util_h_
+#ifndef _design_design_util_h_
+#define _design_design_util_h_
 
 #include "iroha/common.h"
 
@@ -19,9 +19,8 @@ public:
   static IResourceClass *FindResourceClass(IDesign *design, const string &name);
   static IResource *CreateResource(ITable *table, const string &name);
   static IInsn *GetTransitionInsn(IState *st);
-  static void MoveInsn(IInsn *insn, IState *src_st, IState *dst_st);
 };
 
 }  // namespace iroha
 
-#endif  // _design_util_h_
+#endif  // _design_design_util_h_

@@ -114,7 +114,7 @@ am_libiroha_la_OBJECTS = src/iroha/common.lo src/iroha/iroha.lo \
 	src/iroha/resource_class.lo src/iroha/resource_params.lo \
 	src/builder/exp_builder.lo src/builder/fsm_builder.lo \
 	src/builder/reader.lo src/design/design_tool.lo \
-	src/design/util.lo src/design/validator.lo \
+	src/design/design_util.lo src/design/validator.lo \
 	src/opt/array_to_mem.lo src/opt/bb_collector.lo \
 	src/opt/bb_set.lo src/opt/bb_shrink.lo \
 	src/opt/debug_annotation.lo src/opt/optimizer.lo \
@@ -416,7 +416,7 @@ libiroha_la_SOURCES = \
  src/builder/fsm_builder.cpp src/builder/fsm_builder.h \
  src/builder/reader.cpp src/builder/reader.h \
  src/design/design_tool.cpp src/design/design_tool.h \
- src/design/util.cpp src/design/util.h \
+ src/design/design_util.cpp src/design/design_util.h \
  src/design/validator.cpp src/design/validator.h \
  src/opt/array_to_mem.cpp src/opt/array_to_mem.h \
  src/opt/bb_collector.cpp src/opt/bb_collector.h \
@@ -529,7 +529,7 @@ src/design/$(DEPDIR)/$(am__dirstamp):
 	@: > src/design/$(DEPDIR)/$(am__dirstamp)
 src/design/design_tool.lo: src/design/$(am__dirstamp) \
 	src/design/$(DEPDIR)/$(am__dirstamp)
-src/design/util.lo: src/design/$(am__dirstamp) \
+src/design/design_util.lo: src/design/$(am__dirstamp) \
 	src/design/$(DEPDIR)/$(am__dirstamp)
 src/design/validator.lo: src/design/$(am__dirstamp) \
 	src/design/$(DEPDIR)/$(am__dirstamp)
@@ -686,7 +686,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/builder/$(DEPDIR)/fsm_builder.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/builder/$(DEPDIR)/reader.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/design/$(DEPDIR)/design_tool.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/design/$(DEPDIR)/util.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/design/$(DEPDIR)/design_util.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/design/$(DEPDIR)/validator.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/iroha/$(DEPDIR)/common.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/iroha/$(DEPDIR)/i_design.Plo@am__quote@

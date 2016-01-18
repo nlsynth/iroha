@@ -1,6 +1,6 @@
 #include "opt/opt_util.h"
 
-#include "design/util.h"
+#include "design/design_util.h"
 #include "iroha/i_design.h"
 
 namespace iroha {

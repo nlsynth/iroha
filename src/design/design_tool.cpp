@@ -2,27 +2,15 @@
 
 #include <set>
 
-#include "design/util.h"
+#include "design/design_util.h"
 #include "design/validator.h"
 #include "iroha/resource_class.h"
 #include "iroha/resource_params.h"
 
 namespace iroha {
 
-DesignTool::DesignTool(IDesign *design) {
-  if (design == nullptr) {
-    design_ = new IDesign;
-  } else {
-    design_ = design;
-  }
-}
-
-IDesign *DesignTool::GetDesign() {
-  return design_;
-}
-
-void DesignTool::Validate(ITable *table) {
-  Validator::Validate(design_, table);
+void DesignTool::Validate(IDesign *design) {
+  Validator::Validate(design);
 }
 
 IInsn *DesignTool::AddNextState(IState *cur, IState *next) {
@@ -191,6 +179,19 @@ void DesignTool::DeleteInsn(IState *st, IInsn *insn) {
     return;
   }
   st->insns_.erase(it);
+}
+
+void DesignTool::MoveInsn(IInsn *insn, IState *src_st, IState *dst_st) {
+  dst_st->insns_.push_back(insn);
+  int nth = 0;
+  for (IInsn *cur_insn : src_st->insns_) {
+    if (cur_insn == insn) {
+      auto it = src_st->insns_.begin() + nth;
+      src_st->insns_.erase(it);
+      break;
+    }
+    ++nth;
+  }
 }
 
 }  // namespace iroha

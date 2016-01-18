@@ -24,24 +24,21 @@ static void ValidateId(vector<T *> &v, set<int> &used_ids) {
   }
 }
 
-void Validator::Validate(IDesign *design, ITable *table) {
-  if (table == nullptr) {
-    ValidateChannelId(design);
-    for (auto *mod : design->modules_) {
-      ValidateTableId(mod);
-      for (auto *tab : mod->tables_) {
-	ValidateStateId(tab);
-	ValidateInsnId(tab);
-	ValidateRegisterId(tab);
-	ValidateResourceId(tab);
-      }
+void Validator::Validate(IDesign *design) {
+  ValidateChannelId(design);
+  for (auto *mod : design->modules_) {
+    ValidateTableId(mod);
+    for (auto *tab : mod->tables_) {
+      ValidateTable(tab);
     }
-  } else {
-    ValidateStateId(table);
-    ValidateInsnId(table);
-    ValidateRegisterId(table);
-    ValidateResourceId(table);
   }
+}
+
+void Validator::ValidateTable(ITable *table) {
+  ValidateStateId(table);
+  ValidateInsnId(table);
+  ValidateRegisterId(table);
+  ValidateResourceId(table);
 }
 
 void Validator::ValidateChannelId(IDesign *design) {

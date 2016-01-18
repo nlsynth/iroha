@@ -35,7 +35,7 @@ bool Optimizer::ApplyPhase(const string &name) {
   auto factory = it->second;
   unique_ptr<Phase> phase(factory());
   if (phase->ApplyForDesign(design_)) {
-    Validator::Validate(design_, nullptr);
+    Validator::Validate(design_);
     return true;
   }
   return false;

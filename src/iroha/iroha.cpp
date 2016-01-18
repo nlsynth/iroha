@@ -25,10 +25,6 @@ WriterAPI *Iroha::CreateWriter(const IDesign *design) {
   return new Writer(design);
 }
 
-DesignTool *Iroha::CreateDesignTool(IDesign *design) {
-  return new DesignTool(design);
-}
-
 OptAPI *Iroha::CreateOptimizer(IDesign *design) {
   return new opt::Optimizer(design);
 }

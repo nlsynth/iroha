@@ -21,8 +21,6 @@ public:
   static void Init();
   static IDesign *ReadDesignFromFile(const string &fn);
   static WriterAPI *CreateWriter(const IDesign *design);
-  // Set design nullptr to create a new design.
-  static DesignTool *CreateDesignTool(IDesign *design);
   static OptAPI *CreateOptimizer(IDesign *design);
 };
 

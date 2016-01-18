@@ -1,4 +1,8 @@
 // -*- C++ -*-
+//
+// Methods to manipulate design.
+// (on the other hand design_tool doesn't mutate)
+//
 #ifndef _design_design_tool_h_
 #define _design_design_tool_h_
 
@@ -8,12 +12,10 @@ namespace iroha {
 
 class DesignTool {
 public:
-  explicit DesignTool(IDesign *design);
-
-  IDesign *GetDesign();
-  void Validate(ITable *table);
+  static void Validate(IDesign *design);
   static IInsn *AddNextState(IState *cur, IState *next);
   static IState *InsertNextState(IState *st);
+  static void MoveInsn(IInsn *insn, IState *src_st, IState *dst_st);
   static IResource *GetResource(ITable *table,
 				const string &class_name);
   static IResource *GetBinOpResource(ITable *table,
@@ -40,9 +42,6 @@ public:
   static IInsn *CreateShiftInsn(IRegister *reg, bool to_left,
 				int amount);
   static void DeleteInsn(IState *st, IInsn *insn);
-
-private:
-  IDesign *design_;
 };
 
 }  // namespace iroha

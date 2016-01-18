@@ -1,7 +1,7 @@
 #include "iroha/i_design.h"
 
 #include "design/object_pool.h"
-#include "design/util.h"
+#include "design/design_util.h"
 #include "iroha/logging.h"
 #include "iroha/resource_class.h"
 #include "iroha/resource_params.h"

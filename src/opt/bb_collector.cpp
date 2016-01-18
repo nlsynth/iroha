@@ -1,6 +1,6 @@
 #include "opt/bb_collector.h"
 
-#include "design/util.h"
+#include "design/design_util.h"
 #include "iroha/i_design.h"
 #include "opt/bb_set.h"
 

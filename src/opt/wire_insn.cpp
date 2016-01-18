@@ -1,6 +1,6 @@
 #include "opt/wire_insn.h"
 
-#include "design/util.h"
+#include "design/design_util.h"
 #include "design/design_tool.h"
 #include "iroha/i_design.h"
 #include "iroha/resource_class.h"
@@ -212,7 +212,7 @@ void WireInsn::MoveInsn(IInsn *insn, BB *bb, int target_pos) {
   PerInsn *pi = GetPerInsn(insn);
   IState *src_st = bb->states_[pi->nth_state];
   IState *dst_st = bb->states_[target_pos];
-  DesignUtil::MoveInsn(insn, src_st, dst_st);
+  DesignTool::MoveInsn(insn, src_st, dst_st);
   pi->nth_state = target_pos;
   //  for (IRegister *ireg : insn->inputs_) {
   for (auto it = insn->inputs_.begin(); it != insn->inputs_.end(); ++it) {

@@ -8,7 +8,8 @@ namespace iroha {
 
 class Validator {
 public:
-  static void Validate(IDesign *design, ITable *table);
+  static void Validate(IDesign *design);
+  static void ValidateTable(ITable *table);
 
 private:
   static void ValidateChannelId(IDesign *design);

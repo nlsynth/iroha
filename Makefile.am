@@ -25,7 +25,7 @@ libiroha_la_SOURCES = \
  src/builder/fsm_builder.cpp src/builder/fsm_builder.h \
  src/builder/reader.cpp src/builder/reader.h \
  src/design/design_tool.cpp src/design/design_tool.h \
- src/design/util.cpp src/design/util.h \
+ src/design/design_util.cpp src/design/design_util.h \
  src/design/validator.cpp src/design/validator.h \
  src/opt/array_to_mem.cpp src/opt/array_to_mem.h \
  src/opt/bb_collector.cpp src/opt/bb_collector.h \

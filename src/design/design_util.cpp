@@ -1,4 +1,4 @@
-#include "design/util.h"
+#include "design/design_util.h"
 
 #include "iroha/i_design.h"
 #include "iroha/resource_class.h"
@@ -100,19 +100,6 @@ IInsn *DesignUtil::GetTransitionInsn(IState *st) {
     st->insns_.push_back(insn);
   }
   return insn;
-}
-
-void DesignUtil::MoveInsn(IInsn *insn, IState *src_st, IState *dst_st) {
-  dst_st->insns_.push_back(insn);
-  int nth = 0;
-  for (IInsn *cur_insn : src_st->insns_) {
-    if (cur_insn == insn) {
-      auto it = src_st->insns_.begin() + nth;
-      src_st->insns_.erase(it);
-      break;
-    }
-    ++nth;
-  }
 }
 
 }  // namespace iroha

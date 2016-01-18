@@ -5,7 +5,6 @@ using namespace iroha;
 
 IDesign *build_design() {
   IDesign *design = new IDesign;
-  DesignTool *tool = Iroha::CreateDesignTool(design);
 
   IModule *module = new IModule(design, "M");
   design->modules_.push_back(module);
@@ -18,16 +17,16 @@ IDesign *build_design() {
   table->states_.push_back(st2);
   table->states_.push_back(st3);
 
-  IRegister *my_reg = tool->AllocRegister(table, "my_reg", 32);
+  IRegister *my_reg = DesignTool::AllocRegister(table, "my_reg", 32);
 
-  IResource *ext_input = tool->GetResource(table, resource::kExtInput);
+  IResource *ext_input = DesignTool::GetResource(table, resource::kExtInput);
   ResourceParams *params_input = ext_input->GetParams();
   params_input->SetExtInputPort("data_in", 32);
   IInsn *input_insn = new IInsn(ext_input);
   input_insn->outputs_.push_back(my_reg);
   st1->insns_.push_back(input_insn);
 
-  IResource *ext_output = tool->GetResource(table, resource::kExtOutput);
+  IResource *ext_output = DesignTool::GetResource(table, resource::kExtOutput);
   ResourceParams *params_output = ext_output->GetParams();
   params_output->SetExtOutputPort("data_out", 32);
   IInsn *output_insn = new IInsn(ext_output);
@@ -35,11 +34,9 @@ IDesign *build_design() {
   st2->insns_.push_back(output_insn);
 
   table->SetInitialState(st1);
-  tool->AddNextState(st1, st2);
-  tool->AddNextState(st2, st3);
-  tool->Validate(NULL);
-
-  delete tool;
+  DesignTool::AddNextState(st1, st2);
+  DesignTool::AddNextState(st2, st3);
+  DesignTool::Validate(design);
 
   return design;
 }

@@ -38,7 +38,6 @@ Please read src/iroha/iroha.h, src/main.cpp examples/ for more details.
 * P1: In design channel
 * P1: Memory or array interface synth implementation
 * P1: Verilog writer to support insn chaining
-* P1: Tidy up design/design_tool and design/util mess
 * P2: Set constraint not to split related insns
 * P2: Delete API objects automatically
 * P2: ROM image data structure.

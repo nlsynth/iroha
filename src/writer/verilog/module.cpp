@@ -1,6 +1,6 @@
 #include "writer/verilog/module.h"
 
-#include "design/util.h"
+#include "design/design_util.h"
 #include "iroha/i_design.h"
 #include "iroha/resource_params.h"
 #include "iroha/stl_util.h"
