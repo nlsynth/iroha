@@ -26,6 +26,15 @@ public:
 private:
   class PerInsn {
   public:
+    PerInsn() : is_assign(false) {
+    }
+    bool is_assign;
+    // Adds assignment instruction (normal <- wire), if the result is
+    // used later or in other BBs.
+    // {insn, wire register} -> normal register.
+    map<IRegister *, IRegister *> wire_to_register_;
+    // reverse mapping of above to rewrite inputs.
+    map<IRegister *, IRegister *> register_to_wire_;
     // source of each input. non existent, if it comes from other bb.
     map<IRegister *, IInsn *> depending_insn_;
     // users of each output.
@@ -40,8 +49,20 @@ private:
   void BuildDependency(BB *bb);
   void BuildRWDependencyPair(IInsn *insn, IRegister *reg,
                              map<IRegister *, IInsn *> &dep_map);
+  // Mutate.
+  void SplitInsnOutputBB(BB *bb);
+  void SplitInsnOutput(IInsn *insn);
+  void AddWireToRegMapping(IInsn *insn, IRegister *wire, IRegister *reg);
+  void ScanBBToMoveInsn(BB *bb);
+  bool CanMoveInsn(IInsn *insn, BB *bb, int target_pos);
+  void MoveInsn(IInsn *insn, BB *bb, int target_pos);
+  bool CanUseResourceInState(IState *st, IResource *resource);
+  void AddWireToRegisterAssignments();
+  bool IsUsedLaterInThisBB(IInsn *insn, IRegister *output);
 
   ITable *table_;
+  IResource *assign_;
+  IResource *transition_;
   DebugAnnotation *annotation_;
   BBSet *bset_;
   DataFlow *data_flow_;

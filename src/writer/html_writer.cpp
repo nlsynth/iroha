@@ -77,7 +77,7 @@ void HtmlWriter::WriteInsn(const IInsn &insn){
   for (auto *reg : insn.inputs_) {
     os_ << " " << reg->GetId();
   }
-  os_ << ") &lt-(";
+  os_ << ") -&gt (";
   for (auto *reg : insn.outputs_) {
     os_ << " " << reg->GetId();
   }

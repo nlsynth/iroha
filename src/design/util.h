@@ -13,11 +13,13 @@ public:
   static IResourceClass *GetTransitionResourceClassFromDesign(IDesign *design);
 
   static IResource *FindResourceByClassName(ITable *table, const string &name);
+  static IResource *FindAssignResource(ITable *table);
   static IResource *FindTransitionResource(ITable *table);
   static IInsn *FindInsnByResource(IState *state, IResource *res);
   static IResourceClass *FindResourceClass(IDesign *design, const string &name);
   static IResource *CreateResource(ITable *table, const string &name);
   static IInsn *GetTransitionInsn(IState *st);
+  static void MoveInsn(IInsn *insn, IState *src_st, IState *dst_st);
 };
 
 }  // namespace iroha
