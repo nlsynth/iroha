@@ -35,6 +35,8 @@ void Module::Write(ostream &os) {
   os << tmpl_->GetContents(kStateVarSection);
   os << tmpl_->GetContents(kRegisterSection);
   os << tmpl_->GetContents(kResourceSection);
+  os << tmpl_->GetContents(kInsnWireDeclSection);
+  os << tmpl_->GetContents(kInsnWireValueSection);
   os << "\n";
 
   for (auto *tab : tables_) {

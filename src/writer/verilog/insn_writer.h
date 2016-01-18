@@ -13,18 +13,15 @@ class InsnWriter {
 public:
   InsnWriter(const IInsn *insn, const State *st, ostream &os);
 
-  void ExtInput();
   void ExtOutput();
   void Set();
-  void ExclusiveBinOp();
-  void LightBinOp();
-  void BitArrangeOp();
   void Print();
   void Assert();
 
   static string RegisterName(const IRegister &reg);
   static string ResourceName(const IResource &res);
   static string ChannelDataPort(const IChannel &ic);
+  static string InsnOutputWireName(const IInsn &insn, int nth);
 
 private:
   const IInsn *insn_;

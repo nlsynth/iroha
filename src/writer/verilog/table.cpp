@@ -36,6 +36,7 @@ void Table::Build() {
   BuildStateDecl();
   BuildRegister();
   BuildResource();
+  BuildInsnOutputWire();
 }
 
 void Table::BuildStateDecl() {
@@ -142,11 +143,13 @@ void Table::BuildRegister() {
   ostream &rs = tmpl_->GetStream(kRegisterSection);
   ostream &is = tmpl_->GetStream(kInitialValueSection + Util::Itoa(nth_));
   for (auto *reg : i_table_->registers_) {
-    if (!reg->IsConst() && !reg->IsStateLocal()) {
-      rs << "  reg";
-      if (reg->value_type_.GetWidth() > 0) {
-	rs << " [" << reg->value_type_.GetWidth() << ":0]";
+    if (!reg->IsConst()) {
+      if (reg->IsStateLocal()) {
+	rs << "  wire";
+      } else {
+	rs << "  reg";
       }
+      rs << " " << WidthSpec(reg);
       rs << " " << reg->GetName() << ";\n";
     }
     if (!reg->IsConst() && reg->HasInitialValue()) {
@@ -154,6 +157,27 @@ void Table::BuildRegister() {
 	 << reg->GetInitialValue().value_ << ";\n";
     }
   }
+}
+
+void Table::BuildInsnOutputWire() {
+  ostream &rs = tmpl_->GetStream(kInsnWireDeclSection);
+  for (IState *st : i_table_->states_) {
+    for (IInsn *insn : st->insns_) {
+      int nth = 0;
+      for (IRegister *oreg : insn->outputs_) {
+	rs << "  wire " << WidthSpec(oreg) << " "
+	   << InsnWriter::InsnOutputWireName(*insn, nth)
+	   << ";\n";
+      }
+    }
+  }
+}
+
+string Table::WidthSpec(const IRegister *reg) {
+  if (reg->value_type_.GetWidth() > 0) {
+    return " [" + Util::Itoa(reg->value_type_.GetWidth()) + ":0]";
+  }
+  return string();
 }
 
 void Table::Write(ostream &os) {

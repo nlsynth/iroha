@@ -33,11 +33,13 @@ private:
   void BuildStateDecl();
   void BuildResource();
   void BuildRegister();
+  void BuildInsnOutputWire();
   void BuildExclusiveBinOpResource(const IResource &res);
   void BuildArrayResource(const IResource &res);
   void BuildMappedResource(const IResource &res);
   void BuildSubModuleTaskResource(const IResource &res);
   void BuildEmbededResource(const IResource &res);
+  string WidthSpec(const IRegister *reg);
 
   void CollectResourceCallers(const IResource &res,
 			      map<IState *, IInsn *> *callers);

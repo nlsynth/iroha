@@ -23,7 +23,9 @@ static const char kStateDeclSection[] = "state_decl";
 static const char kStateVarSection[] = "state_var";
 static const char kRegisterSection[] = "register";
 static const char kResourceSection[] = "resource";
-static const char kInitialValueSection[] = "initial";
+static const char kInitialValueSection[] = "initial";  // With table id.
+static const char kInsnWireDeclSection[] = "insn_wire_decl";
+static const char kInsnWireValueSection[] = "insn_wire_value";
 
 class Module {
 public:

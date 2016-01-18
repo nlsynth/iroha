@@ -11,18 +11,9 @@ static const char I[] = "          ";
 namespace iroha {
 namespace verilog {
 
-InsnWriter::InsnWriter(const IInsn *insn, const State *st, ostream &os)
+InsnWriter::InsnWriter(const IInsn *insn, const State *st,
+		       ostream &os)
   : insn_(insn), st_(st), os_(os) {
-}
-
-void InsnWriter::ExtInput() {
-  auto *res = insn_->GetResource();
-  auto *params = res->GetParams();
-  string input_port;
-  int width;
-  params->GetExtInputPort(&input_port, &width);
-  os_ << I << insn_->outputs_[0]->GetName() << " <= "
-      << input_port << ";\n";
 }
 
 void InsnWriter::ExtOutput() {
@@ -39,44 +30,6 @@ void InsnWriter::ExtOutput() {
 void InsnWriter::Set() {
   os_ << I << insn_->outputs_[0]->GetName() << " <= "
       << RegisterName(*insn_->inputs_[0]) << ";\n";
-}
-
-void InsnWriter::ExclusiveBinOp() {
-  os_ << I << insn_->outputs_[0]->GetName() << " <= "
-      << ResourceName(*insn_->GetResource()) << "_d0;\n";
-}
-
-void InsnWriter::LightBinOp() {
-  os_ << I << insn_->outputs_[0]->GetName() << " <= "
-      << RegisterName(*insn_->inputs_[0]) << " ";
-  const string &rc = insn_->GetResource()->GetClass()->GetName();
-  if (rc == resource::kBitAnd) {
-    os_ << "&";
-  } else if (rc == resource::kBitOr) {
-    os_ << "|";
-  } else if (rc == resource::kBitXor) {
-    os_ << "^";
-  } else {
-    LOG(FATAL) << "Unknown LightBinOp: " << rc;
-  }
-  os_ << " " << RegisterName(*insn_->inputs_[1]) << ";\n";
-}
-
-void InsnWriter::BitArrangeOp() {
-  const string &rc = insn_->GetResource()->GetClass()->GetName();
-  if (rc == resource::kShift) {
-    bool is_left = (insn_->GetOperand() == "left");
-    const IValue &value = insn_->inputs_[1]->GetInitialValue();
-    int amount = value.value_;
-    os_ << I << insn_->outputs_[0]->GetName() << " <= "
-	<< RegisterName(*insn_->inputs_[0]);
-    if (is_left) {
-      os_ << " << ";
-    } else {
-      os_ << " >> ";
-    }
-    os_ << amount << ";\n";
-  }
 }
 
 string InsnWriter::RegisterName(const IRegister &reg) {
@@ -123,6 +76,11 @@ void InsnWriter::Assert() {
   os_ << I << "  $display(\"ASSERTION FAILURE: "
       << st_->GetIState()->GetId() <<"\");\n";
   os_ << I << "end\n";
+}
+
+string InsnWriter::InsnOutputWireName(const IInsn &insn, int nth) {
+  return "insn_o_" + Util::Itoa(insn.GetResource()->GetTable()->GetId()) + "_"
+    + Util::Itoa(insn.GetId()) + "_" + Util::Itoa(nth);
 }
 
 }  // namespace verilog

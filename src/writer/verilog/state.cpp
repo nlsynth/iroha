@@ -3,7 +3,10 @@
 #include "iroha/i_design.h"
 #include "iroha/logging.h"
 #include "iroha/resource_class.h"
+#include "writer/module_template.h"
+#include "writer/verilog/insn_builder.h"
 #include "writer/verilog/insn_writer.h"
+#include "writer/verilog/module.h"
 #include "writer/verilog/table.h"
 
 static const char I[] = "        ";
@@ -16,9 +19,25 @@ State::State(IState *i_state, Table *table)
 }
 
 void State::Build() {
+  ModuleTemplate *tmpl_ = table_->GetModuleTemplate();
+  ostream &ws = tmpl_->GetStream(kInsnWireValueSection);
   for (auto *insn : i_state_->insns_) {
     if (insn->GetResource()->GetClass()->GetName() == resource::kTransition) {
       transition_insn_ = insn;
+    }
+    auto *res = insn->GetResource();
+    auto *rc = res->GetClass();
+    const string &rc_name = rc->GetName();
+    InsnBuilder builder(insn, ws);
+    if (rc_name == resource::kExtInput) {
+      builder.ExtInput();
+    } else if (resource::IsLightBinOp(*rc)) {
+      builder.LightBinOp();
+    } else if (resource::IsBitArrangeOp(*rc)) {
+      builder.BitArrangeOp();
+    }
+    if (rc_name != resource::kSet) {
+      CopyResults(insn, true, ws);
     }
   }
 }
@@ -43,16 +62,11 @@ void State::WriteInsn(const IInsn *insn, ostream &os) {
   const string &rc_name = rc->GetName();
   if (rc_name == resource::kSet) {
     writer.Set();
-  } else if (rc_name == resource::kExtInput) {
-    writer.ExtInput();
   } else if (rc_name == resource::kExtOutput) {
     writer.ExtOutput();
   } else if (resource::IsExclusiveBinOp(*rc)) {
-    writer.ExclusiveBinOp();
   } else if (resource::IsLightBinOp(*rc)) {
-    writer.LightBinOp();
   } else if (resource::IsBitArrangeOp(*rc)) {
-    writer.BitArrangeOp();
   } else if (rc_name == resource::kTransition) {
     // do nothing.
   } else if (rc_name == resource::kPrint) {
@@ -61,6 +75,30 @@ void State::WriteInsn(const IInsn *insn, ostream &os) {
     writer.Assert();
   } else {
     // LOG(FATAL) << "Unsupported resource class:" << rc_name;
+  }
+  if (rc_name != resource::kSet) {
+    CopyResults(insn, false, os);
+  }
+}
+
+void State::CopyResults(const IInsn *insn, bool to_wire, ostream &os) {
+  int nth = 0;
+  for (auto *oreg : insn->outputs_) {
+    if (oreg->IsStateLocal() && to_wire) {
+      os << "  assign ";
+    } else if (!oreg->IsStateLocal() && !to_wire) {
+      os << I << "  ";
+    } else {
+      return;
+    }
+    os << InsnWriter::RegisterName(*oreg);
+    if (to_wire) {
+      os << " = ";
+    } else {
+      os << " <= ";
+    }
+    os << InsnWriter::InsnOutputWireName(*insn, nth) << ";\n";
+    ++nth;
   }
 }
 

@@ -44,6 +44,7 @@ libiroha_la_SOURCES = \
  src/writer/html_writer.cpp src/writer/html_writer.h \
  src/writer/module_template.cpp src/writer/module_template.h \
  src/writer/verilog/embed.cpp src/writer/verilog/embed.h \
+ src/writer/verilog/insn_builder.cpp src/writer/verilog/insn_builder.h \
  src/writer/verilog/insn_writer.cpp src/writer/verilog/insn_writer.h \
  src/writer/verilog/module.cpp src/writer/verilog/module.h \
  src/writer/verilog/ports.cpp src/writer/verilog/ports.h \

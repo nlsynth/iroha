@@ -20,6 +20,7 @@ public:
 private:
   void WriteInsn(const IInsn *insn, ostream &os);
   void WriteTransition(ostream &os);
+  void CopyResults(const IInsn *insn, bool to_wire, ostream &os);
 
   IState *i_state_;
   Table *table_;
