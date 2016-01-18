@@ -1,4 +1,4 @@
-#include "opt/wire_insn.h"
+#include "opt/wire/wire_insn.h"
 
 #include "design/design_util.h"
 #include "design/design_tool.h"
@@ -9,6 +9,7 @@
 
 namespace iroha {
 namespace opt {
+namespace wire {
 
 WireInsnPhase::~WireInsnPhase() {
 }
@@ -299,5 +300,6 @@ WireInsn::PerInsn *WireInsn::GetPerInsn(IInsn *insn) {
   return pi;
 }
 
+}  // namespace wire
 }  // namespace opt
 }  // namespace iroha

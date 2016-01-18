@@ -6,7 +6,7 @@
 #include "opt/bb_shrink.h"
 #include "opt/debug_annotation.h"
 #include "opt/phase.h"
-#include "opt/wire_insn.h"
+#include "opt/wire/wire_insn.h"
 
 namespace iroha {
 namespace opt {
@@ -19,7 +19,7 @@ Optimizer::Optimizer(IDesign *design) : design_(design) {
 void Optimizer::Init() {
   RegisterPhase("array_to_mem", &ArrayToMem::Create);
   RegisterPhase("bb_shrink", &BBShrinkPhase::Create);
-  RegisterPhase("wire_insn", &WireInsnPhase::Create);
+  RegisterPhase("wire_insn", &wire::WireInsnPhase::Create);
 }
 
 void Optimizer::RegisterPhase(const string &name,

@@ -38,7 +38,7 @@ libiroha_la_SOURCES = \
  src/opt/phase.cpp src/opt/phase.h \
  src/opt/data_flow.cpp src/opt/data_flow.h \
  src/opt/data_flow_collector.cpp src/opt/data_flow_collector.h \
- src/opt/wire_insn.cpp src/opt/wire_insn.h \
+ src/opt/wire/wire_insn.cpp src/opt/wire/wire_insn.h \
  src/writer/connection.cpp src/writer/connection.h \
  src/writer/exp_writer.cpp src/writer/exp_writer.h \
  src/writer/html_writer.cpp src/writer/html_writer.h \

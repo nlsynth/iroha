@@ -1,11 +1,12 @@
 // -*- C++ -*-
-#ifndef _opt_wire_insn_h_
-#define _opt_wire_insn_h_
+#ifndef _opt_wire_wire_insn_h_
+#define _opt_wire_wire_insn_h_
 
 #include "opt/phase.h"
 
 namespace iroha {
 namespace opt {
+namespace wire {
 
 class WireInsnPhase : public Phase {
 public:
@@ -70,7 +71,8 @@ private:
   map<IInsn *, PerInsn *> per_insn_map_;
 };
   
+}  // namespace wire
 }  // namespace opt
 }  // namespace iroha
 
-#endif  // _opt_wire_insn_h_
+#endif  // _opt_wire_wire_insn_h_
