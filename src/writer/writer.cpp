@@ -1,11 +1,12 @@
 #include "writer/writer.h"
 
-#include <fstream>
 #include "iroha/iroha.h"
 #include "writer/connection.h"
 #include "writer/exp_writer.h"
 #include "writer/html_writer.h"
 #include "writer/verilog/verilog_writer.h"
+
+#include <fstream>
 
 namespace iroha {
 
@@ -42,6 +43,11 @@ bool Writer::Write(const string &fn) {
 bool Writer::SetLanguage(const string &lang) {
   language_ = lang;
   return true;
+}
+
+void Writer::DumpTable(const ITable *table, ostream &os) {
+  HtmlWriter writer(table->GetModule()->GetDesign(), os);
+  writer.WriteIntermediateTable(*table);
 }
 
 }  // namespace iroha

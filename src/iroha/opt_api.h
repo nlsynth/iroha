@@ -11,6 +11,7 @@ public:
   virtual ~OptAPI();
   virtual bool ApplyPhase(const string &name) = 0;
   virtual void EnableDebugAnnotation() = 0;
+  virtual void DumpIntermediate(const string &fn) = 0;
 };
 
 }  // namespace iroha

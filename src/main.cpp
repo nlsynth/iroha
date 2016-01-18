@@ -12,6 +12,7 @@ int main(int argc, char **argv) {
   bool html = false;
 
   string output;
+  string debug_dump;
   vector<string> opts;
 
   for (int i = 1; i < argc; ++i) {
@@ -33,6 +34,11 @@ int main(int argc, char **argv) {
       ++i;
       continue;
     }
+    if (arg == "-d" && i + 1 < argc) {
+      debug_dump = string(argv[i + 1]);
+      ++i;
+      continue;
+    }
     if (arg == "-opt" && i + 1 < argc) {
       iroha::Util::SplitStringUsing(argv[i + 1], ",", &opts);
       ++i;
@@ -50,7 +56,7 @@ int main(int argc, char **argv) {
       continue;
     }
     iroha::OptAPI *optimizer = iroha::Iroha::CreateOptimizer(design);
-    if (html) {
+    if (html || !debug_dump.empty()) {
       optimizer->EnableDebugAnnotation();
     }
     bool has_opt_err = false;
@@ -70,6 +76,9 @@ int main(int argc, char **argv) {
       writer->SetLanguage("html");
     }
     writer->Write(output);
+    if (!debug_dump.empty()) {
+      optimizer->DumpIntermediate(debug_dump);
+    }
   }
   return 0;
 }

@@ -14,6 +14,9 @@ class DebugAnnotation {
 public:
   ~DebugAnnotation();
 
+  void DumpIntermediateTable(const ITable *tab);
+  void GetDumpedContent(ostream &os);
+
   ostream &Table(const ITable *tab);
   string GetTableAnnotation(const ITable *tab) const;
 
@@ -21,6 +24,8 @@ public:
   string GetStateAnnotation(const IState *st) const;
 
 private:
+  ostringstream dump_;
+
   map<const ITable *, ostringstream> table_;
   map<const IState *, ostringstream> state_;
 };

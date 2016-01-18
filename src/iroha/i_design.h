@@ -180,7 +180,7 @@ private:
 class ITable {
 public:
   ITable(IModule *module);
-  IModule *GetModule();
+  IModule *GetModule() const;
   int GetId() const;
   void SetId(int id);
   void SetInitialState(IState *state);

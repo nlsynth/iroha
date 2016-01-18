@@ -9,6 +9,8 @@
 #include "opt/phase.h"
 #include "opt/wire/wire_insn.h"
 
+#include <fstream>
+
 namespace iroha {
 namespace opt {
 
@@ -46,6 +48,12 @@ bool Optimizer::ApplyPhase(const string &name) {
 
 void Optimizer::EnableDebugAnnotation() {
   design_->SetDebugAnnotation(new DebugAnnotation);
+}
+
+void Optimizer::DumpIntermediate(const string &fn) {
+  auto *an = design_->GetDebugAnnotation();
+  ofstream os(fn);
+  an->GetDumpedContent(os);
 }
 
 }  // namespace opt

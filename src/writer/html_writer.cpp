@@ -34,6 +34,10 @@ void HtmlWriter::WriteModule(const IModule &mod) {
   os_ << "</div>\n";
 }
 
+void HtmlWriter::WriteIntermediateTable(const ITable &tab) {
+  WriteTable(tab);
+}
+
 void HtmlWriter::WriteTable(const ITable &tab) {
   os_ << "<div>\n"
       << " table: " << tab.GetId() << "<br>\n";

@@ -261,7 +261,7 @@ ITable::ITable(IModule *module)
   resources_.push_back(tr);
 }
 
-IModule *ITable::GetModule() {
+IModule *ITable::GetModule() const {
   return module_;
 }
 

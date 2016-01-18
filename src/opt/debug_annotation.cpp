@@ -1,9 +1,18 @@
 #include "opt/debug_annotation.h"
+#include "writer/writer.h"
 
 namespace iroha {
 namespace opt {
 
 DebugAnnotation::~DebugAnnotation() {
+}
+
+void DebugAnnotation::DumpIntermediateTable(const ITable *tab) {
+  Writer::DumpTable(tab, dump_);
+}
+
+void DebugAnnotation::GetDumpedContent(ostream &os) {
+  os << dump_.str();
 }
 
 ostream &DebugAnnotation::Table(const ITable *tab) {

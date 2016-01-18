@@ -13,6 +13,8 @@ public:
   virtual bool Write(const string &fn) override;
   virtual bool SetLanguage(const string &lang) override;
 
+  static void DumpTable(const ITable *table, ostream &os);
+
   const IDesign *design_;
   string language_;
 };

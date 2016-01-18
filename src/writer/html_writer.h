@@ -15,6 +15,7 @@ public:
   HtmlWriter(const IDesign *design, ostream &os);
 
   void Write();
+  void WriteIntermediateTable(const ITable &tab);
 
 private:
   void WriteHeader();

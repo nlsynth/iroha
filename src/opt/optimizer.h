@@ -21,6 +21,7 @@ public:
 
   virtual bool ApplyPhase(const string &name) override;
   virtual void EnableDebugAnnotation() override;
+  virtual void DumpIntermediate(const string &fn) override;
 
 protected:
   IDesign *design_;
