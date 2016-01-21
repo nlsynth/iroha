@@ -117,9 +117,11 @@ am_libiroha_la_OBJECTS = src/iroha/common.lo src/iroha/iroha.lo \
 	src/design/design_util.lo src/design/validator.lo \
 	src/opt/array_to_mem.lo src/opt/bb_collector.lo \
 	src/opt/bb_set.lo src/opt/clean/empty_state.lo \
-	src/opt/clean/unreachable_state.lo src/opt/debug_annotation.lo \
+	src/opt/clean/unreachable_state.lo src/opt/data_flow.lo \
+	src/opt/data_flow_collector.lo src/opt/debug_annotation.lo \
+	src/opt/dominator_tree.lo src/opt/dominator_tree_builder.lo \
 	src/opt/optimizer.lo src/opt/opt_util.lo src/opt/phase.lo \
-	src/opt/data_flow.lo src/opt/data_flow_collector.lo \
+	src/opt/ssa/ssa.lo src/opt/ssa/ssa_converter.lo \
 	src/opt/wire/wire_insn.lo src/writer/connection.lo \
 	src/writer/exp_writer.lo src/writer/html_writer.lo \
 	src/writer/module_template.lo src/writer/verilog/embed.lo \
@@ -426,12 +428,16 @@ libiroha_la_SOURCES = \
  src/opt/clean/empty_state.cpp src/opt/empty_state.h \
  src/opt/clean/unreachable_state.cpp src/opt/unreachable_state.h \
  src/opt/common.h \
+ src/opt/data_flow.cpp src/opt/data_flow.h \
+ src/opt/data_flow_collector.cpp src/opt/data_flow_collector.h \
  src/opt/debug_annotation.cpp src/opt/debug_annotation.h \
+ src/opt/dominator_tree.cpp src/opt/dominator_tree.h \
+ src/opt/dominator_tree_builder.cpp src/opt/dominator_tree_builder.h \
  src/opt/optimizer.cpp src/opt/optimizer.h \
  src/opt/opt_util.cpp src/opt/opt_util.h \
  src/opt/phase.cpp src/opt/phase.h \
- src/opt/data_flow.cpp src/opt/data_flow.h \
- src/opt/data_flow_collector.cpp src/opt/data_flow_collector.h \
+ src/opt/ssa/ssa.cpp src/opt/ssa/ssa.h \
+ src/opt/ssa/ssa_converter.cpp src/opt/ssa/ssa_converter.h \
  src/opt/wire/wire_insn.cpp src/opt/wire/wire_insn.h \
  src/writer/connection.cpp src/writer/connection.h \
  src/writer/exp_writer.cpp src/writer/exp_writer.h \
@@ -559,7 +565,15 @@ src/opt/clean/empty_state.lo: src/opt/clean/$(am__dirstamp) \
 	src/opt/clean/$(DEPDIR)/$(am__dirstamp)
 src/opt/clean/unreachable_state.lo: src/opt/clean/$(am__dirstamp) \
 	src/opt/clean/$(DEPDIR)/$(am__dirstamp)
+src/opt/data_flow.lo: src/opt/$(am__dirstamp) \
+	src/opt/$(DEPDIR)/$(am__dirstamp)
+src/opt/data_flow_collector.lo: src/opt/$(am__dirstamp) \
+	src/opt/$(DEPDIR)/$(am__dirstamp)
 src/opt/debug_annotation.lo: src/opt/$(am__dirstamp) \
+	src/opt/$(DEPDIR)/$(am__dirstamp)
+src/opt/dominator_tree.lo: src/opt/$(am__dirstamp) \
+	src/opt/$(DEPDIR)/$(am__dirstamp)
+src/opt/dominator_tree_builder.lo: src/opt/$(am__dirstamp) \
 	src/opt/$(DEPDIR)/$(am__dirstamp)
 src/opt/optimizer.lo: src/opt/$(am__dirstamp) \
 	src/opt/$(DEPDIR)/$(am__dirstamp)
@@ -567,10 +581,16 @@ src/opt/opt_util.lo: src/opt/$(am__dirstamp) \
 	src/opt/$(DEPDIR)/$(am__dirstamp)
 src/opt/phase.lo: src/opt/$(am__dirstamp) \
 	src/opt/$(DEPDIR)/$(am__dirstamp)
-src/opt/data_flow.lo: src/opt/$(am__dirstamp) \
-	src/opt/$(DEPDIR)/$(am__dirstamp)
-src/opt/data_flow_collector.lo: src/opt/$(am__dirstamp) \
-	src/opt/$(DEPDIR)/$(am__dirstamp)
+src/opt/ssa/$(am__dirstamp):
+	@$(MKDIR_P) src/opt/ssa
+	@: > src/opt/ssa/$(am__dirstamp)
+src/opt/ssa/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) src/opt/ssa/$(DEPDIR)
+	@: > src/opt/ssa/$(DEPDIR)/$(am__dirstamp)
+src/opt/ssa/ssa.lo: src/opt/ssa/$(am__dirstamp) \
+	src/opt/ssa/$(DEPDIR)/$(am__dirstamp)
+src/opt/ssa/ssa_converter.lo: src/opt/ssa/$(am__dirstamp) \
+	src/opt/ssa/$(DEPDIR)/$(am__dirstamp)
 src/opt/wire/$(am__dirstamp):
 	@$(MKDIR_P) src/opt/wire
 	@: > src/opt/wire/$(am__dirstamp)
@@ -696,6 +716,8 @@ mostlyclean-compile:
 	-rm -f src/opt/*.lo
 	-rm -f src/opt/clean/*.$(OBJEXT)
 	-rm -f src/opt/clean/*.lo
+	-rm -f src/opt/ssa/*.$(OBJEXT)
+	-rm -f src/opt/ssa/*.lo
 	-rm -f src/opt/wire/*.$(OBJEXT)
 	-rm -f src/opt/wire/*.lo
 	-rm -f src/writer/*.$(OBJEXT)
@@ -725,11 +747,15 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/opt/$(DEPDIR)/data_flow.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/opt/$(DEPDIR)/data_flow_collector.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/opt/$(DEPDIR)/debug_annotation.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/opt/$(DEPDIR)/dominator_tree.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/opt/$(DEPDIR)/dominator_tree_builder.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/opt/$(DEPDIR)/opt_util.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/opt/$(DEPDIR)/optimizer.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/opt/$(DEPDIR)/phase.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/opt/clean/$(DEPDIR)/empty_state.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/opt/clean/$(DEPDIR)/unreachable_state.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/opt/ssa/$(DEPDIR)/ssa.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/opt/ssa/$(DEPDIR)/ssa_converter.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/opt/wire/$(DEPDIR)/wire_insn.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/writer/$(DEPDIR)/connection.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/writer/$(DEPDIR)/exp_writer.Plo@am__quote@
@@ -779,6 +805,7 @@ clean-libtool:
 	-rm -rf src/iroha/.libs src/iroha/_libs
 	-rm -rf src/opt/.libs src/opt/_libs
 	-rm -rf src/opt/clean/.libs src/opt/clean/_libs
+	-rm -rf src/opt/ssa/.libs src/opt/ssa/_libs
 	-rm -rf src/opt/wire/.libs src/opt/wire/_libs
 	-rm -rf src/writer/.libs src/writer/_libs
 	-rm -rf src/writer/verilog/.libs src/writer/verilog/_libs
@@ -1126,6 +1153,8 @@ distclean-generic:
 	-rm -f src/opt/$(am__dirstamp)
 	-rm -f src/opt/clean/$(DEPDIR)/$(am__dirstamp)
 	-rm -f src/opt/clean/$(am__dirstamp)
+	-rm -f src/opt/ssa/$(DEPDIR)/$(am__dirstamp)
+	-rm -f src/opt/ssa/$(am__dirstamp)
 	-rm -f src/opt/wire/$(DEPDIR)/$(am__dirstamp)
 	-rm -f src/opt/wire/$(am__dirstamp)
 	-rm -f src/writer/$(DEPDIR)/$(am__dirstamp)
@@ -1143,7 +1172,7 @@ clean-am: clean-binPROGRAMS clean-generic clean-libtool \
 
 distclean: distclean-recursive
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
-	-rm -rf src/$(DEPDIR) src/builder/$(DEPDIR) src/design/$(DEPDIR) src/iroha/$(DEPDIR) src/opt/$(DEPDIR) src/opt/clean/$(DEPDIR) src/opt/wire/$(DEPDIR) src/writer/$(DEPDIR) src/writer/verilog/$(DEPDIR)
+	-rm -rf src/$(DEPDIR) src/builder/$(DEPDIR) src/design/$(DEPDIR) src/iroha/$(DEPDIR) src/opt/$(DEPDIR) src/opt/clean/$(DEPDIR) src/opt/ssa/$(DEPDIR) src/opt/wire/$(DEPDIR) src/writer/$(DEPDIR) src/writer/verilog/$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-libtool distclean-tags
@@ -1191,7 +1220,7 @@ installcheck-am:
 maintainer-clean: maintainer-clean-recursive
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
 	-rm -rf $(top_srcdir)/autom4te.cache
-	-rm -rf src/$(DEPDIR) src/builder/$(DEPDIR) src/design/$(DEPDIR) src/iroha/$(DEPDIR) src/opt/$(DEPDIR) src/opt/clean/$(DEPDIR) src/opt/wire/$(DEPDIR) src/writer/$(DEPDIR) src/writer/verilog/$(DEPDIR)
+	-rm -rf src/$(DEPDIR) src/builder/$(DEPDIR) src/design/$(DEPDIR) src/iroha/$(DEPDIR) src/opt/$(DEPDIR) src/opt/clean/$(DEPDIR) src/opt/ssa/$(DEPDIR) src/opt/wire/$(DEPDIR) src/writer/$(DEPDIR) src/writer/verilog/$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 

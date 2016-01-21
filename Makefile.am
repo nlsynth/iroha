@@ -33,12 +33,16 @@ libiroha_la_SOURCES = \
  src/opt/clean/empty_state.cpp src/opt/empty_state.h \
  src/opt/clean/unreachable_state.cpp src/opt/unreachable_state.h \
  src/opt/common.h \
+ src/opt/data_flow.cpp src/opt/data_flow.h \
+ src/opt/data_flow_collector.cpp src/opt/data_flow_collector.h \
  src/opt/debug_annotation.cpp src/opt/debug_annotation.h \
+ src/opt/dominator_tree.cpp src/opt/dominator_tree.h \
+ src/opt/dominator_tree_builder.cpp src/opt/dominator_tree_builder.h \
  src/opt/optimizer.cpp src/opt/optimizer.h \
  src/opt/opt_util.cpp src/opt/opt_util.h \
  src/opt/phase.cpp src/opt/phase.h \
- src/opt/data_flow.cpp src/opt/data_flow.h \
- src/opt/data_flow_collector.cpp src/opt/data_flow_collector.h \
+ src/opt/ssa/ssa.cpp src/opt/ssa/ssa.h \
+ src/opt/ssa/ssa_converter.cpp src/opt/ssa/ssa_converter.h \
  src/opt/wire/wire_insn.cpp src/opt/wire/wire_insn.h \
  src/writer/connection.cpp src/writer/connection.h \
  src/writer/exp_writer.cpp src/writer/exp_writer.h \

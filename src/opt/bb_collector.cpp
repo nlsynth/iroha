@@ -3,6 +3,7 @@
 #include "design/design_util.h"
 #include "iroha/i_design.h"
 #include "opt/bb_set.h"
+#include "opt/opt_util.h"
 
 namespace iroha {
 namespace opt {
@@ -20,6 +21,10 @@ BBSet *BBCollector::Create() {
   // Additional information.
   SetStateBBMap();
   SetBBTransition();
+  IState *initial_st = table_->GetInitialState();
+  if (initial_st != nullptr) {
+    bset_->initial_bb_ = bset_->state_to_bb_[initial_st];
+  }
   if (annotation_ != nullptr) {
     Annotate();
   }
@@ -85,24 +90,14 @@ void BBCollector::CollectBB(IState *entry_st, IState *next_st) {
     if (ti.nr_branch_ > 1) {
       break;
     }
-    IState *next = GetOneNextState(st);
+    IState *next = OptUtil::GetOneNextState(st);
     if (next == nullptr|| next == st) {
       break;
     }
     st = next;
   }
   bset_->bbs_.push_back(bb);
-}
-
-IState *BBCollector::GetOneNextState(IState *cur) {
-  IInsn *tr_insn = DesignUtil::FindInsnByResource(cur, tr_);
-  if (tr_insn == nullptr) {
-    return nullptr;
-  }
-  if (tr_insn->target_states_.size() > 1) {
-    return nullptr;
-  }
-  return tr_insn->target_states_[0];
+  bb->bb_id_ = bset_->bbs_.size();
 }
 
 void BBCollector::SetStateBBMap() {

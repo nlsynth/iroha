@@ -23,6 +23,7 @@ public:
   static void CollectReachableStates(ITable *tab, set<IState *> *reachable);
   static void CollectTransitionInfo(ITable *tab,
 				    map<IState *, TransitionInfo> *transition_info);
+  static IState *GetOneNextState(IState *cur);
 
 private:
   static void CollectTransitionTargets(ITable *tab,

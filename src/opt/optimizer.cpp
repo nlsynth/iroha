@@ -7,6 +7,7 @@
 #include "opt/clean/unreachable_state.h"
 #include "opt/debug_annotation.h"
 #include "opt/phase.h"
+#include "opt/ssa/ssa.h"
 #include "opt/wire/wire_insn.h"
 
 #include <fstream>
@@ -24,6 +25,7 @@ void Optimizer::Init() {
   RegisterPhase("clean_empty_state", &clean::CleanEmptyStatePhase::Create);
   RegisterPhase("clean_unreachable_state",
 		&clean::CleanUnreachableStatePhase::Create);
+  RegisterPhase("ssa_convert", &ssa::SSAConverterPhase::Create);
   RegisterPhase("wire_insn", &wire::WireInsnPhase::Create);
 }
 

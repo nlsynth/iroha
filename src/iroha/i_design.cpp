@@ -207,6 +207,10 @@ bool IRegister::IsStateLocal() const {
   return state_local_;
 }
 
+bool IRegister::IsNormal() const {
+  return !state_local_ && !is_const_;
+}
+
 IInsn::IInsn(IResource *resource) : resource_(resource), id_(-1) {
   IDesign *design =
     resource_->GetTable()->GetModule()->GetDesign();

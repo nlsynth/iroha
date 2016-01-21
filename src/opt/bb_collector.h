@@ -22,7 +22,6 @@ private:
   void CollectEntries();
   void CollectBBsFromEntry(IState *entry_st);
   void CollectBB(IState *entry_st, IState *next_st);
-  IState *GetOneNextState(IState *cur);
   // Additional info.
   void SetStateBBMap();
   void SetBBTransition();

@@ -29,7 +29,8 @@ You may also have to (install automake, autoconf, libtool and) set up autotools 
     > $ ./minimum
 
 (3) Example to use optimizers
-    > $ ./examples/xorshift | ./iroha - -opt wire_insn,clean_empty_state,clean_unreachable_state | ./iroha - -v -o /tmp/xor.v
+
+    > $ ./examples/xorshift | ./iroha - -opt wire_insn,clean_empty_state,clean_unreachable_state | ./iroha - -v -o /tmp/xorshift.v
 
 Please read src/iroha/iroha.h, src/main.cpp examples/ for more details.
 
@@ -37,10 +38,10 @@ Please read src/iroha/iroha.h, src/main.cpp examples/ for more details.
 
 * P0: Document
 * P1: SSA conversion
+* P1: Memory or array interface synth implementation
 * P1: Optimizer debug output for intermediate IR
 * P1: Sub module task
 * P1: In design channel
-* P1: Memory or array interface synth implementation
 * P2: Set constraint not to split related insns
 * P2: Delete API objects automatically
 * P2: ROM image data structure.

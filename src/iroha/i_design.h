@@ -127,6 +127,8 @@ public:
   bool IsConst() const;
   void SetStateLocal(bool s);
   bool IsStateLocal() const;
+  // For convenience (!IsStateLocal() && !IsConst()).
+  bool IsNormal() const;
 
   IValueType value_type_;
 

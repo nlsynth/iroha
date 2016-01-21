@@ -61,5 +61,18 @@ void OptUtil::CollectTransitionTargets(ITable *tab,
   }
 }
 
+IState *OptUtil::GetOneNextState(IState *cur) {
+  ITable *tab = cur->GetTable();
+  IResource *tr = DesignUtil::FindTransitionResource(tab);
+  IInsn *tr_insn = DesignUtil::FindInsnByResource(cur, tr);
+  if (tr_insn == nullptr) {
+    return nullptr;
+  }
+  if (tr_insn->target_states_.size() > 1) {
+    return nullptr;
+  }
+  return tr_insn->target_states_[0];
+}
+
 }  // namespace opt
 }  // namespace iroha

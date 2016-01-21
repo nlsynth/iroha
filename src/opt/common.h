@@ -14,6 +14,7 @@ class BB;
 class BBSet;
 class DataFlow;
 class DebugAnnotation;
+class DominatorTree;
 class RegDef;
 
 }  // namespace opt

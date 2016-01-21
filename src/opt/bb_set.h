@@ -14,6 +14,7 @@ public:
   BB();
 
   vector<IState *> states_;
+  int bb_id_;
   set<BB *> next_bbs_;
   set<BB *> prev_bbs_;
 };
@@ -24,11 +25,13 @@ public:
   ~BBSet();
 
   static BBSet *Create(ITable *table, DebugAnnotation *annotation);
+  static void SortBBs(const set<BB *> &input, vector<BB *> *sorted);
 
   void Annotate(DebugAnnotation *annotation);
   ITable *GetTable() const;
 
   vector<BB *> bbs_;
+  BB *initial_bb_;
   map<IState *, BB *> state_to_bb_;
 
 private:
