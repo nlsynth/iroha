@@ -9,28 +9,25 @@
 #include "opt/data_flow.h"
 #include "opt/dominator_tree.h"
 #include "opt/opt_util.h"
+#include "opt/ssa/phi_builder.h"
 
 namespace iroha {
 namespace opt {
 namespace ssa {
 
 SSAConverter::SSAConverter(ITable *table, DebugAnnotation *annotation)
-  : table_(table), annotation_(annotation),
-    phi_(nullptr), bset_(nullptr), data_flow_(nullptr), dom_tree_(nullptr) {
+  : table_(table), annotation_(annotation), phi_(nullptr) {
 }
 
 SSAConverter::~SSAConverter() {
-  delete dom_tree_;
-  delete data_flow_;
-  delete bset_;
 }
 
 void SSAConverter::Perform() {
   phi_ = DesignTool::GetResource(table_, resource::kPhi);
   tr_ = DesignUtil::FindTransitionResource(table_);
-  bset_ = BBSet::Create(table_, annotation_);
-  data_flow_ = DataFlow::Create(bset_, annotation_);
-  dom_tree_ = DominatorTree::Create(bset_, annotation_);
+  bset_.reset(BBSet::Create(table_, annotation_));
+  data_flow_.reset(DataFlow::Create(bset_.get(), annotation_));
+  dom_tree_.reset(DominatorTree::Create(bset_.get(), annotation_));
 
   // Insert PHIs.
   CollectSingularRegister();
@@ -41,6 +38,9 @@ void SSAConverter::Perform() {
   }
   CollectOriginalDefs();
   PropagatePHIs();
+
+  PhiBuilder phi_builder(table_, annotation_);
+  phi_builder.Perform();
 }
 
 void SSAConverter::CollectSingularRegister() {

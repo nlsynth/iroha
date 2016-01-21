@@ -41,6 +41,7 @@ libiroha_la_SOURCES = \
  src/opt/optimizer.cpp src/opt/optimizer.h \
  src/opt/opt_util.cpp src/opt/opt_util.h \
  src/opt/phase.cpp src/opt/phase.h \
+ src/opt/ssa/phi_builder.cpp src/opt/ssa/phi_builder.h \
  src/opt/ssa/ssa.cpp src/opt/ssa/ssa.h \
  src/opt/ssa/ssa_converter.cpp src/opt/ssa/ssa_converter.h \
  src/opt/wire/wire_insn.cpp src/opt/wire/wire_insn.h \

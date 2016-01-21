@@ -2,7 +2,7 @@
 #ifndef _opt_ssa_ssa_converter_h_
 #define _opt_ssa_ssa_converter_h_
 
-#include "opt/phase.h"
+#include "opt/common.h"
 
 namespace iroha {
 namespace opt {
@@ -33,9 +33,9 @@ private:
   DebugAnnotation *annotation_;
   IResource *phi_;
   IResource *tr_;
-  BBSet *bset_;
-  DataFlow *data_flow_;
-  DominatorTree *dom_tree_;
+  unique_ptr<BBSet> bset_;
+  unique_ptr<DataFlow> data_flow_;
+  unique_ptr<DominatorTree> dom_tree_;
   set<IRegister *> singular_regs_;
   map<IRegister *, PerRegister *> reg_phis_map_;
 };

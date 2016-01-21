@@ -37,7 +37,7 @@ Please read src/iroha/iroha.h, src/main.cpp examples/ for more details.
 -- TODOs
 
 * P0: Document
-* P1: SSA conversion
+* P1: Reverse SSA conversion
 * P1: Memory or array interface synth implementation
 * P1: Optimizer debug output for intermediate IR
 * P1: Sub module task
