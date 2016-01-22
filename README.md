@@ -83,6 +83,9 @@ Please read src/iroha/iroha.h, src/main.cpp examples/ for more details.
     * Instruction
 * BB
     * Basic block
+* Mapped resource
+    * Resource which has actual implementation
+    * e.g. Array access might be mapped to AXI, SRAM or so on.
 
 -- format this document
 

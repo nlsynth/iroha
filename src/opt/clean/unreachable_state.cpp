@@ -30,4 +30,3 @@ bool CleanUnreachableStatePhase::ApplyForTable(ITable *table) {
 }  // namespace clean
 }  // namespace opt
 }  // namespace iroha
-

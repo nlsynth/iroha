@@ -5,6 +5,7 @@
 #include "opt/array_to_mem.h"
 #include "opt/clean/empty_state.h"
 #include "opt/clean/unreachable_state.h"
+#include "opt/clean/unused_resource.h"
 #include "opt/debug_annotation.h"
 #include "opt/phase.h"
 #include "opt/ssa/ssa.h"
@@ -25,6 +26,8 @@ void Optimizer::Init() {
   RegisterPhase("clean_empty_state", &clean::CleanEmptyStatePhase::Create);
   RegisterPhase("clean_unreachable_state",
 		&clean::CleanUnreachableStatePhase::Create);
+  RegisterPhase("clean_unused_resource",
+		&clean::CleanUnusedResourcePhase::Create);
   RegisterPhase("ssa_convert", &ssa::SSAConverterPhase::Create);
   RegisterPhase("phi_cleaner", &ssa::PhiCleanerPhase::Create);
   RegisterPhase("wire_insn", &wire::WireInsnPhase::Create);

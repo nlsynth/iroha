@@ -32,6 +32,7 @@ libiroha_la_SOURCES = \
  src/opt/bb_set.cpp src/opt/bb_set.h \
  src/opt/clean/empty_state.cpp src/opt/empty_state.h \
  src/opt/clean/unreachable_state.cpp src/opt/unreachable_state.h \
+ src/opt/clean/unused_resource.cpp src/opt/unused_resource.h \
  src/opt/common.h \
  src/opt/data_flow.cpp src/opt/data_flow.h \
  src/opt/data_flow_collector.cpp src/opt/data_flow_collector.h \
@@ -43,6 +44,7 @@ libiroha_la_SOURCES = \
  src/opt/phase.cpp src/opt/phase.h \
  src/opt/ssa/phi_builder.cpp src/opt/ssa/phi_builder.h \
  src/opt/ssa/phi_cleaner.cpp src/opt/ssa/phi_cleaner.h \
+ src/opt/ssa/phi_injector.cpp src/opt/ssa/phi_injector.h \
  src/opt/ssa/ssa.cpp src/opt/ssa/ssa.h \
  src/opt/ssa/ssa_converter.cpp src/opt/ssa/ssa_converter.h \
  src/opt/wire/wire_insn.cpp src/opt/wire/wire_insn.h \

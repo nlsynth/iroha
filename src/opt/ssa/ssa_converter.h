@@ -12,32 +12,12 @@ class SSAConverter {
 public:
   SSAConverter(ITable *table, DebugAnnotation *annotation);
   ~SSAConverter();
+
   void Perform();
 
 private:
-  class PerRegister {
-  public:
-    set<RegDef *> original_defs_;
-    set<BB *> phi_bbs_;
-  };
-
-  void CollectSingularRegister();
-  void CollectOriginalDefs();
-  PerRegister *GetPerRegister(IRegister *reg);
-  void PropagatePHIs();
-  void PropagatePHIforBB(PerRegister *pr, BB *bb);
-  void CommitPHIInsn();
-  void PrependState(BB *bb);
-
   ITable *table_;
   DebugAnnotation *annotation_;
-  IResource *phi_;
-  IResource *tr_;
-  unique_ptr<BBSet> bset_;
-  unique_ptr<DataFlow> data_flow_;
-  unique_ptr<DominatorTree> dom_tree_;
-  set<IRegister *> singular_regs_;
-  map<IRegister *, PerRegister *> reg_phis_map_;
 };
 
 }  // namespace ssa

@@ -54,7 +54,7 @@ void ExpWriter::WriteResource(const IResource &res) {
   os_ << "\n";
   ResourceParams *params = res.GetParams();
   WriteResourceParams(*params);
-  if (resource::IsArray(rc)) {
+  if (resource::IsArray(rc) || res.GetArray() != nullptr) {
     WriteArrayDesc(res);
   }
   if (resource::IsSubModuleTaskCall(rc)) {

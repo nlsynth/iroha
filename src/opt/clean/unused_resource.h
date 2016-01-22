@@ -1,9 +1,6 @@
 // -*- C++ -*-
-//
-// Kills unreachable states.
-//
-#ifndef _opt_clean_unreachable_state_h_
-#define _opt_clean_unreachable_state_h_
+#ifndef _opt_clean_unused_resource_h_
+#define _opt_clean_unused_resource_h_
 
 #include "opt/phase.h"
 
@@ -11,9 +8,9 @@ namespace iroha {
 namespace opt {
 namespace clean {
 
-class CleanUnreachableStatePhase : public Phase {
+class CleanUnusedResourcePhase : public Phase {
 public:
-  virtual ~CleanUnreachableStatePhase();
+  virtual ~CleanUnusedResourcePhase();
 
   static Phase *Create();
 
@@ -25,4 +22,5 @@ private:
 }  // namespace opt
 }  // namespace iroha
 
-#endif  // _opt_clean_unreachable_state_h_
+#endif  // _opt_clean_unused_resource_h_
+
