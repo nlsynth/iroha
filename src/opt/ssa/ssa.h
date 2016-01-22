@@ -17,6 +17,15 @@ private:
   virtual bool ApplyForTable(ITable *table);
 };
 
+class PhiCleanerPhase : public Phase {
+public:
+  virtual ~PhiCleanerPhase();
+
+  static Phase *Create();
+private:
+  virtual bool ApplyForTable(ITable *table);
+};
+
 }  // namespace ssa
 }  // namespace opt
 }  // namespace iroha

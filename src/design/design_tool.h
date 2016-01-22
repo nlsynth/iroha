@@ -15,6 +15,7 @@ public:
   static void Validate(IDesign *design);
   static IInsn *AddNextState(IState *cur, IState *next);
   static IState *InsertNextState(IState *st);
+  static void EraseInsn(IState *st, IInsn *insn);
   static void MoveInsn(IInsn *insn, IState *src_st, IState *dst_st);
   static IResource *GetResource(ITable *table,
 				const string &class_name);

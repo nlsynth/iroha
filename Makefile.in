@@ -121,11 +121,12 @@ am_libiroha_la_OBJECTS = src/iroha/common.lo src/iroha/iroha.lo \
 	src/opt/data_flow_collector.lo src/opt/debug_annotation.lo \
 	src/opt/dominator_tree.lo src/opt/dominator_tree_builder.lo \
 	src/opt/optimizer.lo src/opt/opt_util.lo src/opt/phase.lo \
-	src/opt/ssa/phi_builder.lo src/opt/ssa/ssa.lo \
-	src/opt/ssa/ssa_converter.lo src/opt/wire/wire_insn.lo \
-	src/writer/connection.lo src/writer/exp_writer.lo \
-	src/writer/html_writer.lo src/writer/module_template.lo \
-	src/writer/verilog/embed.lo src/writer/verilog/insn_builder.lo \
+	src/opt/ssa/phi_builder.lo src/opt/ssa/phi_cleaner.lo \
+	src/opt/ssa/ssa.lo src/opt/ssa/ssa_converter.lo \
+	src/opt/wire/wire_insn.lo src/writer/connection.lo \
+	src/writer/exp_writer.lo src/writer/html_writer.lo \
+	src/writer/module_template.lo src/writer/verilog/embed.lo \
+	src/writer/verilog/insn_builder.lo \
 	src/writer/verilog/insn_writer.lo src/writer/verilog/module.lo \
 	src/writer/verilog/ports.lo src/writer/verilog/state.lo \
 	src/writer/verilog/table.lo \
@@ -437,6 +438,7 @@ libiroha_la_SOURCES = \
  src/opt/opt_util.cpp src/opt/opt_util.h \
  src/opt/phase.cpp src/opt/phase.h \
  src/opt/ssa/phi_builder.cpp src/opt/ssa/phi_builder.h \
+ src/opt/ssa/phi_cleaner.cpp src/opt/ssa/phi_cleaner.h \
  src/opt/ssa/ssa.cpp src/opt/ssa/ssa.h \
  src/opt/ssa/ssa_converter.cpp src/opt/ssa/ssa_converter.h \
  src/opt/wire/wire_insn.cpp src/opt/wire/wire_insn.h \
@@ -589,6 +591,8 @@ src/opt/ssa/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) src/opt/ssa/$(DEPDIR)
 	@: > src/opt/ssa/$(DEPDIR)/$(am__dirstamp)
 src/opt/ssa/phi_builder.lo: src/opt/ssa/$(am__dirstamp) \
+	src/opt/ssa/$(DEPDIR)/$(am__dirstamp)
+src/opt/ssa/phi_cleaner.lo: src/opt/ssa/$(am__dirstamp) \
 	src/opt/ssa/$(DEPDIR)/$(am__dirstamp)
 src/opt/ssa/ssa.lo: src/opt/ssa/$(am__dirstamp) \
 	src/opt/ssa/$(DEPDIR)/$(am__dirstamp)
@@ -758,6 +762,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/opt/clean/$(DEPDIR)/empty_state.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/opt/clean/$(DEPDIR)/unreachable_state.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/opt/ssa/$(DEPDIR)/phi_builder.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/opt/ssa/$(DEPDIR)/phi_cleaner.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/opt/ssa/$(DEPDIR)/ssa.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/opt/ssa/$(DEPDIR)/ssa_converter.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/opt/wire/$(DEPDIR)/wire_insn.Plo@am__quote@

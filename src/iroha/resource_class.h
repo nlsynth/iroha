@@ -11,6 +11,7 @@ const char kTransition[] = "tr";
 const char kSet[] = "set";
 const char kPrint[] = "print";
 const char kPhi[] = "phi";
+const char kSelect[] = "select";
 const char kAssert[] = "assert";
 const char kMapped[] = "mapped";
 const char kChannelWrite[] = "channel_write";

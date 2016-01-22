@@ -26,6 +26,7 @@ void Optimizer::Init() {
   RegisterPhase("clean_unreachable_state",
 		&clean::CleanUnreachableStatePhase::Create);
   RegisterPhase("ssa_convert", &ssa::SSAConverterPhase::Create);
+  RegisterPhase("phi_cleaner", &ssa::PhiCleanerPhase::Create);
   RegisterPhase("wire_insn", &wire::WireInsnPhase::Create);
 }
 

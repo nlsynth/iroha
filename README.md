@@ -37,11 +37,12 @@ Please read src/iroha/iroha.h, src/main.cpp examples/ for more details.
 -- TODOs
 
 * P0: Document
-* P1: Reverse SSA conversion
 * P1: Memory or array interface synth implementation
 * P1: Optimizer debug output for intermediate IR
 * P1: Sub module task
 * P1: In design channel
+* P2: Test and debug SSA conversion and PHI removal
+* P2: Easy way to generate IR S-expression
 * P2: Set constraint not to split related insns
 * P2: Delete API objects automatically
 * P2: ROM image data structure.

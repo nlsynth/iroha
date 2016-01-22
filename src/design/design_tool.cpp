@@ -43,6 +43,15 @@ IState *DesignTool::InsertNextState(IState *st) {
   return new_st;
 }
 
+void DesignTool::EraseInsn(IState *st, IInsn *insn) {
+  for (auto it = st->insns_.begin(); it != st->insns_.end(); ++it) {
+    if (*it == insn) {
+      st->insns_.erase(it);
+      return;
+    }
+  }
+}
+
 IResource *DesignTool::GetResource(ITable *table, const string &class_name) {
   IResource *res = DesignUtil::FindResourceByClassName(table, class_name);
   if (res) {
