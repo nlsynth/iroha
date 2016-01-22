@@ -7,6 +7,7 @@
 #include <fstream>
 
 namespace iroha {
+namespace writer {
 namespace verilog {
 
 Embed::~Embed() {
@@ -53,4 +54,5 @@ bool Embed::Write(ostream &os) {
 }
 
 }  // namespace verilog
+}  // namespace writer
 }  // namespace iroha

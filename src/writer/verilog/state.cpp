@@ -12,6 +12,7 @@
 static const char I[] = "        ";
 
 namespace iroha {
+namespace writer {
 namespace verilog {
 
 State::State(IState *i_state, Table *table)
@@ -127,4 +128,5 @@ void State::WriteTransition(ostream &os) {
 }
 
 }  // namespace verilog
+}  // namespace writer
 }  // namespace iroha

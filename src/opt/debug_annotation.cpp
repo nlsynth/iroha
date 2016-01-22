@@ -8,7 +8,7 @@ DebugAnnotation::~DebugAnnotation() {
 }
 
 void DebugAnnotation::DumpIntermediateTable(const ITable *tab) {
-  Writer::DumpTable(tab, dump_);
+  writer::Writer::DumpTable(tab, dump_);
 }
 
 void DebugAnnotation::GetDumpedContent(ostream &os) {

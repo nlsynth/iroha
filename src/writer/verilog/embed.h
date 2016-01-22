@@ -7,6 +7,7 @@
 #include <set>
 
 namespace iroha {
+namespace writer {
 namespace verilog {
 
 class Ports;
@@ -26,6 +27,7 @@ private:
 };
 
 }  // namespace verilog
+}  // namespace writer
 }  // namespace iroha
 
 #endif  // _writer_verilog_embed_h_

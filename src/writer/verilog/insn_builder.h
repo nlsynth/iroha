@@ -5,6 +5,7 @@
 #include "iroha/common.h"
 
 namespace iroha {
+namespace writer {
 namespace verilog {
 
 class State;
@@ -24,6 +25,7 @@ private:
 };
 
 }  // namespace verilog
+}  // namespace writer
 }  // namespace iroha
 
 #endif  // _writer_verilog_insn_builder_h_

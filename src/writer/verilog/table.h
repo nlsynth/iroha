@@ -7,6 +7,7 @@
 #include <map>
 
 namespace iroha {
+namespace writer {
 
 class ModuleTemplate;
 
@@ -61,6 +62,7 @@ private:
 };
 
 }  // namespace verilog
+}  // namespace writer
 }  // namespace iroha
 
 #endif  // _writer_verilog_table_h_

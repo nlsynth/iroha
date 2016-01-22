@@ -7,8 +7,8 @@
 #include <map>
 
 namespace iroha {
+namespace writer {
 
-class IDesign;
 class Connection;
 
 namespace verilog {
@@ -36,6 +36,7 @@ private:
 };
 
 }  // namespace verilog
+}  // namespace writer
 }  // namespace iroha
 
 #endif  // _writer_verilog_verilog_writer_h_

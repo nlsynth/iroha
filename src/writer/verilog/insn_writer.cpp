@@ -9,6 +9,7 @@
 static const char I[] = "          ";
 
 namespace iroha {
+namespace writer {
 namespace verilog {
 
 InsnWriter::InsnWriter(const IInsn *insn, const State *st,
@@ -84,4 +85,5 @@ string InsnWriter::InsnOutputWireName(const IInsn &insn, int nth) {
 }
 
 }  // namespace verilog
+}  // namespace writer
 }  // namespace iroha

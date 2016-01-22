@@ -9,6 +9,7 @@
 #include <fstream>
 
 namespace iroha {
+namespace writer {
 
 Writer::Writer(const IDesign *design) : design_(design) {
 }
@@ -50,4 +51,5 @@ void Writer::DumpTable(const ITable *table, ostream &os) {
   writer.WriteIntermediateTable(*table);
 }
 
+}  // namespace writer
 }  // namespace iroha

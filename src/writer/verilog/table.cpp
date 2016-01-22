@@ -13,6 +13,7 @@
 #include "writer/verilog/state.h"
 
 namespace iroha {
+namespace writer {
 namespace verilog {
 
 Table::Table(ITable *table, Ports *ports, Module *mod, Embed *embed,
@@ -253,5 +254,6 @@ void Table::WriteInputSel(const string &name, const IResource &res,
 }
 
 }  // namespace verilog
+}  // namespace writer
 }  // namespace iroha
 

@@ -7,6 +7,7 @@
 #include <map>
 
 namespace iroha {
+namespace writer {
 
 // Per module information.
 class ChannelInfo {
@@ -43,6 +44,7 @@ private:
   map<const IModule *, ChannelInfo> channel_info_;
 };
 
+}  // namespace writer
 }  // namespace iroha
 
 #endif  // _writer_connection_h_

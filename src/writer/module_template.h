@@ -8,6 +8,7 @@
 #include <map>
 
 namespace iroha {
+namespace writer {
 
 class ModuleTemplate {
 public:
@@ -18,6 +19,7 @@ private:
   map<string, ostringstream> streams_;
 };
 
+}  // namespace writer
 }  // namespace iroha
 
 #endif  // _writer_module_template_h_

@@ -18,11 +18,11 @@ void Iroha::Init() {
 }
 
 IDesign *Iroha::ReadDesignFromFile(const string &fn) {
-  return iroha::ExpBuilder::ReadDesign(fn);
+  return ExpBuilder::ReadDesign(fn);
 }
 
 WriterAPI *Iroha::CreateWriter(const IDesign *design) {
-  return new Writer(design);
+  return new writer::Writer(design);
 }
 
 OptAPI *Iroha::CreateOptimizer(IDesign *design) {

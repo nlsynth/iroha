@@ -6,6 +6,7 @@
 #include <set>
 
 namespace iroha {
+namespace writer {
 
 Connection::Connection(const IDesign *design) : design_(design) {
 }
@@ -107,4 +108,5 @@ const IModule *Connection::GetCommonRoot(const IModule *m1,
   return nullptr;
 }
 
+}  // namespace writer
 }  // namespace iroha

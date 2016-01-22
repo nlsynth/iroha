@@ -11,6 +11,7 @@
 #include "writer/verilog/table.h"
 
 namespace iroha {
+namespace writer {
 namespace verilog {
 
 Module::Module(const IModule *i_mod, const Connection &conn, Embed *embed)
@@ -154,4 +155,5 @@ void Module::BuildChannelConnections(const ChannelInfo &ci) {
 }
 
 }  // namespace verilog
+}  // namespace writer
 }  // namespace iroha

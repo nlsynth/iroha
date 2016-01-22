@@ -7,6 +7,7 @@
 #include "iroha/resource_params.h"
 
 namespace iroha {
+namespace writer {
 namespace verilog {
 
 InsnBuilder::InsnBuilder(const IInsn *insn, ostream &os)
@@ -65,4 +66,5 @@ void InsnBuilder::BitArrangeOp() {
 }
 
 }  // namespace verilog
+}  // namespace writer
 }  // namespace iroha

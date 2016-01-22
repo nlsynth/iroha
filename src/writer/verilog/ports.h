@@ -5,6 +5,7 @@
 #include "iroha/common.h"
 
 namespace iroha {
+namespace writer {
 namespace verilog {
 
 class Port {
@@ -67,6 +68,7 @@ private:
 };
 
 }  // namespace verilog
+}  // namespace writer
 }  // namespace iroha
 
 #endif  // _writer_verilog_ports_h_

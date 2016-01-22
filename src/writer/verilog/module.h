@@ -5,10 +5,10 @@
 #include "iroha/common.h"
 
 namespace iroha {
+namespace writer {
 
 class ChannelInfo;
 class Connection;
-class IModule;
 class ModuleTemplate;
 
 namespace verilog {
@@ -53,6 +53,7 @@ private:
 };
 
 }  // namespace verilog
+}  // namespace writer
 }  // namespace iroha
 
 #endif  // _writer_verilog_module_h_

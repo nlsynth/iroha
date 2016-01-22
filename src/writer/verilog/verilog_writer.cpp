@@ -8,6 +8,7 @@
 #include "writer/verilog/module.h"
 
 namespace iroha {
+namespace writer {
 namespace verilog {
 
 VerilogWriter::VerilogWriter(const IDesign *design, const Connection &conn,
@@ -57,4 +58,5 @@ void VerilogWriter::BuildHierarchy() {
 }
 
 }  // namespace verilog
+}  // namespace writer
 }  // namespace iroha

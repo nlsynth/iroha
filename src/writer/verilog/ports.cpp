@@ -6,6 +6,7 @@ static const string kInput = "input";
 static const string kOutput = "output";
 
 namespace iroha {
+namespace writer {
 namespace verilog {
 
 Ports::~Ports() {
@@ -109,4 +110,5 @@ int Port::GetWidth() {
 }
 
 }  // namespace verilog
+}  // namespace writer
 }  // namespace iroha

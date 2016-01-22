@@ -5,6 +5,7 @@
 #include "iroha/writer_api.h"
 
 namespace iroha {
+namespace writer {
 
 class Writer : public WriterAPI {
 public:
@@ -19,6 +20,7 @@ public:
   string language_;
 };
   
+}  // namespace writer
 }  // namespace iroha
 
 #endif  // _writer_writer_h_
