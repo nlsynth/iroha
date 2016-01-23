@@ -2,30 +2,23 @@
 #ifndef _writer_verilog_module_h_
 #define _writer_verilog_module_h_
 
-#include "iroha/common.h"
+#include "writer/verilog/common.h"
 
 namespace iroha {
 namespace writer {
-
-class ChannelInfo;
-class Connection;
-class ModuleTemplate;
-
 namespace verilog {
 
-class Embed;
-class Ports;
-class Table;
-
-static const char kEmbeddedInstanceSection[] = "embedded";
-static const char kSubModuleSection[] = "sub_modules";
+// For module.
 static const char kStateDeclSection[] = "state_decl";
 static const char kStateVarSection[] = "state_var";
 static const char kRegisterSection[] = "register";
 static const char kResourceSection[] = "resource";
-static const char kInitialValueSection[] = "initial";  // With table id.
 static const char kInsnWireDeclSection[] = "insn_wire_decl";
 static const char kInsnWireValueSection[] = "insn_wire_value";
+static const char kEmbeddedInstanceSection[] = "embedded";
+static const char kSubModuleSection[] = "sub_modules";
+// For each table.
+static const char kInitialValueSection[] = "initial";  // With table id.
 
 class Module {
 public:
@@ -37,7 +30,11 @@ public:
   bool GetResetPolarity() const;
   const IModule *GetIModule() const;
   const Ports *GetPorts() const;
+  // Called from VerilogWriter.
+  const vector<InternalSRAM *> &GetInternalSRAMs() const;
   void BuildChildModuleSection(vector<Module *> &mods);
+  // Called from Table.
+  InternalSRAM *RequestInternalSRAM(const IResource &res);
 
 private:
   void BuildChannelConnections(const ChannelInfo &ci);
@@ -49,6 +46,7 @@ private:
   unique_ptr<ModuleTemplate> tmpl_;
   unique_ptr<Ports> ports_;
   vector<Table *> tables_;
+  vector<InternalSRAM *> srams_;
   bool reset_polarity_;
 };
 

@@ -7,6 +7,7 @@
 #include "writer/connection.h"
 #include "writer/module_template.h"
 #include "writer/verilog/insn_writer.h"
+#include "writer/verilog/internal_sram.h"
 #include "writer/verilog/ports.h"
 #include "writer/verilog/table.h"
 
@@ -23,6 +24,7 @@ Module::Module(const IModule *i_mod, const Connection &conn, Embed *embed)
 
 Module::~Module() {
   STLDeleteValues(&tables_);
+  STLDeleteValues(&srams_);
 }
 
 void Module::Write(ostream &os) {
@@ -115,6 +117,16 @@ void Module::BuildChildModuleSection(vector<Module *> &mods) {
     }
     is << ");\n";
   }
+}
+
+InternalSRAM *Module::RequestInternalSRAM(const IResource &res) {
+  InternalSRAM *sram = new InternalSRAM(*this, res);
+  srams_.push_back(sram);
+  return sram;
+}
+
+const vector<InternalSRAM *> &Module::GetInternalSRAMs() const {
+  return srams_;
 }
 
 void Module::BuildChildModuleChannelWire(const IChannel &ch, ostream &is) {

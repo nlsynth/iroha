@@ -46,6 +46,7 @@ Please read src/iroha/iroha.h, src/main.cpp examples/ for more details.
 * P2: Set constraint not to split related insns
 * P2: Delete API objects automatically
 * P2: ROM image data structure.
+* P2: API to create ROM
 * P2: Values wider than 64bits
 * P2: Pluggable optimizer and writer
 * P2: Error handling

@@ -2,21 +2,13 @@
 #ifndef _writer_verilog_table_h_
 #define _writer_verilog_table_h_
 
-#include "iroha/common.h"
+#include "writer/verilog/common.h"
 
 #include <map>
 
 namespace iroha {
 namespace writer {
-
-class ModuleTemplate;
-
 namespace verilog {
-
-class Embed;
-class Module;
-class Ports;
-class State;
 
 class Table {
 public:

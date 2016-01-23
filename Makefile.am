@@ -52,9 +52,11 @@ libiroha_la_SOURCES = \
  src/writer/exp_writer.cpp src/writer/exp_writer.h \
  src/writer/html_writer.cpp src/writer/html_writer.h \
  src/writer/module_template.cpp src/writer/module_template.h \
+ src/writer/verilog/common.h \
  src/writer/verilog/embed.cpp src/writer/verilog/embed.h \
  src/writer/verilog/insn_builder.cpp src/writer/verilog/insn_builder.h \
  src/writer/verilog/insn_writer.cpp src/writer/verilog/insn_writer.h \
+ src/writer/verilog/internal_sram.cpp src/writer/verilog/internal_sram.h \
  src/writer/verilog/module.cpp src/writer/verilog/module.h \
  src/writer/verilog/ports.cpp src/writer/verilog/ports.h \
  src/writer/verilog/state.cpp src/writer/verilog/state.h \

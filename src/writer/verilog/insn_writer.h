@@ -2,13 +2,11 @@
 #ifndef _writer_verilog_insn_writer_h_
 #define _writer_verilog_insn_writer_h_
 
-#include "iroha/common.h"
+#include "writer/verilog/common.h"
 
 namespace iroha {
 namespace writer {
 namespace verilog {
-
-class State;
 
 class InsnWriter {
 public:

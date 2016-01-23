@@ -8,6 +8,7 @@
 #include "writer/module_template.h"
 #include "writer/verilog/embed.h"
 #include "writer/verilog/insn_writer.h"
+#include "writer/verilog/internal_sram.h"
 #include "writer/verilog/module.h"
 #include "writer/verilog/ports.h"
 #include "writer/verilog/state.h"
@@ -127,6 +128,14 @@ void Table::BuildArrayResource(const IResource &res) {
 }
 
 void Table::BuildMappedResource(const IResource &res) {
+  auto *params = res.GetParams();
+  if (params->GetMappedName() == "mem") {
+    InternalSRAM *sram = mod_->RequestInternalSRAM(res);
+    ostream &es = tmpl_->GetStream(kEmbeddedInstanceSection);
+    string name = sram->GetModuleName();
+    string inst = name + "_inst_" + Util::Itoa(res.GetId());
+    es << "  " << name << " " << inst<< "();\n";
+  }
 }
 
 void Table::BuildSubModuleTaskResource(const IResource &res) {

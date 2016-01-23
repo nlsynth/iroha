@@ -2,15 +2,13 @@
 #ifndef _writer_verilog_embed_h_
 #define _writer_verilog_embed_h_
 
-#include "iroha/common.h"
+#include "writer/verilog/common.h"
 
 #include <set>
 
 namespace iroha {
 namespace writer {
 namespace verilog {
-
-class Ports;
 
 class Embed {
 public:

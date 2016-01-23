@@ -2,7 +2,7 @@
 #ifndef _writer_verilog_ports_h_
 #define _writer_verilog_ports_h_
 
-#include "iroha/common.h"
+#include "writer/verilog/common.h"
 
 namespace iroha {
 namespace writer {
