@@ -37,10 +37,11 @@ Please read src/iroha/iroha.h, src/main.cpp examples/ for more details.
 -- TODOs
 
 * P0: Document
-* P1: Memory or array interface synth implementation
 * P1: Optimizer debug output for intermediate IR
 * P1: Sub module task
 * P1: In design channel
+* P1: Output selector for exclusive resources
+* P1: Memory interface synth implementation
 * P2: Test and debug SSA conversion and PHI removal
 * P2: Easy way to generate IR S-expression
 * P2: Set constraint not to split related insns
@@ -52,6 +53,7 @@ Please read src/iroha/iroha.h, src/main.cpp examples/ for more details.
 * P2: Error handling
 * P2: Pipeline can be built with multiple tables in a module OR multiple modules with one table in each module
 * P2: I/O for embedded verilog module
+* P2: Modularize mapped resource
 * P2: Resource sharing between tables
 * P3: Export optimizer API so that users can add own phase
 * P3: API to create copies of module, table and so on.

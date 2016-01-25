@@ -16,6 +16,7 @@ public:
   void Set();
   void Print();
   void Assert();
+  void Mapped();
 
   static string RegisterName(const IRegister &reg);
   static string ResourceName(const IResource &res);

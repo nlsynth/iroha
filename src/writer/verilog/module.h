@@ -17,8 +17,9 @@ static const char kInsnWireDeclSection[] = "insn_wire_decl";
 static const char kInsnWireValueSection[] = "insn_wire_value";
 static const char kEmbeddedInstanceSection[] = "embedded";
 static const char kSubModuleSection[] = "sub_modules";
-// For each table.
-static const char kInitialValueSection[] = "initial";  // With table id.
+// For each table (with table id).
+static const char kInitialValueSection[] = "initial";
+static const char kStateOutput[] = "state_output";
 
 class Module {
 public:

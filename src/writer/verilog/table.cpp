@@ -103,7 +103,7 @@ void Table::BuildExclusiveBinOpResource(const IResource &res) {
   const string &res_name = res.GetClass()->GetName();
   rs << "  // " << res_name << ":" << res.GetId() << "\n";
   map<IState *, IInsn *> callers;
-  CollectResourceCallers(res, &callers);
+  CollectResourceCallers(res, "", &callers);
   if (callers.size() == 0) {
     return;
   }
@@ -130,12 +130,35 @@ void Table::BuildArrayResource(const IResource &res) {
 void Table::BuildMappedResource(const IResource &res) {
   auto *params = res.GetParams();
   if (params->GetMappedName() == "mem") {
-    InternalSRAM *sram = mod_->RequestInternalSRAM(res);
-    ostream &es = tmpl_->GetStream(kEmbeddedInstanceSection);
-    string name = sram->GetModuleName();
-    string inst = name + "_inst_" + Util::Itoa(res.GetId());
-    es << "  " << name << " " << inst<< "();\n";
+    BuildSRAMResource(res);
   }
+}
+
+void Table::BuildSRAMResource(const IResource &res) {
+  InternalSRAM *sram = mod_->RequestInternalSRAM(res);
+  ostream &es = tmpl_->GetStream(kEmbeddedInstanceSection);
+  string name = sram->GetModuleName();
+  string res_id = Util::Itoa(res.GetId());
+  string inst = name + "_inst_" + res_id;
+  es << "  " << name << " " << inst << "("
+     << ".clk(" << ports_->GetClk() << ")"
+     << ", ." << sram->GetResetPinName() << "(" << ports_->GetReset() << ")"
+     << ", .addr_i(sram_addr_" << res_id << ")"
+     << ", .rdata_o(sram_rdata_" << res_id << ")"
+     << ", .wdata_i(sram_wdata_" << res_id << ")"
+     << ", .write_en_i(sram_wdata_en_" << res_id << ")"
+     <<");\n";
+  ostream &rs = tmpl_->GetStream(kResourceSection);
+  rs << "  reg " << sram->AddressWidthSpec() << "sram_addr_" << res_id << ";\n"
+     << "  wire " << sram->DataWidthSpec() << "sram_rdata_" << res_id << ";\n"
+     << "  reg " << sram->DataWidthSpec() << "sram_wdata_" << res_id << ";\n"
+     << "  reg sram_wdata_en_" << res_id << ";\n";
+  map<IState *, IInsn *> callers;
+  CollectResourceCallers(res, "sram_write", &callers);
+  ostream &fs = tmpl_->GetStream(kStateOutput + Util::Itoa(nth_));
+  fs << "      sram_wdata_en_" << res_id << " <= ";
+  WriteStateUnion(callers, fs);
+  fs << ";\n";
 }
 
 void Table::BuildSubModuleTaskResource(const IResource &res) {
@@ -205,6 +228,7 @@ void Table::Write(ostream &os) {
      << StateName(st->GetId()) << ";\n";
   os << tmpl_->GetContents(kInitialValueSection + Util::Itoa(nth_));
   os << "    end else begin\n";
+  os << tmpl_->GetContents(kStateOutput + Util::Itoa(nth_));
   os << "      case (" << StateVariable() << ")\n";
   for (auto *state : states_) {
     state->Write(os);
@@ -227,10 +251,12 @@ ModuleTemplate *Table::GetModuleTemplate() const {
 }
 
 void Table::CollectResourceCallers(const IResource &res,
+				   const string &opr,
 				   map<IState *, IInsn *> *callers) {
   for (auto *st : i_table_->states_) {
     for (auto *insn : st->insns_) {
-      if (insn->GetResource() == &res) {
+      if (insn->GetResource() == &res &&
+	  insn->GetOperand() == opr) {
 	callers->insert(make_pair(st, insn));
       }
     }
@@ -260,6 +286,21 @@ void Table::WriteInputSel(const string &name, const IResource &res,
     LOG(FATAL) << "TODO(yt76): Input selector";
   }
   os << ";\n";
+}
+
+void Table::WriteStateUnion(const map<IState *, IInsn *> &callers,
+			    ostream &os) {
+  if (callers.size() == 0) {
+    os << "0";
+  }
+  bool is_first = true;
+  for (auto &c : callers) {
+    if (!is_first) {
+      os << " | ";
+    }
+    os << "(" << StateVariable() << " == " << c.first->GetId() << ")";
+    is_first = false;
+  }
 }
 
 }  // namespace verilog

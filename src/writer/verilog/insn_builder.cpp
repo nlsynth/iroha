@@ -65,6 +65,19 @@ void InsnBuilder::BitArrangeOp() {
   }
 }
 
+void InsnBuilder::Mapped() {
+  IResource *res = insn_->GetResource();
+  auto *params = res->GetParams();
+  if (params->GetMappedName() == "mem") {
+    string res_id = Util::Itoa(res->GetId());
+    const string &opr = insn_->GetOperand();
+    if (opr == "sram_read_data") {
+      os_ << "  assign " << InsnWriter::InsnOutputWireName(*insn_, 0)
+	  << " = sram_rdata_" << res_id << ";\n";
+    }
+  }
+}
+
 }  // namespace verilog
 }  // namespace writer
 }  // namespace iroha

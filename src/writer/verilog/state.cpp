@@ -36,6 +36,8 @@ void State::Build() {
       builder.LightBinOp();
     } else if (resource::IsBitArrangeOp(*rc)) {
       builder.BitArrangeOp();
+    } else if (resource::IsMapped(*rc)) {
+      builder.Mapped();
     }
     if (rc_name != resource::kSet) {
       CopyResults(insn, true, ws);
@@ -74,6 +76,8 @@ void State::WriteInsn(const IInsn *insn, ostream &os) {
     writer.Print();
   } else if (rc_name == resource::kAssert) {
     writer.Assert();
+  } else if (resource::IsMapped(*rc)) {
+    writer.Mapped();
   } else {
     // LOG(FATAL) << "Unsupported resource class:" << rc_name;
   }

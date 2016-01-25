@@ -32,9 +32,11 @@ private:
   void BuildMappedResource(const IResource &res);
   void BuildSubModuleTaskResource(const IResource &res);
   void BuildEmbededResource(const IResource &res);
+  void BuildSRAMResource(const IResource &res);
   string WidthSpec(const IRegister *reg);
 
   void CollectResourceCallers(const IResource &res,
+			      const string &opr,
 			      map<IState *, IInsn *> *callers);
   void WriteWire(const string &name, const IValueType &type,
 		 ostream &os);
@@ -42,6 +44,8 @@ private:
 		     const map<IState *, IInsn *> &callers,
 		     int nth,
 		     ostream &os);
+  void WriteStateUnion(const map<IState *, IInsn *> &callers,
+		       ostream &os);
 
   ITable *i_table_;
   Ports *ports_;

@@ -16,6 +16,7 @@ public:
   void ExclusiveBinOp();
   void LightBinOp();
   void BitArrangeOp();
+  void Mapped();
 
 private:
   const IInsn *insn_;

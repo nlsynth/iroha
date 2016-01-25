@@ -79,6 +79,26 @@ void InsnWriter::Assert() {
   os_ << I << "end\n";
 }
 
+void InsnWriter::Mapped() {
+  IResource *res = insn_->GetResource();
+  auto *params = res->GetParams();
+  if (params->GetMappedName() == "mem") {
+    string res_id = Util::Itoa(res->GetId());
+    const string &opr = insn_->GetOperand();
+    if (opr == "sram_read_address" ||
+	opr == "sram_write") {
+      os_ << I << "sram_addr_" + res_id << " <= "
+	  << RegisterName(*(insn_->inputs_[0]))
+	  << ";\n";
+    }
+    if (opr == "sram_write") {
+      os_ << I << "sram_wdata_" + res_id << " <= "
+	  << RegisterName(*(insn_->inputs_[1]))
+	  << ";\n";
+    }
+  }
+}
+
 string InsnWriter::InsnOutputWireName(const IInsn &insn, int nth) {
   return "insn_o_" + Util::Itoa(insn.GetResource()->GetTable()->GetId()) + "_"
     + Util::Itoa(insn.GetId()) + "_" + Util::Itoa(nth);
