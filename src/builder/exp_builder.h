@@ -10,12 +10,15 @@
 #include <sstream>
 
 namespace iroha {
+namespace builder {
 
 class Exp;
+class TreeBuilder;
 
 class ExpBuilder {
 public:
   ExpBuilder();
+  ~ExpBuilder();
 
   IDesign *Build(vector<Exp *> &exps);
   ostream &SetError();
@@ -37,8 +40,10 @@ private:
 
   bool has_error_;
   ostringstream errors_;
+  unique_ptr<TreeBuilder> tree_builder_;
 };
 
+}  // namespace builder
 }  // namespace iroha
 
 #endif  // _builder_exp_builder_h_

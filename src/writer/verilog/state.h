@@ -15,6 +15,7 @@ public:
   void Build();
   void Write(ostream &os);
   const IState *GetIState() const;
+  static void WriteTaskEntry(Table *tab, ostream &os);
 
 private:
   void WriteInsn(const IInsn *insn, ostream &os);

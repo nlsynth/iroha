@@ -2,15 +2,17 @@
 
 #include "builder/reader.h"
 #include "builder/fsm_builder.h"
+#include "builder/tree_builder.h"
 #include "iroha/i_design.h"
 #include "iroha/logging.h"
 #include "iroha/resource_class.h"
 #include "iroha/resource_params.h"
 
 namespace iroha {
+namespace builder {
 
 IDesign *ExpBuilder::ReadDesign(const string &fn) {
-  iroha::File *f = iroha::Reader::ReadFile(fn);
+  File *f = Reader::ReadFile(fn);
   if (!f) {
     return nullptr;
   }
@@ -24,8 +26,12 @@ IDesign *ExpBuilder::ReadDesign(const string &fn) {
 ExpBuilder::ExpBuilder() : has_error_(false) {
 }
 
+ExpBuilder::~ExpBuilder() {
+}
+
 IDesign *ExpBuilder::Build(vector<Exp *> &exps) {
   IDesign *design = new IDesign;
+  tree_builder_.reset(new TreeBuilder(design, this));
   for (Exp *root : exps) {
     if (root->vec.size() == 0) {
       SetError() << "Empty toplevel expression\n";
@@ -41,6 +47,9 @@ IDesign *ExpBuilder::Build(vector<Exp *> &exps) {
     } else {
       SetError() << "Unsupported toplevel expression";
     }
+  }
+  if (!HasError()) {
+    tree_builder_->Resolve();
   }
   if (HasError()) {
     LOG(ERROR) << "Build failure: " << errors_.str();
@@ -63,6 +72,12 @@ IModule *ExpBuilder::BuildModule(Exp *e, IDesign *design) {
 	module->tables_.push_back(table);
       } else {
 	SetError() << "Failed to build a table";
+      }
+    } else if (e->vec[i]->vec[0]->atom.str == "PARENT") {
+      if (e->vec[i]->vec.size() != 2) {
+	SetError();
+      } else {
+	tree_builder_->AddParentModule(e->vec[i]->vec[1]->atom.str, module);
       }
     } else {
       SetError();
@@ -215,6 +230,13 @@ IResource *ExpBuilder::BuildResource(Exp *e, ITable *table) {
     }
     if (e->vec[i]->vec[0]->atom.str == "ARRAY") {
       BuildArray(e->vec[i], res);
+    } else if (e->vec[i]->vec[0]->atom.str == "MODULE") {
+      if (e->vec[i]->vec.size() == 2) {
+	tree_builder_->AddSubModule(e->vec[i]->vec[1]->atom.str, res);
+      } else {
+	SetError() << "Invalid module spec";
+	return nullptr;
+      }
     } else {
       SetError() << "Invalid additional resource parameter";
       return nullptr;
@@ -287,4 +309,5 @@ bool ExpBuilder::HasError() {
   return has_error_;
 }
 
+}  // namespace builder
 }  // namespace iroha

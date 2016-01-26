@@ -4,6 +4,7 @@
 #include <ctype.h>
 
 namespace iroha {
+namespace builder {
 
 Exp::~Exp() {
   for (Exp *e : vec) {
@@ -201,4 +202,5 @@ bool Reader::HasError() {
   return has_error_;
 }
 
+}  // namespace builder
 }  // namespace iroha

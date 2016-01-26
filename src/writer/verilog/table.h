@@ -21,6 +21,10 @@ public:
   const string &StateVariable() const;
   string StateName(int id);
   ModuleTemplate *GetModuleTemplate() const;
+  string TaskEnablePin();
+  string InitialStateName();
+
+  static const int kTaskEntryStateId;
 
 private:
   void BuildStateDecl();
@@ -46,6 +50,7 @@ private:
 		     ostream &os);
   void WriteStateUnion(const map<IState *, IInsn *> &callers,
 		       ostream &os);
+  bool IsTask();
 
   ITable *i_table_;
   Ports *ports_;
@@ -54,6 +59,7 @@ private:
   ModuleTemplate *tmpl_;
   int nth_;
   string st_;
+  IInsn *task_entry_insn_;
   vector<State *> states_;
 };
 

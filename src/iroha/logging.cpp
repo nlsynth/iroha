@@ -16,7 +16,10 @@ void Logger::Finalize(LogSeverity sev, const char *fn, int line) {
     ss.str("");
     return;
   }
-  cout << fn << ":" << line << ":" << ss.str() << "\n";
+  if (sev != USER) {
+    cerr << fn << ":" << line << ":";
+  }
+  cerr << ss.str() << "\n";
   ss.str("");
   if (sev == FATAL) {
     abort();

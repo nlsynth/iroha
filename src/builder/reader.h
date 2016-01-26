@@ -5,6 +5,7 @@
 #include "iroha/common.h"
 
 namespace iroha {
+namespace builder {
 
 class Atom {
 public:
@@ -51,6 +52,7 @@ private:
   bool has_error_;
 };
 
+}  // namespace builder
 }  // namespace iroha
 
 #endif  // _builder_reader_h_

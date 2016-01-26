@@ -7,6 +7,7 @@
 #include <map>
 
 namespace iroha {
+namespace builder {
 
 class Exp;
 class ExpBuilder;
@@ -34,6 +35,7 @@ private:
   map<int, Exp *> exps_;
 };
 
+}  // namespace builder
 }  // namespace iroha
 
 #endif  // _builder_fsm_builder_h_

@@ -5,6 +5,7 @@
 #include "iroha/i_design.h"
 
 namespace iroha {
+namespace builder {
 
 FsmBuilder::FsmBuilder(ITable *table, ExpBuilder *builder)
   : table_(table), builder_(builder), initial_state_id_(-1) {
@@ -115,4 +116,5 @@ void FsmBuilder::BuildInsnParams(Exp *e, vector<IRegister *> *regs) {
   regs->push_back(reg);
 }
 
+}  // namespace builder
 }  // namespace iroha

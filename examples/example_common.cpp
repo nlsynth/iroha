@@ -46,12 +46,9 @@ int main(int argc, char **argv) {
   example_init(argc, argv);
 
   IDesign *design = build_design();
-  OptAPI *opt = Iroha::CreateOptimizer(design);
-  opt->ApplyPhase("a_phase");
 
   example_write(design);
 
-  delete opt;
   delete design;
   return 0;
 }

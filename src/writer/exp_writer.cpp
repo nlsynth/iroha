@@ -18,6 +18,10 @@ void ExpWriter::Write() {
 
 void ExpWriter::WriteModule(const IModule &mod) {
   os_ << "(MODULE " << mod.GetName() << "\n";
+  IModule *parent = mod.GetParentModule();
+  if (parent != nullptr) {
+    os_ << "  (PARENT " << parent->GetName() << ")\n";
+  }
   for (auto *tab : mod.tables_) {
     WriteTable(*tab);
   }

@@ -8,8 +8,13 @@ namespace iroha {
 
 enum LogSeverity {
   LOG_NONE,
+  // Debug output for developer.
   INFO,
+  // Error message for developer.
   ERROR,
+  // Error message for user.
+  USER,
+  // Can't recovert and continue the execution.
   FATAL,
 };
 

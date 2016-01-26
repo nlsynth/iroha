@@ -2,6 +2,7 @@
 
 #include "design/validator.h"
 #include "iroha/i_design.h"
+#include "iroha/logging.h"
 #include "opt/array_to_mem.h"
 #include "opt/clean/empty_state.h"
 #include "opt/clean/unreachable_state.h"
@@ -41,6 +42,7 @@ void Optimizer::RegisterPhase(const string &name,
 bool Optimizer::ApplyPhase(const string &name) {
   auto it = phases_.find(name);
   if (it == phases_.end()) {
+    LOG(USER) << "Unknown optimization phase: " << name;
     return false;
   }
   auto factory = it->second;

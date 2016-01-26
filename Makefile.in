@@ -113,10 +113,11 @@ am_libiroha_la_OBJECTS = src/iroha/common.lo src/iroha/iroha.lo \
 	src/iroha/i_design.lo src/iroha/logging.lo \
 	src/iroha/resource_class.lo src/iroha/resource_params.lo \
 	src/builder/exp_builder.lo src/builder/fsm_builder.lo \
-	src/builder/reader.lo src/design/design_tool.lo \
-	src/design/design_util.lo src/design/validator.lo \
-	src/opt/array_to_mem.lo src/opt/bb_collector.lo \
-	src/opt/bb_set.lo src/opt/clean/empty_state.lo \
+	src/builder/reader.lo src/builder/tree_builder.lo \
+	src/design/design_tool.lo src/design/design_util.lo \
+	src/design/validator.lo src/opt/array_to_mem.lo \
+	src/opt/bb_collector.lo src/opt/bb_set.lo \
+	src/opt/clean/empty_state.lo \
 	src/opt/clean/unreachable_state.lo \
 	src/opt/clean/unused_resource.lo src/opt/data_flow.lo \
 	src/opt/data_flow_collector.lo src/opt/debug_annotation.lo \
@@ -422,6 +423,7 @@ libiroha_la_SOURCES = \
  src/builder/exp_builder.cpp src/builder/exp_builder.h \
  src/builder/fsm_builder.cpp src/builder/fsm_builder.h \
  src/builder/reader.cpp src/builder/reader.h \
+ src/builder/tree_builder.cpp src/builder/tree_builder.h \
  src/design/design_tool.cpp src/design/design_tool.h \
  src/design/design_util.cpp src/design/design_util.h \
  src/design/validator.cpp src/design/validator.h \
@@ -539,6 +541,8 @@ src/builder/exp_builder.lo: src/builder/$(am__dirstamp) \
 src/builder/fsm_builder.lo: src/builder/$(am__dirstamp) \
 	src/builder/$(DEPDIR)/$(am__dirstamp)
 src/builder/reader.lo: src/builder/$(am__dirstamp) \
+	src/builder/$(DEPDIR)/$(am__dirstamp)
+src/builder/tree_builder.lo: src/builder/$(am__dirstamp) \
 	src/builder/$(DEPDIR)/$(am__dirstamp)
 src/design/$(am__dirstamp):
 	@$(MKDIR_P) src/design
@@ -752,6 +756,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/builder/$(DEPDIR)/exp_builder.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/builder/$(DEPDIR)/fsm_builder.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/builder/$(DEPDIR)/reader.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/builder/$(DEPDIR)/tree_builder.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/design/$(DEPDIR)/design_tool.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/design/$(DEPDIR)/design_util.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/design/$(DEPDIR)/validator.Plo@am__quote@

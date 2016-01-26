@@ -6,6 +6,7 @@
 #include "iroha/resource_class.h"
 #include "opt/bb_set.h"
 #include "opt/data_flow.h"
+#include "opt/debug_annotation.h"
 
 namespace iroha {
 namespace opt {
@@ -48,6 +49,7 @@ bool WireInsn::Perform() {
     ScanBBToMoveInsn(bb);
   }
   AddWireToRegisterAssignments();
+  annotation_->DumpIntermediateTable(table_);
   return true;
 }
 

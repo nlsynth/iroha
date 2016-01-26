@@ -51,13 +51,14 @@ Please read src/iroha/iroha.h, src/main.cpp examples/ for more details.
 * P2: Values wider than 64bits
 * P2: Pluggable optimizer and writer
 * P2: Error handling
-* P2: Pipeline can be built with multiple tables in a module OR multiple modules with one table in each module
 * P2: I/O for embedded verilog module
 * P2: Modularize mapped resource
 * P2: Resource sharing between tables
 * P3: Export optimizer API so that users can add own phase
 * P3: API to create copies of module, table and so on.
-* P3: C++ writer or interpreter
+* Q: Should we able to add multiple tables in a module?
+* Q: C++ writer or interpreter?
+* Q: Do we need instance/module separation?
 
 -- Source tree
 

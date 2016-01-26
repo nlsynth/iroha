@@ -16,6 +16,7 @@ public:
 
   void DumpIntermediateTable(const ITable *tab);
   void GetDumpedContent(ostream &os);
+  ostream &GetDumpStream();
 
   ostream &Table(const ITable *tab);
   string GetTableAnnotation(const ITable *tab) const;

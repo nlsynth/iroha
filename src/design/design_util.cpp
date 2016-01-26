@@ -102,4 +102,12 @@ IInsn *DesignUtil::GetTransitionInsn(IState *st) {
   return insn;
 }
 
+IInsn *DesignUtil::FindTaskEntryInsn(ITable *table) {
+  IResource *res = FindResourceByClassName(table, resource::kSubModuleTask);
+  if (res == nullptr) {
+    return nullptr;
+  }
+  return DesignUtil::FindInsnByResource(table->GetInitialState(), res);
+}
+
 }  // namespace iroha

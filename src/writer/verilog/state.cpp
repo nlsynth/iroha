@@ -131,6 +131,15 @@ void State::WriteTransition(ostream &os) {
      << I << "  end\n";
 }
 
+void State::WriteTaskEntry(Table *tab, ostream &os) {
+  os << I << "`" << tab->StateName(Table::kTaskEntryStateId) << ": begin\n";
+  os << I << "  if (" << tab->TaskEnablePin() << ") begin\n"
+     << I << "    " << tab->StateVariable() << " <= `"
+     << tab->InitialStateName() << ";\n";
+  os << I << "  end\n"
+     << I << "end\n";
+}
+
 }  // namespace verilog
 }  // namespace writer
 }  // namespace iroha

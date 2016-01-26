@@ -24,6 +24,7 @@ libiroha_la_SOURCES = \
  src/builder/exp_builder.cpp src/builder/exp_builder.h \
  src/builder/fsm_builder.cpp src/builder/fsm_builder.h \
  src/builder/reader.cpp src/builder/reader.h \
+ src/builder/tree_builder.cpp src/builder/tree_builder.h \
  src/design/design_tool.cpp src/design/design_tool.h \
  src/design/design_util.cpp src/design/design_util.h \
  src/design/validator.cpp src/design/validator.h \

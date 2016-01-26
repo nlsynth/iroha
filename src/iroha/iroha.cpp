@@ -18,7 +18,7 @@ void Iroha::Init() {
 }
 
 IDesign *Iroha::ReadDesignFromFile(const string &fn) {
-  return ExpBuilder::ReadDesign(fn);
+  return builder::ExpBuilder::ReadDesign(fn);
 }
 
 WriterAPI *Iroha::CreateWriter(const IDesign *design) {

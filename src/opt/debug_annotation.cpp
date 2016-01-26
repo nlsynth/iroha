@@ -15,6 +15,10 @@ void DebugAnnotation::GetDumpedContent(ostream &os) {
   os << dump_.str();
 }
 
+ostream &DebugAnnotation::GetDumpStream() {
+  return dump_;
+}
+
 ostream &DebugAnnotation::Table(const ITable *tab) {
   return table_[tab];
 }

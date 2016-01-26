@@ -1,5 +1,6 @@
 #include "writer/verilog/table.h"
 
+#include "design/design_util.h"
 #include "iroha/i_design.h"
 #include "iroha/logging.h"
 #include "iroha/resource_class.h"
@@ -17,11 +18,14 @@ namespace iroha {
 namespace writer {
 namespace verilog {
 
+const int Table::kTaskEntryStateId = -1;
+
 Table::Table(ITable *table, Ports *ports, Module *mod, Embed *embed,
 	     ModuleTemplate *tmpl, int nth)
   : i_table_(table), ports_(ports), mod_(mod), embed_(embed),
     tmpl_(tmpl), nth_(nth) {
   st_ = "st_" + Util::Itoa(nth);
+  task_entry_insn_ = DesignUtil::FindTaskEntryInsn(i_table_);
 }
 
 Table::~Table() {
@@ -51,6 +55,11 @@ void Table::BuildStateDecl() {
     if (id > max_id) {
       max_id = id;
     }
+  }
+  if (IsTask()) {
+    ++max_id;
+    sd << "  `define " << StateName(kTaskEntryStateId) << " "
+       << max_id << "\n";
   }
   int bits = 0;
   int u = 1;
@@ -162,7 +171,14 @@ void Table::BuildSRAMResource(const IResource &res) {
 }
 
 void Table::BuildSubModuleTaskResource(const IResource &res) {
-  ports_->AddPort("task_" + Util::Itoa(nth_) + "_en", Port::INPUT, 0);
+  string en = TaskEnablePin();
+  ports_->AddPort(en, Port::INPUT, 0);
+  string ack = "task_" + Util::Itoa(nth_) + "_ack";
+  ports_->AddPort(ack, Port::OUTPUT, 0);
+  ostream &fs = tmpl_->GetStream(kStateOutput + Util::Itoa(nth_));
+  fs << "      " << ack <<
+    " <= (" << StateVariable() << " == `"
+     << StateName(kTaskEntryStateId) << ") && " << en << ";\n";
 }
 
 void Table::BuildEmbededResource(const IResource &res) {
@@ -220,16 +236,20 @@ void Table::Write(ostream &os) {
     os << "!";
   }
   os << ports_->GetReset() << ") begin\n";
-  IState *st = i_table_->GetInitialState();
-  if (st == nullptr) {
-    LOG(FATAL) << "null initial state.\n";
+  os << "      " << StateVariable() << " <= `";
+  if (IsTask()) {
+    os << StateName(kTaskEntryStateId);
+  } else {
+    os << InitialStateName();
   }
-  os << "      " << StateVariable() << " <= `"
-     << StateName(st->GetId()) << ";\n";
+  os << ";\n";
   os << tmpl_->GetContents(kInitialValueSection + Util::Itoa(nth_));
   os << "    end else begin\n";
   os << tmpl_->GetContents(kStateOutput + Util::Itoa(nth_));
   os << "      case (" << StateVariable() << ")\n";
+  if (IsTask()) {
+    State::WriteTaskEntry(this, os);
+  }
   for (auto *state : states_) {
     state->Write(os);
   }
@@ -243,11 +263,28 @@ const string &Table::StateVariable() const {
 }
 
 string Table::StateName(int id) {
-  return "S_" + Util::Itoa(nth_) + "_" + Util::Itoa(id);
+  string n = "S_" + Util::Itoa(nth_) + "_";
+  if (id == kTaskEntryStateId) {
+    return n + "task_idle";
+  } else {
+    return n + Util::Itoa(id);
+  }
 }
 
 ModuleTemplate *Table::GetModuleTemplate() const {
   return tmpl_;
+}
+
+string Table::TaskEnablePin() {
+  return "task_" + Util::Itoa(nth_) + "_en";
+}
+
+string Table::InitialStateName() {
+  IState *initial_st = i_table_->GetInitialState();
+  if (initial_st == nullptr) {
+    LOG(FATAL) << "null initial state.\n";
+  }
+  return StateName(initial_st->GetId());
 }
 
 void Table::CollectResourceCallers(const IResource &res,
@@ -301,6 +338,10 @@ void Table::WriteStateUnion(const map<IState *, IInsn *> &callers,
     os << "(" << StateVariable() << " == " << c.first->GetId() << ")";
     is_first = false;
   }
+}
+
+bool Table::IsTask() {
+  return (task_entry_insn_ != nullptr);
 }
 
 }  // namespace verilog
