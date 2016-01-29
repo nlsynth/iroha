@@ -16,7 +16,7 @@ class TreeBuilder {
 public:
   TreeBuilder(IDesign *design, ExpBuilder *builder);
 
-  void AddSubModule(const string &name, IResource *res);
+  void AddCalleeTable(const string &mod_name, int table_id, IResource *res);
   void AddParentModule(const string &name, IModule *mod);
 
   bool Resolve();
@@ -24,7 +24,8 @@ public:
 private:
   IDesign *design_;
   ExpBuilder *builder_;
-  map<IResource *, string> sub_module_names_;
+  map<IResource *, string> callee_module_names_;
+  map<IResource *, int> table_ids_;
   map<IModule *, string> parent_module_names_;
 };
 

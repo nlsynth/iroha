@@ -26,7 +26,8 @@ IModule *create_sub_module(IDesign *design) {
 IModule *create_root_module(IModule *sub_module) {
   IModule *mod = create_module(sub_module->GetDesign(), "M_top");
   ITable *tab = mod->tables_[0];
-  IResource *res = DesignTool::CreateSubModuleTaskCallResource(tab, sub_module);
+  IResource *res =
+    DesignTool::CreateSubModuleTaskCallResource(tab, sub_module->tables_[0]);
   IInsn *insn = new IInsn(res);
   IState *st1 = tab->states_[0];
   st1->insns_.push_back(insn);

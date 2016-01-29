@@ -231,8 +231,10 @@ IResource *ExpBuilder::BuildResource(Exp *e, ITable *table) {
     if (e->vec[i]->vec[0]->atom.str == "ARRAY") {
       BuildArray(e->vec[i], res);
     } else if (e->vec[i]->vec[0]->atom.str == "MODULE") {
-      if (e->vec[i]->vec.size() == 2) {
-	tree_builder_->AddSubModule(e->vec[i]->vec[1]->atom.str, res);
+      if (e->vec[i]->vec.size() == 3) {
+	tree_builder_->AddCalleeTable(e->vec[i]->vec[1]->atom.str,
+				      Util::Atoi(e->vec[i]->vec[2]->atom.str),
+				      res);
       } else {
 	SetError() << "Invalid module spec";
 	return nullptr;

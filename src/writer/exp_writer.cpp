@@ -87,8 +87,9 @@ void ExpWriter::WriteArrayDesc(const IResource &res) {
 }
 
 void ExpWriter::WriteSubModuleTaskCall(const IResource &res) {
-  const IModule *mod = res.GetModule();
-  os_ << "        (MODULE " << mod->GetName() << ")\n";
+  const ITable *table = res.GetCalleeTable();
+  const IModule *mod = table->GetModule();
+  os_ << "        (MODULE " << mod->GetName() << " " << table->GetId() << ")\n";
 }
 
 void ExpWriter::WriteInitialState(const ITable &tab) {

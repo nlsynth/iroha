@@ -51,7 +51,8 @@ bool IArray::IsRam() const {
 
 IResource::IResource(ITable *table, IResourceClass *resource_class)
   : table_(table), resource_class_(resource_class),
-    params_(new ResourceParams), id_(-1), array_(nullptr), module_(nullptr) {
+    params_(new ResourceParams), id_(-1), array_(nullptr), module_(nullptr),
+    callee_table_(nullptr) {
   ObjectPool *pool =
     table->GetModule()->GetDesign()->GetObjectPool();
   pool->resources_.Add(this);
@@ -96,6 +97,14 @@ IModule *IResource::GetModule() const {
 
 void IResource::SetModule(IModule *module) {
   module_ = module;
+}
+
+ITable *IResource::GetCalleeTable() const {
+  return callee_table_;
+}
+
+void IResource::SetCalleeTable(ITable *table) {
+  callee_table_ = table;
 }
 
 IChannel::IChannel(IDesign *design)

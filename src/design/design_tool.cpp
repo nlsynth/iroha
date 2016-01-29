@@ -120,10 +120,10 @@ IResource *DesignTool::CreateEmbedResource(ITable *table,
 }
 
 IResource *DesignTool::CreateSubModuleTaskCallResource(ITable *table,
-						       IModule *mod) {
+						       ITable *callee) {
   IResource *res = DesignUtil::CreateResource(table,
 					      resource::kSubModuleTaskCall);
-  res->SetModule(mod);
+  res->SetCalleeTable(callee);
   return res;
 }
 

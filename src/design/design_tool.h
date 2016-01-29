@@ -32,7 +32,7 @@ public:
 					const string &mod_name,
 					const string &fn);
   static IResource *CreateSubModuleTaskCallResource(ITable *table,
-						    IModule *mod);
+						    ITable *callee);
   static IResource *CreateTaskResource(ITable *table);
   static IRegister *AllocRegister(ITable *table, const string &name,
 				  int width);
