@@ -18,8 +18,12 @@ public:
   static IInsn *FindInsnByResource(IState *state, IResource *res);
   static IResourceClass *FindResourceClass(IDesign *design, const string &name);
   static IResource *CreateResource(ITable *table, const string &name);
+  static IInsn *FindTransitionInsn(IState *st);
   static IInsn *GetTransitionInsn(IState *st);
   static IInsn *FindTaskEntryInsn(ITable *table);
+  static bool IsTerminalState(IState *st);
+  static bool IsMultiCycleInsn(IInsn *insn);
+  static bool IsMultiCycleState(IState *st);
 };
 
 }  // namespace iroha

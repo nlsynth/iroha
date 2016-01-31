@@ -39,6 +39,8 @@ public:
 
 private:
   void BuildChannelConnections(const ChannelInfo &ci);
+  void BuildChildModuleTaskWire(const Module &mod, ostream &is);
+  void BuildChildModuleChannelWireAll(const IModule &imod, ostream &is);
   void BuildChildModuleChannelWire(const IChannel &ch, ostream &is);
 
   const IModule *i_mod_;

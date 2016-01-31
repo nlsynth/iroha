@@ -1,5 +1,6 @@
 #include "writer/verilog/state.h"
 
+#include "design/design_util.h"
 #include "iroha/i_design.h"
 #include "iroha/logging.h"
 #include "iroha/resource_class.h"
@@ -17,15 +18,14 @@ namespace verilog {
 
 State::State(IState *i_state, Table *table)
   : i_state_(i_state), table_(table), transition_insn_(nullptr) {
+  is_multi_cycle_ = DesignUtil::IsMultiCycleState(i_state);
+  transition_insn_ = DesignUtil::FindTransitionInsn(i_state);
 }
 
 void State::Build() {
   ModuleTemplate *tmpl_ = table_->GetModuleTemplate();
   ostream &ws = tmpl_->GetStream(kInsnWireValueSection);
   for (auto *insn : i_state_->insns_) {
-    if (insn->GetResource()->GetClass()->GetName() == resource::kTransition) {
-      transition_insn_ = insn;
-    }
     auto *res = insn->GetResource();
     auto *rc = res->GetClass();
     const string &rc_name = rc->GetName();
@@ -42,6 +42,9 @@ void State::Build() {
     if (rc_name != resource::kSet) {
       CopyResults(insn, true, ws);
     }
+    if (DesignUtil::IsMultiCycleInsn(insn)) {
+      BuildMultiCycle(insn);
+    }
   }
 }
 
@@ -52,6 +55,16 @@ void State::Write(ostream &os) {
   }
   WriteTransition(os);
   os << I << "end\n";
+}
+
+void State::BuildMultiCycle(const IInsn *insn) {
+  ModuleTemplate *tmpl_ = table_->GetModuleTemplate();
+  ostream &ws = tmpl_->GetStream(kInsnWireDeclSection);
+  string w = InsnWriter::MultiCycleStateName(*insn);
+  ws << "  reg [1:0] " << w << ";\n";
+  ostream &is = tmpl_->GetStream(kInitialValueSection +
+				 Util::Itoa(table_->GetITable()->GetId()));
+  is << "      " << w << " <= 0;\n";
 }
 
 const IState *State::GetIState() const {
@@ -76,6 +89,8 @@ void State::WriteInsn(const IInsn *insn, ostream &os) {
     writer.Print();
   } else if (rc_name == resource::kAssert) {
     writer.Assert();
+  } else if (rc_name == resource::kSubModuleTaskCall) {
+    writer.SubModuleCall();
   } else if (resource::IsMapped(*rc)) {
     writer.Mapped();
   } else {
@@ -108,11 +123,18 @@ void State::CopyResults(const IInsn *insn, bool to_wire, ostream &os) {
 }
 
 void State::WriteTransition(ostream &os) {
+  const string &sv = table_->StateVariable();
+  if (DesignUtil::IsTerminalState(i_state_) &&
+      table_->IsTask()) {
+    os << I << "  " << sv << " <= `"
+       << table_->InitialStateName()
+       << ";\n";
+    return;
+  }
   if (transition_insn_ == nullptr ||
       transition_insn_->target_states_.size() == 0) {
     return;
   }
-  const string &sv = table_->StateVariable();
   if (transition_insn_->target_states_.size() == 1) {
     os << I << "  " << sv << " <= `"
        << table_->StateName(transition_insn_->target_states_[0]->GetId())

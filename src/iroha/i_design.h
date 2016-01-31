@@ -74,15 +74,11 @@ public:
   vector<IValueType> output_types_;
 
 private:
-  IModule *GetModule() const;
-  void SetModule(IModule *module);
-
   ITable *table_;
   IResourceClass *resource_class_;
   ResourceParams *params_;
   int id_;
   IArray *array_;
-  IModule *module_;
   ITable *callee_table_;
 };
 

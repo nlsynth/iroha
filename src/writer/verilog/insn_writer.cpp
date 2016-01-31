@@ -79,6 +79,15 @@ void InsnWriter::Assert() {
   os_ << I << "end\n";
 }
 
+void InsnWriter::SubModuleCall() {
+  string st = MultiCycleStateName(*insn_);
+  os_ << I << "if (" << st << " == 0) begin\n"
+      << I << "end\n";
+  // if (s == INITIAL) {
+  // } else if (s == WAITING) {
+  // }
+}
+
 void InsnWriter::Mapped() {
   IResource *res = insn_->GetResource();
   auto *params = res->GetParams();
@@ -102,6 +111,11 @@ void InsnWriter::Mapped() {
 string InsnWriter::InsnOutputWireName(const IInsn &insn, int nth) {
   return "insn_o_" + Util::Itoa(insn.GetResource()->GetTable()->GetId()) + "_"
     + Util::Itoa(insn.GetId()) + "_" + Util::Itoa(nth);
+}
+
+string InsnWriter::MultiCycleStateName(const IInsn &insn) {
+  return "st_insn_" + Util::Itoa(insn.GetResource()->GetTable()->GetId())
+    + "_" + Util::Itoa(insn.GetId());
 }
 
 }  // namespace verilog

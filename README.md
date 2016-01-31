@@ -37,7 +37,7 @@ Please read src/iroha/iroha.h, src/main.cpp examples/ for more details.
 -- TODOs
 
 * P0: Document
-* P1: Optimizer debug output for intermediate IR
+* P1: Multi cycle insn.
 * P1: Sub module task
 * P1: In design channel
 * P1: Output selector for exclusive resources
@@ -54,6 +54,7 @@ Please read src/iroha/iroha.h, src/main.cpp examples/ for more details.
 * P2: I/O for embedded verilog module
 * P2: Modularize mapped resource
 * P2: Resource sharing between tables
+* P3: More debug output from optimizers.
 * P3: Export optimizer API so that users can add own phase
 * P3: API to create copies of module, table and so on.
 * Q: Should we able to add multiple tables in a module?

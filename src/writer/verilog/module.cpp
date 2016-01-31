@@ -70,13 +70,11 @@ void Module::Build() {
     ports_->AddPort("rst_n", Port::INPUT_RESET, 0);
   }
 
-  int nth = 0;
   for (auto *i_table : i_mod_->tables_) {
     Table *tab = new Table(i_table, ports_.get(), this, embed_,
-			   tmpl_.get(), nth);
+			   tmpl_.get());
     tab->Build();
     tables_.push_back(tab);
-    ++nth;
   }
 
   const ChannelInfo *ci = conn_.GetConnectionInfo(i_mod_);
@@ -94,28 +92,36 @@ void Module::BuildChildModuleSection(vector<Module *> &mods) {
     is << "." << ports_->GetClk() << "(" << mod->GetPorts()->GetClk() << ")";
     is << ", ." << ports_->GetReset() << "("
        << mod->GetPorts()->GetClk() << ")";
-    const ChannelInfo *ci = conn_.GetConnectionInfo(imod);
-    if (ci != nullptr) {
-      for (auto *ch : ci->ext_writer_) {
-	BuildChildModuleChannelWire(*ch, is);
-      }
-      for (auto *ch : ci->ext_writer_path_) {
-	BuildChildModuleChannelWire(*ch, is);
-      }
-      for (auto *ch : ci->ext_reader_) {
-	BuildChildModuleChannelWire(*ch, is);
-      }
-      for (auto *ch : ci->ext_reader_path_) {
-	BuildChildModuleChannelWire(*ch, is);
-      }
-      for (auto *ch : ci->data_path_) {
-	BuildChildModuleChannelWire(*ch, is);
-      }
-      for (auto *ch : ci->reader_from_up_) {
-	BuildChildModuleChannelWire(*ch, is);
+    BuildChildModuleTaskWire(*mod, is);
+    BuildChildModuleChannelWireAll(*imod, is);
+    is << ");\n";
+  }
+}
+
+void Module::BuildChildModuleTaskWire(const Module &mod, ostream &is) {
+  for (auto *t : mod.tables_) {
+    ITable *tab = t->GetITable();
+    IInsn *insn = DesignUtil::FindTaskEntryInsn(tab);
+    if (insn == nullptr) {
+      continue;
+    }
+    string caller_en;
+    string caller_ack;
+    for (ITable *caller_tab : i_mod_->tables_) {
+      for (IResource *caller_res : caller_tab->resources_) {
+	ITable *callee_tab = caller_res->GetCalleeTable();
+	if (callee_tab == tab) {
+	  string prefix = Table::TaskControlPinPrefix(*caller_res);
+	  caller_en = prefix + "_en";
+	  caller_ack = prefix + "_ack";
+	}
       }
     }
-    is << ");\n";
+    if (caller_en.empty()) {
+      caller_en = "0";
+    }
+    is << ", .task_" << tab->GetId() << "_en(" << caller_en << ")";
+    is << ", .task_" << tab->GetId() << "_ack(" << caller_ack << ")";
   }
 }
 
@@ -127,6 +133,30 @@ InternalSRAM *Module::RequestInternalSRAM(const IResource &res) {
 
 const vector<InternalSRAM *> &Module::GetInternalSRAMs() const {
   return srams_;
+}
+
+void Module::BuildChildModuleChannelWireAll(const IModule &imod, ostream &is) {
+  const ChannelInfo *ci = conn_.GetConnectionInfo(&imod);
+  if (ci != nullptr) {
+    for (auto *ch : ci->ext_writer_) {
+      BuildChildModuleChannelWire(*ch, is);
+    }
+    for (auto *ch : ci->ext_writer_path_) {
+      BuildChildModuleChannelWire(*ch, is);
+    }
+    for (auto *ch : ci->ext_reader_) {
+      BuildChildModuleChannelWire(*ch, is);
+    }
+    for (auto *ch : ci->ext_reader_path_) {
+      BuildChildModuleChannelWire(*ch, is);
+    }
+    for (auto *ch : ci->data_path_) {
+      BuildChildModuleChannelWire(*ch, is);
+    }
+    for (auto *ch : ci->reader_from_up_) {
+      BuildChildModuleChannelWire(*ch, is);
+    }
+  }
 }
 
 void Module::BuildChildModuleChannelWire(const IChannel &ch, ostream &is) {

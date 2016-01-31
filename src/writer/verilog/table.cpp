@@ -21,10 +21,11 @@ namespace verilog {
 const int Table::kTaskEntryStateId = -1;
 
 Table::Table(ITable *table, Ports *ports, Module *mod, Embed *embed,
-	     ModuleTemplate *tmpl, int nth)
+	     ModuleTemplate *tmpl)
   : i_table_(table), ports_(ports), mod_(mod), embed_(embed),
-    tmpl_(tmpl), nth_(nth) {
-  st_ = "st_" + Util::Itoa(nth);
+    tmpl_(tmpl) {
+  table_id_ = table->GetId();
+  st_ = "st_" + Util::Itoa(table_id_);
   task_entry_insn_ = DesignUtil::FindTaskEntryInsn(i_table_);
 }
 
@@ -104,6 +105,9 @@ void Table::BuildResource() {
     if (resource::IsSubModuleTask(*klass)) {
       BuildSubModuleTaskResource(*res);
     }
+    if (resource::IsSubModuleTaskCall(*klass)) {
+      BuildSubModuleTaskCallResource(*res);
+    }
   }
 }
 
@@ -164,18 +168,24 @@ void Table::BuildSRAMResource(const IResource &res) {
      << "  reg sram_wdata_en_" << res_id << ";\n";
   map<IState *, IInsn *> callers;
   CollectResourceCallers(res, "sram_write", &callers);
-  ostream &fs = tmpl_->GetStream(kStateOutput + Util::Itoa(nth_));
+  ostream &fs = tmpl_->GetStream(kStateOutput + Util::Itoa(table_id_));
   fs << "      sram_wdata_en_" << res_id << " <= ";
   WriteStateUnion(callers, fs);
   fs << ";\n";
 }
 
+void Table::BuildSubModuleTaskCallResource(const IResource &res) {
+  ostream &rs = tmpl_->GetStream(kResourceSection);
+  rs << "  reg " << TaskControlPinPrefix(res) << "_en;\n";
+  rs << "  wire " << TaskControlPinPrefix(res) << "_ack;\n";
+}
+
 void Table::BuildSubModuleTaskResource(const IResource &res) {
   string en = TaskEnablePin();
   ports_->AddPort(en, Port::INPUT, 0);
-  string ack = "task_" + Util::Itoa(nth_) + "_ack";
+  string ack = "task_" + Util::Itoa(table_id_) + "_ack";
   ports_->AddPort(ack, Port::OUTPUT, 0);
-  ostream &fs = tmpl_->GetStream(kStateOutput + Util::Itoa(nth_));
+  ostream &fs = tmpl_->GetStream(kStateOutput + Util::Itoa(table_id_));
   fs << "      " << ack <<
     " <= (" << StateVariable() << " == `"
      << StateName(kTaskEntryStateId) << ") && " << en << ";\n";
@@ -190,7 +200,7 @@ void Table::BuildEmbededResource(const IResource &res) {
 
 void Table::BuildRegister() {
   ostream &rs = tmpl_->GetStream(kRegisterSection);
-  ostream &is = tmpl_->GetStream(kInitialValueSection + Util::Itoa(nth_));
+  ostream &is = tmpl_->GetStream(kInitialValueSection + Util::Itoa(table_id_));
   for (auto *reg : i_table_->registers_) {
     if (!reg->IsConst()) {
       if (reg->IsStateLocal()) {
@@ -243,9 +253,9 @@ void Table::Write(ostream &os) {
     os << InitialStateName();
   }
   os << ";\n";
-  os << tmpl_->GetContents(kInitialValueSection + Util::Itoa(nth_));
+  os << tmpl_->GetContents(kInitialValueSection + Util::Itoa(table_id_));
   os << "    end else begin\n";
-  os << tmpl_->GetContents(kStateOutput + Util::Itoa(nth_));
+  os << tmpl_->GetContents(kStateOutput + Util::Itoa(table_id_));
   os << "      case (" << StateVariable() << ")\n";
   if (IsTask()) {
     State::WriteTaskEntry(this, os);
@@ -258,12 +268,16 @@ void Table::Write(ostream &os) {
   os << "  end\n";
 }
 
+ITable *Table::GetITable() const {
+  return i_table_;
+}
+
 const string &Table::StateVariable() const {
   return st_;
 }
 
 string Table::StateName(int id) {
-  string n = "S_" + Util::Itoa(nth_) + "_";
+  string n = "S_" + Util::Itoa(table_id_) + "_";
   if (id == kTaskEntryStateId) {
     return n + "task_idle";
   } else {
@@ -276,7 +290,7 @@ ModuleTemplate *Table::GetModuleTemplate() const {
 }
 
 string Table::TaskEnablePin() {
-  return "task_" + Util::Itoa(nth_) + "_en";
+  return "task_" + Util::Itoa(table_id_) + "_en";
 }
 
 string Table::InitialStateName() {
@@ -344,7 +358,11 @@ bool Table::IsTask() {
   return (task_entry_insn_ != nullptr);
 }
 
+string Table::TaskControlPinPrefix(const IResource &res) {
+  return "task_" + Util::Itoa(res.GetTable()->GetId())
+    + "_" + Util::Itoa(res.GetId());
+}
+
 }  // namespace verilog
 }  // namespace writer
 }  // namespace iroha
-

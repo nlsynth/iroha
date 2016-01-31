@@ -16,12 +16,14 @@ public:
   void Set();
   void Print();
   void Assert();
+  void SubModuleCall();
   void Mapped();
 
   static string RegisterName(const IRegister &reg);
   static string ResourceName(const IResource &res);
   static string ChannelDataPort(const IChannel &ic);
   static string InsnOutputWireName(const IInsn &insn, int nth);
+  static string MultiCycleStateName(const IInsn &insn);
 
 private:
   const IInsn *insn_;

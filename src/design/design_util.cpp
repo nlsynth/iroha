@@ -90,12 +90,19 @@ IResource *DesignUtil::CreateResource(ITable *table, const string &name) {
   return res;
 }
 
-IInsn *DesignUtil::GetTransitionInsn(IState *st) {
+IInsn *DesignUtil::FindTransitionInsn(IState *st) {
   ITable *table = st->GetTable();
   IResource *tr = DesignUtil::FindResourceByClassName(table,
 						      resource::kTransition);
-  IInsn *insn = DesignUtil::FindInsnByResource(st, tr);
+  return DesignUtil::FindInsnByResource(st, tr);
+}
+
+IInsn *DesignUtil::GetTransitionInsn(IState *st) {
+  IInsn *insn = FindTransitionInsn(st);
   if (insn == nullptr) {
+    ITable *table = st->GetTable();
+    IResource *tr = DesignUtil::FindResourceByClassName(table,
+							resource::kTransition);
     insn = new IInsn(tr);
     st->insns_.push_back(insn);
   }
@@ -108,6 +115,37 @@ IInsn *DesignUtil::FindTaskEntryInsn(ITable *table) {
     return nullptr;
   }
   return DesignUtil::FindInsnByResource(table->GetInitialState(), res);
+}
+
+bool DesignUtil::IsTerminalState(IState *st) {
+  ITable *table = st->GetTable();
+  IResource *tr = DesignUtil::FindTransitionResource(table);
+  IInsn *insn = DesignUtil::FindInsnByResource(st, tr);
+  if (insn == nullptr) {
+    return true;
+  }
+  if (insn->target_states_.size() == 0) {
+    return true;
+  }
+  return false;
+}
+
+bool DesignUtil::IsMultiCycleInsn(IInsn *insn) {
+  IResource *res = insn->GetResource();
+  IResourceClass *rc = res->GetClass();
+  if (resource::IsSubModuleTaskCall(*rc)) {
+    return true;
+  }
+  return false;
+}
+
+bool DesignUtil::IsMultiCycleState(IState *st) {
+  for (IInsn *insn : st->insns_) {
+    if (IsMultiCycleInsn(insn)) {
+      return true;
+    }
+  }
+  return false;
 }
 
 }  // namespace iroha

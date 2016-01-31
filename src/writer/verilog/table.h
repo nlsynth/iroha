@@ -13,16 +13,20 @@ namespace verilog {
 class Table {
 public:
   Table(ITable *table, Ports *ports, Module *mod, Embed *embed,
-	ModuleTemplate *tmpl, int nth);
+	ModuleTemplate *tmpl);
   ~Table();
   void Build();
 
   void Write(ostream &os);
+  ITable *GetITable() const;
   const string &StateVariable() const;
   string StateName(int id);
   ModuleTemplate *GetModuleTemplate() const;
   string TaskEnablePin();
   string InitialStateName();
+  bool IsTask();
+
+  static string TaskControlPinPrefix(const IResource &res);
 
   static const int kTaskEntryStateId;
 
@@ -35,6 +39,7 @@ private:
   void BuildArrayResource(const IResource &res);
   void BuildMappedResource(const IResource &res);
   void BuildSubModuleTaskResource(const IResource &res);
+  void BuildSubModuleTaskCallResource(const IResource &res);
   void BuildEmbededResource(const IResource &res);
   void BuildSRAMResource(const IResource &res);
   string WidthSpec(const IRegister *reg);
@@ -50,14 +55,13 @@ private:
 		     ostream &os);
   void WriteStateUnion(const map<IState *, IInsn *> &callers,
 		       ostream &os);
-  bool IsTask();
 
   ITable *i_table_;
   Ports *ports_;
   Module *mod_;
   Embed *embed_;
   ModuleTemplate *tmpl_;
-  int nth_;
+  int table_id_;
   string st_;
   IInsn *task_entry_insn_;
   vector<State *> states_;
