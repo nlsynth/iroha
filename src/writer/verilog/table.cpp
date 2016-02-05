@@ -176,8 +176,11 @@ void Table::BuildSRAMResource(const IResource &res) {
 
 void Table::BuildSubModuleTaskCallResource(const IResource &res) {
   ostream &rs = tmpl_->GetStream(kResourceSection);
-  rs << "  reg " << TaskControlPinPrefix(res) << "_en;\n";
-  rs << "  wire " << TaskControlPinPrefix(res) << "_ack;\n";
+  string prefix = TaskControlPinPrefix(res);
+  rs << "  reg " << prefix << "_en;\n";
+  rs << "  wire " << prefix << "_ack;\n";
+  ostream &is = tmpl_->GetStream(kInitialValueSection + Util::Itoa(table_id_));
+  is << "      " << prefix << "_en <= 0;\n";
 }
 
 void Table::BuildSubModuleTaskResource(const IResource &res) {

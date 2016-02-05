@@ -122,7 +122,7 @@ void State::CopyResults(const IInsn *insn, bool to_wire, ostream &os) {
   }
 }
 
-void State::WriteTransition(ostream &os) {
+void State::WriteTransitionBody(ostream &os) {
   const string &sv = table_->StateVariable();
   if (DesignUtil::IsTerminalState(i_state_) &&
       table_->IsTask()) {
@@ -151,6 +151,36 @@ void State::WriteTransition(ostream &os) {
      << "`" << table_->StateName(transition_insn_->target_states_[0]->GetId())
      << ";\n"
      << I << "  end\n";
+}
+
+void State::WriteTransition(ostream &os) {
+  bool is_mc = DesignUtil::IsMultiCycleState(i_state_);
+  if (is_mc) {
+    os << I << "  if (";
+    bool is_first = true;
+    for (IInsn *insn : i_state_->insns_) {
+      if (!DesignUtil::IsMultiCycleInsn(insn)) {
+	continue;
+      }
+      if (!is_first) {
+	os << " && ";
+      }
+      string st = InsnWriter::MultiCycleStateName(*insn);
+      os << "(" << st << " == 3)";
+      is_first = false;
+    }
+    os << ") begin\n";
+  }
+  for (IInsn *insn : i_state_->insns_) {
+    if (DesignUtil::IsMultiCycleInsn(insn)) {
+      string st = InsnWriter::MultiCycleStateName(*insn);
+      os << I << "    " << st << " <= " << "0;\n";
+    }
+  }
+  WriteTransitionBody(os);
+  if (is_mc) {
+    os << I << "  end\n";
+  }
 }
 
 void State::WriteTaskEntry(Table *tab, ostream &os) {
