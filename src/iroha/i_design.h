@@ -10,6 +10,9 @@ namespace opt {
 class DebugAnnotation;
 }  // namespace opt
 
+class OptAPI;
+class WriterAPI;
+
 // Type of resource.
 // e.g. 'adder' is a resource class and '32 bit adder' is a resource.
 class IResourceClass {
@@ -231,6 +234,10 @@ public:
   ObjectPool *GetObjectPool();
   void SetDebugAnnotation(opt::DebugAnnotation *annotation);
   opt::DebugAnnotation *GetDebugAnnotation() const;
+  OptAPI *GetOptAPI() const;
+  void SetOptAPI(OptAPI *opt_api);
+  WriterAPI *GetWriterAPI() const;
+  void SetWriterAPI(WriterAPI *writer_api);
 
   vector<IModule *> modules_;
   vector<IResourceClass *> resource_classes_;
@@ -240,6 +247,9 @@ private:
   ObjectPool *objects_;
   ResourceParams *params_;
   opt::DebugAnnotation *annotation_;
+
+  unique_ptr<OptAPI> opt_api_;
+  unique_ptr<WriterAPI> writer_api_;
 };
 
 }  // namespace iroha

@@ -39,7 +39,6 @@ void example_write(IDesign *design) {
     }
     writer->Write(output);
   }
-  delete writer;
 }
 
 int main(int argc, char **argv) {

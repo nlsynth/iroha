@@ -46,8 +46,6 @@ int main(int argc, char **argv) {
   writer->SetLanguage("verilog");
   writer->Write("/dev/stdout");
 
-  delete opt;
-  delete writer;
   delete design;
 
   return 0;

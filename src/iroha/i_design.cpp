@@ -2,10 +2,12 @@
 
 #include "design/object_pool.h"
 #include "design/design_util.h"
+#include "iroha/opt_api.h"
 #include "iroha/logging.h"
 #include "iroha/resource_class.h"
 #include "iroha/resource_params.h"
 #include "iroha/stl_util.h"
+#include "iroha/writer_api.h"
 #include "opt/debug_annotation.h"
 
 namespace iroha {
@@ -308,7 +310,8 @@ IModule *IModule::GetParentModule() const {
   return parent_;
 }
 
-IDesign::IDesign() : objects_(new ObjectPool), params_(new ResourceParams), annotation_(nullptr) {
+IDesign::IDesign()
+  : objects_(new ObjectPool), params_(new ResourceParams), annotation_(nullptr) {
   resource::InstallResourceClasses(this);
 }
 
@@ -333,6 +336,22 @@ void IDesign::SetDebugAnnotation(opt::DebugAnnotation *annotation) {
   
 opt::DebugAnnotation *IDesign::GetDebugAnnotation() const {
   return annotation_;
+}
+
+OptAPI *IDesign::GetOptAPI() const {
+  return opt_api_.get();
+}
+
+void IDesign::SetOptAPI(OptAPI *opt_api) {
+  opt_api_.reset(opt_api);
+}
+
+WriterAPI *IDesign::GetWriterAPI() const {
+  return writer_api_.get();
+}
+
+void IDesign::SetWriterAPI(WriterAPI *writer_api) {
+  writer_api_.reset(writer_api);
 }
 
 }  // namespace iroha

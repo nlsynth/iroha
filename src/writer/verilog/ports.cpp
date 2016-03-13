@@ -34,24 +34,26 @@ const string &Ports::GetReset() const {
   return reset_;
 }
 
-void Ports::Output(enum OutputType type, ostream &os) {
+void Ports::Output(enum OutputType type, ostream &os) const {
   bool is_first = true;
   for (Port *p : ports_) {
     OutputPort(p, type, is_first, false, os);
     is_first = false;
   }
-  for (Port *p : ports_) {
-    OutputPort(p, type, is_first, true, os);
-    is_first = false;
+  if (type == PORT_TYPE) {
+    // 'reg' for output ports.
+    for (Port *p : ports_) {
+      OutputPort(p, type, false, true, os);
+    }
   }
 }
 
 void Ports::OutputPort(Port *p, enum OutputType type, bool is_first,
-		       bool reg_phase, ostream &os) {
-  if (type == PORT_TYPE) {
+		       bool reg_phase, ostream &os) const {
+  if (type == PORT_TYPE || type == PORT_DIRECTION) {
     Port::PortType port_type = p->GetType();
     string t;
-    if (reg_phase) {
+    if (reg_phase && type == PORT_TYPE) {
       if (port_type == Port::OUTPUT) {
 	t = "reg";
       } else {
@@ -66,8 +68,11 @@ void Ports::OutputPort(Port *p, enum OutputType type, bool is_first,
     }
     os << " " << p->GetName() << ";\n";
   }
-  if (reg_phase) {
-    return;
+  if (type == PORT_CONNECTION) {
+    if (!is_first) {
+      os << ", ";
+    }
+    os << "." << p->GetName() << "(" << p->GetName() << ")";
   }
   if (type == PORT_NAME) {
     if (!is_first) {

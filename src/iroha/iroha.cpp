@@ -21,12 +21,22 @@ IDesign *Iroha::ReadDesignFromFile(const string &fn) {
   return builder::ExpBuilder::ReadDesign(fn);
 }
 
-WriterAPI *Iroha::CreateWriter(const IDesign *design) {
-  return new writer::Writer(design);
+WriterAPI *Iroha::CreateWriter(IDesign *design) {
+  WriterAPI *writer = design->GetWriterAPI();
+  if (writer == nullptr) {
+    writer = new writer::Writer(design);
+    design->SetWriterAPI(writer);
+  }
+  return writer;
 }
 
 OptAPI *Iroha::CreateOptimizer(IDesign *design) {
-  return new opt::Optimizer(design);
+  OptAPI *opt = design->GetOptAPI();
+  if (opt == nullptr) {
+    opt = new opt::Optimizer(design);
+    design->SetOptAPI(opt);
+  }
+  return opt;
 }
 
 }  // namespace iroha

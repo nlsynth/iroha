@@ -16,11 +16,13 @@ public:
   ~VerilogWriter();
 
   void Write();
+  void SetShellModuleName(const string &n);
 
 private:
   void BuildModules(const IModule *imod);
   void BuildHierarchy();
   void WriteInternalSRAMs();
+  void WriteShellModule(const Module *mod);
 
   const IDesign *design_;
   const Connection &conn_;
@@ -28,6 +30,7 @@ private:
   vector<Module *> ordered_modules_;
   map<const IModule *, Module *> modules_;
   unique_ptr<Embed> embed_;
+  string shell_module_name_;
 };
 
 }  // namespace verilog

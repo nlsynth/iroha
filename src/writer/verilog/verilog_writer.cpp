@@ -7,6 +7,7 @@
 #include "writer/verilog/embed.h"
 #include "writer/verilog/internal_sram.h"
 #include "writer/verilog/module.h"
+#include "writer/verilog/ports.h"
 
 namespace iroha {
 namespace writer {
@@ -33,7 +34,14 @@ void VerilogWriter::Write() {
   for (auto *mod : ordered_modules_) {
     mod->Write(os_);
   }
+  if (!shell_module_name_.empty()) {
+    WriteShellModule(modules_[root]);
+  }
   STLDeleteSecondElements(&modules_);
+}
+
+void VerilogWriter::SetShellModuleName(const string &n) {
+  shell_module_name_ = n;
 }
 
 void VerilogWriter::BuildModules(const IModule *imod) {
@@ -66,6 +74,19 @@ void VerilogWriter::WriteInternalSRAMs() {
       sram->Write(os_);
     }
   }
+}
+
+void VerilogWriter::WriteShellModule(const Module *mod) {
+  const Ports *ports = mod->GetPorts();
+  os_ << "module " << shell_module_name_ << "(";
+  ports->Output(Ports::PORT_NAME, os_);
+  os_ << ");\n";
+  ports->Output(Ports::PORT_DIRECTION, os_);
+  string name = mod->GetIModule()->GetName();
+  os_ << "  " << name << " " << name << "_inst(";
+  ports->Output(Ports::PORT_CONNECTION, os_);
+  os_ << ");\n";
+  os_ << "endmodule\n";
 }
 
 }  // namespace verilog

@@ -20,7 +20,7 @@ class Iroha {
 public:
   static void Init();
   static IDesign *ReadDesignFromFile(const string &fn);
-  static WriterAPI *CreateWriter(const IDesign *design);
+  static WriterAPI *CreateWriter(IDesign *design);
   static OptAPI *CreateOptimizer(IDesign *design);
 };
 

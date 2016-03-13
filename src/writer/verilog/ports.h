@@ -53,14 +53,14 @@ public:
   ~Ports();
 
   Port *AddPort(const string &name, enum Port::PortType type, int width);
-  void Output(enum OutputType type, ostream &os);
+  void Output(enum OutputType type, ostream &os) const;
   const string &GetClk() const;
   const string &GetReset() const;
 
 private:
   void OutputPort(Port *p, enum OutputType type, bool is_first,
-		  bool reg_phase, ostream &os);
-  const string &DirectionPort(Port::PortType type);
+		  bool reg_phase, ostream &os) const;
+  static const string &DirectionPort(Port::PortType type);
 
   vector<Port *> ports_;
   string clk_;

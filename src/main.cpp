@@ -10,6 +10,7 @@ int main(int argc, char **argv) {
   vector<string> files;
   bool verilog = false;
   bool html = false;
+  bool shell = false;
 
   string output;
   string debug_dump;
@@ -20,6 +21,10 @@ int main(int argc, char **argv) {
     if (arg == "--version") {
       printVersion();
       return 0;
+    }
+    if (arg == "-s") {
+      shell = true;
+      continue;
     }
     if (arg == "-v") {
       verilog = true;
@@ -69,6 +74,9 @@ int main(int argc, char **argv) {
       cerr << "Failed to optimize the design: " << fn << "\n";
     }
     iroha::WriterAPI *writer = iroha::Iroha::CreateWriter(design);
+    if (shell && !output.empty()) {
+      writer->OutputShellModule(true);
+    }
     if (verilog) {
       writer->SetLanguage("verilog");
     }
