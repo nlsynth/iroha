@@ -4,6 +4,7 @@ d = IDesign()
 mod = IModule(d, "mod")
 tab = ITable(mod)
 st1 = IState(tab)
+st2 = IState(tab)
 tab.initialSt = st1
 
 r1 = IRegister(tab, "r1")
@@ -16,6 +17,11 @@ insn = IInsn(assign)
 insn.inputs.append(r2)
 insn.outputs.append(r1)
 st1.insns.append(insn)
+
+tr = DesignTool.GetResource(tab, "tr")
+tr_insn = IInsn(tr)
+st1.insns.append(tr_insn)
+tr_insn.target_states.append(st2)
 
 DesignTool.ValidateIds(d)
 

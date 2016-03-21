@@ -86,19 +86,17 @@ class IInsn(object):
         writer.ofh.write(self.resource.resource_class.name + " ")
         writer.ofh.write(str(self.resource.id) + " () ")
         # transitions, inputs, outputs
-        self.writeStateIds(writer, self.target_states)
+        self.writeIds(writer, self.target_states)
         writer.ofh.write(" ")
-        self.writeRegisterIds(writer, self.inputs)
+        self.writeIds(writer, self.inputs)
         writer.ofh.write(" ")
-        self.writeRegisterIds(writer, self.outputs)
+        self.writeIds(writer, self.outputs)
         writer.ofh.write(")\n")
 
-    def writeStateIds(self, writer, sts):
-        writer.ofh.write("()")
-
-    def writeRegisterIds(self, writer, regs):
+    def writeIds(self, writer, objs):
+        """objs can be list of either IState or IRegister."""
         writer.ofh.write("(")
-        writer.ofh.write(" ".join([str(r.id) for r in regs]))
+        writer.ofh.write(" ".join([str(o.id) for o in objs]))
         writer.ofh.write(")")
 
 class IRegister(object):
