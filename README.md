@@ -43,7 +43,6 @@ Please read src/iroha/iroha.h, src/main.cpp examples/ for more details.
 * P1: Output selector for exclusive resources
 * P1: Memory interface synth implementation
 * P2: Test and debug SSA conversion and PHI removal
-* P2: Easy way to generate IR S-expression
 * P2: Set constraint not to split related insns
 * P2: ROM image data structure.
 * P2: API to create ROM

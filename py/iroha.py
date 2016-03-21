@@ -1,3 +1,5 @@
+"""Iroha IR builder in Python"""
+
 import sys
 
 class IDesign(object):
@@ -104,6 +106,7 @@ class IRegister(object):
         table.registers.append(self)
         self.id = -1
         self.name = name
+        self.initialValue = None
 
     def Write(self, writer):
         writer.ofh.write("    (REGISTER " + str(self.id) + " ")
@@ -112,8 +115,16 @@ class IRegister(object):
         else:
             writer.ofh.write("()")
         writer.ofh.write("\n")
-        writer.ofh.write("     REG 32 ()\n")
+        writer.ofh.write("     REG 32 ")
+        if self.initialValue:
+            self.initialValue.Write(writer)
+        else:
+            writer.ofh.write("()")
+        writer.ofh.write("\n")
         writer.ofh.write("    )\n")
+
+    def SetInitialValue(self, int_val):
+        self.initialValue = IValue(int_val)
 
 class IResource(object):
     def __init__(self, table, resource_class):
@@ -133,11 +144,17 @@ class IResourceClass(object):
     def __init__(self, name):
         self.name = name
 
+class IValue(object):
+    def __init__(self, int_val):
+        self.val = int_val
+
+    def Write(self, writer):
+        writer.ofh.write(str(self.val))
+
 # IResourceClass
 # IValueType
 # IArray
 # IChannel
-# IValue
     
 class DesignWriter(object):
     def __init__(self, design):
@@ -175,8 +192,9 @@ class DesignTool(object):
                 usedIds.add(obj.id)
         unusedId = 0
         for obj in objs:
-            if obj.id == -1:
+            if obj.id != -1:
                 next
             while unusedId in usedIds:
                 unusedId = unusedId + 1
             obj.id = unusedId
+            unusedId = unusedId + 1
