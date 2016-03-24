@@ -15,6 +15,7 @@ class IDesign(object):
     def installResourceClasses(self):
         self.resource_classes.append(IResourceClass("set"))
         self.resource_classes.append(IResourceClass("tr"))
+        self.resource_classes.append(IResourceClass("array"))
 
     def findResourceClassByName(self, name):
         for rc in self.resource_classes:
@@ -56,7 +57,7 @@ class ITable(object):
             res.Write(writer)
         writer.ofh.write("  )\n")
         if self.initialSt:
-            writer.ofh.write("   (INITIAL " + str(self.id) + ")\n")
+            writer.ofh.write("  (INITIAL " + str(self.id) + ")\n")
         for st in self.states:
             st.Write(writer)
         writer.ofh.write(" )")
@@ -105,6 +106,8 @@ class IRegister(object):
         self.id = -1
         self.name = name
         self.initialValue = None
+        self.valueType = IValueType(32)
+        self.isConst = False
 
     def Write(self, writer):
         writer.ofh.write("    (REGISTER " + str(self.id) + " ")
@@ -113,7 +116,12 @@ class IRegister(object):
         else:
             writer.ofh.write("()")
         writer.ofh.write("\n")
-        writer.ofh.write("     REG 32 ")
+        writer.ofh.write("     ")
+        if self.isConst:
+            writer.ofh.write("CONST")
+        else:
+            writer.ofh.write("REG")
+        writer.ofh.write(" " + str(self.valueType.width) + " ")
         if self.initialValue:
             self.initialValue.Write(writer)
         else:
@@ -129,6 +137,7 @@ class IResource(object):
         self.table = table
         self.resource_class = resource_class
         self.id = -1
+        self.array = None
 
     def Write(self, writer):
         writer.ofh.write("   (RESOURCE " + str(self.id))
@@ -136,6 +145,8 @@ class IResource(object):
         # input, output, params
         writer.ofh.write("    () ()\n")
         writer.ofh.write("    ()\n")
+        if self.array:
+            self.array.Write(writer)
         writer.ofh.write("   )\n")
 
 class IResourceClass(object):
@@ -149,9 +160,30 @@ class IValue(object):
     def Write(self, writer):
         writer.ofh.write(str(self.val))
 
-# IResourceClass
-# IValueType
-# IArray
+class IValueType(object):
+    def __init__(self, width):
+        self.width = width
+
+class IArray(object):
+    def __init__(self, address_width, data_type, is_external, is_ram):
+        self.address_width = address_width
+        self.data_type = data_type
+        self.is_external = is_external
+        self.is_ram = is_ram
+
+    def Write(self, writer):
+        writer.ofh.write("    (ARRAY " + str(self.address_width))
+        writer.ofh.write(" " + str(self.data_type.width))
+        if self.is_external:
+            writer.ofh.write(" EXTERNAL")
+        else:
+            writer.ofh.write(" INTERNAL")
+        if self.is_ram:
+            writer.ofh.write(" RAM")
+        else:
+            writer.ofh.write(" ROM")
+        writer.ofh.write(")\n")
+
 # IChannel
     
 class DesignWriter(object):
@@ -196,3 +228,18 @@ class DesignTool(object):
                 unusedId = unusedId + 1
             obj.id = unusedId
             unusedId = unusedId + 1
+
+    @classmethod
+    def CreateArrayResource(cls, table, addr_width, data_width, is_external, is_ram):
+        data_type = IValueType(data_width)
+        res = cls.GetResource(table, "array")
+        res.array = IArray(addr_width, data_type, is_external, is_ram)
+        return res
+
+    @classmethod
+    def AllocConstNum(cls, table, width, val):
+        reg = IRegister(table, "")
+        reg.initialValue = IValue(val)
+        reg.valueType = IValueType(width)
+        reg.isConst = True
+        return reg
