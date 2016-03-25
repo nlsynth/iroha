@@ -1,7 +1,7 @@
 import sys
 sys.path.append('../py')
 
-from iroha import *
+from iroha.iroha import *
 
 d = IDesign()
 mod = IModule(d, "mod")
