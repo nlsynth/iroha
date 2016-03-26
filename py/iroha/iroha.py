@@ -15,6 +15,8 @@ class IDesign(object):
     def installResourceClasses(self):
         self.resource_classes.append(IResourceClass("set"))
         self.resource_classes.append(IResourceClass("tr"))
+        self.resource_classes.append(IResourceClass("add"))
+        self.resource_classes.append(IResourceClass("gt"))
         self.resource_classes.append(IResourceClass("array"))
 
     def findResourceClassByName(self, name):
@@ -138,16 +140,27 @@ class IResource(object):
         self.resource_class = resource_class
         self.id = -1
         self.array = None
+        self.input_types = []
+        self.output_types = []
 
     def Write(self, writer):
         writer.ofh.write("   (RESOURCE " + str(self.id))
         writer.ofh.write(" " + self.resource_class.name + "\n")
         # input, output, params
-        writer.ofh.write("    () ()\n")
+        writer.ofh.write("    ")
+        self.writeWidths(writer, self.input_types)
+        writer.ofh.write(" ")
+        self.writeWidths(writer, self.output_types)
+        writer.ofh.write("\n")
         writer.ofh.write("    ()\n")
         if self.array:
             self.array.Write(writer)
         writer.ofh.write("   )\n")
+
+    def writeWidths(self, writer, types):
+        writer.ofh.write("(")
+        writer.ofh.write(" ".join([str(t.width) for t in types]))
+        writer.ofh.write(")")
 
 class IResourceClass(object):
     def __init__(self, name):
@@ -207,15 +220,37 @@ class DesignTool(object):
         return res
 
     @classmethod
+    def GetBinOpResource(cls, table, name, width):
+        design = table.module.design
+        rc = design.findResourceClassByName(name)
+        for res in table.resources:
+            if res.resource_class == rc:
+                if res.input_types[0].width == width:
+                    return res
+        res = IResource(table, rc)
+        t = IValueType(width)
+        res.input_types.append(t)
+        res.input_types.append(t)
+        if name == "gt":
+            res.output_types.append(IValueType(0))
+        else:
+            res.output_types.append(t)
+        table.resources.append(res)
+        return res
+
+    @classmethod
     def ValidateIds(cls, design):
         for mod in design.modules:
             cls.doValidateIds(mod.tables)
             for tab in mod.tables:
+                insns = []
                 cls.doValidateIds(tab.resources)
                 cls.doValidateIds(tab.registers)
                 cls.doValidateIds(tab.states)
                 for st in tab.states:
-                    cls.doValidateIds(st.insns)
+                    for insn in st.insns:
+                        insns.append(insn)
+                cls.doValidateIds(insns)
 
     @classmethod
     def doValidateIds(cls, objs):
@@ -223,7 +258,7 @@ class DesignTool(object):
         for obj in objs:
             if obj.id != -1:
                 usedIds.add(obj.id)
-        unusedId = 0
+        unusedId = 1
         for obj in objs:
             if obj.id != -1:
                 next
@@ -258,3 +293,4 @@ class DesignTool(object):
             tr_insn = IInsn(tr)
             st1.insns.append(tr_insn)
         tr_insn.target_states.append(st2)
+        return tr_insn
