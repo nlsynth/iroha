@@ -5,6 +5,9 @@ mod = IModule(d, "mod")
 tab = ITable(mod)
 st1 = IState(tab)
 st2 = IState(tab)
+
+tab.states.append(st1)
+tab.states.append(st2)
 tab.initialSt = st1
 
 r1 = IRegister(tab, "r1")

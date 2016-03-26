@@ -64,7 +64,7 @@ class ITable(object):
 
 class IState(object):
     def __init__(self, tab):
-        tab.states.append(self)
+        self.tab = tab
         self.insns = []
         self.id = -1
 
@@ -199,6 +199,9 @@ class DesignTool(object):
     def GetResource(cls, table, name):
         design = table.module.design
         rc = design.findResourceClassByName(name)
+        for res in table.resources:
+            if res.resource_class == rc:
+                return res
         res = IResource(table, rc)
         table.resources.append(res)
         return res
@@ -243,3 +246,15 @@ class DesignTool(object):
         reg.valueType = IValueType(width)
         reg.isConst = True
         return reg
+
+    @classmethod
+    def AddNextState(cls, st1, st2):
+        tr = cls.GetResource(st1.tab, "tr")
+        tr_insn = None
+        for insn in st1.insns:
+            if insn.resource == tr:
+                tr_insn = insn
+        if not tr_insn:
+            tr_insn = IInsn(tr)
+            st1.insns.append(tr_insn)
+        tr_insn.target_states.append(st2)
