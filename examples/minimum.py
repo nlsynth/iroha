@@ -1,3 +1,6 @@
+import sys
+sys.path.append('../py')
+
 from iroha.iroha import *
 
 d = IDesign()
