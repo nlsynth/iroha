@@ -18,6 +18,7 @@ class IDesign(object):
         self.resource_classes.append(IResourceClass("add"))
         self.resource_classes.append(IResourceClass("gt"))
         self.resource_classes.append(IResourceClass("array"))
+        self.resource_classes.append(IResourceClass("embedded"))
 
     def findResourceClassByName(self, name):
         for rc in self.resource_classes:
@@ -142,6 +143,7 @@ class IResource(object):
         self.array = None
         self.input_types = []
         self.output_types = []
+        self.resource_params = ResourceParams()
 
     def Write(self, writer):
         writer.ofh.write("   (RESOURCE " + str(self.id))
@@ -152,7 +154,9 @@ class IResource(object):
         writer.ofh.write(" ")
         self.writeWidths(writer, self.output_types)
         writer.ofh.write("\n")
-        writer.ofh.write("    ()\n")
+        writer.ofh.write("    ")
+        self.resource_params.Write(writer)
+        writer.ofh.write("\n")
         if self.array:
             self.array.Write(writer)
         writer.ofh.write("   )\n")
@@ -196,6 +200,24 @@ class IArray(object):
         else:
             writer.ofh.write(" ROM")
         writer.ofh.write(")\n")
+
+class ResourceParams(object):
+    def __init__(self):
+        self.params = dict()
+
+    def AddValue(self, key, value):
+        if not key in self.params:
+            self.params[key] = []
+        self.params[key].append(value)
+
+    def Write(self, writer):
+        writer.ofh.write("(")
+        kvs = []
+        for k, values in self.params.iteritems():
+            kv = "(" + k + " " + (" ".join(v for v in values)) + ")"
+            kvs.append(kv)
+        writer.ofh.write(" ".join(kv for kv in kvs))
+        writer.ofh.write(")")
 
 # IChannel
     
@@ -294,3 +316,13 @@ class DesignTool(object):
             st1.insns.append(tr_insn)
         tr_insn.target_states.append(st2)
         return tr_insn
+
+    @classmethod
+    def CreateEmbedResource(cls, table, name, fn):
+        design = table.module.design
+        rc = design.findResourceClassByName("embedded")
+        res = IResource(table, rc)
+        res.resource_params.AddValue("embedded_module", name)
+        res.resource_params.AddValue("embedded_module_file", fn)
+        table.resources.append(res)
+        return res
