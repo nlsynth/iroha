@@ -49,7 +49,9 @@ bool WireInsn::Perform() {
     ScanBBToMoveInsn(bb);
   }
   AddWireToRegisterAssignments();
-  annotation_->DumpIntermediateTable(table_);
+  if (annotation_ != nullptr) {
+    annotation_->DumpIntermediateTable(table_);
+  }
   return true;
 }
 
