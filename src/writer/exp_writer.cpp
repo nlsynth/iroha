@@ -133,7 +133,7 @@ void ExpWriter::WriteRegisters(const ITable &tab) {
 }
 
 void ExpWriter::WriteValueType(const IValueType &type) {
-  os_ << type.GetWidth();
+  os_ << "UINT " << type.GetWidth();
 }
 
 void ExpWriter::WriteValue(const IValue &value) {

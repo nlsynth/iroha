@@ -37,8 +37,12 @@ public:
   int GetWidth() const;
   void SetWidth(int width);
 
+  bool IsSigned() const;
+  void SetIsSigned(bool is_signed);
+
 private:
   int width_;
+  bool is_signed_;
 };
 
 // This object is managed by IResource.

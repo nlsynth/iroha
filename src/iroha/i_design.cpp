@@ -142,7 +142,7 @@ IResource *IChannel::GetReader() const {
   return reader_;
 }
 
-IValueType::IValueType() : width_(32) {
+IValueType::IValueType() : width_(32), is_signed_(false) {
 }
 
 int IValueType::GetWidth() const {
@@ -151,6 +151,14 @@ int IValueType::GetWidth() const {
 
 void IValueType::SetWidth(int width) {
   width_ = width;
+}
+
+bool IValueType::IsSigned() const {
+  return is_signed_;
+}
+
+void IValueType::SetIsSigned(bool is_signed) {
+  is_signed_ = is_signed;
 }
 
 IValue::IValue() : value_(0) {

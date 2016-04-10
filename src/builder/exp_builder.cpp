@@ -149,7 +149,7 @@ IRegister *ExpBuilder::BuildRegister(Exp *e, ITable *table) {
     SetError() << "Only REGISTER can be allowed";
     return nullptr;
   }
-  if (e->vec.size() != 6) {
+  if (e->vec.size() != 7) {
     SetError() << "Insufficient parameters for a register";
     return nullptr;
   }
@@ -167,9 +167,9 @@ IRegister *ExpBuilder::BuildRegister(Exp *e, ITable *table) {
   } else {
     SetError() << "Unknown register class: " << type;
   }
-  const string &width = e->vec[4]->atom.str;
+  const string &width = e->vec[5]->atom.str;
   reg->value_type_.SetWidth(Util::Atoi(width));
-  if (!e->vec[5]->atom.str.empty()) {
+  if (!e->vec[6]->atom.str.empty()) {
     const string &ini = e->vec[5]->atom.str;
     IValue value;
     value.value_ = Util::Atoi(ini);
@@ -248,14 +248,14 @@ IResource *ExpBuilder::BuildResource(Exp *e, ITable *table) {
 }
 
 void ExpBuilder::BuildArray(Exp *e, IResource *res) {
-  if (e->vec.size() != 5) {
+  if (e->vec.size() != 6) {
     SetError() << "Malformed array description";
     return;
   }
   int address_width = Util::Atoi(e->vec[1]->atom.str);
-  int data_width = Util::Atoi(e->vec[2]->atom.str);
+  int data_width = Util::Atoi(e->vec[3]->atom.str);
   bool is_external;
-  const string &v = e->vec[3]->atom.str;
+  const string &v = e->vec[4]->atom.str;
   if (v == "EXTERNAL") {
     is_external = true;
   } else if (v == "INTERNAL") {
@@ -265,7 +265,7 @@ void ExpBuilder::BuildArray(Exp *e, IResource *res) {
     return;
   }
   bool is_ram;
-  const string &w = e->vec[4]->atom.str;
+  const string &w = e->vec[5]->atom.str;
   if (w == "RAM") {
     is_ram = true;
   } else if (w == "ROM") {
@@ -291,7 +291,8 @@ void ExpBuilder::BuildResourceParams(Exp *e, ResourceParams *params) {
 }
 
 void ExpBuilder::BuildParamTypes(Exp *e, vector<IValueType> *types) {
-  for (Exp *t : e->vec) {
+  for (int i = 0; i < e->vec.size(); i += 2) {
+    Exp *t = e->vec[i + 1];
     IValueType type;
     type.SetWidth(Util::Atoi(t->atom.str));
     types->push_back(type);

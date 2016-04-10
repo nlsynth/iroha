@@ -32,9 +32,12 @@ class IModule(object):
         self.design = design
         self.name = name
         self.tables = []
+        self.parent_module = None
 
     def Write(self, writer):
         writer.ofh.write("(MODULE " + self.name + "\n")
+        if self.parent_module:
+            writer.ofh.write(" (PARENT " + self.parent_module.name + ")\n")
         for t in self.tables:
             t.Write(writer)
         writer.ofh.write(")\n")
@@ -124,7 +127,7 @@ class IRegister(object):
             writer.ofh.write("CONST")
         else:
             writer.ofh.write("REG")
-        writer.ofh.write(" " + str(self.valueType.width) + " ")
+        writer.ofh.write(" UINT " + str(self.valueType.width) + " ")
         if self.initialValue:
             self.initialValue.Write(writer)
         else:
@@ -163,7 +166,7 @@ class IResource(object):
 
     def writeWidths(self, writer, types):
         writer.ofh.write("(")
-        writer.ofh.write(" ".join([str(t.width) for t in types]))
+        writer.ofh.write(" ".join([" UINT " + str(t.width) for t in types]))
         writer.ofh.write(")")
 
 class IResourceClass(object):
@@ -190,7 +193,7 @@ class IArray(object):
 
     def Write(self, writer):
         writer.ofh.write("    (ARRAY " + str(self.address_width))
-        writer.ofh.write(" " + str(self.data_type.width))
+        writer.ofh.write(" UINT " + str(self.data_type.width))
         if self.is_external:
             writer.ofh.write(" EXTERNAL")
         else:
