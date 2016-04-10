@@ -237,7 +237,7 @@ void Table::BuildInsnOutputWire() {
 
 string Table::WidthSpec(const IRegister *reg) {
   if (reg->value_type_.GetWidth() > 0) {
-    return " [" + Util::Itoa(reg->value_type_.GetWidth()) + ":0]";
+    return " [" + Util::Itoa(reg->value_type_.GetWidth() - 1) + ":0]";
   }
   return string();
 }
