@@ -7,8 +7,10 @@ class IDesign(object):
         self.modules = []
         self.resource_classes = []
         self.installResourceClasses()
+        self.resourceParams = ResourceParams()
 
     def Write(self, writer):
+        self.resourceParams.Write(writer)
         for m in self.modules:
             m.Write(writer)
 
@@ -159,7 +161,6 @@ class IResource(object):
         writer.ofh.write("\n")
         writer.ofh.write("    ")
         self.resource_params.Write(writer)
-        writer.ofh.write("\n")
         if self.array:
             self.array.Write(writer)
         writer.ofh.write("   )\n")
@@ -214,13 +215,13 @@ class ResourceParams(object):
         self.params[key].append(value)
 
     def Write(self, writer):
-        writer.ofh.write("(")
+        writer.ofh.write("(PARAMS ")
         kvs = []
         for k, values in self.params.iteritems():
             kv = "(" + k + " " + (" ".join(v for v in values)) + ")"
             kvs.append(kv)
         writer.ofh.write(" ".join(kv for kv in kvs))
-        writer.ofh.write(")")
+        writer.ofh.write(")\n")
 
 # IChannel
     
@@ -325,7 +326,7 @@ class DesignTool(object):
         design = table.module.design
         rc = design.findResourceClassByName("embedded")
         res = IResource(table, rc)
-        res.resource_params.AddValue("embedded_module", name)
-        res.resource_params.AddValue("embedded_module_file", fn)
+        res.resource_params.AddValue("EMBEDDED-MODULE", name)
+        res.resource_params.AddValue("EMBEDDED-MODULE-FILE", fn)
         table.resources.append(res)
         return res

@@ -102,7 +102,7 @@ bool ResourceParamValueSet::GetBoolParam(const string &key,
   if (p == nullptr) {
     return dflt;
   }
-  if (p->values_.size() > 0 && p->values_[0] == "true") {
+  if (p->values_.size() > 0 && Util::ToLower(p->values_[0]) == "true") {
     return true;
   }
   return false;
@@ -187,6 +187,7 @@ void ResourceParams::SetMappedName(const string &name) {
 }
 
 bool ResourceParams::GetResetPolarity() const {
+  // default is negative.
   return values_->GetBoolParam(resource::kResetPolarity, false);
 }
 

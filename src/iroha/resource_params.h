@@ -13,15 +13,15 @@ namespace iroha {
 namespace resource {
 class ResourceParamValueSet;
 
-const char kMappedName[] = "mapped_name";
-const char kResetPolarity[] = "reset_polarity";
-const char kExtInputPort[] = "input";
-const char kExtOutputPort[] = "output";
-const char kExtIOWidth[] = "width";
-const char kEmbeddedModule[] = "embedded_module";
-const char kEmbeddedModuleFile[] = "embedded_module_file";
-const char kEmbeddedModuleClk[] = "embedded_module_clk";
-const char kEmbeddedModuleReset[] = "embedded_module_reset";
+const char kMappedName[] = "MAPPED-NAME";
+const char kResetPolarity[] = "RESET-POLARITY";
+const char kExtInputPort[] = "INPUT";
+const char kExtOutputPort[] = "OUTPUT";
+const char kExtIOWidth[] = "WIDTH";
+const char kEmbeddedModule[] = "EMBEDDED-MODULE";
+const char kEmbeddedModuleFile[] = "EMBEDDED-MODULE-FILE";
+const char kEmbeddedModuleClk[] = "EMBEDDED-MODULE-CLK";
+const char kEmbeddedModuleReset[] = "EMBEDDED-MODULE-RESET";
 }  // namespace resource
 
 class ResourceParams {

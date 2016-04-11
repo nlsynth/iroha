@@ -1,5 +1,6 @@
 #include "iroha/common.h"
 
+#include <algorithm>
 #include <string.h>
 #include <sstream>
 
@@ -34,6 +35,12 @@ void Util::SplitStringUsing(const string &str, const char *delim,
     output->push_back(str.substr(cur, len));
     cur += len + 1;
   }
+}
+
+string Util::ToLower(const string &s) {
+  string l(s);
+  std::transform(l.begin(), l.end(), l.begin(), ::tolower);
+  return l;
 }
 
 }  // namespace iroha

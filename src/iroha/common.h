@@ -32,6 +32,7 @@ public:
   static int Atoi(const string &a);
   static void SplitStringUsing(const string &str, const char *delim,
 			       vector<string> *output);
+  static string ToLower(const string &s);
 };
 
 }  // namespace iroha

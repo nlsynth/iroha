@@ -11,6 +11,7 @@ ExpWriter::ExpWriter(const IDesign *design, ostream &os)
 }
 
 void ExpWriter::Write() {
+  WriteResourceParams(*design_->GetParams(), false);
   for (auto *mod : design_->modules_) {
     WriteModule(*mod);
   }
@@ -57,7 +58,7 @@ void ExpWriter::WriteResource(const IResource &res) {
   WriteResourceTypes(res.output_types_);
   os_ << "\n";
   ResourceParams *params = res.GetParams();
-  WriteResourceParams(*params);
+  WriteResourceParams(*params, true);
   if (resource::IsArray(rc) || res.GetArray() != nullptr) {
     WriteArrayDesc(res);
   }
@@ -198,15 +199,23 @@ void ExpWriter::WriteResourceTypes(const vector<IValueType> &types) {
   os_ << ")";
 }
 
-void ExpWriter::WriteResourceParams(const ResourceParams &params) {
-  os_ << "        (";
+void ExpWriter::WriteResourceParams(const ResourceParams &params,
+				    bool is_resource) {
+  const char *indent = "";
+  if (is_resource) {
+    indent = "        ";
+  }
+  os_ << indent << "(PARAMS";
   vector<string> keys = params.GetParamKeys();
+  if (!keys.empty()) {
+    os_ << "\n";
+  }
   bool is_first = true;
   for (string &key : keys) {
     if (!is_first) {
-      os_ << "\n         ";
+      os_ << "\n";
     }
-    os_ << "(" << key;
+    os_ << indent << " (" << key;
     vector<string> values = params.GetValues(key);
     for (string &value : values) {
       os_ << " " << value;

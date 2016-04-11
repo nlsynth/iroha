@@ -44,6 +44,8 @@ IDesign *ExpBuilder::Build(vector<Exp *> &exps) {
       } else {
 	SetError();
       }
+    } else if (root->vec[0]->atom.str == "PARAMS") {
+      BuildResourceParams(root, design->GetParams());
     } else {
       SetError() << "Unsupported toplevel expression";
     }
@@ -281,10 +283,11 @@ void ExpBuilder::BuildArray(Exp *e, IResource *res) {
 }
 
 void ExpBuilder::BuildResourceParams(Exp *e, ResourceParams *params) {
-  for (Exp *t : e->vec) {
+  for (int i = 1; i < e->vec.size(); ++i) {
+    Exp *t = e->vec[i];
     vector<string> s;
-    for (int i = 1; i < t->vec.size(); ++i) {
-      s.push_back(t->vec[i]->atom.str);
+    for (int j = 1; j < t->vec.size(); ++j) {
+      s.push_back(t->vec[j]->atom.str);
     }
     params->SetValues(t->vec[0]->atom.str, s);
   }
