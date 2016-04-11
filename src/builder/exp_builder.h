@@ -37,6 +37,7 @@ private:
   void BuildResourceParams(Exp *e, ResourceParams *params);
   void BuildParamTypes(Exp *e, vector<IValueType> *types);
   bool HasError();
+  void BuildModuleAttrs(Exp *e, IModule *module);
 
   bool has_error_;
   ostringstream errors_;

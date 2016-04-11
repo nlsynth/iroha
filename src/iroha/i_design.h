@@ -221,10 +221,17 @@ public:
 
   vector<ITable *> tables_;
 
+  const string &GetResetName() const;
+  const bool &GetResetPolarity() const;
+  void SetResetName(string n);
+  void SetResetPolarity(bool v);
+
 private:
   IDesign *design_;
   string name_;
   IModule *parent_;
+  string reset_name_ = "rst_n";
+  bool reset_polarity_ = false;
 };
 
 // Represents a whole design including module hierarchy,
