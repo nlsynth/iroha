@@ -55,6 +55,8 @@ IDesign *ExpBuilder::Build(vector<Exp *> &exps) {
   }
   if (HasError()) {
     LOG(ERROR) << "Build failure: " << errors_.str();
+    delete design;
+    return nullptr;
   }
   return design;
 }

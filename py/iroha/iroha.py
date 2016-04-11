@@ -65,7 +65,7 @@ class ITable(object):
             res.Write(writer)
         writer.ofh.write("  )\n")
         if self.initialSt:
-            writer.ofh.write("  (INITIAL " + str(self.id) + ")\n")
+            writer.ofh.write("  (INITIAL " + str(self.initialSt.id) + ")\n")
         for st in self.states:
             st.Write(writer)
         writer.ofh.write(" )")
