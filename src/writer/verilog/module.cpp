@@ -19,7 +19,8 @@ Module::Module(const IModule *i_mod, const Connection &conn, Embed *embed)
   : i_mod_(i_mod), conn_(conn), embed_(embed) {
   tmpl_.reset(new ModuleTemplate);
   ports_.reset(new Ports);
-  reset_polarity_ = i_mod_->GetDesign()->GetParams()->GetResetPolarity();
+  //  reset_polarity_ = i_mod_->GetDesign()->GetParams()->GetResetPolarity();
+  reset_polarity_ = i_mod_->GetResetPolarity();
 }
 
 Module::~Module() {
@@ -64,11 +65,12 @@ const Ports *Module::GetPorts() const {
 
 void Module::Build() {
   ports_->AddPort("clk", Port::INPUT_CLK, 0);
-  if (reset_polarity_) {
-    ports_->AddPort("rst", Port::INPUT_RESET, 0);
-  } else {
-    ports_->AddPort("rst_n", Port::INPUT_RESET, 0);
-  }
+  //  if (module->reset_polarity_) {
+  //    ports_->AddPort("rst", Port::INPUT_RESET, 0);
+  //  } else {
+  //    ports_->AddPort("rst_n", Port::INPUT_RESET, 0);
+  //  }
+  ports_->AddPort(i_mod_->GetResetName(), Port::INPUT_RESET, 0);
 
   for (auto *i_table : i_mod_->tables_) {
     Table *tab = new Table(i_table, ports_.get(), this, embed_,

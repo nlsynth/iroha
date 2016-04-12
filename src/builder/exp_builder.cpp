@@ -67,7 +67,12 @@ IModule *ExpBuilder::BuildModule(Exp *e, IDesign *design) {
     return nullptr;
   }
   IModule *module = new IModule(design, e->vec[1]->atom.str);
-  for (int i = 2; i < e->vec.size(); ++i) {
+  int i = 2;
+  if (e->vec[i]->vec[0]->atom.str == "ATTRS") {
+      BuildModuleAttrs(e->vec[i], module);
+      ++i;
+  }
+  for (; i < e->vec.size(); ++i) {
     if (e->vec[i]->vec.size() == 0) {
       SetError();
     } else if (e->vec[i]->vec[0]->atom.str == "TABLE") {
@@ -315,6 +320,21 @@ ostream &ExpBuilder::SetError() {
 
 bool ExpBuilder::HasError() {
   return has_error_;
+}
+
+void ExpBuilder::BuildModuleAttrs(Exp *e, IModule *module) {
+  for (int i = 1; i < e->vec.size(); ++i) {
+    Exp *t = e->vec[i];
+    if(t->vec[0]->atom.str == "RESET-POLARITY"){
+      if(t->vec[1]->atom.str == "true"){
+	module->SetResetPolarity(true);
+      }else{
+	module->SetResetPolarity(false);
+      }
+    }else if(t->vec[0]->atom.str == "RESET-NAME"){
+      module->SetResetName(t->vec[1]->atom.str);
+    }
+  }
 }
 
 }  // namespace builder

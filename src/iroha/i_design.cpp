@@ -318,6 +318,22 @@ IModule *IModule::GetParentModule() const {
   return parent_;
 }
 
+const string &IModule::GetResetName() const {
+  return reset_name_;
+}
+
+const bool &IModule::GetResetPolarity() const {
+  return reset_polarity_;
+}
+
+void IModule::SetResetName(string n) {
+  reset_name_ = n;
+}
+
+void IModule::SetResetPolarity(bool v) {
+  reset_polarity_ = v;
+}
+
 IDesign::IDesign()
   : objects_(new ObjectPool), params_(new ResourceParams), annotation_(nullptr) {
   resource::InstallResourceClasses(this);
