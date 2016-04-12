@@ -212,7 +212,15 @@ void Table::BuildRegister() {
 	rs << "  reg";
       }
       rs << " " << WidthSpec(reg);
-      rs << " " << reg->GetName() << ";\n";
+      rs << " " << reg->GetName();
+      if(reg->HasInitialValue()){
+	int width = reg->value_type_.GetWidth();
+	width = width == 0 ? 1 : width;
+	rs << " = " << width << "\'d" << reg->GetInitialValue().value_ << ";\n";
+      }else{
+	rs << ";\n";
+      }
+      //rs << " " << reg->GetName() << ";\n";
     }
     if (!reg->IsConst() && reg->HasInitialValue()) {
       is << "      " << reg->GetName() << " <= "
