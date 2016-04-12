@@ -19,7 +19,15 @@ Module::Module(const IModule *i_mod, const Connection &conn, Embed *embed)
   : i_mod_(i_mod), conn_(conn), embed_(embed) {
   tmpl_.reset(new ModuleTemplate);
   ports_.reset(new Ports);
-  reset_polarity_ = i_mod_->GetDesign()->GetParams()->GetResetPolarity();
+  reset_polarity_ = ResolveResetPolarity();
+  reset_name_ = i_mod->GetParams()->GetResetName();
+  if (reset_name_.empty()) {
+    if (reset_polarity_) {
+      reset_name_ = "rst";
+    } else {
+      reset_name_ = "rst_n";
+    }
+  }
 }
 
 Module::~Module() {
@@ -64,11 +72,7 @@ const Ports *Module::GetPorts() const {
 
 void Module::Build() {
   ports_->AddPort("clk", Port::INPUT_CLK, 0);
-  if (reset_polarity_) {
-    ports_->AddPort("rst", Port::INPUT_RESET, 0);
-  } else {
-    ports_->AddPort("rst_n", Port::INPUT_RESET, 0);
-  }
+  ports_->AddPort(reset_name_, Port::INPUT_RESET, 0);
 
   for (auto *i_table : i_mod_->tables_) {
     Table *tab = new Table(i_table, ports_.get(), this, embed_,
@@ -194,6 +198,17 @@ void Module::BuildChannelConnections(const ChannelInfo &ci) {
     int width = ch->GetValueType().GetWidth();
     ports_->AddPort(InsnWriter::ChannelDataPort(*ch), Port::INPUT, width);
   }
+}
+
+bool Module::ResolveResetPolarity() {
+  for (const IModule *mod = i_mod_; mod != nullptr;
+       mod = mod->GetParentModule()) {
+    if (mod->GetParams()->HasResetPolarity()) {
+      return mod->GetParams()->GetResetPolarity();
+    }
+  }
+  // This may return the default value.
+  return i_mod_->GetDesign()->GetParams()->GetResetPolarity();
 }
 
 }  // namespace verilog

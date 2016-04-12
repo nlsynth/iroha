@@ -195,6 +195,18 @@ void ResourceParams::SetResetPolarity(bool p) {
   values_->SetBoolParam(resource::kResetPolarity, p);
 }
 
+bool ResourceParams::HasResetPolarity() const {
+  return (values_->LookupParam(resource::kResetPolarity) != nullptr);
+}
+
+string ResourceParams::GetResetName() const {
+  return values_->GetStringParam(resource::kResetName, "");
+}
+
+void ResourceParams::SetResetName(const string &name) {
+  values_->SetStringParam(resource::kResetName, name);
+}
+
 void ResourceParams::SetExtInputPort(const string &input, int width) {
   values_->SetStringParam(resource::kExtInputPort, input);
   values_->SetIntParam(resource::kExtIOWidth, width);

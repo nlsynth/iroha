@@ -42,6 +42,7 @@ private:
   void BuildChildModuleTaskWire(const Module &mod, ostream &is);
   void BuildChildModuleChannelWireAll(const IModule &imod, ostream &is);
   void BuildChildModuleChannelWire(const IChannel &ch, ostream &is);
+  bool ResolveResetPolarity();
 
   const IModule *i_mod_;
   const Connection &conn_;
@@ -51,6 +52,7 @@ private:
   vector<Table *> tables_;
   vector<InternalSRAM *> srams_;
   bool reset_polarity_;
+  string reset_name_;
 };
 
 }  // namespace verilog
