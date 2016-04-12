@@ -11,7 +11,7 @@ ExpWriter::ExpWriter(const IDesign *design, ostream &os)
 }
 
 void ExpWriter::Write() {
-  WriteResourceParams(*design_->GetParams(), false);
+  WriteResourceParams(*design_->GetParams(), "");
   for (auto *mod : design_->modules_) {
     WriteModule(*mod);
   }
@@ -23,6 +23,7 @@ void ExpWriter::WriteModule(const IModule &mod) {
   if (parent != nullptr) {
     os_ << "  (PARENT " << parent->GetName() << ")\n";
   }
+  WriteResourceParams(*mod.GetParams(), "  ");
   for (auto *tab : mod.tables_) {
     WriteTable(*tab);
   }
@@ -58,7 +59,7 @@ void ExpWriter::WriteResource(const IResource &res) {
   WriteResourceTypes(res.output_types_);
   os_ << "\n";
   ResourceParams *params = res.GetParams();
-  WriteResourceParams(*params, true);
+  WriteResourceParams(*params, "       ");
   if (resource::IsArray(rc) || res.GetArray() != nullptr) {
     WriteArrayDesc(res);
   }
@@ -200,11 +201,7 @@ void ExpWriter::WriteResourceTypes(const vector<IValueType> &types) {
 }
 
 void ExpWriter::WriteResourceParams(const ResourceParams &params,
-				    bool is_resource) {
-  const char *indent = "";
-  if (is_resource) {
-    indent = "        ";
-  }
+				    const char *indent) {
   os_ << indent << "(PARAMS";
   vector<string> keys = params.GetParamKeys();
   if (!keys.empty()) {

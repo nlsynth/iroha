@@ -27,7 +27,7 @@ private:
   void WriteValueType(const IValueType &type);
   void WriteInsnParams(const vector<IRegister *> &regs);
   void WriteResourceTypes(const vector<IValueType> &types);
-  void WriteResourceParams(const ResourceParams &params, bool is_resource);
+  void WriteResourceParams(const ResourceParams &params, const char *indent);
 
   const IDesign *design_;
   ostream &os_;

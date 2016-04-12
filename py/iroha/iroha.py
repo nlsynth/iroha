@@ -35,9 +35,12 @@ class IModule(object):
         self.name = name
         self.tables = []
         self.parent_module = None
+        self.resource_params = ResourceParams()
 
     def Write(self, writer):
         writer.ofh.write("(MODULE " + self.name + "\n")
+        writer.ofh.write(" ")
+        self.resource_params.Write(writer)
         if self.parent_module:
             writer.ofh.write(" (PARENT " + self.parent_module.name + ")\n")
         for t in self.tables:
@@ -287,7 +290,7 @@ class DesignTool(object):
         unusedId = 1
         for obj in objs:
             if obj.id != -1:
-                next
+                continue
             while unusedId in usedIds:
                 unusedId = unusedId + 1
             obj.id = unusedId

@@ -77,6 +77,8 @@ IModule *ExpBuilder::BuildModule(Exp *e, IDesign *design) {
       } else {
 	SetError() << "Failed to build a table";
       }
+    } else if (e->vec[i]->vec[0]->atom.str == "PARAMS") {
+      BuildResourceParams(e->vec[i], module->GetParams());
     } else if (e->vec[i]->vec[0]->atom.str == "PARENT") {
       if (e->vec[i]->vec.size() != 2) {
 	SetError();
@@ -206,10 +208,6 @@ IResource *ExpBuilder::BuildResource(Exp *e, ITable *table) {
     return nullptr;
   }
   const string &klass = e->vec[2]->atom.str;
-  if (klass == resource::kTransition) {
-    // Ignore pre-installed resource.
-    return nullptr;
-  }
   IDesign *design = table->GetModule()->GetDesign();
   IResourceClass *rc = nullptr;
   for (auto *c : design->resource_classes_) {
@@ -221,7 +219,13 @@ IResource *ExpBuilder::BuildResource(Exp *e, ITable *table) {
     SetError() << "Unknown resource class: " << klass;
     return nullptr;
   }
-  IResource *res = new IResource(table, rc);
+  IResource *res = nullptr;
+  if (klass == resource::kTransition) {
+    // Use pre installed resource.
+    res = table->resources_[0];
+  } else {
+    res = new IResource(table, rc);
+  }
   int id = Util::Atoi(e->vec[1]->atom.str);
   res->SetId(id);
   BuildParamTypes(e->vec[3], &res->input_types_);
