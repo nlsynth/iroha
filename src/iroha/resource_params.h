@@ -15,6 +15,7 @@ class ResourceParamValueSet;
 
 const char kMappedName[] = "MAPPED-NAME";
 const char kResetPolarity[] = "RESET-POLARITY";
+const char kResetName[] = "RESET-NAME";
 const char kExtInputPort[] = "INPUT";
 const char kExtOutputPort[] = "OUTPUT";
 const char kExtIOWidth[] = "WIDTH";
@@ -38,6 +39,10 @@ public:
 
   bool GetResetPolarity() const;
   void SetResetPolarity(bool p);
+  bool HasResetPolarity() const;
+
+  string GetResetName() const;
+  void SetResetName(const string &name);
 
   void SetExtInputPort(const string &input, int width);
   void GetExtInputPort(string *name, int *width);
