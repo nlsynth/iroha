@@ -176,7 +176,7 @@ IRegister *ExpBuilder::BuildRegister(Exp *e, ITable *table) {
   const string &width = e->vec[5]->atom.str;
   reg->value_type_.SetWidth(Util::Atoi(width));
   if (!e->vec[6]->atom.str.empty()) {
-    const string &ini = e->vec[5]->atom.str;
+    const string &ini = e->vec[6]->atom.str;
     IValue value;
     value.value_ = Util::Atoi(ini);
     value.type_ = reg->value_type_;
