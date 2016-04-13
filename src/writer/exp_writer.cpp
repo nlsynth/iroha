@@ -59,9 +59,12 @@ void ExpWriter::WriteResource(const IResource &res) {
   WriteResourceTypes(res.output_types_);
   os_ << "\n";
   ResourceParams *params = res.GetParams();
-  WriteResourceParams(*params, "       ");
+  WriteResourceParams(*params, "        ");
   if (resource::IsArray(rc) || res.GetArray() != nullptr) {
     WriteArrayDesc(res);
+  }
+  if (resource::IsForeignRegister(rc)) {
+    WriteForeignRegDesc(res);
   }
   if (resource::IsSubModuleTaskCall(rc)) {
     WriteSubModuleTaskCall(res);
@@ -85,6 +88,14 @@ void ExpWriter::WriteArrayDesc(const IResource &res) {
   } else {
     os_ << " ROM";
   }
+  os_ << ")\n";
+}
+
+void ExpWriter::WriteForeignRegDesc(const IResource &res) {
+  os_ << "        (FOREIGN-REG ";
+  os_ << res.GetTable()->GetId();
+  os_ << " ";
+  os_ << res.GetForeignRegister()->GetId();
   os_ << ")\n";
 }
 

@@ -247,6 +247,15 @@ IResource *ExpBuilder::BuildResource(Exp *e, ITable *table) {
 	SetError() << "Invalid module spec";
 	return nullptr;
       }
+    } else if (e->vec[i]->vec[0]->atom.str == "FOREIGN-REG") {
+      if (e->vec[i]->vec.size() == 3) {
+	tree_builder_->AddForeignReg(Util::Atoi(e->vec[i]->vec[1]->atom.str),
+				     Util::Atoi(e->vec[i]->vec[2]->atom.str),
+				     res);
+      } else {
+	SetError() << "Invalid foreign reg spec";
+	return nullptr;
+      }
     } else {
       SetError() << "Invalid additional resource parameter";
       return nullptr;

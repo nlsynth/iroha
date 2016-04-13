@@ -18,6 +18,10 @@ void TreeBuilder::AddCalleeTable(const string &mod_name, int table_id,
   table_ids_[res] = table_id;
 }
 
+void TreeBuilder::AddForeignReg(int table_id, int reg_id, IResource *res) {
+  foreign_registers_[res] = make_pair(table_id, reg_id);
+}
+
 void TreeBuilder::AddParentModule(const string &name, IModule *mod) {
   parent_module_names_[mod] = name;
 }
@@ -53,7 +57,29 @@ bool TreeBuilder::Resolve() {
     IModule *cmod = p.first;
     cmod->SetParentModule(mod);
   }
+  for (auto f : foreign_registers_) {
+    int table_id = f.second.first;
+    int register_id = f.second.second;
+    IResource *res = f.first;
+    IModule *mod = res->GetTable()->GetModule();
+    IRegister *foreign_reg = FindForeignRegister(mod, table_id, register_id);
+    res->SetForeignRegister(foreign_reg);
+  }
   return true;
+}
+
+IRegister *TreeBuilder::FindForeignRegister(IModule *mod,
+					    int table_id, int register_id) {
+  for (ITable *tab : mod->tables_) {
+    if (tab->GetId() == table_id) {
+      for (IRegister *reg : tab->registers_) {
+	if (reg->GetId() == register_id) {
+	  return reg;
+	}
+      }
+    }
+  }
+  return nullptr;
 }
 
 }  // namespace builder

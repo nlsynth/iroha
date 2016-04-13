@@ -22,6 +22,7 @@ private:
   void WriteResources(const ITable &tab);
   void WriteResource(const IResource &res);
   void WriteArrayDesc(const IResource &res);
+  void WriteForeignRegDesc(const IResource &res);
   void WriteSubModuleTaskCall(const IResource &res);
   void WriteValue(const IValue &value);
   void WriteValueType(const IValueType &type);
