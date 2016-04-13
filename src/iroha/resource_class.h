@@ -22,6 +22,7 @@ const char kExtInput[] = "ext_input";
 const char kExtOutput[] = "ext_output";
 const char kArray[] = "array";
 const char kEmbedded[] = "embedded";
+const char kForeignReg[] = "foreign-reg";
 const char kAdd[] = "add";
 const char kSub[] = "sub";
 const char kBitAnd[] = "bit_and";
@@ -39,6 +40,7 @@ bool IsArray(const IResourceClass &rc);
 bool IsMapped(const IResourceClass &rc);
 bool IsSubModuleTaskCall(const IResourceClass &rc);
 bool IsSubModuleTask(const IResourceClass &rc);
+bool IsForeignRegister(const IResourceClass &rc);
 
 void InstallResourceClasses(IDesign *design);
 

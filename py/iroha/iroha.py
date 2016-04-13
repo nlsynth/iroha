@@ -21,6 +21,7 @@ class IDesign(object):
         self.resource_classes.append(IResourceClass("gt"))
         self.resource_classes.append(IResourceClass("array"))
         self.resource_classes.append(IResourceClass("embedded"))
+        self.resource_classes.append(IResourceClass("foreign-reg"))
 
     def findResourceClassByName(self, name):
         for rc in self.resource_classes:
@@ -71,7 +72,7 @@ class ITable(object):
             writer.ofh.write("  (INITIAL " + str(self.initialSt.id) + ")\n")
         for st in self.states:
             st.Write(writer)
-        writer.ofh.write(" )")
+        writer.ofh.write(" )\n")
 
 class IState(object):
     def __init__(self, tab):
@@ -119,6 +120,7 @@ class IRegister(object):
         self.initialValue = None
         self.valueType = IValueType(32)
         self.isConst = False
+        self.table = table
 
     def Write(self, writer):
         writer.ofh.write("    (REGISTER " + str(self.id) + " ")
@@ -152,6 +154,7 @@ class IResource(object):
         self.input_types = []
         self.output_types = []
         self.resource_params = ResourceParams()
+        self.foreign_reg = None
 
     def Write(self, writer):
         writer.ofh.write("   (RESOURCE " + str(self.id))
@@ -166,6 +169,9 @@ class IResource(object):
         self.resource_params.Write(writer)
         if self.array:
             self.array.Write(writer)
+        if self.foreign_reg:
+            writer.ofh.write("    (FOREIGN-REG " + str(self.foreign_reg.table.id) + " ")
+            writer.ofh.write(str(self.foreign_reg.id) + ")\n")
         writer.ofh.write("   )\n")
 
     def writeWidths(self, writer, types):
@@ -331,5 +337,19 @@ class DesignTool(object):
         res = IResource(table, rc)
         res.resource_params.AddValue("EMBEDDED-MODULE", name)
         res.resource_params.AddValue("EMBEDDED-MODULE-FILE", fn)
+        table.resources.append(res)
+        return res
+
+    @classmethod
+    def CreateSharedRegister(cls, module):
+        tab = ITable(module)
+        return IRegister(tab, "r")
+
+    @classmethod
+    def CreateForeignRegister(cls, table, shared_reg):
+        design = table.module.design
+        rc = design.findResourceClassByName("foreign-reg")
+        res = IResource(table, rc)
+        res.foreign_reg = shared_reg
         table.resources.append(res)
         return res

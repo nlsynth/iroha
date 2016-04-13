@@ -46,6 +46,10 @@ bool IsSubModuleTask(const IResourceClass &rc) {
   return (rc.GetName() == kSubModuleTask);
 }
 
+bool IsForeignRegister(const IResourceClass &rc) {
+  return (rc.GetName() == kForeignReg);
+}
+
 static void InstallResource(IDesign *design, const string &name,
 			    bool is_exclusive) {
   IResourceClass *klass = new IResourceClass(name, is_exclusive, design);
@@ -67,6 +71,7 @@ void InstallResourceClasses(IDesign *design) {
   InstallResource(design, resource::kSubModuleTask, true);
   InstallResource(design, resource::kTransition, true);
   InstallResource(design, resource::kEmbedded, true);
+  InstallResource(design, resource::kForeignReg, true);
   InstallResource(design, resource::kExtInput, true);
   InstallResource(design, resource::kExtOutput, true);
   InstallResource(design, resource::kArray, true);

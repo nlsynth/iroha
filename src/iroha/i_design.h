@@ -76,6 +76,8 @@ public:
   void SetArray(IArray *array);
   ITable *GetCalleeTable() const;
   void SetCalleeTable(ITable *table);
+  void SetForeignRegister(IRegister *reg);
+  IRegister *GetForeignRegister() const;
 
   vector<IValueType> input_types_;
   vector<IValueType> output_types_;
@@ -87,6 +89,7 @@ private:
   int id_;
   IArray *array_;
   ITable *callee_table_;
+  IRegister *foreign_register_;
 };
 
 class IChannel {
