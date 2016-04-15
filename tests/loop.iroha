@@ -1,31 +1,34 @@
+(PARAMS
+ (RESET-POLARITY true))
 (MODULE M
+  (PARAMS)
   (TABLE 1
     (REGISTERS
       (REGISTER 1 counter
-        REG 32 0
+        REG UINT 32 0
       )
       (REGISTER 2 ()
-        CONST 32 10
+        CONST UINT 32 10
       )
       (REGISTER 3 cond
-        REG 0 ()
+        REG UINT 0 ()
       )
       (REGISTER 4 ()
-        CONST 32 1
+        CONST UINT 32 1
       )
     )
     (RESOURCES
       (RESOURCE 1 tr
         () ()
-        ()
+        (PARAMS)
       )
       (RESOURCE 2 gt
-        (32 32) (0)
-        ()
+        (UINT 32 UINT 32) (UINT 0)
+        (PARAMS)
       )
       (RESOURCE 3 add
-        (32 32) (32)
-        ()
+        (UINT 32 UINT 32) (UINT 32)
+        (PARAMS)
       )
     )
     (INITIAL 1)

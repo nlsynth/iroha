@@ -55,7 +55,7 @@ Please read src/iroha/iroha.h, src/main.cpp examples/ for more details.
 * P3: More debug output from optimizers.
 * P3: Export optimizer API so that users can add own phase
 * P3: API to create copies of module, table and so on.
-* Q: Should we able to add multiple tables in a module?
+* Q: Should we be able to add multiple tables in a module?
 * Q: C++ writer or interpreter?
 * Q: Do we need instance/module separation?
 
