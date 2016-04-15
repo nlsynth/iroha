@@ -21,6 +21,8 @@ class IDesign(object):
         self.resource_classes.append(IResourceClass("gt"))
         self.resource_classes.append(IResourceClass("array"))
         self.resource_classes.append(IResourceClass("embedded"))
+        self.resource_classes.append(IResourceClass("ext_input"))
+        self.resource_classes.append(IResourceClass("ext_output"))
         self.resource_classes.append(IResourceClass("foreign-reg"))
 
     def findResourceClassByName(self, name):
@@ -351,5 +353,25 @@ class DesignTool(object):
         rc = design.findResourceClassByName("foreign-reg")
         res = IResource(table, rc)
         res.foreign_reg = shared_reg
+        table.resources.append(res)
+        return res
+
+    @classmethod
+    def CreateExtInput(cls, table, name, width):
+        design = table.module.design
+        rc = design.findResourceClassByName("ext_input")
+        res = IResource(table, rc)
+        res.resource_params.AddValue("INPUT", name)
+        res.resource_params.AddValue("WIDTH", str(width))
+        table.resources.append(res)
+        return res
+
+    @classmethod
+    def CreateExtOutput(cls, table, name, width):
+        design = table.module.design
+        rc = design.findResourceClassByName("ext_output")
+        res = IResource(table, rc)
+        res.resource_params.AddValue("OUTPUT", name)
+        res.resource_params.AddValue("WIDTH", str(width))
         table.resources.append(res)
         return res
