@@ -25,7 +25,7 @@ void InsnWriter::ExtOutput() {
   int width;
   params->GetExtOutputPort(&output_port, &width);
   os_ << I << output_port << " <= "
-      << insn_->inputs_[0]->GetName();
+      << RegisterName(*insn_->inputs_[0]);
   os_ << ";\n";
 }
 
