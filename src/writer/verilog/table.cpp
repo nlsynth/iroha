@@ -44,9 +44,13 @@ void Table::Build() {
   BuildRegister();
   BuildResource();
   BuildInsnOutputWire();
+  BuildSharedRegisters();
 }
 
 void Table::BuildStateDecl() {
+  if (states_.size() == 0) {
+    return;
+  }
   ostream &sd = tmpl_->GetStream(kStateDeclSection);
   int max_id = 0;
   for (auto *st : i_table_->states_) {
@@ -107,6 +111,9 @@ void Table::BuildResource() {
     }
     if (resource::IsSubModuleTaskCall(*klass)) {
       BuildSubModuleTaskCallResource(*res);
+    }
+    if (resource::IsForeignRegister(*klass)) {
+      BuildForeignRegister(*res);
     }
   }
 }
@@ -194,6 +201,54 @@ void Table::BuildSubModuleTaskResource(const IResource &res) {
      << StateName(kTaskEntryStateId) << ") && " << en << ";\n";
 }
 
+void Table::BuildForeignRegister(const IResource &res) {
+  vector<pair<IState *, IInsn *>> writers;
+  for (IState *st : i_table_->states_) {
+    for (IInsn *insn : st->insns_) {
+      if (insn->GetResource() == &res) {
+	if (insn->inputs_.size() > 0) {
+	  writers.push_back(make_pair(st, insn));
+	}
+      }
+    }
+  }
+  IRegister *foreign_reg = res.GetForeignRegister();
+  string res_name = SharedRegPrefix(*i_table_, *foreign_reg);
+  ostream &rs = tmpl_->GetStream(kResourceSection);
+  rs << "  // " << res_name << "\n";
+  rs << "  wire " << res_name << "_w;\n";
+  rs << "  wire " << WidthSpec(foreign_reg) << " " << res_name << "_wdata;\n";
+  if (writers.size() == 0) {
+    rs << "  assign " << res_name << "_w = 0;\n";
+    rs << "  assign " << res_name << "_wdata = 0;\n";
+    return;
+  }
+  vector<string> wen;
+  for (auto &w : writers) {
+    IState *st = w.first;
+    wen.push_back("(" + StateVariable() + " == " + Util::Itoa(st->GetId()) + ")");
+  }
+  rs << "  assign " << res_name << "_w = ";
+  rs << Util::Join(wen, " || ");
+  rs << ";\n";
+
+  string d;
+  for (auto &w : writers) {
+    IInsn *insn = w.second;
+    if (d.empty()) {
+      d = InsnWriter::RegisterName(*insn->inputs_[0]);
+    } else {
+      IState *st = w.first;
+      string t;
+      t = "(" + StateVariable() + " == " + Util::Itoa(st->GetId()) + ") ? ";
+      t += InsnWriter::RegisterName(*insn->inputs_[0]);
+      t += " : (" + d + ")";
+      d = t;
+    }
+  }
+  rs << "  assign " << res_name << "_wdata = " << d << ";\n";
+}
+
 void Table::BuildEmbededResource(const IResource &res) {
   auto *params = res.GetParams();
   embed_->RequestModule(*params);
@@ -235,11 +290,50 @@ void Table::BuildInsnOutputWire() {
   }
 }
 
+void Table::BuildSharedRegisters() {
+  const IModule *i_mod = mod_->GetIModule();
+  map<IRegister *, vector<ITable *>> writers;
+  for (auto *tab : i_mod->tables_) {
+    if (tab->GetId() == i_table_->GetId()) {
+      continue;
+    }
+    for (auto *res : tab->resources_) {
+      IRegister *reg = res->GetForeignRegister();
+      if (reg == nullptr || reg->GetTable() != i_table_) {
+	continue;
+      }
+      writers[reg].push_back(tab);
+    }
+  }
+
+  ostream &os = tmpl_->GetStream(kStateOutput + Util::Itoa(table_id_));
+  for (auto &w : writers) {
+    IRegister *reg = w.first;
+    bool is_first = true;
+    for (auto *t : w.second) {
+      os << "      ";
+      if (!is_first) {
+	os << "else ";
+      }
+      string s = SharedRegPrefix(*t, *reg);
+      os << "if (" << s << "_w) begin\n";
+      os << "        " << InsnWriter::RegisterName(*reg) << " <= ";
+      os << s << "_wdata;\n";
+      os << "      end\n";
+      is_first = false;
+    }
+  }
+}
+
 string Table::WidthSpec(const IRegister *reg) {
   if (reg->value_type_.GetWidth() > 0) {
     return " [" + Util::Itoa(reg->value_type_.GetWidth() - 1) + ":0]";
   }
   return string();
+}
+
+string Table::SharedRegPrefix(const ITable &writer, const IRegister &reg) {
+  return "shared_reg_" + Util::Itoa(writer.GetId()) + "_" + Util::Itoa(reg.GetTable()->GetId()) + "_" + Util::Itoa(reg.GetId());
 }
 
 void Table::Write(ostream &os) {
@@ -249,24 +343,28 @@ void Table::Write(ostream &os) {
     os << "!";
   }
   os << ports_->GetReset() << ") begin\n";
-  os << "      " << StateVariable() << " <= `";
-  if (IsTask()) {
-    os << StateName(kTaskEntryStateId);
-  } else {
-    os << InitialStateName();
+  if (!IsEmpty()) {
+    os << "      " << StateVariable() << " <= `";
+    if (IsTask()) {
+      os << StateName(kTaskEntryStateId);
+    } else {
+      os << InitialStateName();
+    }
+    os << ";\n";
   }
-  os << ";\n";
   os << tmpl_->GetContents(kInitialValueSection + Util::Itoa(table_id_));
   os << "    end else begin\n";
   os << tmpl_->GetContents(kStateOutput + Util::Itoa(table_id_));
-  os << "      case (" << StateVariable() << ")\n";
-  if (IsTask()) {
-    State::WriteTaskEntry(this, os);
+  if (!IsEmpty()) {
+    os << "      case (" << StateVariable() << ")\n";
+    if (IsTask()) {
+      State::WriteTaskEntry(this, os);
+    }
+    for (auto *state : states_) {
+      state->Write(os);
+    }
+    os << "      endcase\n";
   }
-  for (auto *state : states_) {
-    state->Write(os);
-  }
-  os << "      endcase\n";
   os << "    end\n";
   os << "  end\n";
 }
@@ -359,6 +457,10 @@ void Table::WriteStateUnion(const map<IState *, IInsn *> &callers,
 
 bool Table::IsTask() {
   return (task_entry_insn_ != nullptr);
+}
+
+bool Table::IsEmpty() {
+  return (states_.size() == 0);
 }
 
 string Table::TaskControlPinPrefix(const IResource &res) {

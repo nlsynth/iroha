@@ -38,6 +38,8 @@ void State::Build() {
       builder.BitArrangeOp();
     } else if (resource::IsMapped(*rc)) {
       builder.Mapped();
+    } else if (resource::IsForeignRegister(*rc)) {
+      builder.ForeignRegister();
     }
     if (rc_name != resource::kSet) {
       CopyResults(insn, true, ws);

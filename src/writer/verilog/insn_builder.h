@@ -17,6 +17,7 @@ public:
   void LightBinOp();
   void BitArrangeOp();
   void Mapped();
+  void ForeignRegister();
 
 private:
   const IInsn *insn_;

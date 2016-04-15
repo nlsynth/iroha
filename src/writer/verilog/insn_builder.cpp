@@ -78,6 +78,16 @@ void InsnBuilder::Mapped() {
   }
 }
 
+void InsnBuilder::ForeignRegister() {
+  if (insn_->outputs_.size() == 0) {
+    return;
+  }
+  os_ << "  assign " << InsnWriter::InsnOutputWireName(*insn_, 0)
+      << " = "
+      << InsnWriter::RegisterName(*(insn_->GetResource()->GetForeignRegister()))
+      << ";\n";
+}
+
 }  // namespace verilog
 }  // namespace writer
 }  // namespace iroha

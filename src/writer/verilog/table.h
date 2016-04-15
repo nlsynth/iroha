@@ -25,6 +25,7 @@ public:
   string TaskEnablePin();
   string InitialStateName();
   bool IsTask();
+  bool IsEmpty();
 
   static string TaskControlPinPrefix(const IResource &res);
 
@@ -35,6 +36,8 @@ private:
   void BuildResource();
   void BuildRegister();
   void BuildInsnOutputWire();
+  void BuildSharedRegisters();
+  void BuildForeignRegister(const IResource &res);
   void BuildExclusiveBinOpResource(const IResource &res);
   void BuildArrayResource(const IResource &res);
   void BuildMappedResource(const IResource &res);
@@ -43,6 +46,7 @@ private:
   void BuildEmbededResource(const IResource &res);
   void BuildSRAMResource(const IResource &res);
   string WidthSpec(const IRegister *reg);
+  string SharedRegPrefix(const ITable &writer, const IRegister &reg);
 
   void CollectResourceCallers(const IResource &res,
 			      const string &opr,
