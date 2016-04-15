@@ -43,4 +43,17 @@ string Util::ToLower(const string &s) {
   return l;
 }
 
+string Util::Join(const vector<string> &v, const string &sep) {
+  string r;
+  bool is_first = true;
+  for (auto &s : v) {
+    if (!is_first) {
+      r += sep;
+    }
+    r += s;
+    is_first = false;
+  }
+  return r;
+}
+
 }  // namespace iroha

@@ -33,6 +33,7 @@ public:
   static void SplitStringUsing(const string &str, const char *delim,
 			       vector<string> *output);
   static string ToLower(const string &s);
+  static string Join(const vector<string> &v, const string &sep);
 };
 
 }  // namespace iroha
