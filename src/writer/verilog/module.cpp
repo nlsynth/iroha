@@ -115,7 +115,7 @@ void Module::BuildChildModuleTaskWire(const Module &mod, ostream &is) {
       for (IResource *caller_res : caller_tab->resources_) {
 	ITable *callee_tab = caller_res->GetCalleeTable();
 	if (callee_tab == tab) {
-	  string prefix = Table::TaskControlPinPrefix(*caller_res);
+	  string prefix = Table::SubModuleTaskControlPinPrefix(*caller_res);
 	  caller_en = prefix + "_en";
 	  caller_ack = prefix + "_ack";
 	}

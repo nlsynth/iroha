@@ -24,7 +24,8 @@ st1.insns.append(iinsn)
 
 ext_output = DesignTool.CreateExtOutput(tab, "data_out", 32)
 oinsn = IInsn(ext_output)
-oinsn.inputs.append(r)
+rc = DesignTool.AllocConstNum(tab, 32, 123)
+oinsn.inputs.append(rc)
 st2.insns.append(oinsn)
 
 DesignTool.ValidateIds(d)

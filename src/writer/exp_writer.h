@@ -23,7 +23,7 @@ private:
   void WriteResource(const IResource &res);
   void WriteArrayDesc(const IResource &res);
   void WriteForeignRegDesc(const IResource &res);
-  void WriteSubModuleTaskCall(const IResource &res);
+  void WriteCalleeTaskDesc(const IResource &res);
   void WriteValue(const IValue &value);
   void WriteValueType(const IValueType &type);
   void WriteInsnParams(const vector<IRegister *> &regs);

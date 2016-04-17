@@ -110,11 +110,19 @@ IInsn *DesignUtil::GetTransitionInsn(IState *st) {
 }
 
 IInsn *DesignUtil::FindTaskEntryInsn(ITable *table) {
-  IResource *res = FindResourceByClassName(table, resource::kSubModuleTask);
-  if (res == nullptr) {
+  IResource *res = FindResourceByClassName(table, resource::kSiblingTask);
+  if (res != nullptr) {
+    IInsn *insn =
+      DesignUtil::FindInsnByResource(table->GetInitialState(), res);
+    if (insn != nullptr) {
+      return insn;
+    }
+  }
+  IResource *sub_res = FindResourceByClassName(table, resource::kSubModuleTask);
+  if (sub_res == nullptr) {
     return nullptr;
   }
-  return DesignUtil::FindInsnByResource(table->GetInitialState(), res);
+  return DesignUtil::FindInsnByResource(table->GetInitialState(), sub_res);
 }
 
 bool DesignUtil::IsTerminalState(IState *st) {

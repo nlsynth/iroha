@@ -112,6 +112,12 @@ void Table::BuildResource() {
     if (resource::IsSubModuleTaskCall(*klass)) {
       BuildSubModuleTaskCallResource(*res);
     }
+    if (resource::IsSiblingTask(*klass)) {
+      BuildSiblingTaskResource(*res);
+    }
+    if (resource::IsSiblingTaskCall(*klass)) {
+      BuildSiblingTaskCallResource(*res);
+    }
     if (resource::IsForeignRegister(*klass)) {
       BuildForeignRegister(*res);
     }
@@ -181,9 +187,30 @@ void Table::BuildSRAMResource(const IResource &res) {
   fs << ";\n";
 }
 
+void Table::BuildSiblingTaskResource(const IResource &res) {
+  ostream &rs = tmpl_->GetStream(kResourceSection);
+  rs << "  wire " << TaskEnablePin(*i_table_) << ";\n";
+}
+
+void Table::BuildSiblingTaskCallResource(const IResource &res) {
+  vector<IState *> sts;
+  for (IState *st : i_table_->states_) {
+    for (IInsn *insn : st->insns_) {
+      if (insn->GetResource() == &res) {
+	sts.push_back(st);
+      }
+    }
+  }
+  ostream &rs = tmpl_->GetStream(kResourceSection);
+  const ITable *callee_tab = res.GetCalleeTable();
+  rs << "  assign " << TaskEnablePin(*callee_tab) << " = ";
+  rs << JoinStates(sts);
+  rs << ";\n";
+}
+
 void Table::BuildSubModuleTaskCallResource(const IResource &res) {
   ostream &rs = tmpl_->GetStream(kResourceSection);
-  string prefix = TaskControlPinPrefix(res);
+  string prefix = SubModuleTaskControlPinPrefix(res);
   rs << "  reg " << prefix << "_en;\n";
   rs << "  wire " << prefix << "_ack;\n";
   ostream &is = tmpl_->GetStream(kInitialValueSection + Util::Itoa(table_id_));
@@ -191,7 +218,7 @@ void Table::BuildSubModuleTaskCallResource(const IResource &res) {
 }
 
 void Table::BuildSubModuleTaskResource(const IResource &res) {
-  string en = TaskEnablePin();
+  string en = TaskEnablePin(*i_table_);
   ports_->AddPort(en, Port::INPUT, 0);
   string ack = "task_" + Util::Itoa(table_id_) + "_ack";
   ports_->AddPort(ack, Port::OUTPUT, 0);
@@ -223,13 +250,12 @@ void Table::BuildForeignRegister(const IResource &res) {
     rs << "  assign " << res_name << "_wdata = 0;\n";
     return;
   }
-  vector<string> wen;
+  vector<IState *> sts;
   for (auto &w : writers) {
-    IState *st = w.first;
-    wen.push_back("(" + StateVariable() + " == " + Util::Itoa(st->GetId()) + ")");
+    sts.push_back(w.first);
   }
   rs << "  assign " << res_name << "_w = ";
-  rs << Util::Join(wen, " || ");
+  rs << JoinStates(sts);
   rs << ";\n";
 
   string d;
@@ -293,6 +319,7 @@ void Table::BuildInsnOutputWire() {
 void Table::BuildSharedRegisters() {
   const IModule *i_mod = mod_->GetIModule();
   map<IRegister *, vector<ITable *>> writers;
+  // Collects tables which writes to this register.
   for (auto *tab : i_mod->tables_) {
     if (tab->GetId() == i_table_->GetId()) {
       continue;
@@ -390,8 +417,13 @@ ModuleTemplate *Table::GetModuleTemplate() const {
   return tmpl_;
 }
 
-string Table::TaskEnablePin() {
-  return "task_" + Util::Itoa(table_id_) + "_en";
+string Table::TaskEnablePin(const ITable &tab) {
+  return "task_" + Util::Itoa(tab.GetId()) + "_en";
+}
+
+string Table::SubModuleTaskControlPinPrefix(const IResource &res) {
+  return "task_" + Util::Itoa(res.GetTable()->GetId())
+    + "_" + Util::Itoa(res.GetId());
 }
 
 string Table::InitialStateName() {
@@ -463,9 +495,12 @@ bool Table::IsEmpty() {
   return (states_.size() == 0);
 }
 
-string Table::TaskControlPinPrefix(const IResource &res) {
-  return "task_" + Util::Itoa(res.GetTable()->GetId())
-    + "_" + Util::Itoa(res.GetId());
+string Table::JoinStates(const vector<IState *> &sts) {
+  vector<string> conds;
+  for (IState *st : sts) {
+    conds.push_back("(" + StateVariable() + " == " + Util::Itoa(st->GetId()) + ")");
+  }
+  return Util::Join(conds, " || ");
 }
 
 }  // namespace verilog

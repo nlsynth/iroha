@@ -22,12 +22,13 @@ public:
   const string &StateVariable() const;
   string StateName(int id);
   ModuleTemplate *GetModuleTemplate() const;
-  string TaskEnablePin();
   string InitialStateName();
   bool IsTask();
   bool IsEmpty();
+  string JoinStates(const vector<IState *> &sts);
 
-  static string TaskControlPinPrefix(const IResource &res);
+  static string TaskEnablePin(const ITable &tab);
+  static string SubModuleTaskControlPinPrefix(const IResource &res);
 
   static const int kTaskEntryStateId;
 
@@ -41,6 +42,8 @@ private:
   void BuildExclusiveBinOpResource(const IResource &res);
   void BuildArrayResource(const IResource &res);
   void BuildMappedResource(const IResource &res);
+  void BuildSiblingTaskResource(const IResource &res);
+  void BuildSiblingTaskCallResource(const IResource &res);
   void BuildSubModuleTaskResource(const IResource &res);
   void BuildSubModuleTaskCallResource(const IResource &res);
   void BuildEmbededResource(const IResource &res);

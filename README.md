@@ -21,16 +21,24 @@ You may also have to (install automake, autoconf, libtool and) set up autotools 
     > $ ./iroha -v tests/min.iroha
     to get verilog output)
 
-(2) Examples to build Iroha IR from C++.
+
+(2) Example to generate Verilog from Python examples.
+
+    > $ cd examples
+    > $ python loop.py | ../iroha - -v -o loop.v
+    > (or other .py files)
+
+(3) Examples to build Iroha IR from C++.
 
     > $ cd examples
     > $ python config-examples.py
     > $ make
     > $ ./minimum
 
-(3) Example to use optimizers
+(4) Example to use optimizers
 
     > $ ./examples/xorshift | ./iroha - -opt wire_insn,clean_empty_state,clean_unreachable_state | ./iroha - -v -o /tmp/xorshift.v
+
 
 Please read src/iroha/iroha.h, src/main.cpp examples/ for more details.
 
@@ -55,7 +63,6 @@ Please read src/iroha/iroha.h, src/main.cpp examples/ for more details.
 * P3: More debug output from optimizers.
 * P3: Export optimizer API so that users can add own phase
 * P3: API to create copies of module, table and so on.
-* Q: Should we be able to add multiple tables in a module?
 * Q: C++ writer or interpreter?
 * Q: Do we need instance/module separation?
 

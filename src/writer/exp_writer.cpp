@@ -66,8 +66,9 @@ void ExpWriter::WriteResource(const IResource &res) {
   if (resource::IsForeignRegister(rc)) {
     WriteForeignRegDesc(res);
   }
-  if (resource::IsSubModuleTaskCall(rc)) {
-    WriteSubModuleTaskCall(res);
+  if (resource::IsSiblingTaskCall(rc) ||
+      resource::IsSubModuleTaskCall(rc)) {
+    WriteCalleeTaskDesc(res);
   }
   os_ << "      )\n";
 }
@@ -99,10 +100,10 @@ void ExpWriter::WriteForeignRegDesc(const IResource &res) {
   os_ << ")\n";
 }
 
-void ExpWriter::WriteSubModuleTaskCall(const IResource &res) {
+void ExpWriter::WriteCalleeTaskDesc(const IResource &res) {
   const ITable *table = res.GetCalleeTable();
   const IModule *mod = table->GetModule();
-  os_ << "        (MODULE " << mod->GetName() << " " << table->GetId() << ")\n";
+  os_ << "        (CALLEE-TABLE " << mod->GetName() << " " << table->GetId() << ")\n";
 }
 
 void ExpWriter::WriteInitialState(const ITable &tab) {

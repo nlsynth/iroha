@@ -83,7 +83,7 @@ void InsnWriter::Assert() {
 void InsnWriter::SubModuleCall() {
   string st = MultiCycleStateName(*insn_);
   IResource *res = insn_->GetResource();
-  string pin = Table::TaskControlPinPrefix(*res);
+  string pin = Table::SubModuleTaskControlPinPrefix(*res);
   os_ << I << "if (" << st << " == 0) begin\n"
       << I << "  if (" << pin << "_ack) begin\n"
       << I << "    " << pin << "_en <= 0;\n"

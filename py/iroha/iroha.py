@@ -24,6 +24,8 @@ class IDesign(object):
         self.resource_classes.append(IResourceClass("ext_input"))
         self.resource_classes.append(IResourceClass("ext_output"))
         self.resource_classes.append(IResourceClass("foreign-reg"))
+        self.resource_classes.append(IResourceClass("sibling-task"))
+        self.resource_classes.append(IResourceClass("sibling-task-call"))
 
     def findResourceClassByName(self, name):
         for rc in self.resource_classes:
@@ -157,6 +159,7 @@ class IResource(object):
         self.output_types = []
         self.resource_params = ResourceParams()
         self.foreign_reg = None
+        self.callee_table = None
 
     def Write(self, writer):
         writer.ofh.write("   (RESOURCE " + str(self.id))
@@ -174,6 +177,10 @@ class IResource(object):
         if self.foreign_reg:
             writer.ofh.write("    (FOREIGN-REG " + str(self.foreign_reg.table.id) + " ")
             writer.ofh.write(str(self.foreign_reg.id) + ")\n")
+        if self.callee_table:
+            tab = self.callee_table
+            writer.ofh.write("    (CALLEE-TABLE " + tab.module.name + " ")
+            writer.ofh.write(str(tab.id) + ")\n")
         writer.ofh.write("   )\n")
 
     def writeWidths(self, writer, types):
@@ -373,5 +380,22 @@ class DesignTool(object):
         res = IResource(table, rc)
         res.resource_params.AddValue("OUTPUT", name)
         res.resource_params.AddValue("WIDTH", str(width))
+        table.resources.append(res)
+        return res
+
+    @classmethod
+    def CreateSiblingTask(cls, table):
+        design = table.module.design
+        rc = design.findResourceClassByName("sibling-task")
+        res = IResource(table, rc)
+        table.resources.append(res)
+        return res
+
+    @classmethod
+    def CreateSiblingTaskCall(cls, table, callee):
+        design = table.module.design
+        rc = design.findResourceClassByName("sibling-task-call")
+        res = IResource(table, rc)
+        res.callee_table = callee
         table.resources.append(res)
         return res

@@ -38,6 +38,14 @@ bool IsMapped(const IResourceClass &rc) {
   return (rc.GetName() == kMapped);
 }
 
+bool IsSiblingTask(const IResourceClass &rc) {
+  return (rc.GetName() == kSiblingTask);
+}
+
+bool IsSiblingTaskCall(const IResourceClass &rc) {
+  return (rc.GetName() == kSiblingTaskCall);
+}
+
 bool IsSubModuleTaskCall(const IResourceClass &rc) {
   return (rc.GetName() == kSubModuleTaskCall);
 }
@@ -67,6 +75,8 @@ void InstallResourceClasses(IDesign *design) {
   InstallResource(design, resource::kMapped, true);
   InstallResource(design, resource::kChannelWrite, true);
   InstallResource(design, resource::kChannelRead, false);
+  InstallResource(design, resource::kSiblingTask, true);
+  InstallResource(design, resource::kSiblingTaskCall, true);
   InstallResource(design, resource::kSubModuleTaskCall, true);
   InstallResource(design, resource::kSubModuleTask, true);
   InstallResource(design, resource::kTransition, true);
