@@ -182,6 +182,9 @@ IRegister *ExpBuilder::BuildRegister(Exp *e, ITable *table) {
     value.type_ = reg->value_type_;
     reg->SetInitialValue(value);
   }
+  if (e->vec[4]->atom.str == "INT") {
+    reg->value_type_.SetIsSigned(true);
+  }
   return reg;
 }
 

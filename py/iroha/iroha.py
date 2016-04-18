@@ -138,7 +138,9 @@ class IRegister(object):
             writer.ofh.write("CONST")
         else:
             writer.ofh.write("REG")
-        writer.ofh.write(" UINT " + str(self.valueType.width) + " ")
+        writer.ofh.write(" ")
+        self.valueType.Write(writer)
+        writer.ofh.write(" ")
         if self.initialValue:
             self.initialValue.Write(writer)
         else:
@@ -202,6 +204,14 @@ class IValue(object):
 class IValueType(object):
     def __init__(self, width):
         self.width = width
+        self.isSigned = False
+
+    def Write(self, writer):
+        if self.isSigned:
+            writer.ofh.write("INT")
+        else:
+            writer.ofh.write("UINT")
+        writer.ofh.write(" " + str(self.width))
 
 class IArray(object):
     def __init__(self, address_width, data_type, is_external, is_ram):
