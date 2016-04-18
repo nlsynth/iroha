@@ -10,6 +10,7 @@
 #include "writer/verilog/internal_sram.h"
 #include "writer/verilog/ports.h"
 #include "writer/verilog/table.h"
+#include "writer/verilog/task.h"
 
 namespace iroha {
 namespace writer {
@@ -115,7 +116,7 @@ void Module::BuildChildModuleTaskWire(const Module &mod, ostream &is) {
       for (IResource *caller_res : caller_tab->resources_) {
 	ITable *callee_tab = caller_res->GetCalleeTable();
 	if (callee_tab == tab) {
-	  string prefix = Table::SubModuleTaskControlPinPrefix(*caller_res);
+	  string prefix = Task::SubModuleTaskControlPinPrefix(*caller_res);
 	  caller_en = prefix + "_en";
 	  caller_ack = prefix + "_ack";
 	}

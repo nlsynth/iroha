@@ -9,6 +9,7 @@
 #include "writer/verilog/insn_writer.h"
 #include "writer/verilog/module.h"
 #include "writer/verilog/table.h"
+#include "writer/verilog/task.h"
 
 static const char I[] = "        ";
 
@@ -186,8 +187,8 @@ void State::WriteTransition(ostream &os) {
 }
 
 void State::WriteTaskEntry(Table *tab, ostream &os) {
-  os << I << "`" << tab->StateName(Table::kTaskEntryStateId) << ": begin\n";
-  os << I << "  if (" << Table::TaskEnablePin(*tab->GetITable()) << ") begin\n"
+  os << I << "`" << tab->StateName(Task::kTaskEntryStateId) << ": begin\n";
+  os << I << "  if (" << Task::TaskEnablePin(*tab->GetITable()) << ") begin\n"
      << I << "    " << tab->StateVariable() << " <= `"
      << tab->InitialStateName() << ";\n";
   os << I << "  end\n"

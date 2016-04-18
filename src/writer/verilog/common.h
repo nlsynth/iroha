@@ -18,6 +18,7 @@ class InternalSRAM;
 class Module;
 class State;
 class Table;
+class Task;
 class Ports;
 
 }  // namespace verilog

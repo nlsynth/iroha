@@ -6,6 +6,7 @@
 #include "iroha/resource_params.h"
 #include "writer/verilog/state.h"
 #include "writer/verilog/table.h"
+#include "writer/verilog/task.h"
 
 static const char I[] = "          ";
 
@@ -83,7 +84,7 @@ void InsnWriter::Assert() {
 void InsnWriter::SubModuleCall() {
   string st = MultiCycleStateName(*insn_);
   IResource *res = insn_->GetResource();
-  string pin = Table::SubModuleTaskControlPinPrefix(*res);
+  string pin = Task::SubModuleTaskControlPinPrefix(*res);
   os_ << I << "if (" << st << " == 0) begin\n"
       << I << "  if (" << pin << "_ack) begin\n"
       << I << "    " << pin << "_en <= 0;\n"

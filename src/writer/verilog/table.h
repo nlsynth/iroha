@@ -26,11 +26,7 @@ public:
   bool IsTask();
   bool IsEmpty();
   string JoinStates(const vector<IState *> &sts);
-
-  static string TaskEnablePin(const ITable &tab);
-  static string SubModuleTaskControlPinPrefix(const IResource &res);
-
-  static const int kTaskEntryStateId;
+  Ports *GetPorts() const;
 
 private:
   void BuildStateDecl();
@@ -42,9 +38,7 @@ private:
   void BuildExclusiveBinOpResource(const IResource &res);
   void BuildArrayResource(const IResource &res);
   void BuildMappedResource(const IResource &res);
-  void BuildSiblingTaskResource(const IResource &res);
   void BuildSiblingTaskCallResource(const IResource &res);
-  void BuildSubModuleTaskResource(const IResource &res);
   void BuildSubModuleTaskCallResource(const IResource &res);
   void BuildEmbededResource(const IResource &res);
   void BuildSRAMResource(const IResource &res);
@@ -70,8 +64,8 @@ private:
   ModuleTemplate *tmpl_;
   int table_id_;
   string st_;
-  IInsn *task_entry_insn_;
   vector<State *> states_;
+  unique_ptr<Task> task_;
 };
 
 }  // namespace verilog
