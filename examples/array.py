@@ -22,8 +22,8 @@ array = design_tool.CreateArrayResource(
 )
 
 write_insn = IInsn(array)
-addr = design_tool.AllocConstNum(tab, 10, 0)
-wdata = design_tool.AllocConstNum(tab, 32, 123)
+addr = design_tool.AllocConstNum(tab, False, 10, 0)
+wdata = design_tool.AllocConstNum(tab, False, 32, 123)
 write_insn.inputs.append(addr)
 write_insn.inputs.append(wdata)
 st1.insns.append(write_insn)

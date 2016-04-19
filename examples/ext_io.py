@@ -25,7 +25,7 @@ st1.insns.append(iinsn)
 
 ext_output = design_tool.CreateExtOutput(tab, "data_out", 32)
 oinsn = IInsn(ext_output)
-rc = design_tool.AllocConstNum(tab, 32, 123)
+rc = design_tool.AllocConstNum(tab, False, 32, 123)
 oinsn.inputs.append(rc)
 st2.insns.append(oinsn)
 

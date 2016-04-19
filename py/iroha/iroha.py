@@ -21,6 +21,8 @@ class IDesign(object):
         self.resource_classes.append(IResourceClass("gt"))
         self.resource_classes.append(IResourceClass("array"))
         self.resource_classes.append(IResourceClass("embedded"))
+        self.resource_classes.append(IResourceClass("assert"))
+        self.resource_classes.append(IResourceClass("print"))
         self.resource_classes.append(IResourceClass("ext_input"))
         self.resource_classes.append(IResourceClass("ext_output"))
         self.resource_classes.append(IResourceClass("foreign-reg"))
@@ -122,7 +124,7 @@ class IRegister(object):
         self.id = -1
         self.name = name
         self.initialValue = None
-        self.valueType = IValueType(32)
+        self.valueType = IValueType(False, 32)
         self.isConst = False
         self.table = table
 
@@ -150,6 +152,9 @@ class IRegister(object):
 
     def SetInitialValue(self, int_val):
         self.initialValue = IValue(int_val)
+
+    def SetType(self, is_signed, width):
+        self.valueType = IValueType(is_signed, width)
 
 class IResource(object):
     def __init__(self, table, resource_class):
@@ -202,9 +207,9 @@ class IValue(object):
         writer.ofh.write(str(self.val))
 
 class IValueType(object):
-    def __init__(self, width):
+    def __init__(self, isSigned, width):
         self.width = width
-        self.isSigned = False
+        self.isSigned = isSigned
 
     def Write(self, writer):
         if self.isSigned:

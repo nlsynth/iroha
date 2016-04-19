@@ -10,7 +10,7 @@ def GetResource(table, name):
     table.resources.append(res)
     return res
 
-def GetBinOpResource(table, name, width):
+def GetBinOpResource(table, name, isSigned, width):
     design = table.module.design
     rc = design.findResourceClassByName(name)
     for res in table.resources:
@@ -18,11 +18,11 @@ def GetBinOpResource(table, name, width):
             if res.input_types[0].width == width:
                 return res
     res = IResource(table, rc)
-    t = IValueType(width)
+    t = IValueType(isSigned, width)
     res.input_types.append(t)
     res.input_types.append(t)
     if name == "gt":
-        res.output_types.append(IValueType(0))
+        res.output_types.append(IValueType(isSigned, 0))
     else:
         res.output_types.append(t)
     table.resources.append(res)
@@ -56,15 +56,15 @@ def doValidateIds(objs):
         unusedId = unusedId + 1
 
 def CreateArrayResource(table, addr_width, data_width, is_external, is_ram):
-    data_type = IValueType(data_width)
+    data_type = IValueType(False, data_width)
     res = GetResource(table, "array")
     res.array = IArray(addr_width, data_type, is_external, is_ram)
     return res
 
-def AllocConstNum(table, width, val):
+def AllocConstNum(table, isSigned, width, val):
     reg = IRegister(table, "")
     reg.initialValue = IValue(val)
-    reg.valueType = IValueType(width)
+    reg.valueType = IValueType(isSigned, width)
     reg.isConst = True
     return reg
 
