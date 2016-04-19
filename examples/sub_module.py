@@ -1,6 +1,7 @@
 import sys
 sys.path.append('../py')
 
+from iroha import *
 from iroha.iroha import *
 
 d = IDesign()
@@ -12,7 +13,7 @@ mod_sub = IModule(d, "M_sub")
 mod_sub.parent_module = mod_top
 tab_sub = ITable(mod_sub)
 
-DesignTool.ValidateIds(d)
+design_tool.ValidateIds(d)
 
 w = DesignWriter(d)
 w.Write()

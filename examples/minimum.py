@@ -1,6 +1,7 @@
 import sys
 sys.path.append('../py')
 
+from iroha import *
 from iroha.iroha import *
 
 d = IDesign()
@@ -18,18 +19,18 @@ r2 = IRegister(tab, "r2")
 
 r2.SetInitialValue(123)
 
-assign = DesignTool.GetResource(tab, "set")
+assign = design_tool.GetResource(tab, "set")
 insn = IInsn(assign)
 insn.inputs.append(r2)
 insn.outputs.append(r1)
 st1.insns.append(insn)
 
-tr = DesignTool.GetResource(tab, "tr")
+tr = design_tool.GetResource(tab, "tr")
 tr_insn = IInsn(tr)
 st1.insns.append(tr_insn)
 tr_insn.target_states.append(st2)
 
-DesignTool.ValidateIds(d)
+design_tool.ValidateIds(d)
 
 w = DesignWriter(d)
 w.Write()

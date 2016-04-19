@@ -1,12 +1,13 @@
 import sys
 sys.path.append('../py')
 
+from iroha import *
 from iroha.iroha import *
 
 d = IDesign()
 mod = IModule(d, "mod")
 
-shared_reg = DesignTool.CreateSharedRegister(mod)
+shared_reg = design_tool.CreateSharedRegister(mod)
 
 tab1 = ITable(mod)
 st1 = IState(tab1)
@@ -15,8 +16,8 @@ tab1.initialSt = st1
 st12 = IState(tab1)
 tab1.states.append(st12)
 
-foreign_reg1 = DesignTool.CreateForeignRegister(tab1, shared_reg)
-assign = DesignTool.GetResource(tab1, "set")
+foreign_reg1 = design_tool.CreateForeignRegister(tab1, shared_reg)
+assign = design_tool.GetResource(tab1, "set")
 # write
 w_insn1 = IInsn(foreign_reg1)
 r11 = IRegister(tab1, "r11")
@@ -38,7 +39,7 @@ tab2.initialSt = st2
 st22 = IState(tab2)
 tab2.states.append(st22)
 
-foreign_reg2 = DesignTool.CreateForeignRegister(tab2, shared_reg)
+foreign_reg2 = design_tool.CreateForeignRegister(tab2, shared_reg)
 # write
 w_insn2 = IInsn(foreign_reg2)
 r21 = IRegister(tab2, "r21")
@@ -52,7 +53,7 @@ r22.SetInitialValue(789)
 w_insn22.inputs.append(r22)
 st22.insns.append(w_insn22)
 
-DesignTool.ValidateIds(d)
+design_tool.ValidateIds(d)
 
 w = DesignWriter(d)
 w.Write()
