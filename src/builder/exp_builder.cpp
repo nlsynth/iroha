@@ -173,17 +173,13 @@ IRegister *ExpBuilder::BuildRegister(Exp *e, ITable *table) {
   } else {
     SetError() << "Unknown register class: " << type;
   }
-  const string &width = e->vec[5]->atom.str;
-  reg->value_type_.SetWidth(Util::Atoi(width));
+  BuildValueType(e->vec[4], e->vec[5], &reg->value_type_);
   if (!e->vec[6]->atom.str.empty()) {
     const string &ini = e->vec[6]->atom.str;
     IValue value;
     value.value_ = Util::Atoi(ini);
     value.type_ = reg->value_type_;
     reg->SetInitialValue(value);
-  }
-  if (e->vec[4]->atom.str == "INT") {
-    reg->value_type_.SetIsSigned(true);
   }
   return reg;
 }
@@ -273,7 +269,8 @@ void ExpBuilder::BuildArray(Exp *e, IResource *res) {
     return;
   }
   int address_width = Util::Atoi(e->vec[1]->atom.str);
-  int data_width = Util::Atoi(e->vec[3]->atom.str);
+  IValueType data_type;
+  BuildValueType(e->vec[2], e->vec[3], &data_type);
   bool is_external;
   const string &v = e->vec[4]->atom.str;
   if (v == "EXTERNAL") {
@@ -294,8 +291,6 @@ void ExpBuilder::BuildArray(Exp *e, IResource *res) {
     SetError() << "Array should be either RAM or ROM";
     return;
   }
-  IValueType data_type;
-  data_type.SetWidth(data_width);
   IArray *array = new IArray(address_width, data_type, is_external, is_ram);
   res->SetArray(array);
 }
@@ -313,10 +308,17 @@ void ExpBuilder::BuildResourceParams(Exp *e, ResourceParams *params) {
 
 void ExpBuilder::BuildParamTypes(Exp *e, vector<IValueType> *types) {
   for (int i = 0; i < e->vec.size(); i += 2) {
-    Exp *t = e->vec[i + 1];
     IValueType type;
-    type.SetWidth(Util::Atoi(t->atom.str));
+    BuildValueType(e->vec[i], e->vec[i + 1], &type);
     types->push_back(type);
+  }
+}
+
+void ExpBuilder::BuildValueType(Exp *t, Exp *w, IValueType *vt) {
+  const string &width = w->atom.str;
+  vt->SetWidth(Util::Atoi(width));
+  if (t->atom.str == "INT") {
+    vt->SetIsSigned(true);
   }
 }
 

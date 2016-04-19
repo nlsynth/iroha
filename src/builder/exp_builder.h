@@ -36,6 +36,7 @@ private:
   IResource *BuildResource(Exp *e, ITable *table);
   void BuildResourceParams(Exp *e, ResourceParams *params);
   void BuildParamTypes(Exp *e, vector<IValueType> *types);
+  void BuildValueType(Exp *t, Exp *w, IValueType *vt);
   bool HasError();
 
   bool has_error_;
