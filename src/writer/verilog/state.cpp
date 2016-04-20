@@ -130,7 +130,7 @@ void State::WriteTransitionBody(ostream &os) {
   if (DesignUtil::IsTerminalState(i_state_) &&
       table_->IsTask()) {
     os << I << "  " << sv << " <= `"
-       << table_->InitialStateName()
+       << table_->StateName(Task::kTaskEntryStateId)
        << ";\n";
     return;
   }
