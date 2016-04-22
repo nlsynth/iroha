@@ -16,6 +16,7 @@ namespace verilog {
 class Embed;
 class InternalSRAM;
 class Module;
+class Resource;
 class State;
 class Table;
 class Task;

@@ -25,8 +25,12 @@ public:
   string InitialStateName();
   bool IsTask();
   bool IsEmpty();
-  string JoinStates(const vector<IState *> &sts);
   Ports *GetPorts() const;
+  Embed *GetEmbed() const;
+  Module *GetModule() const;
+  Task *GetTask() const;
+  string SharedRegPrefix(const ITable &writer, const IRegister &reg) const;
+  static string WidthSpec(const IRegister *reg);
 
 private:
   void BuildStateDecl();
@@ -34,28 +38,6 @@ private:
   void BuildRegister();
   void BuildInsnOutputWire();
   void BuildSharedRegisters();
-  void BuildForeignRegister(const IResource &res);
-  void BuildExclusiveBinOpResource(const IResource &res);
-  void BuildArrayResource(const IResource &res);
-  void BuildMappedResource(const IResource &res);
-  void BuildSiblingTaskCallResource(const IResource &res);
-  void BuildSubModuleTaskCallResource(const IResource &res);
-  void BuildEmbededResource(const IResource &res);
-  void BuildSRAMResource(const IResource &res);
-  string WidthSpec(const IRegister *reg);
-  string SharedRegPrefix(const ITable &writer, const IRegister &reg);
-
-  void CollectResourceCallers(const IResource &res,
-			      const string &opr,
-			      map<IState *, IInsn *> *callers);
-  void WriteWire(const string &name, const IValueType &type,
-		 ostream &os);
-  void WriteInputSel(const string &name, const IResource &res,
-		     const map<IState *, IInsn *> &callers,
-		     int nth,
-		     ostream &os);
-  void WriteStateUnion(const map<IState *, IInsn *> &callers,
-		       ostream &os);
 
   ITable *i_table_;
   Ports *ports_;

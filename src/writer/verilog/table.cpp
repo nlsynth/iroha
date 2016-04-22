@@ -11,6 +11,7 @@
 #include "writer/verilog/internal_sram.h"
 #include "writer/verilog/module.h"
 #include "writer/verilog/ports.h"
+#include "writer/verilog/resource.h"
 #include "writer/verilog/state.h"
 #include "writer/verilog/task.h"
 
@@ -78,190 +79,11 @@ void Table::BuildStateDecl() {
 
 void Table::BuildResource() {
   for (auto *res : i_table_->resources_) {
-    auto *klass = res->GetClass();
-    auto *params = res->GetParams();
-    if (klass->GetName() == resource::kExtInput) {
-      string input_port;
-      int width;
-      params->GetExtInputPort(&input_port, &width);
-      ports_->AddPort(input_port, Port::INPUT, width);
-    }
-    if (klass->GetName() == resource::kExtOutput) {
-      string output_port;
-      int width;
-      params->GetExtOutputPort(&output_port, &width);
-      ports_->AddPort(output_port, Port::OUTPUT, width);
-    }
-    if (klass->GetName() == resource::kEmbedded) {
-      BuildEmbededResource(*res);
-    }
-    if (resource::IsExclusiveBinOp(*klass)) {
-      BuildExclusiveBinOpResource(*res);
-    }
-    if (resource::IsMapped(*klass)) {
-      BuildMappedResource(*res);
-    }
-    if (resource::IsArray(*klass)) {
-      BuildArrayResource(*res);
-    }
-    if (resource::IsSubModuleTask(*klass)) {
-      task_->BuildSubModuleTaskResource(*res);
-    }
-    if (resource::IsSubModuleTaskCall(*klass)) {
-      BuildSubModuleTaskCallResource(*res);
-    }
-    if (resource::IsSiblingTask(*klass)) {
-      task_->BuildSiblingTaskResource(*res);
-    }
-    if (resource::IsSiblingTaskCall(*klass)) {
-      BuildSiblingTaskCallResource(*res);
-    }
-    if (resource::IsForeignRegister(*klass)) {
-      BuildForeignRegister(*res);
+    unique_ptr<Resource> builder(Resource::Create(*res, *this));
+    if (builder.get()) {
+      builder->Build();
     }
   }
-}
-
-void Table::BuildExclusiveBinOpResource(const IResource &res) {
-  ostream &rs = tmpl_->GetStream(kResourceSection);
-  const string &res_name = res.GetClass()->GetName();
-  rs << "  // " << res_name << ":" << res.GetId() << "\n";
-  map<IState *, IInsn *> callers;
-  CollectResourceCallers(res, "", &callers);
-  if (callers.size() == 0) {
-    return;
-  }
-  string name = InsnWriter::ResourceName(res);
-  WriteInputSel(name + "_s0", res, callers, 0, rs);
-  WriteInputSel(name + "_s1", res, callers, 1, rs);
-  WriteWire(name + "_d0", res.output_types_[0], rs);
-
-  rs << "  assign " << name << + "_d0 = "
-     << name + "_s0 ";
-  if (res_name == resource::kGt) {
-    rs << ">";
-  } else if (res_name == resource::kAdd) {
-    rs << "+";
-  } else {
-    LOG(FATAL) << "Unknown binop" << res_name;
-  }
-  rs << " " << name + "_s1;\n";
-}
-
-void Table::BuildArrayResource(const IResource &res) {
-}
-
-void Table::BuildMappedResource(const IResource &res) {
-  auto *params = res.GetParams();
-  if (params->GetMappedName() == "mem") {
-    BuildSRAMResource(res);
-  }
-}
-
-void Table::BuildSRAMResource(const IResource &res) {
-  InternalSRAM *sram = mod_->RequestInternalSRAM(res);
-  ostream &es = tmpl_->GetStream(kEmbeddedInstanceSection);
-  string name = sram->GetModuleName();
-  string res_id = Util::Itoa(res.GetId());
-  string inst = name + "_inst_" + res_id;
-  es << "  " << name << " " << inst << "("
-     << ".clk(" << ports_->GetClk() << ")"
-     << ", ." << sram->GetResetPinName() << "(" << ports_->GetReset() << ")"
-     << ", .addr_i(sram_addr_" << res_id << ")"
-     << ", .rdata_o(sram_rdata_" << res_id << ")"
-     << ", .wdata_i(sram_wdata_" << res_id << ")"
-     << ", .write_en_i(sram_wdata_en_" << res_id << ")"
-     <<");\n";
-  ostream &rs = tmpl_->GetStream(kResourceSection);
-  rs << "  reg " << sram->AddressWidthSpec() << "sram_addr_" << res_id << ";\n"
-     << "  wire " << sram->DataWidthSpec() << "sram_rdata_" << res_id << ";\n"
-     << "  reg " << sram->DataWidthSpec() << "sram_wdata_" << res_id << ";\n"
-     << "  reg sram_wdata_en_" << res_id << ";\n";
-  map<IState *, IInsn *> callers;
-  CollectResourceCallers(res, "sram_write", &callers);
-  ostream &fs = tmpl_->GetStream(kStateOutput + Util::Itoa(table_id_));
-  fs << "      sram_wdata_en_" << res_id << " <= ";
-  WriteStateUnion(callers, fs);
-  fs << ";\n";
-}
-
-void Table::BuildSiblingTaskCallResource(const IResource &res) {
-  vector<IState *> sts;
-  for (IState *st : i_table_->states_) {
-    for (IInsn *insn : st->insns_) {
-      if (insn->GetResource() == &res) {
-	sts.push_back(st);
-      }
-    }
-  }
-  ostream &rs = tmpl_->GetStream(kResourceSection);
-  const ITable *callee_tab = res.GetCalleeTable();
-  rs << "  assign " << Task::TaskEnablePin(*callee_tab) << " = ";
-  rs << JoinStates(sts);
-  rs << ";\n";
-}
-
-void Table::BuildSubModuleTaskCallResource(const IResource &res) {
-  ostream &rs = tmpl_->GetStream(kResourceSection);
-  string prefix = Task::SubModuleTaskControlPinPrefix(res);
-  rs << "  reg " << prefix << "_en;\n";
-  rs << "  wire " << prefix << "_ack;\n";
-  ostream &is = tmpl_->GetStream(kInitialValueSection + Util::Itoa(table_id_));
-  is << "      " << prefix << "_en <= 0;\n";
-}
-
-void Table::BuildForeignRegister(const IResource &res) {
-  vector<pair<IState *, IInsn *>> writers;
-  for (IState *st : i_table_->states_) {
-    for (IInsn *insn : st->insns_) {
-      if (insn->GetResource() == &res) {
-	if (insn->inputs_.size() > 0) {
-	  writers.push_back(make_pair(st, insn));
-	}
-      }
-    }
-  }
-  IRegister *foreign_reg = res.GetForeignRegister();
-  string res_name = SharedRegPrefix(*i_table_, *foreign_reg);
-  ostream &rs = tmpl_->GetStream(kResourceSection);
-  rs << "  // " << res_name << "\n";
-  rs << "  wire " << res_name << "_w;\n";
-  rs << "  wire " << WidthSpec(foreign_reg) << " " << res_name << "_wdata;\n";
-  if (writers.size() == 0) {
-    rs << "  assign " << res_name << "_w = 0;\n";
-    rs << "  assign " << res_name << "_wdata = 0;\n";
-    return;
-  }
-  vector<IState *> sts;
-  for (auto &w : writers) {
-    sts.push_back(w.first);
-  }
-  rs << "  assign " << res_name << "_w = ";
-  rs << JoinStates(sts);
-  rs << ";\n";
-
-  string d;
-  for (auto &w : writers) {
-    IInsn *insn = w.second;
-    if (d.empty()) {
-      d = InsnWriter::RegisterName(*insn->inputs_[0]);
-    } else {
-      IState *st = w.first;
-      string t;
-      t = "(" + StateVariable() + " == " + Util::Itoa(st->GetId()) + ") ? ";
-      t += InsnWriter::RegisterName(*insn->inputs_[0]);
-      t += " : (" + d + ")";
-      d = t;
-    }
-  }
-  rs << "  assign " << res_name << "_wdata = " << d << ";\n";
-}
-
-void Table::BuildEmbededResource(const IResource &res) {
-  auto *params = res.GetParams();
-  embed_->RequestModule(*params);
-  ostream &is = tmpl_->GetStream(kEmbeddedInstanceSection);
-  embed_->BuildModuleInstantiation(res, *ports_, is);
 }
 
 void Table::BuildRegister() {
@@ -341,7 +163,7 @@ string Table::WidthSpec(const IRegister *reg) {
   return string();
 }
 
-string Table::SharedRegPrefix(const ITable &writer, const IRegister &reg) {
+string Table::SharedRegPrefix(const ITable &writer, const IRegister &reg) const {
   return "shared_reg_" + Util::Itoa(writer.GetId()) + "_" + Util::Itoa(reg.GetTable()->GetId()) + "_" + Util::Itoa(reg.GetId());
 }
 
@@ -407,59 +229,6 @@ string Table::InitialStateName() {
   return StateName(initial_st->GetId());
 }
 
-void Table::CollectResourceCallers(const IResource &res,
-				   const string &opr,
-				   map<IState *, IInsn *> *callers) {
-  for (auto *st : i_table_->states_) {
-    for (auto *insn : st->insns_) {
-      if (insn->GetResource() == &res &&
-	  insn->GetOperand() == opr) {
-	callers->insert(make_pair(st, insn));
-      }
-    }
-  }
-}
-
-void Table::WriteWire(const string &name, const IValueType &type,
-		      ostream &os) {
-  os << "  wire ";
-  int width = type.GetWidth();
-  if (width > 0) {
-    os << "[" << (width - 1) << ":0] ";
-  }
-  os << name << ";\n";
-}
-
-void Table::WriteInputSel(const string &name, const IResource &res,
-			  const map<IState *, IInsn *> &callers,
-			  int nth,
-			  ostream &os) {
-  WriteWire(name, res.input_types_[nth], os);
-  os << "  assign " << name << " = ";
-  if (callers.size() == 1) {
-    IInsn *insn = (callers.begin())->second;
-    os << InsnWriter::RegisterName(*insn->inputs_[nth]);
-  } else {
-    LOG(FATAL) << "TODO(yt76): Input selector";
-  }
-  os << ";\n";
-}
-
-void Table::WriteStateUnion(const map<IState *, IInsn *> &callers,
-			    ostream &os) {
-  if (callers.size() == 0) {
-    os << "0";
-  }
-  bool is_first = true;
-  for (auto &c : callers) {
-    if (!is_first) {
-      os << " | ";
-    }
-    os << "(" << StateVariable() << " == " << c.first->GetId() << ")";
-    is_first = false;
-  }
-}
-
 bool Table::IsTask() {
   return (task_.get() != nullptr);
 }
@@ -468,16 +237,20 @@ bool Table::IsEmpty() {
   return (states_.size() == 0);
 }
 
-string Table::JoinStates(const vector<IState *> &sts) {
-  vector<string> conds;
-  for (IState *st : sts) {
-    conds.push_back("(" + StateVariable() + " == " + Util::Itoa(st->GetId()) + ")");
-  }
-  return Util::Join(conds, " || ");
-}
-
 Ports *Table::GetPorts() const {
   return ports_;
+}
+
+Embed *Table::GetEmbed() const {
+  return embed_;
+}
+
+Module *Table::GetModule() const {
+  return mod_;
+}
+
+Task *Table::GetTask() const {
+  return task_.get();
 }
 
 }  // namespace verilog
