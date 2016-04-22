@@ -14,6 +14,26 @@ Exp::~Exp() {
   }
 }
 
+const string &Exp::GetHead() {
+  static string empty_string;
+  if (vec.size() == 0) {
+    return empty_string;
+  }
+  return vec[0]->atom.str;
+}
+
+const string &Exp::Str(int nth) {
+  if (nth < vec.size()) {
+    return vec[nth]->atom.str;
+  }
+  static string empty_string;
+  return empty_string;
+}
+
+int Exp::Size() {
+  return vec.size();
+}
+
 File *Reader::ReadFile(const string &fn) {
   std::istream *ifs;
   unique_ptr<istream> ifs_deleter;

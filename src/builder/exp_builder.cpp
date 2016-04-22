@@ -33,18 +33,19 @@ IDesign *ExpBuilder::Build(vector<Exp *> &exps) {
   IDesign *design = new IDesign;
   tree_builder_.reset(new TreeBuilder(design, this));
   for (Exp *root : exps) {
-    if (root->vec.size() == 0) {
+    if (root->Size() == 0) {
       SetError() << "Empty toplevel expression\n";
       continue;
     }
-    if (root->vec[0]->atom.str == "MODULE") {
+    const string &element_name = root->GetHead();
+    if (element_name == "MODULE") {
       IModule *module = BuildModule(root, design);
       if (module) {
 	design->modules_.push_back(module);
       } else {
 	SetError();
       }
-    } else if (root->vec[0]->atom.str == "PARAMS") {
+    } else if (element_name == "PARAMS") {
       BuildResourceParams(root, design->GetParams());
     } else {
       SetError() << "Unsupported toplevel expression";
@@ -62,28 +63,32 @@ IDesign *ExpBuilder::Build(vector<Exp *> &exps) {
 }
 
 IModule *ExpBuilder::BuildModule(Exp *e, IDesign *design) {
-  if (e->vec.size() < 3) {
+  if (e->Size() < 3) {
     SetError() << "Insufficient elements for a module";
     return nullptr;
   }
-  IModule *module = new IModule(design, e->vec[1]->atom.str);
-  for (int i = 2; i < e->vec.size(); ++i) {
-    if (e->vec[i]->vec.size() == 0) {
+  IModule *module = new IModule(design, e->Str(1));
+  for (int i = 2; i < e->Size(); ++i) {
+    Exp *element = e->vec[i];
+    if (element->Size() == 0) {
       SetError();
-    } else if (e->vec[i]->vec[0]->atom.str == "TABLE") {
-      ITable *table = BuildTable(e->vec[i], module);
+      continue;
+    }
+    const string &element_name = element->GetHead();
+    if (element_name == "TABLE") {
+      ITable *table = BuildTable(element, module);
       if (table) {
 	module->tables_.push_back(table);
       } else {
 	SetError() << "Failed to build a table";
       }
-    } else if (e->vec[i]->vec[0]->atom.str == "PARAMS") {
-      BuildResourceParams(e->vec[i], module->GetParams());
-    } else if (e->vec[i]->vec[0]->atom.str == "PARENT") {
-      if (e->vec[i]->vec.size() != 2) {
+    } else if (element_name == "PARAMS") {
+      BuildResourceParams(element, module->GetParams());
+    } else if (element_name == "PARENT") {
+      if (element->Size() != 2) {
 	SetError();
       } else {
-	tree_builder_->AddParentModule(e->vec[i]->vec[1]->atom.str, module);
+	tree_builder_->AddParentModule(element->Str(1), module);
       }
     } else {
       SetError();
@@ -93,7 +98,7 @@ IModule *ExpBuilder::BuildModule(Exp *e, IDesign *design) {
 }
 
 ITable *ExpBuilder::BuildTable(Exp *e, IModule *module) {
-  if (e->vec.size() < 2) {
+  if (e->Size() < 2) {
     SetError() << "Insufficient elements for a table";
     return nullptr;
   }
@@ -102,20 +107,21 @@ ITable *ExpBuilder::BuildTable(Exp *e, IModule *module) {
     SetError() << "Expecting table id";
     return nullptr;
   } else {
-    id = Util::Atoi(e->vec[1]->atom.str);
+    id = Util::Atoi(e->Str(1));
   }
   ITable *table = new ITable(module);
   table->SetId(id);
-  for (int i = 2; i < e->vec.size(); ++i) {
-    if (e->vec[i]->vec.size() == 0) {
+  for (int i = 2; i < e->Size(); ++i) {
+    Exp *element = e->vec[i];
+    if (element->Size() == 0) {
       SetError() << "Expecting lists in table definition";
       return nullptr;
     }
-    const string &tag = e->vec[i]->vec[0]->atom.str;
+    const string &tag = element->GetHead();
     if (tag == "REGISTERS") {
-      BuildRegisters(e->vec[i], table);
+      BuildRegisters(element, table);
     } else if (tag == "RESOURCES") {
-      BuildResources(e->vec[i], table);
+      BuildResources(element, table);
     } else if (tag == "INITIAL") {
       // Do the parsing later.
     } else if (tag == "STATE") {
@@ -125,12 +131,13 @@ ITable *ExpBuilder::BuildTable(Exp *e, IModule *module) {
     }
   }
   FsmBuilder fsm_builder(table, this);
-  for (int i = 2; i < e->vec.size(); ++i) {
-    const string &tag = e->vec[i]->vec[0]->atom.str;
+  for (int i = 2; i < e->Size(); ++i) {
+    Exp *element = e->vec[i];
+    const string &tag = element->GetHead();
     if (tag == "STATE") {
-      fsm_builder.AddState(e->vec[i]);
+      fsm_builder.AddState(element);
     } else if (tag == "INITIAL") {
-      fsm_builder.SetInitialState(e->vec[i]);
+      fsm_builder.SetInitialState(element);
     }
   }
   fsm_builder.ResolveInsns();
@@ -138,12 +145,13 @@ ITable *ExpBuilder::BuildTable(Exp *e, IModule *module) {
 }
 
 void ExpBuilder::BuildRegisters(Exp *e, ITable *table) {
-  for (int i = 1; i < e->vec.size(); ++i) {
-    if (e->vec[i]->vec.size() == 0) {
+  for (int i = 1; i < e->Size(); ++i) {
+    Exp *element = e->vec[i];
+    if (element->Size() == 0) {
       SetError() << "Register should be defined as a list";
       return;
     }
-    IRegister *reg = BuildRegister(e->vec[i], table);
+    IRegister *reg = BuildRegister(element, table);
     if (reg != nullptr) {
       table->registers_.push_back(reg);
     }
@@ -151,19 +159,19 @@ void ExpBuilder::BuildRegisters(Exp *e, ITable *table) {
 }
 
 IRegister *ExpBuilder::BuildRegister(Exp *e, ITable *table) {
-  if (e->vec[0]->atom.str != "REGISTER") {
+  if (e->GetHead() != "REGISTER") {
     SetError() << "Only REGISTER can be allowed";
     return nullptr;
   }
-  if (e->vec.size() != 7) {
+  if (e->Size() != 7) {
     SetError() << "Insufficient parameters for a register";
     return nullptr;
   }
-  const string &name = e->vec[2]->atom.str;
-  int id = Util::Atoi(e->vec[1]->atom.str);
+  const string &name = e->Str(2);
+  int id = Util::Atoi(e->Str(1));
   IRegister *reg = new IRegister(table, name);
   reg->SetId(id);
-  const string &type = e->vec[3]->atom.str;
+  const string &type = e->Str(3);
   if (type == "REG") {
     // do nothing.
   } else if (type == "CONST") {
@@ -174,8 +182,8 @@ IRegister *ExpBuilder::BuildRegister(Exp *e, ITable *table) {
     SetError() << "Unknown register class: " << type;
   }
   BuildValueType(e->vec[4], e->vec[5], &reg->value_type_);
-  if (!e->vec[6]->atom.str.empty()) {
-    const string &ini = e->vec[6]->atom.str;
+  if (!e->Str(6).empty()) {
+    const string &ini = e->Str(6);
     IValue value;
     value.value_ = Util::Atoi(ini);
     value.type_ = reg->value_type_;
@@ -185,12 +193,13 @@ IRegister *ExpBuilder::BuildRegister(Exp *e, ITable *table) {
 }
 
 void ExpBuilder::BuildResources(Exp *e, ITable *table) {
-  for (int i = 1; i < e->vec.size(); ++i) {
-    if (e->vec[i]->vec.size() == 0) {
+  for (int i = 1; i < e->Size(); ++i) {
+    Exp *element = e->vec[i];
+    if (element->Size() == 0) {
       SetError() << "Resource should be defined as a list";
       return;
     }
-    IResource *res = BuildResource(e->vec[i], table);
+    IResource *res = BuildResource(element, table);
     if (res != nullptr) {
       table->resources_.push_back(res);
     }
@@ -198,15 +207,15 @@ void ExpBuilder::BuildResources(Exp *e, ITable *table) {
 }
 
 IResource *ExpBuilder::BuildResource(Exp *e, ITable *table) {
-  if (e->vec[0]->atom.str != "RESOURCE") {
+  if (e->GetHead() != "RESOURCE") {
     SetError() << "Only RESOURCE can be allowed";
     return nullptr;
   }
-  if (e->vec.size() < 6) {
+  if (e->Size() < 6) {
     SetError() << "Malformed RESOURCE";
     return nullptr;
   }
-  const string &klass = e->vec[2]->atom.str;
+  const string &klass = e->Str(2);
   IDesign *design = table->GetModule()->GetDesign();
   IResourceClass *rc = nullptr;
   for (auto *c : design->resource_classes_) {
@@ -225,31 +234,33 @@ IResource *ExpBuilder::BuildResource(Exp *e, ITable *table) {
   } else {
     res = new IResource(table, rc);
   }
-  int id = Util::Atoi(e->vec[1]->atom.str);
+  int id = Util::Atoi(e->Str(1));
   res->SetId(id);
   BuildParamTypes(e->vec[3], &res->input_types_);
   BuildParamTypes(e->vec[4], &res->output_types_);
   BuildResourceParams(e->vec[5], res->GetParams());
-  for (int i = 6; i < e->vec.size(); ++i) {
-    if (e->vec[i]->vec.size() == 0) {
+  for (int i = 6; i < e->Size(); ++i) {
+    Exp *element = e->vec[i];
+    if (element->Size() == 0) {
       SetError() << "Empty additional resource parameter";
       return nullptr;
     }
-    if (e->vec[i]->vec[0]->atom.str == "ARRAY") {
-      BuildArray(e->vec[i], res);
-    } else if (e->vec[i]->vec[0]->atom.str == "CALLEE-TABLE") {
-      if (e->vec[i]->vec.size() == 3) {
-	tree_builder_->AddCalleeTable(e->vec[i]->vec[1]->atom.str,
-				      Util::Atoi(e->vec[i]->vec[2]->atom.str),
+    const string &element_name = element->GetHead();
+    if (element_name == "ARRAY") {
+      BuildArray(element, res);
+    } else if (element_name == "CALLEE-TABLE") {
+      if (element->Size() == 3) {
+	tree_builder_->AddCalleeTable(element->Str(1),
+				      Util::Atoi(element->Str(2)),
 				      res);
       } else {
 	SetError() << "Invalid module spec";
 	return nullptr;
       }
-    } else if (e->vec[i]->vec[0]->atom.str == "FOREIGN-REG") {
-      if (e->vec[i]->vec.size() == 3) {
-	tree_builder_->AddForeignReg(Util::Atoi(e->vec[i]->vec[1]->atom.str),
-				     Util::Atoi(e->vec[i]->vec[2]->atom.str),
+    } else if (element_name == "FOREIGN-REG") {
+      if (element->Size() == 3) {
+	tree_builder_->AddForeignReg(Util::Atoi(element->Str(1)),
+				     Util::Atoi(element->Str(2)),
 				     res);
       } else {
 	SetError() << "Invalid foreign reg spec";
@@ -264,15 +275,15 @@ IResource *ExpBuilder::BuildResource(Exp *e, ITable *table) {
 }
 
 void ExpBuilder::BuildArray(Exp *e, IResource *res) {
-  if (e->vec.size() != 6) {
+  if (e->Size() != 6) {
     SetError() << "Malformed array description";
     return;
   }
-  int address_width = Util::Atoi(e->vec[1]->atom.str);
+  int address_width = Util::Atoi(e->Str(1));
   IValueType data_type;
   BuildValueType(e->vec[2], e->vec[3], &data_type);
   bool is_external;
-  const string &v = e->vec[4]->atom.str;
+  const string &v = e->Str(4);
   if (v == "EXTERNAL") {
     is_external = true;
   } else if (v == "INTERNAL") {
@@ -282,7 +293,7 @@ void ExpBuilder::BuildArray(Exp *e, IResource *res) {
     return;
   }
   bool is_ram;
-  const string &w = e->vec[5]->atom.str;
+  const string &w = e->Str(5);
   if (w == "RAM") {
     is_ram = true;
   } else if (w == "ROM") {
@@ -296,18 +307,18 @@ void ExpBuilder::BuildArray(Exp *e, IResource *res) {
 }
 
 void ExpBuilder::BuildResourceParams(Exp *e, ResourceParams *params) {
-  for (int i = 1; i < e->vec.size(); ++i) {
+  for (int i = 1; i < e->Size(); ++i) {
     Exp *t = e->vec[i];
     vector<string> s;
-    for (int j = 1; j < t->vec.size(); ++j) {
-      s.push_back(t->vec[j]->atom.str);
+    for (int j = 1; j < t->Size(); ++j) {
+      s.push_back(t->Str(j));
     }
-    params->SetValues(t->vec[0]->atom.str, s);
+    params->SetValues(t->GetHead(), s);
   }
 }
 
 void ExpBuilder::BuildParamTypes(Exp *e, vector<IValueType> *types) {
-  for (int i = 0; i < e->vec.size(); i += 2) {
+  for (int i = 0; i < e->Size(); i += 2) {
     IValueType type;
     BuildValueType(e->vec[i], e->vec[i + 1], &type);
     types->push_back(type);

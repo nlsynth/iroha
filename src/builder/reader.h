@@ -15,6 +15,9 @@ public:
 class Exp {
 public:
   ~Exp();
+  const string &GetHead();
+  const string &Str(int nth);
+  int Size();
 
   Atom atom;
   vector<Exp *> vec;
