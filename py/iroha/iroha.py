@@ -250,7 +250,7 @@ class ResourceParams(object):
     def Write(self, writer):
         writer.ofh.write("(PARAMS ")
         kvs = []
-        for k, values in self.params.iteritems():
+        for k, values in self.params.items():
             kv = "(" + k + " " + (" ".join(v for v in values)) + ")"
             kvs.append(kv)
         writer.ofh.write(" ".join(kv for kv in kvs))

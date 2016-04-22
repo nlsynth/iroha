@@ -1,4 +1,4 @@
-from iroha import *
+from .iroha import *
 
 def GetResource(table, name):
     design = table.module.design
