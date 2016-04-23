@@ -1,5 +1,6 @@
 #include "writer/verilog/table.h"
 
+#include "design/design_util.h"
 #include "iroha/i_design.h"
 #include "iroha/logging.h"
 #include "iroha/resource_class.h"
@@ -25,7 +26,7 @@ Table::Table(ITable *table, Ports *ports, Module *mod, Embed *embed,
     tmpl_(tmpl) {
   table_id_ = table->GetId();
   st_ = "st_" + Util::Itoa(table_id_);
-  task_.reset(Task::MayCreateTask(this));
+  is_task_ = Task::IsTask(*this);
 }
 
 Table::~Table() {
@@ -81,7 +82,7 @@ void Table::BuildResource() {
   for (auto *res : i_table_->resources_) {
     unique_ptr<Resource> builder(Resource::Create(*res, *this));
     if (builder.get()) {
-      builder->Build();
+      builder->BuildResource();
     }
   }
 }
@@ -208,7 +209,7 @@ const string &Table::StateVariable() const {
   return st_;
 }
 
-string Table::StateName(int id) {
+string Table::StateName(int id) const {
   string n = "S_" + Util::Itoa(table_id_) + "_";
   if (id == Task::kTaskEntryStateId) {
     return n + "task_idle";
@@ -230,7 +231,7 @@ string Table::InitialStateName() {
 }
 
 bool Table::IsTask() {
-  return (task_.get() != nullptr);
+  return is_task_;
 }
 
 bool Table::IsEmpty() {
@@ -250,7 +251,7 @@ Module *Table::GetModule() const {
 }
 
 Task *Table::GetTask() const {
-  return task_.get();
+  return nullptr;
 }
 
 }  // namespace verilog

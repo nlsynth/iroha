@@ -15,7 +15,8 @@ public:
   Resource(const IResource &res, const Table &tab);
 
   static Resource *Create(const IResource &res, const Table &tab);
-  void Build();
+
+  virtual void BuildResource();
 
 private:
   void BuildEmbedded();
@@ -24,8 +25,6 @@ private:
   void BuildSRAM();
   void BuildArray();
   void BuildForeignRegister();
-  void BuildSiblingTaskCall();
-  void BuildSubModuleTaskCall();
   void CollectResourceCallers(const string &opr,
 			      map<IState *, IInsn *> *callers);
   void WriteInputSel(const string &name,
@@ -36,6 +35,8 @@ private:
 		 ostream &os);
   void WriteStateUnion(const map<IState *, IInsn *> &callers,
 		       ostream &os);
+
+protected:
   string JoinStates(const vector<IState *> &sts);
 
   const IResource &res_;

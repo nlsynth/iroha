@@ -18,13 +18,21 @@ namespace writer {
 namespace verilog {
 
 Resource *Resource::Create(const IResource &res, const Table &table) {
+  auto *klass = res.GetClass();
+  if (resource::IsSubModuleTask(*klass) ||
+      resource::IsSiblingTask(*klass) ||
+      resource::IsSubModuleTaskCall(*klass) ||
+      resource::IsSiblingTaskCall(*klass)) {
+    return new Task(res, table);
+  }
   return new Resource(res, table);
 }
 
-Resource::Resource(const IResource &res, const Table &table) : res_(res), tab_(table) {
+Resource::Resource(const IResource &res, const Table &table)
+  : res_(res), tab_(table) {
 }
 
-void Resource::Build() {
+void Resource::BuildResource() {
   auto *klass = res_.GetClass();
   auto *params = res_.GetParams();
   if (klass->GetName() == resource::kExtInput) {
@@ -53,22 +61,8 @@ void Resource::Build() {
   if (resource::IsArray(*klass)) {
     BuildArray();
   }
-  if (resource::IsSubModuleTask(*klass)) {
-    Task *task = tab_.GetTask();
-    task->BuildSubModuleTaskResource(res_);
-  }
-  if (resource::IsSiblingTask(*klass)) {
-    Task *task = tab_.GetTask();
-    task->BuildSiblingTaskResource(res_);
-  }
   if (resource::IsForeignRegister(*klass)) {
     BuildForeignRegister();
-  }
-  if (resource::IsSubModuleTaskCall(*klass)) {
-    BuildSubModuleTaskCall();
-  }
-  if (resource::IsSiblingTaskCall(*klass)) {
-    BuildSiblingTaskCall();
   }
 }
 
@@ -246,33 +240,6 @@ void Resource::BuildForeignRegister() {
     }
   }
   rs << "  assign " << res_name << "_wdata = " << d << ";\n";
-}
-
-void Resource::BuildSiblingTaskCall() {
-  vector<IState *> sts;
-  for (IState *st : tab_.GetITable()->states_) {
-    for (IInsn *insn : st->insns_) {
-      if (insn->GetResource() == &res_) {
-	sts.push_back(st);
-      }
-    }
-  }
-  auto *tmpl = tab_.GetModuleTemplate();
-  ostream &rs = tmpl->GetStream(kResourceSection);
-  const ITable *callee_tab = res_.GetCalleeTable();
-  rs << "  assign " << Task::TaskEnablePin(*callee_tab) << " = ";
-  rs << JoinStates(sts);
-  rs << ";\n";
-}
-
-void Resource::BuildSubModuleTaskCall() {
-  auto *tmpl = tab_.GetModuleTemplate();
-  ostream &rs = tmpl->GetStream(kResourceSection);
-  string prefix = Task::SubModuleTaskControlPinPrefix(res_);
-  rs << "  reg " << prefix << "_en;\n";
-  rs << "  wire " << prefix << "_ack;\n";
-  ostream &is = tmpl->GetStream(kInitialValueSection + Util::Itoa(tab_.GetITable()->GetId()));
-  is << "      " << prefix << "_en <= 0;\n";
 }
 
 string Resource::JoinStates(const vector<IState *> &sts) {

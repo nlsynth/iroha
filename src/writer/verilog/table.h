@@ -20,7 +20,7 @@ public:
   void Write(ostream &os);
   ITable *GetITable() const;
   const string &StateVariable() const;
-  string StateName(int id);
+  string StateName(int id) const;
   ModuleTemplate *GetModuleTemplate() const;
   string InitialStateName();
   bool IsTask();
@@ -47,7 +47,7 @@ private:
   int table_id_;
   string st_;
   vector<State *> states_;
-  unique_ptr<Task> task_;
+  bool is_task_;
 };
 
 }  // namespace verilog

@@ -3,27 +3,29 @@
 #define _writer_verilog_task_h_
 
 #include "writer/verilog/common.h"
+#include "writer/verilog/resource.h"
 
 namespace iroha {
 namespace writer {
 namespace verilog {
 
-class Task {
+class Task : public Resource {
 public:
-  Task(Table *table, IInsn *insn);
+  Task(const IResource &res, const Table &table);
 
-  void BuildSubModuleTaskResource(const IResource &res);
-  void BuildSiblingTaskResource(const IResource &res);
+  virtual void BuildResource();
 
-  static Task *MayCreateTask(Table *table);
+  static bool IsTask(const Table &table);
   static string TaskEnablePin(const ITable &tab);
   static string SubModuleTaskControlPinPrefix(const IResource &res);
 
   static const int kTaskEntryStateId;
 
 private:
-  Table *table_;
-  IInsn *task_entry_insn_;
+  void BuildSubModuleTask();
+  void BuildSiblingTask();
+  void BuildSiblingTaskCall();
+  void BuildSubModuleTaskCall();
 };
 
 }  // namespace verilog

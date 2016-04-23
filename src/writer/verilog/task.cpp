@@ -2,6 +2,7 @@
 
 #include "design/design_util.h"
 #include "iroha/i_design.h"
+#include "iroha/resource_class.h"
 #include "writer/module_template.h"
 #include "writer/verilog/module.h"
 #include "writer/verilog/ports.h"
@@ -13,46 +14,89 @@ namespace verilog {
 
 const int Task::kTaskEntryStateId = -1;
 
-Task::Task(Table *table, IInsn *insn)
-  : table_(table), task_entry_insn_(insn) {
+Task::Task(const IResource &res, const Table &table)
+  : Resource(res, table) {
 }
 
-Task *Task::MayCreateTask(Table *table) {
-  ITable *i_table = table->GetITable();
+void Task::BuildResource() {
+  auto *klass = res_.GetClass();
+  if (resource::IsSubModuleTask(*klass)) {
+    BuildSubModuleTaskResource();
+  }
+  if (resource::IsSiblingTask(*klass)) {
+    BuildSiblingTaskResource();
+  }
+  if (resource::IsSubModuleTaskCall(*klass)) {
+    BuildSubModuleTaskCall();
+  }
+  if (resource::IsSiblingTaskCall(*klass)) {
+    BuildSiblingTaskCall();
+  }
+}
+
+bool Task::IsTask(const Table &table) {
+  ITable *i_table = table.GetITable();
   IInsn *task_entry_insn = DesignUtil::FindTaskEntryInsn(i_table);
   if (task_entry_insn != nullptr) {
-    return new Task(table, task_entry_insn);
+    return true;
   }
-  return nullptr;
+  return false;
 }
 
 string Task::TaskEnablePin(const ITable &tab) {
   return "task_" + Util::Itoa(tab.GetId()) + "_en";
 }
 
-void Task::BuildSubModuleTaskResource(const IResource &res) {
-  string en = Task::TaskEnablePin(*table_->GetITable());
-  Ports *ports = table_->GetPorts();
+void Task::BuildSubModuleTask() {
+  string en = Task::TaskEnablePin(*tab_.GetITable());
+  Ports *ports = tab_.GetPorts();
   ports->AddPort(en, Port::INPUT, 0);
-  int table_id = table_->GetITable()->GetId();
+  int table_id = tab_.GetITable()->GetId();
   string ack = "task_" + Util::Itoa(table_id) + "_ack";
   ports->AddPort(ack, Port::OUTPUT, 0);
-  ModuleTemplate *tmpl = table_->GetModuleTemplate();
+  ModuleTemplate *tmpl = tab_.GetModuleTemplate();
   ostream &fs = tmpl->GetStream(kStateOutput + Util::Itoa(table_id));
   fs << "      " << ack <<
-    " <= (" << table_->StateVariable() << " == `"
-     << table_->StateName(Task::kTaskEntryStateId) << ") && " << en << ";\n";
+    " <= (" << tab_.StateVariable() << " == `"
+     << tab_.StateName(Task::kTaskEntryStateId) << ") && " << en << ";\n";
 }
 
-void Task::BuildSiblingTaskResource(const IResource &res) {
-  ModuleTemplate *tmpl = table_->GetModuleTemplate();
+void Task::BuildSiblingTask() {
+  ModuleTemplate *tmpl = tab_.GetModuleTemplate();
   ostream &rs = tmpl->GetStream(kResourceSection);
-  rs << "  wire " << Task::TaskEnablePin(*table_->GetITable()) << ";\n";
+  rs << "  wire " << Task::TaskEnablePin(*tab_.GetITable()) << ";\n";
 }
 
 string Task::SubModuleTaskControlPinPrefix(const IResource &res) {
   return "task_" + Util::Itoa(res.GetTable()->GetId())
     + "_" + Util::Itoa(res.GetId());
+}
+
+void Task::BuildSubModuleTaskCall() {
+  auto *tmpl = tab_.GetModuleTemplate();
+  ostream &rs = tmpl->GetStream(kResourceSection);
+  string prefix = Task::SubModuleTaskControlPinPrefix(res_);
+  rs << "  reg " << prefix << "_en;\n";
+  rs << "  wire " << prefix << "_ack;\n";
+  ostream &is = tmpl->GetStream(kInitialValueSection + Util::Itoa(tab_.GetITable()->GetId()));
+  is << "      " << prefix << "_en <= 0;\n";
+}
+
+void Task::BuildSiblingTaskCall() {
+  vector<IState *> sts;
+  for (IState *st : tab_.GetITable()->states_) {
+    for (IInsn *insn : st->insns_) {
+      if (insn->GetResource() == &res_) {
+	sts.push_back(st);
+      }
+    }
+  }
+  auto *tmpl = tab_.GetModuleTemplate();
+  ostream &rs = tmpl->GetStream(kResourceSection);
+  const ITable *callee_tab = res_.GetCalleeTable();
+  rs << "  assign " << Task::TaskEnablePin(*callee_tab) << " = ";
+  rs << JoinStates(sts);
+  rs << ";\n";
 }
 
 }  // namespace verilog
