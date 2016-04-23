@@ -21,10 +21,10 @@ Task::Task(const IResource &res, const Table &table)
 void Task::BuildResource() {
   auto *klass = res_.GetClass();
   if (resource::IsSubModuleTask(*klass)) {
-    BuildSubModuleTaskResource();
+    BuildSubModuleTask();
   }
   if (resource::IsSiblingTask(*klass)) {
-    BuildSiblingTaskResource();
+    BuildSiblingTask();
   }
   if (resource::IsSubModuleTaskCall(*klass)) {
     BuildSubModuleTaskCall();

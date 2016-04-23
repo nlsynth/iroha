@@ -59,6 +59,7 @@ libiroha_la_SOURCES = \
  src/writer/verilog/insn_writer.cpp src/writer/verilog/insn_writer.h \
  src/writer/verilog/internal_sram.cpp src/writer/verilog/internal_sram.h \
  src/writer/verilog/module.cpp src/writer/verilog/module.h \
+ src/writer/verilog/operator.cpp src/writer/verilog/operator.h \
  src/writer/verilog/ports.cpp src/writer/verilog/ports.h \
  src/writer/verilog/resource.cpp src/writer/verilog/resource.h \
  src/writer/verilog/state.cpp src/writer/verilog/state.h \

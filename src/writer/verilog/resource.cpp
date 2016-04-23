@@ -9,6 +9,7 @@
 #include "writer/verilog/insn_writer.h"
 #include "writer/verilog/internal_sram.h"
 #include "writer/verilog/module.h"
+#include "writer/verilog/operator.h"
 #include "writer/verilog/ports.h"
 #include "writer/verilog/table.h"
 #include "writer/verilog/task.h"
@@ -24,6 +25,9 @@ Resource *Resource::Create(const IResource &res, const Table &table) {
       resource::IsSubModuleTaskCall(*klass) ||
       resource::IsSiblingTaskCall(*klass)) {
     return new Task(res, table);
+  }
+  if (resource::IsExclusiveBinOp(*klass)) {
+    return new Operator(res, table);
   }
   return new Resource(res, table);
 }

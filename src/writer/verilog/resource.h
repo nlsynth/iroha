@@ -25,18 +25,18 @@ private:
   void BuildSRAM();
   void BuildArray();
   void BuildForeignRegister();
-  void CollectResourceCallers(const string &opr,
-			      map<IState *, IInsn *> *callers);
-  void WriteInputSel(const string &name,
-		     const map<IState *, IInsn *> &callers,
-		     int nth,
-		     ostream &os);
-  void WriteWire(const string &name, const IValueType &type,
-		 ostream &os);
   void WriteStateUnion(const map<IState *, IInsn *> &callers,
 		       ostream &os);
 
 protected:
+  void WriteInputSel(const string &name,
+		     const map<IState *, IInsn *> &callers,
+		     int nth,
+		     ostream &os);
+  void CollectResourceCallers(const string &opr,
+			      map<IState *, IInsn *> *callers);
+  void WriteWire(const string &name, const IValueType &type,
+		 ostream &os);
   string JoinStates(const vector<IState *> &sts);
 
   const IResource &res_;
