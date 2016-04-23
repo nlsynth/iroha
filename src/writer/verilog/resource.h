@@ -17,6 +17,7 @@ public:
   static Resource *Create(const IResource &res, const Table &tab);
 
   virtual void BuildResource();
+  virtual void BuildInsn(IInsn *insn);
 
 private:
   void BuildEmbedded();
@@ -25,6 +26,9 @@ private:
   void BuildSRAM();
   void BuildArray();
   void BuildForeignRegister();
+  void BuildExtInputInsn(IInsn *insn);
+  void BuildMappedInsn(IInsn *insn);
+  void BuildForeignRegisterInsn(IInsn *insn);
   void WriteStateUnion(const map<IState *, IInsn *> &callers,
 		       ostream &os);
 

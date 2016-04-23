@@ -55,7 +55,6 @@ libiroha_la_SOURCES = \
  src/writer/module_template.cpp src/writer/module_template.h \
  src/writer/verilog/common.h \
  src/writer/verilog/embed.cpp src/writer/verilog/embed.h \
- src/writer/verilog/insn_builder.cpp src/writer/verilog/insn_builder.h \
  src/writer/verilog/insn_writer.cpp src/writer/verilog/insn_writer.h \
  src/writer/verilog/internal_sram.cpp src/writer/verilog/internal_sram.h \
  src/writer/verilog/module.cpp src/writer/verilog/module.h \

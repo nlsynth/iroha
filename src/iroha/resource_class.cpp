@@ -34,6 +34,10 @@ bool IsArray(const IResourceClass &rc) {
   return (rc.GetName() == kArray);
 }
 
+bool IsExtInput(const IResourceClass &rc) {
+  return (rc.GetName() == kExtInput);
+}
+
 bool IsMapped(const IResourceClass &rc) {
   return (rc.GetName() == kMapped);
 }

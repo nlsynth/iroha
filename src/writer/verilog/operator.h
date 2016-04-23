@@ -14,9 +14,12 @@ public:
   Operator(const IResource &res, const Table &table);
 
   virtual void BuildResource();
+  virtual void BuildInsn(IInsn *insn);
 
 private:
   void BuildExclusiveBinOp();
+  void BuildLightBinOpInsn(IInsn *insn);
+  void BuildBitArrangeOpInsn(IInsn *insn);
 };
 
 }  // namespace verilog

@@ -26,7 +26,9 @@ Resource *Resource::Create(const IResource &res, const Table &table) {
       resource::IsSiblingTaskCall(*klass)) {
     return new Task(res, table);
   }
-  if (resource::IsExclusiveBinOp(*klass)) {
+  if (resource::IsExclusiveBinOp(*klass) ||
+      resource::IsLightBinOp(*klass) ||
+      resource::IsBitArrangeOp(*klass)) {
     return new Operator(res, table);
   }
   return new Resource(res, table);
@@ -67,6 +69,19 @@ void Resource::BuildResource() {
   }
   if (resource::IsForeignRegister(*klass)) {
     BuildForeignRegister();
+  }
+}
+
+void Resource::BuildInsn(IInsn *insn) {
+  auto *klass = res_.GetClass();
+  if (resource::IsExtInput(*klass)) {
+    BuildExtInputInsn(insn);
+  }
+  if (resource::IsForeignRegister(*klass)) {
+    BuildForeignRegisterInsn(insn);
+  }
+  if (resource::IsMapped(*klass)) {
+    BuildMappedInsn(insn);
   }
 }
 
@@ -252,6 +267,45 @@ string Resource::JoinStates(const vector<IState *> &sts) {
     conds.push_back("(" + tab_.StateVariable() + " == " + Util::Itoa(st->GetId()) + ")");
   }
   return Util::Join(conds, " || ");
+}
+
+void Resource::BuildExtInputInsn(IInsn *insn) {
+  auto *params = res_.GetParams();
+  string input_port;
+  int width;
+  params->GetExtInputPort(&input_port, &width);
+  auto *tmpl = tab_.GetModuleTemplate();
+  ostream &ws = tmpl->GetStream(kInsnWireValueSection);
+  ws << "  assign " << InsnWriter::InsnOutputWireName(*insn, 0)
+     << " = "
+     << input_port << ";\n";
+}
+
+void Resource::BuildMappedInsn(IInsn *insn) {
+  IResource *res = insn->GetResource();
+  auto *params = res->GetParams();
+  auto *tmpl = tab_.GetModuleTemplate();
+  ostream &ws = tmpl->GetStream(kInsnWireValueSection);
+  if (params->GetMappedName() == "mem") {
+    string res_id = Util::Itoa(res->GetId());
+    const string &opr = insn->GetOperand();
+    if (opr == "sram_read_data") {
+      ws << "  assign " << InsnWriter::InsnOutputWireName(*insn, 0)
+	 << " = sram_rdata_" << res_id << ";\n";
+    }
+  }
+}
+
+void Resource::BuildForeignRegisterInsn(IInsn *insn) {
+  if (insn->outputs_.size() == 0) {
+    return;
+  }
+  auto *tmpl = tab_.GetModuleTemplate();
+  ostream &ws = tmpl->GetStream(kInsnWireValueSection);
+  ws << "  assign " << InsnWriter::InsnOutputWireName(*insn, 0)
+     << " = "
+     << InsnWriter::RegisterName(*(res_.GetForeignRegister()))
+     << ";\n";
 }
 
 }  // namespace verilog

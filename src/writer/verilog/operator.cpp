@@ -23,6 +23,15 @@ void Operator::BuildResource() {
   }
 }
 
+void Operator::BuildInsn(IInsn *insn) {
+  auto *klass = res_.GetClass();
+  if (resource::IsLightBinOp(*klass)) {
+    BuildLightBinOpInsn(insn);
+  } else if (resource::IsBitArrangeOp(*klass)) {
+    BuildBitArrangeOpInsn(insn);
+  }
+}
+
 void Operator::BuildExclusiveBinOp() {
   auto *tmpl = tab_.GetModuleTemplate();
   ostream &rs = tmpl->GetStream(kResourceSection);
@@ -48,6 +57,44 @@ void Operator::BuildExclusiveBinOp() {
     LOG(FATAL) << "Unknown binop" << res_name;
   }
   rs << " " << name + "_s1;\n";
+}
+
+void Operator::BuildLightBinOpInsn(IInsn *insn) {
+  auto *tmpl = tab_.GetModuleTemplate();
+  ostream &ws = tmpl->GetStream(kInsnWireValueSection);
+  ws << "  assign " << InsnWriter::InsnOutputWireName(*insn, 0)
+      << " = " << InsnWriter::RegisterName(*insn->inputs_[0]) << " ";
+  const string &rc = insn->GetResource()->GetClass()->GetName();
+  if (rc == resource::kBitAnd) {
+    ws << "&";
+  } else if (rc == resource::kBitOr) {
+    ws << "|";
+  } else if (rc == resource::kBitXor) {
+    ws << "^";
+  } else {
+    LOG(FATAL) << "Unknown LightBinOp: " << rc;
+  }
+  ws << " " << InsnWriter::RegisterName(*insn->inputs_[1]) << ";\n";
+}
+
+void Operator::BuildBitArrangeOpInsn(IInsn *insn) {
+  auto *tmpl = tab_.GetModuleTemplate();
+  ostream &ws = tmpl->GetStream(kInsnWireValueSection);
+  const string &rc = insn->GetResource()->GetClass()->GetName();
+  if (rc == resource::kShift) {
+    bool is_left = (insn->GetOperand() == "left");
+    const IValue &value = insn->inputs_[1]->GetInitialValue();
+    int amount = value.value_;
+    ws << "  assign " << InsnWriter::InsnOutputWireName(*insn, 0)
+	<< " = "
+	<< InsnWriter::RegisterName(*insn->inputs_[0]);
+    if (is_left) {
+      ws << " << ";
+    } else {
+      ws << " >> ";
+    }
+    ws << amount << ";\n";
+  }
 }
 
 }  // namespace verilog

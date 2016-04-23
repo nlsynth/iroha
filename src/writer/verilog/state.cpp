@@ -5,9 +5,9 @@
 #include "iroha/logging.h"
 #include "iroha/resource_class.h"
 #include "writer/module_template.h"
-#include "writer/verilog/insn_builder.h"
 #include "writer/verilog/insn_writer.h"
 #include "writer/verilog/module.h"
+#include "writer/verilog/resource.h"
 #include "writer/verilog/table.h"
 #include "writer/verilog/task.h"
 
@@ -28,20 +28,12 @@ void State::Build() {
   ostream &ws = tmpl_->GetStream(kInsnWireValueSection);
   for (auto *insn : i_state_->insns_) {
     auto *res = insn->GetResource();
+    unique_ptr<Resource> res_builder(Resource::Create(*res, *table_));
+    if (res_builder.get() != nullptr) {
+      res_builder->BuildInsn(insn);
+    }
     auto *rc = res->GetClass();
     const string &rc_name = rc->GetName();
-    InsnBuilder builder(insn, ws);
-    if (rc_name == resource::kExtInput) {
-      builder.ExtInput();
-    } else if (resource::IsLightBinOp(*rc)) {
-      builder.LightBinOp();
-    } else if (resource::IsBitArrangeOp(*rc)) {
-      builder.BitArrangeOp();
-    } else if (resource::IsMapped(*rc)) {
-      builder.Mapped();
-    } else if (resource::IsForeignRegister(*rc)) {
-      builder.ForeignRegister();
-    }
     if (rc_name != resource::kSet) {
       CopyResults(insn, true, ws);
     }
