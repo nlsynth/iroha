@@ -18,6 +18,7 @@ public:
 
   virtual void BuildResource();
   virtual void BuildInsn(IInsn *insn);
+  virtual void WriteInsn(const IInsn *insn, State *st, ostream &os);
 
 private:
   void BuildEmbedded();

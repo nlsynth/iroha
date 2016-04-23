@@ -33,8 +33,7 @@ void State::Build() {
       res_builder->BuildInsn(insn);
     }
     auto *rc = res->GetClass();
-    const string &rc_name = rc->GetName();
-    if (rc_name != resource::kSet) {
+    if (!resource::IsSet(*res->GetClass())) {
       CopyResults(insn, true, ws);
     }
     if (DesignUtil::IsMultiCycleInsn(insn)) {
@@ -67,31 +66,12 @@ const IState *State::GetIState() const {
 }
 
 void State::WriteInsn(const IInsn *insn, ostream &os) {
-  InsnWriter writer(insn, this, os);
   auto *res = insn->GetResource();
-  auto *rc = res->GetClass();
-  const string &rc_name = rc->GetName();
-  if (rc_name == resource::kSet) {
-    writer.Set();
-  } else if (rc_name == resource::kExtOutput) {
-    writer.ExtOutput();
-  } else if (resource::IsExclusiveBinOp(*rc)) {
-  } else if (resource::IsLightBinOp(*rc)) {
-  } else if (resource::IsBitArrangeOp(*rc)) {
-  } else if (rc_name == resource::kTransition) {
-    // do nothing.
-  } else if (rc_name == resource::kPrint) {
-    writer.Print();
-  } else if (rc_name == resource::kAssert) {
-    writer.Assert();
-  } else if (rc_name == resource::kSubModuleTaskCall) {
-    writer.SubModuleCall();
-  } else if (resource::IsMapped(*rc)) {
-    writer.Mapped();
-  } else {
-    // LOG(FATAL) << "Unsupported resource class:" << rc_name;
+  unique_ptr<Resource> res_builder(Resource::Create(*res, *table_));
+  if (res_builder.get() != nullptr) {
+    res_builder->WriteInsn(insn, this, os);
   }
-  if (rc_name != resource::kSet) {
+  if (!resource::IsSet(*res->GetClass())) {
     CopyResults(insn, false, os);
   }
 }

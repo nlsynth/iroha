@@ -39,6 +39,7 @@ bool IsNumToBoolExclusiveBinOp(const IResourceClass &rc);
 bool IsLightBinOp(const IResourceClass &rc);
 bool IsBitArrangeOp(const IResourceClass &rc);
 bool IsArray(const IResourceClass &rc);
+bool IsSet(const IResourceClass &rc);
 bool IsExtInput(const IResourceClass &rc);
 bool IsMapped(const IResourceClass &rc);
 bool IsSiblingTask(const IResourceClass &rc);

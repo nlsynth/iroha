@@ -85,6 +85,25 @@ void Resource::BuildInsn(IInsn *insn) {
   }
 }
 
+void Resource::WriteInsn(const IInsn *insn, State *st, ostream &os) {
+  InsnWriter writer(insn, st, os);
+  auto *rc = res_.GetClass();
+  const string &rc_name = rc->GetName();
+  if (resource::IsSet(*rc)) {
+    writer.Set();
+  } else if (rc_name == resource::kExtOutput) {
+    writer.ExtOutput();
+  } else if (rc_name == resource::kPrint) {
+    writer.Print();
+  } else if (rc_name == resource::kAssert) {
+    writer.Assert();
+  } else if (rc_name == resource::kSubModuleTaskCall) {
+    writer.SubModuleCall();
+  } else if (resource::IsMapped(*rc)) {
+    writer.Mapped();
+  }
+}
+
 void Resource::BuildEmbedded() {
   auto *params = res_.GetParams();
   auto *ports = tab_.GetPorts();
