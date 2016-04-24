@@ -43,12 +43,18 @@ void Module::Write(ostream &os) {
   ports_->Output(Ports::PORT_TYPE, os);
   os << "\n";
 
-  os << tmpl_->GetContents(kStateDeclSection);
-  os << tmpl_->GetContents(kStateVarSection);
-  os << tmpl_->GetContents(kRegisterSection);
-  os << tmpl_->GetContents(kResourceSection);
-  os << tmpl_->GetContents(kInsnWireDeclSection);
-  os << tmpl_->GetContents(kInsnWireValueSection);
+  os << "  // State decls\n"
+     << tmpl_->GetContents(kStateDeclSection)
+     << "  // State vars\n"
+     << tmpl_->GetContents(kStateVarSection)
+     << "  // Registers\n"
+     << tmpl_->GetContents(kRegisterSection)
+     << "  // Resources\n"
+     << tmpl_->GetContents(kResourceSection)
+     << "  // Insn wires\n"
+     << tmpl_->GetContents(kInsnWireDeclSection)
+     << "  // Insn assigns\n"
+     << tmpl_->GetContents(kInsnWireValueSection);
   os << "\n";
 
   for (auto *tab : tables_) {

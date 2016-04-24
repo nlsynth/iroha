@@ -58,9 +58,6 @@ void Resource::BuildResource() {
   if (klass->GetName() == resource::kEmbedded) {
     BuildEmbedded();
   }
-  if (resource::IsExclusiveBinOp(*klass)) {
-    BuildExclusiveBinOp();
-  }
   if (resource::IsMapped(*klass)) {
     BuildMapped();
   }
@@ -112,33 +109,6 @@ void Resource::BuildEmbedded() {
   embed->RequestModule(*params);
   ostream &is = tmpl->GetStream(kEmbeddedInstanceSection);
   embed->BuildModuleInstantiation(res_, *ports, is);
-}
-
-void Resource::BuildExclusiveBinOp() {
-  auto *tmpl = tab_.GetModuleTemplate();
-  ostream &rs = tmpl->GetStream(kResourceSection);
-  const string &res_name = res_.GetClass()->GetName();
-  rs << "  // " << res_name << ":" << res_.GetId() << "\n";
-  map<IState *, IInsn *> callers;
-  CollectResourceCallers("", &callers);
-  if (callers.size() == 0) {
-    return;
-  }
-  string name = InsnWriter::ResourceName(res_);
-  WriteInputSel(name + "_s0", callers, 0, rs);
-  WriteInputSel(name + "_s1", callers, 1, rs);
-  WriteWire(name + "_d0", res_.output_types_[0], rs);
-
-  rs << "  assign " << name << + "_d0 = "
-     << name + "_s0 ";
-  if (res_name == resource::kGt) {
-    rs << ">";
-  } else if (res_name == resource::kAdd) {
-    rs << "+";
-  } else {
-    LOG(FATAL) << "Unknown binop" << res_name;
-  }
-  rs << " " << name + "_s1;\n";
 }
 
 void Resource::CollectResourceCallers(const string &opr,

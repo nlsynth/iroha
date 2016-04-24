@@ -32,7 +32,6 @@ void State::Build() {
     if (res_builder.get() != nullptr) {
       res_builder->BuildInsn(insn);
     }
-    auto *rc = res->GetClass();
     if (!resource::IsSet(*res->GetClass())) {
       CopyResults(insn, true, ws);
     }

@@ -22,7 +22,6 @@ public:
 
 private:
   void BuildEmbedded();
-  void BuildExclusiveBinOp();
   void BuildMapped();
   void BuildSRAM();
   void BuildArray();

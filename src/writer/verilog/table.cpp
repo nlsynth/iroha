@@ -52,6 +52,7 @@ void Table::BuildStateDecl() {
     return;
   }
   ostream &sd = tmpl_->GetStream(kStateDeclSection);
+
   int max_id = 0;
   for (auto *st : i_table_->states_) {
     int id = st->GetId();
@@ -72,10 +73,8 @@ void Table::BuildStateDecl() {
     u *= 2;
     ++bits;
   }
+  sd << "  reg [" << bits << ":0] " << StateVariable() << ";\n";
   sd << "\n";
-
-  ostream &sv = tmpl_->GetStream(kStateDeclSection);
-  sv << "  reg [" << bits << ":0] " << StateVariable() << ";\n";
 }
 
 void Table::BuildResource() {

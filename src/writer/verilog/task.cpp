@@ -64,7 +64,7 @@ void Task::BuildSubModuleTask() {
 void Task::BuildSiblingTask() {
   ModuleTemplate *tmpl = tab_.GetModuleTemplate();
   ostream &rs = tmpl->GetStream(kResourceSection);
-  rs << "  wire " << Task::TaskEnablePin(*tab_.GetITable()) << ";\n";
+  rs << "  wire " << TaskEnablePin(*tab_.GetITable()) << ";\n";
 }
 
 string Task::SubModuleTaskControlPinPrefix(const IResource &res) {
