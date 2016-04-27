@@ -25,7 +25,7 @@ Table::Table(ITable *table, Ports *ports, Module *mod, Embed *embed,
   : i_table_(table), ports_(ports), mod_(mod), embed_(embed),
     tmpl_(tmpl) {
   table_id_ = table->GetId();
-  st_ = "st_" + Util::Itoa(table_id_);
+  st_ = "st_" + Util::Itoa(table->GetId());
   is_task_ = Task::IsTask(*this);
 }
 
@@ -168,8 +168,9 @@ string Table::SharedRegPrefix(const ITable &writer, const IRegister &reg) const 
 }
 
 void Table::Write(ostream &os) {
-  os << "  always @(posedge " << ports_->GetClk() << ") begin\n";
-  os << "    if (";
+  os << "  // Table " << table_id_ << "\n"
+     << "  always @(posedge " << ports_->GetClk() << ") begin\n"
+     << "    if (";
   if (!mod_->GetResetPolarity()) {
     os << "!";
   }
@@ -209,7 +210,11 @@ const string &Table::StateVariable() const {
 }
 
 string Table::StateName(int id) const {
-  string n = "S_" + Util::Itoa(table_id_) + "_";
+  return StateNameFromTable(*i_table_, id);
+}
+
+string Table::StateNameFromTable(const ITable &tab, int id) {
+  string n = "S_" + Util::Itoa(tab.GetId()) + "_";
   if (id == Task::kTaskEntryStateId) {
     return n + "task_idle";
   } else {

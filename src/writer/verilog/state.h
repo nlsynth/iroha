@@ -28,6 +28,7 @@ private:
   Table *table_;
   IInsn *transition_insn_;
   bool is_multi_cycle_;
+  bool is_compound_cycle_;
 };
 
 }  // namespace verilog

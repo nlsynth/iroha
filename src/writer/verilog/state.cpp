@@ -19,7 +19,9 @@ namespace verilog {
 
 State::State(IState *i_state, Table *table)
   : i_state_(i_state), table_(table), transition_insn_(nullptr) {
-  is_multi_cycle_ = DesignUtil::IsMultiCycleState(i_state);
+  int num = DesignUtil::NumMultiCycleInsn(i_state) > 0;
+  is_multi_cycle_ = num > 0;
+  is_compound_cycle_ = num > 1;
   transition_insn_ = DesignUtil::FindTransitionInsn(i_state);
 }
 
@@ -28,9 +30,9 @@ void State::Build() {
   ostream &ws = tmpl_->GetStream(kInsnWireValueSection);
   for (auto *insn : i_state_->insns_) {
     auto *res = insn->GetResource();
-    unique_ptr<Resource> res_builder(Resource::Create(*res, *table_));
-    if (res_builder.get() != nullptr) {
-      res_builder->BuildInsn(insn);
+    unique_ptr<Resource> builder(Resource::Create(*res, *table_));
+    if (builder.get() != nullptr) {
+      builder->BuildInsn(insn);
     }
     if (!resource::IsSet(*res->GetClass())) {
       CopyResults(insn, true, ws);
@@ -52,12 +54,14 @@ void State::Write(ostream &os) {
 
 void State::BuildMultiCycle(const IInsn *insn) {
   ModuleTemplate *tmpl_ = table_->GetModuleTemplate();
-  ostream &ws = tmpl_->GetStream(kInsnWireDeclSection);
-  string w = InsnWriter::MultiCycleStateName(*insn);
-  ws << "  reg [1:0] " << w << ";\n";
-  ostream &is = tmpl_->GetStream(kInitialValueSection +
-				 Util::Itoa(table_->GetITable()->GetId()));
-  is << "      " << w << " <= 0;\n";
+  if (is_compound_cycle_) {
+    ostream &ws = tmpl_->GetStream(kInsnWireDeclSection);
+    string w = InsnWriter::MultiCycleStateName(*insn);
+    ws << "  reg [1:0] " << w << ";\n";
+    ostream &is = tmpl_->GetStream(kInitialValueSection +
+				   Util::Itoa(table_->GetITable()->GetId()));
+    is << "      " << w << " <= 0;\n";
+  }
 }
 
 const IState *State::GetIState() const {
@@ -128,8 +132,7 @@ void State::WriteTransitionBody(ostream &os) {
 }
 
 void State::WriteTransition(ostream &os) {
-  bool is_mc = DesignUtil::IsMultiCycleState(i_state_);
-  if (is_mc) {
+  if (is_compound_cycle_) {
     os << I << "  if (";
     bool is_first = true;
     for (IInsn *insn : i_state_->insns_) {
@@ -144,16 +147,26 @@ void State::WriteTransition(ostream &os) {
       is_first = false;
     }
     os << ") begin\n";
-  }
-  for (IInsn *insn : i_state_->insns_) {
-    if (DesignUtil::IsMultiCycleInsn(insn)) {
-      string st = InsnWriter::MultiCycleStateName(*insn);
-      os << I << "    " << st << " <= " << "0;\n";
+    for (IInsn *insn : i_state_->insns_) {
+      if (DesignUtil::IsMultiCycleInsn(insn)) {
+	string st = InsnWriter::MultiCycleStateName(*insn);
+	os << I << "    " << st << " <= " << "0;\n";
+      }
+    }
+  } else if (is_multi_cycle_) {
+    for (IInsn *insn : i_state_->insns_) {
+      if (DesignUtil::IsMultiCycleInsn(insn)) {
+	auto *res = insn->GetResource();
+	unique_ptr<Resource> res_builder(Resource::Create(*res, *table_));
+	os << I << "if ("<< res_builder->ReadySignal() << ") begin\n";
+      }
     }
   }
   WriteTransitionBody(os);
-  if (is_mc) {
+  if (is_compound_cycle_) {
     os << I << "  end\n";
+  } else if (is_multi_cycle_) {
+    os << I << "end\n";
   }
 }
 

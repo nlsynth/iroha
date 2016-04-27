@@ -144,16 +144,20 @@ bool DesignUtil::IsMultiCycleInsn(IInsn *insn) {
   if (resource::IsSubModuleTaskCall(*rc)) {
     return true;
   }
+  if (resource::IsSiblingTaskCall(*rc)) {
+    return true;
+  }
   return false;
 }
 
-bool DesignUtil::IsMultiCycleState(IState *st) {
+int DesignUtil::NumMultiCycleInsn(IState *st) {
+  int n = 0;
   for (IInsn *insn : st->insns_) {
     if (IsMultiCycleInsn(insn)) {
-      return true;
+      ++n;
     }
   }
-  return false;
+  return n;
 }
 
 }  // namespace iroha

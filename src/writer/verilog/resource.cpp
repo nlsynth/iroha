@@ -101,6 +101,10 @@ void Resource::WriteInsn(const IInsn *insn, State *st, ostream &os) {
   }
 }
 
+string Resource::ReadySignal() {
+  return "";
+}
+
 void Resource::BuildEmbedded() {
   auto *params = res_.GetParams();
   auto *ports = tab_.GetPorts();
@@ -253,7 +257,9 @@ void Resource::BuildForeignRegister() {
 string Resource::JoinStates(const vector<IState *> &sts) {
   vector<string> conds;
   for (IState *st : sts) {
-    conds.push_back("(" + tab_.StateVariable() + " == " + Util::Itoa(st->GetId()) + ")");
+    conds.push_back("(" + tab_.StateVariable() + " == `" +
+		    Table::StateNameFromTable(*tab_.GetITable(), st->GetId()) +
+		    ")");
   }
   return Util::Join(conds, " || ");
 }

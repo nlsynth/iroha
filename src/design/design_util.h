@@ -23,7 +23,7 @@ public:
   static IInsn *FindTaskEntryInsn(ITable *table);
   static bool IsTerminalState(IState *st);
   static bool IsMultiCycleInsn(IInsn *insn);
-  static bool IsMultiCycleState(IState *st);
+  static int NumMultiCycleInsn(IState *st);
 };
 
 }  // namespace iroha

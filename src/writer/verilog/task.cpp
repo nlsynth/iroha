@@ -34,6 +34,15 @@ void Task::BuildResource() {
   }
 }
 
+string Task::ReadySignal() {
+  auto *klass = res_.GetClass();
+  if (resource::IsSiblingTaskCall(*klass)) {
+    const ITable *callee_tab = res_.GetCalleeTable();
+    return SiblingTaskReadySignal(*callee_tab);
+  }
+  return "";
+}
+
 bool Task::IsTask(const Table &table) {
   ITable *i_table = table.GetITable();
   IInsn *task_entry_insn = DesignUtil::FindTaskEntryInsn(i_table);
@@ -65,6 +74,11 @@ void Task::BuildSiblingTask() {
   ModuleTemplate *tmpl = tab_.GetModuleTemplate();
   ostream &rs = tmpl->GetStream(kResourceSection);
   rs << "  wire " << TaskEnablePin(*tab_.GetITable()) << ";\n";
+  rs << "  wire " << SiblingTaskReadySignal(*tab_.GetITable()) << ";\n";
+  rs << "  assign " << SiblingTaskReadySignal(*tab_.GetITable())
+     << " = ("
+     << tab_.StateVariable() << " == `"
+     << tab_.StateName(Task::kTaskEntryStateId) << ");\n";
 }
 
 string Task::SubModuleTaskControlPinPrefix(const IResource &res) {
@@ -99,6 +113,10 @@ void Task::BuildSiblingTaskCall() {
   rs << ";\n";
 }
 
+string Task::SiblingTaskReadySignal(const ITable &tab) {
+  return "task_" + Util::Itoa(tab.GetId()) + "_ready";
+}
+  
 }  // namespace verilog
 }  // namespace writer
 }  // namespace iroha
