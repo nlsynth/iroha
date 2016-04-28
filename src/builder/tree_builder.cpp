@@ -46,7 +46,7 @@ bool TreeBuilder::Resolve() {
       }
     }
     CHECK(callee_tab != nullptr);
-    res->SetCalleeTable(mod->tables_[0]);
+    res->SetCalleeTable(callee_tab);
   }
   for (auto p : parent_module_names_) {
     IModule *mod = module_names[p.second];
