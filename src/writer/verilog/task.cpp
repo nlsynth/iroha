@@ -4,6 +4,7 @@
 #include "iroha/i_design.h"
 #include "iroha/resource_class.h"
 #include "writer/module_template.h"
+#include "writer/verilog/insn_writer.h"
 #include "writer/verilog/module.h"
 #include "writer/verilog/ports.h"
 #include "writer/verilog/table.h"
@@ -31,6 +32,24 @@ void Task::BuildResource() {
   }
   if (resource::IsSiblingTaskCall(*klass)) {
     BuildSiblingTaskCall();
+  }
+}
+
+void Task::WriteInsn(const IInsn *insn, State *st, ostream &os) {
+  auto *klass = res_.GetClass();
+  if (resource::IsSubModuleTaskCall(*klass)) {
+    static const char I[] = "          ";
+    string st = InsnWriter::MultiCycleStateName(*insn);
+    IResource *res = insn->GetResource();
+    string pin = Task::SubModuleTaskControlPinPrefix(*res);
+    os << I << "if (" << st << " == 0) begin\n"
+       << I << "  if (" << pin << "_ack) begin\n"
+       << I << "    " << pin << "_en <= 0;\n"
+       << I << "    " << st << " <= 3;\n"
+       << I << "  end else begin\n"
+       << I << "  " << pin << "_en <= 1;\n"
+       << I << "  end\n"
+       << I << "end\n";
   }
 }
 

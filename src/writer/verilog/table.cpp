@@ -123,7 +123,11 @@ void Table::BuildInsnOutputWire() {
 
 string Table::WidthSpec(const IRegister *reg) {
   if (reg->value_type_.GetWidth() > 0) {
-    return " [" + Util::Itoa(reg->value_type_.GetWidth() - 1) + ":0]";
+    string s = " [" + Util::Itoa(reg->value_type_.GetWidth() - 1) + ":0]";
+    if (reg->value_type_.IsSigned()) {
+      s = " signed" + s;
+    }
+    return s;
   }
   return string();
 }

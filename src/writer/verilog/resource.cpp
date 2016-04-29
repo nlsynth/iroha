@@ -92,8 +92,6 @@ void Resource::WriteInsn(const IInsn *insn, State *st, ostream &os) {
     writer.Print();
   } else if (rc_name == resource::kAssert) {
     writer.Assert();
-  } else if (rc_name == resource::kSubModuleTaskCall) {
-    writer.SubModuleCall();
   } else if (resource::IsMapped(*rc)) {
     writer.Mapped();
   }
@@ -126,9 +124,9 @@ void Resource::CollectResourceCallers(const string &opr,
 }
 
 void Resource::WriteInputSel(const string &name,
-			  const map<IState *, IInsn *> &callers,
-			  int nth,
-			  ostream &os) {
+			     const map<IState *, IInsn *> &callers,
+			     int nth,
+			     ostream &os) {
   WriteWire(name, res_.input_types_[nth], os);
   os << "  assign " << name << " = ";
   if (callers.size() == 1) {

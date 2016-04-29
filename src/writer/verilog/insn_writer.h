@@ -16,7 +16,6 @@ public:
   void Set();
   void Print();
   void Assert();
-  void SubModuleCall();
   void Mapped();
 
   static string RegisterName(const IRegister &reg);
