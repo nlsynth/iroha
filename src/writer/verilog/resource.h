@@ -26,10 +26,8 @@ private:
   void BuildMapped();
   void BuildSRAM();
   void BuildArray();
-  void BuildForeignRegister();
   void BuildExtInputInsn(IInsn *insn);
   void BuildMappedInsn(IInsn *insn);
-  void BuildForeignRegisterInsn(IInsn *insn);
   void WriteStateUnion(const map<IState *, IInsn *> &callers,
 		       ostream &os);
 

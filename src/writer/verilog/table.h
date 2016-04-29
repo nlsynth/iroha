@@ -29,7 +29,6 @@ public:
   Embed *GetEmbed() const;
   Module *GetModule() const;
   Task *GetTask() const;
-  string SharedRegPrefix(const ITable &writer, const IRegister &reg) const;
   static string WidthSpec(const IRegister *reg);
   static string StateNameFromTable(const ITable &tab, int id);
 
@@ -38,7 +37,6 @@ private:
   void BuildResource();
   void BuildRegister();
   void BuildInsnOutputWire();
-  void BuildSharedRegisters();
 
   ITable *i_table_;
   Ports *ports_;

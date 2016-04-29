@@ -11,6 +11,7 @@
 #include "writer/verilog/module.h"
 #include "writer/verilog/operator.h"
 #include "writer/verilog/ports.h"
+#include "writer/verilog/shared_reg.h"
 #include "writer/verilog/table.h"
 #include "writer/verilog/task.h"
 
@@ -30,6 +31,9 @@ Resource *Resource::Create(const IResource &res, const Table &table) {
       resource::IsLightBinOp(*klass) ||
       resource::IsBitArrangeOp(*klass)) {
     return new Operator(res, table);
+  }
+  if (resource::IsForeignRegister(*klass)) {
+    return new SharedReg(res, table);
   }
   return new Resource(res, table);
 }
@@ -64,18 +68,12 @@ void Resource::BuildResource() {
   if (resource::IsArray(*klass)) {
     BuildArray();
   }
-  if (resource::IsForeignRegister(*klass)) {
-    BuildForeignRegister();
-  }
 }
 
 void Resource::BuildInsn(IInsn *insn) {
   auto *klass = res_.GetClass();
   if (resource::IsExtInput(*klass)) {
     BuildExtInputInsn(insn);
-  }
-  if (resource::IsForeignRegister(*klass)) {
-    BuildForeignRegisterInsn(insn);
   }
   if (resource::IsMapped(*klass)) {
     BuildMappedInsn(insn);
@@ -206,54 +204,6 @@ void Resource::WriteStateUnion(const map<IState *, IInsn *> &callers,
 void Resource::BuildArray() {
 }
 
-void Resource::BuildForeignRegister() {
-  vector<pair<IState *, IInsn *>> writers;
-  for (IState *st : res_.GetTable()->states_) {
-    for (IInsn *insn : st->insns_) {
-      if (insn->GetResource() == &res_) {
-	if (insn->inputs_.size() > 0) {
-	  writers.push_back(make_pair(st, insn));
-	}
-      }
-    }
-  }
-  IRegister *foreign_reg = res_.GetForeignRegister();
-  string res_name = tab_.SharedRegPrefix(*tab_.GetITable(), *foreign_reg);
-  auto *tmpl = tab_.GetModuleTemplate();
-  ostream &rs = tmpl->GetStream(kResourceSection);
-  rs << "  // " << res_name << "\n";
-  rs << "  wire " << res_name << "_w;\n";
-  rs << "  wire " << Table::WidthSpec(foreign_reg) << " " << res_name << "_wdata;\n";
-  if (writers.size() == 0) {
-    rs << "  assign " << res_name << "_w = 0;\n";
-    rs << "  assign " << res_name << "_wdata = 0;\n";
-    return;
-  }
-  vector<IState *> sts;
-  for (auto &w : writers) {
-    sts.push_back(w.first);
-  }
-  rs << "  assign " << res_name << "_w = ";
-  rs << JoinStates(sts);
-  rs << ";\n";
-
-  string d;
-  for (auto &w : writers) {
-    IInsn *insn = w.second;
-    if (d.empty()) {
-      d = InsnWriter::RegisterName(*insn->inputs_[0]);
-    } else {
-      IState *st = w.first;
-      string t;
-      t = "(" + tab_.StateVariable() + " == " + Util::Itoa(st->GetId()) + ") ? ";
-      t += InsnWriter::RegisterName(*insn->inputs_[0]);
-      t += " : (" + d + ")";
-      d = t;
-    }
-  }
-  rs << "  assign " << res_name << "_wdata = " << d << ";\n";
-}
-
 string Resource::JoinStates(const vector<IState *> &sts) {
   vector<string> conds;
   for (IState *st : sts) {
@@ -289,18 +239,6 @@ void Resource::BuildMappedInsn(IInsn *insn) {
 	 << " = sram_rdata_" << res_id << ";\n";
     }
   }
-}
-
-void Resource::BuildForeignRegisterInsn(IInsn *insn) {
-  if (insn->outputs_.size() == 0) {
-    return;
-  }
-  auto *tmpl = tab_.GetModuleTemplate();
-  ostream &ws = tmpl->GetStream(kInsnWireValueSection);
-  ws << "  assign " << InsnWriter::InsnOutputWireName(*insn, 0)
-     << " = "
-     << InsnWriter::RegisterName(*(res_.GetForeignRegister()))
-     << ";\n";
 }
 
 }  // namespace verilog

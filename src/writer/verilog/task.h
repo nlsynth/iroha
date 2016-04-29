@@ -2,7 +2,6 @@
 #ifndef _writer_verilog_task_h_
 #define _writer_verilog_task_h_
 
-#include "writer/verilog/common.h"
 #include "writer/verilog/resource.h"
 
 namespace iroha {

@@ -13,6 +13,7 @@
 #include "writer/verilog/module.h"
 #include "writer/verilog/ports.h"
 #include "writer/verilog/resource.h"
+#include "writer/verilog/shared_reg.h"
 #include "writer/verilog/state.h"
 #include "writer/verilog/task.h"
 
@@ -44,7 +45,7 @@ void Table::Build() {
   BuildRegister();
   BuildResource();
   BuildInsnOutputWire();
-  BuildSharedRegisters();
+  SharedReg::BuildSharedRegisters(*this);
 }
 
 void Table::BuildStateDecl() {
@@ -120,51 +121,11 @@ void Table::BuildInsnOutputWire() {
   }
 }
 
-void Table::BuildSharedRegisters() {
-  const IModule *i_mod = mod_->GetIModule();
-  map<IRegister *, vector<ITable *>> writers;
-  // Collects tables which writes to this register.
-  for (auto *tab : i_mod->tables_) {
-    if (tab->GetId() == i_table_->GetId()) {
-      continue;
-    }
-    for (auto *res : tab->resources_) {
-      IRegister *reg = res->GetForeignRegister();
-      if (reg == nullptr || reg->GetTable() != i_table_) {
-	continue;
-      }
-      writers[reg].push_back(tab);
-    }
-  }
-
-  ostream &os = tmpl_->GetStream(kStateOutput + Util::Itoa(table_id_));
-  for (auto &w : writers) {
-    IRegister *reg = w.first;
-    bool is_first = true;
-    for (auto *t : w.second) {
-      os << "      ";
-      if (!is_first) {
-	os << "else ";
-      }
-      string s = SharedRegPrefix(*t, *reg);
-      os << "if (" << s << "_w) begin\n";
-      os << "        " << InsnWriter::RegisterName(*reg) << " <= ";
-      os << s << "_wdata;\n";
-      os << "      end\n";
-      is_first = false;
-    }
-  }
-}
-
 string Table::WidthSpec(const IRegister *reg) {
   if (reg->value_type_.GetWidth() > 0) {
     return " [" + Util::Itoa(reg->value_type_.GetWidth() - 1) + ":0]";
   }
   return string();
-}
-
-string Table::SharedRegPrefix(const ITable &writer, const IRegister &reg) const {
-  return "shared_reg_" + Util::Itoa(writer.GetId()) + "_" + Util::Itoa(reg.GetTable()->GetId()) + "_" + Util::Itoa(reg.GetId());
 }
 
 void Table::Write(ostream &os) {
