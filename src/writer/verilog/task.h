@@ -17,7 +17,7 @@ public:
   virtual string ReadySignal();
 
   static bool IsTask(const Table &table);
-  static string TaskEnablePin(const ITable &tab);
+  static string TaskEnablePin(const ITable &tab, const ITable *caller);
   static string SubModuleTaskControlPinPrefix(const IResource &res);
   static string SiblingTaskReadySignal(const ITable &tab);
 

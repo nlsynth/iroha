@@ -2,6 +2,7 @@
 
 #include "design/design_util.h"
 #include "iroha/i_design.h"
+#include "iroha/logging.h"
 #include "iroha/resource_class.h"
 #include "writer/module_template.h"
 #include "writer/verilog/insn_writer.h"
@@ -71,12 +72,16 @@ bool Task::IsTask(const Table &table) {
   return false;
 }
 
-string Task::TaskEnablePin(const ITable &tab) {
-  return "task_" + Util::Itoa(tab.GetId()) + "_en";
+string Task::TaskEnablePin(const ITable &tab, const ITable *caller) {
+  string s = "task_" + Util::Itoa(tab.GetId());
+  if (caller != nullptr) {
+    s += "_" + Util::Itoa(caller->GetId());
+  }
+  return s + "_en";
 }
 
 void Task::BuildSubModuleTask() {
-  string en = Task::TaskEnablePin(*tab_.GetITable());
+  string en = Task::TaskEnablePin(*tab_.GetITable(), nullptr);
   Ports *ports = tab_.GetPorts();
   ports->AddPort(en, Port::INPUT, 0);
   int table_id = tab_.GetITable()->GetId();
@@ -90,9 +95,33 @@ void Task::BuildSubModuleTask() {
 }
 
 void Task::BuildSiblingTask() {
+  vector<IResource *> callers;
+  ITable *i_tab = tab_.GetITable();
+  for (ITable *other_tab : i_tab->GetModule()->tables_) {
+    for (auto *caller_res : other_tab->resources_) {
+      if (caller_res->GetCalleeTable() == i_tab) {
+	callers.push_back(caller_res);
+      }
+    }
+  }
+  if (callers.size() == 0) {
+    LOG(INFO) << "No callers for this task:" << i_tab->GetId();
+    return;
+  }
   ModuleTemplate *tmpl = tab_.GetModuleTemplate();
   ostream &rs = tmpl->GetStream(kResourceSection);
-  rs << "  wire " << TaskEnablePin(*tab_.GetITable()) << ";\n";
+  string callee_pin = TaskEnablePin(*tab_.GetITable(), nullptr);
+
+  vector<string> caller_pins;
+  for (IResource *caller : callers) {
+    string caller_pin = TaskEnablePin(*tab_.GetITable(), caller->GetTable());
+    // will be assigned by the caller.
+    rs << "  wire " << caller_pin << ";\n";
+    caller_pins.push_back(caller_pin);
+  }
+  rs << "  wire " << callee_pin << ";\n";
+  rs << "  assign " << callee_pin << " = " << Util::Join(caller_pins, " || ") << ";\n";
+
   rs << "  wire " << SiblingTaskReadySignal(*tab_.GetITable()) << ";\n";
   rs << "  assign " << SiblingTaskReadySignal(*tab_.GetITable())
      << " = ("
@@ -127,7 +156,7 @@ void Task::BuildSiblingTaskCall() {
   auto *tmpl = tab_.GetModuleTemplate();
   ostream &rs = tmpl->GetStream(kResourceSection);
   const ITable *callee_tab = res_.GetCalleeTable();
-  rs << "  assign " << Task::TaskEnablePin(*callee_tab) << " = ";
+  rs << "  assign " << TaskEnablePin(*callee_tab, tab_.GetITable()) << " = ";
   rs << JoinStates(sts);
   rs << ";\n";
 }

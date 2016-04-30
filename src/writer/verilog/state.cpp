@@ -172,7 +172,7 @@ void State::WriteTransition(ostream &os) {
 
 void State::WriteTaskEntry(Table *tab, ostream &os) {
   os << I << "`" << tab->StateName(Task::kTaskEntryStateId) << ": begin\n";
-  os << I << "  if (" << Task::TaskEnablePin(*tab->GetITable()) << ") begin\n"
+  os << I << "  if (" << Task::TaskEnablePin(*tab->GetITable(),  nullptr) << ") begin\n"
      << I << "    " << tab->StateVariable() << " <= `"
      << tab->InitialStateName() << ";\n";
   os << I << "  end\n"

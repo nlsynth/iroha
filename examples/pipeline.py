@@ -46,4 +46,3 @@ design_tool.AddNextState(tab3.initialSt, print_st)
 
 design_tool.ValidateIds(d)
 DesignWriter(d).Write()
-
