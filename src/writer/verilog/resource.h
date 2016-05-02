@@ -44,6 +44,7 @@ protected:
 
   const IResource &res_;
   const Table &tab_;
+  ModuleTemplate *tmpl_;
 };
 
 }  // namespace verilog

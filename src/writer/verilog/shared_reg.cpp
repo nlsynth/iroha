@@ -27,8 +27,7 @@ void SharedReg::BuildResource() {
   }
   IRegister *foreign_reg = res_.GetForeignRegister();
   string res_name = RegPrefix(*tab_.GetITable(), *foreign_reg);
-  auto *tmpl = tab_.GetModuleTemplate();
-  ostream &rs = tmpl->GetStream(kResourceSection);
+  ostream &rs = tmpl_->GetStream(kResourceSection);
   rs << "  // " << res_name << "\n";
   rs << "  wire " << res_name << "_w;\n";
   rs << "  wire " << Table::WidthSpec(foreign_reg) << " "
@@ -67,8 +66,7 @@ void SharedReg::BuildInsn(IInsn *insn) {
   if (insn->outputs_.size() == 0) {
     return;
   }
-  auto *tmpl = tab_.GetModuleTemplate();
-  ostream &ws = tmpl->GetStream(kInsnWireValueSection);
+  ostream &ws = tmpl_->GetStream(kInsnWireValueSection);
   ws << "  assign " << InsnWriter::InsnOutputWireName(*insn, 0)
      << " = "
      << InsnWriter::RegisterName(*(res_.GetForeignRegister()))
@@ -98,8 +96,7 @@ void SharedReg::BuildSharedRegisters(const Table &tab) {
     }
   }
 
-  auto *tmpl = tab.GetModuleTemplate();
-  ostream &os = tmpl->GetStream(kStateOutput + Util::Itoa(i_tab->GetId()));
+  ostream &os = tab.StateOutputSectionStream();
   for (auto &w : writers) {
     IRegister *reg = w.first;
     bool is_first = true;

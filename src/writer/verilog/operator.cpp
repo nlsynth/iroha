@@ -33,8 +33,7 @@ void Operator::BuildInsn(IInsn *insn) {
 }
 
 void Operator::BuildExclusiveBinOp() {
-  auto *tmpl = tab_.GetModuleTemplate();
-  ostream &rs = tmpl->GetStream(kResourceSection);
+  ostream &rs = tmpl_->GetStream(kResourceSection);
   const string &res_name = res_.GetClass()->GetName();
   rs << "  // " << res_name << ":" << res_.GetId() << "\n";
   map<IState *, IInsn *> callers;
@@ -53,6 +52,8 @@ void Operator::BuildExclusiveBinOp() {
     rs << ">";
   } else if (res_name == resource::kAdd) {
     rs << "+";
+  } else if (res_name == resource::kSub) {
+    rs << "-";
   } else {
     LOG(FATAL) << "Unknown binop" << res_name;
   }
@@ -60,8 +61,7 @@ void Operator::BuildExclusiveBinOp() {
 }
 
 void Operator::BuildLightBinOpInsn(IInsn *insn) {
-  auto *tmpl = tab_.GetModuleTemplate();
-  ostream &ws = tmpl->GetStream(kInsnWireValueSection);
+  ostream &ws = tmpl_->GetStream(kInsnWireValueSection);
   ws << "  assign " << InsnWriter::InsnOutputWireName(*insn, 0)
       << " = " << InsnWriter::RegisterName(*insn->inputs_[0]) << " ";
   const string &rc = insn->GetResource()->GetClass()->GetName();
@@ -78,8 +78,7 @@ void Operator::BuildLightBinOpInsn(IInsn *insn) {
 }
 
 void Operator::BuildBitArrangeOpInsn(IInsn *insn) {
-  auto *tmpl = tab_.GetModuleTemplate();
-  ostream &ws = tmpl->GetStream(kInsnWireValueSection);
+  ostream &ws = tmpl_->GetStream(kInsnWireValueSection);
   const string &rc = insn->GetResource()->GetClass()->GetName();
   if (rc == resource::kShift) {
     bool is_left = (insn->GetOperand() == "left");

@@ -40,6 +40,7 @@ Resource *Resource::Create(const IResource &res, const Table &table) {
 
 Resource::Resource(const IResource &res, const Table &table)
   : res_(res), tab_(table) {
+  tmpl_ = tab_.GetModuleTemplate();
 }
 
 void Resource::BuildResource() {
@@ -105,9 +106,8 @@ void Resource::BuildEmbedded() {
   auto *params = res_.GetParams();
   auto *ports = tab_.GetPorts();
   auto *embed = tab_.GetEmbed();
-  auto *tmpl = tab_.GetModuleTemplate();
   embed->RequestModule(*params);
-  ostream &is = tmpl->GetStream(kEmbeddedInstanceSection);
+  ostream &is = tmpl_->GetStream(kEmbeddedInstanceSection);
   embed->BuildModuleInstantiation(res_, *ports, is);
 }
 
@@ -157,9 +157,8 @@ void Resource::BuildMapped() {
 
 void Resource::BuildSRAM() {
   InternalSRAM *sram = tab_.GetModule()->RequestInternalSRAM(res_);
-  auto *tmpl = tab_.GetModuleTemplate();
   auto *ports = tab_.GetPorts();
-  ostream &es = tmpl->GetStream(kEmbeddedInstanceSection);
+  ostream &es = tmpl_->GetStream(kEmbeddedInstanceSection);
   string name = sram->GetModuleName();
   string res_id = Util::Itoa(res_.GetId());
   string inst = name + "_inst_" + res_id;
@@ -171,14 +170,14 @@ void Resource::BuildSRAM() {
      << ", .wdata_i(sram_wdata_" << res_id << ")"
      << ", .write_en_i(sram_wdata_en_" << res_id << ")"
      <<");\n";
-  ostream &rs = tmpl->GetStream(kResourceSection);
+  ostream &rs = tmpl_->GetStream(kResourceSection);
   rs << "  reg " << sram->AddressWidthSpec() << "sram_addr_" << res_id << ";\n"
      << "  wire " << sram->DataWidthSpec() << "sram_rdata_" << res_id << ";\n"
      << "  reg " << sram->DataWidthSpec() << "sram_wdata_" << res_id << ";\n"
      << "  reg sram_wdata_en_" << res_id << ";\n";
   map<IState *, IInsn *> callers;
   CollectResourceCallers("sram_write", &callers);
-  ostream &fs = tmpl->GetStream(kStateOutput + Util::Itoa(tab_.GetITable()->GetId()));
+  ostream &fs = tab_.StateOutputSectionStream();
   fs << "      sram_wdata_en_" << res_id << " <= ";
   WriteStateUnion(callers, fs);
   fs << ";\n";
@@ -217,8 +216,7 @@ void Resource::BuildExtInputInsn(IInsn *insn) {
   string input_port;
   int width;
   params->GetExtInputPort(&input_port, &width);
-  auto *tmpl = tab_.GetModuleTemplate();
-  ostream &ws = tmpl->GetStream(kInsnWireValueSection);
+  ostream &ws = tmpl_->GetStream(kInsnWireValueSection);
   ws << "  assign " << InsnWriter::InsnOutputWireName(*insn, 0)
      << " = "
      << input_port << ";\n";
@@ -227,8 +225,7 @@ void Resource::BuildExtInputInsn(IInsn *insn) {
 void Resource::BuildMappedInsn(IInsn *insn) {
   IResource *res = insn->GetResource();
   auto *params = res->GetParams();
-  auto *tmpl = tab_.GetModuleTemplate();
-  ostream &ws = tmpl->GetStream(kInsnWireValueSection);
+  ostream &ws = tmpl_->GetStream(kInsnWireValueSection);
   if (params->GetMappedName() == "mem") {
     string res_id = Util::Itoa(res->GetId());
     const string &opr = insn->GetOperand();

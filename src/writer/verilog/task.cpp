@@ -87,8 +87,7 @@ void Task::BuildSubModuleTask() {
   int table_id = tab_.GetITable()->GetId();
   string ack = "task_" + Util::Itoa(table_id) + "_ack";
   ports->AddPort(ack, Port::OUTPUT, 0);
-  ModuleTemplate *tmpl = tab_.GetModuleTemplate();
-  ostream &fs = tmpl->GetStream(kStateOutput + Util::Itoa(table_id));
+  ostream &fs = tab_.StateOutputSectionStream();
   fs << "      " << ack <<
     " <= (" << tab_.StateVariable() << " == `"
      << tab_.StateName(Task::kTaskEntryStateId) << ") && " << en << ";\n";
@@ -108,8 +107,7 @@ void Task::BuildSiblingTask() {
     LOG(INFO) << "No callers for this task:" << i_tab->GetId();
     return;
   }
-  ModuleTemplate *tmpl = tab_.GetModuleTemplate();
-  ostream &rs = tmpl->GetStream(kResourceSection);
+  ostream &rs = tmpl_->GetStream(kResourceSection);
   string callee_pin = TaskEnablePin(*tab_.GetITable(), nullptr);
 
   vector<string> caller_pins;
@@ -135,12 +133,11 @@ string Task::SubModuleTaskControlPinPrefix(const IResource &res) {
 }
 
 void Task::BuildSubModuleTaskCall() {
-  auto *tmpl = tab_.GetModuleTemplate();
-  ostream &rs = tmpl->GetStream(kResourceSection);
+  ostream &rs = tmpl_->GetStream(kResourceSection);
   string prefix = Task::SubModuleTaskControlPinPrefix(res_);
   rs << "  reg " << prefix << "_en;\n";
   rs << "  wire " << prefix << "_ack;\n";
-  ostream &is = tmpl->GetStream(kInitialValueSection + Util::Itoa(tab_.GetITable()->GetId()));
+  ostream &is = tab_.InitialValueSectionStream();
   is << "      " << prefix << "_en <= 0;\n";
 }
 
@@ -153,8 +150,7 @@ void Task::BuildSiblingTaskCall() {
       }
     }
   }
-  auto *tmpl = tab_.GetModuleTemplate();
-  ostream &rs = tmpl->GetStream(kResourceSection);
+  ostream &rs = tmpl_->GetStream(kResourceSection);
   const ITable *callee_tab = res_.GetCalleeTable();
   rs << "  assign " << TaskEnablePin(*callee_tab, tab_.GetITable()) << " = ";
   rs << JoinStates(sts);

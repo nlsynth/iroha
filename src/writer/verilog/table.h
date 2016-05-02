@@ -21,14 +21,21 @@ public:
   ITable *GetITable() const;
   const string &StateVariable() const;
   string StateName(int id) const;
-  ModuleTemplate *GetModuleTemplate() const;
   string InitialStateName();
   bool IsTask();
   bool IsEmpty();
+
   Ports *GetPorts() const;
   Embed *GetEmbed() const;
   Module *GetModule() const;
   Task *GetTask() const;
+  ModuleTemplate *GetModuleTemplate() const;
+
+  ostream &StateOutputSectionStream() const;
+  string StateOutputSectionContents() const;
+  ostream &InitialValueSectionStream() const;
+  string InitialValueSectionContents() const;
+
   static string WidthSpec(const IRegister *reg);
   static string StateNameFromTable(const ITable &tab, int id);
 

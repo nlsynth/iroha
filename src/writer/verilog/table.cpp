@@ -89,7 +89,7 @@ void Table::BuildResource() {
 
 void Table::BuildRegister() {
   ostream &rs = tmpl_->GetStream(kRegisterSection);
-  ostream &is = tmpl_->GetStream(kInitialValueSection + Util::Itoa(table_id_));
+  ostream &is = InitialValueSectionStream();
   for (auto *reg : i_table_->registers_) {
     if (!reg->IsConst()) {
       if (reg->IsStateLocal()) {
@@ -149,9 +149,9 @@ void Table::Write(ostream &os) {
     }
     os << ";\n";
   }
-  os << tmpl_->GetContents(kInitialValueSection + Util::Itoa(table_id_));
+  os << InitialValueSectionContents();
   os << "    end else begin\n";
-  os << tmpl_->GetContents(kStateOutput + Util::Itoa(table_id_));
+  os << StateOutputSectionContents();
   if (!IsEmpty()) {
     os << "      case (" << StateVariable() << ")\n";
     if (IsTask()) {
@@ -189,6 +189,22 @@ string Table::StateNameFromTable(const ITable &tab, int id) {
 
 ModuleTemplate *Table::GetModuleTemplate() const {
   return tmpl_;
+}
+
+ostream &Table::StateOutputSectionStream() const {
+  return tmpl_->GetStream(kStateOutput + Util::Itoa(table_id_));
+}
+
+string Table::StateOutputSectionContents() const {
+  return tmpl_->GetContents(kStateOutput + Util::Itoa(table_id_));
+}
+
+ostream &Table::InitialValueSectionStream() const {
+  return tmpl_->GetStream(kInitialValueSection + Util::Itoa(table_id_));
+}
+
+string Table::InitialValueSectionContents() const {
+  return tmpl_->GetContents(kInitialValueSection + Util::Itoa(table_id_));
 }
 
 string Table::InitialStateName() {

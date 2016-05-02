@@ -58,8 +58,7 @@ void State::BuildMultiCycle(const IInsn *insn) {
     ostream &ws = tmpl_->GetStream(kInsnWireDeclSection);
     string w = InsnWriter::MultiCycleStateName(*insn);
     ws << "  reg [1:0] " << w << ";\n";
-    ostream &is = tmpl_->GetStream(kInitialValueSection +
-				   Util::Itoa(table_->GetITable()->GetId()));
+    ostream &is = table_->InitialValueSectionStream();
     is << "      " << w << " <= 0;\n";
   }
 }
