@@ -13,7 +13,7 @@ public:
   Task(const IResource &res, const Table &table);
 
   virtual void BuildResource();
-  virtual void WriteInsn(const IInsn *insn, State *st, ostream &os);
+  virtual void BuildInsn(IInsn *insn, State *st);
   virtual string ReadySignal();
 
   static bool IsTask(const Table &table);

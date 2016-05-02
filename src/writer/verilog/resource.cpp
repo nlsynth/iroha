@@ -12,6 +12,7 @@
 #include "writer/verilog/operator.h"
 #include "writer/verilog/ports.h"
 #include "writer/verilog/shared_reg.h"
+#include "writer/verilog/state.h"
 #include "writer/verilog/table.h"
 #include "writer/verilog/task.h"
 
@@ -71,7 +72,7 @@ void Resource::BuildResource() {
   }
 }
 
-void Resource::BuildInsn(IInsn *insn) {
+void Resource::BuildInsn(IInsn *insn, State *st) {
   auto *klass = res_.GetClass();
   if (resource::IsExtInput(*klass)) {
     BuildExtInputInsn(insn);
@@ -79,9 +80,8 @@ void Resource::BuildInsn(IInsn *insn) {
   if (resource::IsMapped(*klass)) {
     BuildMappedInsn(insn);
   }
-}
 
-void Resource::WriteInsn(const IInsn *insn, State *st, ostream &os) {
+  ostream &os = st->StateBodySectionStream();
   InsnWriter writer(insn, st, os);
   auto *rc = res_.GetClass();
   const string &rc_name = rc->GetName();
@@ -141,6 +141,9 @@ void Resource::WriteInputSel(const string &name,
 void Resource::WriteWire(const string &name, const IValueType &type,
 			 ostream &os) {
   os << "  wire ";
+  if (type.IsSigned()) {
+    os << "signed ";
+  }
   int width = type.GetWidth();
   if (width > 0) {
     os << "[" << (width - 1) << ":0] ";

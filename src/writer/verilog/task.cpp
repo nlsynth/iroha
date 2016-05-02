@@ -8,6 +8,7 @@
 #include "writer/verilog/insn_writer.h"
 #include "writer/verilog/module.h"
 #include "writer/verilog/ports.h"
+#include "writer/verilog/state.h"
 #include "writer/verilog/table.h"
 
 namespace iroha {
@@ -36,7 +37,8 @@ void Task::BuildResource() {
   }
 }
 
-void Task::WriteInsn(const IInsn *insn, State *st, ostream &os) {
+void Task::BuildInsn(IInsn *insn, State *st) {
+  ostream &os = st->StateBodySectionStream();
   auto *klass = res_.GetClass();
   if (resource::IsSubModuleTaskCall(*klass)) {
     static const char I[] = "          ";

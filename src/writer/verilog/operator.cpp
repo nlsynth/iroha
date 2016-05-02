@@ -23,7 +23,7 @@ void Operator::BuildResource() {
   }
 }
 
-void Operator::BuildInsn(IInsn *insn) {
+void Operator::BuildInsn(IInsn *insn, State *st) {
   auto *klass = res_.GetClass();
   if (resource::IsLightBinOp(*klass)) {
     BuildLightBinOpInsn(insn);

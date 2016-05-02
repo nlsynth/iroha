@@ -13,7 +13,7 @@ public:
   SharedReg(const IResource &res, const Table &table);
 
   virtual void BuildResource();
-  virtual void BuildInsn(IInsn *insn);
+  virtual void BuildInsn(IInsn *insn, State *st);
 
   static string RegPrefix(const ITable &writer, const IRegister &reg);
   static void BuildSharedRegisters(const Table &tab);

@@ -62,7 +62,7 @@ void SharedReg::BuildResource() {
   rs << "  assign " << res_name << "_wdata = " << d << ";\n";
 }
 
-void SharedReg::BuildInsn(IInsn *insn) {
+void SharedReg::BuildInsn(IInsn *insn, State *st) {
   if (insn->outputs_.size() == 0) {
     return;
   }

@@ -14,7 +14,7 @@ public:
   Operator(const IResource &res, const Table &table);
 
   virtual void BuildResource();
-  virtual void BuildInsn(IInsn *insn);
+  virtual void BuildInsn(IInsn *insn, State *st);
 
 private:
   void BuildExclusiveBinOp();

@@ -17,12 +17,16 @@ public:
   const IState *GetIState() const;
   static void WriteTaskEntry(Table *tab, ostream &os);
 
+  ostream &StateBodySectionStream() const;
+  string StateBodySectionContents() const;
+
 private:
   void WriteInsn(const IInsn *insn, ostream &os);
   void WriteTransition(ostream &os);
   void WriteTransitionBody(ostream &os);
   void CopyResults(const IInsn *insn, bool to_wire, ostream &os);
   void BuildMultiCycle(const IInsn *insn);
+  string StateBodySectionName() const;
 
   IState *i_state_;
   Table *table_;

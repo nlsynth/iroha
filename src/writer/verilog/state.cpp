@@ -32,7 +32,7 @@ void State::Build() {
     auto *res = insn->GetResource();
     unique_ptr<Resource> builder(Resource::Create(*res, *table_));
     if (builder.get() != nullptr) {
-      builder->BuildInsn(insn);
+      builder->BuildInsn(insn, this);
     }
     if (!resource::IsSet(*res->GetClass())) {
       CopyResults(insn, true, ws);
@@ -45,6 +45,7 @@ void State::Build() {
 
 void State::Write(ostream &os) {
   os << I << "`" << table_->StateName(i_state_->GetId()) << ": begin\n";
+  os << StateBodySectionContents();
   for (auto *insn : i_state_->insns_) {
     WriteInsn(insn, os);
   }
@@ -69,10 +70,6 @@ const IState *State::GetIState() const {
 
 void State::WriteInsn(const IInsn *insn, ostream &os) {
   auto *res = insn->GetResource();
-  unique_ptr<Resource> res_builder(Resource::Create(*res, *table_));
-  if (res_builder.get() != nullptr) {
-    res_builder->WriteInsn(insn, this, os);
-  }
   if (!resource::IsSet(*res->GetClass())) {
     CopyResults(insn, false, os);
   }
@@ -176,6 +173,22 @@ void State::WriteTaskEntry(Table *tab, ostream &os) {
      << tab->InitialStateName() << ";\n";
   os << I << "  end\n"
      << I << "end\n";
+}
+
+ostream &State::StateBodySectionStream() const {
+  ModuleTemplate *tmpl = table_->GetModuleTemplate();
+  return tmpl->GetStream(StateBodySectionName());
+}
+
+string State::StateBodySectionContents() const {
+  ModuleTemplate *tmpl = table_->GetModuleTemplate();
+  return tmpl->GetContents(StateBodySectionName());
+}
+
+string State::StateBodySectionName() const {
+  return kStateBody +
+    Util::Itoa(table_->GetITable()->GetId()) +
+    ":" + Util::Itoa(i_state_->GetId());
 }
 
 }  // namespace verilog

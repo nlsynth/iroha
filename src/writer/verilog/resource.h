@@ -17,8 +17,7 @@ public:
   static Resource *Create(const IResource &res, const Table &tab);
 
   virtual void BuildResource();
-  virtual void BuildInsn(IInsn *insn);
-  virtual void WriteInsn(const IInsn *insn, State *st, ostream &os);
+  virtual void BuildInsn(IInsn *insn, State *st);
   virtual string ReadySignal();
 
 private:
