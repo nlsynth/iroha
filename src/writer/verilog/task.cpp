@@ -60,7 +60,7 @@ string Task::ReadySignal() {
   auto *klass = res_.GetClass();
   if (resource::IsSiblingTaskCall(*klass)) {
     const ITable *callee_tab = res_.GetCalleeTable();
-    return SiblingTaskReadySignal(*callee_tab);
+    return SiblingTaskReadySignal(*callee_tab, res_.GetTable());
   }
   return "";
 }
@@ -110,6 +110,8 @@ void Task::BuildSiblingTask() {
     return;
   }
   ostream &rs = tmpl_->GetStream(kResourceSection);
+  rs << "  //  Sibling task: " << tab_.GetITable()->GetId()
+     << ":" << res_.GetId() << "\n";
   string callee_pin = TaskEnablePin(*tab_.GetITable(), nullptr);
 
   vector<string> caller_pins;
@@ -122,11 +124,32 @@ void Task::BuildSiblingTask() {
   rs << "  wire " << callee_pin << ";\n";
   rs << "  assign " << callee_pin << " = " << Util::Join(caller_pins, " || ") << ";\n";
 
-  rs << "  wire " << SiblingTaskReadySignal(*tab_.GetITable()) << ";\n";
-  rs << "  assign " << SiblingTaskReadySignal(*tab_.GetITable())
+  string callee_ready = SiblingTaskReadySignal(*tab_.GetITable(), nullptr);
+  rs << "  wire " << callee_ready << ";\n";
+  rs << "  assign " << callee_ready
      << " = ("
      << tab_.StateVariable() << " == `"
      << tab_.StateName(Task::kTaskEntryStateId) << ");\n";
+  vector<string> higher_callers;
+  for (IResource *caller : callers) {
+    string caller_ready =
+      SiblingTaskReadySignal(*tab_.GetITable(), caller->GetTable());
+    rs << "  wire " << caller_ready << ";\n";
+    string wait_req;
+    if (callers.size() > 1) {
+      // Needs arbitration.
+      wait_req = " && " + TaskEnablePin(*tab_.GetITable(), caller->GetTable());
+    }
+    string has_higher = Util::Join(higher_callers, " || ");
+    if (!has_higher.empty()) {
+      has_higher = " && !(" + has_higher + ")";
+    }
+    rs << "  assign " << caller_ready << " = "
+       << callee_ready << wait_req << has_higher << ";\n";
+    higher_callers.push_back(TaskEnablePin(*tab_.GetITable(),
+					   caller->GetTable()));
+    rs << "  //  sibling task end\n";
+  }
 }
 
 string Task::SubModuleTaskControlPinPrefix(const IResource &res) {
@@ -159,8 +182,12 @@ void Task::BuildSiblingTaskCall() {
   rs << ";\n";
 }
 
-string Task::SiblingTaskReadySignal(const ITable &tab) {
-  return "task_" + Util::Itoa(tab.GetId()) + "_ready";
+string Task::SiblingTaskReadySignal(const ITable &tab, const ITable *caller) {
+  string s = "task_" + Util::Itoa(tab.GetId());
+  if (caller != nullptr) {
+    s += "_" + Util::Itoa(caller->GetId());
+  }
+  return s + "_ready";
 }
   
 }  // namespace verilog

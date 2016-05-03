@@ -19,7 +19,8 @@ public:
   static bool IsTask(const Table &table);
   static string TaskEnablePin(const ITable &tab, const ITable *caller);
   static string SubModuleTaskControlPinPrefix(const IResource &res);
-  static string SiblingTaskReadySignal(const ITable &tab);
+  static string SiblingTaskReadySignal(const ITable &tab,
+				       const ITable *caller);
 
   static const int kTaskEntryStateId;
 
