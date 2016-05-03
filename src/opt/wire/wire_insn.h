@@ -67,7 +67,7 @@ private:
   DebugAnnotation *annotation_;
   BBSet *bset_;
   DataFlow *data_flow_;
-  map<BB *, set<IRegister *>> used_regs_;
+  map<BB *, set<IRegister *> > used_regs_;
   map<IInsn *, PerInsn *> per_insn_map_;
 };
   

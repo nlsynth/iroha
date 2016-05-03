@@ -10,7 +10,7 @@ TransitionInfo::TransitionInfo() : nr_branch_(0), nr_join_(0) {
 }
 
 void OptUtil::CollectReachableStates(ITable *tab, set<IState *> *reachable) {
-  map<IState *, set<IState *>> targets;
+  map<IState *, set<IState *> > targets;
   CollectTransitionTargets(tab, &targets);
   set<IState *> frontier;
   frontier.insert(tab->GetInitialState());
@@ -48,7 +48,7 @@ void OptUtil::CollectTransitionInfo(ITable *tab,
 }
 
 void OptUtil::CollectTransitionTargets(ITable *tab,
-				       map<IState *, set<IState *>> *targets) {
+				       map<IState *, set<IState *> > *targets) {
   IResource *tr = DesignUtil::FindTransitionResource(tab);
   for (auto st : tab->states_) {
     IInsn *tr_insn = DesignUtil::FindInsnByResource(st, tr);

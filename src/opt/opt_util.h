@@ -27,7 +27,7 @@ public:
 
 private:
   static void CollectTransitionTargets(ITable *tab,
-				       map<IState *, set<IState *>> *targets);
+				       map<IState *, set<IState *> > *targets);
 };
 
 }  // namespace opt

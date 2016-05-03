@@ -26,7 +26,7 @@ public:
 protected:
   IDesign *design_;
 
-  static map<string, function<Phase *()>> phases_;
+  static map<string, function<Phase *()> > phases_;
 };
 
 }  // namespace opt

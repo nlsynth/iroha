@@ -29,7 +29,7 @@ private:
   IResource *sel_;
   IResource *assign_;
   int nth_sel_;
-  map<IInsn *, set<RegDef *>> reg_def_map_;
+  map<IInsn *, set<RegDef *> > reg_def_map_;
 };
 
 }  // namespace ssa
