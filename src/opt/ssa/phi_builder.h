@@ -40,7 +40,7 @@ private:
   unique_ptr<BBSet> bset_;
   unique_ptr<DataFlow> data_flow_;
   vector<PHI *> phis_;
-  map<IInsn *, set<RegDef *>> reg_def_map_;
+  map<IInsn *, set<RegDef *> > reg_def_map_;
   // For versioning.
   map<IRegister *, PerRegister *> reg_info_;
   map<RegDef *, int> def_versions_;

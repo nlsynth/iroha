@@ -31,7 +31,7 @@ private:
   map<IResource *, string> callee_module_names_;
   map<IResource *, int> table_ids_;
   map<IModule *, string> parent_module_names_;
-  map<IResource *, pair<int, int>> foreign_registers_;
+  map<IResource *, pair<int, int> > foreign_registers_;
 };
 
 }  // namespace builder

@@ -13,7 +13,7 @@ public:
 			       DebugAnnotation *an);
   void GetFrontier(BB *bb, vector<BB *> *s);
 
-  map<BB *, vector<BB *>> frontiers_;
+  map<BB *, vector<BB *> > frontiers_;
 };
 
 }  // namespace opt

@@ -17,7 +17,7 @@
 namespace iroha {
 namespace opt {
 
-map<string, function<Phase *()>> Optimizer::phases_;
+map<string, function<Phase *()> > Optimizer::phases_;
 
 Optimizer::Optimizer(IDesign *design) : design_(design) {
 }

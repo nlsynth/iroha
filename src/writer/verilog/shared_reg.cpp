@@ -15,7 +15,7 @@ SharedReg::SharedReg(const IResource &res, const Table &table)
 }
 
 void SharedReg::BuildResource() {
-  vector<pair<IState *, IInsn *>> writers;
+  vector<pair<IState *, IInsn *> > writers;
   for (IState *st : res_.GetTable()->states_) {
     for (IInsn *insn : st->insns_) {
       if (insn->GetResource() == &res_) {
@@ -81,7 +81,7 @@ void SharedReg::BuildSharedRegisters(const Table &tab) {
   Module *mod = tab.GetModule();
   const IModule *i_mod = mod->GetIModule();
   ITable *i_tab = tab.GetITable();
-  map<IRegister *, vector<ITable *>> writers;
+  map<IRegister *, vector<ITable *> > writers;
   // Collects tables which write to registers in this table.
   for (auto *other_tab : i_mod->tables_) {
     if (other_tab->GetId() == i_tab->GetId()) {

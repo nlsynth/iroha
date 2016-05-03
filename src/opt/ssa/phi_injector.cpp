@@ -40,7 +40,7 @@ void PhiInjector::Perform() {
 }
 
 void PhiInjector::CollectSingularRegister() {
-  map<IRegister *, set<IInsn *>> define_insns;
+  map<IRegister *, set<IInsn *> > define_insns;
   for (BB *bb : bset_->bbs_) {
     vector<RegDef *> reaches;
     data_flow_->GetReachDefs(bb, &reaches);
