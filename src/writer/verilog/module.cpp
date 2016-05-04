@@ -34,7 +34,6 @@ Module::Module(const IModule *i_mod, const Connection &conn,
 
 Module::~Module() {
   STLDeleteValues(&tables_);
-  STLDeleteValues(&srams_);
 }
 
 void Module::Write(ostream &os) {
@@ -135,16 +134,6 @@ void Module::BuildChildModuleTaskWire(const Module &mod, ostream &is) {
     is << ", .task_" << tab->GetId() << "_en(" << caller_en << ")";
     is << ", .task_" << tab->GetId() << "_ack(" << caller_ack << ")";
   }
-}
-
-InternalSRAM *Module::RequestInternalSRAM(const IResource &res) {
-  InternalSRAM *sram = new InternalSRAM(*this, res);
-  srams_.push_back(sram);
-  return sram;
-}
-
-const vector<InternalSRAM *> &Module::GetInternalSRAMs() const {
-  return srams_;
 }
 
 void Module::BuildChildModuleChannelWireAll(const IModule &imod, ostream &is) {

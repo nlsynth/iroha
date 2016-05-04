@@ -21,7 +21,6 @@ public:
 private:
   void BuildModules(const IModule *imod);
   void BuildHierarchy();
-  void WriteInternalSRAMs();
   void WriteShellModule(const Module *mod);
 
   const IDesign *design_;

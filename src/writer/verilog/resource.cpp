@@ -150,7 +150,8 @@ void Resource::BuildMapped() {
 }
 
 void Resource::BuildSRAM() {
-  InternalSRAM *sram = tab_.GetModule()->RequestInternalSRAM(res_);
+  InternalSRAM *sram =
+    tab_.GetEmbeddedModules()->RequestInternalSRAM(*tab_.GetModule(), res_);
   auto *ports = tab_.GetPorts();
   ostream &es = tmpl_->GetStream(kEmbeddedInstanceSection);
   string name = sram->GetModuleName();

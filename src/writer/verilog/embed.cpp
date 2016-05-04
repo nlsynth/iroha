@@ -3,6 +3,7 @@
 #include "iroha/i_design.h"
 #include "iroha/resource_params.h"
 #include "writer/module_template.h"
+#include "writer/verilog/internal_sram.h"
 #include "writer/verilog/module.h"
 #include "writer/verilog/ports.h"
 #include "writer/verilog/table.h"
@@ -23,19 +24,8 @@ void EmbeddedModules::RequestModule(const ResourceParams &params) {
   }
 }
 
-void EmbeddedModules::BuildModuleInstantiation(const IResource &res,
-					       const Ports &ports,
-					       ostream &os) {
-  auto *params = res.GetParams();
-  string name = params->GetEmbeddedModuleName();
-  os << "  // " << name << "\n";
-  os << "  " << name << " inst_" << name << "(";
-  os << "." << params->GetEmbeddedModuleClk() << "(" << ports.GetClk() << "), "
-     << "." << params->GetEmbeddedModuleReset() << "(" << ports.GetReset()
-     << "));\n";
-}
-
 bool EmbeddedModules::Write(ostream &os) {
+  // Files
   for (auto &s : files_) {
     os << "// Copied from " << s << "\n";
     ifstream *ifs = new ifstream(s);
@@ -53,7 +43,18 @@ bool EmbeddedModules::Write(ostream &os) {
   if (files_.size() > 0) {
     os << "\n";
   }
+  // Internal SRAM
+  for (InternalSRAM *sram : srams_) {
+    sram->Write(os);
+  }
   return true;
+}
+
+InternalSRAM *EmbeddedModules::RequestInternalSRAM(const Module &mod,
+						   const IResource &res) {
+  InternalSRAM *sram = new InternalSRAM(mod, res);
+  srams_.push_back(sram);
+  return sram;
 }
 
 EmbeddedResource::EmbeddedResource(const IResource &res, const Table &table)
@@ -61,12 +62,18 @@ EmbeddedResource::EmbeddedResource(const IResource &res, const Table &table)
 }
 
 void EmbeddedResource::BuildResource() {
-  auto *params = res_.GetParams();
-  auto *ports = tab_.GetPorts();
   auto *embed = tab_.GetEmbeddedModules();
+  auto *params = res_.GetParams();
   embed->RequestModule(*params);
+
   ostream &is = tmpl_->GetStream(kEmbeddedInstanceSection);
-  embed->BuildModuleInstantiation(res_, *ports, is);
+  string name = params->GetEmbeddedModuleName();
+  auto *ports = tab_.GetPorts();
+  is << "  // " << name << "\n";
+  is << "  " << name << " inst_" << name << "(";
+  is << "." << params->GetEmbeddedModuleClk() << "(" << ports->GetClk() << "), "
+     << "." << params->GetEmbeddedModuleReset() << "(" << ports->GetReset()
+     << "));\n";
 }
 
 }  // namespace verilog

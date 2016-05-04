@@ -1,6 +1,8 @@
 import sys
 sys.path.append('../py')
 
+# python array.py | ../iroha - -v -opt array_to_mem
+
 from iroha import *
 from iroha.iroha import *
 
@@ -31,7 +33,7 @@ st1.insns.append(write_insn)
 read_insn = IInsn(array)
 read_insn.inputs.append(addr)
 read_data = IRegister(tab, "r1")
-read_insn.outputs.append(addr)
+read_insn.outputs.append(read_data)
 st2.insns.append(read_insn)
 design_tool.ValidateIds(d)
 

@@ -31,7 +31,6 @@ void VerilogWriter::Write() {
   if (!embedded_modules_->Write(os_)) {
     LOG(ERROR) << "Failed to write embedded modules.";
   }
-  WriteInternalSRAMs();
   for (auto *mod : ordered_modules_) {
     mod->Write(os_);
   }
@@ -65,15 +64,6 @@ void VerilogWriter::BuildHierarchy() {
       mods.push_back(modules_[imod]);
     }
     mod->BuildChildModuleSection(mods);
-  }
-}
-
-void VerilogWriter::WriteInternalSRAMs() {
-  for (auto *mod : ordered_modules_) {
-    const vector<InternalSRAM *> &srams = mod->GetInternalSRAMs();
-    for (InternalSRAM *sram : srams) {
-      sram->Write(os_);
-    }
   }
 }
 

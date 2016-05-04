@@ -33,11 +33,7 @@ public:
   bool GetResetPolarity() const;
   const IModule *GetIModule() const;
   const Ports *GetPorts() const;
-  // Called from VerilogWriter.
-  const vector<InternalSRAM *> &GetInternalSRAMs() const;
   void BuildChildModuleSection(vector<Module *> &mods);
-  // Called from Table.
-  InternalSRAM *RequestInternalSRAM(const IResource &res);
 
 private:
   void BuildChannelConnections(const ChannelInfo &ci);
@@ -52,7 +48,6 @@ private:
   unique_ptr<ModuleTemplate> tmpl_;
   unique_ptr<Ports> ports_;
   vector<Table *> tables_;
-  vector<InternalSRAM *> srams_;
   bool reset_polarity_;
   string reset_name_;
 };

@@ -15,14 +15,15 @@ class EmbeddedModules {
 public:
   ~EmbeddedModules();
   void RequestModule(const ResourceParams &params);
-  void BuildModuleInstantiation(const IResource &res,
-				const Ports &ports,
-				ostream &os);
+  InternalSRAM *RequestInternalSRAM(const Module &mod,
+				    const IResource &res);
+
   // Writes embedded file contents.
   bool Write(ostream &os);
 
 private:
   set<string> files_;
+  vector<InternalSRAM *> srams_;
 };
 
 class EmbeddedResource : public Resource {
