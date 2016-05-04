@@ -7,7 +7,7 @@ from iroha.iroha import *
 d = IDesign()
 mod = IModule(d, "mod")
 
-shared_reg = design_tool.CreateSharedRegister(mod)
+shared_reg = design_tool.CreateSharedRegister(mod, None)
 
 tab1 = ITable(mod)
 st1 = IState(tab1)

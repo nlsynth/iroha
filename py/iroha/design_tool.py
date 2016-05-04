@@ -89,8 +89,9 @@ def CreateEmbedResource(table, name, fn):
     table.resources.append(res)
     return res
 
-def CreateSharedRegister(module):
-    tab = ITable(module)
+def CreateSharedRegister(module, tab=None):
+    if not tab:
+        tab = ITable(module)
     return IRegister(tab, "r")
 
 def CreateForeignRegister(table, shared_reg):
