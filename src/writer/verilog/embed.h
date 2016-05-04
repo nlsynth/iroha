@@ -3,6 +3,7 @@
 #define _writer_verilog_embed_h_
 
 #include "writer/verilog/common.h"
+#include "writer/verilog/resource.h"
 
 #include <set>
 
@@ -10,9 +11,9 @@ namespace iroha {
 namespace writer {
 namespace verilog {
 
-class Embed {
+class EmbeddedModules {
 public:
-  ~Embed();
+  ~EmbeddedModules();
   void RequestModule(const ResourceParams &params);
   void BuildModuleInstantiation(const IResource &res,
 				const Ports &ports,
@@ -22,6 +23,13 @@ public:
 
 private:
   set<string> files_;
+};
+
+class EmbeddedResource : public Resource {
+public:
+  EmbeddedResource(const IResource &res, const Table &table);
+
+  virtual void BuildResource();
 };
 
 }  // namespace verilog

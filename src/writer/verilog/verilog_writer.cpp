@@ -15,7 +15,8 @@ namespace verilog {
 
 VerilogWriter::VerilogWriter(const IDesign *design, const Connection &conn,
 			     ostream &os)
-  : design_(design), conn_(conn), os_(os), embed_(new Embed) {
+  : design_(design), conn_(conn), os_(os),
+    embedded_modules_(new EmbeddedModules) {
 }
 
 VerilogWriter::~VerilogWriter() {
@@ -27,7 +28,7 @@ void VerilogWriter::Write() {
   IModule *root = DesignUtil::GetRootModule(design_);
   BuildModules(root);
   BuildHierarchy();
-  if (!embed_->Write(os_)) {
+  if (!embedded_modules_->Write(os_)) {
     LOG(ERROR) << "Failed to write embedded modules.";
   }
   WriteInternalSRAMs();
@@ -49,7 +50,7 @@ void VerilogWriter::BuildModules(const IModule *imod) {
   for (IModule *child : children) {
     BuildModules(child);
   }
-  Module *mod = new Module(imod, conn_, embed_.get());
+  Module *mod = new Module(imod, conn_, embedded_modules_.get());
   mod->Build();
   modules_[imod] = mod;
   ordered_modules_.push_back(mod);

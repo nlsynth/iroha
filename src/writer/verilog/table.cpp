@@ -21,9 +21,9 @@ namespace iroha {
 namespace writer {
 namespace verilog {
 
-Table::Table(ITable *table, Ports *ports, Module *mod, Embed *embed,
+Table::Table(ITable *table, Ports *ports, Module *mod, EmbeddedModules *embed,
 	     ModuleTemplate *tmpl)
-  : i_table_(table), ports_(ports), mod_(mod), embed_(embed),
+  : i_table_(table), ports_(ports), mod_(mod), embedded_modules_(embed),
     tmpl_(tmpl) {
   table_id_ = table->GetId();
   st_ = "st_" + Util::Itoa(table->GetId());
@@ -227,8 +227,8 @@ Ports *Table::GetPorts() const {
   return ports_;
 }
 
-Embed *Table::GetEmbed() const {
-  return embed_;
+EmbeddedModules *Table::GetEmbeddedModules() const {
+  return embedded_modules_;
 }
 
 Module *Table::GetModule() const {

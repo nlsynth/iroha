@@ -25,7 +25,7 @@ static const char kStateBody[] = "state_body";
 
 class Module {
 public:
-  Module(const IModule *i_mod, const Connection &conn, Embed *embed);
+  Module(const IModule *i_mod, const Connection &conn, EmbeddedModules *embed);
   ~Module();
 
   void Build();
@@ -48,7 +48,7 @@ private:
 
   const IModule *i_mod_;
   const Connection &conn_;
-  Embed *embed_;
+  EmbeddedModules *embed_;
   unique_ptr<ModuleTemplate> tmpl_;
   unique_ptr<Ports> ports_;
   vector<Table *> tables_;

@@ -2,7 +2,10 @@
 
 #include "iroha/i_design.h"
 #include "iroha/resource_params.h"
+#include "writer/module_template.h"
+#include "writer/verilog/module.h"
 #include "writer/verilog/ports.h"
+#include "writer/verilog/table.h"
 
 #include <fstream>
 
@@ -10,19 +13,19 @@ namespace iroha {
 namespace writer {
 namespace verilog {
 
-Embed::~Embed() {
+EmbeddedModules::~EmbeddedModules() {
 }
 
-void Embed::RequestModule(const ResourceParams &params) {
+void EmbeddedModules::RequestModule(const ResourceParams &params) {
   string name = params.GetEmbeddedModuleFileName();
   if (!name.empty()) {
     files_.insert(name);
   }
 }
 
-void Embed::BuildModuleInstantiation(const IResource &res,
-				     const Ports &ports,
-				     ostream &os) {
+void EmbeddedModules::BuildModuleInstantiation(const IResource &res,
+					       const Ports &ports,
+					       ostream &os) {
   auto *params = res.GetParams();
   string name = params->GetEmbeddedModuleName();
   os << "  // " << name << "\n";
@@ -32,7 +35,7 @@ void Embed::BuildModuleInstantiation(const IResource &res,
      << "));\n";
 }
 
-bool Embed::Write(ostream &os) {
+bool EmbeddedModules::Write(ostream &os) {
   for (auto &s : files_) {
     os << "// Copied from " << s << "\n";
     ifstream *ifs = new ifstream(s);
@@ -51,6 +54,19 @@ bool Embed::Write(ostream &os) {
     os << "\n";
   }
   return true;
+}
+
+EmbeddedResource::EmbeddedResource(const IResource &res, const Table &table)
+  : Resource(res, table) {
+}
+
+void EmbeddedResource::BuildResource() {
+  auto *params = res_.GetParams();
+  auto *ports = tab_.GetPorts();
+  auto *embed = tab_.GetEmbeddedModules();
+  embed->RequestModule(*params);
+  ostream &is = tmpl_->GetStream(kEmbeddedInstanceSection);
+  embed->BuildModuleInstantiation(res_, *ports, is);
 }
 
 }  // namespace verilog

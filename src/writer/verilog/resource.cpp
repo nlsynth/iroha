@@ -36,6 +36,9 @@ Resource *Resource::Create(const IResource &res, const Table &table) {
   if (resource::IsForeignRegister(*klass)) {
     return new SharedReg(res, table);
   }
+  if (resource::IsEmbedded(*klass)) {
+    return new EmbeddedResource(res, table);
+  }
   return new Resource(res, table);
 }
 
@@ -60,9 +63,6 @@ void Resource::BuildResource() {
     int width;
     params->GetExtOutputPort(&output_port, &width);
     ports->AddPort(output_port, Port::OUTPUT, width);
-  }
-  if (klass->GetName() == resource::kEmbedded) {
-    BuildEmbedded();
   }
   if (resource::IsMapped(*klass)) {
     BuildMapped();
@@ -100,15 +100,6 @@ void Resource::BuildInsn(IInsn *insn, State *st) {
 
 string Resource::ReadySignal() {
   return "";
-}
-
-void Resource::BuildEmbedded() {
-  auto *params = res_.GetParams();
-  auto *ports = tab_.GetPorts();
-  auto *embed = tab_.GetEmbed();
-  embed->RequestModule(*params);
-  ostream &is = tmpl_->GetStream(kEmbeddedInstanceSection);
-  embed->BuildModuleInstantiation(res_, *ports, is);
 }
 
 void Resource::CollectResourceCallers(const string &opr,

@@ -42,6 +42,7 @@ bool IsArray(const IResourceClass &rc);
 bool IsSet(const IResourceClass &rc);
 bool IsExtInput(const IResourceClass &rc);
 bool IsMapped(const IResourceClass &rc);
+bool IsEmbedded(const IResourceClass &rc);
 bool IsSiblingTask(const IResourceClass &rc);
 bool IsSiblingTaskCall(const IResourceClass &rc);
 bool IsSubModuleTask(const IResourceClass &rc);

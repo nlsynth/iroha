@@ -46,6 +46,10 @@ bool IsMapped(const IResourceClass &rc) {
   return (rc.GetName() == kMapped);
 }
 
+bool IsEmbedded(const IResourceClass &rc) {
+  return (rc.GetName() == kEmbedded);
+}
+
 bool IsSiblingTask(const IResourceClass &rc) {
   return (rc.GetName() == kSiblingTask);
 }

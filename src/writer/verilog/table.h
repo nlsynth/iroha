@@ -12,7 +12,7 @@ namespace verilog {
 
 class Table {
 public:
-  Table(ITable *table, Ports *ports, Module *mod, Embed *embed,
+  Table(ITable *table, Ports *ports, Module *mod, EmbeddedModules *embed,
 	ModuleTemplate *tmpl);
   ~Table();
   void Build();
@@ -26,7 +26,7 @@ public:
   bool IsEmpty();
 
   Ports *GetPorts() const;
-  Embed *GetEmbed() const;
+  EmbeddedModules *GetEmbeddedModules() const;
   Module *GetModule() const;
   Task *GetTask() const;
   ModuleTemplate *GetModuleTemplate() const;
@@ -48,7 +48,7 @@ private:
   ITable *i_table_;
   Ports *ports_;
   Module *mod_;
-  Embed *embed_;
+  EmbeddedModules *embedded_modules_;
   ModuleTemplate *tmpl_;
   int table_id_;
   string st_;

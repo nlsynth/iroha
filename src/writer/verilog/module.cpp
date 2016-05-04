@@ -16,7 +16,8 @@ namespace iroha {
 namespace writer {
 namespace verilog {
 
-Module::Module(const IModule *i_mod, const Connection &conn, Embed *embed)
+Module::Module(const IModule *i_mod, const Connection &conn,
+	       EmbeddedModules *embed)
   : i_mod_(i_mod), conn_(conn), embed_(embed) {
   tmpl_.reset(new ModuleTemplate);
   ports_.reset(new Ports);

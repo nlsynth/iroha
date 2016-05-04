@@ -13,7 +13,7 @@ class ModuleTemplate;
 
 namespace verilog {
 
-class Embed;
+class EmbeddedModules;
 class InternalSRAM;
 class Module;
 class Resource;

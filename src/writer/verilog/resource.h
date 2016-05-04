@@ -21,7 +21,6 @@ public:
   virtual string ReadySignal();
 
 private:
-  void BuildEmbedded();
   void BuildMapped();
   void BuildSRAM();
   void BuildArray();

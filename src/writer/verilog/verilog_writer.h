@@ -29,7 +29,7 @@ private:
   ostream &os_;
   vector<Module *> ordered_modules_;
   map<const IModule *, Module *> modules_;
-  unique_ptr<Embed> embed_;
+  unique_ptr<EmbeddedModules> embedded_modules_;
   string shell_module_name_;
 };
 
