@@ -18,7 +18,7 @@ public:
 
   virtual void BuildResource();
   virtual void BuildInsn(IInsn *insn, State *st);
-  virtual string ReadySignal();
+  virtual string ReadySignal(IInsn *insn);
 
 private:
   void BuildMapped();

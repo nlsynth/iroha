@@ -98,7 +98,7 @@ void Resource::BuildInsn(IInsn *insn, State *st) {
   }
 }
 
-string Resource::ReadySignal() {
+string Resource::ReadySignal(IInsn *insn) {
   return "";
 }
 

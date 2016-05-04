@@ -99,11 +99,12 @@ class IInsn(object):
         self.outputs = []
         self.target_states = []
         self.resource = resource
+        self.operand = ""
 
     def Write(self, writer):
         writer.ofh.write("   (INSN " + str(self.id) + " ")
         writer.ofh.write(self.resource.resource_class.name + " ")
-        writer.ofh.write(str(self.resource.id) + " () ")
+        writer.ofh.write(str(self.resource.id) + " (" + self.operand + ") ")
         # transitions, inputs, outputs
         self.writeIds(writer, self.target_states)
         writer.ofh.write(" ")

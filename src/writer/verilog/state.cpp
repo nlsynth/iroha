@@ -154,7 +154,7 @@ void State::WriteTransition(ostream &os) {
       if (DesignUtil::IsMultiCycleInsn(insn)) {
 	auto *res = insn->GetResource();
 	unique_ptr<Resource> res_builder(Resource::Create(*res, *table_));
-	os << I << "if ("<< res_builder->ReadySignal() << ") begin\n";
+	os << I << "if ("<< res_builder->ReadySignal(insn) << ") begin\n";
       }
     }
   }

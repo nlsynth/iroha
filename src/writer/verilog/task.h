@@ -14,7 +14,7 @@ public:
 
   virtual void BuildResource();
   virtual void BuildInsn(IInsn *insn, State *st);
-  virtual string ReadySignal();
+  virtual string ReadySignal(IInsn *insn);
 
   static bool IsTask(const Table &table);
   static string TaskEnablePin(const ITable &tab, const ITable *caller);

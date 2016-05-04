@@ -30,8 +30,15 @@ caller_tab.initialSt = st20
 
 st21 = IState(caller_tab)
 caller_tab.states.append(st21)
+wait_insn = IInsn(call)
+wait_insn.operand = "wait"
+st21.insns.append(wait_insn)
+
+st22 = IState(caller_tab)
+caller_tab.states.append(st22)
 
 design_tool.AddNextState(st20, st21)
+design_tool.AddNextState(st21, st22)
 
 design_tool.ValidateIds(d)
 

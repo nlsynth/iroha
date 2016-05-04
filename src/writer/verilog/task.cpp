@@ -56,11 +56,16 @@ void Task::BuildInsn(IInsn *insn, State *st) {
   }
 }
 
-string Task::ReadySignal() {
+string Task::ReadySignal(IInsn *insn) {
   auto *klass = res_.GetClass();
   if (resource::IsSiblingTaskCall(*klass)) {
     const ITable *callee_tab = res_.GetCalleeTable();
-    return SiblingTaskReadySignal(*callee_tab, res_.GetTable());
+    if (insn->GetOperand() == "wait") {
+      // Wait for the callee resource's availability.
+      return "!" + SiblingTaskReadySignal(*callee_tab, nullptr);
+    } else {
+      return SiblingTaskReadySignal(*callee_tab, res_.GetTable());
+    }
   }
   return "";
 }
@@ -170,7 +175,8 @@ void Task::BuildSiblingTaskCall() {
   vector<IState *> sts;
   for (IState *st : tab_.GetITable()->states_) {
     for (IInsn *insn : st->insns_) {
-      if (insn->GetResource() == &res_) {
+      if (insn->GetResource() == &res_ &&
+	  insn->GetOperand() == "") {
 	sts.push_back(st);
       }
     }
