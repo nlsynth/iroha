@@ -184,6 +184,9 @@ void Task::BuildSiblingTaskCall() {
   ostream &rs = tmpl_->GetStream(kResourceSection);
   const ITable *callee_tab = res_.GetCalleeTable();
   rs << "  assign " << TaskEnablePin(*callee_tab, tab_.GetITable()) << " = ";
+  // TODO(yt76): This doesn't work for compound state. A task may finish
+  // and unintentionally start again while waiting for other insns...
+  // (maybe (st == s_n && sub_st == 0) ?)
   rs << JoinStates(sts);
   rs << ";\n";
 }
