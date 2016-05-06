@@ -30,7 +30,7 @@ void SharedReg::BuildResource() {
   ostream &rs = tmpl_->GetStream(kResourceSection);
   rs << "  // " << res_name << "\n";
   rs << "  wire " << res_name << "_w;\n";
-  rs << "  wire " << Table::WidthSpec(foreign_reg) << " "
+  rs << "  wire " << Table::WidthSpec(foreign_reg->value_type_) << " "
      << res_name << "_wdata;\n";
   if (writers.size() == 0) {
     rs << "  assign " << res_name << "_w = 0;\n";

@@ -35,8 +35,10 @@ public:
   string StateOutputSectionContents() const;
   ostream &InitialValueSectionStream() const;
   string InitialValueSectionContents() const;
+  ostream &TaskEntrySectionStream() const;
+  string TaskEntrySectionContents() const;
 
-  static string WidthSpec(const IRegister *reg);
+  static string WidthSpec(const IValueType &type);
   static string StateNameFromTable(const ITable &tab, int id);
 
 private:

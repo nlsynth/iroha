@@ -70,7 +70,8 @@ const IState *State::GetIState() const {
 
 void State::WriteInsn(const IInsn *insn, ostream &os) {
   auto *res = insn->GetResource();
-  if (!resource::IsSet(*res->GetClass())) {
+  if (!resource::IsSet(*res->GetClass()) &&
+      !resource::IsSiblingTask(*res->GetClass())) {
     CopyResults(insn, false, os);
   }
 }
@@ -170,8 +171,9 @@ void State::WriteTaskEntry(Table *tab, ostream &os) {
   os << I << "`" << tab->StateName(Task::kTaskEntryStateId) << ": begin\n";
   os << I << "  if (" << Task::TaskEnablePin(*tab->GetITable(),  nullptr) << ") begin\n"
      << I << "    " << tab->StateVariable() << " <= `"
-     << tab->InitialStateName() << ";\n";
-  os << I << "  end\n"
+     << tab->InitialStateName() << ";\n"
+     << tab->TaskEntrySectionContents()
+     << I << "  end\n"
      << I << "end\n";
 }
 
@@ -186,7 +188,7 @@ string State::StateBodySectionContents() const {
 }
 
 string State::StateBodySectionName() const {
-  return kStateBody +
+  return kStateBodySection +
     Util::Itoa(table_->GetITable()->GetId()) +
     ":" + Util::Itoa(i_state_->GetId());
 }

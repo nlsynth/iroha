@@ -97,7 +97,7 @@ void Table::BuildRegister() {
       } else {
 	rs << "  reg";
       }
-      rs << " " << WidthSpec(reg);
+      rs << " " << WidthSpec(reg->value_type_);
       rs << " " << reg->GetName() << ";\n";
     }
     if (!reg->IsConst() && reg->HasInitialValue()) {
@@ -113,7 +113,7 @@ void Table::BuildInsnOutputWire() {
     for (IInsn *insn : st->insns_) {
       int nth = 0;
       for (IRegister *oreg : insn->outputs_) {
-	rs << "  wire " << WidthSpec(oreg) << " "
+	rs << "  wire " << WidthSpec(oreg->value_type_) << " "
 	   << InsnWriter::InsnOutputWireName(*insn, nth)
 	   << ";\n";
       }
@@ -121,10 +121,10 @@ void Table::BuildInsnOutputWire() {
   }
 }
 
-string Table::WidthSpec(const IRegister *reg) {
-  if (reg->value_type_.GetWidth() > 0) {
-    string s = " [" + Util::Itoa(reg->value_type_.GetWidth() - 1) + ":0]";
-    if (reg->value_type_.IsSigned()) {
+string Table::WidthSpec(const IValueType &type) {
+  if (type.GetWidth() > 0) {
+    string s = " [" + Util::Itoa(type.GetWidth() - 1) + ":0]";
+    if (type.IsSigned()) {
       s = " signed" + s;
     }
     return s;
@@ -192,11 +192,11 @@ ModuleTemplate *Table::GetModuleTemplate() const {
 }
 
 ostream &Table::StateOutputSectionStream() const {
-  return tmpl_->GetStream(kStateOutput + Util::Itoa(table_id_));
+  return tmpl_->GetStream(kStateOutputSection + Util::Itoa(table_id_));
 }
 
 string Table::StateOutputSectionContents() const {
-  return tmpl_->GetContents(kStateOutput + Util::Itoa(table_id_));
+  return tmpl_->GetContents(kStateOutputSection + Util::Itoa(table_id_));
 }
 
 ostream &Table::InitialValueSectionStream() const {
@@ -205,6 +205,14 @@ ostream &Table::InitialValueSectionStream() const {
 
 string Table::InitialValueSectionContents() const {
   return tmpl_->GetContents(kInitialValueSection + Util::Itoa(table_id_));
+}
+
+ostream &Table::TaskEntrySectionStream() const {
+  return tmpl_->GetStream(kTaskEntrySection + Util::Itoa(table_id_));
+}
+
+string Table::TaskEntrySectionContents() const {
+  return tmpl_->GetContents(kTaskEntrySection + Util::Itoa(table_id_));
 }
 
 string Table::InitialStateName() {

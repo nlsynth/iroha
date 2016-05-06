@@ -12,9 +12,9 @@ class Task : public Resource {
 public:
   Task(const IResource &res, const Table &table);
 
-  virtual void BuildResource();
-  virtual void BuildInsn(IInsn *insn, State *st);
-  virtual string ReadySignal(IInsn *insn);
+  virtual void BuildResource() override;
+  virtual void BuildInsn(IInsn *insn, State *st) override;
+  virtual string ReadySignal(IInsn *insn) override;
 
   static bool IsTask(const Table &table);
   static string TaskEnablePin(const ITable &tab, const ITable *caller);
@@ -29,6 +29,10 @@ private:
   void BuildSiblingTask();
   void BuildSiblingTaskCall();
   void BuildSubModuleTaskCall();
+  void BuildSubModuleTaskCallInsn(IInsn *insn, State *st);
+  void BuildSiblingTaskInsn(IInsn *insn, State *st);
+
+  static string ArgSignal(const ITable &tab, int nth, const ITable *caller);
 };
 
 }  // namespace verilog

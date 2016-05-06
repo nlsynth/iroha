@@ -38,21 +38,14 @@ void Task::BuildResource() {
 }
 
 void Task::BuildInsn(IInsn *insn, State *st) {
-  ostream &os = st->StateBodySectionStream();
   auto *klass = res_.GetClass();
   if (resource::IsSubModuleTaskCall(*klass)) {
-    static const char I[] = "          ";
-    string st = InsnWriter::MultiCycleStateName(*insn);
-    IResource *res = insn->GetResource();
-    string pin = Task::SubModuleTaskControlPinPrefix(*res);
-    os << I << "if (" << st << " == 0) begin\n"
-       << I << "  if (" << pin << "_ack) begin\n"
-       << I << "    " << pin << "_en <= 0;\n"
-       << I << "    " << st << " <= 3;\n"
-       << I << "  end else begin\n"
-       << I << "  " << pin << "_en <= 1;\n"
-       << I << "  end\n"
-       << I << "end\n";
+    BuildSubModuleTaskCallInsn(insn, st);
+  }
+  if (resource::IsSiblingTask(*klass)) {
+    if (insn->GetOperand() == "") {
+      BuildSiblingTaskInsn(insn, st);
+    }
   }
 }
 
@@ -115,10 +108,11 @@ void Task::BuildSiblingTask() {
     return;
   }
   ostream &rs = tmpl_->GetStream(kResourceSection);
-  rs << "  //  Sibling task: " << tab_.GetITable()->GetId()
+  rs << "  //  Sibling task: " << i_tab->GetId()
      << ":" << res_.GetId() << "\n";
-  string callee_pin = TaskEnablePin(*tab_.GetITable(), nullptr);
 
+  // Request wires from callers.
+  string callee_pin = TaskEnablePin(*i_tab, nullptr);
   vector<string> caller_pins;
   for (IResource *caller : callers) {
     string caller_pin = TaskEnablePin(*tab_.GetITable(), caller->GetTable());
@@ -127,9 +121,11 @@ void Task::BuildSiblingTask() {
     caller_pins.push_back(caller_pin);
   }
   rs << "  wire " << callee_pin << ";\n";
-  rs << "  assign " << callee_pin << " = " << Util::Join(caller_pins, " || ") << ";\n";
+  rs << "  assign " << callee_pin << " = "
+     << Util::Join(caller_pins, " || ") << ";\n";
 
-  string callee_ready = SiblingTaskReadySignal(*tab_.GetITable(), nullptr);
+  // Acknowledge from callee.
+  string callee_ready = SiblingTaskReadySignal(*i_tab, nullptr);
   rs << "  wire " << callee_ready << ";\n";
   rs << "  assign " << callee_ready
      << " = ("
@@ -143,7 +139,7 @@ void Task::BuildSiblingTask() {
     string wait_req;
     if (callers.size() > 1) {
       // Needs arbitration.
-      wait_req = " && " + TaskEnablePin(*tab_.GetITable(), caller->GetTable());
+      wait_req = " && " + TaskEnablePin(*i_tab, caller->GetTable());
     }
     string has_higher = Util::Join(higher_callers, " || ");
     if (!has_higher.empty()) {
@@ -151,10 +147,66 @@ void Task::BuildSiblingTask() {
     }
     rs << "  assign " << caller_ready << " = "
        << callee_ready << wait_req << has_higher << ";\n";
-    higher_callers.push_back(TaskEnablePin(*tab_.GetITable(),
+    higher_callers.push_back(TaskEnablePin(*i_tab,
 					   caller->GetTable()));
-    rs << "  //  sibling task end\n";
   }
+
+  // Arguments.
+  for (int i = 0; i < res_.input_types_.size(); ++i) {
+    auto &type = res_.input_types_[i];
+    rs << "  reg " << Table::WidthSpec(type) << " "
+       << ArgSignal(*i_tab, i, nullptr) << ";\n";
+  }
+
+  rs << "  //  sibling task end\n";
+
+  ostream &es = tab_.TaskEntrySectionStream();
+  es << "            // capture arguments\n";
+  for (IResource *caller : callers) {
+    if (callers.size() == 1) {
+      for (int i = 0; i < res_.input_types_.size(); ++i) {
+	es << "            "
+	   << ArgSignal(*i_tab, i, nullptr) << " <= "
+	   << ArgSignal(*i_tab, i, caller->GetTable()) << ";\n";
+      }
+    } else {
+      // TODO(yt76): Needs a selector to pick a value from multiple callers.
+    }
+  }
+}
+
+void Task::BuildSiblingTaskInsn(IInsn *insn, State *st) {
+  CHECK(insn->outputs_.size() == insn->GetResource()->input_types_.size())
+    << "Task argument numbers don't match.";
+  ostream &os = st->StateBodySectionStream();
+  ostream &ws = tmpl_->GetStream(kInsnWireValueSection);
+  static const char I[] = "          ";
+  for (int i = 0; i < insn->outputs_.size(); ++i) {
+    IRegister *lhs = insn->outputs_[i];
+    if (lhs->IsStateLocal()) {
+      ws << "  assign " << InsnWriter::RegisterName(*lhs)
+	 << " = " << ArgSignal(*tab_.GetITable(), i, nullptr) << ";\n";
+    } else {
+      os << I << InsnWriter::RegisterName(*lhs)
+	 << " <= " << ArgSignal(*tab_.GetITable(), i, nullptr) << ";\n";
+    }
+  }
+}
+
+void Task::BuildSubModuleTaskCallInsn(IInsn *insn, State *st) {
+  ostream &os = st->StateBodySectionStream();
+  static const char I[] = "          ";
+  string st_name = InsnWriter::MultiCycleStateName(*insn);
+  IResource *res = insn->GetResource();
+  string pin = Task::SubModuleTaskControlPinPrefix(*res);
+  os << I << "if (" << st_name << " == 0) begin\n"
+     << I << "  if (" << pin << "_ack) begin\n"
+     << I << "    " << pin << "_en <= 0;\n"
+     << I << "    " << st_name << " <= 3;\n"
+     << I << "  end else begin\n"
+     << I << "  " << pin << "_en <= 1;\n"
+     << I << "  end\n"
+     << I << "end\n";
 }
 
 string Task::SubModuleTaskControlPinPrefix(const IResource &res) {
@@ -189,6 +241,12 @@ void Task::BuildSiblingTaskCall() {
   // (maybe (st == s_n && sub_st == 0) ?)
   rs << JoinStates(sts);
   rs << ";\n";
+
+  map<IState *, IInsn *> callers;
+  CollectResourceCallers("", &callers);
+  for (int i = 0; i < res_.input_types_.size(); ++i) {
+    WriteInputSel(ArgSignal(*callee_tab, i, res_.GetTable()), callers, i, rs);
+  }
 }
 
 string Task::SiblingTaskReadySignal(const ITable &tab, const ITable *caller) {
@@ -197,6 +255,14 @@ string Task::SiblingTaskReadySignal(const ITable &tab, const ITable *caller) {
     s += "_" + Util::Itoa(caller->GetId());
   }
   return s + "_ready";
+}
+
+string Task::ArgSignal(const ITable &tab, int nth, const ITable *caller) {
+  string s = "arg_" + Util::Itoa(tab.GetId()) + "_" + Util::Itoa(nth);
+  if (caller != nullptr) {
+    s += "_" + Util::Itoa(caller->GetId());
+  }
+  return s;
 }
   
 }  // namespace verilog

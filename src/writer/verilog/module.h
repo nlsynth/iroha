@@ -19,9 +19,10 @@ static const char kEmbeddedInstanceSection[] = "embedded";
 static const char kSubModuleSection[] = "sub_modules";
 // For each table (with table id).
 static const char kInitialValueSection[] = "initial_value";
-static const char kStateOutput[] = "state_output";
+static const char kStateOutputSection[] = "state_output";
+static const char kTaskEntrySection[] = "task_entry";
 // For each state (with table and state id)
-static const char kStateBody[] = "state_body";
+static const char kStateBodySection[] = "state_body";
 
 class Module {
 public:

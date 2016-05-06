@@ -10,10 +10,13 @@ mod = IModule(d, "mod")
 callee_tab = ITable(mod)
 task = design_tool.CreateSiblingTask(callee_tab)
 entry_insn = IInsn(task)
+entry_insn.outputs.append(IRegister(callee_tab, "r_arg"))
 st1 = IState(callee_tab)
 st1.insns.append(entry_insn)
 callee_tab.states.append(st1)
 callee_tab.initialSt = st1
+
+task.input_types.append(IValueType(False, 32))
 
 print_res = design_tool.GetResource(callee_tab, "print")
 print_insn = IInsn(print_res)
@@ -22,7 +25,9 @@ st1.insns.append(print_insn)
 
 caller_tab = ITable(mod)
 call = design_tool.CreateSiblingTaskCall(caller_tab, callee_tab)
+call.input_types.append(IValueType(False, 32))
 call_insn = IInsn(call)
+call_insn.inputs.append(design_tool.AllocConstNum(caller_tab, False, 32, 456))
 st20 = IState(caller_tab)
 st20.insns.append(call_insn)
 caller_tab.states.append(st20)

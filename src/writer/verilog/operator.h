@@ -13,8 +13,8 @@ class Operator : public Resource {
 public:
   Operator(const IResource &res, const Table &table);
 
-  virtual void BuildResource();
-  virtual void BuildInsn(IInsn *insn, State *st);
+  virtual void BuildResource() override;
+  virtual void BuildInsn(IInsn *insn, State *st) override;
 
 private:
   void BuildExclusiveBinOp();
