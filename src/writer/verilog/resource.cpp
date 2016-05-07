@@ -120,13 +120,20 @@ void Resource::WriteInputSel(const string &name,
 			     ostream &os) {
   WriteWire(name, res_.input_types_[nth], os);
   os << "  assign " << name << " = ";
-  if (callers.size() == 1) {
-    IInsn *insn = (callers.begin())->second;
-    os << InsnWriter::RegisterName(*insn->inputs_[nth]);
-  } else {
-    LOG(FATAL) << "TODO(yt76): Input selector";
+
+  string cond;
+  for (auto &it : callers) {
+    IInsn *insn = it.second;
+    IState *st = it.first;
+    if (cond.empty()) {
+      cond = InsnWriter::RegisterName(*insn->inputs_[nth]);
+    } else {
+      cond = "(" + tab_.StateVariable() + " == `" +
+	tab_.StateName(st->GetId()) + ") ? " +
+	InsnWriter::RegisterName(*insn->inputs_[nth]) + " : (" + cond + ")";
+    }
   }
-  os << ";\n";
+  os << cond << ";\n";
 }
 
 void Resource::WriteWire(const string &name, const IValueType &type,
