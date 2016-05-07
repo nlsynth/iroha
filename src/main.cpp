@@ -3,7 +3,16 @@
 #include "iroha/iroha.h"
 
 void printVersion() {
-  std::cout << PACKAGE << "-" << VERSION << "\n";
+  std::cout << " Iroha frontend: " << PACKAGE << "-" << VERSION << "\n"
+	    << " [OPTION]... [FILE]...\n"
+	    << "  Read standard input when FILE is -\n\n"
+	    << "  -s Generate shell module\n"
+	    << "  -v Output Verilog\n"
+	    << "  -h Output HTML\n"
+	    << "  -o [fn] output to the file name\n"
+	    << "  -d debug dump\n"
+	    << "  -opt [optimizers]\n";
+    
 }
 
 int main(int argc, char **argv) {
@@ -49,7 +58,13 @@ int main(int argc, char **argv) {
       ++i;
       continue;
     }
+    // The name can be "-".
     files.push_back(arg);
+  }
+
+  if (files.empty()) {
+    printVersion();
+    return 0;
   }
 
   iroha::Iroha::Init();
