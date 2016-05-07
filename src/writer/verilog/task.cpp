@@ -162,16 +162,26 @@ void Task::BuildSiblingTask() {
 
   ostream &es = tab_.TaskEntrySectionStream();
   es << "            // capture arguments\n";
+  int first_caller = true;
+  bool multi_callers = (callers.size() > 1);
   for (IResource *caller : callers) {
-    if (callers.size() == 1) {
-      for (int i = 0; i < res_.input_types_.size(); ++i) {
-	es << "            "
-	   << ArgSignal(*i_tab, i, nullptr) << " <= "
-	   << ArgSignal(*i_tab, i, caller->GetTable()) << ";\n";
+    if (multi_callers) {
+      if (!first_caller) {
+	es << "            else\n";
       }
-    } else {
-      // TODO(yt76): Needs a selector to pick a value from multiple callers.
+      string caller_ready =
+	SiblingTaskReadySignal(*tab_.GetITable(), caller->GetTable());
+      es << "            if (" << caller_ready << ") begin\n";
     }
+    for (int i = 0; i < res_.input_types_.size(); ++i) {
+      es << "            "
+	 << ArgSignal(*i_tab, i, nullptr) << " <= "
+	 << ArgSignal(*i_tab, i, caller->GetTable()) << ";\n";
+    }
+    if (multi_callers) {
+      es << "            end\n";
+    }
+    first_caller = false;
   }
 }
 
