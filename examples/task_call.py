@@ -7,22 +7,32 @@ from iroha.iroha import *
 d = IDesign()
 mod = IModule(d, "mod")
 
+# Callee.
 callee_tab = ITable(mod)
 task = design_tool.CreateSiblingTask(callee_tab)
 entry_insn = IInsn(task)
-entry_insn.outputs.append(IRegister(callee_tab, "r_arg"))
-st1 = IState(callee_tab)
-st1.insns.append(entry_insn)
-callee_tab.states.append(st1)
-callee_tab.initialSt = st1
+arg_reg = IRegister(callee_tab, "r_arg")
+entry_insn.outputs.append(arg_reg)
+st10 = IState(callee_tab)
+st10.insns.append(entry_insn)
+callee_tab.states.append(st10)
+callee_tab.initialSt = st10
 
 task.input_types.append(IValueType(False, 32))
 
+st11 = IState(callee_tab)
+callee_tab.states.append(st11)
 print_res = design_tool.GetResource(callee_tab, "print")
 print_insn = IInsn(print_res)
-print_insn.inputs.append(design_tool.AllocConstNum(callee_tab, False, 32, 123))
-st1.insns.append(print_insn)
+print_insn.inputs.append(arg_reg)
+st11.insns.append(print_insn)
 
+design_tool.AddNextState(st10, st11)
+st12 = IState(callee_tab)
+callee_tab.states.append(st12)
+design_tool.AddNextState(st11, st12)
+
+# Caller.
 caller_tab = ITable(mod)
 call = design_tool.CreateSiblingTaskCall(caller_tab, callee_tab)
 call.input_types.append(IValueType(False, 32))
@@ -45,7 +55,6 @@ caller_tab.states.append(st22)
 design_tool.AddNextState(st20, st21)
 design_tool.AddNextState(st21, st22)
 
-design_tool.ValidateIds(d)
 
-w = DesignWriter(d)
-w.Write()
+design_tool.ValidateIds(d)
+DesignWriter(d).Write()
