@@ -7,10 +7,10 @@ class IDesign(object):
         self.modules = []
         self.resource_classes = []
         self.installResourceClasses()
-        self.resourceParams = ResourceParams()
+        self.resource_params = ResourceParams()
 
     def Write(self, writer):
-        self.resourceParams.Write(writer)
+        self.resource_params.Write(writer)
         for m in self.modules:
             m.Write(writer)
 

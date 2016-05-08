@@ -18,6 +18,7 @@ r1 = IRegister(tab, "r1")
 r2 = IRegister(tab, "r2")
 
 r2.SetInitialValue(123)
+r2.valueType = IValueType(True, 32)
 
 assign = design_tool.GetResource(tab, "set")
 insn = IInsn(assign)
@@ -30,7 +31,9 @@ tr_insn = IInsn(tr)
 st1.insns.append(tr_insn)
 tr_insn.target_states.append(st2)
 
-design_tool.ValidateIds(d)
+d.resource_params.AddValue("RESET-POLARITY", "true")
+mod.resource_params.AddValue("RESET-NAME", "reset")
 
-w = DesignWriter(d)
-w.Write()
+
+design_tool.ValidateIds(d)
+DesignWriter(d).Write()
