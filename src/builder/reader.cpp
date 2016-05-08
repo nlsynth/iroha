@@ -115,7 +115,13 @@ Exp *Reader::ReadExp() {
     return ReadList();
   }
   Exp *s = new Exp;
-  s->atom.str = token;
+  const char *t = token.c_str();
+  int len = token.size();
+  if (len >= 2 && t[0] == '"' && t[len - 1] == '"') {
+    s->atom.str = string(t + 1, len - 2);
+  } else {
+    s->atom.str = token;
+  }
   return s;
 }
 
