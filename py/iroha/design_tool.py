@@ -80,57 +80,53 @@ def AddNextState(st1, st2):
     tr_insn.target_states.append(st2)
     return tr_insn
 
-def CreateEmbedResource(table, name, fn):
+def createResource(table, klass):
     design = table.module.design
-    rc = design.findResourceClassByName("embedded")
+    rc = design.findResourceClassByName(klass)
     res = IResource(table, rc)
+    table.resources.append(res)
+    return res
+
+def CreateEmbedResource(table, name, fn):
+    res = createResource(table, "embedded")
     res.resource_params.AddValue("EMBEDDED-MODULE", name)
     res.resource_params.AddValue("EMBEDDED-MODULE-FILE", fn)
-    table.resources.append(res)
     return res
 
 def CreateSharedRegister(module, tab=None):
     if not tab:
         tab = ITable(module)
-    return IRegister(tab, "r")
+    return IRegister(tab, "r_%d" % len(tab.registers))
 
 def CreateForeignRegister(table, shared_reg):
-    design = table.module.design
-    rc = design.findResourceClassByName("foreign-reg")
-    res = IResource(table, rc)
+    res = createResource(table, "foreign-reg")
     res.foreign_reg = shared_reg
-    table.resources.append(res)
     return res
 
 def CreateExtInput(table, name, width):
-    design = table.module.design
-    rc = design.findResourceClassByName("ext_input")
-    res = IResource(table, rc)
+    res = createResource(table, "ext_input")
     res.resource_params.AddValue("INPUT", name)
     res.resource_params.AddValue("WIDTH", str(width))
-    table.resources.append(res)
     return res
 
 def CreateExtOutput(table, name, width):
-    design = table.module.design
-    rc = design.findResourceClassByName("ext_output")
-    res = IResource(table, rc)
+    res = createResource(table, "ext_output")
     res.resource_params.AddValue("OUTPUT", name)
     res.resource_params.AddValue("WIDTH", str(width))
-    table.resources.append(res)
     return res
 
 def CreateSiblingTask(table):
-    design = table.module.design
-    rc = design.findResourceClassByName("sibling-task")
-    res = IResource(table, rc)
-    table.resources.append(res)
-    return res
+    return createResource(table, "sibling-task")
 
 def CreateSiblingTaskCall(table, callee):
-    design = table.module.design
-    rc = design.findResourceClassByName("sibling-task-call")
-    res = IResource(table, rc)
+    res = createResource(table, "sibling-task-call")
     res.callee_table = callee
-    table.resources.append(res)
+    return res
+
+def CreateSubModuleTask(table):
+    return createResource(table, "sub-module-task")
+
+def CreateSubModuleTaskCall(table, callee):
+    res = createResource(table, "sub-module-task-call")
+    res.callee_table = callee
     return res

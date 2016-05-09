@@ -48,7 +48,6 @@ Please read src/iroha/iroha.h, src/main.cpp examples/ for more details.
 * P1: Multi cycle insn.
 * P1: Sub module task
 * P1: In design channel
-* P1: Output selector for exclusive resources
 * P1: Memory interface synth implementation
 * P2: Test and debug SSA conversion and PHI removal
 * P2: Set constraint not to split related insns

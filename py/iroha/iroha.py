@@ -28,6 +28,8 @@ class IDesign(object):
         self.resource_classes.append(IResourceClass("foreign-reg"))
         self.resource_classes.append(IResourceClass("sibling-task"))
         self.resource_classes.append(IResourceClass("sibling-task-call"))
+        self.resource_classes.append(IResourceClass("sub-module-task"))
+        self.resource_classes.append(IResourceClass("sub-module-task-call"))
 
     def findResourceClassByName(self, name):
         for rc in self.resource_classes:
