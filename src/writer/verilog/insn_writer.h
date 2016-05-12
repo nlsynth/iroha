@@ -22,7 +22,7 @@ public:
   static string ResourceName(const IResource &res);
   static string ChannelDataPort(const IChannel &ic);
   static string InsnOutputWireName(const IInsn &insn, int nth);
-  static string MultiCycleStateName(const IInsn &insn);
+  static string MultiCycleStateName(const IResource &res);
 
 private:
   const IInsn *insn_;

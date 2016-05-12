@@ -106,9 +106,9 @@ string InsnWriter::InsnOutputWireName(const IInsn &insn, int nth) {
     + Util::Itoa(insn.GetId()) + "_" + Util::Itoa(nth);
 }
 
-string InsnWriter::MultiCycleStateName(const IInsn &insn) {
-  return "st_insn_" + Util::Itoa(insn.GetResource()->GetTable()->GetId())
-    + "_" + Util::Itoa(insn.GetId());
+string InsnWriter::MultiCycleStateName(const IResource &res) {
+  return "st_res_" + Util::Itoa(res.GetTable()->GetId())
+    + "_" + Util::Itoa(res.GetId());
 }
 
 }  // namespace verilog

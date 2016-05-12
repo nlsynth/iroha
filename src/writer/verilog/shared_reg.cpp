@@ -15,16 +15,9 @@ SharedReg::SharedReg(const IResource &res, const Table &table)
 }
 
 void SharedReg::BuildResource() {
-  vector<pair<IState *, IInsn *> > writers;
-  for (IState *st : res_.GetTable()->states_) {
-    for (IInsn *insn : st->insns_) {
-      if (insn->GetResource() == &res_) {
-	if (insn->inputs_.size() > 0) {
-	  writers.push_back(make_pair(st, insn));
-	}
-      }
-    }
-  }
+  map<IState *, IInsn *> writers;
+  CollectResourceCallers("", &writers);
+
   IRegister *foreign_reg = res_.GetForeignRegister();
   string res_name = RegPrefix(*tab_.GetITable(), *foreign_reg);
   ostream &rs = tmpl_->GetStream(kResourceSection);
@@ -37,12 +30,9 @@ void SharedReg::BuildResource() {
     rs << "  assign " << res_name << "_wdata = 0;\n";
     return;
   }
-  vector<IState *> sts;
-  for (auto &w : writers) {
-    sts.push_back(w.first);
-  }
+
   rs << "  assign " << res_name << "_w = ";
-  rs << JoinStates(sts);
+  rs << JoinStates(writers);
   rs << ";\n";
 
   string d;

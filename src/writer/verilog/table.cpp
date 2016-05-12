@@ -45,6 +45,7 @@ void Table::Build() {
   BuildRegister();
   BuildResource();
   BuildInsnOutputWire();
+  BuildMultiCycleStateReg();
   SharedReg::BuildSharedRegisters(*this);
 }
 
@@ -118,6 +119,24 @@ void Table::BuildInsnOutputWire() {
 	   << ";\n";
       }
     }
+  }
+}
+
+void Table::BuildMultiCycleStateReg() {
+  set<IResource *> mc_resources;
+  for (IState *st : i_table_->states_) {
+    for (IInsn *insn : st->insns_) {
+      if (DesignUtil::IsMultiCycleInsn(insn)) {
+	mc_resources.insert(insn->GetResource());
+      }
+    }
+  }
+  ostream &ws = tmpl_->GetStream(kInsnWireDeclSection);
+  for (IResource *res : mc_resources) {
+    string w = InsnWriter::MultiCycleStateName(*res);
+    ws << "  reg [1:0] " << w << ";\n";
+    ostream &is = InitialValueSectionStream();
+    is << "      " << w << " <= 0;\n";
   }
 }
 

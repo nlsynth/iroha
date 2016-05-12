@@ -46,6 +46,7 @@ private:
   void BuildResource();
   void BuildRegister();
   void BuildInsnOutputWire();
+  void BuildMultiCycleStateReg();
 
   ITable *i_table_;
   Ports *ports_;

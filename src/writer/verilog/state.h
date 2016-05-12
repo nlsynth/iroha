@@ -21,17 +21,14 @@ public:
   string StateBodySectionContents() const;
 
 private:
-  void WriteInsn(const IInsn *insn, ostream &os);
   void WriteTransition(ostream &os);
   void WriteTransitionBody(ostream &os);
   void CopyResults(const IInsn *insn, bool to_wire, ostream &os);
-  void BuildMultiCycle(const IInsn *insn);
   string StateBodySectionName() const;
 
   IState *i_state_;
   Table *table_;
   IInsn *transition_insn_;
-  bool is_multi_cycle_;
   bool is_compound_cycle_;
 };
 

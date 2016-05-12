@@ -59,6 +59,7 @@ Please read src/iroha/iroha.h, src/main.cpp examples/ for more details.
 * P2: I/O for embedded verilog module
 * P2: Modularize mapped resource
 * P2: Resource sharing between tables
+* P3: Simplify wait cycle if there's 1 multi cycle insn in a state
 * P3: More debug output from optimizers.
 * P3: Export optimizer API so that users can add own phase
 * P3: API to create copies of module, table and so on.

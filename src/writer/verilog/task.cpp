@@ -60,6 +60,10 @@ string Task::ReadySignal(IInsn *insn) {
       return SiblingTaskReadySignal(*callee_tab, res_.GetTable());
     }
   }
+  if (resource::IsSubModuleTaskCall(*klass)) {
+    string pin = SubModuleTaskControlPinPrefix(res_);
+    return pin + "_ack";
+  }
   return "";
 }
 
@@ -204,17 +208,18 @@ void Task::BuildSiblingTaskInsn(IInsn *insn, State *st) {
 }
 
 void Task::BuildSubModuleTaskCallInsn(IInsn *insn, State *st) {
+  map<IState *, IInsn *> callers;
+  CollectResourceCallers("", &callers);
+
   ostream &os = st->StateBodySectionStream();
   static const char I[] = "          ";
-  string st_name = InsnWriter::MultiCycleStateName(*insn);
+  string st_name = InsnWriter::MultiCycleStateName(*(insn->GetResource()));
   IResource *res = insn->GetResource();
-  string pin = Task::SubModuleTaskControlPinPrefix(*res);
+  string pin = SubModuleTaskControlPinPrefix(*res);
   os << I << "if (" << st_name << " == 0) begin\n"
      << I << "  if (" << pin << "_ack) begin\n"
-     << I << "    " << pin << "_en <= 0;\n"
      << I << "    " << st_name << " <= 3;\n"
      << I << "  end else begin\n"
-     << I << "  " << pin << "_en <= 1;\n"
      << I << "  end\n"
      << I << "end\n";
 }
@@ -225,34 +230,30 @@ string Task::SubModuleTaskControlPinPrefix(const IResource &res) {
 }
 
 void Task::BuildSubModuleTaskCall() {
+  map<IState *, IInsn *> callers;
+  CollectResourceCallers("", &callers);
+
   ostream &rs = tmpl_->GetStream(kResourceSection);
   string prefix = Task::SubModuleTaskControlPinPrefix(res_);
-  rs << "  reg " << prefix << "_en;\n";
+  rs << "  wire " << prefix << "_en;\n";
   rs << "  wire " << prefix << "_ack;\n";
-  ostream &is = tab_.InitialValueSectionStream();
-  is << "      " << prefix << "_en <= 0;\n";
+  rs << "  assign " << prefix << "_en = "
+     << JoinStatesWithSubState(callers, 0) << ";\n";
 }
 
 void Task::BuildSiblingTaskCall() {
-  vector<IState *> sts;
-  for (IState *st : tab_.GetITable()->states_) {
-    for (IInsn *insn : st->insns_) {
-      if (insn->GetResource() == &res_ &&
-	  insn->GetOperand() == "") {
-	sts.push_back(st);
-      }
-    }
-  }
+  map<IState *, IInsn *> callers;
+  CollectResourceCallers("", &callers);
+
   ostream &rs = tmpl_->GetStream(kResourceSection);
   const ITable *callee_tab = res_.GetCalleeTable();
   rs << "  assign " << TaskEnablePin(*callee_tab, tab_.GetITable()) << " = ";
   // TODO(yt76): This doesn't work for compound state. A task may finish
   // and unintentionally start again while waiting for other insns...
   // (maybe (st == s_n && sub_st == 0) ?)
-  rs << JoinStates(sts);
+  rs << JoinStates(callers);
   rs << ";\n";
 
-  map<IState *, IInsn *> callers;
   CollectResourceCallers("", &callers);
   for (int i = 0; i < res_.input_types_.size(); ++i) {
     WriteInputSel(ArgSignal(*callee_tab, i, res_.GetTable()), callers, i, rs);

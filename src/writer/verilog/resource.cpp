@@ -203,11 +203,28 @@ void Resource::WriteStateUnion(const map<IState *, IInsn *> &callers,
 void Resource::BuildArray() {
 }
 
-string Resource::JoinStates(const vector<IState *> &sts) {
+string Resource::JoinStates(const map<IState *, IInsn *> &sts) {
   vector<string> conds;
-  for (IState *st : sts) {
+  for (auto &p : sts) {
+    IState *st = p.first;
     conds.push_back("(" + tab_.StateVariable() + " == `" +
 		    Table::StateNameFromTable(*tab_.GetITable(), st->GetId()) +
+		    ")");
+  }
+  return Util::Join(conds, " || ");
+}
+
+string Resource::JoinStatesWithSubState(const map<IState *, IInsn *> &sts,
+					int sub) {
+  vector<string> conds;
+  for (auto &p : sts) {
+    IState *st = p.first;
+    IInsn *insn = p.second;
+    conds.push_back("(" + tab_.StateVariable() + " == `" +
+		    Table::StateNameFromTable(*tab_.GetITable(), st->GetId()) +
+		    " && " +
+		    InsnWriter::MultiCycleStateName(*insn->GetResource()) +
+		    " == " + Util::Itoa(sub) +
 		    ")");
   }
   return Util::Join(conds, " || ");

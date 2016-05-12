@@ -38,7 +38,8 @@ protected:
 			      map<IState *, IInsn *> *callers);
   void WriteWire(const string &name, const IValueType &type,
 		 ostream &os);
-  string JoinStates(const vector<IState *> &sts);
+  string JoinStates(const map<IState *, IInsn *> &sts);
+  string JoinStatesWithSubState(const map<IState *, IInsn *> &sts, int sub);
 
   const IResource &res_;
   const Table &tab_;
