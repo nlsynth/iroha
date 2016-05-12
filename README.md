@@ -1,4 +1,4 @@
-# Iroha: Internal Representation Of Hardware Abstraction
+# Iroha: Intermediate Representation Of Hardware Abstraction
 Author: Yusuke TABATA (tabata.yusuke@gmail.com) and the team (TBD)
 
 TL;DR: Aiming to be LLVM for HLS
