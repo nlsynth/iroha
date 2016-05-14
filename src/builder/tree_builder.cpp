@@ -26,6 +26,18 @@ void TreeBuilder::AddParentModule(const string &name, IModule *mod) {
   parent_module_names_[mod] = name;
 }
 
+void TreeBuilder::AddChannelReaderWriter(IChannel *ch, bool is_r,
+					 const string &mod_name,
+					 int tab_id, int res_id) {
+  ChannelEndPoint ep;
+  ep.ch = ch;
+  ep.is_r = is_r;
+  ep.mod_name = mod_name;
+  ep.tab_id = tab_id;
+  ep.res_id = res_id;
+  channel_end_points_.push_back(ep);
+}
+
 bool TreeBuilder::Resolve() {
   map<string, IModule *> module_names;
   for (IModule *mod : design_->modules_) {
@@ -65,6 +77,15 @@ bool TreeBuilder::Resolve() {
     IRegister *foreign_reg = FindForeignRegister(mod, table_id, register_id);
     res->SetForeignRegister(foreign_reg);
   }
+  for (auto &ep : channel_end_points_) {
+    IModule *mod = module_names[ep.mod_name];
+    IResource *res = FindChannelResource(mod, ep.tab_id, ep.res_id);
+    if (ep.is_r) {
+      ep.ch->SetReader(res);
+    } else {
+      ep.ch->SetWriter(res);
+    }
+  }
   return true;
 }
 
@@ -75,6 +96,20 @@ IRegister *TreeBuilder::FindForeignRegister(IModule *mod,
       for (IRegister *reg : tab->registers_) {
 	if (reg->GetId() == register_id) {
 	  return reg;
+	}
+      }
+    }
+  }
+  return nullptr;
+}
+
+IResource *TreeBuilder::FindChannelResource(IModule *mod,
+					    int table_id, int resource_id) {
+  for (ITable *tab : mod->tables_) {
+    if (tab->GetId() == table_id) {
+      for (IResource *res : tab->resources_) {
+	if (res->GetId() == resource_id) {
+	  return res;
 	}
       }
     }

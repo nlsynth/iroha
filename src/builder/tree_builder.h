@@ -19,12 +19,16 @@ public:
   void AddCalleeTable(const string &mod_name, int table_id, IResource *res);
   void AddForeignReg(int table_id, int reg_id, IResource *res);
   void AddParentModule(const string &name, IModule *mod);
+  void AddChannelReaderWriter(IChannel *ch, bool is_r, const string &mod_name,
+			      int tab_id, int res_id);
 
   bool Resolve();
 
 private:
   IRegister *FindForeignRegister(IModule *mod,
 				 int table_id, int register_id);
+  IResource *FindChannelResource(IModule *mod,
+				 int table_id, int resource_id);
 
   IDesign *design_;
   ExpBuilder *builder_;
@@ -32,6 +36,14 @@ private:
   map<IResource *, int> table_ids_;
   map<IModule *, string> parent_module_names_;
   map<IResource *, pair<int, int> > foreign_registers_;
+  struct ChannelEndPoint {
+    IChannel *ch;
+    bool is_r;
+    string mod_name;
+    int tab_id;
+    int res_id;
+  };
+  vector<ChannelEndPoint> channel_end_points_;
 };
 
 }  // namespace builder

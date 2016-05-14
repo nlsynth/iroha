@@ -33,6 +33,7 @@ const char kBitXor[] = "bit_xor";
 const char kGt[] = "gt";
 const char kShift[] = "shift";
 
+bool IsTransition(const IResourceClass &rc);
 bool IsExclusiveBinOp(const IResourceClass &rc);
 bool IsNumToNumExclusiveBinOp(const IResourceClass &rc);
 bool IsNumToBoolExclusiveBinOp(const IResourceClass &rc);

@@ -12,6 +12,9 @@ ExpWriter::ExpWriter(const IDesign *design, ostream &os)
 
 void ExpWriter::Write() {
   WriteResourceParams(*design_->GetParams(), "");
+  for (auto *ch : design_->channels_) {
+    WriteChannel(*ch);
+  }
   for (auto *mod : design_->modules_) {
     WriteModule(*mod);
   }
@@ -238,6 +241,33 @@ void ExpWriter::WriteResourceParams(const ResourceParams &params,
     is_first = false;
   }
   os_ << ")\n";
+}
+
+void ExpWriter::WriteChannel(const IChannel &ch) {
+  os_ << "(CHANNEL " << ch.GetId() << " ";
+  WriteValueType(ch.GetValueType());
+  os_ << " ";
+  IResource *reader = ch.GetReader();
+  if (reader == nullptr) {
+    os_ << "()";
+  } else {
+    WriteResourceDesc(*reader);
+  }
+  os_ << " ";
+  IResource *writer = ch.GetWriter();
+  if (writer == nullptr) {
+    os_ << "()";
+  } else {
+    WriteResourceDesc(*writer);
+  }
+  os_ << ")\n";
+}
+
+void ExpWriter::WriteResourceDesc(const IResource &res) {
+  ITable *tab = res.GetTable();
+  IModule *mod = tab->GetModule();
+  os_ << "(" << mod->GetName() << " " << tab->GetId() << " "
+      << res.GetId() << ")";
 }
 
 }  // namespace iroha

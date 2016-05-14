@@ -7,6 +7,10 @@
 namespace iroha {
 namespace resource {
 
+bool IsTransition(const IResourceClass &rc) {
+  return (rc.GetName() == kTransition);
+}
+
 bool IsExclusiveBinOp(const IResourceClass &rc) {
   return IsNumToNumExclusiveBinOp(rc) ||
     IsNumToBoolExclusiveBinOp(rc);

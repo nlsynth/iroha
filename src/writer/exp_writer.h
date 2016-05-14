@@ -29,6 +29,8 @@ private:
   void WriteInsnParams(const vector<IRegister *> &regs);
   void WriteResourceTypes(const vector<IValueType> &types);
   void WriteResourceParams(const ResourceParams &params, const char *indent);
+  void WriteChannel(const IChannel &ch);
+  void WriteResourceDesc(const IResource &res);
 
   const IDesign *design_;
   ostream &os_;

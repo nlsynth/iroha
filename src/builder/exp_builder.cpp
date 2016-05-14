@@ -47,6 +47,8 @@ IDesign *ExpBuilder::Build(vector<Exp *> &exps) {
       }
     } else if (element_name == "PARAMS") {
       BuildResourceParams(root, design->GetParams());
+    } else if (element_name == "CHANNEL") {
+      BuildChannel(root, design);
     } else {
       SetError() << "Unsupported toplevel expression";
     }
@@ -200,7 +202,8 @@ void ExpBuilder::BuildResources(Exp *e, ITable *table) {
       return;
     }
     IResource *res = BuildResource(element, table);
-    if (res != nullptr) {
+    if (res != nullptr &&
+	!resource::IsTransition(*res->GetClass())) {
       table->resources_.push_back(res);
     }
   }
@@ -340,6 +343,26 @@ ostream &ExpBuilder::SetError() {
     errors_ << "\n";
   }
   return errors_;
+}
+
+void ExpBuilder::BuildChannel(Exp *e, IDesign *design) {
+  IValueType vt;
+  BuildValueType(e->vec[2], e->vec[3], &vt);
+  IChannel *ch = new IChannel(design);
+  design->channels_.push_back(ch);
+  ch->SetValueType(vt);
+  ch->SetId(Util::Atoi(e->Str(1)));
+  BuildChannelReaderWriter(e->vec[4], true, ch);
+  BuildChannelReaderWriter(e->vec[5], false, ch);
+}
+
+void ExpBuilder::BuildChannelReaderWriter(Exp *e, bool is_r, IChannel *ch) {
+  if (e->Size() == 0) {
+    return;
+  }
+  tree_builder_->AddChannelReaderWriter(ch, is_r, e->Str(0),
+					Util::Atoi(e->Str(1)),
+					Util::Atoi(e->Str(2)));
 }
 
 bool ExpBuilder::HasError() {
