@@ -64,7 +64,9 @@ void Connection::MarkExtChannelPath(const IChannel *ch, const IResource *res,
 void Connection::MakeInDesignChannelPath(const IChannel *ch) {
   const IModule *reader_mod = ch->GetReader()->GetTable()->GetModule();
   const IModule *writer_mod = ch->GetWriter()->GetTable()->GetModule();
-  CHECK(reader_mod != writer_mod);
+  if (reader_mod == writer_mod) {
+    return;
+  }
   const IModule *common_root = GetCommonRoot(reader_mod, writer_mod);
   if (common_root == reader_mod) {
     MakeSimpleChannelPath(ch, common_root, writer_mod, false);

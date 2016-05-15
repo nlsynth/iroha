@@ -1,0 +1,32 @@
+import sys
+sys.path.append('../py')
+
+from iroha import *
+from iroha.iroha import *
+
+d = IDesign()
+mod = IModule(d, "mod")
+
+tab_w = ITable(mod)
+st10 = IState(tab_w)
+writer = design_tool.CreateChannelWrite(tab_w)
+insn_w = IInsn(writer)
+val_w = IRegister(tab_w, "w_reg")
+val_w.SetInitialValue(123)
+insn_w.inputs.append(val_w)
+tab_w.states.append(st10)
+
+tab_r = ITable(mod)
+st20 = IState(tab_r)
+reader = design_tool.CreateChannelWrite(tab_r)
+insn_r = IInsn(reader)
+val_r = IRegister(tab_r, "r_reg")
+insn_r.inputs.append(val_r)
+tab_r.states.append(st20)
+
+ch = IChannel(d)
+ch.SetReader(reader)
+ch.SetWriter(writer)
+
+design_tool.ValidateIds(d)
+DesignWriter(d).Write()

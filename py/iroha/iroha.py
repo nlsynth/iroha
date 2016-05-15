@@ -5,12 +5,15 @@ import sys
 class IDesign(object):
     def __init__(self):
         self.modules = []
+        self.channels = []
         self.resource_classes = []
         self.installResourceClasses()
         self.resource_params = ResourceParams()
 
     def Write(self, writer):
         self.resource_params.Write(writer)
+        for ch in self.channels:
+            ch.Write(writer)
         for m in self.modules:
             m.Write(writer)
 
@@ -30,6 +33,8 @@ class IDesign(object):
         self.resource_classes.append(IResourceClass("sibling-task-call"))
         self.resource_classes.append(IResourceClass("sub-module-task"))
         self.resource_classes.append(IResourceClass("sub-module-task-call"))
+        self.resource_classes.append(IResourceClass("channel-write"))
+        self.resource_classes.append(IResourceClass("channel-read"))
 
     def findResourceClassByName(self, name):
         for rc in self.resource_classes:
@@ -259,8 +264,38 @@ class ResourceParams(object):
         writer.ofh.write(" ".join(kv for kv in kvs))
         writer.ofh.write(")\n")
 
-# IChannel
-    
+class IChannel(object):
+    def __init__(self, design):
+        design.channels.append(self)
+        self.id = -1
+        self.design = design
+        self.reader = None
+        self.writer = None
+        self.valueType = IValueType(False, 32)
+
+    def SetReader(self, reader):
+        self.reader = reader
+
+    def SetWriter(self, writer):
+        self.writer = writer
+
+    def Write(self, writer):
+        writer.ofh.write("(CHANNEL " + str(self.id) + " ")
+        self.valueType.Write(writer)
+        writer.ofh.write(" ")
+        self.writeEndPoint(writer, self.reader)
+        writer.ofh.write(" ")
+        self.writeEndPoint(writer, self.writer)
+        writer.ofh.write(")\n")
+
+    def writeEndPoint(self, writer, ep):
+        if ep:
+            tab = ep.table
+            mod = tab.module
+            writer.ofh.write("(" + mod.name + " " + str(tab.id) + " " + str(ep.id) + ")")
+        else:
+            writer.ofh.write("()")
+
 class DesignWriter(object):
     def __init__(self, design):
         self.design = design
