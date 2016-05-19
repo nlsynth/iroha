@@ -9,6 +9,7 @@ mod = IModule(d, "mod")
 
 tab_w = ITable(mod)
 st10 = IState(tab_w)
+tab_w.initialSt = st10
 writer = design_tool.CreateChannelWrite(tab_w)
 insn_w = IInsn(writer)
 val_w = IRegister(tab_w, "w_reg")
@@ -18,6 +19,7 @@ tab_w.states.append(st10)
 
 tab_r = ITable(mod)
 st20 = IState(tab_r)
+tab_r.initialSt = st20
 reader = design_tool.CreateChannelWrite(tab_r)
 insn_r = IInsn(reader)
 val_r = IRegister(tab_r, "r_reg")
