@@ -39,26 +39,12 @@ void Connection::ProcessChannel(const IChannel *ch) {
 }
 
 void Connection::MarkExtChannelPath(const IChannel *ch, const IResource *res,
-				    bool is_read) {
+				    bool parent_is_write) {
   if (!res) {
     return;
   }
-  const IModule *mod = res->GetTable()->GetModule();
-  ChannelInfo &ci = channel_info_[mod];
-  if (is_read) {
-    ci.ext_reader_.push_back(ch);
-  } else {
-    ci.ext_writer_.push_back(ch);
-  }
-  for (const IModule *parent = mod->GetParentModule();
-       parent != nullptr; parent = parent->GetParentModule()) {
-    ChannelInfo &pci = channel_info_[parent];
-    if (is_read) {
-      pci.ext_reader_path_.push_back(ch);
-    } else {
-      pci.ext_writer_path_.push_back(ch);
-    }
-  }
+  MakeSimpleChannelPath(ch, res->GetTable()->GetModule(), nullptr,
+			parent_is_write);
 }
 
 void Connection::MakeInDesignChannelPath(const IChannel *ch) {
@@ -68,31 +54,36 @@ void Connection::MakeInDesignChannelPath(const IChannel *ch) {
     return;
   }
   const IModule *common_root = GetCommonRoot(reader_mod, writer_mod);
-  if (common_root == reader_mod) {
-    MakeSimpleChannelPath(ch, common_root, writer_mod, false);
-  }
-  if (common_root == writer_mod) {
-    MakeSimpleChannelPath(ch, common_root, reader_mod, true);
-  }
+  MakeSimpleChannelPath(ch, writer_mod, common_root, false);
+  MakeSimpleChannelPath(ch, reader_mod, common_root, true);
 }
 
 void Connection::MakeSimpleChannelPath(const IChannel *ch,
-				       const IModule *parent,
-				       const IModule *child,
+				       const IModule *source,
+				       const IModule *common_parent,
 				       bool parent_is_write) {
-  ChannelInfo &cci = channel_info_[child];
-  ChannelInfo &pci = channel_info_[parent];
-  if (parent_is_write) {
-    pci.writer_to_down_.push_back(ch);
-    cci.reader_from_up_.push_back(ch);
-  } else {
-    pci.writer_to_up_.push_back(ch);
-    cci.reader_from_down_.push_back(ch);
+  for (auto *mod = source; mod != common_parent;
+       mod = mod->GetParentModule()) {
+    AddChannelInfo(ch, mod, parent_is_write);
   }
-  for (auto *mod = child->GetParentModule(); mod != parent;
-       parent = parent->GetParentModule()) {
-    ChannelInfo &ci = channel_info_[child];
-    ci.data_path_.push_back(ch);
+}
+
+void Connection::AddChannelInfo(const IChannel *ch, const IModule *mod,
+				bool parent_is_write) {
+  ChannelInfo &ci = channel_info_[mod];
+  if (parent_is_write) {
+    ci.downward_.push_back(ch);
+  } else {
+    ci.upward_.push_back(ch);
+  }
+  const IModule *parent = mod->GetParentModule();
+  if (parent != nullptr) {
+    ChannelInfo &pci = channel_info_[parent];
+    if (parent_is_write) {
+      pci.child_downward_[mod].push_back(ch);
+    } else {
+      pci.child_upward_[mod].push_back(ch);
+    }
   }
 }
 

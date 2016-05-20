@@ -104,7 +104,7 @@ void Module::BuildChildModuleSection(vector<Module *> &mods) {
     is << ", ." << ports_->GetReset() << "("
        << mod->GetPorts()->GetClk() << ")";
     BuildChildModuleTaskWire(*mod, is);
-    BuildChildModuleChannelWireAll(*imod, is);
+    BuildChildModuleChannelWireAll(imod, is);
     is << ");\n";
   }
 }
@@ -136,26 +136,21 @@ void Module::BuildChildModuleTaskWire(const Module &mod, ostream &is) {
   }
 }
 
-void Module::BuildChildModuleChannelWireAll(const IModule &imod, ostream &is) {
-  const ChannelInfo *ci = conn_.GetConnectionInfo(&imod);
+void Module::BuildChildModuleChannelWireAll(const IModule *child_mod,
+					    ostream &is) {
+  const ChannelInfo *ci = conn_.GetConnectionInfo(i_mod_);
   if (ci != nullptr) {
-    for (auto *ch : ci->ext_writer_) {
-      BuildChildModuleChannelWire(*ch, is);
+    auto it = ci->child_upward_.find(child_mod);
+    if (it != ci->child_upward_.end()) {
+      for (auto *ch : it->second) {
+	BuildChildModuleChannelWire(*ch, is);
+      }
     }
-    for (auto *ch : ci->ext_writer_path_) {
-      BuildChildModuleChannelWire(*ch, is);
-    }
-    for (auto *ch : ci->ext_reader_) {
-      BuildChildModuleChannelWire(*ch, is);
-    }
-    for (auto *ch : ci->ext_reader_path_) {
-      BuildChildModuleChannelWire(*ch, is);
-    }
-    for (auto *ch : ci->data_path_) {
-      BuildChildModuleChannelWire(*ch, is);
-    }
-    for (auto *ch : ci->reader_from_up_) {
-      BuildChildModuleChannelWire(*ch, is);
+    it = ci->child_downward_.find(child_mod);
+    if (it != ci->child_downward_.end()) {
+      for (auto *ch : it->second) {
+	BuildChildModuleChannelWire(*ch, is);
+      }
     }
   }
 }
@@ -166,32 +161,11 @@ void Module::BuildChildModuleChannelWire(const IChannel &ch, ostream &is) {
 }
 
 void Module::BuildChannelConnections(const ChannelInfo &ci) {
-  for (auto *ch : ci.ext_writer_) {
-    int width = ch->GetValueType().GetWidth();
-    ports_->AddPort(InsnWriter::ChannelDataPort(*ch), Port::OUTPUT, width);
-  }
-  for (auto *ch : ci.ext_writer_path_) {
+  for (auto *ch : ci.upward_) {
     int width = ch->GetValueType().GetWidth();
     ports_->AddPort(InsnWriter::ChannelDataPort(*ch), Port::OUTPUT_WIRE, width);
   }
-  for (auto *ch : ci.ext_reader_) {
-    int width = ch->GetValueType().GetWidth();
-    ports_->AddPort(InsnWriter::ChannelDataPort(*ch), Port::INPUT, width);
-  }
-  for (auto *ch : ci.ext_reader_path_) {
-    int width = ch->GetValueType().GetWidth();
-    ports_->AddPort(InsnWriter::ChannelDataPort(*ch), Port::INPUT, width);
-  }
-  for (auto *ch : ci.writer_to_down_) {
-    int width = ch->GetValueType().GetWidth();
-    ostream &rs = tmpl_->GetStream(kRegisterSection);
-    rs << "  reg ";
-    if (width > 0) {
-      rs << "[" << (width - 1) << ":0] ";
-    }
-    rs << InsnWriter::ChannelDataPort(*ch) << ";\n";
-  }
-  for (auto *ch : ci.reader_from_up_) {
+  for (auto *ch : ci.downward_) {
     int width = ch->GetValueType().GetWidth();
     ports_->AddPort(InsnWriter::ChannelDataPort(*ch), Port::INPUT, width);
   }

@@ -12,17 +12,14 @@ namespace writer {
 // Per module information.
 class ChannelInfo {
 public:
-  // In design channel.
-  vector<const IChannel *> reader_from_up_;
-  vector<const IChannel *> reader_from_down_;
-  vector<const IChannel *> writer_to_up_;
-  vector<const IChannel *> writer_to_down_;
-  vector<const IChannel *> data_path_;
-  // Channel to external.
-  vector<const IChannel *> ext_reader_;
-  vector<const IChannel *> ext_writer_;
-  vector<const IChannel *> ext_reader_path_;
-  vector<const IChannel *> ext_writer_path_;
+  // This module has data output ports.
+  vector<const IChannel *> upward_;
+  // This module has data input ports.
+  vector<const IChannel *> downward_;
+
+  // child -> channels.
+  map<const IModule *, vector<const IChannel *>> child_upward_;
+  map<const IModule *, vector<const IChannel *>> child_downward_;
 };
 
 class Connection {
@@ -34,11 +31,15 @@ public:
 private:
   void ProcessChannel(const IChannel *ch);
   void MarkExtChannelPath(const IChannel *ch, const IResource *res,
-			  bool is_read);
+			  bool parent_is_write);
   void MakeInDesignChannelPath(const IChannel *ch);
   const IModule *GetCommonRoot(const IModule *m1, const IModule *m2);
-  void MakeSimpleChannelPath(const IChannel *ch, const IModule *parent,
-			     const IModule *child, bool parent_is_write);
+  void MakeSimpleChannelPath(const IChannel *ch,
+			     const IModule *source,
+			     const IModule *common_parent,
+			     bool parent_is_write);
+  void AddChannelInfo(const IChannel *ch, const IModule *mod,
+		      bool parent_is_write);
 
   const IDesign *design_;
   map<const IModule *, ChannelInfo> channel_info_;
