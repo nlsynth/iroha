@@ -47,18 +47,6 @@ string InsnWriter::ResourceName(const IResource &res) {
   return res.GetClass()->GetName() + "_" + Util::Itoa(res.GetId());
 }
 
-string InsnWriter::ChannelDataPort(const IChannel &ic) {
-  if (ic.GetReader() != nullptr) {
-      if (ic.GetWriter() != nullptr) {
-	return "channel_data_" + Util::Itoa(ic.GetId());
-      } else {
-	return "ext_rdata_" + Util::Itoa(ic.GetId());
-      }
-  } else {
-    return "ext_wdata_" + Util::Itoa(ic.GetId());
-  }
-}
-
 void InsnWriter::Print() {
   for (int i = 0; i < insn_->inputs_.size(); ++i) {
     IRegister *reg = insn_->inputs_[i];

@@ -20,7 +20,6 @@ public:
 
   static string RegisterName(const IRegister &reg);
   static string ResourceName(const IResource &res);
-  static string ChannelDataPort(const IChannel &ic);
   static string InsnOutputWireName(const IInsn &insn, int nth);
   static string MultiCycleStateName(const IResource &res);
 

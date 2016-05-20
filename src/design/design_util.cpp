@@ -141,10 +141,10 @@ bool DesignUtil::IsTerminalState(IState *st) {
 bool DesignUtil::IsMultiCycleInsn(IInsn *insn) {
   IResource *res = insn->GetResource();
   IResourceClass *rc = res->GetClass();
-  if (resource::IsSubModuleTaskCall(*rc)) {
-    return true;
-  }
-  if (resource::IsSiblingTaskCall(*rc)) {
+  if (resource::IsSubModuleTaskCall(*rc) ||
+      resource::IsSiblingTaskCall(*rc) ||
+      resource::IsChannelRead(*rc) ||
+      resource::IsChannelWrite(*rc)) {
     return true;
   }
   return false;

@@ -5,6 +5,7 @@
 #include "iroha/resource_class.h"
 #include "iroha/resource_params.h"
 #include "writer/module_template.h"
+#include "writer/verilog/channel.h"
 #include "writer/verilog/embed.h"
 #include "writer/verilog/insn_writer.h"
 #include "writer/verilog/internal_sram.h"
@@ -38,6 +39,10 @@ Resource *Resource::Create(const IResource &res, const Table &table) {
   }
   if (resource::IsEmbedded(*klass)) {
     return new EmbeddedResource(res, table);
+  }
+  if (resource::IsChannelRead(*klass) ||
+      resource::IsChannelWrite(*klass)) {
+    return new Channel(res, table);
   }
   return new Resource(res, table);
 }

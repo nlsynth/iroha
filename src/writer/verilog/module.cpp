@@ -6,8 +6,7 @@
 #include "iroha/stl_util.h"
 #include "writer/connection.h"
 #include "writer/module_template.h"
-#include "writer/verilog/insn_writer.h"
-#include "writer/verilog/internal_sram.h"
+#include "writer/verilog/channel.h"
 #include "writer/verilog/ports.h"
 #include "writer/verilog/table.h"
 #include "writer/verilog/task.h"
@@ -156,18 +155,18 @@ void Module::BuildChildModuleChannelWireAll(const IModule *child_mod,
 }
 
 void Module::BuildChildModuleChannelWire(const IChannel &ch, ostream &is) {
-  string port = InsnWriter::ChannelDataPort(ch);
+  string port = Channel::DataPort(ch);
   is << ", ." << port << "(" << port << ")";
 }
 
 void Module::BuildChannelConnections(const ChannelInfo &ci) {
   for (auto *ch : ci.upward_) {
     int width = ch->GetValueType().GetWidth();
-    ports_->AddPort(InsnWriter::ChannelDataPort(*ch), Port::OUTPUT_WIRE, width);
+    ports_->AddPort(Channel::DataPort(*ch), Port::OUTPUT_WIRE, width);
   }
   for (auto *ch : ci.downward_) {
     int width = ch->GetValueType().GetWidth();
-    ports_->AddPort(InsnWriter::ChannelDataPort(*ch), Port::INPUT, width);
+    ports_->AddPort(Channel::DataPort(*ch), Port::INPUT, width);
   }
 }
 

@@ -132,7 +132,7 @@ def CreateSubModuleTaskCall(table, callee):
     res.callee_table = callee
     return res
 
-def CreateChannelWrite(table):
+def CreateChannelRead(table):
     return createResource(table, "channel-read")
 
 def CreateChannelWrite(table):

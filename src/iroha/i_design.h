@@ -78,6 +78,8 @@ public:
   void SetCalleeTable(ITable *table);
   void SetForeignRegister(IRegister *reg);
   IRegister *GetForeignRegister() const;
+  void SetChannel(IChannel *ch);
+  IChannel *GetChannel() const;
 
   vector<IValueType> input_types_;
   vector<IValueType> output_types_;
@@ -90,6 +92,7 @@ private:
   IArray *array_;
   ITable *callee_table_;
   IRegister *foreign_register_;
+  IChannel *channel_;
 };
 
 class IChannel {
