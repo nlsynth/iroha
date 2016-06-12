@@ -16,7 +16,17 @@ public:
   virtual void BuildResource() override;
   virtual void BuildInsn(IInsn *insn, State *st) override;
 
+  static void BuildChannelPorts(const ChannelInfo &ci, Ports *ports);
+  static void BuildChannelWire(const ChannelInfo &ci, const IModule *child_mod,
+			       ostream &os);
+
   static string DataPort(const IChannel &ic);
+  static string AckPort(const IChannel &ic);
+  static string EnPort(const IChannel &ic);
+
+private:
+  static string PortName(const IChannel &ic, const string &type);
+  static void BuildChildModuleChannelWire(const IChannel &ch, ostream &is);
 };
 
 }  // namespace verilog

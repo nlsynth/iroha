@@ -89,7 +89,7 @@ void Module::Build() {
 
   const ChannelInfo *ci = conn_.GetConnectionInfo(i_mod_);
   if (ci != nullptr) {
-    BuildChannelConnections(*ci);
+    Channel::BuildChannelPorts(*ci, ports_.get());
   }
 }
 
@@ -102,8 +102,13 @@ void Module::BuildChildModuleSection(vector<Module *> &mods) {
     is << "." << ports_->GetClk() << "(" << mod->GetPorts()->GetClk() << ")";
     is << ", ." << ports_->GetReset() << "("
        << mod->GetPorts()->GetClk() << ")";
+    // Task
     BuildChildModuleTaskWire(*mod, is);
-    BuildChildModuleChannelWireAll(imod, is);
+    // Channel
+    const ChannelInfo *ci = conn_.GetConnectionInfo(i_mod_);
+    if (ci != nullptr) {
+      Channel::BuildChannelWire(*ci, imod, is);
+    }
     is << ");\n";
   }
 }
@@ -132,41 +137,6 @@ void Module::BuildChildModuleTaskWire(const Module &mod, ostream &is) {
     }
     is << ", .task_" << tab->GetId() << "_en(" << caller_en << ")";
     is << ", .task_" << tab->GetId() << "_ack(" << caller_ack << ")";
-  }
-}
-
-void Module::BuildChildModuleChannelWireAll(const IModule *child_mod,
-					    ostream &is) {
-  const ChannelInfo *ci = conn_.GetConnectionInfo(i_mod_);
-  if (ci != nullptr) {
-    auto it = ci->child_upward_.find(child_mod);
-    if (it != ci->child_upward_.end()) {
-      for (auto *ch : it->second) {
-	BuildChildModuleChannelWire(*ch, is);
-      }
-    }
-    it = ci->child_downward_.find(child_mod);
-    if (it != ci->child_downward_.end()) {
-      for (auto *ch : it->second) {
-	BuildChildModuleChannelWire(*ch, is);
-      }
-    }
-  }
-}
-
-void Module::BuildChildModuleChannelWire(const IChannel &ch, ostream &is) {
-  string port = Channel::DataPort(ch);
-  is << ", ." << port << "(" << port << ")";
-}
-
-void Module::BuildChannelConnections(const ChannelInfo &ci) {
-  for (auto *ch : ci.upward_) {
-    int width = ch->GetValueType().GetWidth();
-    ports_->AddPort(Channel::DataPort(*ch), Port::OUTPUT_WIRE, width);
-  }
-  for (auto *ch : ci.downward_) {
-    int width = ch->GetValueType().GetWidth();
-    ports_->AddPort(Channel::DataPort(*ch), Port::INPUT, width);
   }
 }
 

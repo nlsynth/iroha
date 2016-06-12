@@ -37,10 +37,7 @@ public:
   void BuildChildModuleSection(vector<Module *> &mods);
 
 private:
-  void BuildChannelConnections(const ChannelInfo &ci);
   void BuildChildModuleTaskWire(const Module &mod, ostream &is);
-  void BuildChildModuleChannelWireAll(const IModule *child_mod, ostream &is);
-  void BuildChildModuleChannelWire(const IChannel &ch, ostream &is);
   bool ResolveResetPolarity();
 
   const IModule *i_mod_;

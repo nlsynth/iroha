@@ -2,8 +2,12 @@
 
 #include "iroha/i_design.h"
 #include "iroha/resource_class.h"
+#include "writer/connection.h"
 #include "writer/module_template.h"
+#include "writer/verilog/insn_writer.h"
 #include "writer/verilog/module.h"
+#include "writer/verilog/ports.h"
+#include "writer/verilog/state.h"
 #include "writer/verilog/table.h"
 
 namespace iroha {
@@ -20,22 +24,89 @@ void Channel::BuildResource() {
     IChannel *ic = res_.GetChannel();
     rs << "  reg" << Table::WidthSpec(ic->GetValueType())
        << " " << DataPort(*ic) << ";\n";
+    rs << "  reg " << EnPort(*ic) << ";\n";
+  }
+  if (resource::IsChannelRead(*res_.GetClass())) {
+    ostream &rs = tmpl_->GetStream(kRegisterSection);
+    IChannel *ic = res_.GetChannel();
+    rs << "  reg " << AckPort(*ic) << ";\n";
   }
 }
 
 void Channel::BuildInsn(IInsn *insn, State *st) {
+  static const char I[] = "          ";
+  ostream &os = st->StateBodySectionStream();
+  string insn_st = InsnWriter::MultiCycleStateName(*(insn->GetResource()));
+  if (resource::IsChannelWrite(*res_.GetClass())) {
+    os << I << "if (" << insn_st << " == 0) begin\n";
+    IChannel *ic = res_.GetChannel();
+    os << I << "  " << DataPort(*ic) << " <= " << InsnWriter::RegisterName(*insn->inputs_[0]) << ";\n";
+    os << I << "  if (" << AckPort(*ic) << ") begin\n"
+       << I << "    " << insn_st << " <= 3;\n"
+       << I << "    " << EnPort(*ic) << " <= 0;\n"
+       << I << "  end else begin\n"
+       << I << "    " << EnPort(*ic) << " <= 1;\n"
+       << I << "  end\n";
+    os << I << "end\n";
+  }
 }
 
 string Channel::DataPort(const IChannel &ic) {
+  return PortName(ic, "data");
+}
+
+string Channel::AckPort(const IChannel &ic) {
+  return PortName(ic, "ack");
+}
+
+string Channel::EnPort(const IChannel &ic) {
+  return PortName(ic, "en");
+}
+
+string Channel::PortName(const IChannel &ic, const string &type) {
+  string suffix = type + "_" + Util::Itoa(ic.GetId());
   if (ic.GetReader() != nullptr) {
       if (ic.GetWriter() != nullptr) {
-	return "channel_data_" + Util::Itoa(ic.GetId());
+	return "channel_" + suffix;
       } else {
-	return "ext_rdata_" + Util::Itoa(ic.GetId());
+	return "ext_r_" + suffix;
       }
   } else {
-    return "ext_wdata_" + Util::Itoa(ic.GetId());
+    return "ext_w_" + suffix;
   }
+}
+
+void Channel::BuildChannelPorts(const ChannelInfo &ci, Ports *ports) {
+  for (auto *ch : ci.upward_) {
+    int width = ch->GetValueType().GetWidth();
+    ports->AddPort(Channel::DataPort(*ch), Port::OUTPUT_WIRE, width);
+  }
+  for (auto *ch : ci.downward_) {
+    int width = ch->GetValueType().GetWidth();
+    ports->AddPort(Channel::DataPort(*ch), Port::INPUT, width);
+  }
+}
+
+void Channel::BuildChannelWire(const ChannelInfo &ci,
+			       const IModule *child_mod,
+			       ostream &os) {
+  auto it = ci.child_upward_.find(child_mod);
+  if (it != ci.child_upward_.end()) {
+    for (auto *ch : it->second) {
+      BuildChildModuleChannelWire(*ch, os);
+    }
+  }
+  it = ci.child_downward_.find(child_mod);
+  if (it != ci.child_downward_.end()) {
+    for (auto *ch : it->second) {
+      BuildChildModuleChannelWire(*ch, os);
+    }
+  }
+}
+
+void Channel::BuildChildModuleChannelWire(const IChannel &ch, ostream &is) {
+  string port = DataPort(ch);
+  is << ", ." << port << "(" << port << ")";
 }
 
 }  // namespace verilog
