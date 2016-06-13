@@ -25,11 +25,16 @@ void Channel::BuildResource() {
     rs << "  reg" << Table::WidthSpec(ic->GetValueType())
        << " " << DataPort(*ic) << ";\n";
     rs << "  reg " << EnPort(*ic) << ";\n";
+    ostream &is = tab_.InitialValueSectionStream();
+    is << "      " << DataPort(*ic) << " <= 0;\n"
+       << "      " << EnPort(*ic) << " <= 0;\n";
   }
   if (resource::IsChannelRead(*res_.GetClass())) {
     ostream &rs = tmpl_->GetStream(kRegisterSection);
     IChannel *ic = res_.GetChannel();
     rs << "  reg " << AckPort(*ic) << ";\n";
+    ostream &is = tab_.InitialValueSectionStream();
+    is << "      " << AckPort(*ic) << " <= 0;\n";
   }
 }
 
@@ -38,7 +43,8 @@ void Channel::BuildInsn(IInsn *insn, State *st) {
   ostream &os = st->StateBodySectionStream();
   string insn_st = InsnWriter::MultiCycleStateName(*(insn->GetResource()));
   if (resource::IsChannelWrite(*res_.GetClass())) {
-    os << I << "if (" << insn_st << " == 0) begin\n";
+    os << I << "// Channel write\n"
+       << I << "if (" << insn_st << " == 0) begin\n";
     IChannel *ic = res_.GetChannel();
     os << I << "  " << DataPort(*ic) << " <= " << InsnWriter::RegisterName(*insn->inputs_[0]) << ";\n";
     os << I << "  if (" << AckPort(*ic) << ") begin\n"
@@ -48,6 +54,22 @@ void Channel::BuildInsn(IInsn *insn, State *st) {
        << I << "    " << EnPort(*ic) << " <= 1;\n"
        << I << "  end\n";
     os << I << "end\n";
+  }
+  if (resource::IsChannelRead(*res_.GetClass())) {
+    IChannel *ic = res_.GetChannel();
+    os << I << "// Channel read\n"
+       << I << "if (" << insn_st << " == 0) begin\n"
+       << I << "  if (" << EnPort(*ic) << ") begin\n"
+       << I << "    " << insn_st << " <= 3;\n"
+       << I << "    " << AckPort(*ic) << " <= 1;\n"
+       << I << "  end\n"
+       << I << "end\n";
+    os << I << "if (" << insn_st << " == 3) begin\n"
+       << I << "    " << AckPort(*ic) << " <= 0;\n"
+       << I << "end\n";
+    ostream &ws = tmpl_->GetStream(kInsnWireValueSection);
+    ws << "  assign " << InsnWriter::InsnOutputWireName(*insn, 0)
+       << " = " << DataPort(*ic) << ";\n";
   }
 }
 
