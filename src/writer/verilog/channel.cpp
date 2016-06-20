@@ -102,16 +102,45 @@ void Channel::BuildChannelPorts(const ChannelInfo &ci, Ports *ports) {
   for (auto *ch : ci.upward_) {
     int width = ch->GetValueType().GetWidth();
     ports->AddPort(Channel::DataPort(*ch), Port::OUTPUT_WIRE, width);
+    ports->AddPort(Channel::EnPort(*ch), Port::OUTPUT_WIRE, 0);
+    ports->AddPort(Channel::AckPort(*ch), Port::INPUT, 0);
   }
   for (auto *ch : ci.downward_) {
     int width = ch->GetValueType().GetWidth();
     ports->AddPort(Channel::DataPort(*ch), Port::INPUT, width);
+    ports->AddPort(Channel::EnPort(*ch), Port::INPUT, 0);
+    ports->AddPort(Channel::AckPort(*ch), Port::OUTPUT_WIRE, 0);
   }
 }
 
-void Channel::BuildChannelWire(const ChannelInfo &ci,
-			       const IModule *child_mod,
-			       ostream &os) {
+void Channel::BuildRootWire(const ChannelInfo &ci, Module *module) {
+  ModuleTemplate *tmpl = module->GetModuleTemplate();
+  for (auto *ch : ci.common_root_) {
+    // This doesn't assume in-module channels.
+    IResource *writer_res = ch->GetWriter();
+    if (writer_res != nullptr) {
+      const IModule *writer = writer_res->GetTable()->GetModule();
+      if (writer == module->GetIModule()) {
+	ostream &ws = tmpl->GetStream(kInsnWireDeclSection);
+	ws << "  wire " << AckPort(*ch) << ";\n";
+      }
+    }
+    IResource *reader_res = ch->GetReader();
+    if (reader_res != nullptr) {
+      const IModule *reader = reader_res->GetTable()->GetModule();
+      if (reader == module->GetIModule()) {
+	ostream &ws = tmpl->GetStream(kInsnWireDeclSection);
+	ws << "  wire " << EnPort(*ch) << ";\n"
+	   << "  reg" << Table::WidthSpec(ch->GetValueType())
+	   << " " << DataPort(*ch) << ";\n";
+      }
+    }
+  }
+}
+
+void Channel::BuildChildChannelWire(const ChannelInfo &ci,
+				    const IModule *child_mod,
+				    ostream &os) {
   auto it = ci.child_upward_.find(child_mod);
   if (it != ci.child_upward_.end()) {
     for (auto *ch : it->second) {
@@ -128,6 +157,10 @@ void Channel::BuildChannelWire(const ChannelInfo &ci,
 
 void Channel::BuildChildModuleChannelWire(const IChannel &ch, ostream &is) {
   string port = DataPort(ch);
+  is << ", ." << port << "(" << port << ")";
+  port = AckPort(ch);
+  is << ", ." << port << "(" << port << ")";
+  port = EnPort(ch);
   is << ", ." << port << "(" << port << ")";
 }
 

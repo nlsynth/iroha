@@ -17,8 +17,11 @@ public:
   virtual void BuildInsn(IInsn *insn, State *st) override;
 
   static void BuildChannelPorts(const ChannelInfo &ci, Ports *ports);
-  static void BuildChannelWire(const ChannelInfo &ci, const IModule *child_mod,
-			       ostream &os);
+  static void BuildRootWire(const ChannelInfo &ci, Module *module);
+  // Wires in child module decls.
+  static void BuildChildChannelWire(const ChannelInfo &ci,
+				    const IModule *child_mod,
+				    ostream &os);
 
   static string DataPort(const IChannel &ic);
   static string AckPort(const IChannel &ic);

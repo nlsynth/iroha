@@ -16,6 +16,8 @@ public:
   vector<const IChannel *> upward_;
   // This module has data input ports.
   vector<const IChannel *> downward_;
+  // Highest module in the path.
+  vector<const IChannel *> common_root_;
 
   // child -> channels.
   map<const IModule *, vector<const IChannel *>> child_upward_;

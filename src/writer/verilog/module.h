@@ -34,6 +34,7 @@ public:
   bool GetResetPolarity() const;
   const IModule *GetIModule() const;
   const Ports *GetPorts() const;
+  ModuleTemplate *GetModuleTemplate() const;
   void BuildChildModuleSection(vector<Module *> &mods);
 
 private:

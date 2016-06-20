@@ -54,6 +54,8 @@ void Connection::MakeInDesignChannelPath(const IChannel *ch) {
     return;
   }
   const IModule *common_root = GetCommonRoot(reader_mod, writer_mod);
+  ChannelInfo &ci = channel_info_[common_root];
+  ci.common_root_.push_back(ch);
   MakeSimpleChannelPath(ch, writer_mod, common_root, false);
   MakeSimpleChannelPath(ch, reader_mod, common_root, true);
 }

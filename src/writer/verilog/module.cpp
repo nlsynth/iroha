@@ -90,6 +90,7 @@ void Module::Build() {
   const ChannelInfo *ci = conn_.GetConnectionInfo(i_mod_);
   if (ci != nullptr) {
     Channel::BuildChannelPorts(*ci, ports_.get());
+    Channel::BuildRootWire(*ci, this);
   }
 }
 
@@ -107,7 +108,7 @@ void Module::BuildChildModuleSection(vector<Module *> &mods) {
     // Channel
     const ChannelInfo *ci = conn_.GetConnectionInfo(i_mod_);
     if (ci != nullptr) {
-      Channel::BuildChannelWire(*ci, imod, is);
+      Channel::BuildChildChannelWire(*ci, imod, is);
     }
     is << ");\n";
   }
@@ -149,6 +150,10 @@ bool Module::ResolveResetPolarity() {
   }
   // This may return the default value.
   return i_mod_->GetDesign()->GetParams()->GetResetPolarity();
+}
+
+ModuleTemplate *Module::GetModuleTemplate() const {
+  return tmpl_.get();
 }
 
 }  // namespace verilog
