@@ -9,7 +9,7 @@
 namespace iroha {
 namespace writer {
 
-// Per module information.
+// Per module channel path information.
 class ChannelInfo {
 public:
   // This module has data output ports.
@@ -24,13 +24,22 @@ public:
   map<const IModule *, vector<const IChannel *>> child_downward_;
 };
 
+// Per sub module task call path information.
+class TaskCallInfo {
+public:
+  // This or sub modules.
+  vector<IResource *> tasks_;
+};
+
 class Connection {
 public:
   Connection(const IDesign *design);
   void Build();
   const ChannelInfo *GetConnectionInfo(const IModule *mod) const;
+  const TaskCallInfo *GetTaskCallInfo(const IModule *mod) const;
 
 private:
+  // Channel.
   void ProcessChannel(const IChannel *ch);
   void MarkExtChannelPath(const IChannel *ch, const IResource *res,
 			  bool parent_is_write);
@@ -43,8 +52,12 @@ private:
   void AddChannelInfo(const IChannel *ch, const IModule *mod,
 		      bool parent_is_write);
 
+  // Sub module task call.
+  void ProcessSubModuleTaskCall(IResource *caller);
+
   const IDesign *design_;
   map<const IModule *, ChannelInfo> channel_info_;
+  map<const IModule *, TaskCallInfo> task_call_info_;
 };
 
 }  // namespace writer

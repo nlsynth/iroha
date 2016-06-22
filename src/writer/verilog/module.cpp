@@ -92,11 +92,16 @@ void Module::Build() {
     Channel::BuildChannelPorts(*ci, ports_.get());
     Channel::BuildRootWire(*ci, this);
   }
+  const TaskCallInfo *ti = conn_.GetTaskCallInfo(i_mod_);
+  if (ti != nullptr) {
+    Task::BuildPorts(*ti, ports_.get());
+  }
 }
 
-void Module::BuildChildModuleSection(vector<Module *> &mods) {
+void Module::BuildChildModuleSection(vector<Module *> &child_mods) {
   ostream &is = tmpl_->GetStream(kSubModuleSection);
-  for (auto *mod : mods) {
+  for (auto *mod : child_mods) {
+    // mod inst_mod(...);
     const IModule *imod = mod->GetIModule();
     is << "  " << imod->GetName() << " "
        << "inst_" << imod->GetName() << "(";
@@ -104,40 +109,16 @@ void Module::BuildChildModuleSection(vector<Module *> &mods) {
     is << ", ." << ports_->GetReset() << "("
        << mod->GetPorts()->GetClk() << ")";
     // Task
-    BuildChildModuleTaskWire(*mod, is);
+    const TaskCallInfo *ti = conn_.GetTaskCallInfo(imod);
+    if (ti != nullptr) {
+      Task::BuildChildTaskWire(*ti, is);
+    }
     // Channel
     const ChannelInfo *ci = conn_.GetConnectionInfo(i_mod_);
     if (ci != nullptr) {
       Channel::BuildChildChannelWire(*ci, imod, is);
     }
     is << ");\n";
-  }
-}
-
-void Module::BuildChildModuleTaskWire(const Module &mod, ostream &is) {
-  for (auto *t : mod.tables_) {
-    ITable *tab = t->GetITable();
-    IInsn *insn = DesignUtil::FindTaskEntryInsn(tab);
-    if (insn == nullptr) {
-      continue;
-    }
-    string caller_en;
-    string caller_ack;
-    for (ITable *caller_tab : i_mod_->tables_) {
-      for (IResource *caller_res : caller_tab->resources_) {
-	ITable *callee_tab = caller_res->GetCalleeTable();
-	if (callee_tab == tab) {
-	  string prefix = Task::SubModuleTaskControlPinPrefix(*caller_res);
-	  caller_en = prefix + "_en";
-	  caller_ack = prefix + "_ack";
-	}
-      }
-    }
-    if (caller_en.empty()) {
-      caller_en = "0";
-    }
-    is << ", .task_" << tab->GetId() << "_en(" << caller_en << ")";
-    is << ", .task_" << tab->GetId() << "_ack(" << caller_ack << ")";
   }
 }
 

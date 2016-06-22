@@ -35,10 +35,9 @@ public:
   const IModule *GetIModule() const;
   const Ports *GetPorts() const;
   ModuleTemplate *GetModuleTemplate() const;
-  void BuildChildModuleSection(vector<Module *> &mods);
+  void BuildChildModuleSection(vector<Module *> &child_mods);
 
 private:
-  void BuildChildModuleTaskWire(const Module &mod, ostream &is);
   bool ResolveResetPolarity();
 
   const IModule *i_mod_;

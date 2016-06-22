@@ -1,6 +1,8 @@
 #include "writer/connection.h"
 
+#include "design/design_util.h"
 #include "iroha/i_design.h"
+#include "iroha/resource_class.h"
 #include "iroha/logging.h"
 
 #include <set>
@@ -15,6 +17,15 @@ void Connection::Build() {
   for (auto *ch : design_->channels_) {
     ProcessChannel(ch);
   }
+  for (auto *mod : design_->modules_) {
+    for (auto *tab : mod->tables_) {
+      IResource *task_res =
+	DesignUtil::FindResourceByClassName(tab, resource::kSubModuleTaskCall);
+      if (task_res != nullptr) {
+	ProcessSubModuleTaskCall(task_res);
+      }
+    }
+  }
 }
 
 const ChannelInfo *Connection::GetConnectionInfo(const IModule *mod) const {
@@ -24,6 +35,15 @@ const ChannelInfo *Connection::GetConnectionInfo(const IModule *mod) const {
   }
   const ChannelInfo &ci = it->second;
   return &ci;
+}
+
+const TaskCallInfo *Connection::GetTaskCallInfo(const IModule *mod) const {
+  auto it = task_call_info_.find(mod);
+  if (it == task_call_info_.end()) {
+    return nullptr;
+  }
+  const TaskCallInfo &ti = it->second;
+  return &ti;
 }
 
 void Connection::ProcessChannel(const IChannel *ch) {
@@ -101,6 +121,16 @@ const IModule *Connection::GetCommonRoot(const IModule *m1,
     }
   }
   return nullptr;
+}
+
+void Connection::ProcessSubModuleTaskCall(IResource *caller) {
+  IModule *caller_mod = caller->GetTable()->GetModule();
+  IModule *callee_mod = caller->GetCalleeTable()->GetModule();
+  for (IModule *mod = callee_mod; mod != caller_mod;
+       mod = mod->GetParentModule()) {
+    TaskCallInfo &ti = task_call_info_[mod];
+    ti.tasks_.push_back(caller);
+  }
 }
 
 }  // namespace writer

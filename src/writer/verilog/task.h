@@ -21,6 +21,9 @@ public:
   static string SubModuleTaskControlPinPrefix(const IResource &res);
   static string SiblingTaskReadySignal(const ITable &tab,
 				       const ITable *caller);
+  static void BuildChildTaskWire(const TaskCallInfo &ti,
+				 ostream &os);
+  static void BuildPorts(const TaskCallInfo &ti, Ports *ports);
 
   static const int kTaskEntryStateId;
 

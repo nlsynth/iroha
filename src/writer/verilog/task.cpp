@@ -4,6 +4,7 @@
 #include "iroha/i_design.h"
 #include "iroha/logging.h"
 #include "iroha/resource_class.h"
+#include "writer/connection.h"
 #include "writer/module_template.h"
 #include "writer/verilog/insn_writer.h"
 #include "writer/verilog/module.h"
@@ -86,11 +87,8 @@ string Task::TaskEnablePin(const ITable &tab, const ITable *caller) {
 
 void Task::BuildSubModuleTask() {
   string en = Task::TaskEnablePin(*tab_.GetITable(), nullptr);
-  Ports *ports = tab_.GetPorts();
-  ports->AddPort(en, Port::INPUT, 0);
   int table_id = tab_.GetITable()->GetId();
   string ack = "task_" + Util::Itoa(table_id) + "_ack";
-  ports->AddPort(ack, Port::OUTPUT, 0);
   ostream &fs = tab_.StateOutputSectionStream();
   fs << "      " << ack <<
     " <= (" << tab_.StateVariable() << " == `"
@@ -275,7 +273,32 @@ string Task::ArgSignal(const ITable &tab, int nth, const ITable *caller) {
   }
   return s;
 }
-  
+
+void Task::BuildChildTaskWire(const TaskCallInfo &ti,
+			      ostream &is) {
+  for (IResource *caller : ti.tasks_) {
+    ITable *tab = caller->GetTable();
+    string caller_en;
+    string caller_ack;
+    string prefix = Task::SubModuleTaskControlPinPrefix(*caller);
+    caller_en = prefix + "_en";
+    caller_ack = prefix + "_ack";
+    is << ", .task_" << tab->GetId() << "_en(" << caller_en << ")";
+    is << ", .task_" << tab->GetId() << "_ack(" << caller_ack << ")";
+  }
+}
+
+void Task::BuildPorts(const TaskCallInfo &ti, Ports *ports) {
+  for (IResource *caller : ti.tasks_) {
+    ITable *callee_tab = caller->GetCalleeTable();
+    string en = Task::TaskEnablePin(*callee_tab, nullptr);
+    ports->AddPort(en, Port::INPUT, 0);
+    int table_id = callee_tab->GetId();
+    string ack = "task_" + Util::Itoa(table_id) + "_ack";
+    ports->AddPort(ack, Port::OUTPUT, 0);
+  }
+}
+
 }  // namespace verilog
 }  // namespace writer
 }  // namespace iroha

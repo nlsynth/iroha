@@ -212,10 +212,6 @@ private:
 };
 
 // IModule corresponds to a module in HDL.
-// This can be either
-// (1) An FSM with 1 table.
-// (2) A pipeline with multiple tables.
-// (3) Container of multiple modules.
 class IModule {
 public:
   IModule(IDesign *design, const string &name);
