@@ -19,17 +19,6 @@ InsnWriter::InsnWriter(const IInsn *insn, const State *st,
   : insn_(insn), st_(st), os_(os) {
 }
 
-void InsnWriter::ExtOutput() {
-  auto *res = insn_->GetResource();
-  auto *params = res->GetParams();
-  string output_port;
-  int width;
-  params->GetExtOutputPort(&output_port, &width);
-  os_ << I << output_port << " <= "
-      << RegisterName(*insn_->inputs_[0]);
-  os_ << ";\n";
-}
-
 void InsnWriter::Set() {
   os_ << I << insn_->outputs_[0]->GetName() << " <= "
       << RegisterName(*insn_->inputs_[0]) << ";\n";

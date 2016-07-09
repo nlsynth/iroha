@@ -42,11 +42,15 @@ void ExtIO::BuildInsn(IInsn *insn, State *st) {
   if (resource::IsExtInput(*klass)) {
     BuildExtInputInsn(insn);
   }
-
-  ostream &os = st->StateBodySectionStream();
-  InsnWriter writer(insn, st, os);
   if (resource::IsExtOutput(*klass)) {
-    writer.ExtOutput();
+    auto *params = res_.GetParams();
+    string output_port;
+    int width;
+    params->GetExtOutputPort(&output_port, &width);
+    ostream &os = st->StateBodySectionStream();
+    os << "          " << output_port << " <= "
+       << InsnWriter::RegisterName(*insn->inputs_[0]);
+    os << ";\n";
   }
 }
 
