@@ -19,7 +19,7 @@ design_tool.AddNextState(st1, st2)
 
 array = design_tool.CreateArrayResource(
     tab, 10, 32,
-    False, # is_external
+    False, # !is_external
     True # is_ram
 )
 

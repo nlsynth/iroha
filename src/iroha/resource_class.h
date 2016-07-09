@@ -42,6 +42,7 @@ bool IsBitArrangeOp(const IResourceClass &rc);
 bool IsArray(const IResourceClass &rc);
 bool IsSet(const IResourceClass &rc);
 bool IsExtInput(const IResourceClass &rc);
+bool IsExtOutput(const IResourceClass &rc);
 bool IsMapped(const IResourceClass &rc);
 bool IsChannelRead(const IResourceClass &rc);
 bool IsChannelWrite(const IResourceClass &rc);

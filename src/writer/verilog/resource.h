@@ -22,9 +22,9 @@ public:
 
 private:
   void BuildMapped();
-  void BuildSRAM();
+  void BuildExternalSRAM();
+  void BuildInternalSRAM();
   void BuildArray();
-  void BuildExtInputInsn(IInsn *insn);
   void BuildMappedInsn(IInsn *insn);
   void WriteStateUnion(const map<IState *, IInsn *> &callers,
 		       ostream &os);

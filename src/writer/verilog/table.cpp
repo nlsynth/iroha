@@ -9,7 +9,6 @@
 #include "writer/module_template.h"
 #include "writer/verilog/embed.h"
 #include "writer/verilog/insn_writer.h"
-#include "writer/verilog/internal_sram.h"
 #include "writer/verilog/module.h"
 #include "writer/verilog/ports.h"
 #include "writer/verilog/resource.h"

@@ -7,6 +7,7 @@
 #include "writer/module_template.h"
 #include "writer/verilog/channel.h"
 #include "writer/verilog/embed.h"
+#include "writer/verilog/ext_io.h"
 #include "writer/verilog/insn_writer.h"
 #include "writer/verilog/internal_sram.h"
 #include "writer/verilog/module.h"
@@ -44,6 +45,10 @@ Resource *Resource::Create(const IResource &res, const Table &table) {
       resource::IsChannelWrite(*klass)) {
     return new Channel(res, table);
   }
+  if (resource::IsExtInput(*klass) ||
+      resource::IsExtOutput(*klass)) {
+    return new ExtIO(res, table);
+  }
   return new Resource(res, table);
 }
 
@@ -54,21 +59,6 @@ Resource::Resource(const IResource &res, const Table &table)
 
 void Resource::BuildResource() {
   auto *klass = res_.GetClass();
-  auto *params = res_.GetParams();
-  if (klass->GetName() == resource::kExtInput) {
-    auto *ports = tab_.GetPorts();
-    string input_port;
-    int width;
-    params->GetExtInputPort(&input_port, &width);
-    ports->AddPort(input_port, Port::INPUT, width);
-  }
-  if (klass->GetName() == resource::kExtOutput) {
-    auto *ports = tab_.GetPorts();
-    string output_port;
-    int width;
-    params->GetExtOutputPort(&output_port, &width);
-    ports->AddPort(output_port, Port::OUTPUT, width);
-  }
   if (resource::IsMapped(*klass)) {
     BuildMapped();
   }
@@ -79,9 +69,6 @@ void Resource::BuildResource() {
 
 void Resource::BuildInsn(IInsn *insn, State *st) {
   auto *klass = res_.GetClass();
-  if (resource::IsExtInput(*klass)) {
-    BuildExtInputInsn(insn);
-  }
   if (resource::IsMapped(*klass)) {
     BuildMappedInsn(insn);
   }
@@ -92,8 +79,6 @@ void Resource::BuildInsn(IInsn *insn, State *st) {
   const string &rc_name = rc->GetName();
   if (resource::IsSet(*rc)) {
     writer.Set();
-  } else if (rc_name == resource::kExtOutput) {
-    writer.ExtOutput();
   } else if (rc_name == resource::kPrint) {
     writer.Print();
   } else if (rc_name == resource::kAssert) {
@@ -157,11 +142,19 @@ void Resource::WriteWire(const string &name, const IValueType &type,
 void Resource::BuildMapped() {
   auto *params = res_.GetParams();
   if (params->GetMappedName() == "mem") {
-    BuildSRAM();
+    IArray *array = res_.GetArray();
+    if (array->IsExternal()) {
+      BuildExternalSRAM();
+    } else {
+      BuildInternalSRAM();
+    }
   }
 }
 
-void Resource::BuildSRAM() {
+void Resource::BuildExternalSRAM() {
+}
+
+void Resource::BuildInternalSRAM() {
   InternalSRAM *sram =
     tab_.GetEmbeddedModules()->RequestInternalSRAM(*tab_.GetModule(), res_);
   auto *ports = tab_.GetPorts();
@@ -233,17 +226,6 @@ string Resource::JoinStatesWithSubState(const map<IState *, IInsn *> &sts,
 		    ")");
   }
   return Util::Join(conds, " || ");
-}
-
-void Resource::BuildExtInputInsn(IInsn *insn) {
-  auto *params = res_.GetParams();
-  string input_port;
-  int width;
-  params->GetExtInputPort(&input_port, &width);
-  ostream &ws = tmpl_->GetStream(kInsnWireValueSection);
-  ws << "  assign " << InsnWriter::InsnOutputWireName(*insn, 0)
-     << " = "
-     << input_port << ";\n";
 }
 
 void Resource::BuildMappedInsn(IInsn *insn) {

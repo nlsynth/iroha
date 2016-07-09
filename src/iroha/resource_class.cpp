@@ -46,6 +46,10 @@ bool IsExtInput(const IResourceClass &rc) {
   return (rc.GetName() == kExtInput);
 }
 
+bool IsExtOutput(const IResourceClass &rc) {
+  return (rc.GetName() == kExtOutput);
+}
+
 bool IsChannelRead(const IResourceClass &rc) {
   return (rc.GetName() == kChannelRead);
 }

@@ -27,7 +27,7 @@ public:
 // Per sub module task call path information.
 class TaskCallInfo {
 public:
-  // This or sub modules.
+  // Callers for this or sub modules.
   vector<IResource *> tasks_;
 };
 
