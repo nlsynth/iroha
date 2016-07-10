@@ -9,7 +9,7 @@
 #include "writer/verilog/embed.h"
 #include "writer/verilog/ext_io.h"
 #include "writer/verilog/insn_writer.h"
-#include "writer/verilog/internal_sram.h"
+#include "writer/verilog/mapped.h"
 #include "writer/verilog/module.h"
 #include "writer/verilog/operator.h"
 #include "writer/verilog/ports.h"
@@ -49,6 +49,9 @@ Resource *Resource::Create(const IResource &res, const Table &table) {
       resource::IsExtOutput(*klass)) {
     return new ExtIO(res, table);
   }
+  if (resource::IsMapped(*klass)) {
+    return new MappedResource(res, table);
+  }
   return new Resource(res, table);
 }
 
@@ -58,21 +61,9 @@ Resource::Resource(const IResource &res, const Table &table)
 }
 
 void Resource::BuildResource() {
-  auto *klass = res_.GetClass();
-  if (resource::IsMapped(*klass)) {
-    BuildMapped();
-  }
-  if (resource::IsArray(*klass)) {
-    BuildArray();
-  }
 }
 
 void Resource::BuildInsn(IInsn *insn, State *st) {
-  auto *klass = res_.GetClass();
-  if (resource::IsMapped(*klass)) {
-    BuildMappedInsn(insn);
-  }
-
   ostream &os = st->StateBodySectionStream();
   InsnWriter writer(insn, st, os);
   auto *rc = res_.GetClass();
@@ -83,8 +74,6 @@ void Resource::BuildInsn(IInsn *insn, State *st) {
     writer.Print();
   } else if (rc_name == resource::kAssert) {
     writer.Assert();
-  } else if (resource::IsMapped(*rc)) {
-    writer.Mapped();
   }
 }
 
@@ -139,50 +128,6 @@ void Resource::WriteWire(const string &name, const IValueType &type,
   os << name << ";\n";
 }
 
-void Resource::BuildMapped() {
-  auto *params = res_.GetParams();
-  if (params->GetMappedName() == "mem") {
-    IArray *array = res_.GetArray();
-    if (array->IsExternal()) {
-      BuildExternalSRAM();
-    } else {
-      BuildInternalSRAM();
-    }
-  }
-}
-
-void Resource::BuildExternalSRAM() {
-}
-
-void Resource::BuildInternalSRAM() {
-  InternalSRAM *sram =
-    tab_.GetEmbeddedModules()->RequestInternalSRAM(*tab_.GetModule(), res_);
-  auto *ports = tab_.GetPorts();
-  ostream &es = tmpl_->GetStream(kEmbeddedInstanceSection);
-  string name = sram->GetModuleName();
-  string res_id = Util::Itoa(res_.GetId());
-  string inst = name + "_inst_" + res_id;
-  es << "  " << name << " " << inst << "("
-     << ".clk(" << ports->GetClk() << ")"
-     << ", ." << sram->GetResetPinName() << "(" << ports->GetReset() << ")"
-     << ", .addr_i(sram_addr_" << res_id << ")"
-     << ", .rdata_o(sram_rdata_" << res_id << ")"
-     << ", .wdata_i(sram_wdata_" << res_id << ")"
-     << ", .write_en_i(sram_wdata_en_" << res_id << ")"
-     <<");\n";
-  ostream &rs = tmpl_->GetStream(kResourceSection);
-  rs << "  reg " << sram->AddressWidthSpec() << "sram_addr_" << res_id << ";\n"
-     << "  wire " << sram->DataWidthSpec() << "sram_rdata_" << res_id << ";\n"
-     << "  reg " << sram->DataWidthSpec() << "sram_wdata_" << res_id << ";\n"
-     << "  reg sram_wdata_en_" << res_id << ";\n";
-  map<IState *, IInsn *> callers;
-  CollectResourceCallers("sram_write", &callers);
-  ostream &fs = tab_.StateOutputSectionStream();
-  fs << "      sram_wdata_en_" << res_id << " <= ";
-  WriteStateUnion(callers, fs);
-  fs << ";\n";
-}
-
 void Resource::WriteStateUnion(const map<IState *, IInsn *> &callers,
 			       ostream &os) {
   if (callers.size() == 0) {
@@ -196,9 +141,6 @@ void Resource::WriteStateUnion(const map<IState *, IInsn *> &callers,
     os << "(" << tab_.StateVariable() << " == " << c.first->GetId() << ")";
     is_first = false;
   }
-}
-
-void Resource::BuildArray() {
 }
 
 string Resource::JoinStates(const map<IState *, IInsn *> &sts) {
@@ -226,20 +168,6 @@ string Resource::JoinStatesWithSubState(const map<IState *, IInsn *> &sts,
 		    ")");
   }
   return Util::Join(conds, " || ");
-}
-
-void Resource::BuildMappedInsn(IInsn *insn) {
-  IResource *res = insn->GetResource();
-  auto *params = res->GetParams();
-  ostream &ws = tmpl_->GetStream(kInsnWireValueSection);
-  if (params->GetMappedName() == "mem") {
-    string res_id = Util::Itoa(res->GetId());
-    const string &opr = insn->GetOperand();
-    if (opr == "sram_read_data") {
-      ws << "  assign " << InsnWriter::InsnOutputWireName(*insn, 0)
-	 << " = sram_rdata_" << res_id << ";\n";
-    }
-  }
 }
 
 }  // namespace verilog

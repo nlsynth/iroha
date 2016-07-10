@@ -20,15 +20,6 @@ public:
   virtual void BuildInsn(IInsn *insn, State *st);
   virtual string ReadySignal(IInsn *insn);
 
-private:
-  void BuildMapped();
-  void BuildExternalSRAM();
-  void BuildInternalSRAM();
-  void BuildArray();
-  void BuildMappedInsn(IInsn *insn);
-  void WriteStateUnion(const map<IState *, IInsn *> &callers,
-		       ostream &os);
-
 protected:
   void WriteInputSel(const string &name,
 		     const map<IState *, IInsn *> &callers,
@@ -40,6 +31,8 @@ protected:
 		 ostream &os);
   string JoinStates(const map<IState *, IInsn *> &sts);
   string JoinStatesWithSubState(const map<IState *, IInsn *> &sts, int sub);
+  void WriteStateUnion(const map<IState *, IInsn *> &callers,
+		       ostream &os);
 
   const IResource &res_;
   const Table &tab_;
