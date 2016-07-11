@@ -19,6 +19,7 @@ private:
   void BuildMemInsn(IInsn *insn, State *st);
   void BuildExternalSRAM();
   void BuildInternalSRAM();
+  void BuildSRAMWrite(const string &res_id);
 };
 
 }  // namespace verilog
