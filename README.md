@@ -45,20 +45,22 @@ Please read src/iroha/iroha.h, src/main.cpp examples/ for more details.
 -- TODOs
 
 * P0: Document
-* P2: Test and debug SSA conversion and PHI removal
-* P2: Set constraint not to split related insns
-* P2: ROM image data structure.
-* P2: API to create ROM
-* P2: Values wider than 64bits
-* P2: Pluggable optimizer and writer
-* P2: Error handling
-* P2: I/O for embedded verilog module
-* P2: Modularize mapped resource
-* P2: Resource sharing between tables
-* P3: Simplify wait cycle if there's 1 multi cycle insn in a state
-* P3: More debug output from optimizers.
-* P3: Export optimizer API so that users can add own phase
-* P3: API to create copies of module, table and so on.
+* P0: Test with actual frontend
+* P1: Test and debug SSA conversion and PHI removal
+* P1: Set constraint not to split related insns
+* P1: ROM image data structure.
+* P1: API to create ROM
+* P1: Values wider than 64bits
+* P1: Pluggable optimizer and writer
+* P1: Error handling
+* P1: I/O for embedded verilog module
+* P1: Modularize mapped resource
+* P1: Resource sharing between tables
+* P1: Read shared register in another module
+* P2: Simplify wait cycle if there's 1 multi cycle insn in a state
+* P2: More debug output from optimizers.
+* P2: Export optimizer API so that users can add own phase
+* P2: API to create copies of module, table and so on.
 * Q: C++ writer or interpreter?
 * Q: Do we need instance/module separation?
 
