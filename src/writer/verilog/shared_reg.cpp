@@ -15,8 +15,16 @@ SharedReg::SharedReg(const IResource &res, const Table &table)
 }
 
 void SharedReg::BuildResource() {
+  map<IState *, IInsn *> callers;
+  CollectResourceCallers("", &callers);
+
   map<IState *, IInsn *> writers;
-  CollectResourceCallers("", &writers);
+  for (auto &c : callers) {
+    IInsn *insn = c.second;
+    if (insn->inputs_.size() > 0) {
+      writers[c.first] = c.second;
+    }
+  }
 
   IRegister *foreign_reg = res_.GetForeignRegister();
   string res_name = RegPrefix(*tab_.GetITable(), *foreign_reg);

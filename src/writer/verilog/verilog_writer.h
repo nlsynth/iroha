@@ -20,7 +20,7 @@ public:
 
 private:
   void BuildModules(const IModule *imod);
-  void BuildHierarchy();
+  void BuildChildModuleSection();
   void WriteShellModule(const Module *mod);
 
   const IDesign *design_;

@@ -27,7 +27,7 @@ void VerilogWriter::Write() {
 
   IModule *root = DesignUtil::GetRootModule(design_);
   BuildModules(root);
-  BuildHierarchy();
+  BuildChildModuleSection();
   if (!embedded_modules_->Write(os_)) {
     LOG(ERROR) << "Failed to write embedded modules.";
   }
@@ -55,7 +55,7 @@ void VerilogWriter::BuildModules(const IModule *imod) {
   ordered_modules_.push_back(mod);
 }
 
-void VerilogWriter::BuildHierarchy() {
+void VerilogWriter::BuildChildModuleSection() {
   for (auto *mod : ordered_modules_) {
     vector<IModule *> child_imods =
       DesignUtil::GetChildModules(mod->GetIModule());
