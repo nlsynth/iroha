@@ -99,7 +99,12 @@ void ExpWriter::WriteForeignRegDesc(const IResource &res) {
   os_ << "        (FOREIGN-REG ";
   os_ << res.GetTable()->GetId();
   os_ << " ";
-  os_ << res.GetForeignRegister()->GetId();
+  IRegister *foreign_reg = res.GetForeignRegister();
+  os_ << foreign_reg->GetId();
+  IModule *foreign_mod = foreign_reg->GetTable()->GetModule();
+  if (res.GetTable()->GetModule() != foreign_mod) {
+    os_ << " " << foreign_mod->GetName();
+  }
   os_ << ")\n";
 }
 

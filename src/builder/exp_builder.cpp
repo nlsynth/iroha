@@ -261,9 +261,15 @@ IResource *ExpBuilder::BuildResource(Exp *e, ITable *table) {
 	return nullptr;
       }
     } else if (element_name == "FOREIGN-REG") {
-      if (element->Size() == 3) {
+      int sz = element->Size();
+      if (sz == 3 || sz == 4) {
+	string mod;
+	if (sz == 4) {
+	  mod = element->Str(3);
+	}
 	tree_builder_->AddForeignReg(Util::Atoi(element->Str(1)),
 				     Util::Atoi(element->Str(2)),
+				     mod,
 				     res);
       } else {
 	SetError() << "Invalid foreign reg spec";

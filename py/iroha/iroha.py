@@ -191,7 +191,10 @@ class IResource(object):
             self.array.Write(writer)
         if self.foreign_reg:
             writer.ofh.write("    (FOREIGN-REG " + str(self.foreign_reg.table.id) + " ")
-            writer.ofh.write(str(self.foreign_reg.id) + ")\n")
+            writer.ofh.write(str(self.foreign_reg.id))
+            if self.table.module != self.foreign_reg.table.module:
+                writer.ofh.write(" " + self.foreign_reg.table.module.name)
+            writer.ofh.write(")\n")
         if self.callee_table:
             tab = self.callee_table
             writer.ofh.write("    (CALLEE-TABLE " + tab.module.name + " ")
