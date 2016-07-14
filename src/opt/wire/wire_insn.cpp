@@ -35,7 +35,7 @@ WireInsn::~WireInsn() {
 }
 
 bool WireInsn::Perform() {
-  assign_ = DesignTool::GetResource(table_, resource::kSet);
+  assign_ = DesignTool::GetOneResource(table_, resource::kSet);
   transition_ = DesignUtil::FindTransitionResource(table_);
   bset_ = BBSet::Create(table_, annotation_);
   data_flow_ = DataFlow::Create(bset_, annotation_);

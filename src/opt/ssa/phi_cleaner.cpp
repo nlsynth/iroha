@@ -17,9 +17,9 @@ PhiCleaner::~PhiCleaner() {
 }
 
 void PhiCleaner::Perform() {
-  phi_ = DesignTool::GetResource(table_, resource::kPhi);
-  sel_ = DesignTool::GetResource(table_, resource::kSelect);
-  assign_ = DesignTool::GetResource(table_, resource::kSet);
+  phi_ = DesignTool::GetOneResource(table_, resource::kPhi);
+  sel_ = DesignTool::GetOneResource(table_, resource::kSelect);
+  assign_ = DesignTool::GetOneResource(table_, resource::kSet);
   bset_.reset(BBSet::Create(table_, annotation_));
   data_flow_.reset(DataFlow::Create(bset_.get(), annotation_));
 

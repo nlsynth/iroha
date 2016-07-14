@@ -9,8 +9,8 @@ IDesign *build_design() {
   design->modules_.push_back(module);
   ITable *table = new ITable(module);
   module->tables_.push_back(table);
-  IResource *pr = DesignTool::GetResource(table, resource::kPrint);
-  IResource *as = DesignTool::GetResource(table, resource::kAssert);
+  IResource *pr = DesignTool::GetOneResource(table, resource::kPrint);
+  IResource *as = DesignTool::GetOneResource(table, resource::kAssert);
   IState *st1 = new IState(table);
   IState *st2 = new IState(table);
   table->states_.push_back(st1);

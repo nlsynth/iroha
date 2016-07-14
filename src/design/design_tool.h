@@ -17,8 +17,8 @@ public:
   static IState *InsertNextState(IState *st);
   static void EraseInsn(IState *st, IInsn *insn);
   static void MoveInsn(IInsn *insn, IState *src_st, IState *dst_st);
-  static IResource *GetResource(ITable *table,
-				const string &class_name);
+  static IResource *GetOneResource(ITable *table,
+				   const string &class_name);
   static IResource *GetBinOpResource(ITable *table,
 				     const string &class_name,
 				     int width);

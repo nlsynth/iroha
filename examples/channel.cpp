@@ -16,7 +16,7 @@ IModule *create_module(IDesign *design, const string &name) {
 IModule *create_sub_module(IDesign *design) {
   IModule *mod = create_module(design, "M_sub");
   ITable *tab = mod->tables_[0];
-  IResource *r = DesignTool::GetResource(tab, resource::kChannelRead);
+  IResource *r = DesignTool::GetOneResource(tab, resource::kChannelRead);
   design->channels_[0]->SetReader(r);
   IInsn *read_insn = new IInsn(r);
   IState *st1 = tab->states_[0];
@@ -24,7 +24,7 @@ IModule *create_sub_module(IDesign *design) {
   read_insn->outputs_.push_back(reg);
   st1->insns_.push_back(read_insn);
   // Write to external.
-  IResource *ext_write = DesignTool::GetResource(tab, resource::kChannelWrite);
+  IResource *ext_write = DesignTool::GetOneResource(tab, resource::kChannelWrite);
   design->channels_[1]->SetWriter(ext_write);
   IInsn *write_insn = new IInsn(ext_write);
   write_insn->inputs_.push_back(reg);
@@ -35,7 +35,7 @@ IModule *create_sub_module(IDesign *design) {
 IModule *create_root_module(IModule *sub_module) {
   IModule *mod = create_module(sub_module->GetDesign(), "M_top");
   ITable *tab = mod->tables_[0];
-  IResource *w = DesignTool::GetResource(tab, resource::kChannelWrite);
+  IResource *w = DesignTool::GetOneResource(tab, resource::kChannelWrite);
   sub_module->GetDesign()->channels_[0]->SetWriter(w);
   IInsn *insn = new IInsn(w);
   IRegister *write_data = DesignTool::AllocConstNum(tab, 32, 123);

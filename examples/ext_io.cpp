@@ -19,14 +19,14 @@ IDesign *build_design() {
 
   IRegister *my_reg = DesignTool::AllocRegister(table, "my_reg", 32);
 
-  IResource *ext_input = DesignTool::GetResource(table, resource::kExtInput);
+  IResource *ext_input = DesignTool::GetOneResource(table, resource::kExtInput);
   ResourceParams *params_input = ext_input->GetParams();
   params_input->SetExtInputPort("data_in", 32);
   IInsn *input_insn = new IInsn(ext_input);
   input_insn->outputs_.push_back(my_reg);
   st1->insns_.push_back(input_insn);
 
-  IResource *ext_output = DesignTool::GetResource(table, resource::kExtOutput);
+  IResource *ext_output = DesignTool::GetOneResource(table, resource::kExtOutput);
   ResourceParams *params_output = ext_output->GetParams();
   params_output->SetExtOutputPort("data_out", 32);
   IInsn *output_insn = new IInsn(ext_output);

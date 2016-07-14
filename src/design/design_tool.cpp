@@ -52,7 +52,7 @@ void DesignTool::EraseInsn(IState *st, IInsn *insn) {
   }
 }
 
-IResource *DesignTool::GetResource(ITable *table, const string &class_name) {
+IResource *DesignTool::GetOneResource(ITable *table, const string &class_name) {
   IResource *res = DesignUtil::FindResourceByClassName(table, class_name);
   if (res) {
     return res;

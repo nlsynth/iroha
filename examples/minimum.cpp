@@ -14,7 +14,7 @@ IDesign *build_design() {
   table->states_.push_back(st1);
   table->states_.push_back(st2);
 
-  IResource *assign = DesignTool::GetResource(table, resource::kSet);
+  IResource *assign = DesignTool::GetOneResource(table, resource::kSet);
   IInsn *insn = new IInsn(assign);
   IRegister *dst = DesignTool::AllocRegister(table, "dst_reg", 32);
   IRegister *src = DesignTool::AllocConstNum(table, 32, 123);

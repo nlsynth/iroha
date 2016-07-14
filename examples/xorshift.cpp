@@ -42,12 +42,12 @@ IDesign *build_design() {
   module->tables_.push_back(table);
 
   // Output pin
-  IResource *ext_output = DesignTool::GetResource(table, resource::kExtOutput);
+  IResource *ext_output = DesignTool::GetOneResource(table, resource::kExtOutput);
   ResourceParams *params_output = ext_output->GetParams();
   params_output->SetExtOutputPort("data_out", 32);
 
   // Print
-  IResource *print = DesignTool::GetResource(table, resource::kPrint);
+  IResource *print = DesignTool::GetOneResource(table, resource::kPrint);
 
   // Registers
   IRegister *y = DesignTool::AllocRegister(table, "y", 32);

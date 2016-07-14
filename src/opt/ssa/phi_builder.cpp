@@ -23,7 +23,7 @@ PhiBuilder::~PhiBuilder() {
 void PhiBuilder::Perform() {
   bset_.reset(BBSet::Create(table_, annotation_));
   data_flow_.reset(DataFlow::Create(bset_.get(), annotation_));
-  phi_ = DesignTool::GetResource(table_, resource::kPhi);
+  phi_ = DesignTool::GetOneResource(table_, resource::kPhi);
 
   for (BB *bb : bset_->bbs_) {
     CalculatePHIInputsForBB(bb);
