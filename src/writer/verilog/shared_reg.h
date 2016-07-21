@@ -17,6 +17,11 @@ public:
 
   static string RegPrefix(const ITable &writer, const IRegister &reg);
   static void BuildSharedRegisters(const Table &tab);
+  static void BuildPorts(const RegConnectionInfo &ri, Ports *ports);
+  static void BuildChildWire(const RegConnectionInfo &ri, ostream &os);
+  static void AddChildWire(IRegister *reg, ostream &os);
+  static void BuildRegWire(const RegConnectionInfo &ri, Module *module);
+  static string ForeignRegName(const IRegister *reg);
 };
 
 }  // namespace verilog

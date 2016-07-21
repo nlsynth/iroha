@@ -12,7 +12,9 @@ public:
   static vector<IModule *> GetChildModules(const IModule *mod);
   static IResourceClass *GetTransitionResourceClassFromDesign(IDesign *design);
 
-  static IResource *FindResourceByClassName(ITable *table, const string &name);
+  static void FindResourceByClassName(ITable *table, const string &name,
+				      vector<IResource *> *resources);
+  static IResource *FindOneResourceByClassName(ITable *table, const string &name);
   static IResource *FindAssignResource(ITable *table);
   static IResource *FindTransitionResource(ITable *table);
   static IInsn *FindInsnByResource(IState *state, IResource *res);

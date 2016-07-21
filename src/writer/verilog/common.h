@@ -11,6 +11,7 @@ class ChannelInfo;
 class Connection;
 class ModuleTemplate;
 class TaskCallInfo;
+class RegConnectionInfo;
 
 namespace verilog {
 

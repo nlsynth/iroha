@@ -5,6 +5,7 @@
 #include "iroha/common.h"
 
 #include <map>
+#include <set>
 
 namespace iroha {
 namespace writer {
@@ -24,11 +25,20 @@ public:
   map<const IModule *, vector<const IChannel *>> child_downward_;
 };
 
-// Per sub module task call path information.
+// Per module task call path information.
 class TaskCallInfo {
 public:
   // Callers for this or sub modules.
   vector<IResource *> tasks_;
+};
+
+// Per module foreign register access connections.
+class RegConnectionInfo {
+public:
+  set<IRegister *> has_upward_port;
+  set<IRegister *> has_downward_port;
+  set<IRegister *> has_wire;
+  set<IRegister *> is_source;
 };
 
 class Connection {
@@ -37,6 +47,7 @@ public:
   void Build();
   const ChannelInfo *GetConnectionInfo(const IModule *mod) const;
   const TaskCallInfo *GetTaskCallInfo(const IModule *mod) const;
+  const RegConnectionInfo *GetRegConnectionInfo(const IModule *mod) const;
 
 private:
   // Channel.
@@ -54,10 +65,12 @@ private:
 
   // Sub module task call.
   void ProcessSubModuleTaskCall(IResource *caller);
+  void ProcessForeignReg(IResource *freg);
 
   const IDesign *design_;
   map<const IModule *, ChannelInfo> channel_info_;
   map<const IModule *, TaskCallInfo> task_call_info_;
+  map<const IModule *, RegConnectionInfo> reg_connection_;
 };
 
 }  // namespace writer

@@ -53,7 +53,7 @@ void DesignTool::EraseInsn(IState *st, IInsn *insn) {
 }
 
 IResource *DesignTool::GetOneResource(ITable *table, const string &class_name) {
-  IResource *res = DesignUtil::FindResourceByClassName(table, class_name);
+  IResource *res = DesignUtil::FindOneResourceByClassName(table, class_name);
   if (res) {
     return res;
   }
@@ -163,7 +163,7 @@ void DesignTool::SetRegisterInitialValue(uint64_t value,
 IInsn *DesignTool::CreateShiftInsn(IRegister *reg, bool to_left, int amount) {
   ITable *table = reg->GetTable();
   IResource *shifter =
-    DesignUtil::FindResourceByClassName(table, resource::kShift);
+    DesignUtil::FindOneResourceByClassName(table, resource::kShift);
   IInsn *insn = new IInsn(shifter);
   if (to_left) {
     insn->SetOperand("left");

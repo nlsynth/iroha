@@ -19,10 +19,17 @@ void Connection::Build() {
   }
   for (auto *mod : design_->modules_) {
     for (auto *tab : mod->tables_) {
-      IResource *task_res =
-	DesignUtil::FindResourceByClassName(tab, resource::kSubModuleTaskCall);
-      if (task_res != nullptr) {
-	ProcessSubModuleTaskCall(task_res);
+      vector<IResource*> task_calls;
+      DesignUtil::FindResourceByClassName(tab, resource::kSubModuleTaskCall,
+					  &task_calls);
+      for (IResource *call : task_calls) {
+	ProcessSubModuleTaskCall(call);
+      }
+      vector<IResource*> foreign_regs;
+      DesignUtil::FindResourceByClassName(tab, resource::kForeignReg,
+					  &foreign_regs);
+      for (IResource *freg : foreign_regs) {
+	ProcessForeignReg(freg);
       }
     }
   }
@@ -44,6 +51,15 @@ const TaskCallInfo *Connection::GetTaskCallInfo(const IModule *mod) const {
   }
   const TaskCallInfo &ti = it->second;
   return &ti;
+}
+
+const RegConnectionInfo *Connection::GetRegConnectionInfo(const IModule *mod) const {
+  auto it = reg_connection_.find(mod);
+  if (it == reg_connection_.end()) {
+    return nullptr;
+  }
+  const RegConnectionInfo &ri = it->second;
+  return &ri;
 }
 
 void Connection::ProcessChannel(const IChannel *ch) {
@@ -130,6 +146,47 @@ void Connection::ProcessSubModuleTaskCall(IResource *caller) {
        mod = mod->GetParentModule()) {
     TaskCallInfo &ti = task_call_info_[mod];
     ti.tasks_.push_back(caller);
+  }
+}
+
+void Connection::ProcessForeignReg(IResource *freg) {
+  IRegister *reg = freg->GetForeignRegister();
+  IModule *reg_module = reg->GetTable()->GetModule();
+  IModule *reader_module = freg->GetTable()->GetModule();
+  if (reg_module == reader_module) {
+    return;
+  }
+  RegConnectionInfo &sc = reg_connection_[reg_module];
+  sc.is_source.insert(reg);
+  const IModule *common_root = GetCommonRoot(reg_module, reader_module);
+  if (common_root == reg_module) {
+    // reg is uppper and the accessor is below.
+    for (IModule *mod = reader_module; mod != common_root;
+	 mod = mod->GetParentModule()) {
+      RegConnectionInfo &rc = reg_connection_[mod];
+      rc.has_downward_port.insert(reg);
+    }
+  } else if (common_root == reader_module) {
+    for (IModule *mod = reg_module; mod != common_root;
+	 mod = mod->GetParentModule()) {
+      RegConnectionInfo &rc = reg_connection_[mod];
+      rc.has_upward_port.insert(reg);
+    }
+    RegConnectionInfo &rc = reg_connection_[common_root];
+    rc.has_wire.insert(reg);
+  } else {
+    RegConnectionInfo &cc = reg_connection_[common_root];
+    cc.has_wire.insert(reg);
+    for (IModule *mod = reader_module; mod != common_root;
+	 mod = mod->GetParentModule()) {
+      RegConnectionInfo &rc = reg_connection_[mod];
+      rc.has_upward_port.insert(reg);
+    }
+    for (IModule *mod = reg_module; mod != common_root;
+	 mod = mod->GetParentModule()) {
+      RegConnectionInfo &rc = reg_connection_[mod];
+      rc.has_downward_port.insert(reg);
+    }
   }
 }
 

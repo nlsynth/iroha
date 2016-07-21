@@ -42,22 +42,32 @@ IResourceClass *DesignUtil::GetTransitionResourceClassFromDesign(IDesign *design
   return nullptr;
 }
 
-IResource *DesignUtil::FindResourceByClassName(ITable *table,
-					       const string &name) {
+void DesignUtil::FindResourceByClassName(ITable *table,
+					 const string &name,
+					 vector<IResource *> *resources) {
   for (auto *res : table->resources_) {
     if (res->GetClass()->GetName() == name) {
-      return res;
+      resources->push_back(res);
     }
   }
-  return nullptr;
+}
+
+IResource *DesignUtil::FindOneResourceByClassName(ITable *table, const string &name) {
+  vector<IResource *> resources;
+  FindResourceByClassName(table, name, &resources);
+  if (resources.size() == 0) {
+    return nullptr;
+  }
+  CHECK(resources.size() == 1) << "the table has " << resources.size() << " " << name;
+  return resources[0];
 }
 
 IResource *DesignUtil::FindAssignResource(ITable *table) {
-  return FindResourceByClassName(table, resource::kSet);
+  return FindOneResourceByClassName(table, resource::kSet);
 }
 
 IResource *DesignUtil::FindTransitionResource(ITable *table) {
-  return FindResourceByClassName(table, resource::kTransition);
+  return FindOneResourceByClassName(table, resource::kTransition);
 }
 
 IInsn *DesignUtil::FindInsnByResource(IState *state, IResource *res) {
@@ -92,8 +102,8 @@ IResource *DesignUtil::CreateResource(ITable *table, const string &name) {
 
 IInsn *DesignUtil::FindTransitionInsn(IState *st) {
   ITable *table = st->GetTable();
-  IResource *tr = DesignUtil::FindResourceByClassName(table,
-						      resource::kTransition);
+  IResource *tr = DesignUtil::FindOneResourceByClassName(table,
+							 resource::kTransition);
   return DesignUtil::FindInsnByResource(st, tr);
 }
 
@@ -101,8 +111,8 @@ IInsn *DesignUtil::GetTransitionInsn(IState *st) {
   IInsn *insn = FindTransitionInsn(st);
   if (insn == nullptr) {
     ITable *table = st->GetTable();
-    IResource *tr = DesignUtil::FindResourceByClassName(table,
-							resource::kTransition);
+    IResource *tr = DesignUtil::FindOneResourceByClassName(table,
+							   resource::kTransition);
     insn = new IInsn(tr);
     st->insns_.push_back(insn);
   }
@@ -110,7 +120,7 @@ IInsn *DesignUtil::GetTransitionInsn(IState *st) {
 }
 
 IInsn *DesignUtil::FindTaskEntryInsn(ITable *table) {
-  IResource *res = FindResourceByClassName(table, resource::kSiblingTask);
+  IResource *res = FindOneResourceByClassName(table, resource::kSiblingTask);
   if (res != nullptr) {
     IInsn *insn =
       DesignUtil::FindInsnByResource(table->GetInitialState(), res);
@@ -118,7 +128,7 @@ IInsn *DesignUtil::FindTaskEntryInsn(ITable *table) {
       return insn;
     }
   }
-  IResource *sub_res = FindResourceByClassName(table, resource::kSubModuleTask);
+  IResource *sub_res = FindOneResourceByClassName(table, resource::kSubModuleTask);
   if (sub_res == nullptr) {
     return nullptr;
   }
