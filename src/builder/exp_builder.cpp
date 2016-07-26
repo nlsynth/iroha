@@ -337,8 +337,11 @@ void ExpBuilder::BuildParamTypes(Exp *e, vector<IValueType> *types) {
 void ExpBuilder::BuildValueType(Exp *t, Exp *w, IValueType *vt) {
   const string &width = w->atom.str;
   vt->SetWidth(Util::Atoi(width));
-  if (t->atom.str == "INT") {
+  const string &s = t->atom.str;
+  if (s == "INT") {
     vt->SetIsSigned(true);
+  } else if (s != "UINT") {
+    SetError() << "Type should be INT or UINT";
   }
 }
 

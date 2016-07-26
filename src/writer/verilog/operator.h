@@ -18,6 +18,7 @@ public:
 
 private:
   void BuildExclusiveBinOp();
+  void BuildExclusiveBinOpInsn(IInsn *insn);
   void BuildLightBinOpInsn(IInsn *insn);
   void BuildBitArrangeOpInsn(IInsn *insn);
 };

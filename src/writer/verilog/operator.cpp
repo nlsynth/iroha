@@ -29,6 +29,8 @@ void Operator::BuildInsn(IInsn *insn, State *st) {
     BuildLightBinOpInsn(insn);
   } else if (resource::IsBitArrangeOp(*klass)) {
     BuildBitArrangeOpInsn(insn);
+  } else if (resource::IsExclusiveBinOp(*klass)) {
+    BuildExclusiveBinOpInsn(insn);
   }
 }
 
@@ -58,6 +60,12 @@ void Operator::BuildExclusiveBinOp() {
     LOG(FATAL) << "Unknown binop" << res_name;
   }
   rs << " " << name + "_s1;\n";
+}
+
+void Operator::BuildExclusiveBinOpInsn(IInsn *insn) {
+  ostream &ws = tmpl_->GetStream(kInsnWireValueSection);
+  ws << "  assign " << InsnWriter::InsnOutputWireName(*insn, 0)
+     << " = " << InsnWriter::ResourceName(res_) << "_d0;\n";
 }
 
 void Operator::BuildLightBinOpInsn(IInsn *insn) {
