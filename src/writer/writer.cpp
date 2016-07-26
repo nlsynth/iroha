@@ -12,7 +12,7 @@ namespace iroha {
 namespace writer {
 
 Writer::Writer(const IDesign *design)
-  : design_(design), output_shell_module_(false) {
+  : design_(design), output_shell_module_(false), output_self_clock_(false) {
 }
 
 bool Writer::Write(const string &fn) {
@@ -36,7 +36,7 @@ bool Writer::Write(const string &fn) {
     conn.Build();
     verilog::VerilogWriter writer(design_, conn, *os);
     if (!shell.empty()) {
-      writer.SetShellModuleName(shell);
+      writer.SetShellModuleName(shell, output_self_clock_);
     }
     writer.Write();
   } else if (language_ == "html") {
@@ -54,8 +54,9 @@ bool Writer::SetLanguage(const string &lang) {
   return true;
 }
 
-void Writer::OutputShellModule(bool b) {
+void Writer::OutputShellModule(bool b, bool self_clock) {
   output_shell_module_ = b;
+  output_self_clock_ = self_clock;
 }
 
 void Writer::DumpTable(const ITable *table, ostream &os) {

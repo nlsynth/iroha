@@ -16,12 +16,14 @@ public:
   ~VerilogWriter();
 
   void Write();
-  void SetShellModuleName(const string &n);
+  void SetShellModuleName(const string &n, bool with_self_clock);
 
 private:
   void BuildModules(const IModule *imod);
   void BuildChildModuleSection();
   void WriteShellModule(const Module *mod);
+  void WriteSelfClockGenerator(const Module *mod);
+  void WriteSelfClockConnection(const Module *mod);
 
   const IDesign *design_;
   const Connection &conn_;
@@ -30,6 +32,7 @@ private:
   map<const IModule *, Module *> modules_;
   unique_ptr<EmbeddedModules> embedded_modules_;
   string shell_module_name_;
+  bool with_self_clock_;
 };
 
 }  // namespace verilog

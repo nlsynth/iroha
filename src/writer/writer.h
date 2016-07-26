@@ -13,7 +13,7 @@ public:
 
   virtual bool Write(const string &fn) override;
   virtual bool SetLanguage(const string &lang) override;
-  virtual void OutputShellModule(bool b) override;
+  virtual void OutputShellModule(bool b, bool self_clock) override;
 
   static void DumpTable(const ITable *table, ostream &os);
 
@@ -23,6 +23,7 @@ private:
   const IDesign *design_;
   string language_;
   bool output_shell_module_;
+  bool output_self_clock_;
 };
 
 }  // namespace writer

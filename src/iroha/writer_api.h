@@ -11,7 +11,7 @@ public:
   virtual ~WriterAPI();
   virtual bool Write(const string &fn) = 0;
   virtual bool SetLanguage(const string &lang) = 0;
-  virtual void OutputShellModule(bool b) = 0;
+  virtual void OutputShellModule(bool b, bool self_clock) = 0;
 };
 
 }  // namespace iroha

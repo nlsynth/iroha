@@ -16,7 +16,7 @@ namespace verilog {
 VerilogWriter::VerilogWriter(const IDesign *design, const Connection &conn,
 			     ostream &os)
   : design_(design), conn_(conn), os_(os),
-    embedded_modules_(new EmbeddedModules) {
+    embedded_modules_(new EmbeddedModules), with_self_clock_(false) {
 }
 
 VerilogWriter::~VerilogWriter() {
@@ -40,8 +40,9 @@ void VerilogWriter::Write() {
   STLDeleteSecondElements(&modules_);
 }
 
-void VerilogWriter::SetShellModuleName(const string &n) {
+void VerilogWriter::SetShellModuleName(const string &n, bool with_self_clock) {
   shell_module_name_ = n;
+  with_self_clock_ = with_self_clock;
 }
 
 void VerilogWriter::BuildModules(const IModule *imod) {
@@ -70,14 +71,50 @@ void VerilogWriter::BuildChildModuleSection() {
 void VerilogWriter::WriteShellModule(const Module *mod) {
   const Ports *ports = mod->GetPorts();
   os_ << "module " << shell_module_name_ << "(";
-  ports->Output(Ports::PORT_NAME, os_);
+  if (!with_self_clock_) {
+    ports->Output(Ports::PORT_NAME, os_);
+  }
   os_ << ");\n";
-  ports->Output(Ports::PORT_DIRECTION, os_);
+  if (with_self_clock_) {
+    WriteSelfClockGenerator(mod);
+  } else {
+    ports->Output(Ports::PORT_DIRECTION, os_);
+  }
   string name = mod->GetIModule()->GetName();
   os_ << "  " << name << " " << name << "_inst(";
-  ports->Output(Ports::PORT_CONNECTION, os_);
+  if (with_self_clock_) {
+    WriteSelfClockConnection(mod);
+  } else {
+    ports->Output(Ports::PORT_CONNECTION, os_);
+  }
   os_ << ");\n";
   os_ << "endmodule\n";
+}
+
+void VerilogWriter::WriteSelfClockGenerator(const Module *mod) {
+  const Ports *ports = mod->GetPorts();
+  const string &clk = ports->GetClk();
+  const string &rst = ports->GetReset();
+  bool polarity = mod->GetResetPolarity();
+  os_ << "  reg " << clk << ", " <<  rst << ";\n\n"
+      << "  initial begin\n"
+      << "    " << clk << " <= 0;\n"
+      << "    " << rst << " <= " << (polarity ? "1" : "0") << ";\n"
+      << "    #15\n"
+      << "    " << rst << " <= ~" << rst << ";\n"
+      << "    #10000\n"
+      << "    $finish;\n"
+      << "  end\n\n";
+  os_ << "  always begin\n"
+      << "    #10 " << clk << " = ~" << clk << ";\n"
+      << "  end\n\n";
+}
+
+void VerilogWriter::WriteSelfClockConnection(const Module *mod) {
+  const Ports *ports = mod->GetPorts();
+  const string &clk = ports->GetClk();
+  const string &rst = ports->GetReset();
+  os_ << "." << clk << "(" << clk << "), ." << rst << "(" << rst << ")";
 }
 
 }  // namespace verilog

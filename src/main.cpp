@@ -7,6 +7,7 @@ void printVersion() {
 	    << " [OPTION]... [FILE]...\n"
 	    << "  Read standard input when FILE is -\n\n"
 	    << "  -s Generate shell module\n"
+	    << "  -S Generate self contained (with clock and reset) shell module\n"
 	    << "  -v Output Verilog\n"
 	    << "  -h Output HTML\n"
 	    << "  -o [fn] output to the file name\n"
@@ -20,6 +21,7 @@ int main(int argc, char **argv) {
   bool verilog = false;
   bool html = false;
   bool shell = false;
+  bool selfShell = false;
 
   string output;
   string debug_dump;
@@ -33,6 +35,10 @@ int main(int argc, char **argv) {
     }
     if (arg == "-s") {
       shell = true;
+      continue;
+    }
+    if (arg == "-S") {
+      selfShell = true;
       continue;
     }
     if (arg == "-v") {
@@ -89,8 +95,10 @@ int main(int argc, char **argv) {
       cerr << "Failed to optimize the design: " << fn << "\n";
     }
     iroha::WriterAPI *writer = iroha::Iroha::CreateWriter(design);
-    if (shell && !output.empty()) {
-      writer->OutputShellModule(true);
+    if (shell || selfShell) {
+      if (!output.empty()) {
+	writer->OutputShellModule(true, selfShell);
+      }
     }
     if (verilog) {
       writer->SetLanguage("verilog");
