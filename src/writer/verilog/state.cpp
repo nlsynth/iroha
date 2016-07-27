@@ -97,7 +97,7 @@ void State::WriteTransitionBody(ostream &os) {
     return;
   }
   IRegister *cond = transition_insn_->inputs_[0];
-  os << I << "  if (" << cond->GetName() << ") begin\n"
+  os << I << "  if (" << InsnWriter::RegisterName(*cond) << ") begin\n"
      << I << "    " << sv << " <= "
      << "`" << table_->StateName(transition_insn_->target_states_[1]->GetId())
      << ";\n"
