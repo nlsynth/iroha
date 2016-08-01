@@ -30,6 +30,10 @@ bool IsLightBinOp(const IResourceClass &rc) {
   return (name == kBitAnd || name == kBitOr || name == kBitXor);
 }
 
+bool IsLightUniOp(const IResourceClass &rc) {
+  return (rc.GetName() == kBitInv);
+}
+
 bool IsBitArrangeOp(const IResourceClass &rc) {
   return (rc.GetName() == kShift);
 }
@@ -119,6 +123,7 @@ void InstallResourceClasses(IDesign *design) {
   InstallResource(design, resource::kBitAnd, false);
   InstallResource(design, resource::kBitOr, false);
   InstallResource(design, resource::kBitXor, false);
+  InstallResource(design, resource::kBitInv, false);
   InstallResource(design, resource::kShift, false);
 }
 

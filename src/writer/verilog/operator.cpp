@@ -27,6 +27,8 @@ void Operator::BuildInsn(IInsn *insn, State *st) {
   auto *klass = res_.GetClass();
   if (resource::IsLightBinOp(*klass)) {
     BuildLightBinOpInsn(insn);
+  } else if (resource::IsLightBinOp(*klass)) {
+    BuildLightUniOpInsn(insn);
   } else if (resource::IsBitArrangeOp(*klass)) {
     BuildBitArrangeOpInsn(insn);
   } else if (resource::IsExclusiveBinOp(*klass)) {
@@ -68,10 +70,23 @@ void Operator::BuildExclusiveBinOpInsn(IInsn *insn) {
      << " = " << InsnWriter::ResourceName(res_) << "_d0;\n";
 }
 
+void Operator::BuildLightUniOpInsn(IInsn *insn) {
+  ostream &ws = tmpl_->GetStream(kInsnWireValueSection);
+  ws << "  assign " << InsnWriter::InsnOutputWireName(*insn, 0)
+     << " = ";
+  const string &rc = insn->GetResource()->GetClass()->GetName();
+  if (rc == resource::kBitInv) {
+    ws << "~";
+  } else {
+    LOG(FATAL) << "Unknown LightUniOp: " << rc;
+  }
+  ws << InsnWriter::RegisterName(*insn->inputs_[0]) << ";\n";
+}
+
 void Operator::BuildLightBinOpInsn(IInsn *insn) {
   ostream &ws = tmpl_->GetStream(kInsnWireValueSection);
   ws << "  assign " << InsnWriter::InsnOutputWireName(*insn, 0)
-      << " = " << InsnWriter::RegisterName(*insn->inputs_[0]) << " ";
+     << " = " << InsnWriter::RegisterName(*insn->inputs_[0]) << " ";
   const string &rc = insn->GetResource()->GetClass()->GetName();
   if (rc == resource::kBitAnd) {
     ws << "&";

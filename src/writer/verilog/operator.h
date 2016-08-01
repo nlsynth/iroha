@@ -20,6 +20,7 @@ private:
   void BuildExclusiveBinOp();
   void BuildExclusiveBinOpInsn(IInsn *insn);
   void BuildLightBinOpInsn(IInsn *insn);
+  void BuildLightUniOpInsn(IInsn *insn);
   void BuildBitArrangeOpInsn(IInsn *insn);
 };
 
