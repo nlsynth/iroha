@@ -249,4 +249,12 @@ string ResourceParams::GetEmbeddedModuleReset() const {
   return values_->GetStringParam(resource::kEmbeddedModuleReset, "rst");
 }
 
+string ResourceParams::GetEmbeddedModuleReq() const {
+  return values_->GetStringParam(resource::kEmbeddedModuleReq, "req");
+}
+
+string ResourceParams::GetEmbeddedModuleAck() const {
+  return values_->GetStringParam(resource::kEmbeddedModuleAck, "ack");
+}
+
 }  // namespace iroha

@@ -30,7 +30,8 @@ class EmbeddedResource : public Resource {
 public:
   EmbeddedResource(const IResource &res, const Table &table);
 
-  virtual void BuildResource();
+  virtual void BuildResource() override;
+  virtual void BuildInsn(IInsn *insn, State *st) override;
 };
 
 }  // namespace verilog

@@ -3,9 +3,11 @@
 #include "iroha/i_design.h"
 #include "iroha/resource_params.h"
 #include "writer/module_template.h"
+#include "writer/verilog/insn_writer.h"
 #include "writer/verilog/internal_sram.h"
 #include "writer/verilog/module.h"
 #include "writer/verilog/ports.h"
+#include "writer/verilog/state.h"
 #include "writer/verilog/table.h"
 
 #include <fstream>
@@ -72,8 +74,50 @@ void EmbeddedResource::BuildResource() {
   is << "  // " << name << "\n";
   is << "  " << name << " inst_" << name << "(";
   is << "." << params->GetEmbeddedModuleClk() << "(" << ports->GetClk() << "), "
-     << "." << params->GetEmbeddedModuleReset() << "(" << ports->GetReset()
-     << "));\n";
+     << "." << params->GetEmbeddedModuleReset() << "(" << ports->GetReset() << ")";
+  ostream &rs = tab_.InitialValueSectionStream();
+  ostream &ws = tmpl_->GetStream(kInsnWireDeclSection);
+  string ack = params->GetEmbeddedModuleAck();
+  if (!ack.empty()) {
+    string ack_wire = "ack_" + name;
+    ws << "  wire " << ack_wire << ";\n";
+    is << ", ." << ack << "(" << ack_wire << ")";
+  }
+  string req = params->GetEmbeddedModuleReq();
+  if (!req.empty()) {
+    string req_reg = "req_" + name;
+    ws << "  reg " << req_reg << ";\n";
+    rs << "      " << req_reg << " <= 0;\n";
+    is << ", ." << req << "(" << req_reg << ")";
+  }
+  is << ");\n";
+}
+
+void EmbeddedResource::BuildInsn(IInsn *insn, State *st) {
+  static const char I[] = "          ";
+  string insn_st = InsnWriter::MultiCycleStateName(*(insn->GetResource()));
+  ostream &os = st->StateBodySectionStream();
+  os << I << "// embedded module\n"
+     << I << "if (" << insn_st << " == 0) begin\n"
+     << I << "  " << insn_st << " <= 1;\n";
+  auto *params = res_.GetParams();
+  string name = params->GetEmbeddedModuleName();
+  string req = params->GetEmbeddedModuleReq();
+  if (!req.empty()) {
+    os << I << "  req_" << name << " <= 1;\n";
+  }
+  os << I << "end\n";
+  string ack = params->GetEmbeddedModuleAck();
+  os << I << "if (" << insn_st << " == 1) begin\n";
+  if (!ack.empty()) {
+    os << I << "if (ack_" << name << " == 1) begin\n";
+    os << I << "  req_" << name << " <= 0;\n";
+  }
+  os << I << "  " << insn_st << " <= 3;\n";
+  if (!ack.empty()) {
+    os << I << "end\n";
+  }
+  os << I << "end\n";
 }
 
 }  // namespace verilog

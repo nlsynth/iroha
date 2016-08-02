@@ -88,10 +88,12 @@ def createResource(table, klass):
     table.resources.append(res)
     return res
 
-def CreateEmbedResource(table, name, fn):
+def CreateEmbedResource(table, name, fn, clk, rst):
     res = createResource(table, "embedded")
     res.resource_params.AddValue("EMBEDDED-MODULE", name)
     res.resource_params.AddValue("EMBEDDED-MODULE-FILE", fn)
+    res.resource_params.AddValue("EMBEDDED-MODULE-CLOCK", clk)
+    res.resource_params.AddValue("EMBEDDED-MODULE-RESET", rst)
     return res
 
 def CreateSharedRegister(module, tab=None):
@@ -137,3 +139,7 @@ def CreateChannelRead(table):
 
 def CreateChannelWrite(table):
     return createResource(table, "channel-write")
+
+def SetArgsToEmbeddedResource(res, req, ack):
+    res.resource_params.AddValue("EMBEDDED-MODULE-REQ", req)
+    res.resource_params.AddValue("EMBEDDED-MODULE-ACK", ack)

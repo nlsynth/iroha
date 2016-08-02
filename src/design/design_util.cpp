@@ -154,7 +154,8 @@ bool DesignUtil::IsMultiCycleInsn(IInsn *insn) {
   if (resource::IsSubModuleTaskCall(*rc) ||
       resource::IsSiblingTaskCall(*rc) ||
       resource::IsChannelRead(*rc) ||
-      resource::IsChannelWrite(*rc)) {
+      resource::IsChannelWrite(*rc) ||
+      resource::IsEmbedded(*rc)) {
     return true;
   }
   return false;

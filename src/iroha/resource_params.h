@@ -21,8 +21,10 @@ const char kExtOutputPort[] = "OUTPUT";
 const char kExtIOWidth[] = "WIDTH";
 const char kEmbeddedModule[] = "EMBEDDED-MODULE";
 const char kEmbeddedModuleFile[] = "EMBEDDED-MODULE-FILE";
-const char kEmbeddedModuleClk[] = "EMBEDDED-MODULE-CLK";
+const char kEmbeddedModuleClk[] = "EMBEDDED-MODULE-CLOCK";
 const char kEmbeddedModuleReset[] = "EMBEDDED-MODULE-RESET";
+const char kEmbeddedModuleReq[] = "EMBEDDED-MODULE-REQ";
+const char kEmbeddedModuleAck[] = "EMBEDDED-MODULE-ACK";
 }  // namespace resource
 
 class ResourceParams {
@@ -54,6 +56,8 @@ public:
   string GetEmbeddedModuleFileName() const;
   string GetEmbeddedModuleClk() const;
   string GetEmbeddedModuleReset() const;
+  string GetEmbeddedModuleReq() const;
+  string GetEmbeddedModuleAck() const;
 
 private:
   resource::ResourceParamValueSet *values_;
