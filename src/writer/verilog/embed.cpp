@@ -1,6 +1,7 @@
 #include "writer/verilog/embed.h"
 
 #include "iroha/i_design.h"
+#include "iroha/logging.h"
 #include "iroha/resource_params.h"
 #include "writer/module_template.h"
 #include "writer/verilog/insn_writer.h"
@@ -9,8 +10,6 @@
 #include "writer/verilog/ports.h"
 #include "writer/verilog/state.h"
 #include "writer/verilog/table.h"
-
-#include <fstream>
 
 namespace iroha {
 namespace writer {
@@ -29,12 +28,13 @@ void EmbeddedModules::RequestModule(const ResourceParams &params) {
 bool EmbeddedModules::Write(ostream &os) {
   // Files
   for (auto &s : files_) {
-    os << "// Copied from " << s << "\n";
-    ifstream *ifs = new ifstream(s);
-    if (ifs->fail()) {
-      delete ifs;
+    istream *ifs = Util::OpenFile(s);
+    if (ifs == nullptr) {
+      LOG(ERROR) << "Failed to open: " << s;
       return false;
     }
+    unique_ptr<istream> deleter(ifs);
+    os << "// Copied from " << s << "\n";
     while (!ifs->eof()) {
       string line;
       getline(*ifs, line);

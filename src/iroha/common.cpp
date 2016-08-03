@@ -2,9 +2,12 @@
 
 #include <algorithm>
 #include <string.h>
+#include <fstream>
 #include <sstream>
 
 namespace iroha {
+
+vector<string> Util::import_paths_;
 
 string Util::Itoa(int i) {
   stringstream ss;
@@ -18,6 +21,10 @@ int Util::Atoi(const string &str) {
   int i = 0;
   ss >> i;
   return i;
+}
+
+void Util::SetImportPaths(const vector<string> &paths) {
+  import_paths_ = paths;
 }
 
 void Util::SplitStringUsing(const string &str, const char *delim,
@@ -54,6 +61,25 @@ string Util::Join(const vector<string> &v, const string &sep) {
     is_first = false;
   }
   return r;
+}
+
+istream *Util::OpenFile(const string &s) {
+  ifstream *ifs = new ifstream(s);
+  if (!ifs->fail()) {
+    return ifs;
+  }
+  delete ifs;
+  if (s.find("/") == 0 || s.find(".") == 0) {
+    return nullptr;
+  }
+  for (const string &p : import_paths_) {
+    ifs = new ifstream(p + "/" + s);
+    if (!ifs->fail()) {
+      return ifs;
+    }
+    delete ifs;
+  }
+  return nullptr;
 }
 
 }  // namespace iroha

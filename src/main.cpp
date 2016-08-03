@@ -9,9 +9,10 @@ void printVersion() {
 	    << "  -s Generate shell module\n"
 	    << "  -S Generate self contained (with clock and reset) shell module\n"
 	    << "  -v Output Verilog\n"
+	    << "  -I Set import paths (comma separated)\n"
 	    << "  -h Output HTML\n"
 	    << "  -o [fn] output to the file name\n"
-	    << "  -d debug dump\n"
+	    << "  -d Debug dump\n"
 	    << "  -opt [optimizers]\n";
     
 }
@@ -26,6 +27,7 @@ int main(int argc, char **argv) {
   string output;
   string debug_dump;
   vector<string> opts;
+  vector<string> paths;
 
   for (int i = 1; i < argc; ++i) {
     const string arg(argv[i]);
@@ -56,6 +58,11 @@ int main(int argc, char **argv) {
     }
     if (arg == "-d" && i + 1 < argc) {
       debug_dump = string(argv[i + 1]);
+      ++i;
+      continue;
+    }
+    if (arg == "-I" && i + 1 < argc) {
+      iroha::Util::SplitStringUsing(argv[i + 1], ",", &paths);
       ++i;
       continue;
     }
@@ -99,6 +106,9 @@ int main(int argc, char **argv) {
       if (!output.empty()) {
 	writer->OutputShellModule(true, selfShell);
       }
+    }
+    if (paths.size() > 0) {
+      iroha::Iroha::SetImportPaths(paths);
     }
     if (verilog) {
       writer->SetLanguage("verilog");

@@ -17,6 +17,10 @@ void Iroha::Init() {
   opt::Optimizer::Init();
 }
 
+void Iroha::SetImportPaths(const vector<string> &paths) {
+  Util::SetImportPaths(paths);
+}
+
 IDesign *Iroha::ReadDesignFromFile(const string &fn) {
   return builder::ExpBuilder::ReadDesign(fn);
 }

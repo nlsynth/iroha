@@ -19,6 +19,7 @@ namespace iroha {
 class Iroha {
 public:
   static void Init();
+  static void SetImportPaths(const vector<string> &paths);
   static IDesign *ReadDesignFromFile(const string &fn);
   static WriterAPI *CreateWriter(IDesign *design);
   static OptAPI *CreateOptimizer(IDesign *design);
