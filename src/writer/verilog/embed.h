@@ -32,6 +32,9 @@ public:
 
   virtual void BuildResource() override;
   virtual void BuildInsn(IInsn *insn, State *st) override;
+
+private:
+  string ArgRegName(const ResourceParams &params, int nth);
 };
 
 }  // namespace verilog

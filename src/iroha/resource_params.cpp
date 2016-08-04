@@ -257,4 +257,8 @@ string ResourceParams::GetEmbeddedModuleAck() const {
   return values_->GetStringParam(resource::kEmbeddedModuleAck, "ack");
 }
 
+vector<string> ResourceParams::GetEmbeddedModuleArgs() const {
+  return values_->GetValues(resource::kEmbeddedModuleArgs);
+}
+
 }  // namespace iroha

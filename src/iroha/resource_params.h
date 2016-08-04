@@ -25,6 +25,7 @@ const char kEmbeddedModuleClk[] = "EMBEDDED-MODULE-CLOCK";
 const char kEmbeddedModuleReset[] = "EMBEDDED-MODULE-RESET";
 const char kEmbeddedModuleReq[] = "EMBEDDED-MODULE-REQ";
 const char kEmbeddedModuleAck[] = "EMBEDDED-MODULE-ACK";
+const char kEmbeddedModuleArgs[] = "EMBEDDED-MODULE-ARGS";
 }  // namespace resource
 
 class ResourceParams {
@@ -58,6 +59,7 @@ public:
   string GetEmbeddedModuleReset() const;
   string GetEmbeddedModuleReq() const;
   string GetEmbeddedModuleAck() const;
+  vector<string> GetEmbeddedModuleArgs() const;
 
 private:
   resource::ResourceParamValueSet *values_;

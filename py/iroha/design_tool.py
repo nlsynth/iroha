@@ -140,6 +140,9 @@ def CreateChannelRead(table):
 def CreateChannelWrite(table):
     return createResource(table, "channel-write")
 
-def SetArgsToEmbeddedResource(res, req, ack):
+def AddArgsToEmbeddedResource(res, arg):
+    res.resource_params.AddValue("EMBEDDED-MODULE-ARGS", arg)
+
+def SetHandShakeToEmbeddedResource(res, req, ack):
     res.resource_params.AddValue("EMBEDDED-MODULE-REQ", req)
     res.resource_params.AddValue("EMBEDDED-MODULE-ACK", ack)

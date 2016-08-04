@@ -90,6 +90,15 @@ void EmbeddedResource::BuildResource() {
     rs << "      " << req_reg << " <= 0;\n";
     is << ", ." << req << "(" << req_reg << ")";
   }
+  vector<string> args = params->GetEmbeddedModuleArgs();
+  CHECK(args.size() == res_.input_types_.size());
+  for (int i = 0; i < args.size(); ++i) {
+    string &arg = args[i];
+    string n = ArgRegName(*params, i);
+    ws << "  reg " << Table::WidthSpec(res_.input_types_[i]) << " " << n << ";\n";
+    rs << "      " << n << " <= 0;\n";
+    is << ", ." << arg << "(" << n << ")";
+  }
   is << ");\n";
 }
 
@@ -106,6 +115,12 @@ void EmbeddedResource::BuildInsn(IInsn *insn, State *st) {
   if (!req.empty()) {
     os << I << "  req_" << name << " <= 1;\n";
   }
+  vector<string> args = params->GetEmbeddedModuleArgs();
+  CHECK(args.size() == insn->inputs_.size());
+  for (int i = 0; i < args.size(); ++i) {
+    string n = ArgRegName(*params, i);
+    os << I << "  " << n << " <= " << InsnWriter::RegisterName(*insn->inputs_[i]) << ";\n";
+  }
   os << I << "end\n";
   string ack = params->GetEmbeddedModuleAck();
   os << I << "if (" << insn_st << " == 1) begin\n";
@@ -118,6 +133,11 @@ void EmbeddedResource::BuildInsn(IInsn *insn, State *st) {
     os << I << "end\n";
   }
   os << I << "end\n";
+}
+
+string EmbeddedResource::ArgRegName(const ResourceParams &params, int nth) {
+  string name = params.GetEmbeddedModuleName();
+  return "arg_" + Util::Itoa(nth) + "_" + name;
 }
 
 }  // namespace verilog
