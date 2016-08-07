@@ -20,6 +20,7 @@ libiroha_la_SOURCES = \
  src/iroha/logging.cpp src/iroha/logging.h \
  src/iroha/resource_class.cpp src/iroha/resource_class.h \
  src/iroha/resource_params.cpp src/iroha/resource_params.h \
+ src/iroha/opt_api.h \
  src/iroha/stl_util.h \
  src/iroha/writer_api.h \
  src/builder/exp_builder.cpp src/builder/exp_builder.h \
@@ -28,6 +29,8 @@ libiroha_la_SOURCES = \
  src/builder/tree_builder.cpp src/builder/tree_builder.h \
  src/design/design_tool.cpp src/design/design_tool.h \
  src/design/design_util.cpp src/design/design_util.h \
+ src/design/object_pool.h \
+ src/design/validator.cpp src/design/validator.h \
  src/design/validator.cpp src/design/validator.h \
  src/opt/array_to_mem.cpp src/opt/array_to_mem.h \
  src/opt/bb_collector.cpp src/opt/bb_collector.h \
