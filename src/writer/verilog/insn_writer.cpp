@@ -26,10 +26,19 @@ void InsnWriter::Set() {
 
 string InsnWriter::RegisterName(const IRegister &reg) {
   if (reg.IsConst()) {
-    return Util::Itoa(reg.GetInitialValue().value_);
+    int w = reg.value_type_.GetWidth();
+    if (w == 0) {
+      w = 1;
+    }
+    return Util::Itoa(w) + "'d" + Util::Itoa(reg.GetInitialValue().value_);
   } else {
     return reg.GetName();
   }
+}
+
+string InsnWriter::ConstValue(const IRegister &reg) {
+  CHECK(reg.IsConst());
+  return Util::Itoa(reg.GetInitialValue().value_);
 }
 
 string InsnWriter::ResourceName(const IResource &res) {

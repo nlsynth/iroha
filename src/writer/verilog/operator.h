@@ -21,7 +21,9 @@ private:
   void BuildExclusiveBinOpInsn(IInsn *insn);
   void BuildLightBinOpInsn(IInsn *insn);
   void BuildLightUniOpInsn(IInsn *insn);
-  void BuildBitArrangeOpInsn(IInsn *insn);
+  void BuildBitShiftOpInsn(IInsn *insn);
+  void BuildBitSelInsn(IInsn *insn);
+  void BuildBitConcatInsn(IInsn *insn);
 };
 
 }  // namespace verilog

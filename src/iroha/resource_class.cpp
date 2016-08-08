@@ -34,7 +34,7 @@ bool IsLightUniOp(const IResourceClass &rc) {
   return (rc.GetName() == kBitInv);
 }
 
-bool IsBitArrangeOp(const IResourceClass &rc) {
+bool IsBitShiftOp(const IResourceClass &rc) {
   return (rc.GetName() == kShift);
 }
 
@@ -44,6 +44,14 @@ bool IsArray(const IResourceClass &rc) {
 
 bool IsSet(const IResourceClass &rc) {
   return (rc.GetName() == kSet);
+}
+
+bool IsBitSel(const IResourceClass &rc) {
+  return (rc.GetName() == kBitSel);
+}
+
+bool IsBitConcat(const IResourceClass &rc) {
+  return (rc.GetName() == kBitConcat);
 }
 
 bool IsExtInput(const IResourceClass &rc) {
@@ -125,6 +133,8 @@ void InstallResourceClasses(IDesign *design) {
   InstallResource(design, resource::kBitXor, false);
   InstallResource(design, resource::kBitInv, false);
   InstallResource(design, resource::kShift, false);
+  InstallResource(design, resource::kBitSel, false);
+  InstallResource(design, resource::kBitConcat, false);
 }
 
 }  // namespace resource

@@ -29,10 +29,14 @@ void Operator::BuildInsn(IInsn *insn, State *st) {
     BuildLightBinOpInsn(insn);
   } else if (resource::IsLightBinOp(*klass)) {
     BuildLightUniOpInsn(insn);
-  } else if (resource::IsBitArrangeOp(*klass)) {
-    BuildBitArrangeOpInsn(insn);
   } else if (resource::IsExclusiveBinOp(*klass)) {
     BuildExclusiveBinOpInsn(insn);
+  } else if (resource::IsBitShiftOp(*klass)) {
+    BuildBitShiftOpInsn(insn);
+  } else if (resource::IsBitSel(*klass)) {
+    BuildBitSelInsn(insn);
+  } else if (resource::IsBitConcat(*klass)) {
+    BuildBitConcatInsn(insn);
   }
 }
 
@@ -100,7 +104,7 @@ void Operator::BuildLightBinOpInsn(IInsn *insn) {
   ws << " " << InsnWriter::RegisterName(*insn->inputs_[1]) << ";\n";
 }
 
-void Operator::BuildBitArrangeOpInsn(IInsn *insn) {
+void Operator::BuildBitShiftOpInsn(IInsn *insn) {
   ostream &ws = tmpl_->GetStream(kInsnWireValueSection);
   const string &rc = insn->GetResource()->GetClass()->GetName();
   if (rc == resource::kShift) {
@@ -117,6 +121,25 @@ void Operator::BuildBitArrangeOpInsn(IInsn *insn) {
     }
     ws << amount << ";\n";
   }
+}
+
+void Operator::BuildBitSelInsn(IInsn *insn) {
+  ostream &ws = tmpl_->GetStream(kInsnWireValueSection);
+  string r = InsnWriter::RegisterName(*insn->inputs_[0]);
+  string msb = InsnWriter::ConstValue(*insn->inputs_[1]);
+  string lsb = InsnWriter::ConstValue(*insn->inputs_[2]);
+  ws << "  assign " << InsnWriter::InsnOutputWireName(*insn, 0)
+     << " = " << r << "[" << msb << ":" << lsb << "];\n";
+}
+
+void Operator::BuildBitConcatInsn(IInsn *insn) {
+  ostream &ws = tmpl_->GetStream(kInsnWireValueSection);
+  vector<string> regs;
+  for (IRegister *reg : insn->inputs_) {
+    regs.push_back(InsnWriter::RegisterName(*reg));
+  }
+  ws << "  assign " << InsnWriter::InsnOutputWireName(*insn, 0)
+     << " = {" << Util::Join(regs, ", ") << "};\n";
 }
 
 }  // namespace verilog
