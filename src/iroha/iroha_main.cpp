@@ -12,6 +12,7 @@ void printVersion() {
 	    << "  Read standard input when FILE is -\n\n"
 	    << "  -s Generate shell module\n"
 	    << "  -S Generate self contained (with clock and reset) shell module\n"
+	    << "  -c Output C++\n"
 	    << "  -v Output Verilog\n"
 	    << "  -I Set import paths (comma separated)\n"
 	    << "  -h Output HTML\n"
@@ -23,6 +24,7 @@ void printVersion() {
 int main(int argc, char **argv) {
   vector<string> files;
   bool verilog = false;
+  bool cxx = false;
   bool html = false;
   bool shell = false;
   bool selfShell = false;
@@ -52,6 +54,10 @@ int main(int argc, char **argv) {
     }
     if (arg == "-v") {
       verilog = true;
+      continue;
+    }
+    if (arg == "-c") {
+      cxx = true;
       continue;
     }
     if (arg == "-h") {
@@ -119,6 +125,9 @@ int main(int argc, char **argv) {
     }
     if (verilog) {
       writer->SetLanguage("verilog");
+    }
+    if (cxx) {
+      writer->SetLanguage("cxx");
     }
     if (html) {
       writer->SetLanguage("html");

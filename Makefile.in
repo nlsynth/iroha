@@ -129,8 +129,9 @@ am_libiroha_la_OBJECTS = src/iroha/common.lo src/iroha/iroha.lo \
 	src/opt/ssa/ssa_converter.lo src/opt/wire/wire_insn.lo \
 	src/writer/connection.lo src/writer/exp_writer.lo \
 	src/writer/html_writer.lo src/writer/module_template.lo \
-	src/writer/verilog/channel.lo src/writer/verilog/embed.lo \
-	src/writer/verilog/ext_io.lo src/writer/verilog/insn_writer.lo \
+	src/writer/cxx/cxx_writer.lo src/writer/verilog/channel.lo \
+	src/writer/verilog/embed.lo src/writer/verilog/ext_io.lo \
+	src/writer/verilog/insn_writer.lo \
 	src/writer/verilog/internal_sram.lo \
 	src/writer/verilog/mapped.lo src/writer/verilog/module.lo \
 	src/writer/verilog/operator.lo src/writer/verilog/ports.lo \
@@ -461,6 +462,8 @@ libiroha_la_SOURCES = \
  src/writer/exp_writer.cpp src/writer/exp_writer.h \
  src/writer/html_writer.cpp src/writer/html_writer.h \
  src/writer/module_template.cpp src/writer/module_template.h \
+ src/writer/cxx/cxx_writer.cpp src/writer/cxx/cxx_writer.h \
+ src/writer/cxx/common.h \
  src/writer/verilog/channel.cpp src/writer/verilog/channel.h \
  src/writer/verilog/common.h \
  src/writer/verilog/embed.cpp src/writer/verilog/embed.h \
@@ -651,6 +654,14 @@ src/writer/html_writer.lo: src/writer/$(am__dirstamp) \
 	src/writer/$(DEPDIR)/$(am__dirstamp)
 src/writer/module_template.lo: src/writer/$(am__dirstamp) \
 	src/writer/$(DEPDIR)/$(am__dirstamp)
+src/writer/cxx/$(am__dirstamp):
+	@$(MKDIR_P) src/writer/cxx
+	@: > src/writer/cxx/$(am__dirstamp)
+src/writer/cxx/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) src/writer/cxx/$(DEPDIR)
+	@: > src/writer/cxx/$(DEPDIR)/$(am__dirstamp)
+src/writer/cxx/cxx_writer.lo: src/writer/cxx/$(am__dirstamp) \
+	src/writer/cxx/$(DEPDIR)/$(am__dirstamp)
 src/writer/verilog/$(am__dirstamp):
 	@$(MKDIR_P) src/writer/verilog
 	@: > src/writer/verilog/$(am__dirstamp)
@@ -774,6 +785,8 @@ mostlyclean-compile:
 	-rm -f src/opt/wire/*.lo
 	-rm -f src/writer/*.$(OBJEXT)
 	-rm -f src/writer/*.lo
+	-rm -f src/writer/cxx/*.$(OBJEXT)
+	-rm -f src/writer/cxx/*.lo
 	-rm -f src/writer/verilog/*.$(OBJEXT)
 	-rm -f src/writer/verilog/*.lo
 
@@ -820,6 +833,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/writer/$(DEPDIR)/html_writer.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/writer/$(DEPDIR)/module_template.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/writer/$(DEPDIR)/writer.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/writer/cxx/$(DEPDIR)/cxx_writer.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/writer/verilog/$(DEPDIR)/channel.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/writer/verilog/$(DEPDIR)/embed.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/writer/verilog/$(DEPDIR)/ext_io.Plo@am__quote@
@@ -873,6 +887,7 @@ clean-libtool:
 	-rm -rf src/opt/ssa/.libs src/opt/ssa/_libs
 	-rm -rf src/opt/wire/.libs src/opt/wire/_libs
 	-rm -rf src/writer/.libs src/writer/_libs
+	-rm -rf src/writer/cxx/.libs src/writer/cxx/_libs
 	-rm -rf src/writer/verilog/.libs src/writer/verilog/_libs
 
 distclean-libtool:
@@ -1224,6 +1239,8 @@ distclean-generic:
 	-rm -f src/opt/wire/$(am__dirstamp)
 	-rm -f src/writer/$(DEPDIR)/$(am__dirstamp)
 	-rm -f src/writer/$(am__dirstamp)
+	-rm -f src/writer/cxx/$(DEPDIR)/$(am__dirstamp)
+	-rm -f src/writer/cxx/$(am__dirstamp)
 	-rm -f src/writer/verilog/$(DEPDIR)/$(am__dirstamp)
 	-rm -f src/writer/verilog/$(am__dirstamp)
 
@@ -1237,7 +1254,7 @@ clean-am: clean-binPROGRAMS clean-generic clean-libtool \
 
 distclean: distclean-recursive
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
-	-rm -rf src/$(DEPDIR) src/builder/$(DEPDIR) src/design/$(DEPDIR) src/iroha/$(DEPDIR) src/opt/$(DEPDIR) src/opt/clean/$(DEPDIR) src/opt/ssa/$(DEPDIR) src/opt/wire/$(DEPDIR) src/writer/$(DEPDIR) src/writer/verilog/$(DEPDIR)
+	-rm -rf src/$(DEPDIR) src/builder/$(DEPDIR) src/design/$(DEPDIR) src/iroha/$(DEPDIR) src/opt/$(DEPDIR) src/opt/clean/$(DEPDIR) src/opt/ssa/$(DEPDIR) src/opt/wire/$(DEPDIR) src/writer/$(DEPDIR) src/writer/cxx/$(DEPDIR) src/writer/verilog/$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-libtool distclean-tags
@@ -1285,7 +1302,7 @@ installcheck-am:
 maintainer-clean: maintainer-clean-recursive
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
 	-rm -rf $(top_srcdir)/autom4te.cache
-	-rm -rf src/$(DEPDIR) src/builder/$(DEPDIR) src/design/$(DEPDIR) src/iroha/$(DEPDIR) src/opt/$(DEPDIR) src/opt/clean/$(DEPDIR) src/opt/ssa/$(DEPDIR) src/opt/wire/$(DEPDIR) src/writer/$(DEPDIR) src/writer/verilog/$(DEPDIR)
+	-rm -rf src/$(DEPDIR) src/builder/$(DEPDIR) src/design/$(DEPDIR) src/iroha/$(DEPDIR) src/opt/$(DEPDIR) src/opt/clean/$(DEPDIR) src/opt/ssa/$(DEPDIR) src/opt/wire/$(DEPDIR) src/writer/$(DEPDIR) src/writer/cxx/$(DEPDIR) src/writer/verilog/$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 
