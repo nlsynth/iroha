@@ -240,7 +240,8 @@ void ExpWriter::WriteResourceParams(const ResourceParams &params,
     os_ << indent << " (" << key;
     vector<string> values = params.GetValues(key);
     for (string &value : values) {
-      os_ << " " << value;
+      os_ << " ";
+      WriteStr(value);
     }
     os_ << ")";
     is_first = false;
@@ -273,6 +274,20 @@ void ExpWriter::WriteResourceDesc(const IResource &res) {
   IModule *mod = tab->GetModule();
   os_ << "(" << mod->GetName() << " " << tab->GetId() << " "
       << res.GetId() << ")";
+}
+
+void ExpWriter::WriteStr(const string &str) {
+  bool need_quote = false;
+  if (str.find(" ") != string::npos) {
+    need_quote = true;
+  }
+  if (need_quote) {
+    os_ << "\"";
+  }
+  os_ << str;
+  if (need_quote) {
+    os_ << "\"";
+  }
 }
 
 }  // namespace iroha

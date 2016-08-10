@@ -31,6 +31,7 @@ private:
   void WriteResourceParams(const ResourceParams &params, const char *indent);
   void WriteChannel(const IChannel &ch);
   void WriteResourceDesc(const IResource &res);
+  void WriteStr(const string &str);
 
   const IDesign *design_;
   ostream &os_;
