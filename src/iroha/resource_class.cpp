@@ -18,11 +18,12 @@ bool IsExclusiveBinOp(const IResourceClass &rc) {
 
 bool IsNumToNumExclusiveBinOp(const IResourceClass &rc) {
   const string &name = rc.GetName();
-  return (name == kAdd || name == kSub);
+  return (name == kAdd || name == kSub || name == kMul);
 }
 
 bool IsNumToBoolExclusiveBinOp(const IResourceClass &rc) {
-  return (rc.GetName() == kGt);
+  const string &name = rc.GetName();
+  return (name == kGt || name == kGte || name == kEq);
 }
 
 bool IsLightBinOp(const IResourceClass &rc) {
@@ -126,8 +127,11 @@ void InstallResourceClasses(IDesign *design) {
   InstallResource(design, resource::kExtOutput, true);
   InstallResource(design, resource::kArray, true);
   InstallResource(design, resource::kGt, true);
+  InstallResource(design, resource::kGte, true);
+  InstallResource(design, resource::kEq, true);
   InstallResource(design, resource::kAdd, true);
   InstallResource(design, resource::kSub, true);
+  InstallResource(design, resource::kMul, true);
   InstallResource(design, resource::kBitAnd, false);
   InstallResource(design, resource::kBitOr, false);
   InstallResource(design, resource::kBitXor, false);

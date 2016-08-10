@@ -62,6 +62,12 @@ void Operator::BuildExclusiveBinOp() {
     rs << "+";
   } else if (res_name == resource::kSub) {
     rs << "-";
+  } else if (res_name == resource::kMul) {
+    rs << "*";
+  } else if (res_name == resource::kEq) {
+    rs << "==";
+  } else if (res_name == resource::kGte) {
+    rs << ">=";
   } else {
     LOG(FATAL) << "Unknown binop" << res_name;
   }
