@@ -129,9 +129,9 @@ am_libiroha_la_OBJECTS = src/iroha/common.lo src/iroha/iroha.lo \
 	src/opt/ssa/ssa_converter.lo src/opt/wire/wire_insn.lo \
 	src/writer/connection.lo src/writer/exp_writer.lo \
 	src/writer/html_writer.lo src/writer/module_template.lo \
-	src/writer/cxx/cxx_writer.lo src/writer/verilog/channel.lo \
-	src/writer/verilog/embed.lo src/writer/verilog/ext_io.lo \
-	src/writer/verilog/insn_writer.lo \
+	src/writer/cxx/cxx_writer.lo src/writer/cxx/module.lo \
+	src/writer/verilog/channel.lo src/writer/verilog/embed.lo \
+	src/writer/verilog/ext_io.lo src/writer/verilog/insn_writer.lo \
 	src/writer/verilog/internal_sram.lo \
 	src/writer/verilog/mapped.lo src/writer/verilog/module.lo \
 	src/writer/verilog/operator.lo src/writer/verilog/ports.lo \
@@ -463,6 +463,7 @@ libiroha_la_SOURCES = \
  src/writer/html_writer.cpp src/writer/html_writer.h \
  src/writer/module_template.cpp src/writer/module_template.h \
  src/writer/cxx/cxx_writer.cpp src/writer/cxx/cxx_writer.h \
+ src/writer/cxx/module.cpp src/writer/cxx/module.h \
  src/writer/cxx/common.h \
  src/writer/verilog/channel.cpp src/writer/verilog/channel.h \
  src/writer/verilog/common.h \
@@ -662,6 +663,8 @@ src/writer/cxx/$(DEPDIR)/$(am__dirstamp):
 	@: > src/writer/cxx/$(DEPDIR)/$(am__dirstamp)
 src/writer/cxx/cxx_writer.lo: src/writer/cxx/$(am__dirstamp) \
 	src/writer/cxx/$(DEPDIR)/$(am__dirstamp)
+src/writer/cxx/module.lo: src/writer/cxx/$(am__dirstamp) \
+	src/writer/cxx/$(DEPDIR)/$(am__dirstamp)
 src/writer/verilog/$(am__dirstamp):
 	@$(MKDIR_P) src/writer/verilog
 	@: > src/writer/verilog/$(am__dirstamp)
@@ -834,6 +837,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/writer/$(DEPDIR)/module_template.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/writer/$(DEPDIR)/writer.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/writer/cxx/$(DEPDIR)/cxx_writer.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/writer/cxx/$(DEPDIR)/module.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/writer/verilog/$(DEPDIR)/channel.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/writer/verilog/$(DEPDIR)/embed.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/writer/verilog/$(DEPDIR)/ext_io.Plo@am__quote@
