@@ -15,6 +15,7 @@
 @SET_MAKE@
 
 
+
 VPATH = @srcdir@
 am__is_gnu_make = { \
   if test -z '$(MAKELEVEL)'; then \
@@ -129,7 +130,8 @@ am_libiroha_la_OBJECTS = src/iroha/common.lo src/iroha/iroha.lo \
 	src/opt/ssa/ssa_converter.lo src/opt/wire/wire_insn.lo \
 	src/writer/connection.lo src/writer/exp_writer.lo \
 	src/writer/html_writer.lo src/writer/module_template.lo \
-	src/writer/cxx/cxx_writer.lo src/writer/cxx/module.lo \
+	src/writer/cxx/class_writer.lo src/writer/cxx/cxx_writer.lo \
+	src/writer/cxx/module.lo src/writer/cxx/table.lo \
 	src/writer/verilog/channel.lo src/writer/verilog/embed.lo \
 	src/writer/verilog/ext_io.lo src/writer/verilog/insn_writer.lo \
 	src/writer/verilog/internal_sram.lo \
@@ -144,7 +146,7 @@ AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
 am__v_lt_1 = 
-am__installdirs = "$(DESTDIR)$(bindir)"
+am__installdirs = "$(DESTDIR)$(bindir)" "$(DESTDIR)$(pkgdatadir)"
 PROGRAMS = $(bin_PROGRAMS)
 am_iroha_OBJECTS = src/main.$(OBJEXT)
 iroha_OBJECTS = $(am_iroha_OBJECTS)
@@ -216,6 +218,34 @@ am__can_run_installinfo = \
     n|no|NO) false;; \
     *) (install-info --version) >/dev/null 2>&1;; \
   esac
+am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
+am__vpath_adj = case $$p in \
+    $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
+    *) f=$$p;; \
+  esac;
+am__strip_dir = f=`echo $$p | sed -e 's|^.*/||'`;
+am__install_max = 40
+am__nobase_strip_setup = \
+  srcdirstrip=`echo "$(srcdir)" | sed 's/[].[^$$\\*|]/\\\\&/g'`
+am__nobase_strip = \
+  for p in $$list; do echo "$$p"; done | sed -e "s|$$srcdirstrip/||"
+am__nobase_list = $(am__nobase_strip_setup); \
+  for p in $$list; do echo "$$p $$p"; done | \
+  sed "s| $$srcdirstrip/| |;"' / .*\//!s/ .*/ ./; s,\( .*\)/[^/]*$$,\1,' | \
+  $(AWK) 'BEGIN { files["."] = "" } { files[$$2] = files[$$2] " " $$1; \
+    if (++n[$$2] == $(am__install_max)) \
+      { print $$2, files[$$2]; n[$$2] = 0; files[$$2] = "" } } \
+    END { for (dir in files) print dir, files[dir] }'
+am__base_list = \
+  sed '$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;s/\n/ /g' | \
+  sed '$$!N;$$!N;$$!N;$$!N;s/\n/ /g'
+am__uninstall_files_from_dir = { \
+  test -z "$$files" \
+    || { test ! -d "$$dir" && test ! -f "$$dir" && test ! -r "$$dir"; } \
+    || { echo " ( cd '$$dir' && rm -f" $$files ")"; \
+         $(am__cd) "$$dir" && rm -f $$files; }; \
+  }
+DATA = $(pkgdata_DATA)
 RECURSIVE_CLEAN_TARGETS = mostlyclean-recursive clean-recursive	\
   distclean-recursive maintainer-clean-recursive
 am__recursive_targets = \
@@ -416,6 +446,7 @@ SUBDIRS =
 EXTRA_DIST = 
 iroha_SOURCES = src/main.cpp
 iroha_LDADD = libiroha.la
+pkgdata_DATA = lib/cxx-rt.h
 noinst_LTLIBRARIES = libiroha.la
 libiroha_la_SOURCES = \
  src/iroha/common.cpp src/iroha/common.h \
@@ -462,8 +493,10 @@ libiroha_la_SOURCES = \
  src/writer/exp_writer.cpp src/writer/exp_writer.h \
  src/writer/html_writer.cpp src/writer/html_writer.h \
  src/writer/module_template.cpp src/writer/module_template.h \
+ src/writer/cxx/class_writer.cpp src/writer/cxx/class_writer.h \
  src/writer/cxx/cxx_writer.cpp src/writer/cxx/cxx_writer.h \
  src/writer/cxx/module.cpp src/writer/cxx/module.h \
+ src/writer/cxx/table.cpp src/writer/cxx/table.h \
  src/writer/cxx/common.h \
  src/writer/verilog/channel.cpp src/writer/verilog/channel.h \
  src/writer/verilog/common.h \
@@ -661,9 +694,13 @@ src/writer/cxx/$(am__dirstamp):
 src/writer/cxx/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) src/writer/cxx/$(DEPDIR)
 	@: > src/writer/cxx/$(DEPDIR)/$(am__dirstamp)
+src/writer/cxx/class_writer.lo: src/writer/cxx/$(am__dirstamp) \
+	src/writer/cxx/$(DEPDIR)/$(am__dirstamp)
 src/writer/cxx/cxx_writer.lo: src/writer/cxx/$(am__dirstamp) \
 	src/writer/cxx/$(DEPDIR)/$(am__dirstamp)
 src/writer/cxx/module.lo: src/writer/cxx/$(am__dirstamp) \
+	src/writer/cxx/$(DEPDIR)/$(am__dirstamp)
+src/writer/cxx/table.lo: src/writer/cxx/$(am__dirstamp) \
 	src/writer/cxx/$(DEPDIR)/$(am__dirstamp)
 src/writer/verilog/$(am__dirstamp):
 	@$(MKDIR_P) src/writer/verilog
@@ -836,8 +873,10 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/writer/$(DEPDIR)/html_writer.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/writer/$(DEPDIR)/module_template.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/writer/$(DEPDIR)/writer.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/writer/cxx/$(DEPDIR)/class_writer.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/writer/cxx/$(DEPDIR)/cxx_writer.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/writer/cxx/$(DEPDIR)/module.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/writer/cxx/$(DEPDIR)/table.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/writer/verilog/$(DEPDIR)/channel.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/writer/verilog/$(DEPDIR)/embed.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/writer/verilog/$(DEPDIR)/ext_io.Plo@am__quote@
@@ -896,6 +935,27 @@ clean-libtool:
 
 distclean-libtool:
 	-rm -f libtool config.lt
+install-pkgdataDATA: $(pkgdata_DATA)
+	@$(NORMAL_INSTALL)
+	@list='$(pkgdata_DATA)'; test -n "$(pkgdatadir)" || list=; \
+	if test -n "$$list"; then \
+	  echo " $(MKDIR_P) '$(DESTDIR)$(pkgdatadir)'"; \
+	  $(MKDIR_P) "$(DESTDIR)$(pkgdatadir)" || exit 1; \
+	fi; \
+	for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  echo "$$d$$p"; \
+	done | $(am__base_list) | \
+	while read files; do \
+	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(pkgdatadir)'"; \
+	  $(INSTALL_DATA) $$files "$(DESTDIR)$(pkgdatadir)" || exit $$?; \
+	done
+
+uninstall-pkgdataDATA:
+	@$(NORMAL_UNINSTALL)
+	@list='$(pkgdata_DATA)'; test -n "$(pkgdatadir)" || list=; \
+	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
+	dir='$(DESTDIR)$(pkgdatadir)'; $(am__uninstall_files_from_dir)
 
 # This directory's subdirectories are mostly independent; you can cd
 # into them and run 'make' without going through this Makefile.
@@ -1193,10 +1253,10 @@ distcleancheck: distclean
 	       exit 1; } >&2
 check-am: all-am
 check: check-recursive
-all-am: Makefile $(LTLIBRARIES) $(PROGRAMS)
+all-am: Makefile $(LTLIBRARIES) $(PROGRAMS) $(DATA)
 installdirs: installdirs-recursive
 installdirs-am:
-	for dir in "$(DESTDIR)$(bindir)"; do \
+	for dir in "$(DESTDIR)$(bindir)" "$(DESTDIR)$(pkgdatadir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: install-recursive
@@ -1275,7 +1335,7 @@ info: info-recursive
 
 info-am:
 
-install-data-am:
+install-data-am: install-pkgdataDATA
 
 install-dvi: install-dvi-recursive
 
@@ -1323,7 +1383,7 @@ ps: ps-recursive
 
 ps-am:
 
-uninstall-am: uninstall-binPROGRAMS
+uninstall-am: uninstall-binPROGRAMS uninstall-pkgdataDATA
 
 .MAKE: $(am__recursive_targets) install-am install-strip
 
@@ -1339,12 +1399,13 @@ uninstall-am: uninstall-binPROGRAMS
 	install-binPROGRAMS install-data install-data-am install-dvi \
 	install-dvi-am install-exec install-exec-am install-html \
 	install-html-am install-info install-info-am install-man \
-	install-pdf install-pdf-am install-ps install-ps-am \
-	install-strip installcheck installcheck-am installdirs \
-	installdirs-am maintainer-clean maintainer-clean-generic \
-	mostlyclean mostlyclean-compile mostlyclean-generic \
-	mostlyclean-libtool pdf pdf-am ps ps-am tags tags-am uninstall \
-	uninstall-am uninstall-binPROGRAMS
+	install-pdf install-pdf-am install-pkgdataDATA install-ps \
+	install-ps-am install-strip installcheck installcheck-am \
+	installdirs installdirs-am maintainer-clean \
+	maintainer-clean-generic mostlyclean mostlyclean-compile \
+	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
+	tags tags-am uninstall uninstall-am uninstall-binPROGRAMS \
+	uninstall-pkgdataDATA
 
 .PRECIOUS: Makefile
 

@@ -6,7 +6,13 @@
 
 namespace iroha {
 namespace writer {
+
+class ModuleTemplate;
+
 namespace cxx {
+class ClassWriter;
+class Module;
+class Table;
 }  // namespace cxx
 }  // namespace writer
 }  // namespace iroha

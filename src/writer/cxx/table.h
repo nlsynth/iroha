@@ -1,6 +1,6 @@
 // -*- C++ -*-
-#ifndef _writer_cxx_module_h_
-#define _writer_cxx_module_h_
+#ifndef _writer_cxx_table_h_
+#define _writer_cxx_table_h_
 
 #include "writer/cxx/common.h"
 
@@ -8,23 +8,21 @@ namespace iroha {
 namespace writer {
 namespace cxx {
 
-class Module {
+class Table {
 public:
-  Module(const IModule *i_mod);
-  ~Module();
+  Table(const ITable *i_tab);
+  ~Table();
 
   void Build();
   void Write(ostream &os);
-  string GetName();
 
 private:
-  const IModule *i_mod_;
+  const ITable *i_tab_;
   unique_ptr<ClassWriter> class_writer_;
-  vector<unique_ptr<Table>> tables_;
 };
 
 }  // namespace cxx
 }  // namespace writer
 }  // namespace iroha
 
-#endif  // _writer_cxx_module_h_
+#endif  // _writer_cxx_table_h_
