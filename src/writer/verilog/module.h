@@ -36,6 +36,7 @@ public:
   const Ports *GetPorts() const;
   ModuleTemplate *GetModuleTemplate() const;
   void BuildChildModuleSection(vector<Module *> &child_mods);
+  const string &GetName() const;
 
 private:
   bool ResolveResetPolarity();
@@ -46,6 +47,7 @@ private:
   unique_ptr<ModuleTemplate> tmpl_;
   unique_ptr<Ports> ports_;
   vector<Table *> tables_;
+  string name_;
   bool reset_polarity_;
   string reset_name_;
 };

@@ -30,6 +30,8 @@ Module::Module(const IModule *i_mod, const Connection &conn,
       reset_name_ = "rst_n";
     }
   }
+  name_ = i_mod_->GetDesign()->GetParams()->GetModuleNamePrefix()
+    + i_mod->GetName();
 }
 
 Module::~Module() {
@@ -37,7 +39,7 @@ Module::~Module() {
 }
 
 void Module::Write(ostream &os) {
-  os << "module " << i_mod_->GetName() << "(";
+  os << "module " << GetName() << "(";
   ports_->Output(Ports::PORT_NAME, os);
   os << ");\n";
   ports_->Output(Ports::PORT_TYPE, os);
@@ -109,8 +111,8 @@ void Module::BuildChildModuleSection(vector<Module *> &child_mods) {
   for (auto *mod : child_mods) {
     // mod inst_mod(...);
     const IModule *imod = mod->GetIModule();
-    is << "  " << imod->GetName() << " "
-       << "inst_" << imod->GetName() << "(";
+    is << "  " << GetName() << " "
+       << "inst_" << GetName() << "(";
     is << "." << ports_->GetClk() << "(" << mod->GetPorts()->GetClk() << ")";
     is << ", ." << ports_->GetReset() << "("
        << mod->GetPorts()->GetClk() << ")";
@@ -146,6 +148,10 @@ bool Module::ResolveResetPolarity() {
 
 ModuleTemplate *Module::GetModuleTemplate() const {
   return tmpl_.get();
+}
+
+const string &Module::GetName() const {
+  return name_;
 }
 
 }  // namespace verilog

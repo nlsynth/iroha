@@ -80,7 +80,7 @@ void VerilogWriter::WriteShellModule(const Module *mod) {
   } else {
     ports->Output(Ports::PORT_DIRECTION, os_);
   }
-  string name = mod->GetIModule()->GetName();
+  string name = mod->GetName();
   os_ << "  " << name << " " << name << "_inst(";
   if (with_self_clock_) {
     WriteSelfClockConnection(mod);

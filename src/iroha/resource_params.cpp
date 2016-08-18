@@ -178,6 +178,14 @@ void ResourceParams::SetValues(const string &key,
   values_->SetValues(key, values);
 }
 
+string ResourceParams::GetModuleNamePrefix() const {
+  return values_->GetStringParam(resource::kModuleNamePrefix, "");
+}
+
+void ResourceParams::SetModuleNamePrefix(const string &prefix) {
+  values_->SetStringParam(resource::kModuleNamePrefix, prefix);
+}
+
 string ResourceParams::GetMappedName() const {
   return values_->GetStringParam(resource::kMappedName, "");
 }
