@@ -258,11 +258,11 @@ string ResourceParams::GetEmbeddedModuleReset() const {
 }
 
 string ResourceParams::GetEmbeddedModuleReq() const {
-  return values_->GetStringParam(resource::kEmbeddedModuleReq, "req");
+  return values_->GetStringParam(resource::kEmbeddedModuleReq, "");
 }
 
 string ResourceParams::GetEmbeddedModuleAck() const {
-  return values_->GetStringParam(resource::kEmbeddedModuleAck, "ack");
+  return values_->GetStringParam(resource::kEmbeddedModuleAck, "");
 }
 
 vector<string> ResourceParams::GetEmbeddedModuleArgs() const {

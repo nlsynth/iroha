@@ -131,6 +131,8 @@ void EmbeddedResource::BuildInsn(IInsn *insn, State *st) {
   os << I << "  " << insn_st << " <= 3;\n";
   if (!ack.empty()) {
     os << I << "end\n";
+  } else {
+    os << I << "  req_" << name << " <= 0;\n";
   }
   os << I << "end\n";
 }
