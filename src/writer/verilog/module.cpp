@@ -108,26 +108,26 @@ void Module::Build() {
 
 void Module::BuildChildModuleSection(vector<Module *> &child_mods) {
   ostream &is = tmpl_->GetStream(kSubModuleSection);
-  for (auto *mod : child_mods) {
+  for (auto *child_mod : child_mods) {
     // mod inst_mod(...);
-    const IModule *imod = mod->GetIModule();
-    is << "  " << GetName() << " "
-       << "inst_" << GetName() << "(";
-    is << "." << ports_->GetClk() << "(" << mod->GetPorts()->GetClk() << ")";
-    is << ", ." << ports_->GetReset() << "("
-       << mod->GetPorts()->GetClk() << ")";
+    const IModule *child_imod = child_mod->GetIModule();
+    is << "  " << child_mod->GetName() << " "
+       << "inst_" << child_mod->GetName() << "(";
+    is << "." << child_mod->GetPorts()->GetClk() << "(" << GetPorts()->GetClk() << ")";
+    is << ", ." << child_mod->GetPorts()->GetReset() << "("
+       << GetPorts()->GetReset() << ")";
     // Task
-    const TaskCallInfo *ti = conn_.GetTaskCallInfo(imod);
+    const TaskCallInfo *ti = conn_.GetTaskCallInfo(child_imod);
     if (ti != nullptr) {
       Task::BuildChildTaskWire(*ti, is);
     }
     // Channel
     const ChannelInfo *ci = conn_.GetConnectionInfo(i_mod_);
     if (ci != nullptr) {
-      Channel::BuildChildChannelWire(*ci, imod, is);
+      Channel::BuildChildChannelWire(*ci, child_imod, is);
     }
     // Registers
-    const RegConnectionInfo *ri = conn_.GetRegConnectionInfo(imod);
+    const RegConnectionInfo *ri = conn_.GetRegConnectionInfo(child_imod);
     if (ri != nullptr) {
       SharedReg::BuildChildWire(*ri, is);
     }
