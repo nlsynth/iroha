@@ -118,20 +118,35 @@ void Channel::BuildRootWire(const ChannelInfo &ci, Module *module) {
   for (auto *ch : ci.common_root_) {
     // This doesn't assume in-module channels.
     IResource *writer_res = ch->GetWriter();
+    const IModule *writer_mod = nullptr;
     if (writer_res != nullptr) {
-      const IModule *writer = writer_res->GetTable()->GetModule();
-      if (writer == module->GetIModule()) {
-	ostream &ws = tmpl->GetStream(kInsnWireDeclSection);
-	ws << "  wire " << AckPort(*ch) << ";\n";
-      }
+      writer_mod = writer_res->GetTable()->GetModule();
     }
     IResource *reader_res = ch->GetReader();
+    const IModule *reader_mod = nullptr;
     if (reader_res != nullptr) {
-      const IModule *reader = reader_res->GetTable()->GetModule();
-      if (reader == module->GetIModule()) {
+      reader_mod = reader_res->GetTable()->GetModule();
+    }
+    // (1) Writer is in this module. Reader is in sub module.
+    if (writer_mod == module->GetIModule()) {
+      ostream &ws = tmpl->GetStream(kInsnWireDeclSection);
+      ws << "  wire " << AckPort(*ch) << ";\n";
+    }
+    // (2) Reader is in this module. Writer is in sub module.
+    if (reader_mod == module->GetIModule()) {
+      ostream &ws = tmpl->GetStream(kInsnWireDeclSection);
+      ws << "  wire " << EnPort(*ch) << ";\n"
+	 << "  reg" << Table::WidthSpec(ch->GetValueType())
+	 << " " << DataPort(*ch) << ";\n";
+    }
+    // (3) Both reader and writer is in sub module.
+    if (writer_mod != nullptr && reader_mod != nullptr) {
+      if (writer_mod != module->GetIModule() &&
+	  reader_mod != module->GetIModule()) {
 	ostream &ws = tmpl->GetStream(kInsnWireDeclSection);
+	ws << "  wire " << AckPort(*ch) << ";\n";
 	ws << "  wire " << EnPort(*ch) << ";\n"
-	   << "  reg" << Table::WidthSpec(ch->GetValueType())
+	   << "  wire " << Table::WidthSpec(ch->GetValueType())
 	   << " " << DataPort(*ch) << ";\n";
       }
     }
