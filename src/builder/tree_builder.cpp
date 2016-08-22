@@ -91,6 +91,10 @@ bool TreeBuilder::Resolve() {
   }
   for (auto &ep : channel_end_points_) {
     IModule *mod = module_names[ep.mod_name];
+    if (mod == nullptr) {
+      builder_->SetError() << "no endpoint named: " << ep.mod_name;
+      return false;
+    }
     IResource *res = FindChannelResource(mod, ep.tab_id, ep.res_id);
     if (ep.is_r) {
       ep.ch->SetReader(res);

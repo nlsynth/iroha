@@ -65,8 +65,8 @@ IDesign *ExpBuilder::Build(vector<Exp *> &exps) {
 }
 
 IModule *ExpBuilder::BuildModule(Exp *e, IDesign *design) {
-  if (e->Size() < 3) {
-    SetError() << "Insufficient elements for a module";
+  if (e->Size() < 2) {
+    SetError() << "Module requires its name";
     return nullptr;
   }
   IModule *module = new IModule(design, e->Str(1));
