@@ -13,6 +13,9 @@ Module::Module(const IModule *i_mod) : i_mod_(i_mod) {
 }
 
 Module::~Module() {
+  for (Table *tab : tables_) {
+    delete tab;
+  }
 }
 
 string Module::GetName() {
@@ -21,7 +24,7 @@ string Module::GetName() {
 
 void Module::Build() {
   for (const ITable *tab : i_mod_->tables_) {
-    tables_.push_back(unique_ptr<Table>(new Table(tab)));
+    tables_.push_back(new Table(tab));
   }
   for (auto &tab : tables_) {
     tab->Build();

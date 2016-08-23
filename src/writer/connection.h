@@ -21,8 +21,8 @@ public:
   vector<const IChannel *> common_root_;
 
   // child -> channels.
-  map<const IModule *, vector<const IChannel *>> child_upward_;
-  map<const IModule *, vector<const IChannel *>> child_downward_;
+  map<const IModule *, vector<const IChannel *> > child_upward_;
+  map<const IModule *, vector<const IChannel *> > child_downward_;
 };
 
 // Per module task call path information.
