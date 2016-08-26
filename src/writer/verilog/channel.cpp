@@ -1,6 +1,7 @@
 #include "writer/verilog/channel.h"
 
 #include "iroha/i_design.h"
+#include "iroha/logging.h"
 #include "iroha/resource_class.h"
 #include "writer/connection.h"
 #include "writer/module_template.h"
@@ -46,6 +47,7 @@ void Channel::BuildInsn(IInsn *insn, State *st) {
     os << I << "// Channel write\n"
        << I << "if (" << insn_st << " == 0) begin\n";
     IChannel *ic = res_.GetChannel();
+    CHECK(ic);
     os << I << "  " << DataPort(*ic) << " <= " << InsnWriter::RegisterName(*insn->inputs_[0]) << ";\n";
     os << I << "  if (" << AckPort(*ic) << ") begin\n"
        << I << "    " << insn_st << " <= 3;\n"
@@ -57,6 +59,7 @@ void Channel::BuildInsn(IInsn *insn, State *st) {
   }
   if (resource::IsChannelRead(*res_.GetClass())) {
     IChannel *ic = res_.GetChannel();
+    CHECK(ic);
     os << I << "// Channel read\n"
        << I << "if (" << insn_st << " == 0) begin\n"
        << I << "  if (" << EnPort(*ic) << ") begin\n"

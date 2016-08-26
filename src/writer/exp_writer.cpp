@@ -1,6 +1,7 @@
 #include "writer/exp_writer.h"
 
 #include "iroha/i_design.h"
+#include "iroha/logging.h"
 #include "iroha/resource_class.h"
 #include "iroha/resource_params.h"
 
@@ -110,6 +111,7 @@ void ExpWriter::WriteForeignRegDesc(const IResource &res) {
 
 void ExpWriter::WriteCalleeTaskDesc(const IResource &res) {
   const ITable *table = res.GetCalleeTable();
+  CHECK(table) << "callee table isn't specified";
   const IModule *mod = table->GetModule();
   os_ << "        (CALLEE-TABLE " << mod->GetName() << " " << table->GetId() << ")\n";
 }
