@@ -18,21 +18,14 @@ public:
 
   static bool IsTask(const Table &table);
   static string TaskEnablePin(const ITable &tab, const ITable *caller);
-  static string SubModuleTaskControlPinPrefix(const IResource &res);
   static string SiblingTaskReadySignal(const ITable &tab,
 				       const ITable *caller);
-  static void BuildChildTaskWire(const TaskCallInfo &ti,
-				 ostream &os);
-  static void BuildPorts(const TaskCallInfo &ti, Ports *ports);
 
   static const int kTaskEntryStateId;
 
 private:
-  void BuildSubModuleTask();
   void BuildSiblingTask();
   void BuildSiblingTaskCall();
-  void BuildSubModuleTaskCall();
-  void BuildSubModuleTaskCallInsn(IInsn *insn, State *st);
   void BuildSiblingTaskInsn(IInsn *insn, State *st);
 
   static string ArgSignal(const ITable &tab, int nth, const ITable *caller);

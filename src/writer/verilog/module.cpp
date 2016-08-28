@@ -10,7 +10,7 @@
 #include "writer/verilog/ports.h"
 #include "writer/verilog/shared_reg.h"
 #include "writer/verilog/table.h"
-#include "writer/verilog/task.h"
+#include "writer/verilog/sub_module_task.h"
 
 namespace iroha {
 namespace writer {
@@ -97,7 +97,7 @@ void Module::Build() {
   }
   const TaskCallInfo *ti = conn_.GetTaskCallInfo(i_mod_);
   if (ti != nullptr) {
-    Task::BuildPorts(*ti, ports_.get());
+    SubModuleTask::BuildPorts(*ti, ports_.get());
   }
   const RegConnectionInfo *ri = conn_.GetRegConnectionInfo(i_mod_);
   if (ri != nullptr) {
@@ -119,7 +119,7 @@ void Module::BuildChildModuleSection(vector<Module *> &child_mods) {
     // Task
     const TaskCallInfo *ti = conn_.GetTaskCallInfo(child_imod);
     if (ti != nullptr) {
-      Task::BuildChildTaskWire(*ti, is);
+      SubModuleTask::BuildChildTaskWire(*ti, is);
     }
     // Channel
     const ChannelInfo *ci = conn_.GetConnectionInfo(i_mod_);

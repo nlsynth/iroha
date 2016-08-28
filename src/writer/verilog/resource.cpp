@@ -15,6 +15,7 @@
 #include "writer/verilog/ports.h"
 #include "writer/verilog/shared_reg.h"
 #include "writer/verilog/state.h"
+#include "writer/verilog/sub_module_task.h"
 #include "writer/verilog/table.h"
 #include "writer/verilog/task.h"
 
@@ -25,9 +26,11 @@ namespace verilog {
 Resource *Resource::Create(const IResource &res, const Table &table) {
   auto *klass = res.GetClass();
   if (resource::IsSubModuleTask(*klass) ||
-      resource::IsSiblingTask(*klass) ||
-      resource::IsSubModuleTaskCall(*klass) ||
-      resource::IsSiblingTaskCall(*klass)) {
+      resource::IsSubModuleTaskCall(*klass)) {
+    return new SubModuleTask(res, table);
+  }
+  if (resource::IsSubModuleTask(*klass) ||
+      resource::IsSubModuleTaskCall(*klass)) {
     return new Task(res, table);
   }
   if (resource::IsExclusiveBinOp(*klass) ||

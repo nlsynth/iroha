@@ -57,6 +57,8 @@ Please read src/iroha/iroha.h, src/main.cpp examples/ for more details.
 * P1: Modularize mapped resource
 * P1: Resource sharing between tables
 * P1: Read shared register in another module
+* P1: Decide module/instance relation
+* P1: Design data flow pipeline
 * P2: Simplify wait cycle if there's 1 multi cycle insn in a state
 * P2: More debug output from optimizers.
 * P2: Export optimizer API so that users can add own phase
