@@ -227,6 +227,9 @@ IResource *ExpBuilder::BuildResource(Exp *e, ITable *table) {
     }
   }
   if (rc == nullptr) {
+    if (klass == "ext_input" || klass == "ext_output") {
+      SetError() << "Please fix ext_{in, out}put to ext-{in, out}put";
+    }
     SetError() << "Unknown resource class: " << klass;
     return nullptr;
   }
