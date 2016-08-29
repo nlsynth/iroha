@@ -63,6 +63,17 @@ bool Task::IsTask(const Table &table) {
   return false;
 }
 
+bool Task::IsSiblingTask(const Table &table) {
+  ITable *i_table = table.GetITable();
+  IInsn *task_entry_insn = DesignUtil::FindTaskEntryInsn(i_table);
+  if (task_entry_insn != nullptr) {
+    if (resource::IsSiblingTask(*task_entry_insn->GetResource()->GetClass())) {
+      return true;
+    }
+  }
+  return false;
+}
+
 string Task::TaskEnablePin(const ITable &tab, const ITable *caller) {
   string s = "task_" + Util::Itoa(tab.GetId());
   if (caller != nullptr) {

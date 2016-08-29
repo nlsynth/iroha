@@ -16,10 +16,11 @@ public:
   virtual void BuildInsn(IInsn *insn, State *st) override;
   virtual string ReadySignal(IInsn *insn) override;
 
-  static string SubModuleTaskControlPinPrefix(const IResource &res);
+  static string SubModuleTaskCallerPinPrefix(const IResource &res);
   static void BuildChildTaskWire(const TaskCallInfo &ti,
 				 ostream &os);
   static void BuildPorts(const TaskCallInfo &ti, Ports *ports);
+  static string PortNamePrefix(const ITable &callee_tab);
 
 private:
   void BuildSubModuleTask();

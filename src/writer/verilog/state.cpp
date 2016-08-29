@@ -8,6 +8,7 @@
 #include "writer/verilog/insn_writer.h"
 #include "writer/verilog/module.h"
 #include "writer/verilog/resource.h"
+#include "writer/verilog/sub_module_task.h"
 #include "writer/verilog/table.h"
 #include "writer/verilog/task.h"
 
@@ -143,7 +144,13 @@ void State::WriteTransition(ostream &os) {
 
 void State::WriteTaskEntry(Table *tab, ostream &os) {
   os << I << "`" << tab->StateName(Task::kTaskEntryStateId) << ": begin\n";
-  os << I << "  if (" << Task::TaskEnablePin(*tab->GetITable(),  nullptr) << ") begin\n"
+  string s;
+  if (Task::IsSiblingTask(*tab)) {
+    s = Task::TaskEnablePin(*tab->GetITable(), nullptr);
+  } else {
+    s = SubModuleTask::PortNamePrefix(*tab->GetITable()) + "en";
+  }
+  os << I << "  if (" << s << ") begin\n"
      << I << "    " << tab->StateVariable() << " <= `"
      << tab->InitialStateName() << ";\n"
      << tab->TaskEntrySectionContents()

@@ -17,6 +17,7 @@ public:
   virtual string ReadySignal(IInsn *insn) override;
 
   static bool IsTask(const Table &table);
+  static bool IsSiblingTask(const Table &table);
   static string TaskEnablePin(const ITable &tab, const ITable *caller);
   static string SiblingTaskReadySignal(const ITable &tab,
 				       const ITable *caller);
