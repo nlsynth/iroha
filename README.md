@@ -45,6 +45,7 @@ Please read src/iroha/iroha.h, src/main.cpp examples/ for more details.
 -- TODOs
 
 * P0: Document
+* P0: Add name/id for MODULE/TABLE/RESOURCE/STATE/REGISTER/INSN
 * P0: Test with actual frontend
 * P1: Test and debug SSA conversion and PHI removal
 * P1: Set constraint not to split related insns

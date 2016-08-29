@@ -107,13 +107,13 @@ def CreateForeignRegister(table, shared_reg):
     return res
 
 def CreateExtInput(table, name, width):
-    res = createResource(table, "ext_input")
+    res = createResource(table, "ext-input")
     res.resource_params.AddValue("INPUT", name)
     res.resource_params.AddValue("WIDTH", str(width))
     return res
 
 def CreateExtOutput(table, name, width):
-    res = createResource(table, "ext_output")
+    res = createResource(table, "ext-output")
     res.resource_params.AddValue("OUTPUT", name)
     res.resource_params.AddValue("WIDTH", str(width))
     return res
