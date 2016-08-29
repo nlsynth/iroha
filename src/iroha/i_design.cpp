@@ -119,7 +119,8 @@ IChannel *IResource::GetChannel() const {
 }
 
 IChannel::IChannel(IDesign *design)
-  : design_(design), id_(-1), writer_(nullptr) , reader_(nullptr) {
+  : design_(design), id_(-1), writer_(nullptr), reader_(nullptr),
+    params_(new ResourceParams) {
   design_->GetObjectPool()->channels_.Add(this);
 }
 
@@ -159,6 +160,10 @@ IResource *IChannel::GetWriter() const {
 
 IResource *IChannel::GetReader() const {
   return reader_;
+}
+
+ResourceParams *IChannel::GetParams() const {
+  return params_;
 }
 
 IValueType::IValueType() : width_(32), is_signed_(false) {

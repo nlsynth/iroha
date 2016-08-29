@@ -363,6 +363,11 @@ void ExpBuilder::BuildChannel(Exp *e, IDesign *design) {
   ch->SetId(Util::Atoi(e->Str(1)));
   BuildChannelReaderWriter(e->vec[4], true, ch);
   BuildChannelReaderWriter(e->vec[5], false, ch);
+  if (e->Size() > 6) {
+    if (e->vec[6]->GetHead() == "PARAMS") {
+      BuildResourceParams(e->vec[6], ch->GetParams());
+    }
+  }
 }
 
 void ExpBuilder::BuildChannelReaderWriter(Exp *e, bool is_r, IChannel *ch) {

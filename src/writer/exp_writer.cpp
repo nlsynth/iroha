@@ -268,6 +268,8 @@ void ExpWriter::WriteChannel(const IChannel &ch) {
   } else {
     WriteResourceDesc(*writer);
   }
+  os_ << "\n";
+  WriteResourceParams(*(ch.GetParams()), "  ");
   os_ << ")\n";
 }
 

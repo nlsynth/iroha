@@ -108,6 +108,7 @@ public:
   void SetReader(IResource *res);
   IResource *GetWriter() const;
   IResource *GetReader() const;
+  ResourceParams *GetParams() const;
 
 private:
   IDesign *design_;
@@ -115,6 +116,7 @@ private:
   IValueType value_type_;
   IResource *writer_;
   IResource *reader_;
+  ResourceParams *params_;
 };
 
 // Literal value. This object is not managed by memory pool.
