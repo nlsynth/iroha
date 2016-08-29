@@ -1,5 +1,5 @@
 ;; $ iroha tests/min.iroha
-(MODULE M001
+(MODULE 1 M001
  (TABLE 1
   (INITIAL 1)
   (STATE 1)

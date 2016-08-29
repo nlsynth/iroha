@@ -22,10 +22,10 @@ void ExpWriter::Write() {
 }
 
 void ExpWriter::WriteModule(const IModule &mod) {
-  os_ << "(MODULE " << mod.GetName() << "\n";
+  os_ << "(MODULE " << mod.GetId() << " " << mod.GetName() << "\n";
   IModule *parent = mod.GetParentModule();
   if (parent != nullptr) {
-    os_ << "  (PARENT " << parent->GetName() << ")\n";
+    os_ << "  (PARENT " << parent->GetId() << ")\n";
   }
   WriteResourceParams(*mod.GetParams(), "  ");
   for (auto *tab : mod.tables_) {
@@ -98,14 +98,12 @@ void ExpWriter::WriteArrayDesc(const IResource &res) {
 
 void ExpWriter::WriteForeignRegDesc(const IResource &res) {
   os_ << "        (FOREIGN-REG ";
+  IRegister *foreign_reg = res.GetForeignRegister();
+  IModule *foreign_mod = foreign_reg->GetTable()->GetModule();
+  os_ << " " << foreign_mod->GetId();
   os_ << res.GetTable()->GetId();
   os_ << " ";
-  IRegister *foreign_reg = res.GetForeignRegister();
   os_ << foreign_reg->GetId();
-  IModule *foreign_mod = foreign_reg->GetTable()->GetModule();
-  if (res.GetTable()->GetModule() != foreign_mod) {
-    os_ << " " << foreign_mod->GetName();
-  }
   os_ << ")\n";
 }
 
@@ -113,7 +111,8 @@ void ExpWriter::WriteCalleeTaskDesc(const IResource &res) {
   const ITable *table = res.GetCalleeTable();
   CHECK(table) << "callee table isn't specified";
   const IModule *mod = table->GetModule();
-  os_ << "        (CALLEE-TABLE " << mod->GetName() << " " << table->GetId() << ")\n";
+  os_ << "        (CALLEE-TABLE " << mod->GetId() << " "
+      << table->GetId() << ")\n";
 }
 
 void ExpWriter::WriteInitialState(const ITable &tab) {
@@ -276,7 +275,7 @@ void ExpWriter::WriteChannel(const IChannel &ch) {
 void ExpWriter::WriteResourceDesc(const IResource &res) {
   ITable *tab = res.GetTable();
   IModule *mod = tab->GetModule();
-  os_ << "(" << mod->GetName() << " " << tab->GetId() << " "
+  os_ << "(" << mod->GetId() << " " << tab->GetId() << " "
       << res.GetId() << ")";
 }
 

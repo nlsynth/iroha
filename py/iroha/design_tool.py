@@ -30,6 +30,7 @@ def GetBinOpResource(table, name, isSigned, width):
 
 def ValidateIds(design):
     doValidateIds(design.channels)
+    doValidateIds(design.modules)
     for mod in design.modules:
         doValidateIds(mod.tables)
         for tab in mod.tables:

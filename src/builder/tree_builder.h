@@ -16,11 +16,11 @@ class TreeBuilder {
 public:
   TreeBuilder(IDesign *design, ExpBuilder *builder);
 
-  void AddCalleeTable(const string &mod_name, int table_id, IResource *res);
-  void AddForeignReg(int table_id, int reg_id, const string &mod_name,
+  void AddCalleeTable(int mod_id, int table_id, IResource *res);
+  void AddForeignReg(int mod_id, int table_id, int reg_id,
 		     IResource *res);
-  void AddParentModule(const string &name, IModule *mod);
-  void AddChannelReaderWriter(IChannel *ch, bool is_r, const string &mod_name,
+  void AddParentModule(int parent_mod_id, IModule *mod);
+  void AddChannelReaderWriter(IChannel *ch, bool is_r, int mod_id,
 			      int tab_id, int res_id);
 
   bool Resolve();
@@ -33,19 +33,19 @@ private:
 
   IDesign *design_;
   ExpBuilder *builder_;
-  map<IResource *, string> callee_module_names_;
+  map<IResource *, int> callee_module_ids_;
   map<IResource *, int> table_ids_;
-  map<IModule *, string> parent_module_names_;
+  map<IModule *, int> parent_module_ids_;
   struct ForeignRegister {
+    int mod_id;
     int table_id;
     int reg_id;
-    string mod;
   };
   map<IResource *, ForeignRegister> foreign_registers_;
   struct ChannelEndPoint {
     IChannel *ch;
     bool is_r;
-    string mod_name;
+    int mod_id;
     int tab_id;
     int res_id;
   };

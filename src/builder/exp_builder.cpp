@@ -69,8 +69,20 @@ IModule *ExpBuilder::BuildModule(Exp *e, IDesign *design) {
     SetError() << "Module requires its name";
     return nullptr;
   }
-  IModule *module = new IModule(design, e->Str(1));
-  for (int i = 2; i < e->Size(); ++i) {
+  int start = 2;
+  string mod_name;
+  int id = -1;
+  // (MODULE name (...)) or (MODULE id name (...))
+  if (Util::IsInteger(e->Str(1))) {
+    id = Util::Atoi(e->Str(1));
+    mod_name = e->Str(2);
+    start = 3;
+  } else {
+    mod_name = e->Str(1);
+  }
+  IModule *module = new IModule(design, mod_name);
+  module->SetId(id);
+  for (int i = start; i < e->Size(); ++i) {
     Exp *element = e->vec[i];
     if (element->Size() == 0) {
       SetError();
@@ -90,7 +102,7 @@ IModule *ExpBuilder::BuildModule(Exp *e, IDesign *design) {
       if (element->Size() != 2) {
 	SetError();
       } else {
-	tree_builder_->AddParentModule(element->Str(1), module);
+	tree_builder_->AddParentModule(Util::Atoi(element->Str(1)), module);
       }
     } else {
       SetError();
@@ -256,7 +268,7 @@ IResource *ExpBuilder::BuildResource(Exp *e, ITable *table) {
       BuildArray(element, res);
     } else if (element_name == "CALLEE-TABLE") {
       if (element->Size() == 3) {
-	tree_builder_->AddCalleeTable(element->Str(1),
+	tree_builder_->AddCalleeTable(Util::Atoi(element->Str(1)),
 				      Util::Atoi(element->Str(2)),
 				      res);
       } else {
@@ -265,14 +277,10 @@ IResource *ExpBuilder::BuildResource(Exp *e, ITable *table) {
       }
     } else if (element_name == "FOREIGN-REG") {
       int sz = element->Size();
-      if (sz == 3 || sz == 4) {
-	string mod;
-	if (sz == 4) {
-	  mod = element->Str(3);
-	}
+      if (sz == 4) {
 	tree_builder_->AddForeignReg(Util::Atoi(element->Str(1)),
 				     Util::Atoi(element->Str(2)),
-				     mod,
+				     Util::Atoi(element->Str(3)),
 				     res);
       } else {
 	SetError() << "Invalid foreign reg spec";
@@ -377,7 +385,8 @@ void ExpBuilder::BuildChannelReaderWriter(Exp *e, bool is_r, IChannel *ch) {
   if (e->Size() == 0) {
     return;
   }
-  tree_builder_->AddChannelReaderWriter(ch, is_r, e->Str(0),
+  tree_builder_->AddChannelReaderWriter(ch, is_r,
+					Util::Atoi(e->Str(0)),
 					Util::Atoi(e->Str(1)),
 					Util::Atoi(e->Str(2)));
 }

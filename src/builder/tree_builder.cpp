@@ -12,45 +12,44 @@ TreeBuilder::TreeBuilder(IDesign *design, ExpBuilder *builder)
   : design_(design), builder_(builder) {
 }
 
-void TreeBuilder::AddCalleeTable(const string &mod_name, int table_id,
+void TreeBuilder::AddCalleeTable(int mod_id, int table_id,
 				 IResource *res) {
-  callee_module_names_[res] = mod_name;
+  callee_module_ids_[res] = mod_id;
   table_ids_[res] = table_id;
 }
 
-void TreeBuilder::AddForeignReg(int table_id, int reg_id,
-				const string &mod_name,
+void TreeBuilder::AddForeignReg(int module_id, int table_id, int reg_id,
 				IResource *res) {
   ForeignRegister reg;
   reg.table_id = table_id;
   reg.reg_id = reg_id;
-  reg.mod = mod_name;
+  reg.mod_id = module_id;
   foreign_registers_[res] = reg;
 }
 
-void TreeBuilder::AddParentModule(const string &name, IModule *mod) {
-  parent_module_names_[mod] = name;
+void TreeBuilder::AddParentModule(int parent_mod_id, IModule *mod) {
+  parent_module_ids_[mod] = parent_mod_id;
 }
 
 void TreeBuilder::AddChannelReaderWriter(IChannel *ch, bool is_r,
-					 const string &mod_name,
+					 int mod_id,
 					 int tab_id, int res_id) {
   ChannelEndPoint ep;
   ep.ch = ch;
   ep.is_r = is_r;
-  ep.mod_name = mod_name;
+  ep.mod_id = mod_id;
   ep.tab_id = tab_id;
   ep.res_id = res_id;
   channel_end_points_.push_back(ep);
 }
 
 bool TreeBuilder::Resolve() {
-  map<string, IModule *> module_names;
+  map<int, IModule *> module_ids;
   for (IModule *mod : design_->modules_) {
-    module_names[mod->GetName()] = mod;
+    module_ids[mod->GetId()] = mod;
   }
-  for (auto p : callee_module_names_) {
-    IModule *mod = module_names[p.second];
+  for (auto p : callee_module_ids_) {
+    IModule *mod = module_ids[p.second];
     if (mod == nullptr) {
       builder_->SetError() << "unknown module: " << p.second;
       return false;
@@ -66,8 +65,8 @@ bool TreeBuilder::Resolve() {
     CHECK(callee_tab != nullptr);
     res->SetCalleeTable(callee_tab);
   }
-  for (auto p : parent_module_names_) {
-    IModule *mod = module_names[p.second];
+  for (auto p : parent_module_ids_) {
+    IModule *mod = module_ids[p.second];
     if (mod == nullptr) {
       builder_->SetError() << "unknown module: " << p.second;
       return false;
@@ -76,23 +75,18 @@ bool TreeBuilder::Resolve() {
     cmod->SetParentModule(mod);
   }
   for (auto f : foreign_registers_) {
+    int mod_id = f.second.mod_id;
     int table_id = f.second.table_id;
     int register_id = f.second.reg_id;
-    string &mod_name = f.second.mod;
     IResource *res = f.first;
-    IModule *mod;
-    if (mod_name.empty()) {
-      mod = res->GetTable()->GetModule();
-    } else {
-      mod = module_names[mod_name];
-    }
+    IModule *mod = module_ids[mod_id];
     IRegister *foreign_reg = FindForeignRegister(mod, table_id, register_id);
     res->SetForeignRegister(foreign_reg);
   }
   for (auto &ep : channel_end_points_) {
-    IModule *mod = module_names[ep.mod_name];
+    IModule *mod = module_ids[ep.mod_id];
     if (mod == nullptr) {
-      builder_->SetError() << "no endpoint named: " << ep.mod_name;
+      builder_->SetError() << "no endpoint module id: " << ep.mod_id;
       return false;
     }
     IResource *res = FindChannelResource(mod, ep.tab_id, ep.res_id);

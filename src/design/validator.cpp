@@ -25,6 +25,7 @@ static void ValidateId(vector<T *> &v, set<int> &used_ids) {
 }
 
 void Validator::Validate(IDesign *design) {
+  ValidateModuleId(design);
   ValidateChannelId(design);
   for (auto *mod : design->modules_) {
     ValidateTableId(mod);
@@ -39,6 +40,14 @@ void Validator::ValidateTable(ITable *table) {
   ValidateInsnId(table);
   ValidateRegisterId(table);
   ValidateResourceId(table);
+}
+
+void Validator::ValidateModuleId(IDesign *design) {
+  set<int> used_ids;
+  for (auto *mod : design->modules_) {
+    used_ids.insert(mod->GetId());
+  }
+  ValidateId(design->modules_, used_ids);
 }
 
 void Validator::ValidateChannelId(IDesign *design) {

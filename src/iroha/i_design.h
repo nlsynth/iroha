@@ -219,6 +219,8 @@ public:
   IModule(IDesign *design, const string &name);
 
   IDesign *GetDesign() const;
+  int GetId() const;
+  void SetId(int id);
   const string &GetName() const;
   void SetParentModule(IModule *mod);
   IModule *GetParentModule() const;
@@ -228,6 +230,7 @@ public:
 
 private:
   IDesign *design_;
+  int id_;
   string name_;
   IModule *parent_;
   ResourceParams *params_;

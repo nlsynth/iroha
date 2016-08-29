@@ -47,16 +47,17 @@ class IModule(object):
         design.modules.append(self)
         self.design = design
         self.name = name
+        self.id = -1
         self.tables = []
         self.parent_module = None
         self.resource_params = ResourceParams()
 
     def Write(self, writer):
-        writer.ofh.write("(MODULE " + self.name + "\n")
+        writer.ofh.write("(MODULE " + str(self.id) + " " + self.name + "\n")
         writer.ofh.write(" ")
         self.resource_params.Write(writer)
         if self.parent_module:
-            writer.ofh.write(" (PARENT " + self.parent_module.name + ")\n")
+            writer.ofh.write(" (PARENT " + str(self.parent_module.id) + ")\n")
         for t in self.tables:
             t.Write(writer)
         writer.ofh.write(")\n")
@@ -190,14 +191,14 @@ class IResource(object):
         if self.array:
             self.array.Write(writer)
         if self.foreign_reg:
-            writer.ofh.write("    (FOREIGN-REG " + str(self.foreign_reg.table.id) + " ")
+            writer.ofh.write("    (FOREIGN-REG ")
+            writer.ofh.write(str(self.foreign_reg.table.module.id) + " ")
+            writer.ofh.write(str(self.foreign_reg.table.id) + " ")
             writer.ofh.write(str(self.foreign_reg.id))
-            if self.table.module != self.foreign_reg.table.module:
-                writer.ofh.write(" " + self.foreign_reg.table.module.name)
             writer.ofh.write(")\n")
         if self.callee_table:
             tab = self.callee_table
-            writer.ofh.write("    (CALLEE-TABLE " + tab.module.name + " ")
+            writer.ofh.write("    (CALLEE-TABLE " + str(tab.module.id) + " ")
             writer.ofh.write(str(tab.id) + ")\n")
         writer.ofh.write("   )\n")
 

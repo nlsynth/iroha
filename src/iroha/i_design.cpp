@@ -328,6 +328,14 @@ IModule::IModule(IDesign *design, const string &name)
   design->GetObjectPool()->modules_.Add(this);
 }
 
+int IModule::GetId() const {
+  return id_;
+}
+
+void IModule::SetId(int id) {
+  id_ = id;
+}
+
 const string &IModule::GetName() const {
   return name_;
 }
