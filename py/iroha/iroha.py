@@ -296,7 +296,7 @@ class IChannel(object):
         if ep:
             tab = ep.table
             mod = tab.module
-            writer.ofh.write("(" + mod.name + " " + str(tab.id) + " " + str(ep.id) + ")")
+            writer.ofh.write("(" + str(mod.id) + " " + str(tab.id) + " " + str(ep.id) + ")")
         else:
             writer.ofh.write("()")
 
