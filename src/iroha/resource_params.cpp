@@ -269,4 +269,16 @@ vector<string> ResourceParams::GetEmbeddedModuleArgs() const {
   return values_->GetValues(resource::kEmbeddedModuleArgs);
 }
 
+string ResourceParams::GetChannelDataPort() const {
+  return values_->GetStringParam(resource::kChannelDataPort, "");
+}
+
+string ResourceParams::GetChannelEnPort() const {
+  return values_->GetStringParam(resource::kChannelEnPort, "");
+}
+
+string ResourceParams::GetChannelAckPort() const {
+  return values_->GetStringParam(resource::kChannelAckPort, "");
+}
+
 }  // namespace iroha

@@ -27,6 +27,9 @@ const char kEmbeddedModuleReset[] = "EMBEDDED-MODULE-RESET";
 const char kEmbeddedModuleReq[] = "EMBEDDED-MODULE-REQ";
 const char kEmbeddedModuleAck[] = "EMBEDDED-MODULE-ACK";
 const char kEmbeddedModuleArgs[] = "EMBEDDED-MODULE-ARGS";
+const char kChannelDataPort[] = "CHANNEL-DATA";
+const char kChannelEnPort[] = "CHANNEL-EN";
+const char kChannelAckPort[] = "CHANNEL-ACK";
 }  // namespace resource
 
 class ResourceParams {
@@ -64,6 +67,10 @@ public:
   string GetEmbeddedModuleReq() const;
   string GetEmbeddedModuleAck() const;
   vector<string> GetEmbeddedModuleArgs() const;
+
+  string GetChannelDataPort() const;
+  string GetChannelEnPort() const;
+  string GetChannelAckPort() const;
 
 private:
   resource::ResourceParamValueSet *values_;

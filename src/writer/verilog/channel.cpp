@@ -3,6 +3,7 @@
 #include "iroha/i_design.h"
 #include "iroha/logging.h"
 #include "iroha/resource_class.h"
+#include "iroha/resource_params.h"
 #include "writer/connection.h"
 #include "writer/module_template.h"
 #include "writer/verilog/insn_writer.h"
@@ -77,18 +78,22 @@ void Channel::BuildInsn(IInsn *insn, State *st) {
 }
 
 string Channel::DataPort(const IChannel &ic) {
-  return PortName(ic, "data");
+  return PortName(ic, ic.GetParams()->GetChannelDataPort(), "data");
 }
 
 string Channel::AckPort(const IChannel &ic) {
-  return PortName(ic, "ack");
+  return PortName(ic, ic.GetParams()->GetChannelAckPort(), "ack");
 }
 
 string Channel::EnPort(const IChannel &ic) {
-  return PortName(ic, "en");
+  return PortName(ic, ic.GetParams()->GetChannelEnPort(), "en");
 }
 
-string Channel::PortName(const IChannel &ic, const string &type) {
+string Channel::PortName(const IChannel &ic, const string &dflt,
+			 const string &type) {
+  if (!dflt.empty()) {
+    return dflt;
+  }
   string suffix = type + "_" + Util::Itoa(ic.GetId());
   if (ic.GetReader() != nullptr) {
       if (ic.GetWriter() != nullptr) {

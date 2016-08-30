@@ -28,7 +28,8 @@ public:
   static string EnPort(const IChannel &ic);
 
 private:
-  static string PortName(const IChannel &ic, const string &type);
+  static string PortName(const IChannel &ic, const string &dflt,
+			 const string &type);
   static void BuildChildModuleChannelWire(const IChannel &ch, ostream &is);
 };
 
