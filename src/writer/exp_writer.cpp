@@ -156,12 +156,13 @@ void ExpWriter::WriteRegisters(const ITable &tab) {
 }
 
 void ExpWriter::WriteValueType(const IValueType &type) {
+  os_ << "(";
   if (type.IsSigned()) {
     os_ << "INT";
   } else {
     os_ << "UINT";
   }
-  os_ << " " << type.GetWidth();
+  os_ << " " << type.GetWidth() << ")";
 }
 
 void ExpWriter::WriteValue(const IValue &value) {

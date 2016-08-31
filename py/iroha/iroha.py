@@ -204,7 +204,7 @@ class IResource(object):
 
     def writeWidths(self, writer, types):
         writer.ofh.write("(")
-        writer.ofh.write(" ".join([" UINT " + str(t.width) for t in types]))
+        writer.ofh.write(" ".join(["(UINT " + str(t.width) + ")" for t in types]))
         writer.ofh.write(")")
 
 class IResourceClass(object):
@@ -224,11 +224,12 @@ class IValueType(object):
         self.isSigned = isSigned
 
     def Write(self, writer):
+        writer.ofh.write("(")
         if self.isSigned:
             writer.ofh.write("INT")
         else:
             writer.ofh.write("UINT")
-        writer.ofh.write(" " + str(self.width))
+        writer.ofh.write(" " + str(self.width) + ")")
 
 class IArray(object):
     def __init__(self, address_width, data_type, is_external, is_ram):
@@ -239,7 +240,7 @@ class IArray(object):
 
     def Write(self, writer):
         writer.ofh.write("    (ARRAY " + str(self.address_width))
-        writer.ofh.write(" UINT " + str(self.data_type.width))
+        writer.ofh.write(" (UINT " + str(self.data_type.width) + ")")
         if self.is_external:
             writer.ofh.write(" EXTERNAL")
         else:

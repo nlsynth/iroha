@@ -177,7 +177,7 @@ IRegister *ExpBuilder::BuildRegister(Exp *e, ITable *table) {
     SetError() << "Only REGISTER can be allowed";
     return nullptr;
   }
-  if (e->Size() != 7) {
+  if (e->Size() != 6) {
     SetError() << "Insufficient parameters for a register";
     return nullptr;
   }
@@ -195,9 +195,9 @@ IRegister *ExpBuilder::BuildRegister(Exp *e, ITable *table) {
   } else {
     SetError() << "Unknown register class: " << type;
   }
-  BuildValueType(e->vec[4], e->vec[5], &reg->value_type_);
-  if (!e->Str(6).empty()) {
-    const string &ini = e->Str(6);
+  BuildValueType(e->vec[4], &reg->value_type_);
+  if (!e->Str(5).empty()) {
+    const string &ini = e->Str(5);
     IValue value;
     value.value_ = Util::Atoi(ini);
     value.type_ = reg->value_type_;
@@ -295,15 +295,15 @@ IResource *ExpBuilder::BuildResource(Exp *e, ITable *table) {
 }
 
 void ExpBuilder::BuildArray(Exp *e, IResource *res) {
-  if (e->Size() != 6) {
+  if (e->Size() != 5) {
     SetError() << "Malformed array description";
     return;
   }
   int address_width = Util::Atoi(e->Str(1));
   IValueType data_type;
-  BuildValueType(e->vec[2], e->vec[3], &data_type);
+  BuildValueType(e->vec[2], &data_type);
   bool is_external;
-  const string &v = e->Str(4);
+  const string &v = e->Str(3);
   if (v == "EXTERNAL") {
     is_external = true;
   } else if (v == "INTERNAL") {
@@ -313,7 +313,7 @@ void ExpBuilder::BuildArray(Exp *e, IResource *res) {
     return;
   }
   bool is_ram;
-  const string &w = e->Str(5);
+  const string &w = e->Str(4);
   if (w == "RAM") {
     is_ram = true;
   } else if (w == "ROM") {
@@ -338,14 +338,20 @@ void ExpBuilder::BuildResourceParams(Exp *e, ResourceParams *params) {
 }
 
 void ExpBuilder::BuildParamTypes(Exp *e, vector<IValueType> *types) {
-  for (int i = 0; i < e->Size(); i += 2) {
+  for (int i = 0; i < e->Size(); ++i) {
     IValueType type;
-    BuildValueType(e->vec[i], e->vec[i + 1], &type);
+    BuildValueType(e->vec[i], &type);
     types->push_back(type);
   }
 }
 
-void ExpBuilder::BuildValueType(Exp *t, Exp *w, IValueType *vt) {
+void ExpBuilder::BuildValueType(Exp *e, IValueType *vt) {
+  if (e->Size() != 2) {
+    SetError() << "value type shoule be like (UINT 32)";
+    return;
+  }
+  Exp *t = e->vec[0];
+  Exp *w = e->vec[1];
   const string &width = w->atom.str;
   vt->SetWidth(Util::Atoi(width));
   const string &s = t->atom.str;
@@ -367,16 +373,16 @@ ostream &ExpBuilder::SetError() {
 
 void ExpBuilder::BuildChannel(Exp *e, IDesign *design) {
   IValueType vt;
-  BuildValueType(e->vec[2], e->vec[3], &vt);
+  BuildValueType(e->vec[2], &vt);
   IChannel *ch = new IChannel(design);
   design->channels_.push_back(ch);
   ch->SetValueType(vt);
   ch->SetId(Util::Atoi(e->Str(1)));
-  BuildChannelReaderWriter(e->vec[4], true, ch);
-  BuildChannelReaderWriter(e->vec[5], false, ch);
-  if (e->Size() > 6) {
-    if (e->vec[6]->GetHead() == "PARAMS") {
-      BuildResourceParams(e->vec[6], ch->GetParams());
+  BuildChannelReaderWriter(e->vec[3], true, ch);
+  BuildChannelReaderWriter(e->vec[4], false, ch);
+  if (e->Size() > 5) {
+    if (e->vec[5]->GetHead() == "PARAMS") {
+      BuildResourceParams(e->vec[5], ch->GetParams());
     }
   }
 }

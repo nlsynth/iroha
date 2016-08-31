@@ -44,7 +44,7 @@ e.g.
 -- Channel
 
 e.g.
-(CHANNEL 1 UINT 32 (1 2 1) (1 1 1))
+(CHANNEL 1 (UINT 32) (1 2 1) (1 1 1))
 
 (CHANNEL channel-id value-type reader-ep writer-ep)
 
