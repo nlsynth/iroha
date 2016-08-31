@@ -3,8 +3,6 @@ Author: Yusuke TABATA (tabata.yusuke@gmail.com) and the team (TBD)
 
 TL;DR: Aiming to be LLVM for HLS
 
-TBD! WIP!
-
 -- Build and use
 
 (0) First of all, build the binary.
@@ -99,6 +97,14 @@ Please read src/iroha/iroha.h, src/main.cpp examples/ for more details.
 * Mapped resource
     * Resource which has actual implementation
     * e.g. Array access might be mapped to AXI, SRAM or so on.
+
+-- Authors and friends
+
+* Takefumi Miyoshi (miyo)
+* Shinya Takamaeda-Yamazaki (shtaxxx)
+* Ichiro Kawazome (ikwzm)
+and
+* Yusuke Tabata (yt76)
 
 -- format this document
 
