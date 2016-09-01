@@ -28,6 +28,8 @@ private:
   string StateBodySectionName() const;
 
 protected:
+  void WriteStateBody(ostream &os);
+
   IState *i_state_;
   Table *table_;
   IInsn *transition_insn_;

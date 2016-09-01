@@ -136,6 +136,7 @@ class IRegister(object):
         self.initialValue = None
         self.valueType = IValueType(False, 32)
         self.isConst = False
+        self.isWire = False
         self.table = table
 
     def Write(self, writer):
@@ -148,6 +149,8 @@ class IRegister(object):
         writer.ofh.write("     ")
         if self.isConst:
             writer.ofh.write("CONST")
+        elif self.isWire:
+            writer.ofh.write("WIRE")
         else:
             writer.ofh.write("REG")
         writer.ofh.write(" ")

@@ -44,6 +44,12 @@ void State::Build() {
 
 void State::Write(ostream &os) {
   os << I << "`" << table_->StateName(i_state_->GetId()) << ": begin\n";
+  WriteStateBody(os);
+  WriteTransition(os);
+  os << I << "end\n";
+}
+
+void State::WriteStateBody(ostream &os) {
   os << StateBodySectionContents();
   for (auto *insn : i_state_->insns_) {
     auto *res = insn->GetResource();
@@ -52,8 +58,6 @@ void State::Write(ostream &os) {
       CopyResults(insn, false, os);
     }
   }
-  WriteTransition(os);
-  os << I << "end\n";
 }
 
 const IState *State::GetIState() const {

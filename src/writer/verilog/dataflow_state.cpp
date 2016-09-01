@@ -1,5 +1,6 @@
 #include "writer/verilog/dataflow_state.h"
 
+#include "design/design_util.h"
 #include "iroha/i_design.h"
 #include "writer/verilog/insn_writer.h"
 
@@ -15,7 +16,14 @@ DataFlowState::~DataFlowState() {
 }
 
 void DataFlowState::Write(ostream &os) {
-  os << "      if (" << StateVariable(i_state_) << ") begin\n";
+  string s;
+  if (i_state_->GetTable()->GetInitialState() == i_state_) {
+    IInsn *insn = DesignUtil::FindDataFlowInInsn(i_state_->GetTable());
+    s = InsnWriter::RegisterName(*insn->inputs_[0]);
+  } else {
+    s = StateVariable(i_state_);
+  }
+  os << "      if (" << s << ") begin\n";
   if (transition_insn_ != nullptr) {
     if (transition_insn_->target_states_.size() == 1) {
       IState *ns = transition_insn_->target_states_[0];
@@ -30,6 +38,7 @@ void DataFlowState::Write(ostream &os) {
 	 << " <= " << InsnWriter::RegisterName(*cond) << "\n";
     }
   }
+  WriteStateBody(os);
   os << "      end else begin\n";
   if (transition_insn_ != nullptr) {
     for (IState *ts : transition_insn_->target_states_) {
