@@ -139,6 +139,7 @@ void InstallResourceClasses(IDesign *design) {
   InstallResource(design, resource::kShift, false);
   InstallResource(design, resource::kBitSel, false);
   InstallResource(design, resource::kBitConcat, false);
+  InstallResource(design, resource::kDataFlowIn, false);
 }
 
 }  // namespace resource

@@ -276,7 +276,7 @@ IState::IState(ITable *table) : table_(table), id_(-1) {
   table->GetModule()->GetDesign()->GetObjectPool()->states_.Add(this);
 }
 
-ITable *IState::GetTable() {
+ITable *IState::GetTable() const {
   return table_;
 }
 

@@ -35,6 +35,7 @@ class IDesign(object):
         self.resource_classes.append(IResourceClass("sub-module-task-call"))
         self.resource_classes.append(IResourceClass("channel-write"))
         self.resource_classes.append(IResourceClass("channel-read"))
+        self.resource_classes.append(IResourceClass("dataflow-in"))
 
     def findResourceClassByName(self, name):
         for rc in self.resource_classes:

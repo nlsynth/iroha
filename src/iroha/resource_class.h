@@ -6,7 +6,6 @@
 
 namespace iroha {
 namespace resource {
-// NOTE(yt76): Enums instead of string?
 const char kTransition[] = "tr";
 const char kSet[] = "set";
 const char kPrint[] = "print";
@@ -38,6 +37,7 @@ const char kEq[] = "eq";
 const char kShift[] = "shift";
 const char kBitSel[] = "bit-sel";
 const char kBitConcat[] = "bit-concat";
+const char kDataFlowIn[] = "dataflow-in";
 
 bool IsTransition(const IResourceClass &rc);
 bool IsExclusiveBinOp(const IResourceClass &rc);

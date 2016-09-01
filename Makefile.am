@@ -66,6 +66,8 @@ libiroha_la_SOURCES = \
  src/writer/cxx/common.h \
  src/writer/verilog/channel.cpp src/writer/verilog/channel.h \
  src/writer/verilog/common.h \
+ src/writer/verilog/dataflow_state.cpp src/writer/verilog/dataflow_state.h \
+ src/writer/verilog/dataflow_table.cpp src/writer/verilog/dataflow_table.h \
  src/writer/verilog/embed.cpp src/writer/verilog/embed.h \
  src/writer/verilog/ext_io.cpp src/writer/verilog/ext_io.h \
  src/writer/verilog/insn_writer.cpp src/writer/verilog/insn_writer.h \

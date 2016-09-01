@@ -24,6 +24,9 @@ State::State(IState *i_state, Table *table)
   transition_insn_ = DesignUtil::FindTransitionInsn(i_state);
 }
 
+State::~State() {
+}
+
 void State::Build() {
   ModuleTemplate *tmpl_ = table_->GetModuleTemplate();
   ostream &ws = tmpl_->GetStream(kInsnWireValueSection);

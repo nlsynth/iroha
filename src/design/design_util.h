@@ -23,6 +23,7 @@ public:
   static IInsn *FindTransitionInsn(IState *st);
   static IInsn *GetTransitionInsn(IState *st);
   static IInsn *FindTaskEntryInsn(ITable *table);
+  static IInsn *FindDataFlowInInsn(ITable *table);
   static bool IsTerminalState(IState *st);
   static bool IsMultiCycleInsn(IInsn *insn);
   static int NumMultiCycleInsn(IState *st);

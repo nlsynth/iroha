@@ -11,9 +11,10 @@ namespace verilog {
 class State {
 public:
   State(IState *state, Table *table);
+  virtual ~State();
 
   void Build();
-  void Write(ostream &os);
+  virtual void Write(ostream &os);
   const IState *GetIState() const;
   static void WriteTaskEntry(Table *tab, ostream &os);
 
@@ -26,6 +27,7 @@ private:
   void CopyResults(const IInsn *insn, bool to_wire, ostream &os);
   string StateBodySectionName() const;
 
+protected:
   IState *i_state_;
   Table *table_;
   IInsn *transition_insn_;

@@ -64,7 +64,6 @@ Please read src/iroha/iroha.h, src/main.cpp examples/ for more details.
 * P2: API to create copies of module, table and so on.
 * P3: Set reset polarity to embedded module.
 * P3: Allow multiple embedded module instances.
-* Q: C++ writer or interpreter?
 * Q: Do we need instance/module separation?
 
 -- Source tree

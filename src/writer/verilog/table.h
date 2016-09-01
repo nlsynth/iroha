@@ -14,10 +14,11 @@ class Table {
 public:
   Table(ITable *table, Ports *ports, Module *mod, EmbeddedModules *embed,
 	ModuleTemplate *tmpl);
-  ~Table();
-  void Build();
+  virtual ~Table();
 
-  void Write(ostream &os);
+  virtual void Build();
+  virtual void Write(ostream &os);
+
   ITable *GetITable() const;
   const string &StateVariable() const;
   string StateName(int id) const;
@@ -42,12 +43,17 @@ public:
   static string StateNameFromTable(const ITable &tab, int id);
 
 private:
-  void BuildStateDecl();
+  virtual void BuildStates();
+  virtual void BuildStateDecl();
   void BuildResource();
   void BuildRegister();
   void BuildInsnOutputWire();
   void BuildMultiCycleStateReg();
 
+  virtual void WriteReset(ostream &os);
+  virtual void WriteBody(ostream &os);
+
+protected:
   ITable *i_table_;
   Ports *ports_;
   Module *mod_;

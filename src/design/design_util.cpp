@@ -135,6 +135,14 @@ IInsn *DesignUtil::FindTaskEntryInsn(ITable *table) {
   return DesignUtil::FindInsnByResource(table->GetInitialState(), sub_res);
 }
 
+IInsn *DesignUtil::FindDataFlowInInsn(ITable *table) {
+  IResource *res = FindOneResourceByClassName(table, resource::kDataFlowIn);
+  if (res == nullptr) {
+    return nullptr;
+  }
+  return DesignUtil::FindInsnByResource(table->GetInitialState(), res);
+}
+
 bool DesignUtil::IsTerminalState(IState *st) {
   ITable *table = st->GetTable();
   IResource *tr = DesignUtil::FindTransitionResource(table);

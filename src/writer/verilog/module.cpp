@@ -7,6 +7,7 @@
 #include "writer/connection.h"
 #include "writer/module_template.h"
 #include "writer/verilog/channel.h"
+#include "writer/verilog/dataflow_table.h"
 #include "writer/verilog/ports.h"
 #include "writer/verilog/shared_reg.h"
 #include "writer/verilog/table.h"
@@ -84,8 +85,15 @@ void Module::Build() {
   ports_->AddPort(reset_name_, Port::INPUT_RESET, 0);
 
   for (auto *i_table : i_mod_->tables_) {
-    Table *tab = new Table(i_table, ports_.get(), this, embed_,
-			   tmpl_.get());
+    Table *tab;
+    IInsn *insn = DesignUtil::FindDataFlowInInsn(i_table);
+    if (insn) {
+      tab = new DataFlowTable(i_table, ports_.get(), this, embed_,
+			      tmpl_.get());
+    } else {
+      tab = new Table(i_table, ports_.get(), this, embed_,
+		      tmpl_.get());
+    }
     tab->Build();
     tables_.push_back(tab);
   }

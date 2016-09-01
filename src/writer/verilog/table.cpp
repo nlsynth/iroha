@@ -34,11 +34,7 @@ Table::~Table() {
 }
 
 void Table::Build() {
-  for (auto *i_state : i_table_->states_) {
-    State *st = new State(i_state, this);
-    st->Build();
-    states_.push_back(st);
-  }
+  BuildStates();
 
   BuildStateDecl();
   BuildRegister();
@@ -46,6 +42,14 @@ void Table::Build() {
   BuildInsnOutputWire();
   BuildMultiCycleStateReg();
   SharedReg::BuildSharedRegisters(*this);
+}
+
+void Table::BuildStates() {
+  for (auto *i_state : i_table_->states_) {
+    State *st = new State(i_state, this);
+    st->Build();
+    states_.push_back(st);
+  }
 }
 
 void Table::BuildStateDecl() {
@@ -158,6 +162,14 @@ void Table::Write(ostream &os) {
     os << "!";
   }
   os << ports_->GetReset() << ") begin\n";
+  WriteReset(os);
+  os << "    end else begin\n";
+  WriteBody(os);
+  os << "    end\n";
+  os << "  end\n";
+}
+
+void Table::WriteReset(ostream &os) {
   if (!IsEmpty()) {
     os << "      " << StateVariable() << " <= `";
     if (IsTask()) {
@@ -168,7 +180,9 @@ void Table::Write(ostream &os) {
     os << ";\n";
   }
   os << InitialValueSectionContents();
-  os << "    end else begin\n";
+}
+
+void Table::WriteBody(ostream &os) {
   os << StateOutputSectionContents();
   if (!IsEmpty()) {
     os << "      case (" << StateVariable() << ")\n";
@@ -180,8 +194,6 @@ void Table::Write(ostream &os) {
     }
     os << "      endcase\n";
   }
-  os << "    end\n";
-  os << "  end\n";
 }
 
 ITable *Table::GetITable() const {

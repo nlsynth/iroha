@@ -180,7 +180,7 @@ private:
 class IState {
 public:
   IState(ITable *table);
-  ITable *GetTable();
+  ITable *GetTable() const;
   int GetId() const;
   void SetId(int id);
 
