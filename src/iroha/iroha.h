@@ -6,6 +6,7 @@
 #define _iroha_iroha_h_
 
 #include "design/design_tool.h"
+#include "design/design_util.h"
 #include "iroha/common.h"
 #include "iroha/i_design.h"
 #include "iroha/opt_api.h"
