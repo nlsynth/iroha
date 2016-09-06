@@ -110,6 +110,7 @@ static void InstallResource(IDesign *design, const string &name,
 void InstallResourceClasses(IDesign *design) {
   InstallResource(design, resource::kSet, false);
   InstallResource(design, resource::kPhi, false);
+  InstallResource(design, resource::kPseudo, false);
   InstallResource(design, resource::kSelect, false);
   InstallResource(design, resource::kPrint, false);
   InstallResource(design, resource::kAssert, false);
