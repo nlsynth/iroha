@@ -324,7 +324,8 @@ IState *ITable::GetInitialState() const {
 }
 
 IModule::IModule(IDesign *design, const string &name)
-  : design_(design), name_(name), parent_(nullptr), params_(new ResourceParams) {
+  : design_(design), id_(-1), name_(name), parent_(nullptr),
+    params_(new ResourceParams) {
   design->GetObjectPool()->modules_.Add(this);
 }
 
