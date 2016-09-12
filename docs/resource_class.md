@@ -131,6 +131,10 @@ Pseudo insn can be used inside frontend and optimization passes.
 
 Other passes may not be able to accept a design with pseudo resource and insns using it, so it is recommended to remove pseudo resource at some phase.
 
+#### phi
+
+Phi appears in optimzation passes use SSA form.
+
 #### print
 
 Takes 1 inputs and displays the result ($display in Verilog)
@@ -138,6 +142,7 @@ Takes 1 inputs and displays the result ($display in Verilog)
 #### assert
 
 Takes 1 input and displays error message if it is false.
+
 
 ### Resource access
 

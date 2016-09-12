@@ -84,19 +84,6 @@ Please read src/iroha/iroha.h, src/main.cpp examples/ for more details.
 * tests/
     * Test input.
 
--- Glossary
-
-* Exclusive/Light resource
-    * Insn which uses an exclusive resource occupies it in the state (e.g. adder).
-    * Multiple insns in a same state can use a same light resource (e.g. assign).
-* Insn
-    * Instruction
-* BB
-    * Basic block
-* Mapped resource
-    * Resource which has actual implementation
-    * e.g. Array access might be mapped to AXI, SRAM or so on.
-
 -- Authors and friends
 
 * Takefumi Miyoshi (miyo)
