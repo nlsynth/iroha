@@ -41,6 +41,7 @@ const char kBitConcat[] = "bit-concat";
 const char kDataFlowIn[] = "dataflow-in";
 
 bool IsTransition(const IResourceClass &rc);
+bool IsSelect(const IResourceClass &rc);
 bool IsExclusiveBinOp(const IResourceClass &rc);
 bool IsNumToNumExclusiveBinOp(const IResourceClass &rc);
 bool IsNumToBoolExclusiveBinOp(const IResourceClass &rc);

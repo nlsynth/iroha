@@ -24,6 +24,7 @@ private:
   void BuildBitShiftOpInsn(IInsn *insn);
   void BuildBitSelInsn(IInsn *insn);
   void BuildBitConcatInsn(IInsn *insn);
+  void BuildSelectInsn(IInsn *insn);
 };
 
 }  // namespace verilog

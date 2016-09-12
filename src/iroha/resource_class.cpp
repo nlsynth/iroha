@@ -11,6 +11,10 @@ bool IsTransition(const IResourceClass &rc) {
   return (rc.GetName() == kTransition);
 }
 
+bool IsSelect(const IResourceClass &rc) {
+  return (rc.GetName() == kSelect);
+}
+
 bool IsExclusiveBinOp(const IResourceClass &rc) {
   return IsNumToNumExclusiveBinOp(rc) ||
     IsNumToBoolExclusiveBinOp(rc);

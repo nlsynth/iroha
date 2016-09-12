@@ -20,6 +20,7 @@ class IDesign(object):
     def installResourceClasses(self):
         self.resource_classes.append(IResourceClass("set"))
         self.resource_classes.append(IResourceClass("tr"))
+        self.resource_classes.append(IResourceClass("select"))
         self.resource_classes.append(IResourceClass("add"))
         self.resource_classes.append(IResourceClass("gt"))
         self.resource_classes.append(IResourceClass("array"))

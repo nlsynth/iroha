@@ -37,7 +37,8 @@ Resource *Resource::Create(const IResource &res, const Table &table) {
       resource::IsLightBinOp(*klass) ||
       resource::IsBitShiftOp(*klass) ||
       resource::IsBitSel(*klass) ||
-      resource::IsBitConcat(*klass)) {
+      resource::IsBitConcat(*klass) ||
+      resource::IsSelect(*klass)) {
     return new Operator(res, table);
   }
   if (resource::IsForeignRegister(*klass)) {

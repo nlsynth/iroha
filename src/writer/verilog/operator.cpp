@@ -37,6 +37,8 @@ void Operator::BuildInsn(IInsn *insn, State *st) {
     BuildBitSelInsn(insn);
   } else if (resource::IsBitConcat(*klass)) {
     BuildBitConcatInsn(insn);
+  } else if (resource::IsSelect(*klass)) {
+    BuildSelectInsn(insn);
   }
 }
 
@@ -146,6 +148,18 @@ void Operator::BuildBitConcatInsn(IInsn *insn) {
   }
   ws << "  assign " << InsnWriter::InsnOutputWireName(*insn, 0)
      << " = {" << Util::Join(regs, ", ") << "};\n";
+}
+
+void Operator::BuildSelectInsn(IInsn *insn) {
+  ostream &ws = tmpl_->GetStream(kInsnWireValueSection);
+  ws << "  assign " << InsnWriter::InsnOutputWireName(*insn, 0)
+     << " = "
+     << InsnWriter::RegisterName(*insn->inputs_[0])
+     << " ? "
+     << InsnWriter::RegisterName(*insn->inputs_[2])
+     << " : "
+     << InsnWriter::RegisterName(*insn->inputs_[1])
+     << ";\n";
 }
 
 }  // namespace verilog
