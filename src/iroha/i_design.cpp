@@ -314,6 +314,14 @@ void ITable::SetId(int id) {
   id_ = id;
 }
 
+string ITable::GetName() const {
+  return name_;
+}
+
+void ITable::SetName(const string &name) {
+  name_ = name;
+}
+
 void ITable::SetInitialState(IState *state) {
   CHECK(state->GetTable() == this);
   initial_state_ = state;

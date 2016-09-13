@@ -200,6 +200,8 @@ public:
   IModule *GetModule() const;
   int GetId() const;
   void SetId(int id);
+  string GetName() const;
+  void SetName(const string &name);
   void SetInitialState(IState *state);
   IState *GetInitialState() const;
 
@@ -210,6 +212,7 @@ public:
 private:
   IModule *module_;
   int id_;
+  string name_;
   IState *initial_state_;
 };
 

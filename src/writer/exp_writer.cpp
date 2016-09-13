@@ -35,7 +35,14 @@ void ExpWriter::WriteModule(const IModule &mod) {
 }
 
 void ExpWriter::WriteTable(const ITable &tab) {
-  os_ << "  (TABLE " << tab.GetId() << "\n";
+  os_ << "  (TABLE " << tab.GetId();
+  string name = tab.GetName();
+  if (name.empty()) {
+    os_ << " ()";
+  } else {
+    os_ << " " << name;
+  }
+  os_ << "\n";
   WriteRegisters(tab);
   WriteResources(tab);
   WriteInitialState(tab);

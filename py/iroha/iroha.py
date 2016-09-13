@@ -68,6 +68,7 @@ class ITable(object):
     def __init__(self, mod):
         mod.tables.append(self)
         self.module = mod
+        self.name = None
         self.resources = []
         self.states = []
         self.registers = []
@@ -75,7 +76,12 @@ class ITable(object):
         self.initialSt = None
 
     def Write(self, writer):
-        writer.ofh.write(" (TABLE " + str(self.id) + "\n")
+        writer.ofh.write(" (TABLE " + str(self.id) + " ")
+        if self.name:
+            writer.ofh.write(self.name)
+        else:
+            writer.ofh.write("()")
+        writer.ofh.write("\n")
         writer.ofh.write("  (REGISTERS\n")
         for reg in self.registers:
             reg.Write(writer)

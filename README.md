@@ -42,28 +42,29 @@ Please read src/iroha/iroha.h, src/main.cpp examples/ for more details.
 
 -- TODOs
 
-* P0: Document
-* P0: Add name/id for MODULE/TABLE/RESOURCE/STATE/REGISTER/INSN
-* P0: Test with actual frontend
+* P1: Document
+* P1: Add name for CHANNEL
 * P1: Test and debug SSA conversion and PHI removal
 * P1: Set constraint not to split related insns
 * P1: ROM image data structure.
 * P1: API to create ROM
 * P1: Values wider than 64bits
 * P1: Pluggable optimizer and writer
-* P1: Error handling
+* P1: Better error handling
 * P1: I/O for embedded verilog module
 * P1: Modularize mapped resource
 * P1: Resource sharing between tables
-* P1: Read shared register in another module
 * P1: Decide module/instance relation
-* P1: Design data flow pipeline
+* P2: Write shared register in another module
 * P2: Simplify wait cycle if there's 1 multi cycle insn in a state
 * P2: More debug output from optimizers.
+* P2: Support profiling information from frontends.
 * P2: Export optimizer API so that users can add own phase
 * P2: API to create copies of module, table and so on.
 * P3: Set reset polarity to embedded module.
 * P3: Allow multiple embedded module instances.
+* P3: Carry bit of adder as input/output.
+* P3: Use profiling information to estimate IPC.
 * Q: Do we need instance/module separation?
 
 -- Source tree

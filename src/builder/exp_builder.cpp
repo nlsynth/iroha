@@ -125,7 +125,13 @@ ITable *ExpBuilder::BuildTable(Exp *e, IModule *module) {
   }
   ITable *table = new ITable(module);
   table->SetId(id);
-  for (int i = 2; i < e->Size(); ++i) {
+  int s = 2;
+  // with/without table name.
+  if (!e->Str(2).empty() || e->vec[2]->Size() == 0) {
+    table->SetName(e->Str(2));
+    s = 3;
+  }
+  for (int i = s; i < e->Size(); ++i) {
     Exp *element = e->vec[i];
     if (element->Size() == 0) {
       SetError() << "Expecting lists in table definition";

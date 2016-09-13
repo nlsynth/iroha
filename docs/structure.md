@@ -38,7 +38,7 @@ module          := "(" "MODULE" module-id:number module-name:label params parent
 
 parent-module   := "(" "PARENT" module-id:number ")"
 
-table           := "(" "TABLE" table-id:number registers resources inital-state? state* ")"
+table           := "(" "TABLE" table-id:number table-name:label registers resources inital-state? state* ")"
 
 inital-state    := "(" "INITIAL" state-id:number ")"
 
@@ -96,9 +96,11 @@ param-value     := label | number
 
 number-list     := "(" number* ")"
 
-number          := [0-9]+
+number          := [-]?[0-9]+
 
 label           := [a-zA-Z_]+[a-zA-Z0-9_-]*
+
+label-or-empty  := label | "(" ")"
 
 
 
