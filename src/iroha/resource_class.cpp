@@ -15,6 +15,10 @@ bool IsSelect(const IResourceClass &rc) {
   return (rc.GetName() == kSelect);
 }
 
+bool IsPseudo(const IResourceClass &rc) {
+  return (rc.GetName() == kPseudo);
+}
+
 bool IsExclusiveBinOp(const IResourceClass &rc) {
   return IsNumToNumExclusiveBinOp(rc) ||
     IsNumToBoolExclusiveBinOp(rc);

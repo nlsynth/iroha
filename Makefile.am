@@ -38,6 +38,7 @@ libiroha_la_SOURCES = \
  src/opt/bb_collector.cpp src/opt/bb_collector.h \
  src/opt/bb_set.cpp src/opt/bb_set.h \
  src/opt/clean/empty_state.cpp src/opt/clean/empty_state.h \
+ src/opt/clean/pseudo_resource.cpp src/opt/clean/pseudo_resource.h \
  src/opt/clean/unreachable_state.cpp src/opt/clean/unreachable_state.h \
  src/opt/clean/unused_resource.cpp src/opt/clean/unused_resource.h \
  src/opt/common.h \

@@ -119,7 +119,7 @@ am_libiroha_la_OBJECTS = src/iroha/common.lo src/iroha/iroha.lo \
 	src/design/design_util.lo src/design/validator.lo \
 	src/design/validator.lo src/opt/array_to_mem.lo \
 	src/opt/bb_collector.lo src/opt/bb_set.lo \
-	src/opt/clean/empty_state.lo \
+	src/opt/clean/empty_state.lo src/opt/clean/pseudo_resource.lo \
 	src/opt/clean/unreachable_state.lo \
 	src/opt/clean/unused_resource.lo src/opt/data_flow.lo \
 	src/opt/data_flow_collector.lo src/opt/debug_annotation.lo \
@@ -476,6 +476,7 @@ libiroha_la_SOURCES = \
  src/opt/bb_collector.cpp src/opt/bb_collector.h \
  src/opt/bb_set.cpp src/opt/bb_set.h \
  src/opt/clean/empty_state.cpp src/opt/clean/empty_state.h \
+ src/opt/clean/pseudo_resource.cpp src/opt/clean/pseudo_resource.h \
  src/opt/clean/unreachable_state.cpp src/opt/clean/unreachable_state.h \
  src/opt/clean/unused_resource.cpp src/opt/clean/unused_resource.h \
  src/opt/common.h \
@@ -636,6 +637,8 @@ src/opt/clean/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) src/opt/clean/$(DEPDIR)
 	@: > src/opt/clean/$(DEPDIR)/$(am__dirstamp)
 src/opt/clean/empty_state.lo: src/opt/clean/$(am__dirstamp) \
+	src/opt/clean/$(DEPDIR)/$(am__dirstamp)
+src/opt/clean/pseudo_resource.lo: src/opt/clean/$(am__dirstamp) \
 	src/opt/clean/$(DEPDIR)/$(am__dirstamp)
 src/opt/clean/unreachable_state.lo: src/opt/clean/$(am__dirstamp) \
 	src/opt/clean/$(DEPDIR)/$(am__dirstamp)
@@ -876,6 +879,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/opt/$(DEPDIR)/optimizer.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/opt/$(DEPDIR)/phase.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/opt/clean/$(DEPDIR)/empty_state.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/opt/clean/$(DEPDIR)/pseudo_resource.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/opt/clean/$(DEPDIR)/unreachable_state.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/opt/clean/$(DEPDIR)/unused_resource.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/opt/ssa/$(DEPDIR)/phi_builder.Plo@am__quote@

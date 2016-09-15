@@ -43,6 +43,7 @@ const char kDataFlowIn[] = "dataflow-in";
 bool IsTransition(const IResourceClass &rc);
 bool IsSelect(const IResourceClass &rc);
 bool IsExclusiveBinOp(const IResourceClass &rc);
+bool IsPseudo(const IResourceClass &rc);
 bool IsNumToNumExclusiveBinOp(const IResourceClass &rc);
 bool IsNumToBoolExclusiveBinOp(const IResourceClass &rc);
 bool IsLightBinOp(const IResourceClass &rc);
