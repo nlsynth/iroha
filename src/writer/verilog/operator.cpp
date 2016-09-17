@@ -27,7 +27,7 @@ void Operator::BuildInsn(IInsn *insn, State *st) {
   auto *klass = res_.GetClass();
   if (resource::IsLightBinOp(*klass)) {
     BuildLightBinOpInsn(insn);
-  } else if (resource::IsLightBinOp(*klass)) {
+  } else if (resource::IsLightUniOp(*klass)) {
     BuildLightUniOpInsn(insn);
   } else if (resource::IsExclusiveBinOp(*klass)) {
     BuildExclusiveBinOpInsn(insn);
