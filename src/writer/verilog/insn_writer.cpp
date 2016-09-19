@@ -19,11 +19,6 @@ InsnWriter::InsnWriter(const IInsn *insn, const State *st,
   : insn_(insn), st_(st), os_(os) {
 }
 
-void InsnWriter::Set() {
-  os_ << I << insn_->outputs_[0]->GetName() << " <= "
-      << RegisterName(*insn_->inputs_[0]) << ";\n";
-}
-
 string InsnWriter::RegisterName(const IRegister &reg) {
   if (reg.IsConst()) {
     int w = reg.value_type_.GetWidth();

@@ -12,7 +12,6 @@ class InsnWriter {
 public:
   InsnWriter(const IInsn *insn, const State *st, ostream &os);
 
-  void Set();
   void Print();
   void Assert();
   void Mapped();

@@ -72,12 +72,21 @@ void Resource::BuildResource() {
 
 void Resource::BuildInsn(IInsn *insn, State *st) {
   ostream &os = st->StateBodySectionStream();
-  InsnWriter writer(insn, st, os);
   auto *rc = res_.GetClass();
-  const string &rc_name = rc->GetName();
   if (resource::IsSet(*rc)) {
-    writer.Set();
-  } else if (rc_name == resource::kPrint) {
+    if (insn->outputs_[0]->IsStateLocal()) {
+      ostream &ws = tmpl_->GetStream(kInsnWireValueSection);
+      ws << "  assign " << insn->outputs_[0]->GetName() << " = "
+	 << InsnWriter::RegisterName(*insn->inputs_[0]) << ";\n";
+    } else {
+      os << "          " << insn->outputs_[0]->GetName() << " <= "
+	 << InsnWriter::RegisterName(*insn->inputs_[0]) << ";\n";
+    }
+    return;
+  }
+  InsnWriter writer(insn, st, os);
+  const string &rc_name = rc->GetName();
+  if (rc_name == resource::kPrint) {
     writer.Print();
   } else if (rc_name == resource::kAssert) {
     writer.Assert();
