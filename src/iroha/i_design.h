@@ -80,6 +80,8 @@ public:
   IRegister *GetForeignRegister() const;
   void SetChannel(IChannel *ch);
   IChannel *GetChannel() const;
+  IResource *GetPortInput() const;
+  void SetPortInput(IResource *res);
 
   vector<IValueType> input_types_;
   vector<IValueType> output_types_;
@@ -93,6 +95,7 @@ private:
   ITable *callee_table_;
   IRegister *foreign_register_;
   IChannel *channel_;
+  IResource * port_input_;
 };
 
 class IChannel {

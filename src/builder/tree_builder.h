@@ -22,14 +22,15 @@ public:
   void AddParentModule(int parent_mod_id, IModule *mod);
   void AddChannelReaderWriter(IChannel *ch, bool is_r, int mod_id,
 			      int tab_id, int res_id);
+  void AddPortInput(int module_id, int table_id, int res_id, IResource *res);
 
   bool Resolve();
 
 private:
   IRegister *FindForeignRegister(IModule *mod,
 				 int table_id, int register_id);
-  IResource *FindChannelResource(IModule *mod,
-				 int table_id, int resource_id);
+  IResource *FindResource(IModule *mod,
+			  int table_id, int resource_id);
 
   IDesign *design_;
   ExpBuilder *builder_;
@@ -50,6 +51,13 @@ private:
     int res_id;
   };
   vector<ChannelEndPoint> channel_end_points_;
+  struct PortInput {
+    IResource *reader;
+    int mod_id;
+    int tab_id;
+    int res_id;
+  };
+  vector<PortInput> port_inputs_;
 };
 
 }  // namespace builder

@@ -292,6 +292,16 @@ IResource *ExpBuilder::BuildResource(Exp *e, ITable *table) {
 	SetError() << "Invalid foreign reg spec";
 	return nullptr;
       }
+    } else if (element_name == "PORT-INPUT") {
+      int sz = element->Size();
+      if (sz == 4) {
+	tree_builder_->AddPortInput(Util::Atoi(element->Str(1)),
+				    Util::Atoi(element->Str(2)),
+				    Util::Atoi(element->Str(3)),
+				    res);
+      } else {
+	SetError() << "Invalid PORT-INPUT spec";
+      }
     } else {
       SetError() << "Invalid additional resource parameter";
       return nullptr;

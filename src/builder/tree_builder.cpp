@@ -43,6 +43,16 @@ void TreeBuilder::AddChannelReaderWriter(IChannel *ch, bool is_r,
   channel_end_points_.push_back(ep);
 }
 
+void TreeBuilder::AddPortInput(int module_id, int table_id, int res_id,
+			       IResource *res) {
+  PortInput port;
+  port.mod_id = module_id;
+  port.tab_id = table_id;
+  port.res_id = res_id;
+  port.reader = res;
+  port_inputs_.push_back(port);
+}
+
 bool TreeBuilder::Resolve() {
   map<int, IModule *> module_ids;
   for (IModule *mod : design_->modules_) {
@@ -89,12 +99,21 @@ bool TreeBuilder::Resolve() {
       builder_->SetError() << "no endpoint module id: " << ep.mod_id;
       return false;
     }
-    IResource *res = FindChannelResource(mod, ep.tab_id, ep.res_id);
+    IResource *res = FindResource(mod, ep.tab_id, ep.res_id);
     if (ep.is_r) {
       ep.ch->SetReader(res);
     } else {
       ep.ch->SetWriter(res);
     }
+  }
+  for (auto &port : port_inputs_) {
+    IModule *mod = module_ids[port.mod_id];
+    if (mod == nullptr) {
+      builder_->SetError() << "no port reader module id: " << port.mod_id;
+      return false;
+    }
+    IResource *res = FindResource(mod, port.tab_id, port.res_id);
+    port.reader->SetPortInput(res);
   }
   return true;
 }
@@ -113,8 +132,8 @@ IRegister *TreeBuilder::FindForeignRegister(IModule *mod,
   return nullptr;
 }
 
-IResource *TreeBuilder::FindChannelResource(IModule *mod,
-					    int table_id, int resource_id) {
+IResource *TreeBuilder::FindResource(IModule *mod,
+				     int table_id, int resource_id) {
   for (ITable *tab : mod->tables_) {
     if (tab->GetId() == table_id) {
       for (IResource *res : tab->resources_) {

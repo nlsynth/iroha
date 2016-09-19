@@ -55,7 +55,7 @@ IResource::IResource(ITable *table, IResourceClass *resource_class)
   : table_(table), resource_class_(resource_class),
     params_(new ResourceParams), id_(-1), array_(nullptr),
     callee_table_(nullptr), foreign_register_(nullptr),
-    channel_(nullptr) {
+    channel_(nullptr), port_input_(nullptr) {
   ObjectPool *pool =
     table->GetModule()->GetDesign()->GetObjectPool();
   pool->resources_.Add(this);
@@ -116,6 +116,14 @@ void IResource::SetChannel(IChannel *ch) {
 
 IChannel *IResource::GetChannel() const {
   return channel_;
+}
+
+IResource *IResource::GetPortInput() const {
+  return port_input_;
+}
+
+void IResource::SetPortInput(IResource *res) {
+  port_input_ = res;
 }
 
 IChannel::IChannel(IDesign *design)
