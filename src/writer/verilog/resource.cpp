@@ -12,6 +12,7 @@
 #include "writer/verilog/mapped.h"
 #include "writer/verilog/module.h"
 #include "writer/verilog/operator.h"
+#include "writer/verilog/port_io.h"
 #include "writer/verilog/ports.h"
 #include "writer/verilog/shared_reg.h"
 #include "writer/verilog/state.h"
@@ -55,6 +56,10 @@ Resource *Resource::Create(const IResource &res, const Table &table) {
   if (resource::IsExtInput(*klass) ||
       resource::IsExtOutput(*klass)) {
     return new ExtIO(res, table);
+  }
+  if (resource::IsPortInput(*klass) ||
+      resource::IsPortOutput(*klass)) {
+    return new PortIO(res, table);
   }
   if (resource::IsMapped(*klass)) {
     return new MappedResource(res, table);
