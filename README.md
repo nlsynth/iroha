@@ -46,8 +46,6 @@ Please read src/iroha/iroha.h, src/main.cpp examples/ for more details.
 * P1: Add name for CHANNEL
 * P1: Test and debug SSA conversion and PHI removal
 * P1: Set constraint not to split related insns
-* P1: ROM image data structure.
-* P1: API to create ROM
 * P1: Values wider than 64bits
 * P1: Pluggable optimizer and writer
 * P1: Better error handling

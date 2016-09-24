@@ -28,7 +28,7 @@ A circuit design in Iroha contains following elements.
 
 Structure of a design in Iroha is described in following BNF.
 
-design          := params? (channel | module)*
+design          := params? (channel | array-image | module)*
 
 channel         := "(" "CHANNEL" channel-id:number value-type reader-ep:channel-ep writer-ep:channel-ep params")"
 
@@ -66,11 +66,13 @@ resource-class  := "tr" | "set" | "print" | "phi" | "select" | "assert" | "mappe
 
 resource-option := array-desc | foreign-reg-desc | callee-task-desc
 
-array-desc      := "(" "ARRAY" addr-width:number data-type:value-type array-ownership array-mem-type ")"
+array-desc      := "(" "ARRAY" addr-width:number data-type:value-type array-ownership array-mem-type array-image-id:number ")"
 
 array-ownership := "EXTERNAL" | "INTERNAL"
 
 array-mem-type  := "RAM" | "ROM"
+
+array-image     := "(" "ARRAY-IMAGE" array-image-id:number array-image-name:label "(" value:number* ")" ")"
 
 callee-task-desc:= "(" "CALLEE-TABLE" module-id:number table-id:number ")"
 

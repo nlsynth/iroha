@@ -49,6 +49,8 @@ IDesign *ExpBuilder::Build(vector<Exp *> &exps) {
       BuildResourceParams(root, design->GetParams());
     } else if (element_name == "CHANNEL") {
       BuildChannel(root, design);
+    } else if (element_name == "ARRAY-IMAGE") {
+      BuildArrayImage(root, design);
     } else {
       SetError() << "Unsupported toplevel expression";
     }
@@ -311,7 +313,8 @@ IResource *ExpBuilder::BuildResource(Exp *e, ITable *table) {
 }
 
 void ExpBuilder::BuildArray(Exp *e, IResource *res) {
-  if (e->Size() != 5) {
+  int sz = e->Size();
+  if (sz != 5 && sz != 6) {
     SetError() << "Malformed array description";
     return;
   }
@@ -340,6 +343,10 @@ void ExpBuilder::BuildArray(Exp *e, IResource *res) {
   }
   IArray *array = new IArray(address_width, data_type, is_external, is_ram);
   res->SetArray(array);
+  if (sz == 6) {
+    int imid = Util::Atoi(e->Str(5));
+    tree_builder_->AddArrayImage(array, imid);
+  }
 }
 
 void ExpBuilder::BuildResourceParams(Exp *e, ResourceParams *params) {
@@ -401,6 +408,21 @@ void ExpBuilder::BuildChannel(Exp *e, IDesign *design) {
       BuildResourceParams(e->vec[5], ch->GetParams());
     }
   }
+}
+
+void ExpBuilder::BuildArrayImage(Exp *e, IDesign *design) {
+  if (e->Size() != 4) {
+    SetError() << "Invalid array image";
+    return;
+  }
+  IArrayImage *array_image = new IArrayImage(design);
+  array_image->SetId(Util::Atoi(e->Str(1)));
+  array_image->SetName(e->Str(2));
+  Exp *array = e->vec[3];
+  for (int i = 0; i < array->Size(); ++i) {
+    array_image->values_.push_back(Util::Atoi(array->Str(i)));
+  }
+  design->array_images_.push_back(array_image);
 }
 
 void ExpBuilder::BuildChannelReaderWriter(Exp *e, bool is_r, IChannel *ch) {

@@ -16,6 +16,9 @@ void ExpWriter::Write() {
   for (auto *ch : design_->channels_) {
     WriteChannel(*ch);
   }
+  for (auto *im : design_->array_images_) {
+    WriteArrayImage(*im);
+  }
   for (auto *mod : design_->modules_) {
     WriteModule(*mod);
   }
@@ -102,6 +105,10 @@ void ExpWriter::WriteArrayDesc(const IResource &res) {
     os_ << " RAM";
   } else {
     os_ << " ROM";
+  }
+  IArrayImage *im = array->GetArrayImage();
+  if (im != nullptr) {
+    os_ << " " << im->GetId();
   }
   os_ << ")\n";
 }
@@ -289,6 +296,20 @@ void ExpWriter::WriteChannel(const IChannel &ch) {
   os_ << "\n";
   WriteResourceParams(*(ch.GetParams()), "  ");
   os_ << ")\n";
+}
+
+void ExpWriter::WriteArrayImage(const IArrayImage &im) {
+  os_ << "(ARRAY-IMAGE " << im.GetId() << " " << im.GetName() << "\n"
+      << " (";
+  bool f = true;
+  for (auto &v : im.values_) {
+    if (!f) {
+      os_ << " ";
+    }
+    os_ << v;
+    f = false;
+  }
+  os_ << "))\n";
 }
 
 void ExpWriter::WriteResourceDesc(const IResource &res) {

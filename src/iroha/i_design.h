@@ -45,6 +45,23 @@ private:
   bool is_signed_;
 };
 
+class IArrayImage {
+public:
+  IArrayImage(IDesign *design);
+
+  IDesign *GetDesign() const;
+  int GetId() const;
+  void SetId(int id);
+  const string &GetName() const;
+  void SetName(const string &name);
+
+  vector<int64_t> values_;
+private:
+  IDesign *design_;
+  int id_;
+  string name_;
+};
+
 // This object is managed by IResource.
 class IArray {
 public:
@@ -55,12 +72,15 @@ public:
   const IValueType &GetDataType() const;
   bool IsExternal() const;
   bool IsRam() const;
+  void SetArrayImage(IArrayImage *image);
+  IArrayImage *GetArrayImage() const;
 
 private:
   int address_width_;
   IValueType data_type_;
   bool is_external_;
   bool is_ram_;
+  IArrayImage *array_image_;
 };
 
 class IResource {
@@ -261,6 +281,7 @@ public:
   vector<IModule *> modules_;
   vector<IResourceClass *> resource_classes_;
   vector<IChannel *> channels_;
+  vector<IArrayImage *> array_images_;
 
 private:
   ObjectPool *objects_;

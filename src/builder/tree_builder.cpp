@@ -53,6 +53,13 @@ void TreeBuilder::AddPortInput(int module_id, int table_id, int res_id,
   port_inputs_.push_back(port);
 }
 
+void TreeBuilder::AddArrayImage(IArray *array, int imageid) {
+  ArrayImage im;
+  im.array = array;
+  im.imageid = imageid;
+  array_images_.push_back(im);
+}
+
 bool TreeBuilder::Resolve() {
   map<int, IModule *> module_ids;
   for (IModule *mod : design_->modules_) {
@@ -114,6 +121,17 @@ bool TreeBuilder::Resolve() {
     }
     IResource *res = FindResource(mod, port.tab_id, port.res_id);
     port.reader->SetPortInput(res);
+  }
+  map<int, IArrayImage *> array_ids;
+  for (auto *im : design_->array_images_) {
+    array_ids[im->GetId()] = im;
+  }
+  for (auto &im : array_images_) {
+    auto it = array_ids.find(im.imageid);
+    if (it == array_ids.end()) {
+      builder_->SetError() << "failed to find array image: " << im.imageid;
+    }
+    im.array->SetArrayImage(it->second);
   }
   return true;
 }

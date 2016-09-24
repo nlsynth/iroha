@@ -13,6 +13,7 @@ public:
 
 private:
   static void ValidateChannelId(IDesign *design);
+  static void ValidateArrayImageId(IDesign *design);
   static void ValidateModuleId(IDesign *design);
   static void ValidateStateId(ITable *table);
   static void ValidateTableId(IModule *mod);

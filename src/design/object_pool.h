@@ -32,6 +32,7 @@ public:
   Pool<IInsn> insns_;
   Pool<ResourceParams> resource_params_;
   Pool<IChannel> channels_;
+  Pool<IArrayImage> array_images_;
 };
 
 }  // namespace iroha

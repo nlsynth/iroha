@@ -31,6 +31,7 @@ private:
   void WriteResourceTypes(const vector<IValueType> &types);
   void WriteResourceParams(const ResourceParams &params, const char *indent);
   void WriteChannel(const IChannel &ch);
+  void WriteArrayImage(const IArrayImage &im);
   void WriteResourceDesc(const IResource &res);
   void WriteStr(const string &str);
 

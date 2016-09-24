@@ -23,6 +23,7 @@ public:
   void AddChannelReaderWriter(IChannel *ch, bool is_r, int mod_id,
 			      int tab_id, int res_id);
   void AddPortInput(int module_id, int table_id, int res_id, IResource *res);
+  void AddArrayImage(IArray *array, int imageid);
 
   bool Resolve();
 
@@ -58,6 +59,11 @@ private:
     int res_id;
   };
   vector<PortInput> port_inputs_;
+  struct ArrayImage {
+    IArray *array;
+    int imageid;
+  };
+  vector<ArrayImage> array_images_;
 };
 
 }  // namespace builder

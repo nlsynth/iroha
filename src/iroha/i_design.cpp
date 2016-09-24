@@ -29,10 +29,34 @@ bool IResourceClass::IsExclusive() {
   return is_exclusive_;
 }
 
+IArrayImage::IArrayImage(IDesign *design) : design_(design), id_(-1) {
+  design->GetObjectPool()->array_images_.Add(this);
+}
+
+IDesign *IArrayImage::GetDesign() const {
+  return design_;
+}
+
+int IArrayImage::GetId() const {
+  return id_;
+}
+
+void IArrayImage::SetId(int id) {
+  id_ = id;
+}
+
+const string &IArrayImage::GetName() const {
+  return name_;
+}
+
+void IArrayImage::SetName(const string &name) {
+  name_ = name;
+}
+
 IArray::IArray(int address_width, const IValueType &data_type,
 	       bool is_external, bool is_ram)
   : address_width_(address_width), data_type_(data_type),
-    is_external_(is_external), is_ram_(is_ram) {
+    is_external_(is_external), is_ram_(is_ram), array_image_(nullptr) {
 }
 
 int IArray::GetAddressWidth() const {
@@ -49,6 +73,14 @@ bool IArray::IsExternal() const {
 
 bool IArray::IsRam() const {
   return is_ram_;
+}
+
+void IArray::SetArrayImage(IArrayImage *image) {
+  array_image_ = image;
+}
+
+IArrayImage *IArray::GetArrayImage() const {
+  return array_image_;
 }
 
 IResource::IResource(ITable *table, IResourceClass *resource_class)

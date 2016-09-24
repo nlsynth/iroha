@@ -24,9 +24,19 @@ static void ValidateId(vector<T *> &v, set<int> &used_ids) {
   }
 }
 
+template<class T>
+static void ValidateVectorId(vector<T *> &v) {
+  set<int> used_ids;
+  for (auto *e : v) {
+    used_ids.insert(e->GetId());
+  }
+  ValidateId(v, used_ids);
+}
+
 void Validator::Validate(IDesign *design) {
   ValidateModuleId(design);
   ValidateChannelId(design);
+  ValidateArrayImageId(design);
   for (auto *mod : design->modules_) {
     ValidateTableId(mod);
     for (auto *tab : mod->tables_) {
@@ -43,35 +53,23 @@ void Validator::ValidateTable(ITable *table) {
 }
 
 void Validator::ValidateModuleId(IDesign *design) {
-  set<int> used_ids;
-  for (auto *mod : design->modules_) {
-    used_ids.insert(mod->GetId());
-  }
-  ValidateId(design->modules_, used_ids);
+  ValidateVectorId(design->modules_);
 }
 
 void Validator::ValidateChannelId(IDesign *design) {
-  set<int> used_ids;
-  for (auto *ch : design->channels_) {
-    used_ids.insert(ch->GetId());
-  }
-  ValidateId(design->channels_, used_ids);
+  ValidateVectorId(design->channels_);
+}
+
+void Validator::ValidateArrayImageId(IDesign *design) {
+  ValidateVectorId(design->array_images_);
 }
 
 void Validator::ValidateStateId(ITable *table) {
-  set<int> used_ids;
-  for (auto *st : table->states_) {
-    used_ids.insert(st->GetId());
-  }
-  ValidateId(table->states_, used_ids);
+  ValidateVectorId(table->states_);
 }
 
 void Validator::ValidateTableId(IModule *mod) {
-  set<int> used_ids;
-  for (auto *tab : mod->tables_) {
-    used_ids.insert(tab->GetId());
-  }
-  ValidateId(mod->tables_, used_ids);
+  ValidateVectorId(mod->tables_);
 }
 
 void Validator::ValidateInsnId(ITable *table) {
@@ -87,19 +85,11 @@ void Validator::ValidateInsnId(ITable *table) {
 }
 
 void Validator::ValidateResourceId(ITable *table) {
-  set<int> used_ids;
-  for (auto *res : table->resources_) {
-    used_ids.insert(res->GetId());
-  }
-  ValidateId(table->resources_, used_ids);
+  ValidateVectorId(table->resources_);
 }
 
 void Validator::ValidateRegisterId(ITable *table) {
-  set<int> used_ids;
-  for (auto *reg : table->registers_) {
-    used_ids.insert(reg->GetId());
-  }
-  ValidateId(table->registers_, used_ids);
+  ValidateVectorId(table->registers_);
 }
 
 }  // namespace iroha
