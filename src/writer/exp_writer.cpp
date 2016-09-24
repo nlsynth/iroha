@@ -299,7 +299,13 @@ void ExpWriter::WriteChannel(const IChannel &ch) {
 }
 
 void ExpWriter::WriteArrayImage(const IArrayImage &im) {
-  os_ << "(ARRAY-IMAGE " << im.GetId() << " " << im.GetName() << "\n"
+  os_ << "(ARRAY-IMAGE " << im.GetId() << " ";
+  if (im.GetName().empty()) {
+    os_ << "()";
+  } else {
+    os_ << im.GetName();
+  }
+  os_ << "\n"
       << " (";
   bool f = true;
   for (auto &v : im.values_) {
