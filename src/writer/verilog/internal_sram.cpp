@@ -37,8 +37,14 @@ void InternalSRAM::WriteInternal(ostream &os) {
   if (!reset_polarity_) {
     os << "!";
   }
-  os << GetResetPinName() << ") begin\n"
-     << "    end else begin\n"
+  os << GetResetPinName() << ") begin\n";
+  IArrayImage *im = array->GetArrayImage();
+  if (im != nullptr) {
+    for (int i = 0; i < im->values_.size(); ++i) {
+      os << "      data[" << i << "] <= " << im->values_[i] << ";\n";
+    }
+  }
+  os << "    end else begin\n"
      << "      if (write_en_i) begin\n"
      << "        data[addr_i] <= wdata_i;\n"
      << "      end\n"
