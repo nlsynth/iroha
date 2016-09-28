@@ -22,14 +22,19 @@ VerilogWriter::VerilogWriter(const IDesign *design, const Connection &conn,
 VerilogWriter::~VerilogWriter() {
 }
 
-void VerilogWriter::Write() {
+bool VerilogWriter::Write() {
   os_ << "// Generated from " << PACKAGE << "-" << VERSION << ".\n\n";
 
   IModule *root = DesignUtil::GetRootModule(design_);
+  if (root == nullptr) {
+    LOG(ERROR) << "Failed to determine a root module";
+    return false;
+  }
   BuildModules(root);
   BuildChildModuleSection();
   if (!embedded_modules_->Write(os_)) {
     LOG(ERROR) << "Failed to write embedded modules.";
+    return false;
   }
   for (auto *mod : ordered_modules_) {
     mod->Write(os_);
@@ -38,6 +43,7 @@ void VerilogWriter::Write() {
     WriteShellModule(modules_[root]);
   }
   STLDeleteSecondElements(&modules_);
+  return true;
 }
 
 void VerilogWriter::SetShellModuleName(const string &n, bool with_self_clock) {

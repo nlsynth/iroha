@@ -15,7 +15,7 @@ public:
   VerilogWriter(const IDesign *design, const Connection &conn, ostream &os);
   ~VerilogWriter();
 
-  void Write();
+  bool Write();
   void SetShellModuleName(const string &n, bool with_self_clock);
 
 private:

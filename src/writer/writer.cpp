@@ -32,6 +32,7 @@ bool Writer::Write(const string &fn) {
   if (output_shell_module_) {
     shell = ShellModuleName(fn);
   }
+  bool res = true;
   if (language_ == "verilog") {
     Connection conn(design_);
     conn.Build();
@@ -39,7 +40,7 @@ bool Writer::Write(const string &fn) {
     if (!shell.empty()) {
       writer.SetShellModuleName(shell, output_self_clock_);
     }
-    writer.Write();
+    res = writer.Write();
   } else if (language_ == "cxx") {
     cxx::CxxWriter writer(design_, *os);
     writer.Write();
@@ -50,7 +51,7 @@ bool Writer::Write(const string &fn) {
     ExpWriter writer(design_, *os);
     writer.Write();
   }
-  return true;
+  return res;
 }
 
 bool Writer::SetLanguage(const string &lang) {

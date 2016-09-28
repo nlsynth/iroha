@@ -72,7 +72,8 @@ void EmbeddedResource::BuildResource() {
   string name = params->GetEmbeddedModuleName();
   auto *ports = tab_.GetPorts();
   is << "  // " << name << "\n";
-  is << "  " << name << " inst_" << name << "(";
+  is << "  " << name
+     << " inst_" << tab_.GetITable()->GetId() << "_" << name << "(";
   is << "." << params->GetEmbeddedModuleClk() << "(" << ports->GetClk() << "), "
      << "." << params->GetEmbeddedModuleReset() << "(" << ports->GetReset() << ")";
   ostream &rs = tab_.InitialValueSectionStream();
