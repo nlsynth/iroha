@@ -39,10 +39,11 @@ void Validator::Validate(IDesign *design) {
   ValidateArrayImageId(design);
   for (auto *mod : design->modules_) {
     ValidateTableId(mod);
-    ValidateRegName(mod);
     for (auto *tab : mod->tables_) {
       ValidateTable(tab);
     }
+    // Validate reg names after ids.
+    ValidateRegName(mod);
   }
 }
 
