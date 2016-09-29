@@ -39,6 +39,7 @@ void Validator::Validate(IDesign *design) {
   ValidateArrayImageId(design);
   for (auto *mod : design->modules_) {
     ValidateTableId(mod);
+    ValidateRegName(mod);
     for (auto *tab : mod->tables_) {
       ValidateTable(tab);
     }
@@ -90,6 +91,37 @@ void Validator::ValidateResourceId(ITable *table) {
 
 void Validator::ValidateRegisterId(ITable *table) {
   ValidateVectorId(table->registers_);
+}
+
+void Validator::ValidateRegName(IModule *mod) {
+  set<string> names;
+  for (auto *tab : mod->tables_) {
+    for (auto *reg : tab->registers_) {
+      string name = reg->GetName();
+      if (name.empty()) {
+	continue;
+      }
+      if (names.find(name) != names.end()) {
+	name = GetUniqueName(names, reg);
+	reg->SetName(name);
+      }
+      names.insert(name);
+    }
+  }
+}
+
+string Validator::GetUniqueName(set<string> &names, IRegister *reg) {
+  string r = reg->GetName() + "_" + Util::Itoa(reg->GetId());
+  if (names.find(r) == names.end()) {
+    return r;
+  }
+  string s;
+  int n = 0;
+  do {
+    ++n;
+    s = r + "_" + Util::Itoa(n);
+  } while (names.find(s) != names.end());
+  return s;
 }
 
 }  // namespace iroha

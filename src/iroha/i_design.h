@@ -157,6 +157,7 @@ public:
   int GetId() const;
   void SetId(int id);
   const string &GetName() const;
+  void SetName(const string &name);
 
   void SetInitialValue(IValue &value);
   const IValue &GetInitialValue() const;

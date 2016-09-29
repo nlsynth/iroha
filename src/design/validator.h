@@ -4,12 +4,15 @@
 
 #include "iroha/common.h"
 
+#include <set>
+
 namespace iroha {
 
 class Validator {
 public:
   static void Validate(IDesign *design);
   static void ValidateTable(ITable *table);
+  static void ValidateRegName(IModule *mod);
 
 private:
   static void ValidateChannelId(IDesign *design);
@@ -20,6 +23,8 @@ private:
   static void ValidateInsnId(ITable *table);
   static void ValidateRegisterId(ITable *table);
   static void ValidateResourceId(ITable *table);
+
+  static string GetUniqueName(set<string> &names, IRegister *reg);
 };
 
 }  // namespace iroha

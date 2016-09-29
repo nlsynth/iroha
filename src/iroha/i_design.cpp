@@ -244,6 +244,10 @@ const string &IRegister::GetName() const {
   return name_;
 }
 
+void IRegister::SetName(const string &name) {
+  name_ = name;
+}
+
 int IRegister::GetId() const {
   return id_;
 }
