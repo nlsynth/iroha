@@ -78,18 +78,18 @@ void EmbeddedResource::BuildResource() {
      << "." << params->GetEmbeddedModuleReset() << "(" << ports->GetReset() << ")";
   ostream &rs = tab_.InitialValueSectionStream();
   ostream &ws = tmpl_->GetStream(kInsnWireDeclSection);
-  string ack = params->GetEmbeddedModuleAck();
-  if (!ack.empty()) {
-    string ack_wire = "ack_" + name;
+  string ack_pin = params->GetEmbeddedModuleAck();
+  if (!ack_pin.empty()) {
+    string ack_wire = AckWireName(*params);
     ws << "  wire " << ack_wire << ";\n";
-    is << ", ." << ack << "(" << ack_wire << ")";
+    is << ", ." << ack_pin << "(" << ack_wire << ")";
   }
-  string req = params->GetEmbeddedModuleReq();
-  if (!req.empty()) {
-    string req_reg = "req_" + name;
+  string req_pin = params->GetEmbeddedModuleReq();
+  if (!req_pin.empty()) {
+    string req_reg = ReqRegName(*params);
     ws << "  reg " << req_reg << ";\n";
     rs << "      " << req_reg << " <= 0;\n";
-    is << ", ." << req << "(" << req_reg << ")";
+    is << ", ." << req_pin << "(" << req_reg << ")";
   }
   vector<string> args = params->GetEmbeddedModuleArgs();
   CHECK(args.size() == res_.input_types_.size());
@@ -107,40 +107,57 @@ void EmbeddedResource::BuildInsn(IInsn *insn, State *st) {
   static const char I[] = "          ";
   string insn_st = InsnWriter::MultiCycleStateName(*(insn->GetResource()));
   ostream &os = st->StateBodySectionStream();
-  os << I << "// embedded module\n"
-     << I << "if (" << insn_st << " == 0) begin\n"
-     << I << "  " << insn_st << " <= 1;\n";
+  os << I << "// Embedded module\n";
   auto *params = res_.GetParams();
-  string name = params->GetEmbeddedModuleName();
   string req = params->GetEmbeddedModuleReq();
-  if (!req.empty()) {
-    os << I << "  req_" << name << " <= 1;\n";
+  if (req.empty()) {
+    os << I << "// (no req port)\n";
+    return;
   }
+  os << I << "if (" << insn_st << " == 0) begin\n"
+     << I << "  " << insn_st << " <= 1;\n";
+  os << I << "  " << ReqRegName(*params) << " <= 1;\n";
   vector<string> args = params->GetEmbeddedModuleArgs();
   CHECK(args.size() == insn->inputs_.size());
   for (int i = 0; i < args.size(); ++i) {
     string n = ArgRegName(*params, i);
-    os << I << "  " << n << " <= " << InsnWriter::RegisterName(*insn->inputs_[i]) << ";\n";
+    os << I << "  " << n << " <= "
+       << InsnWriter::RegisterName(*insn->inputs_[i]) << ";\n";
   }
   os << I << "end\n";
-  string ack = params->GetEmbeddedModuleAck();
+  string ack = AckWireName(*params);
   os << I << "if (" << insn_st << " == 1) begin\n";
   if (!ack.empty()) {
-    os << I << "if (ack_" << name << " == 1) begin\n";
-    os << I << "  req_" << name << " <= 0;\n";
+    os << I << "if (" << ack << " == 1) begin\n";
+    os << I << "  " << ReqRegName(*params) << " <= 0;\n";
   }
   os << I << "  " << insn_st << " <= 3;\n";
   if (!ack.empty()) {
     os << I << "end\n";
   } else {
-    os << I << "  req_" << name << " <= 0;\n";
+    os << I << "  " << ReqRegName(*params) << " <= 0;\n";
   }
   os << I << "end\n";
 }
 
 string EmbeddedResource::ArgRegName(const ResourceParams &params, int nth) {
   string name = params.GetEmbeddedModuleName();
-  return "arg_" + Util::Itoa(nth) + "_" + name;
+  return "arg_" + Util::Itoa(tab_.GetITable()->GetId()) + "_" +
+    Util::Itoa(nth) + "_" + name;
+}
+
+string EmbeddedResource::AckWireName(const ResourceParams &params) {
+  string ack = params.GetEmbeddedModuleAck();
+  if (ack.empty()) {
+    return ack;
+  }
+  string name = params.GetEmbeddedModuleName();
+  return "ack_" + Util::Itoa(tab_.GetITable()->GetId()) + "_" + name;
+}
+
+string EmbeddedResource::ReqRegName(const ResourceParams &params) {
+  string name = params.GetEmbeddedModuleName();
+  return "req_" + Util::Itoa(tab_.GetITable()->GetId()) + "_" + name;
 }
 
 }  // namespace verilog

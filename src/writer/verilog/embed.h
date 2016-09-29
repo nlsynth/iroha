@@ -35,6 +35,8 @@ public:
 
 private:
   string ArgRegName(const ResourceParams &params, int nth);
+  string AckWireName(const ResourceParams &params);
+  string ReqRegName(const ResourceParams &params);
 };
 
 }  // namespace verilog
