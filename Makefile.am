@@ -3,7 +3,7 @@ ACLOCAL_AMFLAGS = -I m4
 AM_CPPFLAGS = -I src -Wall -Wno-sign-compare -g
 
 SUBDIRS =
-EXTRA_DIST =
+EXTRA_DIST = lib/cxx-rt.h
 
 bin_PROGRAMS = iroha
 
