@@ -12,6 +12,7 @@ class ModuleTemplate;
 namespace cxx {
 class ClassWriter;
 class Module;
+class State;
 class Table;
 }  // namespace cxx
 }  // namespace writer

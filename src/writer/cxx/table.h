@@ -15,10 +15,17 @@ public:
 
   void Build();
   void Write(ostream &os);
+  ClassWriter *GetClassWriter();
+  string GetTableName();
 
 private:
+  void BuildConstructor();
+  void BuildDispatcher();
+
   const ITable *i_tab_;
   unique_ptr<ClassWriter> class_writer_;
+  vector<State *> states_;
+  string name_;
 };
 
 }  // namespace cxx

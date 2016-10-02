@@ -11,24 +11,31 @@ namespace cxx {
 class ClassMember {
 public:
   ClassMember();
+  ~ClassMember();
 
   bool isMethod_;
   string type_;
   string name_;
+  string body_;
 };
 
 class ClassWriter {
 public:
   ClassWriter(const string &name, const string &base);
+  ~ClassWriter();
 
   void Write(ostream &os);
-  void AddMethod(const string &name, const string &type);
+  ClassMember *AddMethod(const string &name, const string &type);
+  void AddVariable(const string &name, const string &type);
+  const string &GetName() const;
 
 private:
+  ClassMember *AddMember(bool isMethod, const string &name, const string &type);
+
   const string name_;
   const string base_;
 
-  vector<ClassMember> members_;
+  vector<ClassMember *> members_;
 };
 
 }  // namespace cxx

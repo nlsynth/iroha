@@ -26,7 +26,7 @@ void CxxWriter::Write() {
 
   os_ << "int main(int argc, char **argv) {\n"
       << "  " << root_mod.GetName() << " _r;\n"
-      << "  Runner runner(_r);\n"
+      << "  Runner runner(&_r);\n"
       << "  runner.Run();\n"
       << "  return 0;\n"
       << "}\n";

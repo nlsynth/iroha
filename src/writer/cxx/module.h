@@ -18,6 +18,8 @@ public:
   string GetName();
 
 private:
+  void BuildConstructor();
+
   const IModule *i_mod_;
   unique_ptr<ClassWriter> class_writer_;
   vector<Table *> tables_;
