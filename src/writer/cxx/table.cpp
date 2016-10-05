@@ -25,13 +25,14 @@ Table::~Table() {
 
 void Table::Build() {
   BuildConstructor();
-  class_writer_->AddVariable("st_", "int");
+  class_writer_->AddVariable(GetStateVariableName(), "int");
   for (auto *i_st : i_tab_->states_) {
     State *st = new State(i_st, this);
     states_.push_back(st);
     st->Build();
   }
   BuildDispatcher();
+  BuildRegisters();
 }
 
 void Table::Write(ostream &os) {
@@ -45,7 +46,15 @@ ClassWriter *Table::GetClassWriter() {
 void Table::BuildConstructor() {
   const string &name = class_writer_->GetName();
   ClassMember *cm = class_writer_->AddMethod(name, "");
-  cm->body_ = "    st_ = " + Util::Itoa(i_tab_->GetInitialState()->GetId()) + ";\n";
+  ostringstream os;
+  os << "    st_ = " << i_tab_->GetInitialState()->GetId() << ";\n";
+  for (auto *reg : i_tab_->registers_) {
+    if (!reg->IsConst() && reg->HasInitialValue()) {
+      os << "    " << reg->GetName() << " = "
+	 << reg->GetInitialValue().value_ << ";\n";
+    }
+  }
+  cm->body_ = os.str();
 }
 
 void Table::BuildDispatcher() {
@@ -61,8 +70,21 @@ void Table::BuildDispatcher() {
   cm->body_ = os.str();
 }
 
+void Table::BuildRegisters() {
+  for (auto *reg : i_tab_->registers_) {
+    if (reg->IsConst()) {
+      continue;
+    }
+    class_writer_->AddVariable(reg->GetName(), "int");
+  }
+}
+
 string Table::GetTableName() {
   return name_;
+}
+
+string Table::GetStateVariableName() {
+  return "st_";
 }
 
 }  // namespace cxx

@@ -17,6 +17,10 @@ public:
   IState *GetIState() const;
 
 private:
+  void WriteInsn(IInsn *insn, ostream &os);
+  void WriteTransitionInsn(IInsn *insn, ostream &os);
+  string RegValue(IRegister *reg);
+
   IState *i_st_;
   Table *tab_;
 };

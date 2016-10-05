@@ -17,10 +17,12 @@ public:
   void Write(ostream &os);
   ClassWriter *GetClassWriter();
   string GetTableName();
+  string GetStateVariableName();
 
 private:
   void BuildConstructor();
   void BuildDispatcher();
+  void BuildRegisters();
 
   const ITable *i_tab_;
   unique_ptr<ClassWriter> class_writer_;
