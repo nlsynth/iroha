@@ -25,6 +25,9 @@ private:
   virtual void BuildStateDecl();
   virtual void WriteReset(ostream &os);
   virtual void WriteBody(ostream &os);
+
+  // Same vector as states_.
+  vector<DataFlowState *> df_states_;
 };
 
 }  // namespace verilog

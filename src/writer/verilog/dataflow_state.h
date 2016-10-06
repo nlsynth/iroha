@@ -9,6 +9,14 @@ namespace iroha {
 namespace writer {
 namespace verilog {
 
+struct DataFlowStateTransition {
+  DataFlowState *to;
+  IState *to_raw;
+  DataFlowState *from;
+  // empty for unconditional.
+  string cond;
+};
+
 class DataFlowState : public State {
 public:
   DataFlowState(IState *state, Table *table);
@@ -16,6 +24,12 @@ public:
 
   virtual void Write(ostream &os);
   static string StateVariable(const IState *st);
+  void BuildIncomingTransitions(const vector<DataFlowStateTransition> &trs);
+
+  vector<DataFlowStateTransition> GetTransitions();
+
+private:
+  string incoming_transitions_;
 };
 
 }  // namespace verilog

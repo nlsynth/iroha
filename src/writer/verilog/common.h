@@ -15,6 +15,8 @@ class RegConnectionInfo;
 
 namespace verilog {
 
+class DataFlowState;
+class DataFlowTable;
 class EmbeddedModules;
 class InternalSRAM;
 class Module;

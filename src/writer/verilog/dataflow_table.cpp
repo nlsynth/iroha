@@ -21,13 +21,30 @@ DataFlowTable::~DataFlowTable() {
 
 void DataFlowTable::Build() {
   Table::Build();
+  map<const IState *, DataFlowState *> is_to_dfs;
+  for (auto *ds : df_states_) {
+    is_to_dfs[ds->GetIState()] = ds;
+  }
+  // Mapping from target state to source states.
+  map<DataFlowState *, vector<DataFlowStateTransition> > trs;
+  for (auto *ds : df_states_) {
+    vector<DataFlowStateTransition> outgoing = ds->GetTransitions();
+    for (auto &tr : outgoing) {
+      tr.to = is_to_dfs[tr.to_raw];
+      trs[tr.to].push_back(tr);
+    }
+  }
+  for (auto *ds : df_states_) {
+    ds->BuildIncomingTransitions(trs[ds]);
+  }
 }
 
 void DataFlowTable::BuildStates() {
   for (auto *i_state : i_table_->states_) {
-    State *st = new DataFlowState(i_state, this);
+    DataFlowState *st = new DataFlowState(i_state, this);
     st->Build();
     states_.push_back(st);
+    df_states_.push_back(st);
   }
 }
 
