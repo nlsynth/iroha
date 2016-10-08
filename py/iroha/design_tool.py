@@ -119,6 +119,17 @@ def CreateExtOutput(table, name, width):
     res.resource_params.AddValue("WIDTH", str(width))
     return res
 
+def CreatePortInput(table, port_output):
+    res = createResource(table, "port-input")
+    res.port_input = port_output
+    return res
+
+def CreatePortOutput(table, name, width):
+    res = createResource(table, "port-output")
+    res.resource_params.AddValue("OUTPUT", name)
+    res.resource_params.AddValue("WIDTH", str(width))
+    return res
+
 def CreateSiblingTask(table):
     return createResource(table, "sibling-task")
 

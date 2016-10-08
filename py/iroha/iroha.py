@@ -29,6 +29,8 @@ class IDesign(object):
         self.resource_classes.append(IResourceClass("print"))
         self.resource_classes.append(IResourceClass("ext-input"))
         self.resource_classes.append(IResourceClass("ext-output"))
+        self.resource_classes.append(IResourceClass("port-input"))
+        self.resource_classes.append(IResourceClass("port-output"))
         self.resource_classes.append(IResourceClass("foreign-reg"))
         self.resource_classes.append(IResourceClass("sibling-task"))
         self.resource_classes.append(IResourceClass("sibling-task-call"))
@@ -187,6 +189,7 @@ class IResource(object):
         self.resource_params = ResourceParams()
         self.foreign_reg = None
         self.callee_table = None
+        self.port_input = None
 
     def Write(self, writer):
         writer.ofh.write("   (RESOURCE " + str(self.id))
@@ -211,6 +214,12 @@ class IResource(object):
             tab = self.callee_table
             writer.ofh.write("    (CALLEE-TABLE " + str(tab.module.id) + " ")
             writer.ofh.write(str(tab.id) + ")\n")
+        if self.port_input:
+            writer.ofh.write("    (PORT-INPUT ")
+            writer.ofh.write(str(self.port_input.table.module.id) + " ")
+            writer.ofh.write(str(self.port_input.table.id) + " ")
+            writer.ofh.write(str(self.port_input.id))
+            writer.ofh.write(")\n")
         writer.ofh.write("   )\n")
 
     def writeWidths(self, writer, types):
