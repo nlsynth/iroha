@@ -77,4 +77,3 @@ string PortIO::PortName(const IResource &res) {
 }  // namespace verilog
 }  // namespace writer
 }  // namespace iroha
-

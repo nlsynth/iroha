@@ -17,6 +17,8 @@ public:
 
 private:
   void BuildExtInputInsn(IInsn *insn);
+  bool has_default_output_value_;
+  int default_output_value_;
 };
 
 }  // namespace verilog

@@ -20,6 +20,7 @@ const char kResetName[] = "RESET-NAME";
 const char kExtInputPort[] = "INPUT";
 const char kExtOutputPort[] = "OUTPUT";
 const char kExtIOWidth[] = "WIDTH";
+const char kDefaultOutputValue[] = "DEFAULT-VALUE";
 const char kEmbeddedModule[] = "EMBEDDED-MODULE";
 const char kEmbeddedModuleFile[] = "EMBEDDED-MODULE-FILE";
 const char kEmbeddedModuleClk[] = "EMBEDDED-MODULE-CLOCK";
@@ -41,6 +42,8 @@ public:
   vector<string> GetValues(const string &key) const;
   void SetValues(const string &key, const vector<string> &values);
 
+  // Accessors for convenience.
+
   string GetModuleNamePrefix() const;
   void SetModuleNamePrefix(const string &name);
 
@@ -58,6 +61,8 @@ public:
   void GetExtInputPort(string *name, int *width);
   void SetExtOutputPort(const string &output, int width);
   void GetExtOutputPort(string *name, int *width);
+
+  bool GetDefaultValue(int *value) const;
 
   void SetEmbeddedModuleName(const string &mod, const string &fn);
   string GetEmbeddedModuleName() const;

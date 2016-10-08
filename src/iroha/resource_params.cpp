@@ -235,6 +235,15 @@ void ResourceParams::GetExtOutputPort(string *name, int *width) {
   *width = values_->GetIntParam(resource::kExtIOWidth, 0);
 }
 
+bool ResourceParams::GetDefaultValue(int *value) const {
+  auto *p = values_->LookupParam(resource::kDefaultOutputValue);
+  if (p == nullptr || p->values_.size() == 0) {
+    return false;
+  }
+  *value = Util::Atoi(p->values_[0]);
+  return true;
+}
+
 void ResourceParams::SetEmbeddedModuleName(const string &mod,
 					   const string &fn) {
   values_->SetStringParam(resource::kEmbeddedModule, mod);

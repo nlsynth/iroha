@@ -29,6 +29,13 @@ rc = design_tool.AllocConstNum(tab, False, 32, 123)
 oinsn.inputs.append(rc)
 st2.insns.append(oinsn)
 
+ext_output_pulse = design_tool.CreateExtOutput(tab, "data_out_pulse", 1)
+ext_output_pulse.resource_params.AddValue("DEFAULT-VALUE", "0")
+oinsn_pulse = IInsn(ext_output_pulse)
+rc = design_tool.AllocConstNum(tab, False, 32, 123)
+oinsn_pulse.inputs.append(rc)
+st2.insns.append(oinsn_pulse)
+
 design_tool.ValidateIds(d)
 w = DesignWriter(d)
 w.Write()

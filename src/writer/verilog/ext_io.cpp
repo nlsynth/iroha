@@ -15,7 +15,14 @@ namespace writer {
 namespace verilog {
 
 ExtIO::ExtIO(const IResource &res, const Table &table)
-  : Resource(res, table) {
+  : Resource(res, table), has_default_output_value_(false),
+    default_output_value_(0) {
+  auto *klass = res.GetClass();
+  if (resource::IsExtOutput(*klass)) {
+    auto *params = res.GetParams();
+    has_default_output_value_ =
+      params->GetDefaultValue(&default_output_value_);
+  }
 }
 
 void ExtIO::BuildResource() {
@@ -34,6 +41,21 @@ void ExtIO::BuildResource() {
     int width;
     params->GetExtOutputPort(&output_port, &width);
     ports->AddPort(output_port, Port::OUTPUT, width);
+    if (has_default_output_value_) {
+      string v = Util::Itoa(default_output_value_);
+      map<IState *, IInsn *> callers;
+      CollectResourceCallers("", &callers);
+      for (auto &c : callers) {
+	IState *st = c.first;
+	IInsn *insn = c.second;
+	v = "((" + tab_.StateVariable() + " == " +
+	  Util::Itoa(st->GetId()) +
+	  ") ? " + InsnWriter::RegisterName(*insn->inputs_[0]) +
+	  " : " + v + ")";
+      }
+      ostream &os = tab_.StateOutputSectionStream();
+      os << "      " << output_port << " <= " << v << ";\n";
+    }
   }
 }
 
@@ -42,7 +64,8 @@ void ExtIO::BuildInsn(IInsn *insn, State *st) {
   if (resource::IsExtInput(*klass)) {
     BuildExtInputInsn(insn);
   }
-  if (resource::IsExtOutput(*klass)) {
+  if (resource::IsExtOutput(*klass) &&
+      !has_default_output_value_) {
     auto *params = res_.GetParams();
     string output_port;
     int width;
