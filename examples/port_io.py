@@ -23,6 +23,13 @@ rc = design_tool.AllocConstNum(tab, False, 32, 123)
 oinsn.inputs.append(rc)
 st1.insns.append(oinsn)
 
+port_output_pulse = design_tool.CreatePortOutput(tab, "o_pulse", 32)
+port_output_pulse.resource_params.AddValue("DEFAULT-VALUE", "0")
+opinsn = IInsn(port_output_pulse)
+rc = design_tool.AllocConstNum(tab, False, 32, 456)
+opinsn.inputs.append(rc)
+st1.insns.append(opinsn)
+
 port_input = design_tool.CreatePortInput(tab, port_output)
 iinsn = IInsn(port_input)
 r = IRegister(tab, "r")

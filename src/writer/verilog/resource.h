@@ -33,6 +33,7 @@ protected:
   string JoinStatesWithSubState(const map<IState *, IInsn *> &sts, int sub);
   void WriteStateUnion(const map<IState *, IInsn *> &callers,
 		       ostream &os);
+  string SelectValueByState(int default_value);
 
   const IResource &res_;
   const Table &tab_;

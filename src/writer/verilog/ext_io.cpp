@@ -42,19 +42,9 @@ void ExtIO::BuildResource() {
     params->GetExtOutputPort(&output_port, &width);
     ports->AddPort(output_port, Port::OUTPUT, width);
     if (has_default_output_value_) {
-      string v = Util::Itoa(default_output_value_);
-      map<IState *, IInsn *> callers;
-      CollectResourceCallers("", &callers);
-      for (auto &c : callers) {
-	IState *st = c.first;
-	IInsn *insn = c.second;
-	v = "((" + tab_.StateVariable() + " == " +
-	  Util::Itoa(st->GetId()) +
-	  ") ? " + InsnWriter::RegisterName(*insn->inputs_[0]) +
-	  " : " + v + ")";
-      }
       ostream &os = tab_.StateOutputSectionStream();
-      os << "      " << output_port << " <= " << v << ";\n";
+      os << "      " << output_port << " <= "
+	 << SelectValueByState(default_output_value_) << ";\n";
     }
   }
 }

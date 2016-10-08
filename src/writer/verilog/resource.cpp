@@ -191,6 +191,21 @@ string Resource::JoinStatesWithSubState(const map<IState *, IInsn *> &sts,
   return Util::Join(conds, " || ");
 }
 
+string Resource::SelectValueByState(int default_value) {
+  string v = Util::Itoa(default_value);
+  map<IState *, IInsn *> callers;
+  CollectResourceCallers("", &callers);
+  for (auto &c : callers) {
+    IState *st = c.first;
+    IInsn *insn = c.second;
+    v = "((" + tab_.StateVariable() + " == " +
+      Util::Itoa(st->GetId()) +
+      ") ? " + InsnWriter::RegisterName(*insn->inputs_[0]) +
+      " : " + v + ")";
+  }
+  return v;
+}
+
 }  // namespace verilog
 }  // namespace writer
 }  // namespace iroha
