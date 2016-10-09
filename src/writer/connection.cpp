@@ -31,6 +31,12 @@ void Connection::Build() {
       for (IResource *freg : foreign_regs) {
 	ProcessForeignReg(freg);
       }
+      vector<IResource*> port_inputs;
+      DesignUtil::FindResourceByClassName(tab, resource::kPortInput,
+					  &port_inputs);
+      for (IResource *port : port_inputs) {
+	ProcessPort(port);
+      }
     }
   }
 }
@@ -60,6 +66,15 @@ const RegConnectionInfo *Connection::GetRegConnectionInfo(const IModule *mod) co
   }
   const RegConnectionInfo &ri = it->second;
   return &ri;
+}
+
+const PortConnectionInfo *Connection::GetPortConnectionInfo(const IModule *mod) const {
+  auto it = port_connection_.find(mod);
+  if (it == port_connection_.end()) {
+    return nullptr;
+  }
+  const PortConnectionInfo &pi = it->second;
+  return &pi;
 }
 
 void Connection::ProcessChannel(const IChannel *ch) {
@@ -186,6 +201,48 @@ void Connection::ProcessForeignReg(IResource *freg) {
 	 mod = mod->GetParentModule()) {
       RegConnectionInfo &rc = reg_connection_[mod];
       rc.has_downward_port.insert(reg);
+    }
+  }
+}
+
+void Connection::ProcessPort(IResource *port) {
+  // TODO(yt76): Merge with ProcessForeignReg()
+  IResource *source = port->GetPortInput();
+  IModule *source_module = source->GetTable()->GetModule();
+  IModule *sink_module = port->GetTable()->GetModule();
+  if (source_module == sink_module) {
+    return;
+  }
+  PortConnectionInfo &pc = port_connection_[source_module];
+  pc.is_source.insert(source);
+  const IModule *common_root = GetCommonRoot(source_module, sink_module);
+  if (common_root == source_module) {
+    // source is upper
+    for (IModule *mod = sink_module; mod != common_root;
+	 mod = mod->GetParentModule()) {
+      PortConnectionInfo &pc = port_connection_[mod];
+      pc.has_downward_port.insert(source);
+    }
+  } else if (common_root == sink_module) {
+    for (IModule *mod = source_module; mod != common_root;
+	 mod = mod->GetParentModule()) {
+      PortConnectionInfo &pc = port_connection_[mod];
+      pc.has_upward_port.insert(source);
+    }
+    PortConnectionInfo &pc = port_connection_[common_root];
+    pc.has_wire.insert(source);
+  } else {
+    PortConnectionInfo &pc = port_connection_[common_root];
+    pc.has_wire.insert(source);
+    for (IModule *mod = source_module; mod != common_root;
+	  mod = mod->GetParentModule()) {
+      PortConnectionInfo &pc = port_connection_[mod];
+      pc.has_upward_port.insert(source);
+    }
+    for (IModule *mod = sink_module; mod != common_root;
+	 mod = mod->GetParentModule()) {
+      PortConnectionInfo &pc = port_connection_[mod];
+      pc.has_downward_port.insert(source);
     }
   }
 }

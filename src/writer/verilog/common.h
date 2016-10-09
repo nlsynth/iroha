@@ -12,6 +12,7 @@ class Connection;
 class ModuleTemplate;
 class TaskCallInfo;
 class RegConnectionInfo;
+class PortConnectionInfo;
 
 namespace verilog {
 

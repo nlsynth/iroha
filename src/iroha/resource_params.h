@@ -63,6 +63,7 @@ public:
   void GetExtOutputPort(string *name, int *width);
 
   bool GetDefaultValue(int *value) const;
+  int GetWidth();
 
   void SetEmbeddedModuleName(const string &mod, const string &fn);
   string GetEmbeddedModuleName() const;

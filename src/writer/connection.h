@@ -41,6 +41,15 @@ public:
   set<IRegister *> is_source;
 };
 
+// Per module port access connections.
+class PortConnectionInfo {
+public:
+  set<IResource *> has_upward_port;
+  set<IResource *> has_downward_port;
+  set<IResource *> has_wire;
+  set<IResource *> is_source;
+};
+
 class Connection {
 public:
   Connection(const IDesign *design);
@@ -48,6 +57,7 @@ public:
   const ChannelInfo *GetConnectionInfo(const IModule *mod) const;
   const TaskCallInfo *GetTaskCallInfo(const IModule *mod) const;
   const RegConnectionInfo *GetRegConnectionInfo(const IModule *mod) const;
+  const PortConnectionInfo *GetPortConnectionInfo(const IModule *mod) const;
 
 private:
   // Channel.
@@ -66,11 +76,13 @@ private:
   // Sub module task call.
   void ProcessSubModuleTaskCall(IResource *caller);
   void ProcessForeignReg(IResource *freg);
+  void ProcessPort(IResource *port);
 
   const IDesign *design_;
   map<const IModule *, ChannelInfo> channel_info_;
   map<const IModule *, TaskCallInfo> task_call_info_;
   map<const IModule *, RegConnectionInfo> reg_connection_;
+  map<const IModule *, PortConnectionInfo> port_connection_;
 };
 
 }  // namespace writer

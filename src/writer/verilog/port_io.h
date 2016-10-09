@@ -17,7 +17,13 @@ public:
 
   static string PortName(const IResource &res);
 
+  static void BuildPorts(const PortConnectionInfo &pi, Ports *ports);
+  static void BuildChildWire(const PortConnectionInfo &pi, ostream &os);
+  static void BuildRootWire(const PortConnectionInfo &pi, Module *module);
+
 private:
+  static void AddChildWire(IResource *res, ostream &os);
+
   int width_;
   string output_port_;
   bool has_default_output_value_;

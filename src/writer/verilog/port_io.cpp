@@ -4,9 +4,11 @@
 #include "iroha/logging.h"
 #include "iroha/resource_class.h"
 #include "iroha/resource_params.h"
+#include "writer/connection.h"
 #include "writer/module_template.h"
 #include "writer/verilog/insn_writer.h"
 #include "writer/verilog/module.h"
+#include "writer/verilog/ports.h"
 #include "writer/verilog/state.h"
 #include "writer/verilog/table.h"
 
@@ -37,7 +39,7 @@ void PortIO::BuildResource() {
     rs << "  // port-output\n";
     rs << "  reg ";
     if (width_ > 0) {
-      rs << "[" << width_ -1 << ":0]";
+      rs << "[" << width_ - 1 << ":0]";
     }
     rs << " " << output_port_ << ";\n";
     if (has_default_output_value_) {
@@ -45,6 +47,15 @@ void PortIO::BuildResource() {
       os << "      " << output_port_ << " <= "
 	 << SelectValueByState(default_output_value_) << ";\n";
     }
+    // Reset value
+    ostream &is = tab_.InitialValueSectionStream();
+    is << "      " << output_port_ << " <= ";
+    if (has_default_output_value_) {
+      is << default_output_value_;
+    } else {
+      is << 0;
+    }
+    is << ";\n";
   }
 }
 
@@ -81,6 +92,44 @@ string PortIO::PortName(const IResource &res) {
     Util::Itoa(mod->GetId()) + "_" +
     Util::Itoa(tab->GetId()) + "_" + Util::Itoa(res.GetId()) +
     "_" + port_name;
+}
+
+void PortIO::BuildPorts(const PortConnectionInfo &pi, Ports *ports) {
+  for (IResource *res : pi.has_upward_port) {
+    int width = res->GetParams()->GetWidth();
+    ports->AddPort(PortName(*res), Port::OUTPUT_WIRE, width);
+  }
+  for (IResource *res : pi.has_downward_port) {
+    int width = res->GetParams()->GetWidth();
+    ports->AddPort(PortName(*res), Port::INPUT, width);
+  }
+}
+
+void PortIO::BuildChildWire(const PortConnectionInfo &pi, ostream &os) {
+  for (IResource *res : pi.has_upward_port) {
+    AddChildWire(res, os);
+  }
+  for (IResource *res : pi.has_downward_port) {
+    AddChildWire(res, os);
+  }
+}
+
+void PortIO::AddChildWire(IResource *res, ostream &os) {
+  string name = PortName(*res);
+  os << ", ." << name << "(" << name << ")";
+}
+
+void PortIO::BuildRootWire(const PortConnectionInfo &pi, Module *module) {
+  ModuleTemplate *tmpl = module->GetModuleTemplate();
+  ostream &ws = tmpl->GetStream(kInsnWireDeclSection);
+  for (IResource *res : pi.has_wire) {
+    ws << "  wire ";
+    int width = res->GetParams()->GetWidth();
+    if (width > 0) {
+      ws << "[" << width - 1 << ":0] ";
+    }
+    ws << PortName(*res) << ";\n";
+  }
 }
 
 }  // namespace verilog
