@@ -63,6 +63,7 @@ libiroha_la_SOURCES = \
  src/writer/cxx/class_writer.cpp src/writer/cxx/class_writer.h \
  src/writer/cxx/cxx_writer.cpp src/writer/cxx/cxx_writer.h \
  src/writer/cxx/module.cpp src/writer/cxx/module.h \
+ src/writer/cxx/resource.cpp src/writer/cxx/resource.h \
  src/writer/cxx/state.cpp src/writer/cxx/state.h \
  src/writer/cxx/table.cpp src/writer/cxx/table.h \
  src/writer/cxx/common.h \

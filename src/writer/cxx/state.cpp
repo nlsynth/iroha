@@ -3,6 +3,7 @@
 #include "iroha/i_design.h"
 #include "iroha/resource_class.h"
 #include "writer/cxx/class_writer.h"
+#include "writer/cxx/resource.h"
 #include "writer/cxx/table.h"
 
 #include <sstream>
@@ -40,6 +41,7 @@ void State::WriteInsn(IInsn *insn, ostream &os) {
   if (resource::IsTransition(*rc)) {
     WriteTransitionInsn(insn, os);
   }
+  Resource::WriteInsn(insn, os);
 }
 
 void State::WriteTransitionInsn(IInsn *insn, ostream &os) {
@@ -47,7 +49,7 @@ void State::WriteTransitionInsn(IInsn *insn, ostream &os) {
     os << "    " << tab_->GetStateVariableName() << " = "
        << insn->target_states_[0]->GetId() << ";\n";
   } else if (insn->target_states_.size() == 2) {
-    os << "    if (!" << RegValue(insn->inputs_[0]) << ") {\n";
+    os << "    if (!" << Resource::RegValue(insn->inputs_[0]) << ") {\n";
     os << "      " << tab_->GetStateVariableName() << " = "
        << insn->target_states_[0]->GetId() << ";\n";
     os << "    } else {\n";
@@ -55,10 +57,6 @@ void State::WriteTransitionInsn(IInsn *insn, ostream &os) {
        << insn->target_states_[1]->GetId() << ";\n";
     os << "    }\n";
   }
-}
-
-string State::RegValue(IRegister *reg) {
-  return reg->GetName();
 }
 
 }  // namespace cxx

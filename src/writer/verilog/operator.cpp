@@ -115,20 +115,21 @@ void Operator::BuildLightBinOpInsn(IInsn *insn) {
 void Operator::BuildBitShiftOpInsn(IInsn *insn) {
   ostream &ws = tmpl_->GetStream(kInsnWireValueSection);
   const string &rc = insn->GetResource()->GetClass()->GetName();
-  if (rc == resource::kShift) {
-    bool is_left = (insn->GetOperand() == "left");
-    const IValue &value = insn->inputs_[1]->GetInitialValue();
-    int amount = value.value_;
-    ws << "  assign " << InsnWriter::InsnOutputWireName(*insn, 0)
-	<< " = "
-	<< InsnWriter::RegisterName(*insn->inputs_[0]);
-    if (is_left) {
-      ws << " << ";
-    } else {
-      ws << " >> ";
-    }
-    ws << amount << ";\n";
+  if (rc != resource::kShift) {
+    return;
   }
+  bool is_left = (insn->GetOperand() == "left");
+  const IValue &value = insn->inputs_[1]->GetInitialValue();
+  int amount = value.value_;
+  ws << "  assign " << InsnWriter::InsnOutputWireName(*insn, 0)
+     << " = "
+     << InsnWriter::RegisterName(*insn->inputs_[0]);
+  if (is_left) {
+    ws << " << ";
+  } else {
+    ws << " >> ";
+  }
+  ws << amount << ";\n";
 }
 
 void Operator::BuildBitSelInsn(IInsn *insn) {
