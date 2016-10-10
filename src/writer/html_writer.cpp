@@ -46,33 +46,47 @@ void HtmlWriter::WriteTable(const ITable &tab) {
   }
   WriteRegisters(tab);
   WriteResources(tab);
-  os_ << " <ul>\n";
-  for (auto *st : tab.states_) {
-    WriteState(*st);
-  }
-  os_ << "</ul>\n"
-      << "</div>\n";
+  WriteTableStates(tab);
+  os_ << "</div>\n";
 }
 
-void HtmlWriter::WriteState(const IState &st) {
-  os_ << "<li> state:" << st.GetId();
-  if (annotation_) {
-    os_ << " " << annotation_->GetStateAnnotation(&st);
+void HtmlWriter::WriteTableStates(const ITable &tab) {
+  os_ << "  <table border=1>\n"
+      << "   <thead>\n"
+      << "    <td></td>\n";
+  for (auto *res : tab.resources_) {
+    os_ << "     <td>\n";
+    os_ << "     " << res->GetId() << ":" << res->GetClass()->GetName() << "\n";
+    os_ << "     </td>\n";
   }
-  os_ << "\n"
-      << " <ul>\n";
-  for (auto *insn : st.insns_) {
-    WriteInsn(*insn);
+  os_ << "   </thead>\n";
+  for (auto *st : tab.states_) {
+    os_ << "    <tr>\n";
+    os_ << "    <td>\n"
+	<< "     " << st->GetId() << "\n";
+    if (annotation_) {
+      os_ << " " << annotation_->GetStateAnnotation(st);
+    }
+    os_ << "    </td>\n";
+    map<IResource *, vector<IInsn *> > insns;
+    for (IInsn *insn : st->insns_) {
+      insns[insn->GetResource()].push_back(insn);
+    }
+    for (IResource *res : tab.resources_) {
+      os_ << "     <td>\n";
+      for (IInsn *insn : insns[res]) {
+	WriteInsn(*insn);
+      }
+      os_ << "     </td>\n";
+    }
+    os_ << "    </tr>\n";
   }
-  os_ << " </ul>\n</li>\n";
+  os_ << "</table>\n";
 }
 
 void HtmlWriter::WriteInsn(const IInsn &insn){
-  auto *res = insn.GetResource();
-  os_ << "   <li>insn: " << insn.GetId()
-      << " " << res->GetId() << ":" << res->GetClass()->GetName();
+  os_ << "    " << insn.GetId() << ":";
   if (insn.target_states_.size()) {
-    os_ << " transition:";
     for (auto *st : insn.target_states_) {
       os_ << " " << st->GetId();
     }

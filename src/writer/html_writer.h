@@ -22,7 +22,7 @@ private:
   void WriteFooter();
   void WriteModule(const IModule &mod);
   void WriteTable(const ITable &tab);
-  void WriteState(const IState &st);
+  void WriteTableStates(const ITable &tab);
   void WriteInsn(const IInsn &insn);
   void WriteRegisters(const ITable &tab);
   void WriteRegister(const IRegister &reg);
