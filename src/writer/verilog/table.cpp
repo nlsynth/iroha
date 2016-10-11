@@ -8,11 +8,11 @@
 #include "iroha/stl_util.h"
 #include "writer/module_template.h"
 #include "writer/verilog/embed.h"
+#include "writer/verilog/foreign_reg.h"
 #include "writer/verilog/insn_writer.h"
 #include "writer/verilog/module.h"
 #include "writer/verilog/ports.h"
 #include "writer/verilog/resource.h"
-#include "writer/verilog/shared_reg.h"
 #include "writer/verilog/state.h"
 #include "writer/verilog/task.h"
 
@@ -41,7 +41,7 @@ void Table::Build() {
   BuildResource();
   BuildInsnOutputWire();
   BuildMultiCycleStateReg();
-  SharedReg::BuildSharedRegisters(*this);
+  ForeignReg::BuildForeignRegisters(*this);
 }
 
 void Table::BuildStates() {

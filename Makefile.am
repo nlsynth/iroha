@@ -73,6 +73,7 @@ libiroha_la_SOURCES = \
  src/writer/verilog/dataflow_table.cpp src/writer/verilog/dataflow_table.h \
  src/writer/verilog/embed.cpp src/writer/verilog/embed.h \
  src/writer/verilog/ext_io.cpp src/writer/verilog/ext_io.h \
+ src/writer/verilog/foreign_reg.cpp src/writer/verilog/foreign_reg.h \
  src/writer/verilog/insn_writer.cpp src/writer/verilog/insn_writer.h \
  src/writer/verilog/internal_sram.cpp src/writer/verilog/internal_sram.h \
  src/writer/verilog/mapped.cpp src/writer/verilog/mapped.h \
@@ -81,7 +82,6 @@ libiroha_la_SOURCES = \
  src/writer/verilog/port_io.cpp src/writer/verilog/port_io.h \
  src/writer/verilog/ports.cpp src/writer/verilog/ports.h \
  src/writer/verilog/resource.cpp src/writer/verilog/resource.h \
- src/writer/verilog/shared_reg.cpp src/writer/verilog/shared_reg.h \
  src/writer/verilog/state.cpp src/writer/verilog/state.h \
  src/writer/verilog/sub_module_task.cpp src/writer/verilog/sub_module_task.h \
  src/writer/verilog/table.cpp src/writer/verilog/table.h \

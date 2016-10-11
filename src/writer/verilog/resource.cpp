@@ -8,13 +8,13 @@
 #include "writer/verilog/channel.h"
 #include "writer/verilog/embed.h"
 #include "writer/verilog/ext_io.h"
+#include "writer/verilog/foreign_reg.h"
 #include "writer/verilog/insn_writer.h"
 #include "writer/verilog/mapped.h"
 #include "writer/verilog/module.h"
 #include "writer/verilog/operator.h"
 #include "writer/verilog/port_io.h"
 #include "writer/verilog/ports.h"
-#include "writer/verilog/shared_reg.h"
 #include "writer/verilog/state.h"
 #include "writer/verilog/sub_module_task.h"
 #include "writer/verilog/table.h"
@@ -44,7 +44,7 @@ Resource *Resource::Create(const IResource &res, const Table &table) {
     return new Operator(res, table);
   }
   if (resource::IsForeignRegister(*klass)) {
-    return new SharedReg(res, table);
+    return new ForeignReg(res, table);
   }
   if (resource::IsEmbedded(*klass)) {
     return new EmbeddedResource(res, table);

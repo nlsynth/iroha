@@ -1,4 +1,4 @@
-#include "writer/verilog/shared_reg.h"
+#include "writer/verilog/foreign_reg.h"
 
 #include "iroha/i_design.h"
 #include "writer/connection.h"
@@ -12,11 +12,11 @@ namespace iroha {
 namespace writer {
 namespace verilog {
 
-SharedReg::SharedReg(const IResource &res, const Table &table)
+ForeignReg::ForeignReg(const IResource &res, const Table &table)
   : Resource(res, table) {
 }
 
-void SharedReg::BuildResource() {
+void ForeignReg::BuildResource() {
   map<IState *, IInsn *> callers;
   CollectResourceCallers("", &callers);
 
@@ -62,7 +62,7 @@ void SharedReg::BuildResource() {
   rs << "  assign " << res_name << "_wdata = " << d << ";\n";
 }
 
-void SharedReg::BuildInsn(IInsn *insn, State *st) {
+void ForeignReg::BuildInsn(IInsn *insn, State *st) {
   if (insn->outputs_.size() == 0) {
     return;
   }
@@ -73,11 +73,11 @@ void SharedReg::BuildInsn(IInsn *insn, State *st) {
      << ";\n";
 }
 
-string SharedReg::RegPrefix(const ITable &writer, const IRegister &reg) {
+string ForeignReg::RegPrefix(const ITable &writer, const IRegister &reg) {
   return "shared_reg_" + Util::Itoa(writer.GetId()) + "_" + Util::Itoa(reg.GetTable()->GetId()) + "_" + Util::Itoa(reg.GetId());
 }
 
-void SharedReg::BuildSharedRegisters(const Table &tab) {
+void ForeignReg::BuildForeignRegisters(const Table &tab) {
   Module *mod = tab.GetModule();
   const IModule *i_mod = mod->GetIModule();
   ITable *i_tab = tab.GetITable();
@@ -105,7 +105,7 @@ void SharedReg::BuildSharedRegisters(const Table &tab) {
       if (!is_first) {
 	os << "else ";
       }
-      string s = SharedReg::RegPrefix(*t, *reg);
+      string s = ForeignReg::RegPrefix(*t, *reg);
       os << "if (" << s << "_w) begin\n";
       os << "        " << InsnWriter::RegisterName(*reg) << " <= ";
       os << s << "_wdata;\n";
@@ -115,7 +115,7 @@ void SharedReg::BuildSharedRegisters(const Table &tab) {
   }
 }
 
-void SharedReg::BuildPorts(const RegConnectionInfo &ri, Ports *ports) {
+void ForeignReg::BuildPorts(const RegConnectionInfo &ri, Ports *ports) {
   for (IRegister *reg : ri.has_upward_port) {
     ports->AddPort(ForeignRegName(reg), Port::OUTPUT_WIRE, reg->value_type_.GetWidth());
   }
@@ -124,7 +124,7 @@ void SharedReg::BuildPorts(const RegConnectionInfo &ri, Ports *ports) {
   }
 }
 
-void SharedReg::BuildChildWire(const RegConnectionInfo &ri, ostream &os) {
+void ForeignReg::BuildChildWire(const RegConnectionInfo &ri, ostream &os) {
   for (IRegister *reg : ri.has_upward_port) {
     AddChildWire(reg, os);
   }
@@ -133,12 +133,12 @@ void SharedReg::BuildChildWire(const RegConnectionInfo &ri, ostream &os) {
   }
 }
 
-void SharedReg::AddChildWire(IRegister *reg, ostream &os) {
+void ForeignReg::AddChildWire(IRegister *reg, ostream &os) {
   string name = ForeignRegName(reg);
   os << ", ." << name << "(" << name << ")";
 }
 
-void SharedReg::BuildRegWire(const RegConnectionInfo &ri, Module *module) {
+void ForeignReg::BuildRegWire(const RegConnectionInfo &ri, Module *module) {
   ModuleTemplate *tmpl = module->GetModuleTemplate();
   ostream &ws = tmpl->GetStream(kInsnWireValueSection);
   for (IRegister *reg : ri.is_source) {
@@ -152,7 +152,7 @@ void SharedReg::BuildRegWire(const RegConnectionInfo &ri, Module *module) {
   }
 }
 
-string SharedReg::ForeignRegName(const IRegister *reg) {
+string ForeignReg::ForeignRegName(const IRegister *reg) {
   return reg->GetTable()->GetModule()->GetName() + "_" + InsnWriter::RegisterName(*reg);
 }
 
