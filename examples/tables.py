@@ -7,7 +7,7 @@ from iroha.iroha import *
 d = IDesign()
 mod = IModule(d, "mod")
 
-shared_reg = design_tool.CreateSharedRegister(mod, None)
+isolated_reg = design_tool.CreateIsolatedRegister(mod, None)
 
 tab1 = ITable(mod)
 st1 = IState(tab1)
@@ -16,7 +16,7 @@ tab1.initialSt = st1
 st12 = IState(tab1)
 tab1.states.append(st12)
 
-foreign_reg1 = design_tool.CreateForeignRegister(tab1, shared_reg)
+foreign_reg1 = design_tool.CreateForeignRegister(tab1, isolated_reg)
 assign = design_tool.GetResource(tab1, "set")
 # write
 w_insn1 = IInsn(foreign_reg1)
@@ -39,7 +39,7 @@ tab2.initialSt = st2
 st22 = IState(tab2)
 tab2.states.append(st22)
 
-foreign_reg2 = design_tool.CreateForeignRegister(tab2, shared_reg)
+foreign_reg2 = design_tool.CreateForeignRegister(tab2, isolated_reg)
 # write
 w_insn2 = IInsn(foreign_reg2)
 r21 = IRegister(tab2, "r21")

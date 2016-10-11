@@ -97,7 +97,7 @@ def CreateEmbedResource(table, name, fn, clk, rst):
     res.resource_params.AddValue("EMBEDDED-MODULE-RESET", rst)
     return res
 
-def CreateSharedRegister(module, tab=None):
+def CreateIsolatedRegister(module, tab=None):
     if not tab:
         tab = ITable(module)
     return IRegister(tab, "r_%d" % len(tab.registers))
