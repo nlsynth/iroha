@@ -198,10 +198,12 @@ string Resource::SelectValueByState(int default_value) {
   for (auto &c : callers) {
     IState *st = c.first;
     IInsn *insn = c.second;
-    v = "((" + tab_.StateVariable() + " == " +
-      Util::Itoa(st->GetId()) +
-      ") ? " + InsnWriter::RegisterName(*insn->inputs_[0]) +
-      " : " + v + ")";
+    if (insn->inputs_.size() == 1) {
+      v = "((" + tab_.StateVariable() + " == " +
+	Util::Itoa(st->GetId()) +
+	") ? " + InsnWriter::RegisterName(*insn->inputs_[0]) +
+	" : " + v + ")";
+    }
   }
   return v;
 }

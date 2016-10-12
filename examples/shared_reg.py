@@ -30,11 +30,17 @@ rc = design_tool.AllocConstNum(tab, False, 32, 456)
 opinsn.inputs.append(rc)
 st1.insns.append(opinsn)
 
+read_insn = IInsn(output_pulse)
+r = IRegister(tab, "r_local")
+read_insn.outputs.append(r)
+st3.insns.append(read_insn)
+
 input = design_tool.CreateSharedRegReader(tab, output)
 iinsn = IInsn(input)
 r = IRegister(tab, "r")
 iinsn.outputs.append(r)
 st2.insns.append(iinsn)
+
 
 design_tool.ValidateIds(d)
 DesignWriter(d).Write()

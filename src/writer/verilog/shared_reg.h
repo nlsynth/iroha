@@ -15,7 +15,7 @@ public:
   virtual void BuildResource() override;
   virtual void BuildInsn(IInsn *insn, State *st) override;
 
-  static string PortName(const IResource &res);
+  static string RegName(const IResource &res);
 
   static void BuildPorts(const PortConnectionInfo &pi, Ports *ports);
   static void BuildChildWire(const PortConnectionInfo &pi, ostream &os);
@@ -25,7 +25,6 @@ private:
   static void AddChildWire(IResource *res, ostream &os);
 
   int width_;
-  string output_port_;
   bool has_default_output_value_;
   int default_output_value_;
 };

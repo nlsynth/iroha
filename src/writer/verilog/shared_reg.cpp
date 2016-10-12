@@ -21,7 +21,6 @@ SharedReg::SharedReg(const IResource &res, const Table &table)
     default_output_value_(0) {
   auto *klass = res_.GetClass();
   if (resource::IsSharedReg(*klass)) {
-    output_port_ = PortName(res);
     auto *params = res_.GetParams();
     string unused;
     params->GetExtOutputPort(&unused, &width_);
@@ -41,15 +40,15 @@ void SharedReg::BuildResource() {
     if (width_ > 0) {
       rs << "[" << width_ - 1 << ":0]";
     }
-    rs << " " << output_port_ << ";\n";
+    rs << " " << RegName(res_) << ";\n";
     if (has_default_output_value_) {
       ostream &os = tab_.StateOutputSectionStream();
-      os << "      " << output_port_ << " <= "
+      os << "      " << RegName(res_) << " <= "
 	 << SelectValueByState(default_output_value_) << ";\n";
     }
     // Reset value
     ostream &is = tab_.InitialValueSectionStream();
-    is << "      " << output_port_ << " <= ";
+    is << "      " << RegName(res_) << " <= ";
     if (has_default_output_value_) {
       is << default_output_value_;
     } else {
@@ -61,24 +60,35 @@ void SharedReg::BuildResource() {
 
 void SharedReg::BuildInsn(IInsn *insn, State *st) {
   auto *klass = res_.GetClass();
-  if (resource::IsSharedReg(*klass) &&
-      !has_default_output_value_) {
-    ostream &os = st->StateBodySectionStream();
-    os << "          " << output_port_ << " <= "
-       << InsnWriter::RegisterName(*insn->inputs_[0]);
-    os << ";\n";
+  if (resource::IsSharedReg(*klass)) {
+    if (!has_default_output_value_ &&
+	insn->inputs_.size() == 1) {
+      ostream &os = st->StateBodySectionStream();
+      os << "          " << RegName(res_) << " <= "
+	 << InsnWriter::RegisterName(*insn->inputs_[0])
+	 << ";\n";
+    }
+    if (insn->outputs_.size() == 1) {
+      // Read from self.
+      ostream &ws = tmpl_->GetStream(kInsnWireValueSection);
+      ws << "  assign "
+	 << InsnWriter::InsnOutputWireName(*insn, 0)
+	 << " = "
+	 << RegName(res_) << ";\n";
+    }
   }
   if (resource::IsSharedRegReader(*klass)) {
+    // Read from another table.
     IResource *source = res_.GetSharedReg();
     ostream &ws = tmpl_->GetStream(kInsnWireValueSection);
     ws << "  assign "
        << InsnWriter::InsnOutputWireName(*insn, 0)
        << " = "
-       << PortName(*source) << ";\n";
+       << RegName(*source) << ";\n";
   }
 }
 
-string SharedReg::PortName(const IResource &res) {
+string SharedReg::RegName(const IResource &res) {
   auto *params = res.GetParams();
   int unused_width;
   string port_name;
@@ -94,11 +104,11 @@ string SharedReg::PortName(const IResource &res) {
 void SharedReg::BuildPorts(const PortConnectionInfo &pi, Ports *ports) {
   for (IResource *res : pi.has_upward_port) {
     int width = res->GetParams()->GetWidth();
-    ports->AddPort(PortName(*res), Port::OUTPUT_WIRE, width);
+    ports->AddPort(RegName(*res), Port::OUTPUT_WIRE, width);
   }
   for (IResource *res : pi.has_downward_port) {
     int width = res->GetParams()->GetWidth();
-    ports->AddPort(PortName(*res), Port::INPUT, width);
+    ports->AddPort(RegName(*res), Port::INPUT, width);
   }
 }
 
@@ -112,7 +122,7 @@ void SharedReg::BuildChildWire(const PortConnectionInfo &pi, ostream &os) {
 }
 
 void SharedReg::AddChildWire(IResource *res, ostream &os) {
-  string name = PortName(*res);
+  string name = RegName(*res);
   os << ", ." << name << "(" << name << ")";
 }
 
@@ -125,7 +135,7 @@ void SharedReg::BuildRootWire(const PortConnectionInfo &pi, Module *module) {
     if (width > 0) {
       ws << "[" << width - 1 << ":0] ";
     }
-    ws << PortName(*res) << ";\n";
+    ws << RegName(*res) << ";\n";
   }
 }
 
