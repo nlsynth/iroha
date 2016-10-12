@@ -31,11 +31,11 @@ void Connection::Build() {
       for (IResource *freg : foreign_regs) {
 	ProcessForeignReg(freg);
       }
-      vector<IResource*> port_inputs;
-      DesignUtil::FindResourceByClassName(tab, resource::kPortInput,
-					  &port_inputs);
-      for (IResource *port : port_inputs) {
-	ProcessPort(port);
+      vector<IResource*> reg_readers;
+      DesignUtil::FindResourceByClassName(tab, resource::kSharedRegReader,
+					  &reg_readers);
+      for (IResource *reg : reg_readers) {
+	ProcessRegReader(reg);
       }
     }
   }
@@ -205,9 +205,9 @@ void Connection::ProcessForeignReg(IResource *freg) {
   }
 }
 
-void Connection::ProcessPort(IResource *port) {
+void Connection::ProcessRegReader(IResource *port) {
   // TODO(yt76): Merge with ProcessForeignReg()
-  IResource *source = port->GetPortInput();
+  IResource *source = port->GetSharedReg();
   IModule *source_module = source->GetTable()->GetModule();
   IModule *sink_module = port->GetTable()->GetModule();
   if (source_module == sink_module) {

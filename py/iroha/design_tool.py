@@ -102,9 +102,9 @@ def CreateIsolatedRegister(module, tab=None):
         tab = ITable(module)
     return IRegister(tab, "r_%d" % len(tab.registers))
 
-def CreateForeignRegister(table, shared_reg):
+def CreateForeignRegister(table, foreign_reg):
     res = createResource(table, "foreign-reg")
-    res.foreign_reg = shared_reg
+    res.foreign_reg = foreign_reg
     return res
 
 def CreateExtInput(table, name, width):
@@ -119,13 +119,13 @@ def CreateExtOutput(table, name, width):
     res.resource_params.AddValue("WIDTH", str(width))
     return res
 
-def CreatePortInput(table, port_output):
-    res = createResource(table, "port-input")
-    res.port_input = port_output
+def CreateSharedRegReader(table, source):
+    res = createResource(table, "shared-reg-reader")
+    res.shared_reg = source
     return res
 
-def CreatePortOutput(table, name, width):
-    res = createResource(table, "port-output")
+def CreateSharedReg(table, name, width):
+    res = createResource(table, "shared-reg")
     res.resource_params.AddValue("OUTPUT", name)
     res.resource_params.AddValue("WIDTH", str(width))
     return res

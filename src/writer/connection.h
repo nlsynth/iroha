@@ -76,7 +76,7 @@ private:
   // Sub module task call.
   void ProcessSubModuleTaskCall(IResource *caller);
   void ProcessForeignReg(IResource *freg);
-  void ProcessPort(IResource *port);
+  void ProcessRegReader(IResource *port);
 
   const IDesign *design_;
   map<const IModule *, ChannelInfo> channel_info_;

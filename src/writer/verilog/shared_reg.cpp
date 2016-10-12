@@ -1,4 +1,4 @@
-#include "writer/verilog/port_io.h"
+#include "writer/verilog/shared_reg.h"
 
 #include "iroha/i_design.h"
 #include "iroha/logging.h"
@@ -16,11 +16,11 @@ namespace iroha {
 namespace writer {
 namespace verilog {
 
-PortIO::PortIO(const IResource &res, const Table &table)
+SharedReg::SharedReg(const IResource &res, const Table &table)
   : Resource(res, table), has_default_output_value_(false),
     default_output_value_(0) {
   auto *klass = res_.GetClass();
-  if (resource::IsPortOutput(*klass)) {
+  if (resource::IsSharedReg(*klass)) {
     output_port_ = PortName(res);
     auto *params = res_.GetParams();
     string unused;
@@ -32,11 +32,11 @@ PortIO::PortIO(const IResource &res, const Table &table)
   }
 }
 
-void PortIO::BuildResource() {
+void SharedReg::BuildResource() {
   auto *klass = res_.GetClass();
-  if (resource::IsPortOutput(*klass)) {
+  if (resource::IsSharedReg(*klass)) {
     ostream &rs = tmpl_->GetStream(kRegisterSection);
-    rs << "  // port-output\n";
+    rs << "  // shared-reg\n";
     rs << "  reg ";
     if (width_ > 0) {
       rs << "[" << width_ - 1 << ":0]";
@@ -59,29 +59,26 @@ void PortIO::BuildResource() {
   }
 }
 
-void PortIO::BuildInsn(IInsn *insn, State *st) {
+void SharedReg::BuildInsn(IInsn *insn, State *st) {
   auto *klass = res_.GetClass();
-  if (resource::IsPortOutput(*klass) &&
+  if (resource::IsSharedReg(*klass) &&
       !has_default_output_value_) {
     ostream &os = st->StateBodySectionStream();
     os << "          " << output_port_ << " <= "
        << InsnWriter::RegisterName(*insn->inputs_[0]);
     os << ";\n";
   }
-  if (resource::IsPortInput(*klass)) {
-    IResource *input = res_.GetPortInput();
-    CHECK(input->GetTable()->GetModule()->GetId() ==
-	  res_.GetTable()->GetModule()->GetId())
-      << "port-input from different module isn't yet supported";
+  if (resource::IsSharedRegReader(*klass)) {
+    IResource *source = res_.GetSharedReg();
     ostream &ws = tmpl_->GetStream(kInsnWireValueSection);
     ws << "  assign "
        << InsnWriter::InsnOutputWireName(*insn, 0)
        << " = "
-       << PortName(*input) << ";\n";
+       << PortName(*source) << ";\n";
   }
 }
 
-string PortIO::PortName(const IResource &res) {
+string SharedReg::PortName(const IResource &res) {
   auto *params = res.GetParams();
   int unused_width;
   string port_name;
@@ -94,7 +91,7 @@ string PortIO::PortName(const IResource &res) {
     "_" + port_name;
 }
 
-void PortIO::BuildPorts(const PortConnectionInfo &pi, Ports *ports) {
+void SharedReg::BuildPorts(const PortConnectionInfo &pi, Ports *ports) {
   for (IResource *res : pi.has_upward_port) {
     int width = res->GetParams()->GetWidth();
     ports->AddPort(PortName(*res), Port::OUTPUT_WIRE, width);
@@ -105,7 +102,7 @@ void PortIO::BuildPorts(const PortConnectionInfo &pi, Ports *ports) {
   }
 }
 
-void PortIO::BuildChildWire(const PortConnectionInfo &pi, ostream &os) {
+void SharedReg::BuildChildWire(const PortConnectionInfo &pi, ostream &os) {
   for (IResource *res : pi.has_upward_port) {
     AddChildWire(res, os);
   }
@@ -114,12 +111,12 @@ void PortIO::BuildChildWire(const PortConnectionInfo &pi, ostream &os) {
   }
 }
 
-void PortIO::AddChildWire(IResource *res, ostream &os) {
+void SharedReg::AddChildWire(IResource *res, ostream &os) {
   string name = PortName(*res);
   os << ", ." << name << "(" << name << ")";
 }
 
-void PortIO::BuildRootWire(const PortConnectionInfo &pi, Module *module) {
+void SharedReg::BuildRootWire(const PortConnectionInfo &pi, Module *module) {
   ModuleTemplate *tmpl = module->GetModuleTemplate();
   ostream &ws = tmpl->GetStream(kInsnWireDeclSection);
   for (IResource *res : pi.has_wire) {

@@ -71,12 +71,12 @@ bool IsExtOutput(const IResourceClass &rc) {
   return (rc.GetName() == kExtOutput);
 }
 
-bool IsPortInput(const IResourceClass &rc) {
-  return (rc.GetName() == kPortInput);
+bool IsSharedRegReader(const IResourceClass &rc) {
+  return (rc.GetName() == kSharedRegReader);
 }
 
-bool IsPortOutput(const IResourceClass &rc) {
-  return (rc.GetName() == kPortOutput);
+bool IsSharedReg(const IResourceClass &rc) {
+  return (rc.GetName() == kSharedReg);
 }
 
 bool IsChannelRead(const IResourceClass &rc) {
@@ -142,8 +142,8 @@ void InstallResourceClasses(IDesign *design) {
   InstallResource(design, resource::kForeignReg, true);
   InstallResource(design, resource::kExtInput, true);
   InstallResource(design, resource::kExtOutput, true);
-  InstallResource(design, resource::kPortInput, true);
-  InstallResource(design, resource::kPortOutput, true);
+  InstallResource(design, resource::kSharedReg, true);
+  InstallResource(design, resource::kSharedRegReader, true);
   InstallResource(design, resource::kArray, true);
   InstallResource(design, resource::kGt, true);
   InstallResource(design, resource::kGte, true);

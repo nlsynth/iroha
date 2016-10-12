@@ -141,9 +141,9 @@ am_libiroha_la_OBJECTS = src/iroha/common.lo src/iroha/iroha.lo \
 	src/writer/verilog/insn_writer.lo \
 	src/writer/verilog/internal_sram.lo \
 	src/writer/verilog/mapped.lo src/writer/verilog/module.lo \
-	src/writer/verilog/operator.lo src/writer/verilog/port_io.lo \
-	src/writer/verilog/ports.lo src/writer/verilog/resource.lo \
-	src/writer/verilog/state.lo \
+	src/writer/verilog/operator.lo \
+	src/writer/verilog/shared_reg.lo src/writer/verilog/ports.lo \
+	src/writer/verilog/resource.lo src/writer/verilog/state.lo \
 	src/writer/verilog/sub_module_task.lo \
 	src/writer/verilog/table.lo src/writer/verilog/task.lo \
 	src/writer/verilog/verilog_writer.lo src/writer/writer.lo
@@ -519,7 +519,7 @@ libiroha_la_SOURCES = \
  src/writer/verilog/mapped.cpp src/writer/verilog/mapped.h \
  src/writer/verilog/module.cpp src/writer/verilog/module.h \
  src/writer/verilog/operator.cpp src/writer/verilog/operator.h \
- src/writer/verilog/port_io.cpp src/writer/verilog/port_io.h \
+ src/writer/verilog/shared_reg.cpp src/writer/verilog/shared_reg.h \
  src/writer/verilog/ports.cpp src/writer/verilog/ports.h \
  src/writer/verilog/resource.cpp src/writer/verilog/resource.h \
  src/writer/verilog/state.cpp src/writer/verilog/state.h \
@@ -752,7 +752,7 @@ src/writer/verilog/module.lo: src/writer/verilog/$(am__dirstamp) \
 	src/writer/verilog/$(DEPDIR)/$(am__dirstamp)
 src/writer/verilog/operator.lo: src/writer/verilog/$(am__dirstamp) \
 	src/writer/verilog/$(DEPDIR)/$(am__dirstamp)
-src/writer/verilog/port_io.lo: src/writer/verilog/$(am__dirstamp) \
+src/writer/verilog/shared_reg.lo: src/writer/verilog/$(am__dirstamp) \
 	src/writer/verilog/$(DEPDIR)/$(am__dirstamp)
 src/writer/verilog/ports.lo: src/writer/verilog/$(am__dirstamp) \
 	src/writer/verilog/$(DEPDIR)/$(am__dirstamp)
@@ -921,9 +921,9 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/writer/verilog/$(DEPDIR)/mapped.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/writer/verilog/$(DEPDIR)/module.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/writer/verilog/$(DEPDIR)/operator.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/writer/verilog/$(DEPDIR)/port_io.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/writer/verilog/$(DEPDIR)/ports.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/writer/verilog/$(DEPDIR)/resource.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/writer/verilog/$(DEPDIR)/shared_reg.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/writer/verilog/$(DEPDIR)/state.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/writer/verilog/$(DEPDIR)/sub_module_task.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/writer/verilog/$(DEPDIR)/table.Plo@am__quote@

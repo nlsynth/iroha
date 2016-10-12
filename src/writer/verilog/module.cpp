@@ -9,7 +9,7 @@
 #include "writer/verilog/channel.h"
 #include "writer/verilog/dataflow_table.h"
 #include "writer/verilog/foreign_reg.h"
-#include "writer/verilog/port_io.h"
+#include "writer/verilog/shared_reg.h"
 #include "writer/verilog/ports.h"
 #include "writer/verilog/table.h"
 #include "writer/verilog/sub_module_task.h"
@@ -115,8 +115,8 @@ void Module::Build() {
   }
   const PortConnectionInfo *pi = conn_.GetPortConnectionInfo(i_mod_);
   if (pi != nullptr) {
-    PortIO::BuildPorts(*pi, ports_.get());
-    PortIO::BuildRootWire(*pi, this);
+    SharedReg::BuildPorts(*pi, ports_.get());
+    SharedReg::BuildRootWire(*pi, this);
   }
 }
 
@@ -148,7 +148,7 @@ void Module::BuildChildModuleSection(vector<Module *> &child_mods) {
     // Ports
     const PortConnectionInfo *pi = conn_.GetPortConnectionInfo(child_imod);
     if (pi != nullptr) {
-      PortIO::BuildChildWire(*pi, is);
+      SharedReg::BuildChildWire(*pi, is);
     }
     is << ");\n";
   }

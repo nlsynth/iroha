@@ -84,8 +84,8 @@ void ExpWriter::WriteResource(const IResource &res) {
       resource::IsSubModuleTaskCall(rc)) {
     WriteCalleeTaskDesc(res);
   }
-  if (resource::IsPortInput(rc)) {
-    WritePortInputDesc(res);
+  if (resource::IsSharedRegReader(rc)) {
+    WriteSharedRegReaderDesc(res);
   }
   os_ << "      )\n";
 }
@@ -132,12 +132,12 @@ void ExpWriter::WriteCalleeTaskDesc(const IResource &res) {
       << table->GetId() << ")\n";
 }
 
-void ExpWriter::WritePortInputDesc(const IResource &res) {
-  const IResource *writer = res.GetPortInput();
-  const ITable *table = writer->GetTable();
+void ExpWriter::WriteSharedRegReaderDesc(const IResource &res) {
+  const IResource *source = res.GetSharedReg();
+  const ITable *table = source->GetTable();
   const IModule *mod = table->GetModule();
-  os_ << "        (PORT-INPUT " <<  mod->GetId() << " "
-      << table->GetId() << " " << writer->GetId() << ")\n";
+  os_ << "        (SHARED-REG " <<  mod->GetId() << " "
+      << table->GetId() << " " << source->GetId() << ")\n";
 }
 
 void ExpWriter::WriteInitialState(const ITable &tab) {
