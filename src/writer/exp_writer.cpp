@@ -84,8 +84,9 @@ void ExpWriter::WriteResource(const IResource &res) {
       resource::IsSubModuleTaskCall(rc)) {
     WriteCalleeTaskDesc(res);
   }
-  if (resource::IsSharedRegReader(rc)) {
-    WriteSharedRegReaderDesc(res);
+  if (resource::IsSharedRegReader(rc) ||
+      resource::IsSharedRegWriter(rc)) {
+    WriteSharedRegDesc(res);
   }
   os_ << "      )\n";
 }
@@ -132,7 +133,7 @@ void ExpWriter::WriteCalleeTaskDesc(const IResource &res) {
       << table->GetId() << ")\n";
 }
 
-void ExpWriter::WriteSharedRegReaderDesc(const IResource &res) {
+void ExpWriter::WriteSharedRegDesc(const IResource &res) {
   const IResource *source = res.GetSharedReg();
   const ITable *table = source->GetTable();
   const IModule *mod = table->GetModule();

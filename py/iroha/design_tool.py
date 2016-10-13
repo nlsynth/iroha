@@ -119,15 +119,20 @@ def CreateExtOutput(table, name, width):
     res.resource_params.AddValue("WIDTH", str(width))
     return res
 
+def CreateSharedReg(table, name, width):
+    res = createResource(table, "shared-reg")
+    res.resource_params.AddValue("OUTPUT", name)
+    res.resource_params.AddValue("WIDTH", str(width))
+    return res
+
 def CreateSharedRegReader(table, source):
     res = createResource(table, "shared-reg-reader")
     res.shared_reg = source
     return res
 
-def CreateSharedReg(table, name, width):
-    res = createResource(table, "shared-reg")
-    res.resource_params.AddValue("OUTPUT", name)
-    res.resource_params.AddValue("WIDTH", str(width))
+def CreateSharedRegWriter(table, source):
+    res = createResource(table, "shared-reg-writer")
+    res.shared_reg = source
     return res
 
 def CreateSiblingTask(table):
