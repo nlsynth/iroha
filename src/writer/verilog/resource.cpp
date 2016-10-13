@@ -58,7 +58,8 @@ Resource *Resource::Create(const IResource &res, const Table &table) {
     return new ExtIO(res, table);
   }
   if (resource::IsSharedReg(*klass) ||
-      resource::IsSharedRegReader(*klass)) {
+      resource::IsSharedRegReader(*klass) ||
+      resource::IsSharedRegWriter(*klass)) {
     return new SharedReg(res, table);
   }
   if (resource::IsMapped(*klass)) {

@@ -41,8 +41,8 @@ public:
   set<IRegister *> is_source;
 };
 
-// Per module port access connections.
-class PortConnectionInfo {
+// Per module shared reg reader/writer connections.
+class SharedRegConnectionInfo {
 public:
   set<IResource *> has_upward_port;
   set<IResource *> has_downward_port;
@@ -57,7 +57,8 @@ public:
   const ChannelInfo *GetConnectionInfo(const IModule *mod) const;
   const TaskCallInfo *GetTaskCallInfo(const IModule *mod) const;
   const RegConnectionInfo *GetRegConnectionInfo(const IModule *mod) const;
-  const PortConnectionInfo *GetPortConnectionInfo(const IModule *mod) const;
+  const SharedRegConnectionInfo *GetSharedRegReaderConnectionInfo(const IModule *mod) const;
+  const SharedRegConnectionInfo *GetSharedRegWriterConnectionInfo(const IModule *mod) const;
 
 private:
   // Channel.
@@ -76,13 +77,14 @@ private:
   // Sub module task call.
   void ProcessSubModuleTaskCall(IResource *caller);
   void ProcessForeignReg(IResource *freg);
-  void ProcessRegReader(IResource *port);
+  void ProcessSharedReg(IResource *accessor, bool is_write);
 
   const IDesign *design_;
   map<const IModule *, ChannelInfo> channel_info_;
   map<const IModule *, TaskCallInfo> task_call_info_;
   map<const IModule *, RegConnectionInfo> reg_connection_;
-  map<const IModule *, PortConnectionInfo> port_connection_;
+  map<const IModule *, SharedRegConnectionInfo> shared_reg_reader_;
+  map<const IModule *, SharedRegConnectionInfo> shared_reg_writer_;
 };
 
 }  // namespace writer

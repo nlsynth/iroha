@@ -16,13 +16,29 @@ public:
   virtual void BuildInsn(IInsn *insn, State *st) override;
 
   static string RegName(const IResource &res);
+  static string WriterName(const IResource &res);
+  static string WriterEnName(const IResource &res);
 
-  static void BuildPorts(const PortConnectionInfo &pi, Ports *ports);
-  static void BuildChildWire(const PortConnectionInfo &pi, ostream &os);
-  static void BuildRootWire(const PortConnectionInfo &pi, Module *module);
+  // Reader
+  static void BuildReaderPorts(const SharedRegConnectionInfo &pi,
+			       Ports *ports);
+  static void BuildReaderChildWire(const SharedRegConnectionInfo &pi,
+				   ostream &os);
+  static void BuildReaderRootWire(const SharedRegConnectionInfo &pi,
+				  Module *module);
+  // Writer
+  static void BuildWriterPorts(const SharedRegConnectionInfo &pi,
+			       Ports *ports);
+  static void BuildWriterChildWire(const SharedRegConnectionInfo &pi,
+				   ostream &os);
+  static void BuildWriterRootWire(const SharedRegConnectionInfo &pi,
+				  Module *module);
+  static void BuildRootWire(const SharedRegConnectionInfo &pi,
+			    bool is_write,
+			    Module *module);
 
 private:
-  static void AddChildWire(IResource *res, ostream &os);
+  static void AddChildWire(IResource *res, bool is_write, ostream &os);
 
   int width_;
   bool has_default_output_value_;

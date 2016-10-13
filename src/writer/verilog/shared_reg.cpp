@@ -26,6 +26,10 @@ SharedReg::SharedReg(const IResource &res, const Table &table)
     params->GetExtOutputPort(&unused, &width_);
     has_default_output_value_ =
       params->GetDefaultValue(&default_output_value_);
+  } else if (resource::IsSharedRegWriter(*klass)) {
+    auto *params = res_.GetSharedReg()->GetParams();
+    string unused;
+    params->GetExtOutputPort(&unused, &width_);
   } else {
     width_ = 0;
   }
@@ -55,6 +59,20 @@ void SharedReg::BuildResource() {
       is << 0;
     }
     is << ";\n";
+  }
+  if (resource::IsSharedRegWriter(*klass)) {
+    ostream &rs = tmpl_->GetStream(kRegisterSection);
+    rs << "  // shared-reg-writer\n";
+    rs << "  reg ";
+    if (width_ > 0) {
+      rs << "[" << width_ - 1 << ":0]";
+    }
+    rs << " " << WriterName(res_) << ";\n";
+    rs << "  reg " << WriterEnName(res_) << ";\n";
+    // Reset value
+    ostream &is = tab_.InitialValueSectionStream();
+    is << "      " << WriterName(res_) << " <= 0;\n"
+       << "      " << WriterEnName(res_) << " <= 0;\n";
   }
 }
 
@@ -88,6 +106,14 @@ void SharedReg::BuildInsn(IInsn *insn, State *st) {
   }
 }
 
+string SharedReg::WriterName(const IResource &res) {
+  return RegName(res) + "_w";
+}
+
+string SharedReg::WriterEnName(const IResource &res) {
+  return WriterName(res) + "_en";
+}
+
 string SharedReg::RegName(const IResource &res) {
   auto *params = res.GetParams();
   int unused_width;
@@ -95,13 +121,14 @@ string SharedReg::RegName(const IResource &res) {
   params->GetExtOutputPort(&port_name, &unused_width);
   ITable *tab = res.GetTable();
   IModule *mod = tab->GetModule();
-  return "port_output_" +
+  return "shared_reg_" +
     Util::Itoa(mod->GetId()) + "_" +
     Util::Itoa(tab->GetId()) + "_" + Util::Itoa(res.GetId()) +
     "_" + port_name;
 }
 
-void SharedReg::BuildPorts(const PortConnectionInfo &pi, Ports *ports) {
+void SharedReg::BuildReaderPorts(const SharedRegConnectionInfo &pi,
+				 Ports *ports) {
   for (IResource *res : pi.has_upward_port) {
     int width = res->GetParams()->GetWidth();
     ports->AddPort(RegName(*res), Port::OUTPUT_WIRE, width);
@@ -112,30 +139,88 @@ void SharedReg::BuildPorts(const PortConnectionInfo &pi, Ports *ports) {
   }
 }
 
-void SharedReg::BuildChildWire(const PortConnectionInfo &pi, ostream &os) {
+void SharedReg::BuildWriterPorts(const SharedRegConnectionInfo &pi,
+				 Ports *ports) {
   for (IResource *res : pi.has_upward_port) {
-    AddChildWire(res, os);
+    int width = res->GetSharedReg()->GetParams()->GetWidth();
+    ports->AddPort(WriterName(*res), Port::OUTPUT_WIRE, width);
+    ports->AddPort(WriterEnName(*res), Port::OUTPUT_WIRE, 0);
   }
   for (IResource *res : pi.has_downward_port) {
-    AddChildWire(res, os);
+    int width = res->GetSharedReg()->GetParams()->GetWidth();
+    ports->AddPort(WriterName(*res), Port::INPUT, width);
+    ports->AddPort(WriterEnName(*res), Port::INPUT, 0);
   }
 }
 
-void SharedReg::AddChildWire(IResource *res, ostream &os) {
-  string name = RegName(*res);
-  os << ", ." << name << "(" << name << ")";
+void SharedReg::BuildReaderChildWire(const SharedRegConnectionInfo &pi,
+				     ostream &os) {
+  for (IResource *res : pi.has_upward_port) {
+    AddChildWire(res, false, os);
+  }
+  for (IResource *res : pi.has_downward_port) {
+    AddChildWire(res, false, os);
+  }
 }
 
-void SharedReg::BuildRootWire(const PortConnectionInfo &pi, Module *module) {
+void SharedReg::BuildWriterChildWire(const SharedRegConnectionInfo &pi,
+				     ostream &os) {
+  for (IResource *res : pi.has_upward_port) {
+    AddChildWire(res, true, os);
+  }
+  for (IResource *res : pi.has_downward_port) {
+    AddChildWire(res, true, os);
+  }
+}
+
+void SharedReg::AddChildWire(IResource *res, bool is_write, ostream &os) {
+  string name;
+  if (is_write) {
+    name = WriterName(*res);
+  } else {
+    name = RegName(*res);
+  }
+  os << ", ." << name << "(" << name << ")";
+  if (is_write) {
+    name = WriterEnName(*res);
+    os << ", ." << name << "(" << name << ")";
+  }
+}
+
+void SharedReg::BuildReaderRootWire(const SharedRegConnectionInfo &pi,
+				    Module *module) {
+  BuildRootWire(pi, false, module);
+}
+
+void SharedReg::BuildWriterRootWire(const SharedRegConnectionInfo &pi,
+				    Module *module) {
+  BuildRootWire(pi, true, module);
+}
+
+void SharedReg::BuildRootWire(const SharedRegConnectionInfo &pi,
+			      bool is_write,
+			      Module *module) {
   ModuleTemplate *tmpl = module->GetModuleTemplate();
   ostream &ws = tmpl->GetStream(kInsnWireDeclSection);
   for (IResource *res : pi.has_wire) {
     ws << "  wire ";
-    int width = res->GetParams()->GetWidth();
+    int width;
+    if (is_write) {
+      width = res->GetSharedReg()->GetParams()->GetWidth();
+    } else {
+      width = res->GetParams()->GetWidth();
+    }
     if (width > 0) {
       ws << "[" << width - 1 << ":0] ";
     }
-    ws << RegName(*res) << ";\n";
+    if (is_write) {
+      ws << WriterName(*res) << ";\n";
+    } else {
+      ws << RegName(*res) << ";\n";
+    }
+    if (is_write) {
+      ws << "  wire " << WriterEnName(*res) << ";\n";
+    }
   }
 }
 

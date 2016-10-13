@@ -113,10 +113,17 @@ void Module::Build() {
     ForeignReg::BuildPorts(*ri, ports_.get());
     ForeignReg::BuildRegWire(*ri, this);
   }
-  const PortConnectionInfo *pi = conn_.GetPortConnectionInfo(i_mod_);
-  if (pi != nullptr) {
-    SharedReg::BuildPorts(*pi, ports_.get());
-    SharedReg::BuildRootWire(*pi, this);
+  const SharedRegConnectionInfo *pri =
+    conn_.GetSharedRegReaderConnectionInfo(i_mod_);
+  if (pri != nullptr) {
+    SharedReg::BuildReaderPorts(*pri, ports_.get());
+    SharedReg::BuildReaderRootWire(*pri, this);
+  }
+  const SharedRegConnectionInfo *pwi =
+    conn_.GetSharedRegWriterConnectionInfo(i_mod_);
+  if (pwi != nullptr) {
+    SharedReg::BuildWriterPorts(*pwi, ports_.get());
+    SharedReg::BuildWriterRootWire(*pwi, this);
   }
 }
 
@@ -145,10 +152,17 @@ void Module::BuildChildModuleSection(vector<Module *> &child_mods) {
     if (ri != nullptr) {
       ForeignReg::BuildChildWire(*ri, is);
     }
-    // Ports
-    const PortConnectionInfo *pi = conn_.GetPortConnectionInfo(child_imod);
-    if (pi != nullptr) {
-      SharedReg::BuildChildWire(*pi, is);
+    // Shared reg reader
+    const SharedRegConnectionInfo *pri =
+      conn_.GetSharedRegReaderConnectionInfo(child_imod);
+    if (pri != nullptr) {
+      SharedReg::BuildReaderChildWire(*pri, is);
+    }
+    // Shared reg writer
+    const SharedRegConnectionInfo *pwi =
+      conn_.GetSharedRegWriterConnectionInfo(child_imod);
+    if (pwi != nullptr) {
+      SharedReg::BuildWriterChildWire(*pwi, is);
     }
     is << ");\n";
   }
