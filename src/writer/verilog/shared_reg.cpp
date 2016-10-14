@@ -73,6 +73,13 @@ void SharedReg::BuildResource() {
     ostream &is = tab_.InitialValueSectionStream();
     is << "      " << WriterName(res_) << " <= 0;\n"
        << "      " << WriterEnName(res_) << " <= 0;\n";
+    // Write en signal.
+    ostream &os = tab_.StateOutputSectionStream();
+    map<IState *, IInsn *> callers;
+    CollectResourceCallers("", &callers);
+    os << "      " << WriterEnName(res_) << " <= ";
+    WriteStateUnion(callers, os);
+    os << ";\n";
   }
 }
 
@@ -103,6 +110,11 @@ void SharedReg::BuildInsn(IInsn *insn, State *st) {
        << InsnWriter::InsnOutputWireName(*insn, 0)
        << " = "
        << RegName(*source) << ";\n";
+  }
+  if (resource::IsSharedRegWriter(*klass)) {
+    ostream &os = st->StateBodySectionStream();
+    os << "          " << WriterName(res_) << " <= "
+       << InsnWriter::RegisterName(*insn->inputs_[0]) << ";\n";
   }
 }
 
