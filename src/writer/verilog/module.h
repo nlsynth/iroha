@@ -37,6 +37,7 @@ public:
   ModuleTemplate *GetModuleTemplate() const;
   void BuildChildModuleSection(vector<Module *> &child_mods);
   const string &GetName() const;
+  const Connection &GetConnection() const;
 
 private:
   bool ResolveResetPolarity();

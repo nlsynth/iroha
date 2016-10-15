@@ -187,6 +187,10 @@ const string &Module::GetName() const {
   return name_;
 }
 
+const Connection &Module::GetConnection() const {
+  return conn_;
+}
+
 }  // namespace verilog
 }  // namespace writer
 }  // namespace iroha

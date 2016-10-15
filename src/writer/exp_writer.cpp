@@ -135,6 +135,7 @@ void ExpWriter::WriteCalleeTaskDesc(const IResource &res) {
 
 void ExpWriter::WriteSharedRegDesc(const IResource &res) {
   const IResource *source = res.GetSharedReg();
+  CHECK(source) << "Missing SHARED-REG";
   const ITable *table = source->GetTable();
   const IModule *mod = table->GetModule();
   os_ << "        (SHARED-REG " <<  mod->GetId() << " "

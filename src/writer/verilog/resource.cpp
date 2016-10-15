@@ -192,8 +192,8 @@ string Resource::JoinStatesWithSubState(const map<IState *, IInsn *> &sts,
   return Util::Join(conds, " || ");
 }
 
-string Resource::SelectValueByState(int default_value) {
-  string v = Util::Itoa(default_value);
+string Resource::SelectValueByState(const string &default_value) {
+  string v = default_value;
   map<IState *, IInsn *> callers;
   CollectResourceCallers("", &callers);
   for (auto &c : callers) {

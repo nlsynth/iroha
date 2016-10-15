@@ -17,6 +17,7 @@ mod_sub_2.parent_module = mod_top
 tab_sub_2 = ITable(mod_sub_2)
 
 source_sub_1 = design_tool.CreateSharedReg(tab_sub_1, "o_1", 32)
+source_sub_1.resource_params.AddValue("DEFAULT-VALUE", "0")
 source_top = design_tool.CreateSharedReg(tab_top, "o_t", 32)
 
 # sub1 -> top

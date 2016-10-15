@@ -47,7 +47,6 @@ public:
   set<IResource *> has_upward_port;
   set<IResource *> has_downward_port;
   set<IResource *> has_wire;
-  set<IResource *> is_source;
 };
 
 class Connection {
@@ -59,6 +58,7 @@ public:
   const RegConnectionInfo *GetRegConnectionInfo(const IModule *mod) const;
   const SharedRegConnectionInfo *GetSharedRegReaderConnectionInfo(const IModule *mod) const;
   const SharedRegConnectionInfo *GetSharedRegWriterConnectionInfo(const IModule *mod) const;
+  const vector<IResource *> *GetSharedRegWriters(const IResource *res) const;
 
 private:
   // Channel.
@@ -85,6 +85,7 @@ private:
   map<const IModule *, RegConnectionInfo> reg_connection_;
   map<const IModule *, SharedRegConnectionInfo> shared_reg_reader_;
   map<const IModule *, SharedRegConnectionInfo> shared_reg_writer_;
+  map<const IResource *, vector<IResource *>> shared_reg_writers_;
 };
 
 }  // namespace writer

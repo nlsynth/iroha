@@ -18,7 +18,8 @@ namespace verilog {
 
 SharedReg::SharedReg(const IResource &res, const Table &table)
   : Resource(res, table), has_default_output_value_(false),
-    default_output_value_(0) {
+    default_output_value_(0), writers_(nullptr),
+    need_write_arbitration_(false) {
   auto *klass = res_.GetClass();
   if (resource::IsSharedReg(*klass)) {
     auto *params = res_.GetParams();
@@ -26,6 +27,10 @@ SharedReg::SharedReg(const IResource &res, const Table &table)
     params->GetExtOutputPort(&unused, &width_);
     has_default_output_value_ =
       params->GetDefaultValue(&default_output_value_);
+    writers_ = table.GetModule()->GetConnection().GetSharedRegWriters(&res_);
+    if (writers_ != nullptr || has_default_output_value_) {
+      need_write_arbitration_ = true;
+    }
   } else if (resource::IsSharedRegWriter(*klass)) {
     auto *params = res_.GetSharedReg()->GetParams();
     string unused;
@@ -38,27 +43,7 @@ SharedReg::SharedReg(const IResource &res, const Table &table)
 void SharedReg::BuildResource() {
   auto *klass = res_.GetClass();
   if (resource::IsSharedReg(*klass)) {
-    ostream &rs = tmpl_->GetStream(kRegisterSection);
-    rs << "  // shared-reg\n";
-    rs << "  reg ";
-    if (width_ > 0) {
-      rs << "[" << width_ - 1 << ":0]";
-    }
-    rs << " " << RegName(res_) << ";\n";
-    if (has_default_output_value_) {
-      ostream &os = tab_.StateOutputSectionStream();
-      os << "      " << RegName(res_) << " <= "
-	 << SelectValueByState(default_output_value_) << ";\n";
-    }
-    // Reset value
-    ostream &is = tab_.InitialValueSectionStream();
-    is << "      " << RegName(res_) << " <= ";
-    if (has_default_output_value_) {
-      is << default_output_value_;
-    } else {
-      is << 0;
-    }
-    is << ";\n";
+    BuildSharedRegResource();
   }
   if (resource::IsSharedRegWriter(*klass)) {
     ostream &rs = tmpl_->GetStream(kRegisterSection);
@@ -83,10 +68,48 @@ void SharedReg::BuildResource() {
   }
 }
 
+void SharedReg::BuildSharedRegResource() {
+  ostream &rs = tmpl_->GetStream(kRegisterSection);
+  rs << "  // shared-reg\n";
+  rs << "  reg ";
+  if (width_ > 0) {
+    rs << "[" << width_ - 1 << ":0]";
+  }
+  rs << " " << RegName(res_) << ";\n";
+  if (need_write_arbitration_) {
+    // Priorities are
+    // (1) Writers in this table
+    // (2) Writers in other table
+    // (3) Default output value
+    ostream &os = tab_.StateOutputSectionStream();
+    os << "      " << RegName(res_) << " <= ";
+    string value;
+    if (has_default_output_value_) {
+      value = Util::Itoa(default_output_value_);
+    } else {
+      value = RegName(res_);
+    }
+    for (auto *res : *writers_) {
+      value = WriterEnName(*res) + " ? " + WriterName(*res) + " : (" + value + ")";
+    }
+    os << SelectValueByState(value);
+    os << ";\n";
+  }
+  // Reset value
+  ostream &is = tab_.InitialValueSectionStream();
+  is << "      " << RegName(res_) << " <= ";
+  if (has_default_output_value_) {
+    is << default_output_value_;
+  } else {
+    is << 0;
+  }
+  is << ";\n";
+}
+
 void SharedReg::BuildInsn(IInsn *insn, State *st) {
   auto *klass = res_.GetClass();
   if (resource::IsSharedReg(*klass)) {
-    if (!has_default_output_value_ &&
+    if (!need_write_arbitration_ &&
 	insn->inputs_.size() == 1) {
       ostream &os = st->StateBodySectionStream();
       os << "          " << RegName(res_) << " <= "

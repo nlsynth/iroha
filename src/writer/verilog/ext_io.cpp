@@ -44,7 +44,7 @@ void ExtIO::BuildResource() {
     if (has_default_output_value_) {
       ostream &os = tab_.StateOutputSectionStream();
       os << "      " << output_port << " <= "
-	 << SelectValueByState(default_output_value_) << ";\n";
+	 << SelectValueByState(Util::Itoa(default_output_value_)) << ";\n";
     }
   }
 }

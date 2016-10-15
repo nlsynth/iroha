@@ -181,6 +181,14 @@ void Connection::ProcessSubModuleTaskCall(IResource *caller) {
   }
 }
 
+const vector<IResource *> *Connection::GetSharedRegWriters(const IResource *res) const {
+  auto it = shared_reg_writers_.find(res);
+  if (it != shared_reg_writers_.end() && it->second.size() > 0) {
+    return &(it->second);
+  }
+  return nullptr;
+}
+
 void Connection::ProcessForeignReg(IResource *freg) {
   IRegister *reg = freg->GetForeignRegister();
   IModule *reg_module = reg->GetTable()->GetModule();
@@ -234,14 +242,15 @@ void Connection::ProcessSharedReg(IResource *accessor, bool is_write) {
     source = accessor->GetSharedReg();
     sink_module = accessor->GetTable()->GetModule();
   }
+  if (is_write) {
+    shared_reg_writers_[accessor->GetSharedReg()].push_back(accessor);
+  }
   IModule *source_module = source->GetTable()->GetModule();
   if (source_module == sink_module) {
     return;
   }
   map<const IModule *, SharedRegConnectionInfo> &connection_info =
     is_write ? shared_reg_writer_ : shared_reg_reader_;
-  SharedRegConnectionInfo &pc = connection_info[source_module];
-  pc.is_source.insert(source);
   const IModule *common_root = GetCommonRoot(source_module, sink_module);
   if (common_root == source_module) {
     // source is upper
