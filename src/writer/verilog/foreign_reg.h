@@ -15,8 +15,6 @@ public:
   virtual void BuildResource() override;
   virtual void BuildInsn(IInsn *insn, State *st) override;
 
-  static string RegPrefix(const ITable &writer, const IRegister &reg);
-  static void BuildForeignRegisters(const Table &tab);
   static void BuildPorts(const RegConnectionInfo &ri, Ports *ports);
   static void BuildChildWire(const RegConnectionInfo &ri, ostream &os);
   static void AddChildWire(IRegister *reg, ostream &os);

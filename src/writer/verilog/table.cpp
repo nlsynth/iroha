@@ -41,7 +41,6 @@ void Table::Build() {
   BuildResource();
   BuildInsnOutputWire();
   BuildMultiCycleStateReg();
-  ForeignReg::BuildForeignRegisters(*this);
 }
 
 void Table::BuildStates() {
