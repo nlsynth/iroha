@@ -16,6 +16,7 @@ IDesign *ExpBuilder::ReadDesign(const string &fn) {
   if (!f) {
     return nullptr;
   }
+  std::unique_ptr<File> deleter(f);
   if (f->exps.size()) {
     ExpBuilder builder;
     return builder.Build(f->exps);

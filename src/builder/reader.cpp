@@ -34,6 +34,12 @@ int Exp::Size() {
   return vec.size();
 }
 
+File::~File() {
+  for (Exp *e : exps) {
+    delete e;
+  }
+}
+
 File *Reader::ReadFile(const string &fn) {
   std::istream *ifs;
   unique_ptr<istream> ifs_deleter;

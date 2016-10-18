@@ -93,15 +93,16 @@ int main(int argc, char **argv) {
     return 0;
   }
 
-  iroha::Iroha::Init();
+  Iroha::Init();
 
   for (string &fn : files) {
-    iroha::IDesign *design = iroha::Iroha::ReadDesignFromFile(fn);
+    IDesign *design = Iroha::ReadDesignFromFile(fn);
     if (design == nullptr) {
       cerr << "Failed to read design from: " << fn << "\n";
       continue;
     }
-    iroha::OptAPI *optimizer = iroha::Iroha::CreateOptimizer(design);
+    std::unique_ptr<IDesign> deleter(design);
+    OptAPI *optimizer = Iroha::CreateOptimizer(design);
     if (html || !debug_dump.empty()) {
       optimizer->EnableDebugAnnotation();
     }
@@ -114,14 +115,14 @@ int main(int argc, char **argv) {
     if (has_opt_err) {
       cerr << "Failed to optimize the design: " << fn << "\n";
     }
-    iroha::WriterAPI *writer = iroha::Iroha::CreateWriter(design);
+    WriterAPI *writer = Iroha::CreateWriter(design);
     if (shell || selfShell) {
       if (!output.empty()) {
 	writer->OutputShellModule(true, selfShell);
       }
     }
     if (paths.size() > 0) {
-      iroha::Iroha::SetImportPaths(paths);
+      Iroha::SetImportPaths(paths);
     }
     if (verilog) {
       writer->SetLanguage("verilog");

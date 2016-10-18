@@ -25,6 +25,7 @@ public:
 
 class File {
 public:
+  ~File();
   vector<Exp *> exps;
 };
 
