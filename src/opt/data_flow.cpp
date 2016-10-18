@@ -7,7 +7,7 @@ namespace iroha {
 namespace opt {
 
 DataFlow::~DataFlow() {
-  STLDeleteSecondElements(&reaches_);
+  STLDeleteValues(&all_defs_);
 }
 
 DataFlow *DataFlow::Create(BBSet *bbs, DebugAnnotation *annotation) {

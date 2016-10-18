@@ -112,6 +112,9 @@ void BBCollector::SetBBTransition() {
   for (BB *bb : bset_->bbs_) {
     for (IState *st : bb->states_) {
       IInsn *tr_insn = DesignUtil::FindInsnByResource(st, tr_);
+      if (tr_insn == nullptr) {
+	continue;
+      }
       for (IState *target_st : tr_insn->target_states_) {
 	BB *target_bb = bset_->state_to_bb_[target_st];
 	if (target_bb == bb &&
