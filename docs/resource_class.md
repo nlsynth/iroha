@@ -193,11 +193,23 @@ Kicks the specified state machine in sub-module-task table.
 
 #### foreign-reg
 
-Access a register in another table. The register can be accessed from multiple tables.
+Reads a register in another table. The register can be accessed from multiple tables.
 
-If multiple writes happens at the same time, arbitration happens and one of the writes succeeds.
+#### shared-reg
 
-(The register should not be written by insns in the belonging table)
+This resource holds a value and can be read or written from other tables via shared-reg-reader(s) and shared-reg-writer(s).
+It also can be read or written from the belonging table.
+If writes come from multiple shared-reg-writers, arbitration (fixed priority for now) selects one value.
+
+#### shared-reg-writer
+
+Attach to a shared-reg in another table and allow to write to it via this resource.
+Multiple shared-reg-writer can write a same shared-reg.
+
+#### shared-reg-reader
+
+Attach to a shared-reg in another table and allow to read it via this resource.
+Multiple shared-reg-writer can read from a same shared-reg.
 
 ### Table type modifier
 
@@ -214,4 +226,3 @@ The table will be configured as a task. Other tables in super modules can kick t
 #### dataflow-in
 
 The table will be configured as a data flow pipeline instead of a state machine.
-
