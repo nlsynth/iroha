@@ -260,7 +260,7 @@ private:
   int id_;
   string name_;
   IModule *parent_;
-  ResourceParams *params_;
+  unique_ptr<ResourceParams> params_;
 };
 
 // Represents a whole design including module hierarchy,

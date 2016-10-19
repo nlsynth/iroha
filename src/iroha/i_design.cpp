@@ -406,7 +406,7 @@ IModule *IModule::GetParentModule() const {
 }
 
 ResourceParams *IModule::GetParams() const{
-  return params_;
+  return params_.get();
 }
 
 IDesign::IDesign()
