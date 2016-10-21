@@ -19,6 +19,7 @@ public:
 private:
   void WriteInsn(IInsn *insn, ostream &os);
   void WriteTransitionInsn(IInsn *insn, ostream &os);
+  void OrderInsns(vector<IInsn *> *insns);
 
   IState *i_st_;
   Table *tab_;
