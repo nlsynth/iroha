@@ -1,9 +1,8 @@
 // -*- C++ -*-
-#ifndef _design_object_pool_h_
-#define _design_object_pool_h_
+#ifndef _iroha_object_pool_h_
+#define _iroha_object_pool_h_
 
 #include "iroha/common.h"
-#include "iroha/i_design.h"
 
 namespace iroha {
 
@@ -32,9 +31,10 @@ public:
   Pool<IInsn> insns_;
   Pool<ResourceParams> resource_params_;
   Pool<IChannel> channels_;
+  Pool<IArray> arrays_;
   Pool<IArrayImage> array_images_;
 };
 
 }  // namespace iroha
 
-#endif  // _design_object_pool_h_
+#endif  // _iroha_object_pool_h_

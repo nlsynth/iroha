@@ -21,6 +21,7 @@ void printVersion() {
 	    << "  -opt [optimizers]\n";
 }
 
+// Internal main function to embed the functionality in different binaries.
 int main(int argc, char **argv) {
   vector<string> files;
   bool verilog = false;

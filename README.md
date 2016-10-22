@@ -38,7 +38,7 @@ You may also have to (install automake, autoconf, libtool and) set up autotools 
     > $ ./examples/xorshift | ./iroha - -opt wire_insn,clean_empty_state,clean_unreachable_state | ./iroha - -v -o /tmp/xorshift.v
 
 
-Please read src/iroha/iroha.h, src/main.cpp examples/ for more details.
+Please read src/iroha/iroha.h, src/iroha/iroha_main.cpp examples/ for more details.
 
 -- TODOs
 

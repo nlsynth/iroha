@@ -62,12 +62,14 @@ private:
   string name_;
 };
 
-// This object is managed by IResource.
 class IArray {
 public:
-  IArray(int address_width, const IValueType &data_type,
+  IArray(IResource *res, int address_width, const IValueType &data_type,
 	 bool is_external, bool is_ram);
 
+  // This indicates just ownership of the memory. IArray instance can be
+  // shared by many IResources.
+  IResource *GetResource() const;
   int GetAddressWidth() const;
   const IValueType &GetDataType() const;
   bool IsExternal() const;
@@ -76,6 +78,7 @@ public:
   IArrayImage *GetArrayImage() const;
 
 private:
+  IResource *res_;
   int address_width_;
   IValueType data_type_;
   bool is_external_;

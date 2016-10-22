@@ -101,7 +101,7 @@ IResource *DesignTool::CreateArrayResource(ITable *table,
   IResource *res = DesignUtil::CreateResource(table, resource::kArray);
   IValueType data_type;
   data_type.SetWidth(data_width);
-  IArray *array = new IArray(address_width, data_type,
+  IArray *array = new IArray(res, address_width, data_type,
 			     is_external, is_ram);
   res->SetArray(array);
   return res;

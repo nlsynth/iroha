@@ -1,7 +1,7 @@
 #include "iroha/resource_class.h"
 
-#include "design/object_pool.h"
 #include "iroha/i_design.h"
+#include "iroha/object_pool.h"
 #include "iroha/resource_class.h"
 
 namespace iroha {

@@ -42,7 +42,7 @@ private:
       return;
     }
     for (auto *ireg : insn->inputs_) {
-      if (!ireg->IsStateLocal()) {
+      if (!ireg->IsStateLocal() || ireg->IsConst()) {
 	continue;
       }
       ResolveInsnInputs(wire_source_[ireg], result);

@@ -1,9 +1,9 @@
 #include "iroha/i_design.h"
 
-#include "design/object_pool.h"
 #include "design/design_util.h"
 #include "iroha/opt_api.h"
 #include "iroha/logging.h"
+#include "iroha/object_pool.h"
 #include "iroha/resource_class.h"
 #include "iroha/resource_params.h"
 #include "iroha/stl_util.h"
@@ -53,10 +53,16 @@ void IArrayImage::SetName(const string &name) {
   name_ = name;
 }
 
-IArray::IArray(int address_width, const IValueType &data_type,
+IArray::IArray(IResource *res, int address_width, const IValueType &data_type,
 	       bool is_external, bool is_ram)
-  : address_width_(address_width), data_type_(data_type),
+  : res_(res), address_width_(address_width), data_type_(data_type),
     is_external_(is_external), is_ram_(is_ram), array_image_(nullptr) {
+  auto *pool = res->GetTable()->GetModule()->GetDesign()->GetObjectPool();
+  pool->arrays_.Add(this);
+}
+
+IResource *IArray::GetResource() const {
+  return res_;
 }
 
 int IArray::GetAddressWidth() const {
@@ -95,7 +101,6 @@ IResource::IResource(ITable *table, IResourceClass *resource_class)
 }
 
 IResource::~IResource() {
-  delete array_;
 }
 
 int IResource::GetId() const {

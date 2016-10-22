@@ -342,7 +342,8 @@ void ExpBuilder::BuildArray(Exp *e, IResource *res) {
     SetError() << "Array should be either RAM or ROM";
     return;
   }
-  IArray *array = new IArray(address_width, data_type, is_external, is_ram);
+  IArray *array = new IArray(res, address_width, data_type,
+			     is_external, is_ram);
   res->SetArray(array);
   if (sz == 6) {
     int imid = Util::Atoi(e->Str(5));
