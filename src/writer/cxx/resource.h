@@ -19,6 +19,7 @@ private:
   static void WriteBitShift(IInsn *insn, ostream &os);
   static void WritePrint(IInsn *insn, ostream &os);
   static void WriteAssert(IInsn *insn, ostream &os);
+  static void WriteMapped(IInsn *insn, ostream &os);
 };
 
 }  // namespace cxx

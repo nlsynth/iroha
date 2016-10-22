@@ -3,6 +3,7 @@
 #include "iroha/i_design.h"
 #include "iroha/logging.h"
 #include "iroha/resource_class.h"
+#include "iroha/resource_params.h"
 
 namespace iroha {
 namespace writer {
@@ -26,6 +27,9 @@ void Resource::WriteInsn(IInsn *insn, ostream &os) {
   }
   if (rc->GetName() == resource::kAssert) {
     WriteAssert(insn, os);
+  }
+  if (resource::IsMapped(*rc)) {
+    WriteMapped(insn, os);
   }
 }
 
@@ -105,6 +109,23 @@ void Resource::WriteAssert(IInsn *insn, ostream &os) {
     os << "    if (!" << RegValue(reg) << ") {\n"
        << "      cout << \"ASSERTION FAILURE\\n\";\n"
        << "    }\n";
+  }
+}
+
+void Resource::WriteMapped(IInsn *insn, ostream &os) {
+  IResource *res = insn->GetResource();
+  auto *params = res->GetParams();
+  if (params->GetMappedName() == "mem") {
+    if (insn->GetOperand() == "sram_write") {
+      os << "    mem_->Write(" << RegValue(insn->inputs_[0]) << ", "
+	 << RegValue(insn->inputs_[1]) << ");\n";
+    }
+    if (insn->GetOperand() == "sram_read_address") {
+      os << "    mem_->ReadAddr(" << RegValue(insn->inputs_[0]) << ");\n";
+    }
+    if (insn->GetOperand() == "sram_read_data") {
+      os << "    " << insn->outputs_[0]->GetName() << " = mem_->ReadData();\n";
+    }
   }
 }
 
