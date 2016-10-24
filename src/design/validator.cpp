@@ -99,10 +99,7 @@ void Validator::ValidateRegName(IModule *mod) {
   for (auto *tab : mod->tables_) {
     for (auto *reg : tab->registers_) {
       string name = reg->GetName();
-      if (name.empty()) {
-	continue;
-      }
-      if (names.find(name) != names.end()) {
+      if (name.empty() || names.find(name) != names.end()) {
 	name = GetUniqueName(names, reg);
 	reg->SetName(name);
       }
@@ -112,7 +109,11 @@ void Validator::ValidateRegName(IModule *mod) {
 }
 
 string Validator::GetUniqueName(set<string> &names, IRegister *reg) {
-  string r = reg->GetName() + "_" + Util::Itoa(reg->GetId());
+  string name = reg->GetName();
+  if (name.empty()) {
+    name = "anon";
+  }
+  string r = name + "_" + Util::Itoa(reg->GetId());
   if (names.find(r) == names.end()) {
     return r;
   }

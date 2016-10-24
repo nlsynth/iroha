@@ -134,6 +134,9 @@ int main(int argc, char **argv) {
     if (html) {
       writer->SetLanguage("html");
     }
+    if (verilog || cxx) {
+      DesignTool::Validate(design);
+    }
     writer->Write(output);
     if (!debug_dump.empty()) {
       optimizer->DumpIntermediate(debug_dump);
