@@ -67,9 +67,10 @@ void DataFlowTable::WriteReset(ostream &os) {
 }
 
 void DataFlowTable::WriteBody(ostream &os) {
-    for (auto *state : states_) {
-      state->Write(os);
-    }
+  os << StateOutputSectionContents();
+  for (auto *state : states_) {
+    state->Write(os);
+  }
 }
 
 }  // namespace verilog
