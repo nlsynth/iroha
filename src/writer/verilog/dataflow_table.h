@@ -20,6 +20,8 @@ public:
   virtual void Build();
   virtual void Write(ostream &os);
 
+  virtual string GetStateCondition(const IState *st) const;
+
 private:
   virtual void BuildStates();
   virtual void BuildStateDecl();

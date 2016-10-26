@@ -29,6 +29,8 @@ design_tool.AddNextState(st3, st5)
 design_tool.AddNextState(st4, st5)
 
 ext_input = design_tool.CreateExtInput(tab, "data_in", 0)
+ext_output = design_tool.CreateExtOutput(tab, "data_out", 0)
+ext_output.resource_params.AddValue("DEFAULT-VALUE", "0")
 in_insn = IInsn(ext_input)
 in_r = IRegister(tab, "r")
 in_r.isWire = True
@@ -63,6 +65,11 @@ st1.insns.append(gt_insn)
 tr_insn = design_tool.AddNextState(st2, st3)
 tr_insn.inputs.append(cond)
 design_tool.AddNextState(st2, st4)
+
+o_insn = IInsn(ext_output)
+onebit = design_tool.AllocConstNum(tab, False, 0, 1)
+o_insn.inputs.append(onebit)
+st5.insns.append(o_insn)
 
 design_tool.ValidateIds(d)
 DesignWriter(d).Write()

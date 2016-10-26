@@ -73,6 +73,10 @@ void DataFlowTable::WriteBody(ostream &os) {
   }
 }
 
+string DataFlowTable::GetStateCondition(const IState *st) const {
+  return DataFlowState::StateVariable(st);
+}
+
 }  // namespace verilog
 }  // namespace writer
 }  // namespace iroha

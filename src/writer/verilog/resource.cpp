@@ -200,8 +200,8 @@ string Resource::SelectValueByState(const string &default_value) {
     IState *st = c.first;
     IInsn *insn = c.second;
     if (insn->inputs_.size() == 1) {
-      v = "((" + tab_.StateVariable() + " == " +
-	Util::Itoa(st->GetId()) +
+      string stCond = tab_.GetStateCondition(st);
+      v = "((" + stCond +
 	") ? " + InsnWriter::RegisterName(*insn->inputs_[0]) +
 	" : " + v + ")";
     }

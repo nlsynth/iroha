@@ -19,6 +19,9 @@ public:
   virtual void Build();
   virtual void Write(ostream &os);
 
+  // Returns a string to test if current state == st.
+  virtual string GetStateCondition(const IState *st) const;
+
   ITable *GetITable() const;
   const string &StateVariable() const;
   string StateName(int id) const;

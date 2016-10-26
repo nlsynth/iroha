@@ -276,6 +276,10 @@ Task *Table::GetTask() const {
   return nullptr;
 }
 
+string Table::GetStateCondition(const IState *st) const {
+  return StateVariable() + " == " + Util::Itoa(st->GetId());
+}
+
 }  // namespace verilog
 }  // namespace writer
 }  // namespace iroha
