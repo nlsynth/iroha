@@ -89,8 +89,10 @@ void SharedReg::BuildSharedRegResource() {
     } else {
       value = RegName(res_);
     }
-    for (auto *res : *writers_) {
-      value = WriterEnName(*res) + " ? " + WriterName(*res) + " : (" + value + ")";
+    if (writers_ != nullptr) {
+      for (auto *res : *writers_) {
+	value = WriterEnName(*res) + " ? " + WriterName(*res) + " : (" + value + ")";
+      }
     }
     os << SelectValueByState(value);
     os << ";\n";
