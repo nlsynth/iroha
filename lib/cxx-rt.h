@@ -3,21 +3,65 @@
 #define _cxx_rt_h_
 
 #include <iostream>
+#include <map>
 #include <vector>
 
 using std::cout;
+using std::map;
 using std::vector;
 
 namespace iroha_rt {
 
 class Memory {
 public:
+  static const int kPageSize = 1024;
+  struct Page {
+    Page() {
+      for (int i = 0; i < kPageSize; ++i) {
+	data[kPageSize] = 0;
+      }
+    }
+    int data[kPageSize];
+  };
+  map<int, Page *> pages_;
+  int read_addr_;
+
+  Memory() : read_addr_(0) {
+  }
+
+  ~Memory() {
+    for (auto it : pages_) {
+      delete it.second;
+    }
+  }
+
   void ReadAddr(int addr) {
+    read_addr_ = addr;
   }
+
   int ReadData() {
-    return 0;
+    Page *p = GetPage(read_addr_);
+    return p->data[GetOffset(read_addr_)];
   }
+
   void Write(int addr, int data) {
+    Page *p = GetPage(addr);
+    p->data[GetOffset(addr)] = data;
+  }
+
+  Page *GetPage(int addr) {
+    int index = addr / (4  * kPageSize);
+    auto it = pages_.find(index);
+    if (it != pages_.end()) {
+      return it->second;
+    }
+    Page *p = new Page();
+    pages_[index] = p;
+    return p;
+  }
+
+  int GetOffset(int addr) {
+    return (addr % (4  * kPageSize)) / 4;
   }
 };
 
