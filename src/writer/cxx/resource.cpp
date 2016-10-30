@@ -151,10 +151,10 @@ void Resource::WriteMapped(IInsn *insn, ostream &os) {
 }
 
 string Resource::MemName(IResource *res) {
-  string mem = "mem";
+  string mem = "mem_";
   IArray *array = res->GetArray();
   if (!array->IsExternal()) {
-    mem += "_" + Util::Itoa(res->GetId()) + "_";
+    mem += Util::Itoa(res->GetId()) + "_";
   }
   return mem;
 }
