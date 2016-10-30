@@ -20,13 +20,15 @@ void CxxWriter::Write() {
   root_mod.Build();
 
   os_ << "#include \"cxx-rt.h\"\n\n"
-      << "using namespace iroha_rt;\n\n";
+      << "using namespace iroha_rt;\n\n"
+      << "namespace iroha_design {\n\n";
 
   root_mod.Write(os_);
 
-  os_ << "int main(int argc, char **argv) {\n"
-      << "  " << root_mod.GetName() << " _r;\n"
-      << "  Runner runner(&_r);\n"
+  os_ << "}  // namespace iroha_design\n\n"
+      << "int main(int argc, char **argv) {\n"
+      << "  iroha_design::" << root_mod.GetName() << " _r;\n"
+      << "  iroha_rt::Runner runner(&_r);\n"
       << "  runner.Run();\n"
       << "  return 0;\n"
       << "}\n";
