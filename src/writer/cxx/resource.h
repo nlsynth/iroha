@@ -10,8 +10,10 @@ namespace cxx {
 
 class Resource {
 public:
+  static void BuildResource(IResource *res, ClassWriter *cw);
   static void WriteInsn(IInsn *insn, ostream &os);
   static string RegValue(IRegister *reg);
+  static string MemName(IResource *res);
 
 private:
   static void WriteBinOp(IInsn *insn, ostream &os);

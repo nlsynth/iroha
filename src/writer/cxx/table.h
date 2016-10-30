@@ -23,6 +23,7 @@ private:
   void BuildConstructor();
   void BuildDispatcher();
   void BuildRegisters();
+  void BuildResources();
 
   const ITable *i_tab_;
   unique_ptr<ClassWriter> class_writer_;

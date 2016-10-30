@@ -63,6 +63,15 @@ void ClassWriter::Write(ostream &os) {
   os << "};\n\n";
 }
 
+ClassMember *ClassWriter::FindConstructor() {
+  for (auto *m : members_) {
+    if (m->name_ == name_) {
+      return m;
+    }
+  }
+  return nullptr;
+}
+
 }  // namespace cxx
 }  // namespace writer
 }  // namespace iroha

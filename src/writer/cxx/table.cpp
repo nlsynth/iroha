@@ -3,6 +3,7 @@
 #include "iroha/i_design.h"
 #include "iroha/stl_util.h"
 #include "writer/cxx/class_writer.h"
+#include "writer/cxx/resource.h"
 #include "writer/cxx/state.h"
 
 #include <sstream>
@@ -33,6 +34,7 @@ void Table::Build() {
   }
   BuildDispatcher();
   BuildRegisters();
+  BuildResources();
 }
 
 void Table::Write(ostream &os) {
@@ -76,6 +78,12 @@ void Table::BuildRegisters() {
       continue;
     }
     class_writer_->AddVariable(reg->GetName(), "int");
+  }
+}
+
+void Table::BuildResources() {
+  for (auto *res : i_tab_->resources_) {
+    Resource::BuildResource(res, class_writer_.get());
   }
 }
 

@@ -28,6 +28,7 @@ public:
   ClassMember *AddMethod(const string &name, const string &type);
   void AddVariable(const string &name, const string &type);
   const string &GetName() const;
+  ClassMember *FindConstructor();
 
 private:
   ClassMember *AddMember(bool isMethod, const string &name, const string &type);

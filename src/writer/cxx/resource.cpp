@@ -4,10 +4,27 @@
 #include "iroha/logging.h"
 #include "iroha/resource_class.h"
 #include "iroha/resource_params.h"
+#include "writer/cxx/class_writer.h"
 
 namespace iroha {
 namespace writer {
 namespace cxx {
+
+void Resource::BuildResource(IResource *res, ClassWriter *cw) {
+  auto *rc = res->GetClass();
+  if (resource::IsMapped(*rc)) {
+    auto *params = res->GetParams();
+    if (params->GetMappedName() == "mem") {
+      IArray *array = res->GetArray();
+      if (!array->IsExternal()) {
+	string mem_name = MemName(res);
+	cw->AddVariable(mem_name, "Memory *");
+	ClassMember *m = cw->FindConstructor();
+	m->body_ += "    " + mem_name + " = new Memory();\n";
+      }
+    }
+  }
+}
 
 void Resource::WriteInsn(IInsn *insn, ostream &os) {
   IResource *res = insn->GetResource();
@@ -116,17 +133,30 @@ void Resource::WriteMapped(IInsn *insn, ostream &os) {
   IResource *res = insn->GetResource();
   auto *params = res->GetParams();
   if (params->GetMappedName() == "mem") {
+    string mem_name = MemName(res);
     if (insn->GetOperand() == "sram_write") {
-      os << "    mem_->Write(" << RegValue(insn->inputs_[0]) << ", "
+      os << "    " << mem_name
+	 << "->Write(" << RegValue(insn->inputs_[0]) << ", "
 	 << RegValue(insn->inputs_[1]) << ");\n";
     }
     if (insn->GetOperand() == "sram_read_address") {
-      os << "    mem_->ReadAddr(" << RegValue(insn->inputs_[0]) << ");\n";
+      os << "    " << mem_name
+	 << "->ReadAddr(" << RegValue(insn->inputs_[0]) << ");\n";
     }
     if (insn->GetOperand() == "sram_read_data") {
-      os << "    " << insn->outputs_[0]->GetName() << " = mem_->ReadData();\n";
+      os << "    " << insn->outputs_[0]->GetName() << " = "
+	 << mem_name << "->ReadData();\n";
     }
   }
+}
+
+string Resource::MemName(IResource *res) {
+  string mem = "mem";
+  IArray *array = res->GetArray();
+  if (!array->IsExternal()) {
+    mem += "_" + Util::Itoa(res->GetId()) + "_";
+  }
+  return mem;
 }
 
 }  // namespace cxx
