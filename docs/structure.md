@@ -30,7 +30,7 @@ Structure of a design in Iroha is described in following BNF.
 
 design          := params? (channel | array-image | module)*
 
-channel         := "(" "CHANNEL" channel-id:number value-type reader-ep:channel-ep writer-ep:channel-ep params")"
+channel         := "(" "CHANNEL" channel-id:number channel-name:label value-type reader-ep:channel-ep writer-ep:channel-ep params")"
 
 channel-ep      := "(" module-id:number table-id:number resource-id:number ")"
 

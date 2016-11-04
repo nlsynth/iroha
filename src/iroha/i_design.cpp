@@ -181,6 +181,14 @@ void IChannel::SetId(int id) {
   id_ = id;
 }
 
+const string &IChannel::GetName() const {
+  return name_;
+}
+
+void IChannel::SetName(const string &name) {
+  name_ = name;
+}
+
 const IValueType &IChannel::GetValueType() const {
   return value_type_;
 }

@@ -397,17 +397,24 @@ ostream &ExpBuilder::SetError() {
 }
 
 void ExpBuilder::BuildChannel(Exp *e, IDesign *design) {
-  IValueType vt;
-  BuildValueType(e->vec[2], &vt);
   IChannel *ch = new IChannel(design);
   design->channels_.push_back(ch);
-  ch->SetValueType(vt);
   ch->SetId(Util::Atoi(e->Str(1)));
-  BuildChannelReaderWriter(e->vec[3], true, ch);
-  BuildChannelReaderWriter(e->vec[4], false, ch);
-  if (e->Size() > 5) {
-    if (e->vec[5]->GetHead() == "PARAMS") {
-      BuildResourceParams(e->vec[5], ch->GetParams());
+  int idx = 2;
+  if (e->vec[idx]->Size() == 0) {
+    ch->SetName(e->Str(idx));
+    ++idx;
+  }
+  IValueType vt;
+  BuildValueType(e->vec[idx], &vt);
+  ++idx;
+  ch->SetValueType(vt);
+  BuildChannelReaderWriter(e->vec[idx], true, ch);
+  BuildChannelReaderWriter(e->vec[idx + 1], false, ch);
+  idx += 2;
+  if (e->Size() > idx) {
+    if (e->vec[idx]->GetHead() == "PARAMS") {
+      BuildResourceParams(e->vec[idx], ch->GetParams());
     }
   }
 }

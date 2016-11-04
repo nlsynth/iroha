@@ -43,7 +43,6 @@ Please read src/iroha/iroha.h, src/iroha/iroha_main.cpp examples/ for more detai
 -- TODOs
 
 * P1: Document
-* P1: Add name for CHANNEL
 * P1: Test and debug SSA conversion and PHI removal
 * P1: Set constraint not to split related insns
 * P1: Values wider than 64bits

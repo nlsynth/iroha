@@ -128,6 +128,8 @@ public:
   IDesign *GetDesign() const;
   int GetId() const;
   void SetId(int id);
+  const string &GetName() const;
+  void SetName(const string &name);
   const IValueType &GetValueType() const;
   void SetValueType(const IValueType &value_type);
   void SetWriter(IResource *res);
@@ -139,6 +141,7 @@ public:
 private:
   IDesign *design_;
   int id_;
+  string name_;
   IValueType value_type_;
   IResource *writer_;
   IResource *reader_;

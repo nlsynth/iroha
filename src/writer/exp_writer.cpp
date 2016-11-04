@@ -280,6 +280,12 @@ void ExpWriter::WriteResourceParams(const ResourceParams &params,
 
 void ExpWriter::WriteChannel(const IChannel &ch) {
   os_ << "(CHANNEL " << ch.GetId() << " ";
+  if (ch.GetName().empty()) {
+    os_ << "()";
+  } else {
+    os_ << ch.GetName();
+  }
+  os_ << " ";
   WriteValueType(ch.GetValueType());
   os_ << " ";
   IResource *reader = ch.GetReader();
