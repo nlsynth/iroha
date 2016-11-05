@@ -23,6 +23,8 @@ private:
   void CopyRegister();
   void CopyInsnAll();
   IInsn *CopyInsn(IInsn *src_insn);
+  static void CopyResourceParams(ResourceParams *src, ResourceParams *dst);
+  static IArray *CopyArray(IArray *src_array, IResource *new_res);
 
   IModule *mod_;
   ITable *src_tab_;

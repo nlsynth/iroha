@@ -1,6 +1,7 @@
 #include "design/table_copier.h"
 
 #include "iroha/resource_class.h"
+#include "iroha/resource_params.h"
 
 namespace iroha {
 
@@ -36,6 +37,11 @@ void TableCopier::CopyResource() {
       new_res->SetId(src_res->GetId());
       new_res->input_types_ = src_res->input_types_;
       new_res->output_types_ = src_res->output_types_;
+      IArray *src_array = src_res->GetArray();
+      if (src_array != nullptr) {
+	new_res->SetArray(CopyArray(src_array, new_res));
+      }
+      CopyResourceParams(src_res->GetParams(), new_res->GetParams());
       resource_map_[src_res] = new_res;
       new_tab_->resources_.push_back(new_res);
     }
@@ -103,6 +109,24 @@ IInsn *TableCopier::CopyInsn(IInsn *src_insn) {
     new_insn->target_states_.push_back(state_map_[s]);
   }
   return new_insn;
+}
+
+void TableCopier::CopyResourceParams(ResourceParams *src,
+				     ResourceParams *dst) {
+  vector<string> keys = src->GetParamKeys();
+  for (string &key : keys) {
+    vector<string> values = src->GetValues(key);
+    dst->SetValues(key, values);
+  }
+}
+
+IArray *TableCopier::CopyArray(IArray *src_array, IResource *new_res) {
+  IArray *new_array = new IArray(new_res,
+				 src_array->GetAddressWidth(),
+				 src_array->GetDataType(),
+				 src_array->IsExternal(),
+				 src_array->IsRam());
+  return new_array;
 }
 
 }  // namespace iroha
