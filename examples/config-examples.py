@@ -1,10 +1,11 @@
 # Run this to generate Makefile, then run 'make'
 EXAMPLES = {
     'minimum' : {'minimum'},
+    'copy' : {'copy'},
     'loop' : {'loop', 'example_common'},
     'xorshift' : {'xorshift', 'example_common'},
 }
-EXAMPLE_OBJS = ['example_common', 'loop',
+EXAMPLE_OBJS = ['example_common', 'copy', 'loop',
                 'minimum', 'xorshift']
 OUTPUT = 'Makefile'
 

@@ -32,6 +32,7 @@ libiroha_la_SOURCES = \
  src/builder/tree_builder.cpp src/builder/tree_builder.h \
  src/design/design_tool.cpp src/design/design_tool.h \
  src/design/design_util.cpp src/design/design_util.h \
+ src/design/table_copier.cpp src/design/table_copier.h \
  src/design/validator.cpp src/design/validator.h \
  src/design/validator.cpp src/design/validator.h \
  src/opt/array_to_mem.cpp src/opt/array_to_mem.h \

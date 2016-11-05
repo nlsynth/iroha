@@ -30,6 +30,9 @@ void FsmBuilder::AddState(Exp *e) {
   int st_id = Util::Atoi(e->vec[1]->atom.str);
   st->SetId(st_id);
   table_->states_.push_back(st);
+  if (states_[st_id] != nullptr) {
+    builder_->SetError() << "Duplicated state id: " << st_id;
+  }
   states_[st_id] = st;
   exps_[st_id] = e;
 }
