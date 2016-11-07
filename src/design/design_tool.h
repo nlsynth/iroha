@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // Methods to manipulate design.
-// (on the other hand design_tool doesn't mutate)
+// (on the other hand design_util doesn't mutate)
 //
 #ifndef _design_design_tool_h_
 #define _design_design_tool_h_

@@ -19,6 +19,11 @@ ITable *TableCopier::Copy() {
   CopyState();
   CopyRegister();
   CopyInsnAll();
+  IState *src_initial_st = src_tab_->GetInitialState();
+  if (src_initial_st != nullptr) {
+    new_tab_->SetInitialState(state_map_[src_initial_st]);
+  }
+  new_tab_->SetId(src_tab_->GetId());
   return new_tab_;
 }
 
@@ -31,7 +36,6 @@ void TableCopier::CopyResource() {
     if (resource::IsTransition(*src_rc)) {
       resource_map_[src_res] = new_tr;
     } else {
-      // TODO copy other various methods.
       IResource *new_res =
 	new IResource(new_tab_, resource_class_map_[src_rc]);
       new_res->SetId(src_res->GetId());

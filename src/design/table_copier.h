@@ -12,9 +12,10 @@ class TableCopier {
 public:
   TableCopier(ITable *src, IModule *new_parent_mod);
 
-  static ITable *CopyTable(ITable *src, IModule *new_parent_mod);
-
   ITable *Copy();
+
+  static ITable *CopyTable(ITable *src, IModule *new_parent_mod);
+  static void CopyResourceParams(ResourceParams *src, ResourceParams *dst);
 
 private:
   void CopyResource();
@@ -23,7 +24,6 @@ private:
   void CopyRegister();
   void CopyInsnAll();
   IInsn *CopyInsn(IInsn *src_insn);
-  static void CopyResourceParams(ResourceParams *src, ResourceParams *dst);
   static IArray *CopyArray(IArray *src_array, IResource *new_res);
 
   IModule *mod_;
