@@ -52,7 +52,6 @@ Please read src/iroha/iroha.h, src/iroha/iroha_main.cpp examples/ for more detai
 * P1: Modularize mapped resource
 * P1: Resource sharing between tables
 * P1: Decide module/instance relation
-* P2: Write shared register in another module
 * P2: Simplify wait cycle if there's 1 multi cycle insn in a state
 * P2: More debug output from optimizers.
 * P2: Support profiling information from frontends.

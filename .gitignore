@@ -12,4 +12,4 @@ autom4te.cache/
 config.log
 config.status
 libtool
-iroha
+./iroha
