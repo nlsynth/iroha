@@ -103,8 +103,8 @@ public:
   IRegister *GetForeignRegister() const;
   void SetChannel(IChannel *ch);
   IChannel *GetChannel() const;
-  IResource *GetSharedReg() const;
-  void SetSharedReg(IResource *res);
+  IResource *GetSharedRegister() const;
+  void SetSharedRegister(IResource *res);
 
   vector<IValueType> input_types_;
   vector<IValueType> output_types_;
@@ -258,6 +258,9 @@ public:
   void SetParentModule(IModule *mod);
   IModule *GetParentModule() const;
   ResourceParams *GetParams() const;
+  // Takes ownership.
+  void SetModuleImport(ModuleImport *mi);
+  ModuleImport *GetModuleImport() const;
 
   vector<ITable *> tables_;
 
@@ -267,6 +270,7 @@ private:
   string name_;
   IModule *parent_;
   unique_ptr<ResourceParams> params_;
+  unique_ptr<ModuleImport> import_;
 };
 
 // Represents a whole design including module hierarchy,

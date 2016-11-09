@@ -1,4 +1,7 @@
 // -*- C++ -*-
+//
+// Copies resources related to inter table communication.
+//
 #ifndef _design_resource_copier_h_
 #define _design_resource_copier_h_
 
@@ -18,9 +21,9 @@ private:
   void TraverseModule(IModule *mod);
   void ProcessTable(ITable *tab);
   void ProcessResource(IResource *res);
-  IResource *FindResource(IModule *mod, int tab_id, int res_id);
-  ITable *FindTable(IModule *mod, int tab_id);
   void SetCalleeTable(ITable *callee_table, IResource *res);
+  void SetForeignRegister(IRegister *foreign_register, IResource *res);
+  void SetSharedRegister(IResource *shared_reg, IResource *res);
 
   IModule *new_root_mod_;
   // src to dst.

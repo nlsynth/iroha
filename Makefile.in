@@ -112,16 +112,16 @@ libiroha_la_LIBADD =
 am__dirstamp = $(am__leading_dot)dirstamp
 am_libiroha_la_OBJECTS = src/iroha/common.lo src/iroha/iroha.lo \
 	src/iroha/iroha_main.lo src/iroha/i_design.lo \
-	src/iroha/logging.lo src/iroha/resource_class.lo \
-	src/iroha/resource_params.lo src/builder/exp_builder.lo \
-	src/builder/fsm_builder.lo src/builder/reader.lo \
-	src/builder/tree_builder.lo src/design/design_tool.lo \
-	src/design/design_util.lo src/design/module_copier.lo \
-	src/design/resource_copier.lo src/design/table_copier.lo \
-	src/design/validator.lo src/design/validator.lo \
-	src/opt/array_to_mem.lo src/opt/bb_collector.lo \
-	src/opt/bb_set.lo src/opt/clean/empty_state.lo \
-	src/opt/clean/pseudo_resource.lo \
+	src/iroha/logging.lo src/iroha/module_import.lo \
+	src/iroha/resource_class.lo src/iroha/resource_params.lo \
+	src/builder/exp_builder.lo src/builder/fsm_builder.lo \
+	src/builder/reader.lo src/builder/tree_builder.lo \
+	src/design/design_tool.lo src/design/design_util.lo \
+	src/design/module_copier.lo src/design/resource_copier.lo \
+	src/design/table_copier.lo src/design/validator.lo \
+	src/design/validator.lo src/opt/array_to_mem.lo \
+	src/opt/bb_collector.lo src/opt/bb_set.lo \
+	src/opt/clean/empty_state.lo src/opt/clean/pseudo_resource.lo \
 	src/opt/clean/unreachable_state.lo \
 	src/opt/clean/unused_resource.lo src/opt/data_flow.lo \
 	src/opt/data_flow_collector.lo src/opt/debug_annotation.lo \
@@ -462,6 +462,7 @@ libiroha_la_SOURCES = \
  src/iroha/iroha_main.cpp src/iroha/iroha_main.h \
  src/iroha/i_design.cpp src/iroha/i_design.h \
  src/iroha/logging.cpp src/iroha/logging.h \
+ src/iroha/module_import.cpp src/iroha/module_import.h \
  src/iroha/resource_class.cpp src/iroha/resource_class.h \
  src/iroha/resource_params.cpp src/iroha/resource_params.h \
  src/iroha/object_pool.h \
@@ -597,6 +598,8 @@ src/iroha/iroha_main.lo: src/iroha/$(am__dirstamp) \
 src/iroha/i_design.lo: src/iroha/$(am__dirstamp) \
 	src/iroha/$(DEPDIR)/$(am__dirstamp)
 src/iroha/logging.lo: src/iroha/$(am__dirstamp) \
+	src/iroha/$(DEPDIR)/$(am__dirstamp)
+src/iroha/module_import.lo: src/iroha/$(am__dirstamp) \
 	src/iroha/$(DEPDIR)/$(am__dirstamp)
 src/iroha/resource_class.lo: src/iroha/$(am__dirstamp) \
 	src/iroha/$(DEPDIR)/$(am__dirstamp)
@@ -890,6 +893,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/iroha/$(DEPDIR)/iroha.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/iroha/$(DEPDIR)/iroha_main.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/iroha/$(DEPDIR)/logging.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/iroha/$(DEPDIR)/module_import.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/iroha/$(DEPDIR)/resource_class.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/iroha/$(DEPDIR)/resource_params.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/opt/$(DEPDIR)/array_to_mem.Plo@am__quote@

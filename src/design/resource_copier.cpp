@@ -35,42 +35,55 @@ void ResourceCopier::ProcessTable(ITable *tab) {
 void ResourceCopier::ProcessResource(IResource *res) {
   IModule *mod = res->GetTable()->GetModule();
   IModule *src_mod = reverse_map_[mod];
-  IResource *src_res = FindResource(src_mod, res->GetTable()->GetId(),
-				    res->GetId());
-  // TODO copy other various objects too.
+  ITable *src_tab = DesignUtil::FindTableById(src_mod,
+					      res->GetTable()->GetId());
+  IResource *src_res = DesignUtil::FindResourceById(src_tab,
+						    res->GetId());
+  // TODO copy channels too.
   ITable *callee_table = src_res->GetCalleeTable();
   if (callee_table != nullptr) {
     SetCalleeTable(callee_table, res);
+  }
+  IRegister *foreign_register = src_res->GetForeignRegister();
+  if (foreign_register != nullptr) {
+    SetForeignRegister(foreign_register, res);
+  }
+  IResource *shared_reg = src_res->GetSharedRegister();
+  if (shared_reg != nullptr) {
+    SetSharedRegister(shared_reg, res);
   }
 }
 
 void ResourceCopier::SetCalleeTable(ITable *callee_table, IResource *res) {
   IModule *mod = callee_table->GetModule();
   IModule *new_mod = module_map_[mod];
-  ITable *new_tab = FindTable(new_mod, callee_table->GetId());
+  ITable *new_tab =
+    DesignUtil::FindTableById(new_mod, callee_table->GetId());
   res->SetCalleeTable(new_tab);
 }
 
-IResource *ResourceCopier::FindResource(IModule *mod, int tab_id, int res_id) {
-  ITable *tab = FindTable(mod, tab_id);
-  if (tab == nullptr) {
-    return nullptr;
-  }
-  for (IResource *res : tab->resources_) {
-    if (res->GetId() == res_id) {
-      return res;
-    }
-  }
-  return nullptr;
+void ResourceCopier::SetForeignRegister(IRegister *foreign_register,
+					IResource *res) {
+  IModule *mod = foreign_register->GetTable()->GetModule();
+  IModule *new_mod = module_map_[mod];
+  ITable *new_tab =
+    DesignUtil::FindTableById(new_mod,
+			      foreign_register->GetTable()->GetId());
+  IRegister *new_reg = DesignUtil::FindRegisterById(new_tab,
+						    foreign_register->GetId());
+  res->SetForeignRegister(new_reg);
 }
 
-ITable *ResourceCopier::FindTable(IModule *mod, int tab_id) {
-  for (ITable *tab : mod->tables_) {
-    if (tab->GetId() == tab_id) {
-      return tab;
-    }
-  }
-  return nullptr;
+void ResourceCopier::SetSharedRegister(IResource *shared_reg,
+				       IResource *res) {
+  IModule *mod = shared_reg->GetTable()->GetModule();
+  IModule *new_mod = module_map_[mod];
+  ITable *new_tab =
+    DesignUtil::FindTableById(new_mod,
+			      shared_reg->GetTable()->GetId());
+  IResource *new_res = DesignUtil::FindResourceById(new_tab,
+						    shared_reg->GetId());
+  res->SetSharedRegister(new_res);
 }
 
 }  // namespace iroha

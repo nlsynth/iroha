@@ -3,6 +3,7 @@
 #include "design/design_util.h"
 #include "iroha/opt_api.h"
 #include "iroha/logging.h"
+#include "iroha/module_import.h"
 #include "iroha/object_pool.h"
 #include "iroha/resource_class.h"
 #include "iroha/resource_params.h"
@@ -155,11 +156,11 @@ IChannel *IResource::GetChannel() const {
   return channel_;
 }
 
-IResource *IResource::GetSharedReg() const {
+IResource *IResource::GetSharedRegister() const {
   return shared_reg_;
 }
 
-void IResource::SetSharedReg(IResource *res) {
+void IResource::SetSharedRegister(IResource *res) {
   shared_reg_ = res;
 }
 
@@ -420,6 +421,14 @@ IModule *IModule::GetParentModule() const {
 
 ResourceParams *IModule::GetParams() const{
   return params_.get();
+}
+
+void IModule::SetModuleImport(ModuleImport *mi) {
+  import_.reset(mi);
+}
+
+ModuleImport *IModule::GetModuleImport() const {
+  return import_.get();
 }
 
 IDesign::IDesign()

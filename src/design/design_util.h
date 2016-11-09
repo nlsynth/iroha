@@ -27,6 +27,9 @@ public:
   static bool IsTerminalState(IState *st);
   static bool IsMultiCycleInsn(IInsn *insn);
   static int NumMultiCycleInsn(IState *st);
+  static IResource *FindResourceById(ITable *tab, int res_id);
+  static ITable *FindTableById(IModule *mod, int tab_id);
+  static IRegister *FindRegisterById(ITable *tab, int reg_id);
 };
 
 }  // namespace iroha

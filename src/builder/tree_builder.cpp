@@ -120,7 +120,7 @@ bool TreeBuilder::Resolve() {
       return false;
     }
     IResource *res = FindResource(mod, reg.tab_id, reg.res_id);
-    reg.reader->SetSharedReg(res);
+    reg.reader->SetSharedRegister(res);
   }
   map<int, IArrayImage *> array_ids;
   for (auto *im : design_->array_images_) {

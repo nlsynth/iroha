@@ -20,6 +20,7 @@ libiroha_la_SOURCES = \
  src/iroha/iroha_main.cpp src/iroha/iroha_main.h \
  src/iroha/i_design.cpp src/iroha/i_design.h \
  src/iroha/logging.cpp src/iroha/logging.h \
+ src/iroha/module_import.cpp src/iroha/module_import.h \
  src/iroha/resource_class.cpp src/iroha/resource_class.h \
  src/iroha/resource_params.cpp src/iroha/resource_params.h \
  src/iroha/object_pool.h \

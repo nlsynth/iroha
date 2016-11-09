@@ -179,4 +179,32 @@ int DesignUtil::NumMultiCycleInsn(IState *st) {
   return n;
 }
 
+IResource *DesignUtil::FindResourceById(ITable *tab,
+					int res_id) {
+  for (IResource *res : tab->resources_) {
+    if (res->GetId() == res_id) {
+      return res;
+    }
+  }
+  return nullptr;
+}
+
+ITable *DesignUtil::FindTableById(IModule *mod, int tab_id) {
+  for (ITable *tab : mod->tables_) {
+    if (tab->GetId() == tab_id) {
+      return tab;
+    }
+  }
+  return nullptr;
+}
+
+IRegister *DesignUtil::FindRegisterById(ITable *tab, int reg_id) {
+  for (IRegister *reg : tab->registers_) {
+    if (reg->GetId() == reg_id) {
+      return reg;
+    }
+  }
+  return nullptr;
+}
+
 }  // namespace iroha

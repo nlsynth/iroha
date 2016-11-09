@@ -32,7 +32,7 @@ SharedReg::SharedReg(const IResource &res, const Table &table)
       need_write_arbitration_ = true;
     }
   } else if (resource::IsSharedRegWriter(*klass)) {
-    auto *params = res_.GetSharedReg()->GetParams();
+    auto *params = res_.GetSharedRegister()->GetParams();
     string unused;
     params->GetExtOutputPort(&unused, &width_);
   } else {
@@ -129,7 +129,7 @@ void SharedReg::BuildInsn(IInsn *insn, State *st) {
   }
   if (resource::IsSharedRegReader(*klass)) {
     // Read from another table.
-    IResource *source = res_.GetSharedReg();
+    IResource *source = res_.GetSharedRegister();
     ostream &ws = tmpl_->GetStream(kInsnWireValueSection);
     ws << "  assign "
        << InsnWriter::InsnOutputWireName(*insn, 0)
@@ -179,12 +179,12 @@ void SharedReg::BuildReaderPorts(const SharedRegConnectionInfo &pi,
 void SharedReg::BuildWriterPorts(const SharedRegConnectionInfo &pi,
 				 Ports *ports) {
   for (IResource *res : pi.has_upward_port) {
-    int width = res->GetSharedReg()->GetParams()->GetWidth();
+    int width = res->GetSharedRegister()->GetParams()->GetWidth();
     ports->AddPort(WriterName(*res), Port::OUTPUT_WIRE, width);
     ports->AddPort(WriterEnName(*res), Port::OUTPUT_WIRE, 0);
   }
   for (IResource *res : pi.has_downward_port) {
-    int width = res->GetSharedReg()->GetParams()->GetWidth();
+    int width = res->GetSharedRegister()->GetParams()->GetWidth();
     ports->AddPort(WriterName(*res), Port::INPUT, width);
     ports->AddPort(WriterEnName(*res), Port::INPUT, 0);
   }
@@ -243,7 +243,7 @@ void SharedReg::BuildRootWire(const SharedRegConnectionInfo &pi,
     ws << "  wire ";
     int width;
     if (is_write) {
-      width = res->GetSharedReg()->GetParams()->GetWidth();
+      width = res->GetSharedRegister()->GetParams()->GetWidth();
     } else {
       width = res->GetParams()->GetWidth();
     }

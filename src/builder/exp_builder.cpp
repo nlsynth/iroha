@@ -5,6 +5,7 @@
 #include "builder/tree_builder.h"
 #include "iroha/i_design.h"
 #include "iroha/logging.h"
+#include "iroha/module_import.h"
 #include "iroha/resource_class.h"
 #include "iroha/resource_params.h"
 
@@ -107,8 +108,10 @@ IModule *ExpBuilder::BuildModule(Exp *e, IDesign *design) {
       } else {
 	tree_builder_->AddParentModule(Util::Atoi(element->Str(1)), module);
       }
+    } else if (element_name == "MODULE-IMPORT") {
+      BuildModuleImport(element, module);
     } else {
-      SetError();
+      SetError() << "Unknown element in MODULE: " << element_name;
     }
   }
   return module;
@@ -442,6 +445,15 @@ void ExpBuilder::BuildChannelReaderWriter(Exp *e, bool is_r, IChannel *ch) {
 					Util::Atoi(e->Str(0)),
 					Util::Atoi(e->Str(1)),
 					Util::Atoi(e->Str(2)));
+}
+
+void ExpBuilder::BuildModuleImport(Exp *e, IModule *mod) {
+  if (e->Size() < 2) {
+    SetError() << "Malformed module import";
+    return;
+  }
+  ModuleImport *mi = new ModuleImport(mod, e->Str(1));
+  mod->SetModuleImport(mi);
 }
 
 bool ExpBuilder::HasError() {

@@ -40,6 +40,7 @@ private:
   void BuildResourceParams(Exp *e, ResourceParams *params);
   void BuildParamTypes(Exp *e, vector<IValueType> *types);
   void BuildValueType(Exp *t, IValueType *vt);
+  void BuildModuleImport(Exp *e, IModule *mod);
   bool HasError();
 
   bool has_error_;

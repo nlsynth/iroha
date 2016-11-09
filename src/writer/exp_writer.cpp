@@ -2,6 +2,7 @@
 
 #include "iroha/i_design.h"
 #include "iroha/logging.h"
+#include "iroha/module_import.h"
 #include "iroha/resource_class.h"
 #include "iroha/resource_params.h"
 
@@ -29,6 +30,10 @@ void ExpWriter::WriteModule(const IModule &mod) {
   IModule *parent = mod.GetParentModule();
   if (parent != nullptr) {
     os_ << "  (PARENT " << parent->GetId() << ")\n";
+  }
+  ModuleImport *mi = mod.GetModuleImport();
+  if (mi != nullptr) {
+    os_ << "  (MODULE-IMPORT " << mi->GetFileName() << ")\n";
   }
   WriteResourceParams(*mod.GetParams(), "  ");
   for (auto *tab : mod.tables_) {
@@ -134,7 +139,7 @@ void ExpWriter::WriteCalleeTaskDesc(const IResource &res) {
 }
 
 void ExpWriter::WriteSharedRegDesc(const IResource &res) {
-  const IResource *source = res.GetSharedReg();
+  const IResource *source = res.GetSharedRegister();
   CHECK(source) << "Missing SHARED-REG";
   const ITable *table = source->GetTable();
   const IModule *mod = table->GetModule();

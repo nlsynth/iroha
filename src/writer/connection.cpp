@@ -236,14 +236,14 @@ void Connection::ProcessSharedReg(IResource *accessor, bool is_write) {
   if (is_write) {
     // (source)shared-reg-writer -> (sink)shared-reg
     source = accessor;
-    sink_module = accessor->GetSharedReg()->GetTable()->GetModule();
+    sink_module = accessor->GetSharedRegister()->GetTable()->GetModule();
   } else {
     // (source)shared-reg -> (sink)shared-reg-reader
-    source = accessor->GetSharedReg();
+    source = accessor->GetSharedRegister();
     sink_module = accessor->GetTable()->GetModule();
   }
   if (is_write) {
-    shared_reg_writers_[accessor->GetSharedReg()].push_back(accessor);
+    shared_reg_writers_[accessor->GetSharedRegister()].push_back(accessor);
   }
   IModule *source_module = source->GetTable()->GetModule();
   if (source_module == sink_module) {
