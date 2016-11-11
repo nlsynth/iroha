@@ -56,6 +56,7 @@ class IModule(object):
         self.tables = []
         self.parent_module = None
         self.resource_params = ResourceParams()
+        self.module_import = None
 
     def Write(self, writer):
         writer.ofh.write("(MODULE " + str(self.id) + " " + self.name + "\n")
@@ -63,6 +64,8 @@ class IModule(object):
         self.resource_params.Write(writer)
         if self.parent_module:
             writer.ofh.write(" (PARENT " + str(self.parent_module.id) + ")\n")
+        if self.module_import:
+            self.module_import.Write(writer)
         for t in self.tables:
             t.Write(writer)
         writer.ofh.write(")\n")
@@ -321,6 +324,14 @@ class IChannel(object):
             writer.ofh.write("(" + str(mod.id) + " " + str(tab.id) + " " + str(ep.id) + ")")
         else:
             writer.ofh.write("()")
+
+class ModuleImport(object):
+    def __init__(self, mod, fn):
+        self.mod = mod
+        self.fn = fn
+
+    def Write(self, writer):
+        writer.ofh.write(" (MODULE-IMPORT " + self.fn + ")\n")
 
 class DesignWriter(object):
     def __init__(self, design):

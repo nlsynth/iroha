@@ -134,6 +134,7 @@ int main(int argc, char **argv) {
     if (html) {
       writer->SetLanguage("html");
     }
+    DesignTool::ResolveImport(design);
     if (verilog || cxx) {
       DesignTool::Validate(design);
     }

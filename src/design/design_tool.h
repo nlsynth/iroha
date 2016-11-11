@@ -13,6 +13,7 @@ namespace iroha {
 class DesignTool {
 public:
   static void Validate(IDesign *design);
+  static void ResolveImport(IDesign *design);
   static IInsn *AddNextState(IState *cur, IState *next);
   static IState *InsertNextState(IState *st);
   static void EraseInsn(IState *st, IInsn *insn);

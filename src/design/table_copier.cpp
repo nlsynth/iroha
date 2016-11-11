@@ -35,6 +35,7 @@ void TableCopier::CopyResource() {
     auto *src_rc = src_res->GetClass();
     if (resource::IsTransition(*src_rc)) {
       resource_map_[src_res] = new_tr;
+      new_tr->SetId(src_res->GetId());
     } else {
       IResource *new_res =
 	new IResource(new_tab_, resource_class_map_[src_rc]);

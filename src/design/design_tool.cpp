@@ -3,6 +3,7 @@
 #include <set>
 
 #include "design/design_util.h"
+#include "design/importer.h"
 #include "design/validator.h"
 #include "iroha/resource_class.h"
 #include "iroha/resource_params.h"
@@ -11,6 +12,10 @@ namespace iroha {
 
 void DesignTool::Validate(IDesign *design) {
   Validator::Validate(design);
+}
+
+void DesignTool::ResolveImport(IDesign *design) {
+  Importer::Import(design);
 }
 
 IInsn *DesignTool::AddNextState(IState *cur, IState *next) {
