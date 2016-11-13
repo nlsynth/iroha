@@ -35,12 +35,14 @@ public:
   const IModule *GetIModule() const;
   const Ports *GetPorts() const;
   ModuleTemplate *GetModuleTemplate() const;
-  void BuildChildModuleSection(vector<Module *> &child_mods);
+  void BuildChildModuleInstSection(vector<Module *> &child_mods);
   const string &GetName() const;
   const Connection &GetConnection() const;
 
 private:
   bool ResolveResetPolarity();
+  ostream &ChildModuleInstSectionStream(Module *child) const;
+  string ChildModuleInstSectionContents(Module *child) const;
 
   const IModule *i_mod_;
   const Connection &conn_;
@@ -48,6 +50,7 @@ private:
   unique_ptr<ModuleTemplate> tmpl_;
   unique_ptr<Ports> ports_;
   vector<Table *> tables_;
+  vector<Module *> child_modules_;
   string name_;
   bool reset_polarity_;
   string reset_name_;

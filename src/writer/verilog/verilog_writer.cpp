@@ -70,7 +70,7 @@ void VerilogWriter::BuildChildModuleSection() {
     for (auto *imod : child_imods) {
       mods.push_back(modules_[imod]);
     }
-    mod->BuildChildModuleSection(mods);
+    mod->BuildChildModuleInstSection(mods);
   }
 }
 

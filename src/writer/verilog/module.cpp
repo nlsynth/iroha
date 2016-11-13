@@ -65,7 +65,14 @@ void Module::Write(ostream &os) {
     tab->Write(os);
   }
   os << tmpl_->GetContents(kEmbeddedInstanceSection);
-  os << tmpl_->GetContents(kSubModuleSection);
+  for (Module *child : child_modules_) {
+    // mod inst_mod(...);
+    const IModule *child_imod = child->GetIModule();
+    os << "  " << child_imod->GetName() << " "
+       << "inst_" << child_imod->GetName() << "(";
+    os << ChildModuleInstSectionContents(child);
+    os << ");\n";
+  }
   os << "\nendmodule\n";
 }
 
@@ -127,17 +134,18 @@ void Module::Build() {
   }
 }
 
-void Module::BuildChildModuleSection(vector<Module *> &child_mods) {
-  ostream &is = tmpl_->GetStream(kSubModuleSection);
-  for (auto *child_mod : child_mods) {
-    // mod inst_mod(...);
-    const IModule *child_imod = child_mod->GetIModule();
-    is << "  " << child_mod->GetName() << " "
-       << "inst_" << child_mod->GetName() << "(";
-    is << "." << child_mod->GetPorts()->GetClk() << "(" << GetPorts()->GetClk() << ")";
-    is << ", ." << child_mod->GetPorts()->GetReset() << "("
-       << GetPorts()->GetReset() << ")";
+void Module::BuildChildModuleInstSection(vector<Module *> &child_mods) {
+  child_modules_ = child_mods;
+
+  // Builds port connections.
+  for (auto *child_mod : child_modules_) {
+    ostream &is = ChildModuleInstSectionStream(child_mod);
+    is << "." << child_mod->GetPorts()->GetClk()
+       << "(" << GetPorts()->GetClk() << ")";
+    is << ", ." << child_mod->GetPorts()->GetReset()
+       << "(" << GetPorts()->GetReset() << ")";
     // Task
+    const IModule *child_imod = child_mod->GetIModule();
     const TaskCallInfo *ti = conn_.GetTaskCallInfo(child_imod);
     if (ti != nullptr) {
       SubModuleTask::BuildChildTaskWire(*ti, is);
@@ -164,7 +172,6 @@ void Module::BuildChildModuleSection(vector<Module *> &child_mods) {
     if (pwi != nullptr) {
       SharedReg::BuildWriterChildWire(*pwi, is);
     }
-    is << ");\n";
   }
 }
 
@@ -177,6 +184,16 @@ bool Module::ResolveResetPolarity() {
   }
   // This may return the default value.
   return i_mod_->GetDesign()->GetParams()->GetResetPolarity();
+}
+
+ostream &Module::ChildModuleInstSectionStream(Module *child) const {
+  return tmpl_->GetStream(kSubModuleSection +
+			  Util::Itoa(child->GetIModule()->GetId()));
+}
+
+string Module::ChildModuleInstSectionContents(Module *child) const {
+  return tmpl_->GetContents(kSubModuleSection +
+			    Util::Itoa(child->GetIModule()->GetId()));
 }
 
 ModuleTemplate *Module::GetModuleTemplate() const {
