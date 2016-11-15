@@ -19,7 +19,7 @@ struct DataFlowStateTransition {
 
 class DataFlowState : public State {
 public:
-  DataFlowState(IState *state, Table *table);
+  DataFlowState(IState *state, Table *table, Names *names);
   virtual ~DataFlowState();
 
   virtual void Write(ostream &os);

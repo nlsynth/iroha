@@ -65,6 +65,7 @@ libiroha_la_SOURCES = \
  src/writer/exp_writer.cpp src/writer/exp_writer.h \
  src/writer/html_writer.cpp src/writer/html_writer.h \
  src/writer/module_template.cpp src/writer/module_template.h \
+ src/writer/names.cpp src/writer/names.h \
  src/writer/cxx/class_writer.cpp src/writer/cxx/class_writer.h \
  src/writer/cxx/cxx_writer.cpp src/writer/cxx/cxx_writer.h \
  src/writer/cxx/module.cpp src/writer/cxx/module.h \

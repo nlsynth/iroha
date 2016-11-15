@@ -26,32 +26,33 @@ void ForeignReg::BuildInsn(IInsn *insn, State *st) {
   ostream &ws = tmpl_->GetStream(kInsnWireValueSection);
   ws << "  assign " << InsnWriter::InsnOutputWireName(*insn, 0)
      << " = "
-     << InsnWriter::RegisterName(*(res_.GetForeignRegister()))
+     << InsnWriter::RegisterValue(*(res_.GetForeignRegister()), tab_.GetNames())
      << ";\n";
 }
 
-void ForeignReg::BuildPorts(const RegConnectionInfo &ri, Ports *ports) {
+void ForeignReg::BuildPorts(const RegConnectionInfo &ri, Ports *ports, Names *names) {
   for (IRegister *reg : ri.has_upward_port) {
-    ports->AddPort(ForeignRegName(reg), Port::OUTPUT_WIRE,
+    ports->AddPort(ForeignRegName(reg, names), Port::OUTPUT_WIRE,
 		   reg->value_type_.GetWidth());
   }
   for (IRegister *reg : ri.has_downward_port) {
-    ports->AddPort(ForeignRegName(reg), Port::INPUT,
+    ports->AddPort(ForeignRegName(reg, names), Port::INPUT,
 		   reg->value_type_.GetWidth());
   }
 }
 
-void ForeignReg::BuildChildWire(const RegConnectionInfo &ri, ostream &os) {
+void ForeignReg::BuildChildWire(const RegConnectionInfo &ri, Names *names,
+				ostream &os) {
   for (IRegister *reg : ri.has_upward_port) {
-    AddChildWire(reg, os);
+    AddChildWire(reg, names, os);
   }
   for (IRegister *reg : ri.has_downward_port) {
-    AddChildWire(reg, os);
+    AddChildWire(reg, names, os);
   }
 }
 
-void ForeignReg::AddChildWire(IRegister *reg, ostream &os) {
-  string name = ForeignRegName(reg);
+void ForeignReg::AddChildWire(IRegister *reg, Names *names, ostream &os) {
+  string name = ForeignRegName(reg, names);
   os << ", ." << name << "(" << name << ")";
 }
 
@@ -60,19 +61,19 @@ void ForeignReg::BuildRegWire(const RegConnectionInfo &ri, Module *module) {
   ostream &ws = tmpl->GetStream(kInsnWireValueSection);
   for (IRegister *reg : ri.is_source) {
     ws << "  wire " << Table::WidthSpec(reg->value_type_)
-       << ForeignRegName(reg) << ";\n";
-    ws << "  assign " << ForeignRegName(reg) << " = "
-       << InsnWriter::RegisterName(*reg) << ";\n";
+       << ForeignRegName(reg, module->GetNames()) << ";\n";
+    ws << "  assign " << ForeignRegName(reg, module->GetNames()) << " = "
+       << InsnWriter::RegisterValue(*reg, module->GetNames()) << ";\n";
   }
   for (IRegister *reg : ri.has_wire) {
     ws << "  wire " << Table::WidthSpec(reg->value_type_)
-       << ForeignRegName(reg) << ";\n";
+       << ForeignRegName(reg, module->GetNames()) << ";\n";
   }
 }
 
-string ForeignReg::ForeignRegName(const IRegister *reg) {
+  string ForeignReg::ForeignRegName(const IRegister *reg, Names *names) {
   return reg->GetTable()->GetModule()->GetName() + "_" +
-    InsnWriter::RegisterName(*reg);
+    InsnWriter::RegisterValue(*reg, names);
 }
 
 }  // namespace verilog

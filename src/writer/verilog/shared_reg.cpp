@@ -115,7 +115,7 @@ void SharedReg::BuildInsn(IInsn *insn, State *st) {
 	insn->inputs_.size() == 1) {
       ostream &os = st->StateBodySectionStream();
       os << "          " << RegName(res_) << " <= "
-	 << InsnWriter::RegisterName(*insn->inputs_[0])
+	 << InsnWriter::RegisterValue(*insn->inputs_[0], tab_.GetNames())
 	 << ";\n";
     }
     if (insn->outputs_.size() == 1) {
@@ -139,7 +139,8 @@ void SharedReg::BuildInsn(IInsn *insn, State *st) {
   if (resource::IsSharedRegWriter(*klass)) {
     ostream &os = st->StateBodySectionStream();
     os << "          " << WriterName(res_) << " <= "
-       << InsnWriter::RegisterName(*insn->inputs_[0]) << ";\n";
+       << InsnWriter::RegisterValue(*insn->inputs_[0], tab_.GetNames())
+       << ";\n";
   }
 }
 

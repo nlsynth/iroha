@@ -49,7 +49,7 @@ void Channel::BuildInsn(IInsn *insn, State *st) {
        << I << "if (" << insn_st << " == 0) begin\n";
     IChannel *ic = res_.GetChannel();
     CHECK(ic);
-    os << I << "  " << DataPort(*ic) << " <= " << InsnWriter::RegisterName(*insn->inputs_[0]) << ";\n";
+    os << I << "  " << DataPort(*ic) << " <= " << InsnWriter::RegisterValue(*insn->inputs_[0], tab_.GetNames()) << ";\n";
     os << I << "  if (" << AckPort(*ic) << ") begin\n"
        << I << "    " << insn_st << " <= 3;\n"
        << I << "    " << EnPort(*ic) << " <= 0;\n"

@@ -21,9 +21,9 @@ namespace writer {
 namespace verilog {
 
 Table::Table(ITable *table, Ports *ports, Module *mod, EmbeddedModules *embed,
-	     ModuleTemplate *tmpl)
+	     Names *names, ModuleTemplate *tmpl)
   : i_table_(table), ports_(ports), mod_(mod), embedded_modules_(embed),
-    tmpl_(tmpl) {
+    names_(names), tmpl_(tmpl) {
   table_id_ = table->GetId();
   st_ = "st_" + Util::Itoa(table->GetId());
   is_task_ = Task::IsTask(*this);
@@ -45,7 +45,7 @@ void Table::Build() {
 
 void Table::BuildStates() {
   for (auto *i_state : i_table_->states_) {
-    State *st = new State(i_state, this);
+    State *st = new State(i_state, this, names_);
     st->Build();
     states_.push_back(st);
   }
@@ -218,6 +218,10 @@ string Table::StateNameFromTable(const ITable &tab, int id) {
 
 ModuleTemplate *Table::GetModuleTemplate() const {
   return tmpl_;
+}
+
+Names *Table::GetNames() const {
+  return names_;
 }
 
 ostream &Table::StateOutputSectionStream() const {

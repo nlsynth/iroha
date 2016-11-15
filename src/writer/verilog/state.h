@@ -10,13 +10,14 @@ namespace verilog {
 
 class State {
 public:
-  State(IState *state, Table *table);
+  State(IState *state, Table *table, Names *names);
   virtual ~State();
 
   void Build();
   virtual void Write(ostream &os);
   const IState *GetIState() const;
   static void WriteTaskEntry(Table *tab, ostream &os);
+  Names *GetNames() const;
 
   ostream &StateBodySectionStream() const;
   string StateBodySectionContents() const;
@@ -32,6 +33,7 @@ protected:
 
   IState *i_state_;
   Table *table_;
+  Names *names_;
   IInsn *transition_insn_;
   bool is_compound_cycle_;
 };

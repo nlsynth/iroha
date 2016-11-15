@@ -92,13 +92,14 @@ void Operator::BuildLightUniOpInsn(IInsn *insn) {
   } else {
     LOG(FATAL) << "Unknown LightUniOp: " << rc;
   }
-  ws << InsnWriter::RegisterName(*insn->inputs_[0]) << ";\n";
+  ws << InsnWriter::RegisterValue(*insn->inputs_[0], tab_.GetNames()) << ";\n";
 }
 
 void Operator::BuildLightBinOpInsn(IInsn *insn) {
   ostream &ws = tmpl_->GetStream(kInsnWireValueSection);
   ws << "  assign " << InsnWriter::InsnOutputWireName(*insn, 0)
-     << " = " << InsnWriter::RegisterName(*insn->inputs_[0]) << " ";
+     << " = " << InsnWriter::RegisterValue(*insn->inputs_[0], tab_.GetNames())
+     << " ";
   const string &rc = insn->GetResource()->GetClass()->GetName();
   if (rc == resource::kBitAnd) {
     ws << "&";
@@ -109,7 +110,7 @@ void Operator::BuildLightBinOpInsn(IInsn *insn) {
   } else {
     LOG(FATAL) << "Unknown LightBinOp: " << rc;
   }
-  ws << " " << InsnWriter::RegisterName(*insn->inputs_[1]) << ";\n";
+  ws << " " << InsnWriter::RegisterValue(*insn->inputs_[1], tab_.GetNames()) << ";\n";
 }
 
 void Operator::BuildBitShiftOpInsn(IInsn *insn) {
@@ -123,7 +124,7 @@ void Operator::BuildBitShiftOpInsn(IInsn *insn) {
   int amount = value.value_;
   ws << "  assign " << InsnWriter::InsnOutputWireName(*insn, 0)
      << " = "
-     << InsnWriter::RegisterName(*insn->inputs_[0]);
+     << InsnWriter::RegisterValue(*insn->inputs_[0], tab_.GetNames());
   if (is_left) {
     ws << " << ";
   } else {
@@ -134,7 +135,7 @@ void Operator::BuildBitShiftOpInsn(IInsn *insn) {
 
 void Operator::BuildBitSelInsn(IInsn *insn) {
   ostream &ws = tmpl_->GetStream(kInsnWireValueSection);
-  string r = InsnWriter::RegisterName(*insn->inputs_[0]);
+  string r = InsnWriter::RegisterValue(*insn->inputs_[0], tab_.GetNames());
   string msb = InsnWriter::ConstValue(*insn->inputs_[1]);
   string lsb = InsnWriter::ConstValue(*insn->inputs_[2]);
   ws << "  assign " << InsnWriter::InsnOutputWireName(*insn, 0)
@@ -145,7 +146,7 @@ void Operator::BuildBitConcatInsn(IInsn *insn) {
   ostream &ws = tmpl_->GetStream(kInsnWireValueSection);
   vector<string> regs;
   for (IRegister *reg : insn->inputs_) {
-    regs.push_back(InsnWriter::RegisterName(*reg));
+    regs.push_back(InsnWriter::RegisterValue(*reg, tab_.GetNames()));
   }
   ws << "  assign " << InsnWriter::InsnOutputWireName(*insn, 0)
      << " = {" << Util::Join(regs, ", ") << "};\n";
@@ -153,13 +154,14 @@ void Operator::BuildBitConcatInsn(IInsn *insn) {
 
 void Operator::BuildSelectInsn(IInsn *insn) {
   ostream &ws = tmpl_->GetStream(kInsnWireValueSection);
+  Names *names = tab_.GetNames();
   ws << "  assign " << InsnWriter::InsnOutputWireName(*insn, 0)
      << " = "
-     << InsnWriter::RegisterName(*insn->inputs_[0])
+     << InsnWriter::RegisterValue(*insn->inputs_[0], names)
      << " ? "
-     << InsnWriter::RegisterName(*insn->inputs_[2])
+     << InsnWriter::RegisterValue(*insn->inputs_[2], names)
      << " : "
-     << InsnWriter::RegisterName(*insn->inputs_[1])
+     << InsnWriter::RegisterValue(*insn->inputs_[1], names)
      << ";\n";
 }
 

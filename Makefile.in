@@ -133,10 +133,10 @@ am_libiroha_la_OBJECTS = src/iroha/common.lo src/iroha/iroha.lo \
 	src/opt/ssa/ssa_converter.lo src/opt/wire/wire_insn.lo \
 	src/writer/connection.lo src/writer/exp_writer.lo \
 	src/writer/html_writer.lo src/writer/module_template.lo \
-	src/writer/cxx/class_writer.lo src/writer/cxx/cxx_writer.lo \
-	src/writer/cxx/module.lo src/writer/cxx/resource.lo \
-	src/writer/cxx/state.lo src/writer/cxx/table.lo \
-	src/writer/verilog/channel.lo \
+	src/writer/names.lo src/writer/cxx/class_writer.lo \
+	src/writer/cxx/cxx_writer.lo src/writer/cxx/module.lo \
+	src/writer/cxx/resource.lo src/writer/cxx/state.lo \
+	src/writer/cxx/table.lo src/writer/verilog/channel.lo \
 	src/writer/verilog/dataflow_state.lo \
 	src/writer/verilog/dataflow_table.lo \
 	src/writer/verilog/embed.lo src/writer/verilog/ext_io.lo \
@@ -508,6 +508,7 @@ libiroha_la_SOURCES = \
  src/writer/exp_writer.cpp src/writer/exp_writer.h \
  src/writer/html_writer.cpp src/writer/html_writer.h \
  src/writer/module_template.cpp src/writer/module_template.h \
+ src/writer/names.cpp src/writer/names.h \
  src/writer/cxx/class_writer.cpp src/writer/cxx/class_writer.h \
  src/writer/cxx/cxx_writer.cpp src/writer/cxx/cxx_writer.h \
  src/writer/cxx/module.cpp src/writer/cxx/module.h \
@@ -721,6 +722,8 @@ src/writer/html_writer.lo: src/writer/$(am__dirstamp) \
 	src/writer/$(DEPDIR)/$(am__dirstamp)
 src/writer/module_template.lo: src/writer/$(am__dirstamp) \
 	src/writer/$(DEPDIR)/$(am__dirstamp)
+src/writer/names.lo: src/writer/$(am__dirstamp) \
+	src/writer/$(DEPDIR)/$(am__dirstamp)
 src/writer/cxx/$(am__dirstamp):
 	@$(MKDIR_P) src/writer/cxx
 	@: > src/writer/cxx/$(am__dirstamp)
@@ -926,6 +929,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/writer/$(DEPDIR)/exp_writer.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/writer/$(DEPDIR)/html_writer.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/writer/$(DEPDIR)/module_template.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/writer/$(DEPDIR)/names.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/writer/$(DEPDIR)/writer.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/writer/cxx/$(DEPDIR)/class_writer.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/writer/cxx/$(DEPDIR)/cxx_writer.Plo@am__quote@

@@ -19,8 +19,8 @@ namespace writer {
 namespace verilog {
 
 Module::Module(const IModule *i_mod, const Connection &conn,
-	       EmbeddedModules *embed)
-  : i_mod_(i_mod), conn_(conn), embed_(embed) {
+	       EmbeddedModules *embed, Names *names)
+  : i_mod_(i_mod), conn_(conn), embed_(embed), names_(names) {
   tmpl_.reset(new ModuleTemplate);
   ports_.reset(new Ports);
   reset_polarity_ = ResolveResetPolarity();
@@ -97,9 +97,9 @@ void Module::Build() {
     IInsn *insn = DesignUtil::FindDataFlowInInsn(i_table);
     if (insn) {
       tab = new DataFlowTable(i_table, ports_.get(), this, embed_,
-			      tmpl_.get());
+			      names_, tmpl_.get());
     } else {
-      tab = new Table(i_table, ports_.get(), this, embed_,
+      tab = new Table(i_table, ports_.get(), this, embed_, names_,
 		      tmpl_.get());
     }
     tab->Build();
@@ -117,7 +117,7 @@ void Module::Build() {
   }
   const RegConnectionInfo *ri = conn_.GetRegConnectionInfo(i_mod_);
   if (ri != nullptr) {
-    ForeignReg::BuildPorts(*ri, ports_.get());
+    ForeignReg::BuildPorts(*ri, ports_.get(), names_);
     ForeignReg::BuildRegWire(*ri, this);
   }
   const SharedRegConnectionInfo *pri =
@@ -158,7 +158,7 @@ void Module::BuildChildModuleInstSection(vector<Module *> &child_mods) {
     // Registers
     const RegConnectionInfo *ri = conn_.GetRegConnectionInfo(child_imod);
     if (ri != nullptr) {
-      ForeignReg::BuildChildWire(*ri, is);
+      ForeignReg::BuildChildWire(*ri, child_mod->GetNames(), is);
     }
     // Shared reg reader
     const SharedRegConnectionInfo *pri =
@@ -206,6 +206,10 @@ const string &Module::GetName() const {
 
 const Connection &Module::GetConnection() const {
   return conn_;
+}
+
+Names *Module::GetNames() const {
+  return names_;
 }
 
 }  // namespace verilog

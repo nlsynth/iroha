@@ -83,10 +83,12 @@ void Resource::BuildInsn(IInsn *insn, State *st) {
     if (insn->outputs_[0]->IsStateLocal()) {
       ostream &ws = tmpl_->GetStream(kInsnWireValueSection);
       ws << "  assign " << insn->outputs_[0]->GetName() << " = "
-	 << InsnWriter::RegisterName(*insn->inputs_[0]) << ";\n";
+	 << InsnWriter::RegisterValue(*insn->inputs_[0], st->GetNames())
+	 << ";\n";
     } else {
       os << "          " << insn->outputs_[0]->GetName() << " <= "
-	 << InsnWriter::RegisterName(*insn->inputs_[0]) << ";\n";
+	 << InsnWriter::RegisterValue(*insn->inputs_[0], st->GetNames())
+	 << ";\n";
     }
     return;
   }
@@ -127,11 +129,12 @@ void Resource::WriteInputSel(const string &name,
     IInsn *insn = it.second;
     IState *st = it.first;
     if (cond.empty()) {
-      cond = InsnWriter::RegisterName(*insn->inputs_[nth]);
+      cond = InsnWriter::RegisterValue(*insn->inputs_[nth], tab_.GetNames());
     } else {
       cond = "(" + tab_.StateVariable() + " == `" +
 	tab_.StateName(st->GetId()) + ") ? " +
-	InsnWriter::RegisterName(*insn->inputs_[nth]) + " : (" + cond + ")";
+	InsnWriter::RegisterValue(*insn->inputs_[nth], tab_.GetNames()) +
+	" : (" + cond + ")";
     }
   }
   os << cond << ";\n";
@@ -202,7 +205,8 @@ string Resource::SelectValueByState(const string &default_value) {
     if (insn->inputs_.size() == 1) {
       string stCond = tab_.GetStateCondition(st);
       v = "((" + stCond +
-	") ? " + InsnWriter::RegisterName(*insn->inputs_[0]) +
+	") ? " +
+	InsnWriter::RegisterValue(*insn->inputs_[0], tab_.GetNames()) +
 	" : " + v + ")";
     }
   }

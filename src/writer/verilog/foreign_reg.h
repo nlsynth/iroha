@@ -15,11 +15,13 @@ public:
   virtual void BuildResource() override;
   virtual void BuildInsn(IInsn *insn, State *st) override;
 
-  static void BuildPorts(const RegConnectionInfo &ri, Ports *ports);
-  static void BuildChildWire(const RegConnectionInfo &ri, ostream &os);
-  static void AddChildWire(IRegister *reg, ostream &os);
+  static void BuildPorts(const RegConnectionInfo &ri, Ports *ports, Names *names);
+  static void BuildChildWire(const RegConnectionInfo &ri, Names *names, ostream &os);
   static void BuildRegWire(const RegConnectionInfo &ri, Module *module);
-  static string ForeignRegName(const IRegister *reg);
+
+private:
+  static void AddChildWire(IRegister *reg, Names *names, ostream &os);
+  static string ForeignRegName(const IRegister *reg, Names *names);
 };
 
 }  // namespace verilog

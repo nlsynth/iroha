@@ -26,7 +26,8 @@ static const char kStateBodySection[] = "state_body";
 
 class Module {
 public:
-  Module(const IModule *i_mod, const Connection &conn, EmbeddedModules *embed);
+  Module(const IModule *i_mod, const Connection &conn,
+	 EmbeddedModules *embed, Names *names);
   ~Module();
 
   void Build();
@@ -38,6 +39,7 @@ public:
   void BuildChildModuleInstSection(vector<Module *> &child_mods);
   const string &GetName() const;
   const Connection &GetConnection() const;
+  Names *GetNames() const;
 
 private:
   bool ResolveResetPolarity();
@@ -47,6 +49,7 @@ private:
   const IModule *i_mod_;
   const Connection &conn_;
   EmbeddedModules *embed_;
+  Names *names_;
   unique_ptr<ModuleTemplate> tmpl_;
   unique_ptr<Ports> ports_;
   vector<Table *> tables_;

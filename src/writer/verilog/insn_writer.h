@@ -16,7 +16,7 @@ public:
   void Assert();
   void Mapped();
 
-  static string RegisterName(const IRegister &reg);
+  static string RegisterValue(const IRegister &reg, Names *names);
   static string ConstValue(const IRegister &reg);
   static string ResourceName(const IResource &res);
   static string InsnOutputWireName(const IInsn &insn, int nth);

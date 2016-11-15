@@ -122,7 +122,7 @@ void EmbeddedResource::BuildInsn(IInsn *insn, State *st) {
   for (int i = 0; i < args.size(); ++i) {
     string n = ArgRegName(*params, i);
     os << I << "  " << n << " <= "
-       << InsnWriter::RegisterName(*insn->inputs_[i]) << ";\n";
+       << InsnWriter::RegisterValue(*insn->inputs_[i], tab_.GetNames()) << ";\n";
   }
   os << I << "end\n";
   string ack = AckWireName(*params);

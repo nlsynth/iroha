@@ -56,12 +56,12 @@ void MappedResource::BuildMemInsn(IInsn *insn, State *st) {
   if (opr == "sram_read_address" ||
       opr == "sram_write") {
     os << I << "sram_addr" + res_id << " <= "
-       << InsnWriter::RegisterName(*(insn->inputs_[0]))
+       << InsnWriter::RegisterValue(*(insn->inputs_[0]), tab_.GetNames())
        << ";\n";
   }
   if (opr == "sram_write") {
     os << I << "sram_wdata" + res_id << " <= "
-       << InsnWriter::RegisterName(*(insn->inputs_[1]))
+       << InsnWriter::RegisterValue(*(insn->inputs_[1]), tab_.GetNames())
        << ";\n";
   }
 }

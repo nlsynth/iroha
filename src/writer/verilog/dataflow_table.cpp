@@ -11,9 +11,9 @@ namespace writer {
 namespace verilog {
 
 DataFlowTable::DataFlowTable(ITable *table, Ports *ports, Module *mod,
-			     EmbeddedModules *embed,
+			     EmbeddedModules *embed, Names *names,
 			     ModuleTemplate *tmpl)
-  : Table(table, ports, mod, embed, tmpl) {
+  : Table(table, ports, mod, embed, names, tmpl) {
 }
 
 DataFlowTable::~DataFlowTable() {
@@ -41,7 +41,7 @@ void DataFlowTable::Build() {
 
 void DataFlowTable::BuildStates() {
   for (auto *i_state : i_table_->states_) {
-    DataFlowState *st = new DataFlowState(i_state, this);
+    DataFlowState *st = new DataFlowState(i_state, this, names_);
     st->Build();
     states_.push_back(st);
     df_states_.push_back(st);

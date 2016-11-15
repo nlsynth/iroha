@@ -4,6 +4,7 @@
 #include "iroha/i_design.h"
 #include "iroha/resource_class.h"
 #include "iroha/resource_params.h"
+#include "writer/names.h"
 #include "writer/verilog/state.h"
 #include "writer/verilog/table.h"
 #include "writer/verilog/task.h"
@@ -19,7 +20,7 @@ InsnWriter::InsnWriter(const IInsn *insn, const State *st,
   : insn_(insn), st_(st), os_(os) {
 }
 
-string InsnWriter::RegisterName(const IRegister &reg) {
+string InsnWriter::RegisterValue(const IRegister &reg, Names *names) {
   if (reg.IsConst()) {
     int w = reg.value_type_.GetWidth();
     if (w == 0) {
@@ -27,7 +28,7 @@ string InsnWriter::RegisterName(const IRegister &reg) {
     }
     return Util::Itoa(w) + "'d" + Util::Itoa(reg.GetInitialValue().value_);
   } else {
-    return reg.GetName();
+    return names->GetName(reg);
   }
 }
 
@@ -43,7 +44,7 @@ string InsnWriter::ResourceName(const IResource &res) {
 void InsnWriter::Print() {
   for (int i = 0; i < insn_->inputs_.size(); ++i) {
     IRegister *reg = insn_->inputs_[i];
-    os_ << I << "$display(\"%d\", " << RegisterName(*reg) << ");\n";
+    os_ << I << "$display(\"%d\", " << RegisterValue(*reg, st_->GetNames()) << ");\n";
   }
 }
 
@@ -54,7 +55,7 @@ void InsnWriter::Assert() {
       os_ << " && ";
     }
     IRegister *reg = insn_->inputs_[i];
-    os_ << RegisterName(*reg);
+    os_ << RegisterValue(*reg, st_->GetNames());
   }
   os_ << ")) begin\n";
   os_ << I << "  $display(\"ASSERTION FAILURE: "

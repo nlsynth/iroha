@@ -18,8 +18,9 @@ namespace iroha {
 namespace writer {
 namespace verilog {
 
-State::State(IState *i_state, Table *table)
-  : i_state_(i_state), table_(table), transition_insn_(nullptr) {
+State::State(IState *i_state, Table *table, Names *names)
+  : i_state_(i_state), table_(table), names_(names),
+    transition_insn_(nullptr) {
   is_compound_cycle_ = DesignUtil::NumMultiCycleInsn(i_state) > 0;
   transition_insn_ = DesignUtil::FindTransitionInsn(i_state);
 }
@@ -74,7 +75,7 @@ void State::CopyResults(const IInsn *insn, bool to_wire, ostream &os) {
     } else {
       return;
     }
-    os << InsnWriter::RegisterName(*oreg);
+    os << InsnWriter::RegisterValue(*oreg, names_);
     if (to_wire) {
       os << " = ";
     } else {
@@ -105,7 +106,7 @@ void State::WriteTransitionBody(ostream &os) {
     return;
   }
   IRegister *cond = transition_insn_->inputs_[0];
-  os << I << "  if (" << InsnWriter::RegisterName(*cond) << ") begin\n"
+  os << I << "  if (" << InsnWriter::RegisterValue(*cond, names_) << ") begin\n"
      << I << "    " << sv << " <= "
      << "`" << table_->StateName(transition_insn_->target_states_[1]->GetId())
      << ";\n"
@@ -163,6 +164,10 @@ void State::WriteTaskEntry(Table *tab, ostream &os) {
      << tab->TaskEntrySectionContents()
      << I << "  end\n"
      << I << "end\n";
+}
+
+Names *State::GetNames() const {
+  return names_;
 }
 
 ostream &State::StateBodySectionStream() const {

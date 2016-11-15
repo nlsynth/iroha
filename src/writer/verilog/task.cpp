@@ -183,10 +183,10 @@ void Task::BuildSiblingTaskInsn(IInsn *insn, State *st) {
   for (int i = 0; i < insn->outputs_.size(); ++i) {
     IRegister *lhs = insn->outputs_[i];
     if (lhs->IsStateLocal()) {
-      ws << "  assign " << InsnWriter::RegisterName(*lhs)
+      ws << "  assign " << InsnWriter::RegisterValue(*lhs, tab_.GetNames())
 	 << " = " << ArgSignal(*tab_.GetITable(), i, nullptr) << ";\n";
     } else {
-      os << I << InsnWriter::RegisterName(*lhs)
+      os << I << InsnWriter::RegisterValue(*lhs, tab_.GetNames())
 	 << " <= " << ArgSignal(*tab_.GetITable(), i, nullptr) << ";\n";
     }
   }

@@ -33,6 +33,7 @@ private:
   unique_ptr<EmbeddedModules> embedded_modules_;
   string shell_module_name_;
   bool with_self_clock_;
+  unique_ptr<Names> names_;
 };
 
 }  // namespace verilog

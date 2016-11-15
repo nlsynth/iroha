@@ -4,6 +4,7 @@
 #include "iroha/logging.h"
 #include "iroha/i_design.h"
 #include "iroha/stl_util.h"
+#include "writer/names.h"
 #include "writer/verilog/embed.h"
 #include "writer/verilog/internal_sram.h"
 #include "writer/verilog/module.h"
@@ -16,13 +17,20 @@ namespace verilog {
 VerilogWriter::VerilogWriter(const IDesign *design, const Connection &conn,
 			     ostream &os)
   : design_(design), conn_(conn), os_(os),
-    embedded_modules_(new EmbeddedModules), with_self_clock_(false) {
+    embedded_modules_(new EmbeddedModules), with_self_clock_(false),
+    names_(new Names) {
 }
 
 VerilogWriter::~VerilogWriter() {
 }
 
 bool VerilogWriter::Write() {
+  names_->ReservePrefix("channel");
+  names_->ReservePrefix("insn");
+  names_->ReservePrefix("st");
+  names_->ReservePrefix("task");
+  names_->ReservePrefix("S");
+
   os_ << "// Generated from " << PACKAGE << "-" << VERSION << ".\n\n";
 
   IModule *root = DesignUtil::GetRootModule(design_);
@@ -56,7 +64,8 @@ void VerilogWriter::BuildModules(const IModule *imod) {
   for (IModule *child : children) {
     BuildModules(child);
   }
-  Module *mod = new Module(imod, conn_, embedded_modules_.get());
+  Module *mod = new Module(imod, conn_,
+			   embedded_modules_.get(), names_.get());
   mod->Build();
   modules_[imod] = mod;
   ordered_modules_.push_back(mod);
