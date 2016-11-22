@@ -7,6 +7,7 @@
 #include "iroha/resource_params.h"
 #include "iroha/stl_util.h"
 #include "writer/module_template.h"
+#include "writer/names.h"
 #include "writer/verilog/embed.h"
 #include "writer/verilog/foreign_reg.h"
 #include "writer/verilog/insn_writer.h"
@@ -101,7 +102,7 @@ void Table::BuildRegister() {
 	rs << "  reg";
       }
       rs << " " << WidthSpec(reg->value_type_);
-      rs << " " << reg->GetName() << ";\n";
+      rs << " " << names_->GetName(*reg) << ";\n";
     }
     if (!reg->IsConst() && reg->HasInitialValue()) {
       is << "      " << reg->GetName() << " <= "
