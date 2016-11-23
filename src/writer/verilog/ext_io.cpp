@@ -4,6 +4,7 @@
 #include "iroha/resource_class.h"
 #include "iroha/resource_params.h"
 #include "writer/module_template.h"
+#include "writer/names.h"
 #include "writer/verilog/module.h"
 #include "writer/verilog/ports.h"
 #include "writer/verilog/state.h"
@@ -76,6 +77,19 @@ void ExtIO::BuildExtInputInsn(IInsn *insn) {
   ws << "  assign " << InsnWriter::InsnOutputWireName(*insn, 0)
      << " = "
      << input_port << ";\n";
+}
+
+void ExtIO::CollectNames(Names *names) {
+  auto *klass = res_.GetClass();
+  auto *params = res_.GetParams();
+  string port;
+  int width;
+  if (resource::IsExtInput(*klass)) {
+    params->GetExtInputPort(&port, &width);
+  } else if (resource::IsExtOutput(*klass)) {
+    params->GetExtOutputPort(&port, &width);
+  }
+  names->ReserveGlobalName(port);
 }
 
 }  // namespace verilog

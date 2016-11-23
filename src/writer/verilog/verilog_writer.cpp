@@ -18,7 +18,7 @@ VerilogWriter::VerilogWriter(const IDesign *design, const Connection &conn,
 			     ostream &os)
   : design_(design), conn_(conn), os_(os),
     embedded_modules_(new EmbeddedModules), with_self_clock_(false),
-    names_(new Names) {
+    names_(new Names(nullptr)) {
 }
 
 VerilogWriter::~VerilogWriter() {
@@ -38,6 +38,7 @@ bool VerilogWriter::Write() {
     LOG(ERROR) << "Failed to determine a root module";
     return false;
   }
+  PrepareModulesRec(root);
   BuildModules(root);
   BuildChildModuleSection();
   if (!embedded_modules_->Write(os_)) {
@@ -59,16 +60,25 @@ void VerilogWriter::SetShellModuleName(const string &n, bool with_self_clock) {
   with_self_clock_ = with_self_clock;
 }
 
-void VerilogWriter::BuildModules(const IModule *imod) {
+void VerilogWriter::PrepareModulesRec(const IModule *imod) {
   vector<IModule *> children = DesignUtil::GetChildModules(imod);
   for (IModule *child : children) {
-    BuildModules(child);
+    PrepareModulesRec(child);
   }
   Module *mod = new Module(imod, conn_,
-			   embedded_modules_.get(), names_.get());
-  mod->Build();
+			   embedded_modules_.get(),
+			   names_->GetNewChildNames());
   modules_[imod] = mod;
   ordered_modules_.push_back(mod);
+}
+
+void VerilogWriter::BuildModules(const IModule *imod) {
+  for (auto *mod : ordered_modules_) {
+    mod->PrepareTables();
+  }
+  for (auto *mod : ordered_modules_) {
+    mod->Build();
+  }
 }
 
 void VerilogWriter::BuildChildModuleSection() {

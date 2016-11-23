@@ -88,10 +88,7 @@ const Ports *Module::GetPorts() const {
   return ports_.get();
 }
 
-void Module::Build() {
-  ports_->AddPort("clk", Port::INPUT_CLK, 0);
-  ports_->AddPort(reset_name_, Port::INPUT_RESET, 0);
-
+void Module::PrepareTables() {
   for (auto *i_table : i_mod_->tables_) {
     Table *tab;
     IInsn *insn = DesignUtil::FindDataFlowInInsn(i_table);
@@ -102,8 +99,19 @@ void Module::Build() {
       tab = new Table(i_table, ports_.get(), this, embed_, names_,
 		      tmpl_.get());
     }
-    tab->Build();
     tables_.push_back(tab);
+  }
+  for (Table *tab : tables_) {
+    tab->CollectNames();
+  }
+}
+
+void Module::Build() {
+  ports_->AddPort("clk", Port::INPUT_CLK, 0);
+  ports_->AddPort(reset_name_, Port::INPUT_RESET, 0);
+
+  for (Table *tab : tables_) {
+    tab->Build();
   }
 
   const ChannelInfo *ci = conn_.GetConnectionInfo(i_mod_);

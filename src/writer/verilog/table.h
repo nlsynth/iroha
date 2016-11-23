@@ -16,6 +16,7 @@ public:
 	Names *names, ModuleTemplate *tmpl);
   virtual ~Table();
 
+  void CollectNames();
   virtual void Build();
   virtual void Write(ostream &os);
 

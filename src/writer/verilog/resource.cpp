@@ -105,6 +105,9 @@ string Resource::ReadySignal(IInsn *insn) {
   return "";
 }
 
+void Resource::CollectNames(Names *names) {
+}
+
 void Resource::CollectResourceCallers(const string &opr,
 				      map<IState *, IInsn *> *callers) {
   for (auto *st : res_.GetTable()->states_) {

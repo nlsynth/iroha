@@ -31,6 +31,7 @@ public:
   ~Module();
 
   void Build();
+  void PrepareTables();
   void Write(ostream &os);
   bool GetResetPolarity() const;
   const IModule *GetIModule() const;

@@ -19,13 +19,24 @@ namespace writer {
 
 class Names {
 public:
+  explicit Names(Names *parent);
+  ~Names();
+
   void ReservePrefix(const string &prefix);
-  string GetName(const IRegister &reg);
+  void ReserveGlobalName(const string &name);
+  string GetRegName(const IRegister &reg);
+  bool IsReserved(const string &name);
+
+  Names *GetNewChildNames();
 
 private:
-  string GetPrefix(string &s);
+  string GetPrefix(const string &s);
+  string GetName(const string &raw_name, const string &type_prefix);
 
+  Names *parent_;
   set<string> prefixes_;
+  set<string> reserved_names_;
+  vector<unique_ptr<Names>> child_names_;
 };
 
 }  // namespace writer

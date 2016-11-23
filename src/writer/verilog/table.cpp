@@ -34,6 +34,13 @@ Table::~Table() {
   STLDeleteValues(&states_);
 }
 
+void Table::CollectNames() {
+  for (auto *res : i_table_->resources_) {
+    unique_ptr<Resource> builder(Resource::Create(*res, *this));
+    builder->CollectNames(names_);
+  }
+}
+
 void Table::Build() {
   BuildStates();
 
@@ -102,10 +109,10 @@ void Table::BuildRegister() {
 	rs << "  reg";
       }
       rs << " " << WidthSpec(reg->value_type_);
-      rs << " " << names_->GetName(*reg) << ";\n";
+      rs << " " << names_->GetRegName(*reg) << ";\n";
     }
     if (!reg->IsConst() && reg->HasInitialValue()) {
-      is << "      " << reg->GetName() << " <= "
+      is << "      " << names_->GetRegName(*reg) << " <= "
 	 << reg->GetInitialValue().value_ << ";\n";
     }
   }

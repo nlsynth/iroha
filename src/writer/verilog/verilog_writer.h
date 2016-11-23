@@ -19,6 +19,7 @@ public:
   void SetShellModuleName(const string &n, bool with_self_clock);
 
 private:
+  void PrepareModulesRec(const IModule *imod);
   void BuildModules(const IModule *imod);
   void BuildChildModuleSection();
   void WriteShellModule(const Module *mod);
