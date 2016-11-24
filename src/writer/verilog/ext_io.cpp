@@ -35,6 +35,7 @@ void ExtIO::BuildResource() {
     int width;
     params->GetExtInputPort(&input_port, &width);
     ports->AddPort(input_port, Port::INPUT, width);
+    BuildPathRec(tab_.GetModule(), input_port, width, false);
   }
   if (resource::IsExtOutput(*klass)) {
     auto *ports = tab_.GetPorts();
@@ -47,6 +48,7 @@ void ExtIO::BuildResource() {
       os << "      " << output_port << " <= "
 	 << SelectValueByState(Util::Itoa(default_output_value_)) << ";\n";
     }
+    BuildPathRec(tab_.GetModule(), output_port, width, true);
   }
 }
 
@@ -66,6 +68,28 @@ void ExtIO::BuildInsn(IInsn *insn, State *st) {
        << InsnWriter::RegisterValue(*insn->inputs_[0], tab_.GetNames());
     os << ";\n";
   }
+}
+
+void ExtIO::BuildPathRec(Module *child_mod, const string &port, int width,
+			 bool is_output) {
+  if (child_mod == nullptr) {
+    return;
+  }
+  Module *mod = child_mod->GetParentModule();
+  if (mod == nullptr) {
+    return;
+  }
+  ostream &os = mod->ChildModuleInstSectionStream(child_mod);
+  os << ", ." << port << "(" << port << ")";
+  auto *ports = mod->GetPorts();
+  Port::PortType type;
+  if (is_output) {
+    type = Port::OUTPUT_WIRE;
+  } else {
+    type = Port::INPUT;
+  }
+  ports->AddPort(port, type, width);
+  BuildPathRec(mod, port, width, is_output);
 }
 
 void ExtIO::BuildExtInputInsn(IInsn *insn) {

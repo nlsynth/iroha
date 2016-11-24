@@ -11,5 +11,9 @@ string ModuleTemplate::GetContents(const string &point) {
   return streams_[point].str();
 }
 
+void ModuleTemplate::Clear(const string &point) {
+  streams_[point].str("");
+}
+
 }  // namespace writer
 }  // namespace iroha

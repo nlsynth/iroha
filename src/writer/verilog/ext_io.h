@@ -18,6 +18,8 @@ public:
 
 private:
   void BuildExtInputInsn(IInsn *insn);
+  void BuildPathRec(Module *child_mod, const string &port, int width, bool is_output);
+
   bool has_default_output_value_;
   int default_output_value_;
 };

@@ -5,8 +5,11 @@ from iroha import *
 from iroha.iroha import *
 
 d = IDesign()
-mod = IModule(d, "mod")
-tab = ITable(mod)
+mod_top = IModule(d, "mod_top")
+
+mod_sub = IModule(d, "mod_sub")
+mod_sub.parent_module = mod_top
+tab = ITable(mod_sub)
 st1 = IState(tab)
 st2 = IState(tab)
 st3 = IState(tab)

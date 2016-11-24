@@ -14,6 +14,7 @@ class ModuleTemplate {
 public:
   ostream &GetStream(const string &point);
   string GetContents(const string &point);
+  void Clear(const string &point);
 
 private:
   map<string, ostringstream> streams_;

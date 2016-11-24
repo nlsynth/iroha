@@ -40,7 +40,6 @@ bool VerilogWriter::Write() {
   }
   PrepareModulesRec(root);
   BuildModules(root);
-  BuildChildModuleSection();
   if (!embedded_modules_->Write(os_)) {
     LOG(ERROR) << "Failed to write embedded modules.";
     return false;
@@ -74,11 +73,20 @@ void VerilogWriter::PrepareModulesRec(const IModule *imod) {
 
 void VerilogWriter::BuildModules(const IModule *imod) {
   for (auto *mod : ordered_modules_) {
+    const IModule *imod = mod->GetIModule();
+    IModule *iparent = imod->GetParentModule();
+    if (iparent != nullptr) {
+      Module *parent = modules_[iparent];
+      mod->SetParentModule(parent);
+    }
+  }
+  for (auto *mod : ordered_modules_) {
     mod->PrepareTables();
   }
   for (auto *mod : ordered_modules_) {
     mod->Build();
   }
+  BuildChildModuleSection();
 }
 
 void VerilogWriter::BuildChildModuleSection() {

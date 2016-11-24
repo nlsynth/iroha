@@ -34,23 +34,26 @@ public:
   void PrepareTables();
   void Write(ostream &os);
   bool GetResetPolarity() const;
+  Module *GetParentModule() const;
+  void SetParentModule(Module *parent);
   const IModule *GetIModule() const;
-  const Ports *GetPorts() const;
+  Ports *GetPorts() const;
   ModuleTemplate *GetModuleTemplate() const;
   void BuildChildModuleInstSection(vector<Module *> &child_mods);
   const string &GetName() const;
   const Connection &GetConnection() const;
   Names *GetNames() const;
+  ostream &ChildModuleInstSectionStream(Module *child) const;
 
 private:
   bool ResolveResetPolarity();
-  ostream &ChildModuleInstSectionStream(Module *child) const;
-  string ChildModuleInstSectionContents(Module *child) const;
+  string ChildModuleInstSectionContents(Module *child, bool clear) const;
 
   const IModule *i_mod_;
   const Connection &conn_;
   EmbeddedModules *embed_;
   Names *names_;
+  Module *parent_;
   unique_ptr<ModuleTemplate> tmpl_;
   unique_ptr<Ports> ports_;
   vector<Table *> tables_;

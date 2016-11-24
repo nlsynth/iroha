@@ -20,7 +20,8 @@ namespace verilog {
 
 Module::Module(const IModule *i_mod, const Connection &conn,
 	       EmbeddedModules *embed, Names *names)
-  : i_mod_(i_mod), conn_(conn), embed_(embed), names_(names) {
+  : i_mod_(i_mod), conn_(conn), embed_(embed), names_(names),
+    parent_(nullptr) {
   tmpl_.reset(new ModuleTemplate);
   ports_.reset(new Ports);
   reset_polarity_ = ResolveResetPolarity();
@@ -70,7 +71,7 @@ void Module::Write(ostream &os) {
     const IModule *child_imod = child->GetIModule();
     os << "  " << child_imod->GetName() << " "
        << "inst_" << child_imod->GetName() << "(";
-    os << ChildModuleInstSectionContents(child);
+    os << ChildModuleInstSectionContents(child, false);
     os << ");\n";
   }
   os << "\nendmodule\n";
@@ -80,11 +81,19 @@ bool Module::GetResetPolarity() const {
   return reset_polarity_;
 }
 
+Module *Module::GetParentModule() const {
+  return parent_;
+}
+
+void Module::SetParentModule(Module *parent) {
+  parent_ = parent;
+}
+
 const IModule *Module::GetIModule() const {
   return i_mod_;
 }
 
-const Ports *Module::GetPorts() const {
+Ports *Module::GetPorts() const {
   return ports_.get();
 }
 
@@ -147,11 +156,13 @@ void Module::BuildChildModuleInstSection(vector<Module *> &child_mods) {
 
   // Builds port connections.
   for (auto *child_mod : child_modules_) {
+    string current_content = ChildModuleInstSectionContents(child_mod, true);
     ostream &is = ChildModuleInstSectionStream(child_mod);
     is << "." << child_mod->GetPorts()->GetClk()
        << "(" << GetPorts()->GetClk() << ")";
     is << ", ." << child_mod->GetPorts()->GetReset()
        << "(" << GetPorts()->GetReset() << ")";
+    is << current_content;
     // Task
     const IModule *child_imod = child_mod->GetIModule();
     const TaskCallInfo *ti = conn_.GetTaskCallInfo(child_imod);
@@ -199,9 +210,14 @@ ostream &Module::ChildModuleInstSectionStream(Module *child) const {
 			  Util::Itoa(child->GetIModule()->GetId()));
 }
 
-string Module::ChildModuleInstSectionContents(Module *child) const {
-  return tmpl_->GetContents(kSubModuleSection +
-			    Util::Itoa(child->GetIModule()->GetId()));
+string Module::ChildModuleInstSectionContents(Module *child, bool clear) const {
+  string section = kSubModuleSection +
+    Util::Itoa(child->GetIModule()->GetId());
+  string s = tmpl_->GetContents(section);
+  if (clear) {
+    tmpl_->Clear(section);
+  }
+  return s;
 }
 
 ModuleTemplate *Module::GetModuleTemplate() const {
