@@ -86,3 +86,14 @@ e.g.
       end else st_2 <= 0;
       ...
     end
+
+## Module import
+
+Imported modules can be connected to its outer module using TAP.
+
+(MODULE 1 mod
+  (MODULE-IMPORT /tmp/a.iroha
+    (TAP a_in tag_123)
+    (TAP b_in ())
+  )
+)

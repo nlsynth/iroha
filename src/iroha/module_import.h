@@ -6,11 +6,21 @@
 
 namespace iroha {
 
+class ModuleImportTap {
+public:
+  string source;
+  string tag;
+};
+
+// Managed by IModule's unique_ptr.
 class ModuleImport {
 public:
   ModuleImport(IModule *mod, const string &fn);
+  ~ModuleImport();
 
   const string &GetFileName();
+
+  vector<ModuleImportTap> taps_;
 
 private:
   IModule *mod_;

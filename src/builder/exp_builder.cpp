@@ -453,7 +453,26 @@ void ExpBuilder::BuildModuleImport(Exp *e, IModule *mod) {
     return;
   }
   ModuleImport *mi = new ModuleImport(mod, e->Str(1));
+  for (int i = 2; i < e->Size(); ++i) {
+    Exp *t = e->vec[i];
+    if (t->Str(0) == "TAP") {
+      BuildModuleImportTap(t, mi);
+    } else {
+      SetError() << "Unknown item in module-import:" << t->Str(0);
+    }
+  }
   mod->SetModuleImport(mi);
+}
+
+void ExpBuilder::BuildModuleImportTap(Exp *e, ModuleImport *mi) {
+  if (e->Size() < 3) {
+    SetError() << "Malformed module import tap";
+    return;
+  }
+  ModuleImportTap tap;
+  tap.source = e->Str(1);
+  tap.tag = e->Str(2);
+  mi->taps_.push_back(tap);
 }
 
 bool ExpBuilder::HasError() {

@@ -325,13 +325,31 @@ class IChannel(object):
         else:
             writer.ofh.write("()")
 
+class ModuleImportTap(object):
+    def __init__(self, name, tag):
+        self.name = name
+        self.tag = tag
+
+    def Write(self, writer):
+        writer.ofh.write("  (TAP " + self.name + " ")
+        if self.tag:
+            writer.ofh.write(self.tag)
+        else:
+            writer.ofh.write("()")
+        writer.ofh.write(")\n")
+
+
 class ModuleImport(object):
     def __init__(self, mod, fn):
         self.mod = mod
         self.fn = fn
+        self.taps = []
 
     def Write(self, writer):
-        writer.ofh.write(" (MODULE-IMPORT " + self.fn + ")\n")
+        writer.ofh.write(" (MODULE-IMPORT " + self.fn + "\n")
+        for t in self.taps:
+            t.Write(writer)
+        writer.ofh.write(" )\n")
 
 class DesignWriter(object):
     def __init__(self, design):

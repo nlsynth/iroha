@@ -33,7 +33,17 @@ void ExpWriter::WriteModule(const IModule &mod) {
   }
   ModuleImport *mi = mod.GetModuleImport();
   if (mi != nullptr) {
-    os_ << "  (MODULE-IMPORT " << mi->GetFileName() << ")\n";
+    os_ << "  (MODULE-IMPORT " << mi->GetFileName() << "\n";
+    for (auto &t : mi->taps_) {
+      os_ << "   (TAP " << t.source << " ";
+      if (t.tag.empty()) {
+	os_ << "()";
+      } else {
+	os_ << t.tag;
+      }
+      os_ << ")\n";
+    }
+    os_ << "  )\n";
   }
   WriteResourceParams(*mod.GetParams(), "  ");
   for (auto *tab : mod.tables_) {

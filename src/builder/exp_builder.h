@@ -41,6 +41,7 @@ private:
   void BuildParamTypes(Exp *e, vector<IValueType> *types);
   void BuildValueType(Exp *t, IValueType *vt);
   void BuildModuleImport(Exp *e, IModule *mod);
+  void BuildModuleImportTap(Exp *e, ModuleImport *mi);
   bool HasError();
 
   bool has_error_;

@@ -18,6 +18,7 @@ void printVersion() {
 	    << "  -h Output HTML\n"
 	    << "  -o [fn] output to the file name\n"
 	    << "  -d Debug dump\n"
+	    << "  -j Don't process module-import\n"
 	    << "  -opt [optimizers]\n";
 }
 
@@ -29,6 +30,7 @@ int main(int argc, char **argv) {
   bool html = false;
   bool shell = false;
   bool selfShell = false;
+  bool skipImport = false;
 
   string output;
   string debug_dump;
@@ -63,6 +65,10 @@ int main(int argc, char **argv) {
     }
     if (arg == "-h") {
       html = true;
+      continue;
+    }
+    if (arg == "-j") {
+      skipImport = true;
       continue;
     }
     if (arg == "-o" && i + 1 < argc) {
@@ -134,7 +140,9 @@ int main(int argc, char **argv) {
     if (html) {
       writer->SetLanguage("html");
     }
-    DesignTool::ResolveImport(design);
+    if (!skipImport) {
+      DesignTool::ResolveImport(design);
+    }
     if (verilog || cxx) {
       DesignTool::Validate(design);
     }
