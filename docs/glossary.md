@@ -91,9 +91,22 @@ e.g.
 
 Imported modules can be connected to its outer module using TAP.
 
-(MODULE 1 mod
+(MODULE 1 mod1
   (MODULE-IMPORT /tmp/a.iroha
-    (TAP a_in tag_123)
-    (TAP b_in ())
+    (TAP a_in () (shared-reg-reader 3 4 5)) ; mod, table, res
+    (TAP b_out tag_123 (shared-reg))
   )
 )
+(MODULE 2 mod2
+  (MODULE-IMPORT /tmp/b.iroha
+    (TAP x_in tag_123 (shared-reg-reader))
+    (TAP y_out () (shared-reg 3 4 6))
+  )
+)
+
+ext-output can be mapped to shared-reg
+ext-input can be mapped to shared-reg-reader
+
+
+
+MEMO(yt76): May also support shared-reg-writer and channel.

@@ -8,8 +8,14 @@ namespace iroha {
 
 class ModuleImportTap {
 public:
+  ModuleImportTap();
+
   string source;
   string tag;
+  string resource;
+  int module_id;
+  int table_id;
+  int resource_id;
 };
 
 // Managed by IModule's unique_ptr.

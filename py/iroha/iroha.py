@@ -325,15 +325,32 @@ class IChannel(object):
         else:
             writer.ofh.write("()")
 
+class TapDesc(object):
+    def __init__(self, rc):
+        self.rc = rc
+
+    @classmethod
+    def Create(cls, rc):
+        return TapDesc(rc)
+
+    def Write(self, writer):
+        writer.ofh.write("(" + self.rc + ")")
+
 class ModuleImportTap(object):
-    def __init__(self, name, tag):
+    def __init__(self, name, tag, tap_desc):
         self.name = name
         self.tag = tag
+        self.tap_desc = tap_desc
 
     def Write(self, writer):
         writer.ofh.write("  (TAP " + self.name + " ")
         if self.tag:
             writer.ofh.write(self.tag)
+        else:
+            writer.ofh.write("()")
+        writer.ofh.write(" ")
+        if self.tap_desc:
+            self.tap_desc.Write(writer)
         else:
             writer.ofh.write("()")
         writer.ofh.write(")\n")
@@ -352,9 +369,12 @@ class ModuleImport(object):
         writer.ofh.write(" )\n")
 
 class DesignWriter(object):
-    def __init__(self, design):
+    def __init__(self, design, fn = None):
         self.design = design
-        self.ofh = sys.stdout
+        if fn:
+            self.ofh = open(fn, "w")
+        else:
+            self.ofh = sys.stdout
 
     def Write(self):
         self.design.Write(self)

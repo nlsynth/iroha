@@ -25,6 +25,7 @@ class ITable;
 class IValue;
 class IValueType;
 class ModuleImport;
+class ModuleImportTap;
 class ObjectPool;
 class ResourceParams;
 

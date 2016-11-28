@@ -41,6 +41,7 @@ void ExpWriter::WriteModule(const IModule &mod) {
       } else {
 	os_ << t.tag;
       }
+      os_ << " (" << t.resource << ")";
       os_ << ")\n";
     }
     os_ << "  )\n";

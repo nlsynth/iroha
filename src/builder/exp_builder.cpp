@@ -465,14 +465,19 @@ void ExpBuilder::BuildModuleImport(Exp *e, IModule *mod) {
 }
 
 void ExpBuilder::BuildModuleImportTap(Exp *e, ModuleImport *mi) {
-  if (e->Size() < 3) {
+  if (e->Size() < 4) {
     SetError() << "Malformed module import tap";
     return;
   }
   ModuleImportTap tap;
   tap.source = e->Str(1);
   tap.tag = e->Str(2);
+  BuildModuleImportTapDesc(e->vec[3], &tap);
   mi->taps_.push_back(tap);
+}
+
+void ExpBuilder::BuildModuleImportTapDesc(Exp *e, ModuleImportTap *tap) {
+  tap->resource = e->Str(0);
 }
 
 bool ExpBuilder::HasError() {
