@@ -69,7 +69,8 @@ void Module::Write(ostream &os) {
   for (Module *child : child_modules_) {
     // mod inst_mod(...);
     const IModule *child_imod = child->GetIModule();
-    os << "  " << child_imod->GetName() << " "
+    string prefix = i_mod_->GetDesign()->GetParams()->GetModuleNamePrefix();
+    os << "  " << prefix << child_imod->GetName() << " "
        << "inst_" << child_imod->GetName() << "(";
     os << ChildModuleInstSectionContents(child, false);
     os << ");\n";
