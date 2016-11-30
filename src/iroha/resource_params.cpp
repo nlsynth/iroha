@@ -222,7 +222,9 @@ void ResourceParams::SetExtInputPort(const string &input, int width) {
 
 void ResourceParams::GetExtInputPort(string *name, int *width) {
   *name = values_->GetStringParam(resource::kExtInputPort, "");
-  *width = values_->GetIntParam(resource::kExtIOWidth, 0);
+  if (width != nullptr) {
+    *width = values_->GetIntParam(resource::kExtIOWidth, 0);
+  }
 }
 
 void ResourceParams::SetExtOutputPort(const string &output, int width) {
@@ -232,7 +234,9 @@ void ResourceParams::SetExtOutputPort(const string &output, int width) {
 
 void ResourceParams::GetExtOutputPort(string *name, int *width) {
   *name = values_->GetStringParam(resource::kExtOutputPort, "");
-  *width = values_->GetIntParam(resource::kExtIOWidth, 0);
+  if (width != nullptr) {
+    *width = values_->GetIntParam(resource::kExtIOWidth, 0);
+  }
 }
 
 bool ResourceParams::GetDefaultValue(int *value) const {

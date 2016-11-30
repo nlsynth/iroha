@@ -46,9 +46,9 @@ tag = "tag1"
 mi0 = ModuleImport(mod_sub0, "/tmp/tmpmod.iroha")
 mod_sub0.module_import = mi0
 
-t0_a = ModuleImportTap("data_in", None, None)
+#t0_a = ModuleImportTap("data_in", None, None)
 t0_b = ModuleImportTap("data_out", tag, TapDesc.Create("shared-reg"))
-mi0.taps.append(t0_a)
+#mi0.taps.append(t0_a)
 mi0.taps.append(t0_b)
 
 #
@@ -59,9 +59,9 @@ mi1 = ModuleImport(mod_sub0, "/tmp/tmpmod.iroha")
 mod_sub1.module_import = mi1
 
 t1_a = ModuleImportTap("data_in", tag, TapDesc.Create("shared-reg-reader"))
-t1_b = ModuleImportTap("data_out", None, None)
+#t1_b = ModuleImportTap("data_out", None, None)
 mi1.taps.append(t1_a)
-mi1.taps.append(t1_b)
+#mi1.taps.append(t1_b)
 
 design_tool.ValidateIds(d)
 DesignWriter(d).Write()

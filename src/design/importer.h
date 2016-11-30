@@ -4,6 +4,10 @@
 
 #include "iroha/common.h"
 
+#include <map>
+
+using std::map;
+
 namespace iroha {
 
 class Importer {
@@ -17,8 +21,14 @@ public:
 private:
   void TraverseModule(IModule *mod);
   void ProcessImport(IModule *mod);
+  void ProcessTapAll();
+  void ClearModuleImport();
+  void ProcessTap(IModule *mod);
+  IResource *RemapResource(const ModuleImportTap &tap, IResource *src_res);
+  void ConnectResources(IResource *w, IResource *r);
 
   IDesign *design_;
+  map<string, vector<IResource *> > tag_to_resources_;
 };
 
 }  // namespace iroha

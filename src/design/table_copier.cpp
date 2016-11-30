@@ -116,6 +116,21 @@ IInsn *TableCopier::CopyInsn(IInsn *src_insn) {
   return new_insn;
 }
 
+void TableCopier::CopyInsnParams(IInsn *src_insn, IInsn *dst_insn) {
+  // This is pretty similar to CopyInsn() except for the maps.
+  dst_insn->SetId(src_insn->GetId());
+  dst_insn->SetOperand(src_insn->GetOperand());
+  for (IRegister *r : src_insn->inputs_) {
+    dst_insn->inputs_.push_back(r);
+  }
+  for (IRegister *r : src_insn->outputs_) {
+    dst_insn->outputs_.push_back(r);
+  }
+  for (IState *s : src_insn->target_states_) {
+    dst_insn->target_states_.push_back(s);
+  }
+}
+
 void TableCopier::CopyResourceParams(ResourceParams *src,
 				     ResourceParams *dst) {
   vector<string> keys = src->GetParamKeys();

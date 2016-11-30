@@ -19,6 +19,7 @@ void printVersion() {
 	    << "  -o [fn] output to the file name\n"
 	    << "  -d Debug dump\n"
 	    << "  -j Don't process module-import\n"
+	    << "  -k Don't validate ids and names\n"
 	    << "  -opt [optimizers]\n";
 }
 
@@ -31,6 +32,7 @@ int main(int argc, char **argv) {
   bool shell = false;
   bool selfShell = false;
   bool skipImport = false;
+  bool skipValidation = false;
 
   string output;
   string debug_dump;
@@ -69,6 +71,10 @@ int main(int argc, char **argv) {
     }
     if (arg == "-j") {
       skipImport = true;
+      continue;
+    }
+    if (arg == "-k") {
+      skipValidation = true;
       continue;
     }
     if (arg == "-o" && i + 1 < argc) {
@@ -143,7 +149,7 @@ int main(int argc, char **argv) {
     if (!skipImport) {
       DesignTool::ResolveImport(design);
     }
-    if (verilog || cxx) {
+    if (!skipValidation) {
       DesignTool::Validate(design);
     }
     writer->Write(output);

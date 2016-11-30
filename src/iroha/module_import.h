@@ -10,8 +10,11 @@ class ModuleImportTap {
 public:
   ModuleImportTap();
 
+  // pin name of ext-input or ext-output.
   string source;
+  // arbitrary name assigned by user.
   string tag;
+  // ext-output, ext-input can be shared-reg or shared-reg-reader.
   string resource;
   int module_id;
   int table_id;

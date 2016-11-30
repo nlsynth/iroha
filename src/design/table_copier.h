@@ -16,6 +16,7 @@ public:
 
   static ITable *CopyTable(ITable *src, IModule *new_parent_mod);
   static void CopyResourceParams(ResourceParams *src, ResourceParams *dst);
+  static void CopyInsnParams(IInsn *src_insn, IInsn *dst_insn);
 
 private:
   void CopyResource();
