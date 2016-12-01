@@ -469,15 +469,20 @@ void ExpBuilder::BuildModuleImportTap(Exp *e, ModuleImport *mi) {
     SetError() << "Malformed module import tap";
     return;
   }
-  ModuleImportTap tap;
-  tap.source = e->Str(1);
-  tap.tag = e->Str(2);
-  BuildModuleImportTapDesc(e->vec[3], &tap);
+  ModuleImportTap *tap = new ModuleImportTap();
+  tap->source = e->Str(1);
+  tap->tag = e->Str(2);
+  BuildModuleImportTapDesc(e->vec[3], tap);
   mi->taps_.push_back(tap);
 }
 
 void ExpBuilder::BuildModuleImportTapDesc(Exp *e, ModuleImportTap *tap) {
-  tap->resource = e->Str(0);
+  tap->resource_class = e->Str(0);
+  if (e->Size() == 4) {
+    tree_builder_->AddModuleImportTap(Util::Atoi(e->Str(1)),
+				      Util::Atoi(e->Str(2)),
+				      Util::Atoi(e->Str(3)), tap);
+  }
 }
 
 bool ExpBuilder::HasError() {

@@ -37,18 +37,43 @@ GenSub()
 d = IDesign()
 mod_top = IModule(d, "mod_top")
 
+tab = ITable(mod_top)
+st1 = IState(tab)
+st2 = IState(tab)
+st3 = IState(tab)
+tab.initialSt = st1
+tab.states.append(st1)
+tab.states.append(st2)
+tab.states.append(st3)
+design_tool.AddNextState(st1, st2)
+design_tool.AddNextState(st2, st3)
+
+src = design_tool.CreateSharedReg(tab, "src", 32)
+src_insn = IInsn(src)
+n = design_tool.AllocConstNum(tab, False, 32, 123)
+src_insn.inputs.append(n)
+st1.insns.append(src_insn)
+
+sink = design_tool.CreateSharedReg(tab, "sink", 32)
+sink_insn = IInsn(sink)
+r = IRegister(tab, "r")
+sink_insn.outputs.append(r)
+st2.insns.append(sink_insn)
+
 #
 mod_sub0 = IModule(d, "mod_sub0")
 mod_sub0.parent_module = mod_top
+
 
 tag = "tag1"
 
 mi0 = ModuleImport(mod_sub0, "/tmp/tmpmod.iroha")
 mod_sub0.module_import = mi0
 
-#t0_a = ModuleImportTap("data_in", None, None)
+t0_a = ModuleImportTap("data_in", None,
+                       TapDesc.CreateWithResource("shared-reg-reader", src))
 t0_b = ModuleImportTap("data_out", tag, TapDesc.Create("shared-reg"))
-#mi0.taps.append(t0_a)
+mi0.taps.append(t0_a)
 mi0.taps.append(t0_b)
 
 #
@@ -59,9 +84,10 @@ mi1 = ModuleImport(mod_sub0, "/tmp/tmpmod.iroha")
 mod_sub1.module_import = mi1
 
 t1_a = ModuleImportTap("data_in", tag, TapDesc.Create("shared-reg-reader"))
-#t1_b = ModuleImportTap("data_out", None, None)
+t1_b = ModuleImportTap("data_out", None,
+                       TapDesc.CreateWithResource("shared-reg-writer", sink))
 mi1.taps.append(t1_a)
-#mi1.taps.append(t1_b)
+mi1.taps.append(t1_b)
 
 design_tool.ValidateIds(d)
 DesignWriter(d).Write()

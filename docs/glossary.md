@@ -103,10 +103,12 @@ Imported modules can be connected to its outer module using TAP.
     (TAP y_out () (shared-reg 3 4 6))
   )
 )
-
-ext-output can be mapped to shared-reg
-ext-input can be mapped to shared-reg-reader
-
+tag based connection:
+ ext-output will be mapped to shared-reg
+ ext-input will be mapped to shared-reg-reader
+resource based connection:
+ ext-output will be mapped to shared-reg-writer and writes to shared-reg
+ ext-input will be mapped to shared-reg-reader and reads from shared-reg
 
 
 MEMO(yt76): May also support shared-reg-writer and channel.

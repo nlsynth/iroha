@@ -328,13 +328,25 @@ class IChannel(object):
 class TapDesc(object):
     def __init__(self, rc):
         self.rc = rc
+        self.res = None
 
     @classmethod
     def Create(cls, rc):
         return TapDesc(rc)
 
+    @classmethod
+    def CreateWithResource(cls, name, res):
+        d = TapDesc(name)
+        d.res = res
+        return d
+
     def Write(self, writer):
-        writer.ofh.write("(" + self.rc + ")")
+        writer.ofh.write("(" + self.rc)
+        if self.res != None:
+            tab = self.res.table
+            mod = tab.module
+            writer.ofh.write(" %d %d %d" % (mod.id, tab.id, self.res.id))
+        writer.ofh.write(")")
 
 class ModuleImportTap(object):
     def __init__(self, name, tag, tap_desc):

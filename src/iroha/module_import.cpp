@@ -1,9 +1,10 @@
 #include "iroha/module_import.h"
 
+#include "iroha/stl_util.h"
+
 namespace iroha {
 
-ModuleImportTap::ModuleImportTap()
-  : module_id(-1), table_id(-1), resource_id(-1) {
+ModuleImportTap::ModuleImportTap() : resource(nullptr) {
 }
 
 ModuleImport::ModuleImport(IModule *mod, const string &fn)
@@ -11,6 +12,7 @@ ModuleImport::ModuleImport(IModule *mod, const string &fn)
 }
 
 ModuleImport::~ModuleImport() {
+  STLDeleteValues(&taps_);
 }
 
 const string &ModuleImport::GetFileName() {

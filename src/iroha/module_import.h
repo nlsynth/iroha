@@ -15,10 +15,9 @@ public:
   // arbitrary name assigned by user.
   string tag;
   // ext-output, ext-input can be shared-reg or shared-reg-reader.
-  string resource;
-  int module_id;
-  int table_id;
-  int resource_id;
+  string resource_class;
+
+  IResource *resource;
 };
 
 // Managed by IModule's unique_ptr.
@@ -29,7 +28,7 @@ public:
 
   const string &GetFileName();
 
-  vector<ModuleImportTap> taps_;
+  vector<ModuleImportTap *> taps_;
 
 private:
   IModule *mod_;

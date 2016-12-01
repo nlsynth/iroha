@@ -34,14 +34,21 @@ void ExpWriter::WriteModule(const IModule &mod) {
   ModuleImport *mi = mod.GetModuleImport();
   if (mi != nullptr) {
     os_ << "  (MODULE-IMPORT " << mi->GetFileName() << "\n";
-    for (auto &t : mi->taps_) {
-      os_ << "   (TAP " << t.source << " ";
-      if (t.tag.empty()) {
+    for (auto *t : mi->taps_) {
+      os_ << "   (TAP " << t->source << " ";
+      if (t->tag.empty()) {
 	os_ << "()";
       } else {
-	os_ << t.tag;
+	os_ << t->tag;
       }
-      os_ << " (" << t.resource << ")";
+      os_ << " (" << t->resource_class;
+      if (t->resource != nullptr) {
+	ITable *tab = t->resource->GetTable();
+	IModule *mod = tab->GetModule();
+	os_ << " " << mod->GetId() << " " << tab->GetId() << " "
+	    << t->resource->GetId();
+      }
+      os_ << ")";
       os_ << ")\n";
     }
     os_ << "  )\n";

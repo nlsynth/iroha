@@ -30,6 +30,7 @@ void Importer::TraverseModule(IModule *mod) {
   ModuleImport *mi = mod->GetModuleImport();
   if (mi != nullptr) {
     ProcessImport(mod);
+    // Don`t process sub modules just imported.
     return;
   }
   vector<IModule *> child_mods = DesignUtil::GetChildModules(mod);
@@ -87,14 +88,16 @@ void Importer::ProcessTap(IModule *mod) {
     }
   }
   ModuleImport *mi = mod->GetModuleImport();
-  for (auto &tap : mi->taps_) {
-    if (tap.tag.empty()) {
-      continue;
+  for (auto *tap : mi->taps_) {
+    IResource *orig_res = name_to_resource[tap->source];
+    IResource *res = RemapResource(*tap, orig_res);
+    CHECK(res) << tap->source;
+    if (!tap->tag.empty()) {
+      tag_to_resources_[tap->tag].push_back(res);
     }
-    IResource *orig_res = name_to_resource[tap.source];
-    IResource *res = RemapResource(tap, orig_res);
-    CHECK(res) << tap.source;
-    tag_to_resources_[tap.tag].push_back(res);
+    if (tap->resource) {
+      res->SetSharedRegister(tap->resource);
+    }
   }
 }
 
@@ -109,7 +112,8 @@ void Importer::ClearModuleImport() {
 IResource *Importer::RemapResource(const ModuleImportTap &tap,
 				   IResource *src_res) {
   ITable *tab = src_res->GetTable();
-  IResourceClass *rc = DesignUtil::FindResourceClass(design_, tap.resource);
+  IResourceClass *rc = DesignUtil::FindResourceClass(design_,
+						     tap.resource_class);
   IResource *res = new IResource(tab, rc);
   tab->resources_.push_back(res);
   for (IState *st : tab->states_) {
