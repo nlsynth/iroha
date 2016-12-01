@@ -42,22 +42,20 @@ Please read src/iroha/iroha.h, src/iroha/iroha_main.cpp examples/ for more detai
 
 -- TODOs
 
-* P1: Document
+* WIP: Document
+* WIP: Avoid name conflicts in generated RTL.
+* P1: Unify task variants
 * P1: Test and debug SSA conversion and PHI removal
-* P1: Set constraint not to split related insns
-* P1: Values wider than 64bits
-* P1: Pluggable optimizer and writer
-* P1: Better error handling
-* P1: I/O for embedded verilog module
-* P1: Modularize mapped resource
-* P1: Resource sharing between tables
-* P1: Decide module/instance relation
-* P1: Avoid name conflicts in generated RTL.
+* P2: Pluggable optimizer and writer
+* P2: Better error handling
+* P2: I/O for embedded verilog module
+* P2: Modularize mapped resource
+* P2: Values wider than 64bits
+* P2: Set constraint not to split related insns
 * P2: Simplify wait cycle if there's 1 multi cycle insn in a state
 * P2: More debug output from optimizers.
 * P2: Support profiling information from frontends.
 * P2: Export optimizer API so that users can add own phase
-* P2: API to create copies of module, table and so on.
 * P3: Set reset polarity to embedded module.
 * P3: Allow multiple embedded module instances.
 * P3: Carry bit of adder as input/output.
