@@ -2,13 +2,13 @@
 #ifndef _writer_verilog_sub_module_task_h_
 #define _writer_verilog_sub_module_task_h_
 
-#include "writer/verilog/task.h"
+#include "writer/verilog/sibling_task.h"
 
 namespace iroha {
 namespace writer {
 namespace verilog {
 
-class SubModuleTask : public Task {
+class SubModuleTask : public SiblingTask {
 public:
   SubModuleTask(const IResource &res, const Table &table);
 

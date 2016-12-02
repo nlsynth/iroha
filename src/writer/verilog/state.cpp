@@ -10,7 +10,7 @@
 #include "writer/verilog/resource.h"
 #include "writer/verilog/sub_module_task.h"
 #include "writer/verilog/table.h"
-#include "writer/verilog/task.h"
+#include "writer/verilog/sibling_task.h"
 
 static const char I[] = "        ";
 
@@ -91,7 +91,7 @@ void State::WriteTransitionBody(ostream &os) {
   if (DesignUtil::IsTerminalState(i_state_) &&
       table_->IsTask()) {
     os << I << "  " << sv << " <= `"
-       << table_->StateName(Task::kTaskEntryStateId)
+       << table_->StateName(SiblingTask::kTaskEntryStateId)
        << ";\n";
     return;
   }
@@ -151,10 +151,11 @@ void State::WriteTransition(ostream &os) {
 }
 
 void State::WriteTaskEntry(Table *tab, ostream &os) {
-  os << I << "`" << tab->StateName(Task::kTaskEntryStateId) << ": begin\n";
+  os << I << "`" << tab->StateName(SiblingTask::kTaskEntryStateId)
+     << ": begin\n";
   string s;
-  if (Task::IsSiblingTask(*tab)) {
-    s = Task::TaskEnablePin(*tab->GetITable(), nullptr);
+  if (SiblingTask::IsSiblingTask(*tab)) {
+    s = SiblingTask::TaskEnablePin(*tab->GetITable(), nullptr);
   } else {
     s = SubModuleTask::PortNamePrefix(*tab->GetITable()) + "en";
   }

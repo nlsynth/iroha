@@ -15,7 +15,7 @@ namespace writer {
 namespace verilog {
 
 SubModuleTask::SubModuleTask(const IResource &res, const Table &table)
-  : Task(res, table) {
+  : SiblingTask(res, table) {
 }
 
 void SubModuleTask::BuildResource() {
@@ -50,7 +50,8 @@ void SubModuleTask::BuildSubModuleTask() {
   ostream &fs = tab_.StateOutputSectionStream();
   fs << "      " << ack <<
     " <= (" << tab_.StateVariable() << " == `"
-     << tab_.StateName(Task::kTaskEntryStateId) << ") && " << en << ";\n";
+     << tab_.StateName(SiblingTask::kTaskEntryStateId) << ") && " << en
+     << ";\n";
 }
 
 void SubModuleTask::BuildSubModuleTaskCall() {

@@ -15,7 +15,7 @@
 #include "writer/verilog/ports.h"
 #include "writer/verilog/resource.h"
 #include "writer/verilog/state.h"
-#include "writer/verilog/task.h"
+#include "writer/verilog/sibling_task.h"
 
 namespace iroha {
 namespace writer {
@@ -27,7 +27,7 @@ Table::Table(ITable *table, Ports *ports, Module *mod, EmbeddedModules *embed,
     names_(names), tmpl_(tmpl) {
   table_id_ = table->GetId();
   st_ = "st_" + Util::Itoa(table->GetId());
-  is_task_ = Task::IsTask(*this);
+  is_task_ = SiblingTask::IsTask(*this);
 }
 
 Table::~Table() {
@@ -76,7 +76,7 @@ void Table::BuildStateDecl() {
   }
   if (IsTask()) {
     ++max_id;
-    sd << "  `define " << StateName(Task::kTaskEntryStateId) << " "
+    sd << "  `define " << StateName(SiblingTask::kTaskEntryStateId) << " "
        << max_id << "\n";
   }
   int bits = 0;
@@ -180,7 +180,7 @@ void Table::WriteReset(ostream &os) {
   if (!IsEmpty()) {
     os << "      " << StateVariable() << " <= `";
     if (IsTask()) {
-      os << StateName(Task::kTaskEntryStateId);
+      os << StateName(SiblingTask::kTaskEntryStateId);
     } else {
       os << InitialStateName();
     }
@@ -217,7 +217,7 @@ string Table::StateName(int id) const {
 
 string Table::StateNameFromTable(const ITable &tab, int id) {
   string n = "S_" + Util::Itoa(tab.GetId()) + "_";
-  if (id == Task::kTaskEntryStateId) {
+  if (id == SiblingTask::kTaskEntryStateId) {
     return n + "task_idle";
   } else {
     return n + Util::Itoa(id);

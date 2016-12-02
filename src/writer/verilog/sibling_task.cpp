@@ -1,4 +1,4 @@
-#include "writer/verilog/task.h"
+#include "writer/verilog/sibling_task.h"
 
 #include "design/design_util.h"
 #include "iroha/i_design.h"
@@ -15,13 +15,13 @@ namespace iroha {
 namespace writer {
 namespace verilog {
 
-const int Task::kTaskEntryStateId = -1;
+const int SiblingTask::kTaskEntryStateId = -1;
 
-Task::Task(const IResource &res, const Table &table)
+SiblingTask::SiblingTask(const IResource &res, const Table &table)
   : Resource(res, table) {
 }
 
-void Task::BuildResource() {
+void SiblingTask::BuildResource() {
   auto *klass = res_.GetClass();
   if (resource::IsSiblingTask(*klass)) {
     BuildSiblingTask();
@@ -31,7 +31,7 @@ void Task::BuildResource() {
   }
 }
 
-void Task::BuildInsn(IInsn *insn, State *st) {
+void SiblingTask::BuildInsn(IInsn *insn, State *st) {
   auto *klass = res_.GetClass();
   if (resource::IsSiblingTask(*klass)) {
     if (insn->GetOperand() == "") {
@@ -40,7 +40,7 @@ void Task::BuildInsn(IInsn *insn, State *st) {
   }
 }
 
-string Task::ReadySignal(IInsn *insn) {
+string SiblingTask::ReadySignal(IInsn *insn) {
   auto *klass = res_.GetClass();
   if (resource::IsSiblingTaskCall(*klass)) {
     const ITable *callee_tab = res_.GetCalleeTable();
@@ -54,7 +54,7 @@ string Task::ReadySignal(IInsn *insn) {
   return "";
 }
 
-bool Task::IsTask(const Table &table) {
+bool SiblingTask::IsTask(const Table &table) {
   ITable *i_table = table.GetITable();
   IInsn *task_entry_insn = DesignUtil::FindTaskEntryInsn(i_table);
   if (task_entry_insn != nullptr) {
@@ -63,7 +63,7 @@ bool Task::IsTask(const Table &table) {
   return false;
 }
 
-bool Task::IsSiblingTask(const Table &table) {
+bool SiblingTask::IsSiblingTask(const Table &table) {
   ITable *i_table = table.GetITable();
   IInsn *task_entry_insn = DesignUtil::FindTaskEntryInsn(i_table);
   if (task_entry_insn != nullptr) {
@@ -74,7 +74,7 @@ bool Task::IsSiblingTask(const Table &table) {
   return false;
 }
 
-string Task::TaskEnablePin(const ITable &tab, const ITable *caller) {
+string SiblingTask::TaskEnablePin(const ITable &tab, const ITable *caller) {
   string s = "task_" + Util::Itoa(tab.GetId());
   if (caller != nullptr) {
     s += "_" + Util::Itoa(caller->GetId());
@@ -82,7 +82,7 @@ string Task::TaskEnablePin(const ITable &tab, const ITable *caller) {
   return s + "_en";
 }
 
-void Task::BuildSiblingTask() {
+void SiblingTask::BuildSiblingTask() {
   vector<IResource *> callers;
   ITable *i_tab = tab_.GetITable();
   for (ITable *other_tab : i_tab->GetModule()->tables_) {
@@ -119,7 +119,7 @@ void Task::BuildSiblingTask() {
   rs << "  assign " << callee_ready
      << " = ("
      << tab_.StateVariable() << " == `"
-     << tab_.StateName(Task::kTaskEntryStateId) << ");\n";
+     << tab_.StateName(SiblingTask::kTaskEntryStateId) << ");\n";
   vector<string> higher_callers;
   for (IResource *caller : callers) {
     string caller_ready =
@@ -174,7 +174,7 @@ void Task::BuildSiblingTask() {
   }
 }
 
-void Task::BuildSiblingTaskInsn(IInsn *insn, State *st) {
+void SiblingTask::BuildSiblingTaskInsn(IInsn *insn, State *st) {
   CHECK(insn->outputs_.size() == insn->GetResource()->input_types_.size())
     << "Task argument numbers don't match.";
   ostream &os = st->StateBodySectionStream();
@@ -192,7 +192,7 @@ void Task::BuildSiblingTaskInsn(IInsn *insn, State *st) {
   }
 }
 
-void Task::BuildSiblingTaskCall() {
+void SiblingTask::BuildSiblingTaskCall() {
   map<IState *, IInsn *> callers;
   CollectResourceCallers("", &callers);
 
@@ -211,7 +211,7 @@ void Task::BuildSiblingTaskCall() {
   }
 }
 
-string Task::SiblingTaskReadySignal(const ITable &tab, const ITable *caller) {
+string SiblingTask::SiblingTaskReadySignal(const ITable &tab, const ITable *caller) {
   string s = "task_" + Util::Itoa(tab.GetId());
   if (caller != nullptr) {
     s += "_" + Util::Itoa(caller->GetId());
@@ -219,7 +219,8 @@ string Task::SiblingTaskReadySignal(const ITable &tab, const ITable *caller) {
   return s + "_ready";
 }
 
-string Task::ArgSignal(const ITable &tab, int nth, const ITable *caller) {
+string SiblingTask::ArgSignal(const ITable &tab, int nth,
+			      const ITable *caller) {
   string s = "arg_" + Util::Itoa(tab.GetId()) + "_" + Util::Itoa(nth);
   if (caller != nullptr) {
     s += "_" + Util::Itoa(caller->GetId());

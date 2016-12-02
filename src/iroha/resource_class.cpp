@@ -99,6 +99,14 @@ bool IsEmbedded(const IResourceClass &rc) {
   return (rc.GetName() == kEmbedded);
 }
 
+bool IsTask(const IResourceClass &rc) {
+  return (rc.GetName() == kTask);
+}
+
+bool IsTaskCall(const IResourceClass &rc) {
+  return (rc.GetName() == kTaskCall);
+}
+
 bool IsSiblingTask(const IResourceClass &rc) {
   return (rc.GetName() == kSiblingTask);
 }

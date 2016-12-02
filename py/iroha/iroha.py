@@ -33,6 +33,8 @@ class IDesign(object):
         self.resource_classes.append(IResourceClass("shared-reg-reader"))
         self.resource_classes.append(IResourceClass("shared-reg-writer"))
         self.resource_classes.append(IResourceClass("foreign-reg"))
+        self.resource_classes.append(IResourceClass("task"))
+        self.resource_classes.append(IResourceClass("task-call"))
         self.resource_classes.append(IResourceClass("sibling-task"))
         self.resource_classes.append(IResourceClass("sibling-task-call"))
         self.resource_classes.append(IResourceClass("sub-module-task"))

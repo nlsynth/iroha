@@ -1,6 +1,6 @@
 // -*- C++ -*-
-#ifndef _writer_verilog_task_h_
-#define _writer_verilog_task_h_
+#ifndef _writer_verilog_sibling_task_h_
+#define _writer_verilog_sibling_task_h_
 
 #include "writer/verilog/resource.h"
 
@@ -8,9 +8,9 @@ namespace iroha {
 namespace writer {
 namespace verilog {
 
-class Task : public Resource {
+class SiblingTask : public Resource {
 public:
-  Task(const IResource &res, const Table &table);
+  SiblingTask(const IResource &res, const Table &table);
 
   virtual void BuildResource() override;
   virtual void BuildInsn(IInsn *insn, State *st) override;

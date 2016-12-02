@@ -7,7 +7,7 @@
 #include "writer/names.h"
 #include "writer/verilog/state.h"
 #include "writer/verilog/table.h"
-#include "writer/verilog/task.h"
+#include "writer/verilog/sibling_task.h"
 
 static const char I[] = "          ";
 

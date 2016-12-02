@@ -135,6 +135,14 @@ def CreateSharedRegWriter(table, source):
     res.shared_reg = source
     return res
 
+def CreateTask(table):
+    return createResource(table, "task")
+
+def CreateTaskCall(table, callee):
+    res = createResource(table, "task-call")
+    res.callee_table = callee
+    return res
+
 def CreateSiblingTask(table):
     return createResource(table, "sibling-task")
 
