@@ -165,7 +165,7 @@ string SharedReg::RegName(const IResource &res) {
     "_" + port_name;
 }
 
-void SharedReg::BuildReaderPorts(const SharedRegConnectionInfo &pi,
+void SharedReg::BuildReaderPorts(const ResourceConnectionInfo &pi,
 				 Ports *ports) {
   for (IResource *res : pi.has_upward_port) {
     int width = res->GetParams()->GetWidth();
@@ -177,7 +177,7 @@ void SharedReg::BuildReaderPorts(const SharedRegConnectionInfo &pi,
   }
 }
 
-void SharedReg::BuildWriterPorts(const SharedRegConnectionInfo &pi,
+void SharedReg::BuildWriterPorts(const ResourceConnectionInfo &pi,
 				 Ports *ports) {
   for (IResource *res : pi.has_upward_port) {
     int width = res->GetSharedRegister()->GetParams()->GetWidth();
@@ -191,7 +191,7 @@ void SharedReg::BuildWriterPorts(const SharedRegConnectionInfo &pi,
   }
 }
 
-void SharedReg::BuildReaderChildWire(const SharedRegConnectionInfo &pi,
+void SharedReg::BuildReaderChildWire(const ResourceConnectionInfo &pi,
 				     ostream &os) {
   for (IResource *res : pi.has_upward_port) {
     AddChildWire(res, false, os);
@@ -201,7 +201,7 @@ void SharedReg::BuildReaderChildWire(const SharedRegConnectionInfo &pi,
   }
 }
 
-void SharedReg::BuildWriterChildWire(const SharedRegConnectionInfo &pi,
+void SharedReg::BuildWriterChildWire(const ResourceConnectionInfo &pi,
 				     ostream &os) {
   for (IResource *res : pi.has_upward_port) {
     AddChildWire(res, true, os);
@@ -225,17 +225,17 @@ void SharedReg::AddChildWire(IResource *res, bool is_write, ostream &os) {
   }
 }
 
-void SharedReg::BuildReaderRootWire(const SharedRegConnectionInfo &pi,
+void SharedReg::BuildReaderRootWire(const ResourceConnectionInfo &pi,
 				    Module *module) {
   BuildRootWire(pi, false, module);
 }
 
-void SharedReg::BuildWriterRootWire(const SharedRegConnectionInfo &pi,
+void SharedReg::BuildWriterRootWire(const ResourceConnectionInfo &pi,
 				    Module *module) {
   BuildRootWire(pi, true, module);
 }
 
-void SharedReg::BuildRootWire(const SharedRegConnectionInfo &pi,
+void SharedReg::BuildRootWire(const ResourceConnectionInfo &pi,
 			      bool is_write,
 			      Module *module) {
   ModuleTemplate *tmpl = module->GetModuleTemplate();

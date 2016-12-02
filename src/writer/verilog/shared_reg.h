@@ -20,20 +20,20 @@ public:
   static string WriterEnName(const IResource &res);
 
   // Reader
-  static void BuildReaderPorts(const SharedRegConnectionInfo &pi,
+  static void BuildReaderPorts(const ResourceConnectionInfo &pi,
 			       Ports *ports);
-  static void BuildReaderChildWire(const SharedRegConnectionInfo &pi,
+  static void BuildReaderChildWire(const ResourceConnectionInfo &pi,
 				   ostream &os);
-  static void BuildReaderRootWire(const SharedRegConnectionInfo &pi,
+  static void BuildReaderRootWire(const ResourceConnectionInfo &pi,
 				  Module *module);
   // Writer
-  static void BuildWriterPorts(const SharedRegConnectionInfo &pi,
+  static void BuildWriterPorts(const ResourceConnectionInfo &pi,
 			       Ports *ports);
-  static void BuildWriterChildWire(const SharedRegConnectionInfo &pi,
+  static void BuildWriterChildWire(const ResourceConnectionInfo &pi,
 				   ostream &os);
-  static void BuildWriterRootWire(const SharedRegConnectionInfo &pi,
+  static void BuildWriterRootWire(const ResourceConnectionInfo &pi,
 				  Module *module);
-  static void BuildRootWire(const SharedRegConnectionInfo &pi,
+  static void BuildRootWire(const ResourceConnectionInfo &pi,
 			    bool is_write,
 			    Module *module);
 

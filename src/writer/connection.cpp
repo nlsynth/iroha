@@ -35,13 +35,17 @@ void Connection::Build() {
       DesignUtil::FindResourceByClassName(tab, resource::kSharedRegReader,
 					  &reg_readers);
       for (IResource *reg : reg_readers) {
-	ProcessSharedReg(reg, false);
+	ProcessResourceConnection(reg->GetSharedRegister(),
+				  reg->GetTable()->GetModule(),
+				  shared_reg_reader_);
       }
       vector<IResource*> reg_writers;
       DesignUtil::FindResourceByClassName(tab, resource::kSharedRegWriter,
 					  &reg_writers);
       for (IResource *reg : reg_writers) {
-	ProcessSharedReg(reg, true);
+	ProcessResourceConnection(reg,
+				  reg->GetSharedRegister()->GetTable()->GetModule(), shared_reg_writer_);
+	shared_reg_writers_[reg->GetSharedRegister()].push_back(reg);
       }
     }
   }
@@ -74,23 +78,23 @@ const RegConnectionInfo *Connection::GetRegConnectionInfo(const IModule *mod) co
   return &ri;
 }
 
-const SharedRegConnectionInfo *
+const ResourceConnectionInfo *
 Connection::GetSharedRegReaderConnectionInfo(const IModule *mod) const {
   auto it = shared_reg_reader_.find(mod);
   if (it == shared_reg_reader_.end()) {
     return nullptr;
   }
-  const SharedRegConnectionInfo &pi = it->second;
+  const ResourceConnectionInfo &pi = it->second;
   return &pi;
 }
 
-const SharedRegConnectionInfo *
+const ResourceConnectionInfo *
 Connection::GetSharedRegWriterConnectionInfo(const IModule *mod) const {
   auto it = shared_reg_writer_.find(mod);
   if (it == shared_reg_writer_.end()) {
     return nullptr;
   }
-  const SharedRegConnectionInfo &pi = it->second;
+  const ResourceConnectionInfo &pi = it->second;
   return &pi;
 }
 
@@ -230,54 +234,39 @@ void Connection::ProcessForeignReg(IResource *freg) {
   }
 }
 
-void Connection::ProcessSharedReg(IResource *accessor, bool is_write) {
-  IResource *source;
-  IModule *sink_module;
-  if (is_write) {
-    // (source)shared-reg-writer -> (sink)shared-reg
-    source = accessor;
-    sink_module = accessor->GetSharedRegister()->GetTable()->GetModule();
-  } else {
-    // (source)shared-reg -> (sink)shared-reg-reader
-    source = accessor->GetSharedRegister();
-    sink_module = accessor->GetTable()->GetModule();
-  }
-  if (is_write) {
-    shared_reg_writers_[accessor->GetSharedRegister()].push_back(accessor);
-  }
+void Connection::ProcessResourceConnection(IResource *source, IModule *sink_module,
+					   map<const IModule *, ResourceConnectionInfo> &conn_map) {
   IModule *source_module = source->GetTable()->GetModule();
   if (source_module == sink_module) {
     return;
   }
-  map<const IModule *, SharedRegConnectionInfo> &connection_info =
-    is_write ? shared_reg_writer_ : shared_reg_reader_;
   const IModule *common_root = GetCommonRoot(source_module, sink_module);
   if (common_root == source_module) {
     // source is upper
     for (IModule *mod = sink_module; mod != common_root;
 	 mod = mod->GetParentModule()) {
-      SharedRegConnectionInfo &pc = connection_info[mod];
+      ResourceConnectionInfo &pc = conn_map[mod];
       pc.has_downward_port.insert(source);
     }
   } else if (common_root == sink_module) {
     for (IModule *mod = source_module; mod != common_root;
 	 mod = mod->GetParentModule()) {
-      SharedRegConnectionInfo &pc = connection_info[mod];
+      ResourceConnectionInfo &pc = conn_map[mod];
       pc.has_upward_port.insert(source);
     }
-    SharedRegConnectionInfo &pc = connection_info[common_root];
+    ResourceConnectionInfo &pc = conn_map[common_root];
     pc.has_wire.insert(source);
   } else {
-    SharedRegConnectionInfo &pc = connection_info[common_root];
+    ResourceConnectionInfo &pc = conn_map[common_root];
     pc.has_wire.insert(source);
     for (IModule *mod = source_module; mod != common_root;
 	  mod = mod->GetParentModule()) {
-      SharedRegConnectionInfo &pc = connection_info[mod];
+      ResourceConnectionInfo &pc = conn_map[mod];
       pc.has_upward_port.insert(source);
     }
     for (IModule *mod = sink_module; mod != common_root;
 	 mod = mod->GetParentModule()) {
-      SharedRegConnectionInfo &pc = connection_info[mod];
+      ResourceConnectionInfo &pc = conn_map[mod];
       pc.has_downward_port.insert(source);
     }
   }

@@ -13,7 +13,7 @@ class ModuleTemplate;
 class Names;
 class TaskCallInfo;
 class RegConnectionInfo;
-class SharedRegConnectionInfo;
+class ResourceConnectionInfo;
 
 namespace verilog {
 

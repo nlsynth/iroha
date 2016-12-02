@@ -41,8 +41,10 @@ public:
   set<IRegister *> is_source;
 };
 
-// Per module shared reg reader/writer connections.
-class SharedRegConnectionInfo {
+// Connection between two resources.
+// * Per module shared reg reader/writer connections.
+// * Task connection
+class ResourceConnectionInfo {
 public:
   set<IResource *> has_upward_port;
   set<IResource *> has_downward_port;
@@ -56,8 +58,8 @@ public:
   const ChannelInfo *GetConnectionInfo(const IModule *mod) const;
   const TaskCallInfo *GetTaskCallInfo(const IModule *mod) const;
   const RegConnectionInfo *GetRegConnectionInfo(const IModule *mod) const;
-  const SharedRegConnectionInfo *GetSharedRegReaderConnectionInfo(const IModule *mod) const;
-  const SharedRegConnectionInfo *GetSharedRegWriterConnectionInfo(const IModule *mod) const;
+  const ResourceConnectionInfo *GetSharedRegReaderConnectionInfo(const IModule *mod) const;
+  const ResourceConnectionInfo *GetSharedRegWriterConnectionInfo(const IModule *mod) const;
   const vector<IResource *> *GetSharedRegWriters(const IResource *res) const;
 
 private:
@@ -77,14 +79,16 @@ private:
   // Sub module task call.
   void ProcessSubModuleTaskCall(IResource *caller);
   void ProcessForeignReg(IResource *freg);
-  void ProcessSharedReg(IResource *accessor, bool is_write);
+  void ProcessResourceConnection(IResource *source, IModule *sink_module,
+				 map<const IModule *, ResourceConnectionInfo> &conn_map);
 
   const IDesign *design_;
   map<const IModule *, ChannelInfo> channel_info_;
+  // for sub module task call
   map<const IModule *, TaskCallInfo> task_call_info_;
   map<const IModule *, RegConnectionInfo> reg_connection_;
-  map<const IModule *, SharedRegConnectionInfo> shared_reg_reader_;
-  map<const IModule *, SharedRegConnectionInfo> shared_reg_writer_;
+  map<const IModule *, ResourceConnectionInfo> shared_reg_reader_;
+  map<const IModule *, ResourceConnectionInfo> shared_reg_writer_;
   map<const IResource *, vector<IResource *>> shared_reg_writers_;
 };
 
