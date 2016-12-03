@@ -145,6 +145,8 @@ void InstallResourceClasses(IDesign *design) {
   InstallResource(design, resource::kMapped, true);
   InstallResource(design, resource::kChannelWrite, true);
   InstallResource(design, resource::kChannelRead, false);
+  InstallResource(design, resource::kTask, true);
+  InstallResource(design, resource::kTaskCall, true);
   InstallResource(design, resource::kSiblingTask, true);
   InstallResource(design, resource::kSiblingTaskCall, true);
   InstallResource(design, resource::kSubModuleTaskCall, true);

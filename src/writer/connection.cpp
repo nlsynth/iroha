@@ -47,6 +47,17 @@ void Connection::Build() {
 				  reg->GetSharedRegister()->GetTable()->GetModule(), shared_reg_writer_);
 	shared_reg_writers_[reg->GetSharedRegister()].push_back(reg);
       }
+      vector<IResource *> task_callers;
+      DesignUtil::FindResourceByClassName(tab, resource::kTaskCall,
+					  &task_callers);
+      for (IResource *reg : task_callers) {
+	vector<IResource *> res;
+	DesignUtil::FindResourceByClassName(reg->GetCalleeTable(),
+					    resource::kTask,
+					    &res);
+	CHECK(res.size() == 1);
+	task_callers_[res[0]].push_back(reg);
+      }
     }
   }
 }
@@ -186,8 +197,16 @@ void Connection::ProcessSubModuleTaskCall(IResource *caller) {
 }
 
 const vector<IResource *> *Connection::GetSharedRegWriters(const IResource *res) const {
-  auto it = shared_reg_writers_.find(res);
-  if (it != shared_reg_writers_.end() && it->second.size() > 0) {
+  return GetResourceVector(shared_reg_writers_, res);
+}
+
+const vector<IResource *> *Connection::GetTaskCallers(const IResource *res) const {
+  return GetResourceVector(task_callers_, res);
+}
+
+const vector<IResource *> *Connection::GetResourceVector(const map<const IResource *, vector<IResource *>> &m, const IResource *res) const {
+  auto it = m.find(res);
+  if (it != m.end() && it->second.size() > 0) {
     return &(it->second);
   }
   return nullptr;

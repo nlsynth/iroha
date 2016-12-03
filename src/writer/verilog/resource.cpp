@@ -18,6 +18,7 @@
 #include "writer/verilog/state.h"
 #include "writer/verilog/sub_module_task.h"
 #include "writer/verilog/table.h"
+#include "writer/verilog/task.h"
 #include "writer/verilog/sibling_task.h"
 
 namespace iroha {
@@ -33,6 +34,10 @@ Resource *Resource::Create(const IResource &res, const Table &table) {
   if (resource::IsSiblingTask(*klass) ||
       resource::IsSiblingTaskCall(*klass)) {
     return new SiblingTask(res, table);
+  }
+  if (resource::IsTask(*klass) ||
+      resource::IsTaskCall(*klass)) {
+    return new Task(res, table);
   }
   if (resource::IsExclusiveBinOp(*klass) ||
       resource::IsLightBinOp(*klass) ||

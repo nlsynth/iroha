@@ -120,27 +120,27 @@ IInsn *DesignUtil::GetTransitionInsn(IState *st) {
 }
 
 IInsn *DesignUtil::FindTaskEntryInsn(ITable *table) {
-  IResource *res = FindOneResourceByClassName(table, resource::kSiblingTask);
+  IInsn *insn = FindInitialInsnByClassName(table, resource::kSiblingTask);
+  if (insn != nullptr) {
+    return insn;
+  }
+  insn = FindInitialInsnByClassName(table, resource::kSubModuleTask);
+  if (insn != nullptr) {
+    return insn;
+  }
+  return FindInitialInsnByClassName(table, resource::kTask);
+}
+
+IInsn *DesignUtil::FindInitialInsnByClassName(ITable *table, const string &name) {
+  IResource *res = FindOneResourceByClassName(table, name);
   if (res != nullptr) {
-    IInsn *insn =
-      DesignUtil::FindInsnByResource(table->GetInitialState(), res);
-    if (insn != nullptr) {
-      return insn;
-    }
+    return DesignUtil::FindInsnByResource(table->GetInitialState(), res);
   }
-  IResource *sub_res = FindOneResourceByClassName(table, resource::kSubModuleTask);
-  if (sub_res == nullptr) {
-    return nullptr;
-  }
-  return DesignUtil::FindInsnByResource(table->GetInitialState(), sub_res);
+  return nullptr;
 }
 
 IInsn *DesignUtil::FindDataFlowInInsn(ITable *table) {
-  IResource *res = FindOneResourceByClassName(table, resource::kDataFlowIn);
-  if (res == nullptr) {
-    return nullptr;
-  }
-  return DesignUtil::FindInsnByResource(table->GetInitialState(), res);
+  return FindInitialInsnByClassName(table, resource::kDataFlowIn);
 }
 
 bool DesignUtil::IsTerminalState(IState *st) {

@@ -36,4 +36,4 @@ private:
 }  // namespace writer
 }  // namespace iroha
 
-#endif  // _writer_verilog_task_h_
+#endif  // _writer_verilog_sibling_task_h_

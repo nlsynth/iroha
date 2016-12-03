@@ -61,6 +61,7 @@ public:
   const ResourceConnectionInfo *GetSharedRegReaderConnectionInfo(const IModule *mod) const;
   const ResourceConnectionInfo *GetSharedRegWriterConnectionInfo(const IModule *mod) const;
   const vector<IResource *> *GetSharedRegWriters(const IResource *res) const;
+  const vector<IResource *> *GetTaskCallers(const IResource *res) const;
 
 private:
   // Channel.
@@ -81,6 +82,7 @@ private:
   void ProcessForeignReg(IResource *freg);
   void ProcessResourceConnection(IResource *source, IModule *sink_module,
 				 map<const IModule *, ResourceConnectionInfo> &conn_map);
+  const vector<IResource *> *GetResourceVector(const map<const IResource *, vector<IResource *>> &m, const IResource *res) const;
 
   const IDesign *design_;
   map<const IModule *, ChannelInfo> channel_info_;
@@ -90,6 +92,7 @@ private:
   map<const IModule *, ResourceConnectionInfo> shared_reg_reader_;
   map<const IModule *, ResourceConnectionInfo> shared_reg_writer_;
   map<const IResource *, vector<IResource *>> shared_reg_writers_;
+  map<const IResource *, vector<IResource *>> task_callers_;
 };
 
 }  // namespace writer

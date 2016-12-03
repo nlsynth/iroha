@@ -103,7 +103,8 @@ void ExpWriter::WriteResource(const IResource &res) {
   if (resource::IsForeignRegister(rc)) {
     WriteForeignRegDesc(res);
   }
-  if (resource::IsSiblingTaskCall(rc) ||
+  if (resource::IsTaskCall(rc) ||
+      resource::IsSiblingTaskCall(rc) ||
       resource::IsSubModuleTaskCall(rc)) {
     WriteCalleeTaskDesc(res);
   }

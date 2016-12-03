@@ -30,6 +30,9 @@ public:
   static IResource *FindResourceById(ITable *tab, int res_id);
   static ITable *FindTableById(IModule *mod, int tab_id);
   static IRegister *FindRegisterById(ITable *tab, int reg_id);
+
+private:
+  static IInsn *FindInitialInsnByClassName(ITable *tab, const string &name);
 };
 
 }  // namespace iroha

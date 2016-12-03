@@ -149,6 +149,7 @@ am_libiroha_la_OBJECTS = src/iroha/common.lo src/iroha/iroha.lo \
 	src/writer/verilog/resource.lo src/writer/verilog/state.lo \
 	src/writer/verilog/sub_module_task.lo \
 	src/writer/verilog/table.lo src/writer/verilog/sibling_task.lo \
+	src/writer/verilog/task.lo \
 	src/writer/verilog/verilog_writer.lo src/writer/writer.lo
 libiroha_la_OBJECTS = $(am_libiroha_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
@@ -535,6 +536,7 @@ libiroha_la_SOURCES = \
  src/writer/verilog/sub_module_task.cpp src/writer/verilog/sub_module_task.h \
  src/writer/verilog/table.cpp src/writer/verilog/table.h \
  src/writer/verilog/sibling_task.cpp src/writer/verilog/sibling_task.h \
+ src/writer/verilog/task.cpp src/writer/verilog/task.h \
  src/writer/verilog/verilog_writer.cpp src/writer/verilog/verilog_writer.h \
  src/writer/writer.cpp src/writer/writer.h
 
@@ -789,6 +791,8 @@ src/writer/verilog/table.lo: src/writer/verilog/$(am__dirstamp) \
 src/writer/verilog/sibling_task.lo:  \
 	src/writer/verilog/$(am__dirstamp) \
 	src/writer/verilog/$(DEPDIR)/$(am__dirstamp)
+src/writer/verilog/task.lo: src/writer/verilog/$(am__dirstamp) \
+	src/writer/verilog/$(DEPDIR)/$(am__dirstamp)
 src/writer/verilog/verilog_writer.lo:  \
 	src/writer/verilog/$(am__dirstamp) \
 	src/writer/verilog/$(DEPDIR)/$(am__dirstamp)
@@ -956,6 +960,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/writer/verilog/$(DEPDIR)/state.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/writer/verilog/$(DEPDIR)/sub_module_task.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/writer/verilog/$(DEPDIR)/table.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/writer/verilog/$(DEPDIR)/task.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/writer/verilog/$(DEPDIR)/verilog_writer.Plo@am__quote@
 
 .cpp.o:
