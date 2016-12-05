@@ -161,6 +161,7 @@ bool DesignUtil::IsMultiCycleInsn(IInsn *insn) {
   IResourceClass *rc = res->GetClass();
   if (resource::IsSubModuleTaskCall(*rc) ||
       resource::IsSiblingTaskCall(*rc) ||
+      resource::IsTaskCall(*rc) ||
       resource::IsChannelRead(*rc) ||
       resource::IsChannelWrite(*rc) ||
       resource::IsEmbedded(*rc)) {

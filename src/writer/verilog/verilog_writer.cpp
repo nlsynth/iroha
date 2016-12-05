@@ -60,12 +60,20 @@ void VerilogWriter::SetShellModuleName(const string &n, bool with_self_clock) {
   with_self_clock_ = with_self_clock;
 }
 
+Module *VerilogWriter::GetByIModule(IModule *mod) const {
+  auto it = modules_.find(mod);
+  if (it != modules_.end()) {
+    return it->second;
+  }
+  return nullptr;
+}
+
 void VerilogWriter::PrepareModulesRec(const IModule *imod) {
   vector<IModule *> children = DesignUtil::GetChildModules(imod);
   for (IModule *child : children) {
     PrepareModulesRec(child);
   }
-  Module *mod = new Module(imod, conn_,
+  Module *mod = new Module(imod, this, conn_,
 			   embedded_modules_.get(),
 			   names_->GetNewChildNames());
   modules_[imod] = mod;

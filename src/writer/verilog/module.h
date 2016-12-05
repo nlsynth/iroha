@@ -26,7 +26,8 @@ static const char kStateBodySection[] = "state_body";
 
 class Module {
 public:
-  Module(const IModule *i_mod, const Connection &conn,
+  Module(const IModule *i_mod, const VerilogWriter *writer,
+	 const Connection &conn,
 	 EmbeddedModules *embed, Names *names);
   ~Module();
 
@@ -44,12 +45,14 @@ public:
   const Connection &GetConnection() const;
   Names *GetNames() const;
   ostream &ChildModuleInstSectionStream(Module *child) const;
+  Module *GetByIModule(IModule *mod) const;
 
 private:
   bool ResolveResetPolarity();
   string ChildModuleInstSectionContents(Module *child, bool clear) const;
 
   const IModule *i_mod_;
+  const VerilogWriter *writer_;
   const Connection &conn_;
   EmbeddedModules *embed_;
   Names *names_;

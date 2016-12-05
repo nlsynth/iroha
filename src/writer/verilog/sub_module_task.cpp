@@ -67,9 +67,6 @@ void SubModuleTask::BuildSubModuleTaskCall() {
 }
 
 void SubModuleTask::BuildSubModuleTaskCallInsn(IInsn *insn, State *st) {
-  map<IState *, IInsn *> callers;
-  CollectResourceCallers("", &callers);
-
   ostream &os = st->StateBodySectionStream();
   static const char I[] = "          ";
   string st_name = InsnWriter::MultiCycleStateName(*(insn->GetResource()));

@@ -27,6 +27,7 @@ class State;
 class Table;
 class Task;
 class Ports;
+class VerilogWriter;
 
 }  // namespace verilog
 }  // namespace writer

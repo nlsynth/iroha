@@ -62,6 +62,7 @@ public:
   const ResourceConnectionInfo *GetSharedRegWriterConnectionInfo(const IModule *mod) const;
   const vector<IResource *> *GetSharedRegWriters(const IResource *res) const;
   const vector<IResource *> *GetTaskCallers(const IResource *res) const;
+  static const IModule *GetCommonRoot(const IModule *m1, const IModule *m2);
 
 private:
   // Channel.
@@ -69,7 +70,6 @@ private:
   void MarkExtChannelPath(const IChannel *ch, const IResource *res,
 			  bool parent_is_write);
   void MakeInDesignChannelPath(const IChannel *ch);
-  const IModule *GetCommonRoot(const IModule *m1, const IModule *m2);
   void MakeSimpleChannelPath(const IChannel *ch,
 			     const IModule *source,
 			     const IModule *common_parent,

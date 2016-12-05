@@ -13,14 +13,16 @@
 #include "writer/verilog/ports.h"
 #include "writer/verilog/table.h"
 #include "writer/verilog/sub_module_task.h"
+#include "writer/verilog/verilog_writer.h"
 
 namespace iroha {
 namespace writer {
 namespace verilog {
 
-Module::Module(const IModule *i_mod, const Connection &conn,
+Module::Module(const IModule *i_mod, const VerilogWriter *writer,
+	       const Connection &conn,
 	       EmbeddedModules *embed, Names *names)
-  : i_mod_(i_mod), conn_(conn), embed_(embed), names_(names),
+  : i_mod_(i_mod), writer_(writer), conn_(conn), embed_(embed), names_(names),
     parent_(nullptr) {
   tmpl_.reset(new ModuleTemplate);
   ports_.reset(new Ports);
@@ -235,6 +237,10 @@ const Connection &Module::GetConnection() const {
 
 Names *Module::GetNames() const {
   return names_;
+}
+
+Module *Module::GetByIModule(IModule *mod) const {
+  return writer_->GetByIModule(mod);
 }
 
 }  // namespace verilog

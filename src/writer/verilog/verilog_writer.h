@@ -17,6 +17,7 @@ public:
 
   bool Write();
   void SetShellModuleName(const string &n, bool with_self_clock);
+  Module *GetByIModule(IModule *mod) const;
 
 private:
   void PrepareModulesRec(const IModule *imod);

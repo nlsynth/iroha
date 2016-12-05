@@ -10,6 +10,7 @@
 #include "writer/verilog/resource.h"
 #include "writer/verilog/sub_module_task.h"
 #include "writer/verilog/table.h"
+#include "writer/verilog/task.h"
 #include "writer/verilog/sibling_task.h"
 
 static const char I[] = "        ";
@@ -156,6 +157,8 @@ void State::WriteTaskEntry(Table *tab, ostream &os) {
   string s;
   if (SiblingTask::IsSiblingTask(*tab)) {
     s = SiblingTask::TaskEnablePin(*tab->GetITable(), nullptr);
+  } else if (Task::IsTask(*tab)) {
+    s = Task::TaskEnablePin(*tab->GetITable(), nullptr);
   } else {
     s = SubModuleTask::PortNamePrefix(*tab->GetITable()) + "en";
   }
