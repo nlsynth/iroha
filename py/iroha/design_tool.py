@@ -151,14 +151,6 @@ def CreateSiblingTaskCall(table, callee):
     res.callee_table = callee
     return res
 
-def CreateSubModuleTask(table):
-    return createResource(table, "sub-module-task")
-
-def CreateSubModuleTaskCall(table, callee):
-    res = createResource(table, "sub-module-task-call")
-    res.callee_table = callee
-    return res
-
 def CreateChannelRead(table):
     return createResource(table, "channel-read")
 

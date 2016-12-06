@@ -37,8 +37,6 @@ class IDesign(object):
         self.resource_classes.append(IResourceClass("task-call"))
         self.resource_classes.append(IResourceClass("sibling-task"))
         self.resource_classes.append(IResourceClass("sibling-task-call"))
-        self.resource_classes.append(IResourceClass("sub-module-task"))
-        self.resource_classes.append(IResourceClass("sub-module-task-call"))
         self.resource_classes.append(IResourceClass("channel-write"))
         self.resource_classes.append(IResourceClass("channel-read"))
         self.resource_classes.append(IResourceClass("dataflow-in"))
