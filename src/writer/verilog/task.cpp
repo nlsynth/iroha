@@ -33,13 +33,21 @@ bool Task::IsTask(const Table &table) {
 }
 
 string Task::TaskEnablePin(const ITable &tab, const ITable *caller) {
+  return TaskPinPrefix(tab, caller) + "_en";
+}
+
+string Task::TaskAckPin(const ITable &tab, const ITable *caller) {
+  return TaskPinPrefix(tab, caller) + "_ack";
+}
+
+string Task::TaskPinPrefix(const ITable &tab, const ITable *caller) {
   string s = "task_" + Util::Itoa(tab.GetId());
   if (caller != nullptr) {
     IModule *caller_mod = caller->GetModule();
     s += "_" + Util::Itoa(caller_mod->GetId()) +
       "_" + Util::Itoa(caller->GetId());
   }
-  return s + "_en";
+  return s;
 }
 
 void Task::BuildResource() {
@@ -74,6 +82,19 @@ void Task::BuildTaskResource() {
   ostream &rs = tmpl_->GetStream(kResourceSection);
   rs << "  wire " << w << ";\n";
   rs << "  assign " << w << " = " << Util::Join(task_en, " | ") << ";\n";
+  string ack = TaskAckPin(*(tab_.GetITable()), nullptr);
+  ostream &fs = tab_.StateOutputSectionStream();
+  fs << "      " << ack
+     << " <= (" << tab_.StateVariable() << " == `"
+     << tab_.StateName(Task::kTaskEntryStateId) << ") && " << w
+     << ";\n";
+  rs << "  reg " << ack << ";\n";
+  ostream &is = tab_.InitialValueSectionStream();
+  is << "  " << ack << " <= 0;\n";
+  for (IResource *caller : *callers) {
+    string a = TaskAckPin(*(tab_.GetITable()), caller->GetTable());
+    rs << "  assign " << a << " = " << ack << ";\n";
+  }
 }
 
 void Task::BuildCallWire(IResource *caller) {
@@ -97,6 +118,9 @@ void Task::AddDownwardPort(IModule *imod, IResource *caller) {
   Module *parent_mod = mod->GetParentModule();
   ostream &os = parent_mod->ChildModuleInstSectionStream(mod);
   os << ", ." << en << "(" << en << ")";
+  string ack = TaskAckPin(*(tab_.GetITable()), caller->GetTable());
+  ports->AddPort(ack, Port::OUTPUT_WIRE, 0);
+  os << ", ." << ack << "(" << ack << ")";
 }
 
 void Task::BuildTaskCallResource() {
@@ -107,14 +131,21 @@ void Task::BuildTaskCallResource() {
   CollectResourceCallers("", &callers);
   rs << "  assign " << en << " = " << JoinStatesWithSubState(callers, 0)
      << ";\n";
+
+  string ack = TaskAckPin(*(res_.GetCalleeTable()), tab_.GetITable());
+  rs << "  wire " << ack << ";\n";
 }
 
 void Task::BuildTaskCallInsn(IInsn *insn, State *st) {
   ostream &os = st->StateBodySectionStream();
   static const char I[] = "          ";
   string st_name = InsnWriter::MultiCycleStateName(*(insn->GetResource()));
+  string ack = TaskAckPin(*(res_.GetCalleeTable()), tab_.GetITable());
   os << I << "if (" << st_name << " == 0) begin\n"
-     << I << "  " << st_name << " <= 3;\n"
+     << I << "  if (" << ack << ") begin\n"
+     << I << "    " << st_name << " <= 3;\n"
+     << I << "  end else begin\n"
+     << I << "  end\n"
      << I << "end\n";
 }
 
