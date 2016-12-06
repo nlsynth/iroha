@@ -124,16 +124,8 @@ IResource *DesignTool::CreateEmbedResource(ITable *table,
   return res;
 }
 
-IResource *DesignTool::CreateSubModuleTaskCallResource(ITable *table,
-						       ITable *callee) {
-  IResource *res = DesignUtil::CreateResource(table,
-					      resource::kSubModuleTaskCall);
-  res->SetCalleeTable(callee);
-  return res;
-}
-
 IResource *DesignTool::CreateTaskResource(ITable *table) {
-  return DesignUtil::CreateResource(table, resource::kSubModuleTask);
+  return DesignUtil::CreateResource(table, resource::kTask);
 }
 
 IRegister *DesignTool::AllocRegister(ITable *table, const string &name,

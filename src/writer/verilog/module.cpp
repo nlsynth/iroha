@@ -12,7 +12,6 @@
 #include "writer/verilog/shared_reg.h"
 #include "writer/verilog/ports.h"
 #include "writer/verilog/table.h"
-#include "writer/verilog/sub_module_task.h"
 #include "writer/verilog/verilog_writer.h"
 
 namespace iroha {
@@ -131,10 +130,6 @@ void Module::Build() {
     Channel::BuildChannelPorts(*ci, ports_.get());
     Channel::BuildRootWire(*ci, this);
   }
-  const TaskCallInfo *ti = conn_.GetTaskCallInfo(i_mod_);
-  if (ti != nullptr) {
-    SubModuleTask::BuildPorts(*ti, ports_.get());
-  }
   const RegConnectionInfo *ri = conn_.GetRegConnectionInfo(i_mod_);
   if (ri != nullptr) {
     ForeignReg::BuildPorts(*ri, ports_.get(), names_);
@@ -166,13 +161,8 @@ void Module::BuildChildModuleInstSection(vector<Module *> &child_mods) {
     is << ", ." << child_mod->GetPorts()->GetReset()
        << "(" << GetPorts()->GetReset() << ")";
     is << current_content;
-    // Task
-    const IModule *child_imod = child_mod->GetIModule();
-    const TaskCallInfo *ti = conn_.GetTaskCallInfo(child_imod);
-    if (ti != nullptr) {
-      SubModuleTask::BuildChildTaskWire(*ti, is);
-    }
     // Channel
+    const IModule *child_imod = child_mod->GetIModule();
     const ChannelInfo *ci = conn_.GetConnectionInfo(i_mod_);
     if (ci != nullptr) {
       Channel::BuildChildChannelWire(*ci, child_imod, is);

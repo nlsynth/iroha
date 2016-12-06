@@ -8,7 +8,6 @@
 #include "writer/verilog/insn_writer.h"
 #include "writer/verilog/module.h"
 #include "writer/verilog/resource.h"
-#include "writer/verilog/sub_module_task.h"
 #include "writer/verilog/table.h"
 #include "writer/verilog/task.h"
 #include "writer/verilog/sibling_task.h"
@@ -160,7 +159,7 @@ void State::WriteTaskEntry(Table *tab, ostream &os) {
   } else if (Task::IsTask(*tab)) {
     s = Task::TaskEnablePin(*tab->GetITable(), nullptr);
   } else {
-    s = SubModuleTask::PortNamePrefix(*tab->GetITable()) + "en";
+    CHECK(false);
   }
   os << I << "  if (" << s << ") begin\n"
      << I << "    " << tab->StateVariable() << " <= `"

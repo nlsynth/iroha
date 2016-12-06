@@ -18,8 +18,6 @@ const char kChannelWrite[] = "channel-write";
 const char kChannelRead[] = "channel-read";
 const char kSiblingTask[] = "sibling-task";
 const char kSiblingTaskCall[] = "sibling-task-call";
-const char kSubModuleTask[] = "sub-module-task";
-const char kSubModuleTaskCall[] = "sub-module-task-call";
 const char kTask[] = "task";
 const char kTaskCall[] = "task-call";
 const char kExtInput[] = "ext-input";
@@ -71,8 +69,6 @@ bool IsTask(const IResourceClass &rc);
 bool IsTaskCall(const IResourceClass &rc);
 bool IsSiblingTask(const IResourceClass &rc);
 bool IsSiblingTaskCall(const IResourceClass &rc);
-bool IsSubModuleTask(const IResourceClass &rc);
-bool IsSubModuleTaskCall(const IResourceClass &rc);
 bool IsForeignRegister(const IResourceClass &rc);
 
 void InstallResourceClasses(IDesign *design);

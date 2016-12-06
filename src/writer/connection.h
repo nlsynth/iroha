@@ -25,13 +25,6 @@ public:
   map<const IModule *, vector<const IChannel *> > child_downward_;
 };
 
-// Per module task call path information.
-class TaskCallInfo {
-public:
-  // Callers for this or sub modules.
-  vector<IResource *> tasks_;
-};
-
 // Per module foreign register access connections.
 class RegConnectionInfo {
 public:
@@ -56,7 +49,6 @@ public:
   Connection(const IDesign *design);
   void Build();
   const ChannelInfo *GetConnectionInfo(const IModule *mod) const;
-  const TaskCallInfo *GetTaskCallInfo(const IModule *mod) const;
   const RegConnectionInfo *GetRegConnectionInfo(const IModule *mod) const;
   const ResourceConnectionInfo *GetSharedRegReaderConnectionInfo(const IModule *mod) const;
   const ResourceConnectionInfo *GetSharedRegWriterConnectionInfo(const IModule *mod) const;
@@ -77,8 +69,6 @@ private:
   void AddChannelInfo(const IChannel *ch, const IModule *mod,
 		      bool parent_is_write);
 
-  // Sub module task call.
-  void ProcessSubModuleTaskCall(IResource *caller);
   void ProcessForeignReg(IResource *freg);
   void ProcessResourceConnection(IResource *source, IModule *sink_module,
 				 map<const IModule *, ResourceConnectionInfo> &conn_map);
@@ -86,8 +76,6 @@ private:
 
   const IDesign *design_;
   map<const IModule *, ChannelInfo> channel_info_;
-  // for sub module task call
-  map<const IModule *, TaskCallInfo> task_call_info_;
   map<const IModule *, RegConnectionInfo> reg_connection_;
   map<const IModule *, ResourceConnectionInfo> shared_reg_reader_;
   map<const IModule *, ResourceConnectionInfo> shared_reg_writer_;

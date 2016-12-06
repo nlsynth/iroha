@@ -32,8 +32,6 @@ public:
   static IResource *CreateEmbedResource(ITable *table,
 					const string &mod_name,
 					const string &fn);
-  static IResource *CreateSubModuleTaskCallResource(ITable *table,
-						    ITable *callee);
   static IResource *CreateTaskResource(ITable *table);
   static IRegister *AllocRegister(ITable *table, const string &name,
 				  int width);

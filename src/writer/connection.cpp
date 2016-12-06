@@ -19,12 +19,6 @@ void Connection::Build() {
   }
   for (auto *mod : design_->modules_) {
     for (auto *tab : mod->tables_) {
-      vector<IResource*> task_calls;
-      DesignUtil::FindResourceByClassName(tab, resource::kSubModuleTaskCall,
-					  &task_calls);
-      for (IResource *call : task_calls) {
-	ProcessSubModuleTaskCall(call);
-      }
       vector<IResource*> foreign_regs;
       DesignUtil::FindResourceByClassName(tab, resource::kForeignReg,
 					  &foreign_regs);
@@ -69,15 +63,6 @@ const ChannelInfo *Connection::GetConnectionInfo(const IModule *mod) const {
   }
   const ChannelInfo &ci = it->second;
   return &ci;
-}
-
-const TaskCallInfo *Connection::GetTaskCallInfo(const IModule *mod) const {
-  auto it = task_call_info_.find(mod);
-  if (it == task_call_info_.end()) {
-    return nullptr;
-  }
-  const TaskCallInfo &ti = it->second;
-  return &ti;
 }
 
 const RegConnectionInfo *Connection::GetRegConnectionInfo(const IModule *mod) const {
@@ -184,16 +169,6 @@ const IModule *Connection::GetCommonRoot(const IModule *m1,
     }
   }
   return nullptr;
-}
-
-void Connection::ProcessSubModuleTaskCall(IResource *caller) {
-  IModule *caller_mod = caller->GetTable()->GetModule();
-  IModule *callee_mod = caller->GetCalleeTable()->GetModule();
-  for (IModule *mod = callee_mod; mod != caller_mod;
-       mod = mod->GetParentModule()) {
-    TaskCallInfo &ti = task_call_info_[mod];
-    ti.tasks_.push_back(caller);
-  }
 }
 
 const vector<IResource *> *Connection::GetSharedRegWriters(const IResource *res) const {
