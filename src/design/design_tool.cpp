@@ -128,6 +128,13 @@ IResource *DesignTool::CreateTaskResource(ITable *table) {
   return DesignUtil::CreateResource(table, resource::kTask);
 }
 
+IResource *DesignTool::CreateTaskCallResource(ITable *table,
+					      ITable *callee) {
+  IResource *res = DesignUtil::CreateResource(table, resource::kTaskCall);
+  res->SetCalleeTable(callee);
+  return res;
+}
+
 IRegister *DesignTool::AllocRegister(ITable *table, const string &name,
 				     int width) {
   IRegister *reg = new IRegister(table, name);

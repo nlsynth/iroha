@@ -33,6 +33,8 @@ public:
 					const string &mod_name,
 					const string &fn);
   static IResource *CreateTaskResource(ITable *table);
+  static IResource *CreateTaskCallResource(ITable *caller,
+					   ITable *callee);
   static IRegister *AllocRegister(ITable *table, const string &name,
 				  int width);
   static IRegister *AllocConstNum(ITable *table,
