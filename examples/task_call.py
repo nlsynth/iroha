@@ -12,6 +12,10 @@ mod_sub = IModule(d, "M_sub")
 mod_sub.parent_module = mod_top
 tab_sub = ITable(mod_sub)
 
+mod_sibling = IModule(d, "M_sibling")
+mod_sibling.parent_module = mod_top
+tab_sibling = ITable(mod_sibling)
+
 # task tab
 task_tab = ITable(mod_sub)
 task = design_tool.CreateTask(task_tab)
@@ -51,6 +55,17 @@ tab_sub.states.append(sub_st2)
 sub_call_insn = IInsn(sub_caller)
 sub_st1.insns.append(sub_call_insn)
 design_tool.AddNextState(sub_st1, sub_st2)
+
+# call from sibling
+sibling_caller = design_tool.CreateTaskCall(tab_sibling, task_tab)
+sibling_st1 = IState(tab_sibling)
+sibling_st2 = IState(tab_sibling)
+tab_sibling.initialSt = sibling_st1
+tab_sibling.states.append(sibling_st1)
+tab_sibling.states.append(sibling_st2)
+sibling_call_insn = IInsn(sibling_caller)
+sibling_st1.insns.append(sibling_call_insn)
+design_tool.AddNextState(sibling_st1, sibling_st2)
 
 design_tool.ValidateIds(d)
 DesignWriter(d).Write()

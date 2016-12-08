@@ -60,7 +60,7 @@ void VerilogWriter::SetShellModuleName(const string &n, bool with_self_clock) {
   with_self_clock_ = with_self_clock;
 }
 
-Module *VerilogWriter::GetByIModule(IModule *mod) const {
+Module *VerilogWriter::GetByIModule(const IModule *mod) const {
   auto it = modules_.find(mod);
   if (it != modules_.end()) {
     return it->second;

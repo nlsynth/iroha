@@ -23,7 +23,8 @@ private:
   void BuildTaskCallResource();
   void BuildCallWire(IResource *caller);
   void BuildTaskCallInsn(IInsn *insn, State *st);
-  void AddDownwardPort(IModule *mod, IResource *caller);
+  void AddPort(const IModule *mod, IResource *caller);
+  void AddWire(const IModule *mod, IResource *caller);
 
   static string TaskPinPrefix(const ITable &tab, const ITable *caller);
   static string TaskAckPin(const ITable &tab, const ITable *caller);

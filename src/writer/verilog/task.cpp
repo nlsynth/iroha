@@ -103,23 +103,62 @@ void Task::BuildCallWire(IResource *caller) {
   const IModule *common_root = Connection::GetCommonRoot(callee_module,
 							 caller_module);
   if (caller_module == common_root) {
+    // downward
     for (IModule *imod = callee_module; imod != common_root;
 	 imod = imod->GetParentModule()) {
-      AddDownwardPort(imod, caller);
+      AddPort(imod, caller, false);
     }
+  } else if (callee_module == common_root) {
+    // upward
+    for (IModule *imod = caller_module; imod != common_root;
+	 imod = imod->GetParentModule()) {
+      AddPort(imod, caller, true);
+    }
+    AddWire(common_root, caller);
+  } else {
+    // downward
+    for (IModule *imod = caller_module; imod != common_root;
+	 imod = imod->GetParentModule()) {
+      AddPort(imod, caller, true);
+    }
+    // upward
+    for (IModule *imod = callee_module; imod != common_root;
+	 imod = imod->GetParentModule()) {
+      AddPort(imod, caller, false);
+    }
+    AddWire(common_root, caller);
   }
 }
 
-void Task::AddDownwardPort(IModule *imod, IResource *caller) {
+void Task::AddWire(const IModule *imod, IResource *caller) {
   Module *mod = tab_.GetModule()->GetByIModule(imod);
   Ports *ports = mod->GetPorts();
   string en = TaskEnablePin(*(tab_.GetITable()), caller->GetTable());
-  ports->AddPort(en, Port::INPUT, 0);
+  string ack = TaskAckPin(*(tab_.GetITable()), caller->GetTable());
+  auto *tmpl = mod->GetModuleTemplate();
+  ostream &rs = tmpl->GetStream(kResourceSection);
+  rs << "  wire " << en << ";\n";
+  rs << "  wire " << ack << ";\n";
+}
+
+void Task::AddPort(const IModule *imod, IResource *caller, bool upward) {
+  Module *mod = tab_.GetModule()->GetByIModule(imod);
+  Ports *ports = mod->GetPorts();
+  string en = TaskEnablePin(*(tab_.GetITable()), caller->GetTable());
+  if (upward) {
+    ports->AddPort(en, Port::OUTPUT_WIRE, 0);
+  } else {
+    ports->AddPort(en, Port::INPUT, 0);
+  }
   Module *parent_mod = mod->GetParentModule();
   ostream &os = parent_mod->ChildModuleInstSectionStream(mod);
   os << ", ." << en << "(" << en << ")";
   string ack = TaskAckPin(*(tab_.GetITable()), caller->GetTable());
-  ports->AddPort(ack, Port::OUTPUT_WIRE, 0);
+  if (upward) {
+    ports->AddPort(ack, Port::INPUT, 0);
+  } else {
+    ports->AddPort(ack, Port::OUTPUT_WIRE, 0);
+  }
   os << ", ." << ack << "(" << ack << ")";
 }
 

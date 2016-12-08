@@ -229,7 +229,7 @@ Names *Module::GetNames() const {
   return names_;
 }
 
-Module *Module::GetByIModule(IModule *mod) const {
+Module *Module::GetByIModule(const IModule *mod) const {
   return writer_->GetByIModule(mod);
 }
 

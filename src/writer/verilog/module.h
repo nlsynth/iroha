@@ -45,7 +45,7 @@ public:
   const Connection &GetConnection() const;
   Names *GetNames() const;
   ostream &ChildModuleInstSectionStream(Module *child) const;
-  Module *GetByIModule(IModule *mod) const;
+  Module *GetByIModule(const IModule *mod) const;
 
 private:
   bool ResolveResetPolarity();
