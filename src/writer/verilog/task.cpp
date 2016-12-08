@@ -91,9 +91,20 @@ void Task::BuildTaskResource() {
   rs << "  reg " << ack << ";\n";
   ostream &is = tab_.InitialValueSectionStream();
   is << "  " << ack << " <= 0;\n";
+  string high_en;
   for (IResource *caller : *callers) {
     string a = TaskAckPin(*(tab_.GetITable()), caller->GetTable());
-    rs << "  assign " << a << " = " << ack << ";\n";
+    rs << "  assign " << a << " = ";
+    if (!high_en.empty()) {
+      // Ack will be asserted only when higher caller is not requesting.
+      rs << "!(" << high_en << ") && ";
+    }
+    rs << ack << ";\n";
+    string en = TaskEnablePin(*(tab_.GetITable()), caller->GetTable());
+    if (!high_en.empty()) {
+      high_en = high_en + " | ";
+    }
+    high_en += en;
   }
 }
 
