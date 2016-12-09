@@ -46,7 +46,7 @@ Please read src/iroha/iroha.h, src/iroha/iroha_main.cpp examples/ for more detai
 * WIP: Avoid name conflicts in generated RTL.
 * P1: Unify task variants (and remove sibling-task and sub-module-task)
 * P1: Test and debug SSA conversion and PHI removal
-* P2: Pluggable optimizer and writer
+* P2: FPGA style register initialization
 * P2: Better error handling
 * P2: I/O for embedded verilog module
 * P2: Modularize mapped resource
@@ -56,6 +56,7 @@ Please read src/iroha/iroha.h, src/iroha/iroha_main.cpp examples/ for more detai
 * P2: More debug output from optimizers.
 * P2: Support profiling information from frontends.
 * P2: Export optimizer API so that users can add own phase
+* P3: Pluggable optimizer and writer
 * P3: Set reset polarity to embedded module.
 * P3: Allow multiple embedded module instances.
 * P3: Carry bit of adder as input/output.
