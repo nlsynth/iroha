@@ -143,14 +143,6 @@ def CreateTaskCall(table, callee):
     res.callee_table = callee
     return res
 
-def CreateSiblingTask(table):
-    return createResource(table, "sibling-task")
-
-def CreateSiblingTaskCall(table, callee):
-    res = createResource(table, "sibling-task-call")
-    res.callee_table = callee
-    return res
-
 def CreateChannelRead(table):
     return createResource(table, "channel-read")
 
