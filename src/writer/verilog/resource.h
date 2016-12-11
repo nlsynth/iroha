@@ -18,7 +18,6 @@ public:
 
   virtual void BuildResource();
   virtual void BuildInsn(IInsn *insn, State *st);
-  virtual string ReadySignal(IInsn *insn);
   virtual void CollectNames(Names *names);
 
 protected:

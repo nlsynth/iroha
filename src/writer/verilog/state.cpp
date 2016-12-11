@@ -126,11 +126,6 @@ void State::WriteTransition(ostream &os) {
       IResource *res = insn->GetResource();
       string st = InsnWriter::MultiCycleStateName(*res);
       st = "(" + st + " == 3)";
-      unique_ptr<Resource> builder(Resource::Create(*res, *table_));
-      string ready = builder->ReadySignal(insn);
-      if (!ready.empty()) {
-	st = "(" + st + " || " + ready + ")";
-      }
       sts.push_back(st);
     }
     os << Util::Join(sts, " && ");

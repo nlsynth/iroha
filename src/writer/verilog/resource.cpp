@@ -96,10 +96,6 @@ void Resource::BuildInsn(IInsn *insn, State *st) {
   }
 }
 
-string Resource::ReadySignal(IInsn *insn) {
-  return "";
-}
-
 void Resource::CollectNames(Names *names) {
 }
 
