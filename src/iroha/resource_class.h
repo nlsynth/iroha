@@ -16,8 +16,6 @@ const char kAssert[] = "assert";
 const char kMapped[] = "mapped";
 const char kChannelWrite[] = "channel-write";
 const char kChannelRead[] = "channel-read";
-const char kSiblingTask[] = "sibling-task";
-const char kSiblingTaskCall[] = "sibling-task-call";
 const char kTask[] = "task";
 const char kTaskCall[] = "task-call";
 const char kExtInput[] = "ext-input";
@@ -67,8 +65,6 @@ bool IsChannelWrite(const IResourceClass &rc);
 bool IsEmbedded(const IResourceClass &rc);
 bool IsTask(const IResourceClass &rc);
 bool IsTaskCall(const IResourceClass &rc);
-bool IsSiblingTask(const IResourceClass &rc);
-bool IsSiblingTaskCall(const IResourceClass &rc);
 bool IsForeignRegister(const IResourceClass &rc);
 
 void InstallResourceClasses(IDesign *design);

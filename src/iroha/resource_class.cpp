@@ -107,14 +107,6 @@ bool IsTaskCall(const IResourceClass &rc) {
   return (rc.GetName() == kTaskCall);
 }
 
-bool IsSiblingTask(const IResourceClass &rc) {
-  return (rc.GetName() == kSiblingTask);
-}
-
-bool IsSiblingTaskCall(const IResourceClass &rc) {
-  return (rc.GetName() == kSiblingTaskCall);
-}
-
 bool IsForeignRegister(const IResourceClass &rc) {
   return (rc.GetName() == kForeignReg);
 }
@@ -139,8 +131,6 @@ void InstallResourceClasses(IDesign *design) {
   InstallResource(design, resource::kChannelRead, false);
   InstallResource(design, resource::kTask, true);
   InstallResource(design, resource::kTaskCall, true);
-  InstallResource(design, resource::kSiblingTask, true);
-  InstallResource(design, resource::kSiblingTaskCall, true);
   InstallResource(design, resource::kTransition, true);
   InstallResource(design, resource::kEmbedded, true);
   InstallResource(design, resource::kForeignReg, true);

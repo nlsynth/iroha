@@ -103,8 +103,7 @@ void ExpWriter::WriteResource(const IResource &res) {
   if (resource::IsForeignRegister(rc)) {
     WriteForeignRegDesc(res);
   }
-  if (resource::IsTaskCall(rc) ||
-      resource::IsSiblingTaskCall(rc)) {
+  if (resource::IsTaskCall(rc)) {
     WriteCalleeTaskDesc(res);
   }
   if (resource::IsSharedRegReader(rc) ||

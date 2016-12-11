@@ -18,7 +18,6 @@
 #include "writer/verilog/state.h"
 #include "writer/verilog/table.h"
 #include "writer/verilog/task.h"
-#include "writer/verilog/sibling_task.h"
 
 namespace iroha {
 namespace writer {
@@ -26,10 +25,6 @@ namespace verilog {
 
 Resource *Resource::Create(const IResource &res, const Table &table) {
   auto *klass = res.GetClass();
-  if (resource::IsSiblingTask(*klass) ||
-      resource::IsSiblingTaskCall(*klass)) {
-    return new SiblingTask(res, table);
-  }
   if (resource::IsTask(*klass) ||
       resource::IsTaskCall(*klass)) {
     return new Task(res, table);

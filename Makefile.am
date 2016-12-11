@@ -90,7 +90,6 @@ libiroha_la_SOURCES = \
  src/writer/verilog/resource.cpp src/writer/verilog/resource.h \
  src/writer/verilog/state.cpp src/writer/verilog/state.h \
  src/writer/verilog/table.cpp src/writer/verilog/table.h \
- src/writer/verilog/sibling_task.cpp src/writer/verilog/sibling_task.h \
  src/writer/verilog/task.cpp src/writer/verilog/task.h \
  src/writer/verilog/verilog_writer.cpp src/writer/verilog/verilog_writer.h \
  src/writer/writer.cpp src/writer/writer.h

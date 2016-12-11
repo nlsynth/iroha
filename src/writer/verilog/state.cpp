@@ -10,7 +10,6 @@
 #include "writer/verilog/resource.h"
 #include "writer/verilog/table.h"
 #include "writer/verilog/task.h"
-#include "writer/verilog/sibling_task.h"
 
 static const char I[] = "        ";
 
@@ -54,8 +53,7 @@ void State::WriteStateBody(ostream &os) {
   os << StateBodySectionContents();
   for (auto *insn : i_state_->insns_) {
     auto *res = insn->GetResource();
-    if (!resource::IsSet(*res->GetClass()) &&
-	!resource::IsSiblingTask(*res->GetClass())) {
+    if (!resource::IsSet(*res->GetClass())) {
       CopyResults(insn, false, os);
     }
   }
@@ -91,7 +89,7 @@ void State::WriteTransitionBody(ostream &os) {
   if (DesignUtil::IsTerminalState(i_state_) &&
       table_->IsTask()) {
     os << I << "  " << sv << " <= `"
-       << table_->StateName(SiblingTask::kTaskEntryStateId)
+       << table_->StateName(Task::kTaskEntryStateId)
        << ";\n";
     return;
   }
@@ -151,16 +149,9 @@ void State::WriteTransition(ostream &os) {
 }
 
 void State::WriteTaskEntry(Table *tab, ostream &os) {
-  os << I << "`" << tab->StateName(SiblingTask::kTaskEntryStateId)
+  os << I << "`" << tab->StateName(Task::kTaskEntryStateId)
      << ": begin\n";
-  string s;
-  if (SiblingTask::IsSiblingTask(*tab)) {
-    s = SiblingTask::TaskEnablePin(*tab->GetITable(), nullptr);
-  } else if (Task::IsTask(*tab)) {
-    s = Task::TaskEnablePin(*tab->GetITable(), nullptr);
-  } else {
-    CHECK(false);
-  }
+  string s = Task::TaskEnablePin(*tab->GetITable(), nullptr);
   os << I << "  if (" << s << ") begin\n"
      << I << "    " << tab->StateVariable() << " <= `"
      << tab->InitialStateName() << ";\n"

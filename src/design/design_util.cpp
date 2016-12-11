@@ -120,10 +120,6 @@ IInsn *DesignUtil::GetTransitionInsn(IState *st) {
 }
 
 IInsn *DesignUtil::FindTaskEntryInsn(ITable *table) {
-  IInsn *insn = FindInitialInsnByClassName(table, resource::kSiblingTask);
-  if (insn != nullptr) {
-    return insn;
-  }
   return FindInitialInsnByClassName(table, resource::kTask);
 }
 
@@ -155,8 +151,7 @@ bool DesignUtil::IsTerminalState(IState *st) {
 bool DesignUtil::IsMultiCycleInsn(IInsn *insn) {
   IResource *res = insn->GetResource();
   IResourceClass *rc = res->GetClass();
-  if (resource::IsSiblingTaskCall(*rc) ||
-      resource::IsTaskCall(*rc) ||
+  if (resource::IsTaskCall(*rc) ||
       resource::IsChannelRead(*rc) ||
       resource::IsChannelWrite(*rc) ||
       resource::IsEmbedded(*rc)) {

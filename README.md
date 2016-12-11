@@ -43,8 +43,7 @@ Please read src/iroha/iroha.h, src/iroha/iroha_main.cpp examples/ for more detai
 -- TODOs
 
 * WIP: Document
-* WIP: Avoid name conflicts in generated RTL.
-* P1: Unify task variants (and remove sibling-task and sub-module-task)
+* P1: Some mechanism to pass return values
 * P1: Test and debug SSA conversion and PHI removal
 * P2: FPGA style register initialization
 * P2: Better error handling

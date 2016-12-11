@@ -19,14 +19,14 @@ main_tab = ITable(mod)
 def Call(caller, callee, task):
     # Entry insn.
     if not task:
-        task = design_tool.CreateSiblingTask(callee)
+        task = design_tool.CreateTask(callee)
         entry_insn = IInsn(task)
         task_st1 = IState(callee)
         task_st1.insns.append(entry_insn)
         callee.states.append(task_st1)
         callee.initialSt = task_st1
     # Calling insn.
-    call = design_tool.CreateSiblingTaskCall(caller, callee)
+    call = design_tool.CreateTaskCall(caller, callee)
     call_insn = IInsn(call)
     call_st = IState(caller)
     call_st.insns.append(call_insn)
