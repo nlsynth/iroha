@@ -32,7 +32,7 @@ bool VerilogWriter::Write() {
   names_->ReservePrefix("task");
   names_->ReservePrefix("S");
 
-  os_ << "// Generated from " << PACKAGE << "-" << VERSION << ".\n\n";
+  os_ << "// Generated from " << PACKAGE << "-" << VERSION << ".\n";
 
   IModule *root = DesignUtil::GetRootModule(design_);
   if (root == nullptr) {

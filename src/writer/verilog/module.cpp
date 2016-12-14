@@ -43,7 +43,8 @@ Module::~Module() {
 }
 
 void Module::Write(ostream &os) {
-  os << "module " << GetName() << "(";
+  os << "\n// Module " << i_mod_->GetId() << ";\n"
+     << "module " << GetName() << "(";
   ports_->Output(Ports::PORT_NAME, os);
   os << ");\n";
   ports_->Output(Ports::PORT_TYPE, os);
