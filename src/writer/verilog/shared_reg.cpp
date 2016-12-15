@@ -46,25 +46,7 @@ void SharedReg::BuildResource() {
     BuildSharedRegResource();
   }
   if (resource::IsSharedRegWriter(*klass)) {
-    ostream &rs = tmpl_->GetStream(kRegisterSection);
-    rs << "  // shared-reg-writer\n";
-    rs << "  reg ";
-    if (width_ > 0) {
-      rs << "[" << width_ - 1 << ":0]";
-    }
-    rs << " " << WriterName(res_) << ";\n";
-    rs << "  reg " << WriterEnName(res_) << ";\n";
-    // Reset value
-    ostream &is = tab_.InitialValueSectionStream();
-    is << "      " << WriterName(res_) << " <= 0;\n"
-       << "      " << WriterEnName(res_) << " <= 0;\n";
-    // Write en signal.
-    ostream &os = tab_.StateOutputSectionStream();
-    map<IState *, IInsn *> callers;
-    CollectResourceCallers("", &callers);
-    os << "      " << WriterEnName(res_) << " <= ";
-    WriteStateUnion(callers, os);
-    os << ";\n";
+    BuildSharedRegWriterResource();
   }
 }
 
@@ -106,6 +88,32 @@ void SharedReg::BuildSharedRegResource() {
     is << 0;
   }
   is << ";\n";
+  // Read wires
+  BuildReadWire();
+}
+
+void SharedReg::BuildSharedRegWriterResource() {
+  ostream &rs = tmpl_->GetStream(kRegisterSection);
+  rs << "  // shared-reg-writer\n";
+  rs << "  reg ";
+  if (width_ > 0) {
+    rs << "[" << width_ - 1 << ":0]";
+  }
+  rs << " " << WriterName(res_) << ";\n";
+  rs << "  reg " << WriterEnName(res_) << ";\n";
+  // Reset value
+  ostream &is = tab_.InitialValueSectionStream();
+  is << "      " << WriterName(res_) << " <= 0;\n"
+     << "      " << WriterEnName(res_) << " <= 0;\n";
+  // Write en signal.
+  ostream &os = tab_.StateOutputSectionStream();
+  map<IState *, IInsn *> callers;
+  CollectResourceCallers("", &callers);
+  os << "      " << WriterEnName(res_) << " <= ";
+  WriteStateUnion(callers, os);
+  os << ";\n";
+
+  BuildWriteWire(&res_);
 }
 
 void SharedReg::BuildInsn(IInsn *insn, State *st) {
@@ -165,53 +173,7 @@ string SharedReg::RegName(const IResource &res) {
     "_" + port_name;
 }
 
-void SharedReg::BuildReaderPorts(const ResourceConnectionInfo &pi,
-				 Ports *ports) {
-  for (IResource *res : pi.has_upward_port) {
-    int width = res->GetParams()->GetWidth();
-    ports->AddPort(RegName(*res), Port::OUTPUT_WIRE, width);
-  }
-  for (IResource *res : pi.has_downward_port) {
-    int width = res->GetParams()->GetWidth();
-    ports->AddPort(RegName(*res), Port::INPUT, width);
-  }
-}
-
-void SharedReg::BuildWriterPorts(const ResourceConnectionInfo &pi,
-				 Ports *ports) {
-  for (IResource *res : pi.has_upward_port) {
-    int width = res->GetSharedRegister()->GetParams()->GetWidth();
-    ports->AddPort(WriterName(*res), Port::OUTPUT_WIRE, width);
-    ports->AddPort(WriterEnName(*res), Port::OUTPUT_WIRE, 0);
-  }
-  for (IResource *res : pi.has_downward_port) {
-    int width = res->GetSharedRegister()->GetParams()->GetWidth();
-    ports->AddPort(WriterName(*res), Port::INPUT, width);
-    ports->AddPort(WriterEnName(*res), Port::INPUT, 0);
-  }
-}
-
-void SharedReg::BuildReaderChildWire(const ResourceConnectionInfo &pi,
-				     ostream &os) {
-  for (IResource *res : pi.has_upward_port) {
-    AddChildWire(res, false, os);
-  }
-  for (IResource *res : pi.has_downward_port) {
-    AddChildWire(res, false, os);
-  }
-}
-
-void SharedReg::BuildWriterChildWire(const ResourceConnectionInfo &pi,
-				     ostream &os) {
-  for (IResource *res : pi.has_upward_port) {
-    AddChildWire(res, true, os);
-  }
-  for (IResource *res : pi.has_downward_port) {
-    AddChildWire(res, true, os);
-  }
-}
-
-void SharedReg::AddChildWire(IResource *res, bool is_write, ostream &os) {
+void SharedReg::AddChildWire(const IResource *res, bool is_write, ostream &os) {
   string name;
   if (is_write) {
     name = WriterName(*res);
@@ -225,41 +187,120 @@ void SharedReg::AddChildWire(IResource *res, bool is_write, ostream &os) {
   }
 }
 
-void SharedReg::BuildReaderRootWire(const ResourceConnectionInfo &pi,
-				    Module *module) {
-  BuildRootWire(pi, false, module);
-}
-
-void SharedReg::BuildWriterRootWire(const ResourceConnectionInfo &pi,
-				    Module *module) {
-  BuildRootWire(pi, true, module);
-}
-
-void SharedReg::BuildRootWire(const ResourceConnectionInfo &pi,
-			      bool is_write,
-			      Module *module) {
-  ModuleTemplate *tmpl = module->GetModuleTemplate();
-  ostream &ws = tmpl->GetStream(kInsnWireDeclSection);
-  for (IResource *res : pi.has_wire) {
-    ws << "  wire ";
-    int width;
-    if (is_write) {
-      width = res->GetSharedRegister()->GetParams()->GetWidth();
-    } else {
-      width = res->GetParams()->GetWidth();
+void SharedReg::BuildReadWire() {
+  auto *readers = tab_.GetModule()->GetConnection().GetSharedRegReaders(&res_);
+  if (readers == nullptr) {
+    return;
+  }
+  IModule *reg_module = res_.GetTable()->GetModule();
+  set<const IModule *> wired_modules;
+  set<const IModule *> has_upward;
+  set<const IModule *> has_downward;
+  for (auto *reader : *readers) {
+    IModule *reader_module = reader->GetTable()->GetModule();
+    const IModule *common_root = Connection::GetCommonRoot(reg_module,
+							   reader_module);
+    if (reader_module != common_root && reg_module != common_root) {
+      if (wired_modules.find(common_root) == wired_modules.end()) {
+	AddWire(common_root, &res_, false);
+	wired_modules.insert(common_root);
+      }
     }
-    if (width > 0) {
-      ws << "[" << width - 1 << ":0] ";
+    // upward
+    for (IModule *imod = reg_module; imod != common_root;
+	 imod = imod->GetParentModule()) {
+      if (has_upward.find(imod) == has_upward.end()) {
+	AddReadPort(imod, &res_, true);
+	has_upward.insert(imod);
+      }
     }
-    if (is_write) {
-      ws << WriterName(*res) << ";\n";
-    } else {
-      ws << RegName(*res) << ";\n";
-    }
-    if (is_write) {
-      ws << "  wire " << WriterEnName(*res) << ";\n";
+    // downward
+    for (IModule *imod = reader_module; imod != common_root;
+	 imod = imod->GetParentModule()) {
+      if (has_downward.find(imod) == has_downward.end()) {
+	AddReadPort(imod, &res_, false);
+	has_downward.insert(imod);
+      }
     }
   }
+}
+
+void SharedReg::BuildWriteWire(const IResource *writer) {
+  IResource *reg = writer->GetSharedRegister();
+  IModule *reg_module = reg->GetTable()->GetModule();
+  IModule *writer_module = writer->GetTable()->GetModule();
+  const IModule *common_root = Connection::GetCommonRoot(reg_module,
+							 writer_module);
+  if (writer_module != common_root) {
+    AddWire(common_root, writer, true);
+  }
+  // downward
+  for (IModule *imod = reg_module; imod != common_root;
+       imod = imod->GetParentModule()) {
+    AddWritePort(imod, writer, false);
+  }
+  // upward
+  for (IModule *imod = writer_module; imod != common_root;
+       imod = imod->GetParentModule()) {
+    AddWritePort(imod, writer, true);
+  }
+}
+
+void SharedReg::AddWire(const IModule *imod, const IResource *accessor,
+			bool is_write) {
+  Module *mod = tab_.GetModule()->GetByIModule(imod);
+  auto *tmpl = mod->GetModuleTemplate();
+  ostream &rs = tmpl->GetStream(kResourceSection);
+  int width;
+  if (is_write) {
+    width = accessor->GetSharedRegister()->GetParams()->GetWidth();
+  } else {
+    width = accessor->GetParams()->GetWidth();
+  }
+  rs << "  wire ";
+  if (width > 0) {
+    rs << "[" << width - 1 << ":0] ";
+  }
+  if (is_write) {
+    rs << WriterName(*accessor) << ";\n";
+  } else {
+    rs << RegName(*accessor) << ";\n";
+  }
+  if (is_write) {
+    rs << "  wire " << WriterEnName(*accessor) << ";\n";
+  }
+}
+
+void SharedReg::AddReadPort(const IModule *imod, const IResource *reader,
+			    bool upward) {
+  Module *mod = tab_.GetModule()->GetByIModule(imod);
+  Ports *ports = mod->GetPorts();
+  int width = reader->GetParams()->GetWidth();
+  if (upward) {
+    ports->AddPort(RegName(*reader), Port::OUTPUT_WIRE, width);
+  } else {
+    ports->AddPort(RegName(*reader), Port::INPUT, width);
+  }
+  Module *parent_mod = mod->GetParentModule();
+  ostream &os = parent_mod->ChildModuleInstSectionStream(mod);
+  AddChildWire(reader, false, os);
+}
+
+void SharedReg::AddWritePort(const IModule *imod, const IResource *writer,
+			     bool upward) {
+  Module *mod = tab_.GetModule()->GetByIModule(imod);
+  Ports *ports = mod->GetPorts();
+  int width = writer->GetSharedRegister()->GetParams()->GetWidth();
+  if (upward) {
+    ports->AddPort(WriterName(*writer), Port::OUTPUT_WIRE, width);
+    ports->AddPort(WriterEnName(*writer), Port::OUTPUT_WIRE, 0);
+  } else {
+    ports->AddPort(WriterName(*writer), Port::INPUT, width);
+    ports->AddPort(WriterEnName(*writer), Port::INPUT, 0);
+  }
+  Module *parent_mod = mod->GetParentModule();
+  ostream &os = parent_mod->ChildModuleInstSectionStream(mod);
+  AddChildWire(writer, true, os);
 }
 
 }  // namespace verilog

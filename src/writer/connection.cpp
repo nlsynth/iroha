@@ -25,21 +25,17 @@ void Connection::Build() {
       for (IResource *freg : foreign_regs) {
 	ProcessForeignReg(freg);
       }
-      vector<IResource*> reg_readers;
-      DesignUtil::FindResourceByClassName(tab, resource::kSharedRegReader,
-					  &reg_readers);
-      for (IResource *reg : reg_readers) {
-	ProcessResourceConnection(reg->GetSharedRegister(),
-				  reg->GetTable()->GetModule(),
-				  shared_reg_reader_);
-      }
       vector<IResource*> reg_writers;
       DesignUtil::FindResourceByClassName(tab, resource::kSharedRegWriter,
 					  &reg_writers);
       for (IResource *reg : reg_writers) {
-	ProcessResourceConnection(reg,
-				  reg->GetSharedRegister()->GetTable()->GetModule(), shared_reg_writer_);
 	shared_reg_writers_[reg->GetSharedRegister()].push_back(reg);
+      }
+      vector<IResource*> reg_readers;
+      DesignUtil::FindResourceByClassName(tab, resource::kSharedRegReader,
+					  &reg_readers);
+      for (IResource *reg : reg_readers) {
+	shared_reg_readers_[reg->GetSharedRegister()].push_back(reg);
       }
       vector<IResource *> task_callers;
       DesignUtil::FindResourceByClassName(tab, resource::kTaskCall,
@@ -72,26 +68,6 @@ const RegConnectionInfo *Connection::GetRegConnectionInfo(const IModule *mod) co
   }
   const RegConnectionInfo &ri = it->second;
   return &ri;
-}
-
-const ResourceConnectionInfo *
-Connection::GetSharedRegReaderConnectionInfo(const IModule *mod) const {
-  auto it = shared_reg_reader_.find(mod);
-  if (it == shared_reg_reader_.end()) {
-    return nullptr;
-  }
-  const ResourceConnectionInfo &pi = it->second;
-  return &pi;
-}
-
-const ResourceConnectionInfo *
-Connection::GetSharedRegWriterConnectionInfo(const IModule *mod) const {
-  auto it = shared_reg_writer_.find(mod);
-  if (it == shared_reg_writer_.end()) {
-    return nullptr;
-  }
-  const ResourceConnectionInfo &pi = it->second;
-  return &pi;
 }
 
 void Connection::ProcessChannel(const IChannel *ch) {
@@ -171,6 +147,10 @@ const IModule *Connection::GetCommonRoot(const IModule *m1,
   return nullptr;
 }
 
+const vector<IResource *> *Connection::GetSharedRegReaders(const IResource *res) const {
+  return GetResourceVector(shared_reg_readers_, res);
+}
+
 const vector<IResource *> *Connection::GetSharedRegWriters(const IResource *res) const {
   return GetResourceVector(shared_reg_writers_, res);
 }
@@ -224,44 +204,6 @@ void Connection::ProcessForeignReg(IResource *freg) {
 	 mod = mod->GetParentModule()) {
       RegConnectionInfo &rc = reg_connection_[mod];
       rc.has_downward_port.insert(reg);
-    }
-  }
-}
-
-void Connection::ProcessResourceConnection(IResource *source, IModule *sink_module,
-					   map<const IModule *, ResourceConnectionInfo> &conn_map) {
-  IModule *source_module = source->GetTable()->GetModule();
-  if (source_module == sink_module) {
-    return;
-  }
-  const IModule *common_root = GetCommonRoot(source_module, sink_module);
-  if (common_root == source_module) {
-    // source is upper
-    for (IModule *mod = sink_module; mod != common_root;
-	 mod = mod->GetParentModule()) {
-      ResourceConnectionInfo &pc = conn_map[mod];
-      pc.has_downward_port.insert(source);
-    }
-  } else if (common_root == sink_module) {
-    for (IModule *mod = source_module; mod != common_root;
-	 mod = mod->GetParentModule()) {
-      ResourceConnectionInfo &pc = conn_map[mod];
-      pc.has_upward_port.insert(source);
-    }
-    ResourceConnectionInfo &pc = conn_map[common_root];
-    pc.has_wire.insert(source);
-  } else {
-    ResourceConnectionInfo &pc = conn_map[common_root];
-    pc.has_wire.insert(source);
-    for (IModule *mod = source_module; mod != common_root;
-	  mod = mod->GetParentModule()) {
-      ResourceConnectionInfo &pc = conn_map[mod];
-      pc.has_upward_port.insert(source);
-    }
-    for (IModule *mod = sink_module; mod != common_root;
-	 mod = mod->GetParentModule()) {
-      ResourceConnectionInfo &pc = conn_map[mod];
-      pc.has_downward_port.insert(source);
     }
   }
 }

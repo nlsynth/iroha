@@ -9,7 +9,6 @@
 #include "writer/verilog/channel.h"
 #include "writer/verilog/dataflow_table.h"
 #include "writer/verilog/foreign_reg.h"
-#include "writer/verilog/shared_reg.h"
 #include "writer/verilog/ports.h"
 #include "writer/verilog/table.h"
 #include "writer/verilog/verilog_writer.h"
@@ -136,18 +135,6 @@ void Module::Build() {
     ForeignReg::BuildPorts(*ri, ports_.get(), names_);
     ForeignReg::BuildRegWire(*ri, this);
   }
-  const ResourceConnectionInfo *pri =
-    conn_.GetSharedRegReaderConnectionInfo(i_mod_);
-  if (pri != nullptr) {
-    SharedReg::BuildReaderPorts(*pri, ports_.get());
-    SharedReg::BuildReaderRootWire(*pri, this);
-  }
-  const ResourceConnectionInfo *pwi =
-    conn_.GetSharedRegWriterConnectionInfo(i_mod_);
-  if (pwi != nullptr) {
-    SharedReg::BuildWriterPorts(*pwi, ports_.get());
-    SharedReg::BuildWriterRootWire(*pwi, this);
-  }
 }
 
 void Module::BuildChildModuleInstSection(vector<Module *> &child_mods) {
@@ -172,18 +159,6 @@ void Module::BuildChildModuleInstSection(vector<Module *> &child_mods) {
     const RegConnectionInfo *ri = conn_.GetRegConnectionInfo(child_imod);
     if (ri != nullptr) {
       ForeignReg::BuildChildWire(*ri, child_mod->GetNames(), is);
-    }
-    // Shared reg reader
-    const ResourceConnectionInfo *pri =
-      conn_.GetSharedRegReaderConnectionInfo(child_imod);
-    if (pri != nullptr) {
-      SharedReg::BuildReaderChildWire(*pri, is);
-    }
-    // Shared reg writer
-    const ResourceConnectionInfo *pwi =
-      conn_.GetSharedRegWriterConnectionInfo(child_imod);
-    if (pwi != nullptr) {
-      SharedReg::BuildWriterChildWire(*pwi, is);
     }
   }
 }

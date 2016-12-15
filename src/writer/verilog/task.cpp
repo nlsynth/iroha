@@ -165,31 +165,18 @@ void Task::BuildCallWire(IResource *caller) {
   IModule *caller_module = caller->GetTable()->GetModule();
   const IModule *common_root = Connection::GetCommonRoot(callee_module,
 							 caller_module);
-  if (caller_module == common_root) {
-    // downward
-    for (IModule *imod = callee_module; imod != common_root;
-	 imod = imod->GetParentModule()) {
-      AddPort(imod, caller, false);
-    }
-  } else if (callee_module == common_root) {
-    // upward
-    for (IModule *imod = caller_module; imod != common_root;
-	 imod = imod->GetParentModule()) {
-      AddPort(imod, caller, true);
-    }
+  if (caller_module != common_root) {
     AddWire(common_root, caller);
-  } else {
-    // downward
-    for (IModule *imod = caller_module; imod != common_root;
-	 imod = imod->GetParentModule()) {
-      AddPort(imod, caller, true);
-    }
-    // upward
-    for (IModule *imod = callee_module; imod != common_root;
-	 imod = imod->GetParentModule()) {
-      AddPort(imod, caller, false);
-    }
-    AddWire(common_root, caller);
+  }
+  // downward
+  for (IModule *imod = callee_module; imod != common_root;
+       imod = imod->GetParentModule()) {
+    AddPort(imod, caller, false);
+  }
+  // upward
+  for (IModule *imod = caller_module; imod != common_root;
+       imod = imod->GetParentModule()) {
+    AddPort(imod, caller, true);
   }
 }
 

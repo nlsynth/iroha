@@ -19,27 +19,15 @@ public:
   static string WriterName(const IResource &res);
   static string WriterEnName(const IResource &res);
 
-  // Reader
-  static void BuildReaderPorts(const ResourceConnectionInfo &pi,
-			       Ports *ports);
-  static void BuildReaderChildWire(const ResourceConnectionInfo &pi,
-				   ostream &os);
-  static void BuildReaderRootWire(const ResourceConnectionInfo &pi,
-				  Module *module);
-  // Writer
-  static void BuildWriterPorts(const ResourceConnectionInfo &pi,
-			       Ports *ports);
-  static void BuildWriterChildWire(const ResourceConnectionInfo &pi,
-				   ostream &os);
-  static void BuildWriterRootWire(const ResourceConnectionInfo &pi,
-				  Module *module);
-  static void BuildRootWire(const ResourceConnectionInfo &pi,
-			    bool is_write,
-			    Module *module);
-
 private:
-  static void AddChildWire(IResource *res, bool is_write, ostream &os);
+  static void AddChildWire(const IResource *res, bool is_write, ostream &os);
   void BuildSharedRegResource();
+  void BuildSharedRegWriterResource();
+  void BuildWriteWire(const IResource *writer);
+  void BuildReadWire();
+  void AddWire(const IModule *imod, const IResource *accessor, bool is_write);
+  void AddWritePort(const IModule *imod, const IResource *writer, bool upward);
+  void AddReadPort(const IModule *imod, const IResource *reader, bool upward);
 
   int width_;
   bool has_default_output_value_;

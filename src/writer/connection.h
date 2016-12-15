@@ -34,25 +34,14 @@ public:
   set<IRegister *> is_source;
 };
 
-// Connection between two resources.
-// * Per module shared reg reader/writer connections.
-// * Task connection
-class ResourceConnectionInfo {
-public:
-  set<IResource *> has_upward_port;
-  set<IResource *> has_downward_port;
-  set<IResource *> has_wire;
-};
-
 class Connection {
 public:
   Connection(const IDesign *design);
   void Build();
   const ChannelInfo *GetConnectionInfo(const IModule *mod) const;
   const RegConnectionInfo *GetRegConnectionInfo(const IModule *mod) const;
-  const ResourceConnectionInfo *GetSharedRegReaderConnectionInfo(const IModule *mod) const;
-  const ResourceConnectionInfo *GetSharedRegWriterConnectionInfo(const IModule *mod) const;
   const vector<IResource *> *GetSharedRegWriters(const IResource *res) const;
+  const vector<IResource *> *GetSharedRegReaders(const IResource *res) const;
   const vector<IResource *> *GetTaskCallers(const IResource *res) const;
   static const IModule *GetCommonRoot(const IModule *m1, const IModule *m2);
 
@@ -70,15 +59,12 @@ private:
 		      bool parent_is_write);
 
   void ProcessForeignReg(IResource *freg);
-  void ProcessResourceConnection(IResource *source, IModule *sink_module,
-				 map<const IModule *, ResourceConnectionInfo> &conn_map);
   const vector<IResource *> *GetResourceVector(const map<const IResource *, vector<IResource *>> &m, const IResource *res) const;
 
   const IDesign *design_;
   map<const IModule *, ChannelInfo> channel_info_;
   map<const IModule *, RegConnectionInfo> reg_connection_;
-  map<const IModule *, ResourceConnectionInfo> shared_reg_reader_;
-  map<const IModule *, ResourceConnectionInfo> shared_reg_writer_;
+  map<const IResource *, vector<IResource *>> shared_reg_readers_;
   map<const IResource *, vector<IResource *>> shared_reg_writers_;
   map<const IResource *, vector<IResource *>> task_callers_;
 };
