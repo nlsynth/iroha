@@ -19,36 +19,56 @@ void Connection::Build() {
   }
   for (auto *mod : design_->modules_) {
     for (auto *tab : mod->tables_) {
-      vector<IResource*> foreign_regs;
-      DesignUtil::FindResourceByClassName(tab, resource::kForeignReg,
-					  &foreign_regs);
-      for (IResource *freg : foreign_regs) {
-	ProcessForeignReg(freg);
-      }
-      vector<IResource*> reg_writers;
-      DesignUtil::FindResourceByClassName(tab, resource::kSharedRegWriter,
-					  &reg_writers);
-      for (IResource *reg : reg_writers) {
-	shared_reg_writers_[reg->GetSharedRegister()].push_back(reg);
-      }
-      vector<IResource*> reg_readers;
-      DesignUtil::FindResourceByClassName(tab, resource::kSharedRegReader,
-					  &reg_readers);
-      for (IResource *reg : reg_readers) {
-	shared_reg_readers_[reg->GetSharedRegister()].push_back(reg);
-      }
-      vector<IResource *> task_callers;
-      DesignUtil::FindResourceByClassName(tab, resource::kTaskCall,
-					  &task_callers);
-      for (IResource *reg : task_callers) {
-	vector<IResource *> res;
-	DesignUtil::FindResourceByClassName(reg->GetCalleeTable(),
-					    resource::kTask,
-					    &res);
-	CHECK(res.size() == 1);
-	task_callers_[res[0]].push_back(reg);
-      }
+      ProcessTable(tab);
     }
+  }
+}
+
+void Connection::ProcessTable(ITable *tab) {
+  // foreign-reg
+  vector<IResource*> foreign_regs;
+  DesignUtil::FindResourceByClassName(tab, resource::kForeignReg,
+				      &foreign_regs);
+  for (IResource *freg : foreign_regs) {
+    ProcessForeignReg(freg);
+  }
+  // task
+  vector<IResource *> task_callers;
+  DesignUtil::FindResourceByClassName(tab, resource::kTaskCall,
+				      &task_callers);
+  for (IResource *reg : task_callers) {
+    vector<IResource *> res;
+    DesignUtil::FindResourceByClassName(reg->GetCalleeTable(),
+					resource::kTask,
+					&res);
+    CHECK(res.size() == 1);
+    task_callers_[res[0]].push_back(reg);
+  }
+  // shared-reg
+  vector<IResource*> reg_writers;
+  DesignUtil::FindResourceByClassName(tab, resource::kSharedRegWriter,
+				      &reg_writers);
+  for (IResource *reg : reg_writers) {
+    shared_reg_writers_[reg->GetSharedRegister()].push_back(reg);
+  }
+  vector<IResource*> reg_readers;
+  DesignUtil::FindResourceByClassName(tab, resource::kSharedRegReader,
+				      &reg_readers);
+  for (IResource *reg : reg_readers) {
+    shared_reg_readers_[reg->GetSharedRegister()].push_back(reg);
+  }
+  // shared-memory
+  vector<IResource *> memory_readers;
+  DesignUtil::FindResourceByClassName(tab, resource::kSharedMemoryReader,
+				      &memory_readers);
+  for (IResource *reg : memory_readers) {
+    shared_memory_readers_[reg->GetSharedRegister()].push_back(reg);
+  }
+  vector<IResource *> memory_writers;
+  DesignUtil::FindResourceByClassName(tab, resource::kSharedMemoryWriter,
+				      &memory_writers);
+  for (IResource *reg : memory_readers) {
+    shared_memory_readers_[reg->GetSharedRegister()].push_back(reg);
   }
 }
 
@@ -153,6 +173,14 @@ const vector<IResource *> *Connection::GetSharedRegReaders(const IResource *res)
 
 const vector<IResource *> *Connection::GetSharedRegWriters(const IResource *res) const {
   return GetResourceVector(shared_reg_writers_, res);
+}
+  
+const vector<IResource *> *Connection::GetSharedMemoryReaders(const IResource *res) const {
+  return GetResourceVector(shared_memory_readers_, res);
+}
+
+const vector<IResource *> *Connection::GetSharedMemoryWriters(const IResource *res) const {
+  return GetResourceVector(shared_memory_writers_, res);
 }
 
 const vector<IResource *> *Connection::GetTaskCallers(const IResource *res) const {

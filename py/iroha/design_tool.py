@@ -135,6 +135,22 @@ def CreateSharedRegWriter(table, source):
     res.shared_reg = source
     return res
 
+def CreateSharedMemory(table, addr_width, data_width):
+    res = createResource(table, "shared-memory")
+    data_type = IValueType(False, data_width)
+    res.array = IArray(addr_width, data_type, False, True)
+    return res
+
+def CreateSharedMemoryReader(table, source):
+    res = createResource(table, "shared-memory-reader")
+    res.shared_reg = source
+    return res
+
+def CreateSharedMemoryWriter(table, source):
+    res = createResource(table, "shared-memory-writer")
+    res.shared_reg = source
+    return res
+
 def CreateTask(table):
     return createResource(table, "task")
 

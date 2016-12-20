@@ -42,11 +42,12 @@ public:
   const RegConnectionInfo *GetRegConnectionInfo(const IModule *mod) const;
   const vector<IResource *> *GetSharedRegWriters(const IResource *res) const;
   const vector<IResource *> *GetSharedRegReaders(const IResource *res) const;
+  const vector<IResource *> *GetSharedMemoryWriters(const IResource *res) const;
+  const vector<IResource *> *GetSharedMemoryReaders(const IResource *res) const;
   const vector<IResource *> *GetTaskCallers(const IResource *res) const;
   static const IModule *GetCommonRoot(const IModule *m1, const IModule *m2);
 
 private:
-  // Channel.
   void ProcessChannel(const IChannel *ch);
   void MarkExtChannelPath(const IChannel *ch, const IResource *res,
 			  bool parent_is_write);
@@ -57,15 +58,17 @@ private:
 			     bool parent_is_write);
   void AddChannelInfo(const IChannel *ch, const IModule *mod,
 		      bool parent_is_write);
-
   void ProcessForeignReg(IResource *freg);
   const vector<IResource *> *GetResourceVector(const map<const IResource *, vector<IResource *>> &m, const IResource *res) const;
+  void ProcessTable(ITable *tab);
 
   const IDesign *design_;
   map<const IModule *, ChannelInfo> channel_info_;
   map<const IModule *, RegConnectionInfo> reg_connection_;
   map<const IResource *, vector<IResource *>> shared_reg_readers_;
   map<const IResource *, vector<IResource *>> shared_reg_writers_;
+  map<const IResource *, vector<IResource *>> shared_memory_readers_;
+  map<const IResource *, vector<IResource *>> shared_memory_writers_;
   map<const IResource *, vector<IResource *>> task_callers_;
 };
 
