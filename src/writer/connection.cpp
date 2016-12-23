@@ -62,13 +62,13 @@ void Connection::ProcessTable(ITable *tab) {
   DesignUtil::FindResourceByClassName(tab, resource::kSharedMemoryReader,
 				      &memory_readers);
   for (IResource *reg : memory_readers) {
-    shared_memory_readers_[reg->GetSharedRegister()].push_back(reg);
+    shared_memory_accessors_[reg->GetSharedRegister()].push_back(reg);
   }
   vector<IResource *> memory_writers;
   DesignUtil::FindResourceByClassName(tab, resource::kSharedMemoryWriter,
 				      &memory_writers);
-  for (IResource *reg : memory_readers) {
-    shared_memory_readers_[reg->GetSharedRegister()].push_back(reg);
+  for (IResource *reg : memory_writers) {
+    shared_memory_accessors_[reg->GetSharedRegister()].push_back(reg);
   }
 }
 
@@ -175,12 +175,8 @@ const vector<IResource *> *Connection::GetSharedRegWriters(const IResource *res)
   return GetResourceVector(shared_reg_writers_, res);
 }
   
-const vector<IResource *> *Connection::GetSharedMemoryReaders(const IResource *res) const {
-  return GetResourceVector(shared_memory_readers_, res);
-}
-
-const vector<IResource *> *Connection::GetSharedMemoryWriters(const IResource *res) const {
-  return GetResourceVector(shared_memory_writers_, res);
+const vector<IResource *> *Connection::GetSharedMemoryAccessors(const IResource *res) const {
+  return GetResourceVector(shared_memory_accessors_, res);
 }
 
 const vector<IResource *> *Connection::GetTaskCallers(const IResource *res) const {

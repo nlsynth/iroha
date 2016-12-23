@@ -46,5 +46,27 @@ sib_winsn.inputs.append(sib_addr)
 sib_winsn.inputs.append(sib_wdata)
 sib_st1.insns.append(self_winsn)
 
+mod_sub = IModule(d, "M_sub")
+mod_sub.parent_module = mod
+sub_tab = ITable(mod_sub)
+
+sub_st1 = IState(sub_tab)
+sub_st2 = IState(sub_tab)
+sub_st3 = IState(sub_tab)
+sub_tab.initialSt = sub_st1
+sub_tab.states.append(sub_st1)
+sub_tab.states.append(sub_st2)
+sub_tab.states.append(sub_st3)
+design_tool.AddNextState(sub_st1, sub_st2)
+design_tool.AddNextState(sub_st2, sub_st3)
+
+sub_reader = design_tool.CreateSharedMemoryReader(sub_tab, mem)
+sub_rinsn = IInsn(sub_reader)
+sub_addr = design_tool.AllocConstNum(sub_tab, False, 4, 1)
+sub_rdata = IRegister(sub_tab, "r1")
+sub_rinsn.inputs.append(sub_addr)
+sub_rinsn.outputs.append(sub_rdata)
+sub_st1.insns.append(sub_rinsn)
+
 design_tool.ValidateIds(d)
 DesignWriter(d).Write()

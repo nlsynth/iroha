@@ -19,6 +19,16 @@ private:
   void BuildMemoryReaderResource();
   void BuildMemoryWriterResource();
   void BuildMemoryResource();
+  void BuildMemoryInstance();
+
+  static string MemoryPinPrefix(const IResource &res,
+				const IResource *accessor);
+  static string MemoryAddrPin(const IResource &res, const IResource *accessor);
+  static string MemoryReqPin(const IResource &res, const IResource *accessor);
+  static string MemoryAckPin(const IResource &res, const IResource *accessor);
+  static string MemoryRdataPin(const IResource &res);
+  static string MemoryWdataPin(const IResource &res, const IResource *accessor);
+  static string MemoryWenPin(const IResource &res, const IResource *accessor);
 };
 
 }  // namespace verilog

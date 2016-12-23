@@ -42,8 +42,7 @@ public:
   const RegConnectionInfo *GetRegConnectionInfo(const IModule *mod) const;
   const vector<IResource *> *GetSharedRegWriters(const IResource *res) const;
   const vector<IResource *> *GetSharedRegReaders(const IResource *res) const;
-  const vector<IResource *> *GetSharedMemoryWriters(const IResource *res) const;
-  const vector<IResource *> *GetSharedMemoryReaders(const IResource *res) const;
+  const vector<IResource *> *GetSharedMemoryAccessors(const IResource *res) const;
   const vector<IResource *> *GetTaskCallers(const IResource *res) const;
   static const IModule *GetCommonRoot(const IModule *m1, const IModule *m2);
 
@@ -67,8 +66,7 @@ private:
   map<const IModule *, RegConnectionInfo> reg_connection_;
   map<const IResource *, vector<IResource *>> shared_reg_readers_;
   map<const IResource *, vector<IResource *>> shared_reg_writers_;
-  map<const IResource *, vector<IResource *>> shared_memory_readers_;
-  map<const IResource *, vector<IResource *>> shared_memory_writers_;
+  map<const IResource *, vector<IResource *>> shared_memory_accessors_;
   map<const IResource *, vector<IResource *>> task_callers_;
 };
 

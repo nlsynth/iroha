@@ -27,6 +27,7 @@ VerilogWriter::~VerilogWriter() {
 bool VerilogWriter::Write() {
   names_->ReservePrefix("channel");
   names_->ReservePrefix("insn");
+  names_->ReservePrefix("mem");
   names_->ReservePrefix("shared_reg");
   names_->ReservePrefix("st");
   names_->ReservePrefix("task");
