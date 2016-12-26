@@ -108,7 +108,7 @@ void Table::BuildRegister() {
       } else {
 	rs << "  reg";
       }
-      rs << " " << WidthSpec(reg->value_type_);
+      rs << " " << ValueWidthSpec(reg->value_type_);
       rs << " " << names_->GetRegName(*reg) << ";\n";
     }
     if (!reg->IsConst() && reg->HasInitialValue()) {
@@ -124,7 +124,7 @@ void Table::BuildInsnOutputWire() {
     for (IInsn *insn : st->insns_) {
       int nth = 0;
       for (IRegister *oreg : insn->outputs_) {
-	rs << "  wire " << WidthSpec(oreg->value_type_) << " "
+	rs << "  wire " << ValueWidthSpec(oreg->value_type_) << " "
 	   << InsnWriter::InsnOutputWireName(*insn, nth)
 	   << ";\n";
       }
@@ -150,7 +150,7 @@ void Table::BuildMultiCycleStateReg() {
   }
 }
 
-string Table::WidthSpec(const IValueType &type) {
+string Table::ValueWidthSpec(const IValueType &type) {
   if (type.GetWidth() > 0) {
     string s = " [" + Util::Itoa(type.GetWidth() - 1) + ":0]";
     if (type.IsSigned()) {
@@ -159,6 +159,14 @@ string Table::WidthSpec(const IValueType &type) {
     return s;
   }
   return string();
+}
+
+string Table::WidthSpec(int w) {
+  string s;
+  if (w > 0) {
+    s = "[" + Util::Itoa(w - 1) + ":0] ";
+  }
+  return s;
 }
 
 void Table::Write(ostream &os) {

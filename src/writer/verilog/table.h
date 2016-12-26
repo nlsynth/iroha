@@ -44,7 +44,8 @@ public:
   ostream &TaskEntrySectionStream() const;
   string TaskEntrySectionContents() const;
 
-  static string WidthSpec(const IValueType &type);
+  static string ValueWidthSpec(const IValueType &type);
+  static string WidthSpec(int w);
   static string StateNameFromTable(const ITable &tab, int id);
 
 private:

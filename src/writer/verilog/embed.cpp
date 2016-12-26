@@ -96,7 +96,7 @@ void EmbeddedResource::BuildResource() {
   for (int i = 0; i < args.size(); ++i) {
     string &arg = args[i];
     string n = ArgRegName(*params, i);
-    ws << "  reg " << Table::WidthSpec(res_.input_types_[i]) << " " << n << ";\n";
+    ws << "  reg " << Table::ValueWidthSpec(res_.input_types_[i]) << " " << n << ";\n";
     rs << "      " << n << " <= 0;\n";
     is << ", ." << arg << "(" << n << ")";
   }

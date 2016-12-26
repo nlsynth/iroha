@@ -116,7 +116,7 @@ void Task::BuildTaskResource() {
   for (int i = 0; i < res_.output_types_.size(); ++i) {
     auto &type = res_.output_types_[i];
     string a = TaskArgPin(*(tab_.GetITable()), i, false, nullptr);
-    rs << "  reg " << Table::WidthSpec(type) << " " << a << ";\n";
+    rs << "  reg " << Table::ValueWidthSpec(type) << " " << a << ";\n";
     is << "      " << a << " <= 0;\n";
     IInsn *task_entry_insn = DesignUtil::FindTaskEntryInsn(tab_.GetITable());
     rs << "  assign " << InsnWriter::InsnOutputWireName(*task_entry_insn, i)
@@ -190,7 +190,7 @@ void Task::AddWire(const IModule *imod, IResource *caller) {
   rs << "  wire " << ack << ";\n";
   for (int i = 0; i < res_.output_types_.size(); ++i) {
     auto &type = res_.output_types_[i];
-    rs << "  wire " << Table::WidthSpec(type) << " "
+    rs << "  wire " << Table::ValueWidthSpec(type) << " "
        << TaskArgPin(*(tab_.GetITable()), i, false, caller->GetTable())
        << ";\n";
   }
@@ -248,7 +248,7 @@ void Task::BuildTaskCallResource() {
   rs << "  wire " << ack << ";\n";
   for (int i = 0; i < res_.input_types_.size(); ++i) {
     auto &type = res_.input_types_[i];
-    rs << "  reg " << Table::WidthSpec(type) << " "
+    rs << "  reg " << Table::ValueWidthSpec(type) << " "
        << TaskArgPin(*callee, i, false, res_.GetTable()) << ";\n";
   }
 }

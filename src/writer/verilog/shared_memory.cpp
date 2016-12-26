@@ -24,29 +24,28 @@ void SharedMemory::BuildResource() {
     BuildMemoryResource();
   }
   if (resource::IsSharedMemoryReader(*klass)) {
-    BuildMemoryReaderResource();
+    BuildMemoryAccessorResource(false);
   }
   if (resource::IsSharedMemoryWriter(*klass)) {
-    BuildMemoryWriterResource();
+    BuildMemoryAccessorResource(true);
   }
 }
 
 void SharedMemory::BuildMemoryResource() {
   BuildMemoryInstance();
-  ostream &rs = tmpl_->GetStream(kResourceSection);
   vector<const IResource *> accessors;
+  accessors.push_back(&res_);
   auto *ext_accessors =
     tab_.GetModule()->GetConnection().GetSharedMemoryAccessors(&res_);
-  accessors.push_back(&res_);
   for (IResource *r : *ext_accessors) {
     accessors.push_back(r);
   }
+  BuildAccessWireAll(accessors);
   ostream &is = tab_.InitialValueSectionStream();
   ostream &ss = tab_.StateOutputSectionStream();
+  ostream &rs = tmpl_->GetStream(kResourceSection);
   string high_req = "0";
   for (auto *accessor : accessors) {
-    // TODO: This wire should come from actual accessor.
-    rs << "  wire " << MemoryReqPin(res_, accessor) << ";\n";
     string ack = MemoryAckPin(res_, accessor);
     rs << "  reg " << ack << ";\n";
     is << "      " << ack << " <= 0;\n";
@@ -75,7 +74,12 @@ void SharedMemory::BuildMemoryResource() {
     auto *klass = accessor->GetClass();
     if (resource::IsSharedMemory(*klass) ||
 	resource::IsSharedMemoryWriter(*klass)) {
-      string wen = MemoryWenPin(res_, accessor);
+      string wen;
+      if (resource::IsSharedMemory(*klass)) {
+	wen = MemoryWenPin(res_, accessor);
+      } else {
+	wen = MemoryReqPin(res_, accessor);
+      }
       if (wen_sel.empty()) {
 	wen_sel = wen;
       } else {
@@ -119,13 +123,127 @@ void SharedMemory::BuildMemoryInstance() {
   rs << "  wire " << wen_wire << ";\n";
 }
 
-void SharedMemory::BuildMemoryWriterResource() {
+void SharedMemory::BuildAccessWireAll(vector<const IResource *> &accessors) {
+  IModule *mem_module = res_.GetTable()->GetModule();
+  for (auto *accessor : accessors) {
+    IModule *accessor_module = accessor->GetTable()->GetModule();
+    const IModule *common_root = Connection::GetCommonRoot(mem_module,
+							   accessor_module);
+    auto *klass = accessor->GetClass();
+    bool is_reader = resource::IsSharedMemoryReader(*klass);
+    if (accessor_module != common_root) {
+      AddWire(common_root, accessor);
+      if (is_reader && mem_module != common_root) {
+	AddRdataWire(common_root, accessor);
+      }
+    }
+    // upward
+    for (IModule *imod = accessor_module; imod != common_root;
+	 imod = imod->GetParentModule()) {
+      AddAccessPort(imod, &res_, true);
+      if (is_reader) {
+	AddRdataPort(imod, &res_, true);
+      }
+    }
+    // downward
+    for (IModule *imod = mem_module; imod != common_root;
+	 imod = imod->GetParentModule()) {
+      AddAccessPort(imod, &res_, false);
+      if (is_reader) {
+	AddRdataPort(imod, &res_, false);
+      }
+    }
+  }
 }
 
-void SharedMemory::BuildMemoryReaderResource() {
+void SharedMemory::BuildMemoryAccessorResource(bool is_writer) {
+  IResource *mem = res_.GetSharedRegister();
+  IArray *array = mem->GetArray();
+  int addr_width = array->GetAddressWidth();
+  ostream &rs = tmpl_->GetStream(kResourceSection);
+  rs << "  reg " << Table::WidthSpec(addr_width)
+     << MemoryAddrPin(*mem, &res_) << ";\n";
+  rs << "  reg " << MemoryReqPin(*mem, &res_) << ";\n";
+  ostream &is = tab_.InitialValueSectionStream();
+  is << "      " << MemoryReqPin(*mem, &res_) << " <= 0;\n";
+  if (is_writer) {
+    int data_width = array->GetDataType().GetWidth();
+    rs << "  reg " << Table::WidthSpec(data_width)
+     << MemoryWdataPin(*mem, &res_) << ";\n";
+  }
 }
 
 void SharedMemory::BuildInsn(IInsn *insn, State *st) {
+}
+
+void SharedMemory::AddAccessPort(const IModule *imod,
+				 const IResource *accessor, bool upward) {
+  Module *mod = tab_.GetModule()->GetByIModule(imod);
+  Ports *ports = mod->GetPorts();
+  IArray *array = res_.GetArray();
+  int addr_width = array->GetAddressWidth();
+  int data_width = array->GetDataType().GetWidth();
+  if (upward) {
+    ports->AddPort(MemoryAddrPin(res_, accessor), Port::OUTPUT_WIRE, addr_width);
+    ports->AddPort(MemoryReqPin(res_, accessor), Port::OUTPUT_WIRE, 0);
+    ports->AddPort(MemoryAckPin(res_, accessor), Port::INPUT, 0);
+  } else {
+    ports->AddPort(MemoryAddrPin(res_, accessor), Port::INPUT, addr_width);
+    ports->AddPort(MemoryReqPin(res_, accessor), Port::INPUT, 0);
+    ports->AddPort(MemoryAckPin(res_, accessor), Port::OUTPUT_WIRE, 0);
+  }
+  auto *klass = accessor->GetClass();
+  if (resource::IsSharedMemoryWriter(*klass)) {
+    if (upward) {
+      ports->AddPort(MemoryWdataPin(res_, accessor), Port::OUTPUT_WIRE,
+		    data_width);
+    } else {
+      ports->AddPort(MemoryWdataPin(res_, accessor), Port::INPUT,
+		    data_width);
+    }
+  }
+}
+
+void SharedMemory::AddRdataPort(const IModule *imod, const IResource *accessor,
+				bool upward) {
+  Module *mod = tab_.GetModule()->GetByIModule(imod);
+  Ports *ports = mod->GetPorts();
+  IArray *array = res_.GetArray();
+  int data_width = array->GetDataType().GetWidth();
+  if (upward) {
+    ports->AddPort(MemoryRdataPin(res_), Port::INPUT,
+		   data_width);
+  } else {
+    ports->AddPort(MemoryRdataPin(res_), Port::OUTPUT_WIRE,
+		   data_width);
+  }
+}
+
+void SharedMemory::AddWire(const IModule *imod, const IResource *accessor) {
+  Module *mod = tab_.GetModule()->GetByIModule(imod);
+  auto *tmpl = mod->GetModuleTemplate();
+  ostream &rs = tmpl->GetStream(kResourceSection);
+  IArray *array = res_.GetArray();
+  int addr_width = array->GetAddressWidth();
+  auto *klass = accessor->GetClass();
+  rs << "  wire " << Table::WidthSpec(addr_width);
+  rs << MemoryAddrPin(res_, accessor) << ";\n";
+  rs << "  wire " << MemoryReqPin(res_, accessor) << ";\n";
+  if (resource::IsSharedMemoryWriter(*klass)) {
+    int data_width = array->GetDataType().GetWidth();
+    rs << "  wire " << Table::WidthSpec(data_width);
+    rs << MemoryWdataPin(res_, accessor) << ";\n";
+  }
+}
+
+void SharedMemory::AddRdataWire(const IModule *imod, const IResource *accessor) {
+  Module *mod = tab_.GetModule()->GetByIModule(imod);
+  auto *tmpl = mod->GetModuleTemplate();
+  ostream &rs = tmpl->GetStream(kResourceSection);
+  IArray *array = res_.GetArray();
+  int data_width = array->GetDataType().GetWidth();
+  rs << "  wire " << Table::WidthSpec(data_width);
+  rs << MemoryRdataPin(res_) << ";\n";
 }
 
 string SharedMemory::MemoryPinPrefix(const IResource &mem,

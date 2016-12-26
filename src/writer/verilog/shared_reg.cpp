@@ -88,7 +88,8 @@ void SharedReg::BuildSharedRegResource() {
     is << 0;
   }
   is << ";\n";
-  // Read wires
+  // Read wires from shared-reg
+  // (on the other hand, write wires are wired from shared-reg-writer)
   BuildReadWire();
 }
 

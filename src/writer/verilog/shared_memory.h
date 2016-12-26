@@ -16,10 +16,14 @@ public:
   virtual void BuildInsn(IInsn *insn, State *st) override;
 
 private:
-  void BuildMemoryReaderResource();
-  void BuildMemoryWriterResource();
+  void BuildMemoryAccessorResource(bool is_writer);
   void BuildMemoryResource();
   void BuildMemoryInstance();
+  void BuildAccessWireAll(vector<const IResource *> &acccessors);
+  void AddAccessPort(const IModule *imod, const IResource *accessor, bool upward);
+  void AddRdataPort(const IModule *imod, const IResource *accessor, bool upward);
+  void AddWire(const IModule *imod, const IResource *accessor);
+  void AddRdataWire(const IModule *imod, const IResource *accessor);
 
   static string MemoryPinPrefix(const IResource &res,
 				const IResource *accessor);

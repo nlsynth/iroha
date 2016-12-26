@@ -60,13 +60,13 @@ void ForeignReg::BuildRegWire(const RegConnectionInfo &ri, Module *module) {
   ModuleTemplate *tmpl = module->GetModuleTemplate();
   ostream &ws = tmpl->GetStream(kInsnWireValueSection);
   for (IRegister *reg : ri.is_source) {
-    ws << "  wire " << Table::WidthSpec(reg->value_type_)
+    ws << "  wire " << Table::ValueWidthSpec(reg->value_type_)
        << ForeignRegName(reg, module->GetNames()) << ";\n";
     ws << "  assign " << ForeignRegName(reg, module->GetNames()) << " = "
        << InsnWriter::RegisterValue(*reg, module->GetNames()) << ";\n";
   }
   for (IRegister *reg : ri.has_wire) {
-    ws << "  wire " << Table::WidthSpec(reg->value_type_)
+    ws << "  wire " << Table::ValueWidthSpec(reg->value_type_)
        << ForeignRegName(reg, module->GetNames()) << ";\n";
   }
 }

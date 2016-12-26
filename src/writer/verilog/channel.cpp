@@ -24,7 +24,7 @@ void Channel::BuildResource() {
   if (resource::IsChannelWrite(*res_.GetClass())) {
     ostream &rs = tmpl_->GetStream(kRegisterSection);
     IChannel *ic = res_.GetChannel();
-    rs << "  reg" << Table::WidthSpec(ic->GetValueType())
+    rs << "  reg" << Table::ValueWidthSpec(ic->GetValueType())
        << " " << DataPort(*ic) << ";\n";
     rs << "  reg " << EnPort(*ic) << ";\n";
     ostream &is = tab_.InitialValueSectionStream();
@@ -144,7 +144,7 @@ void Channel::BuildRootWire(const ChannelInfo &ci, Module *module) {
     if (reader_mod == module->GetIModule()) {
       ostream &ws = tmpl->GetStream(kInsnWireDeclSection);
       ws << "  wire " << EnPort(*ch) << ";\n"
-	 << "  reg" << Table::WidthSpec(ch->GetValueType())
+	 << "  reg" << Table::ValueWidthSpec(ch->GetValueType())
 	 << " " << DataPort(*ch) << ";\n";
     }
     // (3) Both reader and writer is in sub module.
@@ -154,7 +154,7 @@ void Channel::BuildRootWire(const ChannelInfo &ci, Module *module) {
 	ostream &ws = tmpl->GetStream(kInsnWireDeclSection);
 	ws << "  wire " << AckPort(*ch) << ";\n";
 	ws << "  wire " << EnPort(*ch) << ";\n"
-	   << "  wire " << Table::WidthSpec(ch->GetValueType())
+	   << "  wire " << Table::ValueWidthSpec(ch->GetValueType())
 	   << " " << DataPort(*ch) << ";\n";
       }
     }
