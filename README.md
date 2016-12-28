@@ -43,9 +43,9 @@ Please read src/iroha/iroha.h, src/iroha/iroha_main.cpp examples/ for more detai
 -- TODOs
 
 * WIP: Document
-* P1: Some mechanism to pass return values
+* P1: Mechanism to pass return values from task
 * P1: Test and debug SSA conversion and PHI removal
-* P1: Implement shared memory
+* P1: Implement shared external memory
 * P2: FPGA style register initialization
 * P2: Better error handling
 * P2: I/O for embedded verilog module

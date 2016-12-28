@@ -5,9 +5,11 @@
 #include "writer/connection.h"
 #include "writer/module_template.h"
 #include "writer/verilog/embed.h"
+#include "writer/verilog/insn_writer.h"
 #include "writer/verilog/internal_sram.h"
 #include "writer/verilog/module.h"
 #include "writer/verilog/ports.h"
+#include "writer/verilog/state.h"
 #include "writer/verilog/table.h"
 
 namespace iroha {
@@ -22,6 +24,7 @@ void SharedMemory::BuildResource() {
   auto *klass = res_.GetClass();
   if (resource::IsSharedMemory(*klass)) {
     BuildMemoryResource();
+    BuildMemoryAccessorResource(true);
   }
   if (resource::IsSharedMemoryReader(*klass)) {
     BuildMemoryAccessorResource(false);
@@ -140,24 +143,30 @@ void SharedMemory::BuildAccessWireAll(vector<const IResource *> &accessors) {
     // upward
     for (IModule *imod = accessor_module; imod != common_root;
 	 imod = imod->GetParentModule()) {
-      AddAccessPort(imod, &res_, true);
+      AddAccessPort(imod, accessor, true);
       if (is_reader) {
-	AddRdataPort(imod, &res_, true);
+	AddRdataPort(imod, accessor, true);
       }
     }
     // downward
     for (IModule *imod = mem_module; imod != common_root;
 	 imod = imod->GetParentModule()) {
-      AddAccessPort(imod, &res_, false);
+      AddAccessPort(imod, accessor, false);
       if (is_reader) {
-	AddRdataPort(imod, &res_, false);
+	AddRdataPort(imod, accessor, false);
       }
     }
   }
 }
 
 void SharedMemory::BuildMemoryAccessorResource(bool is_writer) {
-  IResource *mem = res_.GetSharedRegister();
+  const IResource *mem;
+  auto *klass = res_.GetClass();
+  if (resource::IsSharedMemory(*klass)) {
+    mem = &res_;
+  } else {
+    mem = res_.GetSharedRegister();
+  }
   IArray *array = mem->GetArray();
   int addr_width = array->GetAddressWidth();
   ostream &rs = tmpl_->GetStream(kResourceSection);
@@ -171,9 +180,60 @@ void SharedMemory::BuildMemoryAccessorResource(bool is_writer) {
     rs << "  reg " << Table::WidthSpec(data_width)
      << MemoryWdataPin(*mem, &res_) << ";\n";
   }
+  ostream &ss = tab_.StateOutputSectionStream();
+  map<IState *, IInsn *> callers;
+  CollectResourceCallers("", &callers);
+  ss << "      " << MemoryReqPin(*mem, &res_) << " <= "
+     << JoinStatesWithSubState(callers, 0) << ";\n";
+  if (resource::IsSharedMemory(*klass)) {
+    rs << "  reg " << MemoryWenPin(*mem, &res_) << ";\n";
+    is << "      " << MemoryWenPin(*mem, &res_) << " <= 0;\n";
+    map<IState *, IInsn *> writers;
+    for (auto it : callers) {
+      IInsn *insn = it.second;
+      if (insn->inputs_.size() == 2) {
+	writers[it.first] = it.second;
+      }
+    }
+      ss << "      " << MemoryWenPin(*mem, &res_) << " <= "
+	 << JoinStatesWithSubState(writers, 0) << ";\n";
+  }
 }
 
 void SharedMemory::BuildInsn(IInsn *insn, State *st) {
+  ostream &os = st->StateBodySectionStream();
+  static const char I[] = "          ";
+  string st_name = InsnWriter::MultiCycleStateName(*(insn->GetResource()));
+  const IResource *mem = nullptr;
+  auto *klass = res_.GetClass();
+  if (resource::IsSharedMemory(*klass)) {
+    mem = &res_;
+  } else {
+    mem = res_.GetSharedRegister();
+  }
+  os << I << "if (" << st_name << " == 0) begin\n";
+  os << I << "  " << MemoryAddrPin(*mem, &res_) << " <= "
+     << InsnWriter::RegisterValue(*insn->inputs_[0], tab_.GetNames())
+     << ";\n";
+  if (resource::IsSharedMemoryWriter(*klass) ||
+      (resource::IsSharedMemory(*klass) &&
+       insn->inputs_.size() == 2)) {
+    os << I << "  " << MemoryWdataPin(*mem, &res_) << " <= "
+       << InsnWriter::RegisterValue(*insn->inputs_[1], tab_.GetNames())
+       << ";\n";
+  }
+  os << I << "  if (" << MemoryAckPin(*mem, &res_) << ") begin\n"
+     << I << "    " << st_name << " <= 3;\n";
+  if (resource::IsSharedMemoryReader(*klass) ||
+      (resource::IsSharedMemory(*klass) &&
+       insn->outputs_.size() == 1)) {
+    os << I << "    "
+       << InsnWriter::RegisterValue(*insn->outputs_[0], tab_.GetNames())
+       << " <= " << MemoryRdataPin(*mem)
+       << ";\n";
+  }
+  os << I << "  end\n";
+  os << I << "end\n";
 }
 
 void SharedMemory::AddAccessPort(const IModule *imod,
@@ -248,7 +308,8 @@ void SharedMemory::AddRdataWire(const IModule *imod, const IResource *accessor) 
 
 string SharedMemory::MemoryPinPrefix(const IResource &mem,
 				     const IResource *accessor) {
-  string s = "mem_" + Util::Itoa(mem.GetTable()->GetId()) +
+  string s = "mem_" + Util::Itoa(mem.GetTable()->GetModule()->GetId()) +
+    "_" + Util::Itoa(mem.GetTable()->GetId()) +
     "_" + Util::Itoa(mem.GetId());
   if (accessor != nullptr) {
     s += "_" + Util::Itoa(accessor->GetTable()->GetModule()->GetId()) +
