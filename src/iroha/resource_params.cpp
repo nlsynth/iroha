@@ -252,6 +252,10 @@ int ResourceParams::GetWidth() {
   return values_->GetIntParam(resource::kExtIOWidth, 0);
 }
 
+void ResourceParams::SetWidth(int w) {
+  return values_->SetIntParam(resource::kExtIOWidth, w);
+}
+
 void ResourceParams::SetEmbeddedModuleName(const string &mod,
 					   const string &fn) {
   values_->SetStringParam(resource::kEmbeddedModule, mod);

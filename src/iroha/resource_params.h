@@ -64,6 +64,7 @@ public:
 
   bool GetDefaultValue(int *value) const;
   int GetWidth();
+  void SetWidth(int w);
 
   void SetEmbeddedModuleName(const string &mod, const string &fn);
   string GetEmbeddedModuleName() const;
