@@ -107,7 +107,9 @@ void ExpWriter::WriteResource(const IResource &res) {
     WriteCalleeTaskDesc(res);
   }
   if (resource::IsSharedRegReader(rc) ||
-      resource::IsSharedRegWriter(rc)) {
+      resource::IsSharedRegWriter(rc) ||
+      resource::IsSharedMemoryReader(rc) ||
+      resource::IsSharedMemoryWriter(rc)) {
     WriteSharedRegDesc(res);
   }
   os_ << "      )\n";
