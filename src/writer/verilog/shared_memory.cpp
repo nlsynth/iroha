@@ -114,10 +114,10 @@ void SharedMemory::BuildMemoryInstance() {
   es << "  " << name << " " << inst << "("
      << ".clk(" << ports->GetClk() << ")"
      << ", ." << sram->GetResetPinName() << "(" << ports->GetReset() << ")"
-     << ", .addr_i(" << addr_wire << ")"
-     << ", .rdata_o(" << rdata_wire << ")"
-     << ", .wdata_i(" << wdata_wire << ")"
-     << ", .write_en_i(" << wen_wire << ")"
+     << ", ." << sram->GetAddrPin(0) << "(" << addr_wire << ")"
+     << ", ." << sram->GetRdataPin(0) <<"(" << rdata_wire << ")"
+     << ", ." << sram->GetWdataPin(0) <<"(" << wdata_wire << ")"
+     << ", ." << sram->GetWenPin(0) <<"(" << wen_wire << ")"
      <<");\n";
   ostream &rs = tmpl_->GetStream(kResourceSection);
   rs << "  wire " << sram->AddressWidthSpec() << " " << addr_wire << ";\n";

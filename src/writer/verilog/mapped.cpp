@@ -88,10 +88,10 @@ void MappedResource::BuildInternalSRAM() {
   es << "  " << name << " " << inst << "("
      << ".clk(" << ports->GetClk() << ")"
      << ", ." << sram->GetResetPinName() << "(" << ports->GetReset() << ")"
-     << ", .addr_i(sram_addr_" << res_id << ")"
-     << ", .rdata_o(sram_rdata_" << res_id << ")"
-     << ", .wdata_i(sram_wdata_" << res_id << ")"
-     << ", .write_en_i(sram_wdata_en_" << res_id << ")"
+     << ", ." << sram->GetAddrPin(0) << "(sram_addr_" << res_id << ")"
+     << ", ." << sram->GetRdataPin(0) << "(sram_rdata_" << res_id << ")"
+     << ", ." << sram->GetWdataPin(0) << "(sram_wdata_" << res_id << ")"
+     << ", ." << sram->GetWenPin(0) << "(sram_wdata_en_" << res_id << ")"
      <<");\n";
   ostream &rs = tmpl_->GetStream(kResourceSection);
   rs << "  reg " << sram->AddressWidthSpec() << "sram_addr_" << res_id << ";\n"

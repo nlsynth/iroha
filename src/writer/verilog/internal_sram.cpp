@@ -1,28 +1,42 @@
 #include "writer/verilog/internal_sram.h"
 
 #include "iroha/i_design.h"
+#include "iroha/logging.h"
 #include "writer/verilog/module.h"
 
 namespace iroha {
 namespace writer {
 namespace verilog {
 
-InternalSRAM::InternalSRAM(const Module &mod, const IResource &res)
-  : mod_(mod), res_(res) {
+InternalSRAM::InternalSRAM(const Module &mod, const IResource &res,
+			   int num_ports)
+  : mod_(mod), res_(res), num_ports_(num_ports) {
+  CHECK(num_ports == 1 || num_ports == 2);
   reset_polarity_ = mod_.GetResetPolarity();
 }
 
 void InternalSRAM::Write(ostream &os) {
   os << "// SRAM\n"
-     << "module " << GetModuleName() << "(clk, " << GetResetPinName()
-     << ", addr_i, rdata_o, wdata_i, write_en_i);\n"
+     << "module " << GetModuleName() << "(clk, " << GetResetPinName() << ", ";
+  for (int p = 0; p < num_ports_; ++p) {
+    if (p > 0) {
+      os << ", ";
+    }
+    os << GetAddrPin(p) << ", "
+       << GetRdataPin(p) << ", "
+       << GetWdataPin(p) << ", "
+       << GetWenPin(p);
+  }
+  os << ");\n"
      << "  input clk;\n"
-     << "  input " << GetResetPinName() << ";\n"
-     << "  input " << AddressWidthSpec() << "addr_i;\n"
-     << "  output " << DataWidthSpec() << "rdata_o;\n"
-     << "  input " << DataWidthSpec() << "wdata_i;\n"
-     << "  input write_en_i;\n\n"
-     << "  reg " << DataWidthSpec() << "rdata_o;\n\n";
+     << "  input " << GetResetPinName() << ";\n";
+  for (int p = 0; p < num_ports_; ++p) {
+    os << "  input " << AddressWidthSpec() << GetAddrPin(p) << ";\n"
+       << "  output " << DataWidthSpec() << GetRdataPin(p) << ";\n"
+       << "  input " << DataWidthSpec() << GetWdataPin(p) << ";\n"
+       << "  input " << GetWenPin(p) << ";\n\n"
+       << "  reg " << DataWidthSpec() << GetRdataPin(p) << ";\n\n";
+  }
   WriteInternal(os);
   os << "endmodule\n\n";
 }
@@ -44,16 +58,20 @@ void InternalSRAM::WriteInternal(ostream &os) {
       os << "      data[" << i << "] <= " << im->values_[i] << ";\n";
     }
   }
-  os << "    end else begin\n"
-     << "      if (write_en_i) begin\n"
-     << "        data[addr_i] <= wdata_i;\n"
-     << "      end\n"
-     << "    end\n"
+  os << "    end else begin\n";
+  for (int p = 0; p < num_ports_; ++p) {
+    os << "      if (" << GetWenPin(p) << ") begin\n"
+       << "        data[" << GetAddrPin(p) << "] <= " << GetWdataPin(p) << ";\n"
+       << "      end\n";
+  }
+  os << "    end\n"
      << "  end\n";
-  os << "  // Read\n"
-     << "  always @(addr_i or clk) begin\n"
-     << "    rdata_o = data[addr_i];\n"
-     << "  end\n";
+  os << "  // Read\n";
+  for (int p = 0; p < num_ports_; ++p) {
+    os << "  always @(" << GetAddrPin(p) << " or clk) begin\n"
+       << "    " << GetRdataPin(p) << " = data[" << GetAddrPin(p) << "];\n"
+       << "  end\n";
+  }
 }
 
 const IResource &InternalSRAM::GetResource() const {
@@ -62,6 +80,7 @@ const IResource &InternalSRAM::GetResource() const {
 
 string InternalSRAM::GetModuleName() const {
   IArray *array = res_.GetArray();
+  CHECK(array);
   const IValueType &type = array->GetDataType();
   return "SRAM_" + Util::Itoa(array->GetAddressWidth())
     + "_" + Util::Itoa(type.GetWidth());
@@ -90,6 +109,29 @@ string InternalSRAM::WidthSpec(int w) {
     return string();
   }
   return "[" + Util::Itoa(w - 1) + ":0] ";
+}
+
+string InternalSRAM::GetAddrPin(int port) const {
+  return "addr_" + MaybePortPrefix(port) +"i";
+}
+
+string InternalSRAM::GetRdataPin(int port) const {
+  return "rdata_" + MaybePortPrefix(port) + "o";
+}
+
+string InternalSRAM::GetWenPin(int port) const {
+  return "write_en_" + MaybePortPrefix(port) + "i";
+}
+
+string InternalSRAM::GetWdataPin(int port) const {
+  return "wdata_" + MaybePortPrefix(port) + "i";
+}
+
+string InternalSRAM::MaybePortPrefix(int port) const {
+  if (num_ports_ == 2) {
+    return Util::Itoa(port) + "_";
+  }
+  return "";
 }
 
 }  // namespace verilog

@@ -54,7 +54,7 @@ bool EmbeddedModules::Write(ostream &os) {
 
 InternalSRAM *EmbeddedModules::RequestInternalSRAM(const Module &mod,
 						   const IResource &res) {
-  InternalSRAM *sram = new InternalSRAM(mod, res);
+InternalSRAM *sram = new InternalSRAM(mod, res, 1);
   srams_.push_back(sram);
   return sram;
 }
