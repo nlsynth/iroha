@@ -87,6 +87,7 @@ libiroha_la_SOURCES = \
  src/writer/verilog/operator.cpp src/writer/verilog/operator.h \
  src/writer/verilog/shared_memory.cpp src/writer/verilog/shared_memory.h \
  src/writer/verilog/shared_reg.cpp src/writer/verilog/shared_reg.h \
+ src/writer/verilog/shared_reg_accessor.cpp src/writer/verilog/shared_reg_accessor.h \
  src/writer/verilog/ports.cpp src/writer/verilog/ports.h \
  src/writer/verilog/resource.cpp src/writer/verilog/resource.h \
  src/writer/verilog/state.cpp src/writer/verilog/state.h \

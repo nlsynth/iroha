@@ -21,36 +21,19 @@ SharedReg::SharedReg(const IResource &res, const Table &table)
     default_output_value_(0), writers_(nullptr),
     need_write_arbitration_(false) {
   auto *klass = res_.GetClass();
-  if (resource::IsSharedReg(*klass)) {
-    auto *params = res_.GetParams();
-    string unused;
-    params->GetExtOutputPort(&unused, &width_);
-    has_default_output_value_ =
-      params->GetDefaultValue(&default_output_value_);
-    writers_ = table.GetModule()->GetConnection().GetSharedRegWriters(&res_);
-    if (writers_ != nullptr || has_default_output_value_) {
-      need_write_arbitration_ = true;
-    }
-  } else if (resource::IsSharedRegWriter(*klass)) {
-    auto *params = res_.GetSharedRegister()->GetParams();
-    string unused;
-    params->GetExtOutputPort(&unused, &width_);
-  } else {
-    width_ = 0;
+  CHECK(resource::IsSharedReg(*klass));
+  auto *params = res_.GetParams();
+  string unused;
+  params->GetExtOutputPort(&unused, &width_);
+  has_default_output_value_ =
+    params->GetDefaultValue(&default_output_value_);
+  writers_ = table.GetModule()->GetConnection().GetSharedRegWriters(&res_);
+  if (writers_ != nullptr || has_default_output_value_) {
+    need_write_arbitration_ = true;
   }
 }
 
 void SharedReg::BuildResource() {
-  auto *klass = res_.GetClass();
-  if (resource::IsSharedReg(*klass)) {
-    BuildSharedRegResource();
-  }
-  if (resource::IsSharedRegWriter(*klass)) {
-    BuildSharedRegWriterResource();
-  }
-}
-
-void SharedReg::BuildSharedRegResource() {
   ostream &rs = tmpl_->GetStream(kRegisterSection);
   rs << "  // shared-reg\n";
   rs << "  reg ";
@@ -93,30 +76,6 @@ void SharedReg::BuildSharedRegResource() {
   BuildReadWire();
 }
 
-void SharedReg::BuildSharedRegWriterResource() {
-  ostream &rs = tmpl_->GetStream(kRegisterSection);
-  rs << "  // shared-reg-writer\n";
-  rs << "  reg ";
-  if (width_ > 0) {
-    rs << "[" << width_ - 1 << ":0]";
-  }
-  rs << " " << WriterName(res_) << ";\n";
-  rs << "  reg " << WriterEnName(res_) << ";\n";
-  // Reset value
-  ostream &is = tab_.InitialValueSectionStream();
-  is << "      " << WriterName(res_) << " <= 0;\n"
-     << "      " << WriterEnName(res_) << " <= 0;\n";
-  // Write en signal.
-  ostream &os = tab_.StateOutputSectionStream();
-  map<IState *, IInsn *> callers;
-  CollectResourceCallers("", &callers);
-  os << "      " << WriterEnName(res_) << " <= ";
-  WriteStateUnion(callers, os);
-  os << ";\n";
-
-  BuildWriteWire(&res_);
-}
-
 void SharedReg::BuildInsn(IInsn *insn, State *st) {
   auto *klass = res_.GetClass();
   if (resource::IsSharedReg(*klass)) {
@@ -135,21 +94,6 @@ void SharedReg::BuildInsn(IInsn *insn, State *st) {
 	 << " = "
 	 << RegName(res_) << ";\n";
     }
-  }
-  if (resource::IsSharedRegReader(*klass)) {
-    // Read from another table.
-    IResource *source = res_.GetSharedRegister();
-    ostream &ws = tmpl_->GetStream(kInsnWireValueSection);
-    ws << "  assign "
-       << InsnWriter::InsnOutputWireName(*insn, 0)
-       << " = "
-       << RegName(*source) << ";\n";
-  }
-  if (resource::IsSharedRegWriter(*klass)) {
-    ostream &os = st->StateBodySectionStream();
-    os << "          " << WriterName(res_) << " <= "
-       << InsnWriter::RegisterValue(*insn->inputs_[0], tab_.GetNames())
-       << ";\n";
   }
 }
 
@@ -203,7 +147,7 @@ void SharedReg::BuildReadWire() {
 							   reader_module);
     if (reader_module != common_root && reg_module != common_root) {
       if (wired_modules.find(common_root) == wired_modules.end()) {
-	AddWire(common_root, &res_, false);
+	AddWire(common_root, &tab_, &res_, false);
 	wired_modules.insert(common_root);
       }
     }
@@ -226,30 +170,9 @@ void SharedReg::BuildReadWire() {
   }
 }
 
-void SharedReg::BuildWriteWire(const IResource *writer) {
-  IResource *reg = writer->GetSharedRegister();
-  IModule *reg_module = reg->GetTable()->GetModule();
-  IModule *writer_module = writer->GetTable()->GetModule();
-  const IModule *common_root = Connection::GetCommonRoot(reg_module,
-							 writer_module);
-  if (writer_module != common_root) {
-    AddWire(common_root, writer, true);
-  }
-  // downward
-  for (IModule *imod = reg_module; imod != common_root;
-       imod = imod->GetParentModule()) {
-    AddWritePort(imod, writer, false);
-  }
-  // upward
-  for (IModule *imod = writer_module; imod != common_root;
-       imod = imod->GetParentModule()) {
-    AddWritePort(imod, writer, true);
-  }
-}
-
-void SharedReg::AddWire(const IModule *imod, const IResource *accessor,
-			bool is_write) {
-  Module *mod = tab_.GetModule()->GetByIModule(imod);
+void SharedReg::AddWire(const IModule *common_root, const Table *tab,
+			const IResource *accessor, bool is_write) {
+  Module *mod = tab->GetModule()->GetByIModule(common_root);
   auto *tmpl = mod->GetModuleTemplate();
   ostream &rs = tmpl->GetStream(kResourceSection);
   int width;
@@ -285,23 +208,6 @@ void SharedReg::AddReadPort(const IModule *imod, const IResource *reader,
   Module *parent_mod = mod->GetParentModule();
   ostream &os = parent_mod->ChildModuleInstSectionStream(mod);
   AddChildWire(reader, false, os);
-}
-
-void SharedReg::AddWritePort(const IModule *imod, const IResource *writer,
-			     bool upward) {
-  Module *mod = tab_.GetModule()->GetByIModule(imod);
-  Ports *ports = mod->GetPorts();
-  int width = writer->GetSharedRegister()->GetParams()->GetWidth();
-  if (upward) {
-    ports->AddPort(WriterName(*writer), Port::OUTPUT_WIRE, width);
-    ports->AddPort(WriterEnName(*writer), Port::OUTPUT_WIRE, 0);
-  } else {
-    ports->AddPort(WriterName(*writer), Port::INPUT, width);
-    ports->AddPort(WriterEnName(*writer), Port::INPUT, 0);
-  }
-  Module *parent_mod = mod->GetParentModule();
-  ostream &os = parent_mod->ChildModuleInstSectionStream(mod);
-  AddChildWire(writer, true, os);
 }
 
 }  // namespace verilog

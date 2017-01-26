@@ -18,15 +18,12 @@ public:
   static string RegName(const IResource &res);
   static string WriterName(const IResource &res);
   static string WriterEnName(const IResource &res);
+  static void AddWire(const IModule *common_root, const Table *tab,
+		      const IResource *accessor, bool is_write);
+  static void AddChildWire(const IResource *res, bool is_write, ostream &os);
 
 private:
-  static void AddChildWire(const IResource *res, bool is_write, ostream &os);
-  void BuildSharedRegResource();
-  void BuildSharedRegWriterResource();
-  void BuildWriteWire(const IResource *writer);
   void BuildReadWire();
-  void AddWire(const IModule *imod, const IResource *accessor, bool is_write);
-  void AddWritePort(const IModule *imod, const IResource *writer, bool upward);
   void AddReadPort(const IModule *imod, const IResource *reader, bool upward);
 
   int width_;

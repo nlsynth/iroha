@@ -15,6 +15,7 @@
 #include "writer/verilog/operator.h"
 #include "writer/verilog/shared_memory.h"
 #include "writer/verilog/shared_reg.h"
+#include "writer/verilog/shared_reg_accessor.h"
 #include "writer/verilog/ports.h"
 #include "writer/verilog/state.h"
 #include "writer/verilog/table.h"
@@ -53,10 +54,12 @@ Resource *Resource::Create(const IResource &res, const Table &table) {
       resource::IsExtOutput(*klass)) {
     return new ExtIO(res, table);
   }
-  if (resource::IsSharedReg(*klass) ||
-      resource::IsSharedRegReader(*klass) ||
-      resource::IsSharedRegWriter(*klass)) {
+  if (resource::IsSharedReg(*klass)) {
     return new SharedReg(res, table);
+  }
+  if (resource::IsSharedRegReader(*klass) ||
+      resource::IsSharedRegWriter(*klass)) {
+    return new SharedRegAccessor(res, table);
   }
   if (resource::IsSharedMemory(*klass) ||
       resource::IsSharedMemoryReader(*klass) ||
