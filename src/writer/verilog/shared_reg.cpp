@@ -1,5 +1,6 @@
 #include "writer/verilog/shared_reg.h"
 
+#include "design/design_util.h"
 #include "iroha/i_design.h"
 #include "iroha/logging.h"
 #include "iroha/resource_class.h"
@@ -11,6 +12,7 @@
 #include "writer/verilog/ports.h"
 #include "writer/verilog/state.h"
 #include "writer/verilog/table.h"
+#include "writer/verilog/shared_reg_accessor.h"
 
 namespace iroha {
 namespace writer {
@@ -18,7 +20,8 @@ namespace verilog {
 
 SharedReg::SharedReg(const IResource &res, const Table &table)
   : Resource(res, table), has_default_output_value_(false),
-    default_output_value_(0), writers_(nullptr),
+    default_output_value_(0),
+    readers_(nullptr), writers_(nullptr),
     need_write_arbitration_(false) {
   auto *klass = res_.GetClass();
   CHECK(resource::IsSharedReg(*klass));
@@ -27,20 +30,47 @@ SharedReg::SharedReg(const IResource &res, const Table &table)
   params->GetExtOutputPort(&unused, &width_);
   has_default_output_value_ =
     params->GetDefaultValue(&default_output_value_);
+  readers_ = table.GetModule()->GetConnection().GetSharedRegReaders(&res_);
   writers_ = table.GetModule()->GetConnection().GetSharedRegWriters(&res_);
   if (writers_ != nullptr || has_default_output_value_) {
     need_write_arbitration_ = true;
   }
+  GetOptions(&use_notify_, &use_sem_);
 }
 
 void SharedReg::BuildResource() {
   ostream &rs = tmpl_->GetStream(kRegisterSection);
-  rs << "  // shared-reg\n";
+  rs << "  // shared-reg";
+  if (use_notify_) {
+    rs << " use-notify";
+  }
+  if (use_sem_) {
+    rs << " use-sem";
+  }
+  rs << "\n";
   rs << "  reg ";
   if (width_ > 0) {
     rs << "[" << width_ - 1 << ":0]";
   }
   rs << " " << RegName(res_) << ";\n";
+  if (use_notify_) {
+    rs << "  reg " << RegNotifierName(res_) << ";\n";
+    vector<string> notifiers;
+    for (auto *writer : *writers_) {
+      if (SharedRegAccessor::UseNotify(writer)) {
+	notifiers.push_back(WriterNotifierName(*writer));
+      }
+    }
+    ostream &os = tab_.StateOutputSectionStream();
+    os << "      " << RegNotifierName(res_)
+       << " <= ";
+    if (notifiers.size() > 0) {
+      os << Util::Join(notifiers, " | ");
+    } else {
+      os << "0";
+    }
+    os << ";\n";
+  }
   if (need_write_arbitration_) {
     // Priorities are
     // (1) Writers in this table
@@ -71,6 +101,9 @@ void SharedReg::BuildResource() {
     is << 0;
   }
   is << ";\n";
+  if (use_notify_) {
+    is << "      " << RegNotifierName(res_) << " <= 0;\n";
+  }
   // Read wires from shared-reg
   // (on the other hand, write wires are wired from shared-reg-writer)
   BuildReadWire();
@@ -105,6 +138,14 @@ string SharedReg::WriterEnName(const IResource &res) {
   return WriterName(res) + "_en";
 }
 
+string SharedReg::RegNotifierName(const IResource &res) {
+  return RegName(res) + "_notify";
+}
+
+string SharedReg::WriterNotifierName(const IResource &res) {
+  return RegName(res) + "_write_notify";
+}
+
 string SharedReg::RegName(const IResource &res) {
   auto *params = res.GetParams();
   int unused_width;
@@ -133,15 +174,14 @@ void SharedReg::AddChildWire(const IResource *res, bool is_write, ostream &os) {
 }
 
 void SharedReg::BuildReadWire() {
-  auto *readers = tab_.GetModule()->GetConnection().GetSharedRegReaders(&res_);
-  if (readers == nullptr) {
+  if (readers_ == nullptr) {
     return;
   }
   IModule *reg_module = res_.GetTable()->GetModule();
   set<const IModule *> wired_modules;
   set<const IModule *> has_upward;
   set<const IModule *> has_downward;
-  for (auto *reader : *readers) {
+  for (auto *reader : *readers_) {
     IModule *reader_module = reader->GetTable()->GetModule();
     const IModule *common_root = Connection::GetCommonRoot(reg_module,
 							   reader_module);
@@ -208,6 +248,26 @@ void SharedReg::AddReadPort(const IModule *imod, const IResource *reader,
   Module *parent_mod = mod->GetParentModule();
   ostream &os = parent_mod->ChildModuleInstSectionStream(mod);
   AddChildWire(reader, false, os);
+}
+
+void SharedReg::GetOptions(bool *use_notify, bool *use_sem) {
+  *use_notify = false;
+  *use_sem = false;
+  if (readers_ == nullptr || writers_ == nullptr) {
+    return;
+  }
+  for (auto *reader : *readers_) {
+    bool n, s;
+    SharedRegAccessor::GetAccessorFeatures(reader, &n, &s);
+    *use_notify |= n;
+    *use_sem |= s;
+  }
+  for (auto *writer : *writers_) {
+    bool n, s;
+    SharedRegAccessor::GetAccessorFeatures(writer, &n, &s);
+    *use_notify |= n;
+    *use_sem |= s;
+  }
 }
 
 }  // namespace verilog

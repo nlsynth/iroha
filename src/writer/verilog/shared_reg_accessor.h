@@ -15,6 +15,10 @@ public:
   virtual void BuildResource() override;
   virtual void BuildInsn(IInsn *insn, State *st) override;
 
+  static void GetAccessorFeatures(const IResource *accessor,
+				  bool *use_notify, bool *use_sem);
+  static bool UseNotify(const IResource *accessor);
+
 private:
   void BuildSharedRegWriterResource();
   void BuildWriteWire(const IResource *writer);

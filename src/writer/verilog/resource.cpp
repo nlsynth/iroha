@@ -110,10 +110,19 @@ void Resource::CollectNames(Names *names) {
 
 void Resource::CollectResourceCallers(const string &opr,
 				      map<IState *, IInsn *> *callers) {
+  vector<string> v;
+  Util::SplitStringUsing(opr, ",", &v);
+  set<string> oprs;
+  for (auto &o : v) {
+    oprs.insert(o);
+  }
+  if (opr.empty()) {
+    oprs.insert("");
+  }
   for (auto *st : res_.GetTable()->states_) {
     for (auto *insn : st->insns_) {
       if (insn->GetResource() == &res_ &&
-	  insn->GetOperand() == opr) {
+	  (opr == "*" || oprs.find(insn->GetOperand()) != oprs.end())) {
 	callers->insert(make_pair(st, insn));
       }
     }

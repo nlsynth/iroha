@@ -135,6 +135,19 @@ IInsn *DesignUtil::FindDataFlowInInsn(ITable *table) {
   return FindInitialInsnByClassName(table, resource::kDataFlowIn);
 }
 
+vector<IInsn *> DesignUtil::GetInsnsByResource(const IResource *res) {
+  ITable *tab = res->GetTable();
+  vector<IInsn *> insns;
+  for (IState *st : tab->states_) {
+    for (IInsn *insn : st->insns_) {
+      if (insn->GetResource() == res) {
+	insns.push_back(insn);
+      }
+    }
+  }
+  return insns;
+}
+
 bool DesignUtil::IsTerminalState(IState *st) {
   ITable *table = st->GetTable();
   IResource *tr = DesignUtil::FindTransitionResource(table);

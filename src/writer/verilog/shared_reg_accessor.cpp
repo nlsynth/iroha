@@ -1,5 +1,6 @@
 #include "writer/verilog/shared_reg_accessor.h"
 
+#include "design/design_util.h"
 #include "iroha/i_design.h"
 #include "iroha/resource_class.h"
 #include "iroha/resource_params.h"
@@ -64,17 +65,31 @@ void SharedRegAccessor::BuildSharedRegWriterResource() {
   }
   rs << " " << SharedReg::WriterName(res_) << ";\n";
   rs << "  reg " << SharedReg::WriterEnName(res_) << ";\n";
+  if (UseNotify(&res_)) {
+    rs << "  reg " << SharedReg::WriterNotifierName(res_) << ";\n";
+  }
   // Reset value
   ostream &is = tab_.InitialValueSectionStream();
   is << "      " << SharedReg::WriterName(res_) << " <= 0;\n"
      << "      " << SharedReg::WriterEnName(res_) << " <= 0;\n";
+  if (UseNotify(&res_)) {
+    is << "      " << SharedReg::WriterNotifierName(res_) << " <= 0;\n";
+  }
   // Write en signal.
   ostream &os = tab_.StateOutputSectionStream();
   map<IState *, IInsn *> callers;
-  CollectResourceCallers("", &callers);
+  CollectResourceCallers("*", &callers);
   os << "      " << SharedReg::WriterEnName(res_) << " <= ";
   WriteStateUnion(callers, os);
   os << ";\n";
+  // write notify signal.
+  if (UseNotify(&res_)) {
+    map<IState *, IInsn *> notifiers;
+    CollectResourceCallers("notify", &notifiers);
+    os << "      " << SharedReg::WriterNotifierName(res_) << " <= ";
+    WriteStateUnion(notifiers, os);
+    os << ";\n";
+  }
 
   BuildWriteWire(&res_);
 }
@@ -116,6 +131,32 @@ void SharedRegAccessor::AddWritePort(const IModule *imod,
   Module *parent_mod = mod->GetParentModule();
   ostream &os = parent_mod->ChildModuleInstSectionStream(mod);
   SharedReg::AddChildWire(writer, true, os);
+}
+
+void SharedRegAccessor::GetAccessorFeatures(const IResource *accessor,
+					    bool *use_notify, bool *use_sem) {
+  *use_notify = false;
+  *use_sem = false;
+  vector<IInsn *> insns = DesignUtil::GetInsnsByResource(accessor);
+  for (auto *insn : insns) {
+    const string &op = insn->GetOperand();
+    // reader and writer respectively.
+    if (op == "wait_notify" ||
+	op == "notify") {
+      *use_notify = true;
+    }
+    // ditto.
+    if (op == "get_semaphore" ||
+	op == "put_semaphore") {
+      *use_sem = true;
+    }
+  }
+}
+
+bool SharedRegAccessor::UseNotify(const IResource *accessor) {
+  bool n, s;
+  GetAccessorFeatures(accessor, &n, &s);
+  return n;
 }
 
 }  // namespace verilog
