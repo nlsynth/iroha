@@ -41,12 +41,7 @@ void SharedRegAccessor::BuildInsn(IInsn *insn, State *st) {
   auto *klass = res_.GetClass();
   if (resource::IsSharedRegReader(*klass)) {
     // Read from another table.
-    IResource *source = res_.GetSharedRegister();
-    ostream &ws = tmpl_->GetStream(kInsnWireValueSection);
-    ws << "  assign "
-       << InsnWriter::InsnOutputWireName(*insn, 0)
-       << " = "
-       << SharedReg::RegName(*source) << ";\n";
+    BuildReadInsn(insn, st);
   }
   if (resource::IsSharedRegWriter(*klass)) {
     ostream &os = st->StateBodySectionStream();
@@ -121,12 +116,19 @@ void SharedRegAccessor::AddWritePort(const IModule *imod,
   Module *mod = tab_.GetModule()->GetByIModule(imod);
   Ports *ports = mod->GetPorts();
   int width = writer->GetSharedRegister()->GetParams()->GetWidth();
+  bool notify = UseNotify(writer);
   if (upward) {
     ports->AddPort(SharedReg::WriterName(*writer), Port::OUTPUT_WIRE, width);
     ports->AddPort(SharedReg::WriterEnName(*writer), Port::OUTPUT_WIRE, 0);
+    if (notify) {
+      ports->AddPort(SharedReg::WriterNotifierName(*writer), Port::OUTPUT_WIRE, 0);
+    }
   } else {
     ports->AddPort(SharedReg::WriterName(*writer), Port::INPUT, width);
     ports->AddPort(SharedReg::WriterEnName(*writer), Port::INPUT, 0);
+    if (notify) {
+      ports->AddPort(SharedReg::WriterNotifierName(*writer), Port::INPUT, 0);
+    }
   }
   Module *parent_mod = mod->GetParentModule();
   ostream &os = parent_mod->ChildModuleInstSectionStream(mod);
@@ -150,6 +152,26 @@ void SharedRegAccessor::GetAccessorFeatures(const IResource *accessor,
 	op == "put_semaphore") {
       *use_sem = true;
     }
+  }
+}
+
+void SharedRegAccessor::BuildReadInsn(IInsn *insn, State *st) {
+  IResource *source = res_.GetSharedRegister();
+  ostream &ws = tmpl_->GetStream(kInsnWireValueSection);
+  ws << "  assign "
+     << InsnWriter::InsnOutputWireName(*insn, 0)
+     << " = "
+     << SharedReg::RegName(*source) << ";\n";
+  if (insn->GetOperand() == "wait_notify") {
+    static const char I[] = "          ";
+    string insn_st = InsnWriter::MultiCycleStateName(*(insn->GetResource()));
+    ostream &os = st->StateBodySectionStream();
+    os << I << "// Wait notify\n"
+       << I << "if (" << insn_st << " == 0) begin\n"
+       << I << "  if (" << SharedReg::RegNotifierName(*source) << ") begin\n"
+       << I << "    " << insn_st << " <= 3;\n"
+       << I << "  end\n"
+       << I << "end\n";
   }
 }
 

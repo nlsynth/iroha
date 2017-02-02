@@ -24,6 +24,7 @@ private:
   void BuildWriteWire(const IResource *writer);
   void AddWritePort(const IModule *imod, const IResource *writer,
 		    bool upward);
+  void BuildReadInsn(IInsn *insn, State *st);
 
   int width_;
 };

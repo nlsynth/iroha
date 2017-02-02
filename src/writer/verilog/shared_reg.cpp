@@ -233,6 +233,15 @@ void SharedReg::AddWire(const IModule *common_root, const Table *tab,
   if (is_write) {
     rs << "  wire " << WriterEnName(*accessor) << ";\n";
   }
+  bool notify = SharedRegAccessor::UseNotify(accessor);
+  if (notify) {
+    rs << "  wire ";
+    if (is_write) {
+      rs << WriterNotifierName(*accessor) << ";\n";
+    } else {
+      rs << RegNotifierName(*accessor) << ";\n";
+    }
+  }
 }
 
 void SharedReg::AddReadPort(const IModule *imod, const IResource *reader,
