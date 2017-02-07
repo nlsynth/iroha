@@ -40,6 +40,7 @@ SharedReg::SharedReg(const IResource &res, const Table &table)
 
 void SharedReg::BuildResource() {
   ostream &rs = tmpl_->GetStream(kRegisterSection);
+  ostream &is = tab_.InitialValueSectionStream();
   rs << "  // shared-reg";
   if (use_notify_) {
     rs << " use-notify";
@@ -53,6 +54,14 @@ void SharedReg::BuildResource() {
     rs << "[" << width_ - 1 << ":0]";
   }
   rs << " " << RegName(res_) << ";\n";
+  // Reset value
+  is << "      " << RegName(res_) << " <= ";
+  if (has_default_output_value_) {
+    is << default_output_value_;
+  } else {
+    is << 0;
+  }
+  is << ";\n";
   if (use_notify_) {
     rs << "  reg " << RegNotifierName(res_) << ";\n";
     vector<string> notifiers;
@@ -70,6 +79,28 @@ void SharedReg::BuildResource() {
       os << "0";
     }
     os << ";\n";
+    is << "      " << RegNotifierName(res_) << " <= 0;\n";
+  }
+  if (use_sem_) {
+    rs << "  reg " << RegSemaphoreName(res_) << ";\n";
+    vector<string> higher_reqs;
+    vector<string> reqs;
+    for (auto *writer : *writers_) {
+      rs << "  wire " << RegSemaphorePutAckName(*writer) << ";\n";
+      rs << "  assign " << RegSemaphorePutAckName(*writer) << " = "
+	 << "(!" << RegSemaphoreName(res_) << ") && ";
+      if (higher_reqs.size()) {
+	rs << "(!(" << Util::Join(higher_reqs, " | ") << ")) && ";
+      }
+      rs << RegSemaphorePutReqName(*writer) << ";\n";
+      reqs.push_back(RegSemaphorePutReqName(*writer));
+    }
+    ostream &os = tab_.StateOutputSectionStream();
+    os << "      if (" << RegSemaphoreName(res_) << ") begin\n"
+       << "        // TODO: Get side\n"
+       << "      end else begin\n"
+       << "        " << RegSemaphoreName(res_) << " <= " << Util::Join(reqs, " | ") << ";\n"
+       << "      end\n";
   }
   if (need_write_arbitration_) {
     // Priorities are
@@ -91,18 +122,6 @@ void SharedReg::BuildResource() {
     }
     os << SelectValueByState(value);
     os << ";\n";
-  }
-  // Reset value
-  ostream &is = tab_.InitialValueSectionStream();
-  is << "      " << RegName(res_) << " <= ";
-  if (has_default_output_value_) {
-    is << default_output_value_;
-  } else {
-    is << 0;
-  }
-  is << ";\n";
-  if (use_notify_) {
-    is << "      " << RegNotifierName(res_) << " <= 0;\n";
   }
   // Read wires from shared-reg
   // (on the other hand, write wires are wired from shared-reg-writer)
@@ -144,6 +163,18 @@ string SharedReg::RegNotifierName(const IResource &res) {
 
 string SharedReg::WriterNotifierName(const IResource &res) {
   return RegName(res) + "_write_notify";
+}
+
+string SharedReg::RegSemaphoreName(const IResource &res) {
+  return RegName(res) + "_semaphore";
+}
+
+string SharedReg::RegSemaphorePutReqName(const IResource &res) {
+  return RegName(res) + "_semaphore_put_req";
+}
+
+string SharedReg::RegSemaphorePutAckName(const IResource &res) {
+  return RegName(res) + "_semaphore_put_ack";
 }
 
 string SharedReg::RegName(const IResource &res) {

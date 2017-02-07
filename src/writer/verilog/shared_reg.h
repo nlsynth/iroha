@@ -16,10 +16,18 @@ public:
   virtual void BuildInsn(IInsn *insn, State *st) override;
 
   static string RegName(const IResource &res);
-  static string RegNotifierName(const IResource &res);
-  static string WriterNotifierName(const IResource &res);
   static string WriterName(const IResource &res);
   static string WriterEnName(const IResource &res);
+  // Notifier
+  //  notification wire to readers
+  static string RegNotifierName(const IResource &res);
+  //  notification from each writer
+  static string WriterNotifierName(const IResource &res);
+  // Semaphore
+  static string RegSemaphoreName(const IResource &res);
+  static string RegSemaphorePutReqName(const IResource &res);
+  static string RegSemaphorePutAckName(const IResource &res);
+
   static void AddWire(const IModule *common_root, const Table *tab,
 		      const IResource *accessor, bool is_write);
   static void AddChildWire(const IResource *res, bool is_write, ostream &os);

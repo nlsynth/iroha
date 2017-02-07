@@ -173,9 +173,16 @@ bool DesignUtil::IsMultiCycleInsn(IInsn *insn) {
       resource::IsEmbedded(*rc)) {
     return true;
   }
-  if (resource::IsSharedRegReader(*rc) &&
-      insn->GetOperand() == "wait_notify") {
-    return true;
+  if (resource::IsSharedRegReader(*rc)) {
+    if (insn->GetOperand() == "wait_notify" ||
+	insn->GetOperand() == "get_semaphore") {
+      return true;
+    }
+  }
+  if (resource::IsSharedRegWriter(*rc)) {
+    if (insn->GetOperand() == "put_semaphore") {
+      return true;
+    }
   }
   return false;
 }

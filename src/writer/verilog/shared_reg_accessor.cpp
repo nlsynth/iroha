@@ -44,10 +44,7 @@ void SharedRegAccessor::BuildInsn(IInsn *insn, State *st) {
     BuildReadInsn(insn, st);
   }
   if (resource::IsSharedRegWriter(*klass)) {
-    ostream &os = st->StateBodySectionStream();
-    os << "          " << SharedReg::WriterName(res_) << " <= "
-       << InsnWriter::RegisterValue(*insn->inputs_[0], tab_.GetNames())
-       << ";\n";
+    BuildWriteInsn(insn, st);
   }
 }
 
@@ -60,15 +57,20 @@ void SharedRegAccessor::BuildSharedRegWriterResource() {
   }
   rs << " " << SharedReg::WriterName(res_) << ";\n";
   rs << "  reg " << SharedReg::WriterEnName(res_) << ";\n";
-  if (UseNotify(&res_)) {
-    rs << "  reg " << SharedReg::WriterNotifierName(res_) << ";\n";
-  }
   // Reset value
   ostream &is = tab_.InitialValueSectionStream();
   is << "      " << SharedReg::WriterName(res_) << " <= 0;\n"
      << "      " << SharedReg::WriterEnName(res_) << " <= 0;\n";
   if (UseNotify(&res_)) {
     is << "      " << SharedReg::WriterNotifierName(res_) << " <= 0;\n";
+  }
+  // Notify and semaphore
+  if (UseNotify(&res_)) {
+    rs << "  reg " << SharedReg::WriterNotifierName(res_) << ";\n";
+  }
+  if (UseSemaphore(&res_)) {
+    rs << "  reg " << SharedReg::RegSemaphorePutReqName(res_) << ";\n";
+    is << "      " << SharedReg::RegSemaphorePutReqName(res_) << " <= 0;\n";
   }
   // Write en signal.
   ostream &os = tab_.StateOutputSectionStream();
@@ -84,6 +86,12 @@ void SharedRegAccessor::BuildSharedRegWriterResource() {
     os << "      " << SharedReg::WriterNotifierName(res_) << " <= ";
     WriteStateUnion(notifiers, os);
     os << ";\n";
+  }
+  if (UseSemaphore(&res_)) {
+    map<IState *, IInsn *> putters;
+    CollectResourceCallers("put_semaphore", &putters);
+    os << "      " << SharedReg::RegSemaphorePutReqName(res_) << " <= "
+       << JoinStatesWithSubState(putters, 0) << ";\n";
   }
 
   BuildWriteWire(&res_);
@@ -175,10 +183,34 @@ void SharedRegAccessor::BuildReadInsn(IInsn *insn, State *st) {
   }
 }
 
+void SharedRegAccessor::BuildWriteInsn(IInsn *insn, State *st) {
+  ostream &ss = st->StateBodySectionStream();
+  ss << "          " << SharedReg::WriterName(res_) << " <= "
+     << InsnWriter::RegisterValue(*insn->inputs_[0], tab_.GetNames())
+     << ";\n";
+  if (insn->GetOperand() == "put_semaphore") {
+    IResource *source = res_.GetSharedRegister();
+    static const char I[] = "          ";
+    string insn_st = InsnWriter::MultiCycleStateName(*(insn->GetResource()));
+    ostream &os = st->StateBodySectionStream();
+    os << I << "// Wait put semaphore\n"
+       << I << "if (" << insn_st << " == 0) begin\n"
+       << I << "  if (" << SharedReg::RegSemaphorePutAckName(res_) << ") begin\n"
+       << I << "    " << insn_st << " <= 3;\n"
+       << I << "  end\n"
+       << I << "end\n";  }
+}
+
 bool SharedRegAccessor::UseNotify(const IResource *accessor) {
   bool n, s;
   GetAccessorFeatures(accessor, &n, &s);
   return n;
+}
+
+bool SharedRegAccessor::UseSemaphore(const IResource *accessor) {
+  bool n, s;
+  GetAccessorFeatures(accessor, &n, &s);
+  return s;
 }
 
 }  // namespace verilog

@@ -27,6 +27,11 @@ winsn.inputs.append(rc)
 winsn.operand = "notify"
 wst1.insns.append(winsn)
 
+spinsn = IInsn(w)
+spinsn.inputs.append(rc)
+spinsn.operand = "put_semaphore"
+wst2.insns.append(spinsn)
+
 rtab = ITable(mod)
 r = design_tool.CreateSharedRegReader(rtab, sreg)
 rst1 = IState(rtab)
@@ -44,6 +49,11 @@ reg = IRegister(rtab, "r_local")
 rinsn.outputs.append(reg)
 rinsn.operand = "wait_notify"
 rst1.insns.append(rinsn)
+
+sginsn = IInsn(r)
+sginsn.inputs.append(rc)
+sginsn.operand = "get_semaphore"
+rst2.insns.append(sginsn)
 
 design_tool.ValidateIds(d)
 DesignWriter(d).Write()

@@ -18,6 +18,7 @@ public:
   static void GetAccessorFeatures(const IResource *accessor,
 				  bool *use_notify, bool *use_sem);
   static bool UseNotify(const IResource *accessor);
+  static bool UseSemaphore(const IResource *accessor);
 
 private:
   void BuildSharedRegWriterResource();
@@ -25,6 +26,7 @@ private:
   void AddWritePort(const IModule *imod, const IResource *writer,
 		    bool upward);
   void BuildReadInsn(IInsn *insn, State *st);
+  void BuildWriteInsn(IInsn *insn, State *st);
 
   int width_;
 };
