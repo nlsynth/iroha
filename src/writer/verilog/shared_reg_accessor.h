@@ -22,6 +22,7 @@ public:
 
 private:
   void BuildSharedRegWriterResource();
+  void BuildSharedRegReaderResource();
   void BuildWriteWire(const IResource *writer);
   void AddWritePort(const IModule *imod, const IResource *writer,
 		    bool upward);

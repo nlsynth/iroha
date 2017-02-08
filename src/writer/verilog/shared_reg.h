@@ -27,6 +27,8 @@ public:
   static string RegSemaphoreName(const IResource &res);
   static string RegSemaphorePutReqName(const IResource &res);
   static string RegSemaphorePutAckName(const IResource &res);
+  static string RegSemaphoreGetReqName(const IResource &res);
+  static string RegSemaphoreGetAckName(const IResource &res);
 
   static void AddWire(const IModule *common_root, const Table *tab,
 		      const IResource *accessor, bool is_write);
@@ -36,6 +38,7 @@ private:
   void BuildReadWire();
   void AddReadPort(const IModule *imod, const IResource *reader, bool upward);
   void GetOptions(bool *use_notify, bool *use_sem);
+  void BuildSemaphore();
 
   int width_;
   bool has_default_output_value_;

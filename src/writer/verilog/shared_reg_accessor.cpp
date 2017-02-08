@@ -35,6 +35,9 @@ void SharedRegAccessor::BuildResource() {
   if (resource::IsSharedRegWriter(*klass)) {
     BuildSharedRegWriterResource();
   }
+  if (resource::IsSharedRegReader(*klass)) {
+    BuildSharedRegReaderResource();
+  }
 }
 
 void SharedRegAccessor::BuildInsn(IInsn *insn, State *st) {
@@ -45,6 +48,21 @@ void SharedRegAccessor::BuildInsn(IInsn *insn, State *st) {
   }
   if (resource::IsSharedRegWriter(*klass)) {
     BuildWriteInsn(insn, st);
+  }
+}
+
+void SharedRegAccessor::BuildSharedRegReaderResource() {
+  if (UseSemaphore(&res_)) {
+    ostream &rs = tmpl_->GetStream(kRegisterSection);
+    ostream &is = tab_.InitialValueSectionStream();
+    rs << "  // shared-reg-reader\n";
+    rs << "  reg " << SharedReg::RegSemaphoreGetReqName(res_) << ";\n";
+    is << "      " << SharedReg::RegSemaphoreGetReqName(res_) << " <= 0;\n";
+    map<IState *, IInsn *> getters;
+    CollectResourceCallers("get_semaphore", &getters);
+    ostream &os = tab_.StateOutputSectionStream();
+    os << "      " << SharedReg::RegSemaphoreGetReqName(res_) << " <= "
+       << JoinStatesWithSubState(getters, 0) << ";\n";
   }
 }
 
@@ -125,17 +143,24 @@ void SharedRegAccessor::AddWritePort(const IModule *imod,
   Ports *ports = mod->GetPorts();
   int width = writer->GetSharedRegister()->GetParams()->GetWidth();
   bool notify = UseNotify(writer);
+  bool sem = UseSemaphore(writer);
   if (upward) {
     ports->AddPort(SharedReg::WriterName(*writer), Port::OUTPUT_WIRE, width);
     ports->AddPort(SharedReg::WriterEnName(*writer), Port::OUTPUT_WIRE, 0);
     if (notify) {
       ports->AddPort(SharedReg::WriterNotifierName(*writer), Port::OUTPUT_WIRE, 0);
     }
+    if (sem) {
+      ports->AddPort(SharedReg::RegSemaphoreGetReqName(*writer), Port::OUTPUT_WIRE, 0);
+    }
   } else {
     ports->AddPort(SharedReg::WriterName(*writer), Port::INPUT, width);
     ports->AddPort(SharedReg::WriterEnName(*writer), Port::INPUT, 0);
     if (notify) {
       ports->AddPort(SharedReg::WriterNotifierName(*writer), Port::INPUT, 0);
+    }
+    if (sem) {
+      ports->AddPort(SharedReg::RegSemaphoreGetReqName(*writer), Port::INPUT, 0);
     }
   }
   Module *parent_mod = mod->GetParentModule();
@@ -170,13 +195,21 @@ void SharedRegAccessor::BuildReadInsn(IInsn *insn, State *st) {
      << InsnWriter::InsnOutputWireName(*insn, 0)
      << " = "
      << SharedReg::RegName(*source) << ";\n";
+  static const char I[] = "          ";
+  string insn_st = InsnWriter::MultiCycleStateName(*(insn->GetResource()));
+  ostream &os = st->StateBodySectionStream();
   if (insn->GetOperand() == "wait_notify") {
-    static const char I[] = "          ";
-    string insn_st = InsnWriter::MultiCycleStateName(*(insn->GetResource()));
-    ostream &os = st->StateBodySectionStream();
     os << I << "// Wait notify\n"
        << I << "if (" << insn_st << " == 0) begin\n"
        << I << "  if (" << SharedReg::RegNotifierName(*source) << ") begin\n"
+       << I << "    " << insn_st << " <= 3;\n"
+       << I << "  end\n"
+       << I << "end\n";
+  }
+  if (insn->GetOperand() == "get_semaphore") {
+    os << I << "// Wait get semaphore\n"
+       << I << "if (" << insn_st << " == 0) begin\n"
+       << I << "  if (" << SharedReg::RegSemaphoreGetAckName(res_) << ") begin\n"
        << I << "    " << insn_st << " <= 3;\n"
        << I << "  end\n"
        << I << "end\n";
@@ -189,9 +222,8 @@ void SharedRegAccessor::BuildWriteInsn(IInsn *insn, State *st) {
      << InsnWriter::RegisterValue(*insn->inputs_[0], tab_.GetNames())
      << ";\n";
   if (insn->GetOperand() == "put_semaphore") {
-    IResource *source = res_.GetSharedRegister();
     static const char I[] = "          ";
-    string insn_st = InsnWriter::MultiCycleStateName(*(insn->GetResource()));
+    string insn_st = InsnWriter::MultiCycleStateName(res_);
     ostream &os = st->StateBodySectionStream();
     os << I << "// Wait put semaphore\n"
        << I << "if (" << insn_st << " == 0) begin\n"

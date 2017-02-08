@@ -82,25 +82,7 @@ void SharedReg::BuildResource() {
     is << "      " << RegNotifierName(res_) << " <= 0;\n";
   }
   if (use_sem_) {
-    rs << "  reg " << RegSemaphoreName(res_) << ";\n";
-    vector<string> higher_reqs;
-    vector<string> reqs;
-    for (auto *writer : *writers_) {
-      rs << "  wire " << RegSemaphorePutAckName(*writer) << ";\n";
-      rs << "  assign " << RegSemaphorePutAckName(*writer) << " = "
-	 << "(!" << RegSemaphoreName(res_) << ") && ";
-      if (higher_reqs.size()) {
-	rs << "(!(" << Util::Join(higher_reqs, " | ") << ")) && ";
-      }
-      rs << RegSemaphorePutReqName(*writer) << ";\n";
-      reqs.push_back(RegSemaphorePutReqName(*writer));
-    }
-    ostream &os = tab_.StateOutputSectionStream();
-    os << "      if (" << RegSemaphoreName(res_) << ") begin\n"
-       << "        // TODO: Get side\n"
-       << "      end else begin\n"
-       << "        " << RegSemaphoreName(res_) << " <= " << Util::Join(reqs, " | ") << ";\n"
-       << "      end\n";
+    BuildSemaphore();
   }
   if (need_write_arbitration_) {
     // Priorities are
@@ -126,6 +108,49 @@ void SharedReg::BuildResource() {
   // Read wires from shared-reg
   // (on the other hand, write wires are wired from shared-reg-writer)
   BuildReadWire();
+}
+
+void SharedReg::BuildSemaphore() {
+  ostream &rs = tmpl_->GetStream(kRegisterSection);
+  rs << "  reg " << RegSemaphoreName(res_) << ";\n";
+  vector<string> higher_put_reqs;
+  vector<string> put_reqs;
+  for (auto *writer : *writers_) {
+    if (!SharedRegAccessor::UseSemaphore(writer)) {
+      continue;
+    }
+    rs << "  wire " << RegSemaphorePutAckName(*writer) << ";\n";
+    rs << "  assign " << RegSemaphorePutAckName(*writer) << " = "
+       << "(!" << RegSemaphoreName(res_) << ") && ";
+    if (higher_put_reqs.size()) {
+      rs << "(!(" << Util::Join(higher_put_reqs, " | ") << ")) && ";
+    }
+    rs << RegSemaphorePutReqName(*writer) << ";\n";
+    put_reqs.push_back(RegSemaphorePutReqName(*writer));
+  }
+  vector<string> higher_get_reqs;
+  vector<string> get_reqs;
+  for (auto *reader : *readers_) {
+    if (!SharedRegAccessor::UseSemaphore(reader)) {
+      continue;
+    }
+    rs << "  wire " << RegSemaphoreGetAckName(*reader) << ";\n";
+    rs << "  assign " << RegSemaphoreGetAckName(*reader) << " = "
+       << "(" << RegSemaphoreName(res_) << ") && ";
+    if (higher_get_reqs.size()) {
+      rs << "(!(" << Util::Join(higher_get_reqs, " | ") << ")) && ";
+    }
+    rs << RegSemaphoreGetReqName(*reader) << ";\n";
+    get_reqs.push_back(RegSemaphoreGetReqName(*reader));
+  }
+  ostream &os = tab_.StateOutputSectionStream();
+  os << "      if (" << RegSemaphoreName(res_) << ") begin\n"
+     << "        " << RegSemaphoreName(res_) << " <= "
+     << "!(" << Util::Join(get_reqs, " | ") << ");\n"
+     << "      end else begin\n"
+     << "        " << RegSemaphoreName(res_) << " <= "
+     << Util::Join(put_reqs, " | ") << ";\n"
+     << "      end\n";
 }
 
 void SharedReg::BuildInsn(IInsn *insn, State *st) {
@@ -175,6 +200,14 @@ string SharedReg::RegSemaphorePutReqName(const IResource &res) {
 
 string SharedReg::RegSemaphorePutAckName(const IResource &res) {
   return RegName(res) + "_semaphore_put_ack";
+}
+
+string SharedReg::RegSemaphoreGetReqName(const IResource &res) {
+  return RegName(res) + "_semaphore_get_req";
+}
+
+string SharedReg::RegSemaphoreGetAckName(const IResource &res) {
+  return RegName(res) + "_semaphore_get_ack";
 }
 
 string SharedReg::RegName(const IResource &res) {
@@ -271,6 +304,20 @@ void SharedReg::AddWire(const IModule *common_root, const Table *tab,
       rs << WriterNotifierName(*accessor) << ";\n";
     } else {
       rs << RegNotifierName(*accessor) << ";\n";
+    }
+  }
+  bool sem = SharedRegAccessor::UseSemaphore(accessor);
+  if (sem) {
+    if (is_write) {
+      rs << "  wire "
+	 << RegSemaphorePutReqName(*accessor) << ";\n"
+	 << "  wire "
+	 << RegSemaphorePutAckName(*accessor) << ";\n";
+    } else {
+      rs << "  wire "
+	 << RegSemaphoreGetReqName(*accessor) << ";\n"
+	 << "  wire "
+	 << RegSemaphoreGetAckName(*accessor) << ";\n";
     }
   }
 }
