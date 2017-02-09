@@ -40,8 +40,10 @@ void SharedMemory::BuildMemoryResource() {
   accessors.push_back(&res_);
   auto *ext_accessors =
     tab_.GetModule()->GetConnection().GetSharedMemoryAccessors(&res_);
-  for (IResource *r : *ext_accessors) {
-    accessors.push_back(r);
+  if (ext_accessors != nullptr) {
+    for (IResource *r : *ext_accessors) {
+      accessors.push_back(r);
+    }
   }
   BuildAccessWireAll(accessors);
   ostream &is = tab_.InitialValueSectionStream();
@@ -195,8 +197,12 @@ void SharedMemory::BuildMemoryAccessorResource(bool is_writer) {
 	writers[it.first] = it.second;
       }
     }
-      ss << "      " << MemoryWenPin(*mem, &res_) << " <= "
-	 << JoinStatesWithSubState(writers, 0) << ";\n";
+    string wen = JoinStatesWithSubState(writers, 0);
+    if (wen.empty()) {
+      wen = "0";
+    }
+    ss << "      " << MemoryWenPin(*mem, &res_) << " <= "
+       << wen << ";\n";
   }
 }
 
