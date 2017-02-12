@@ -73,6 +73,8 @@ libiroha_la_SOURCES = \
  src/writer/cxx/state.cpp src/writer/cxx/state.h \
  src/writer/cxx/table.cpp src/writer/cxx/table.h \
  src/writer/cxx/common.h \
+ src/writer/verilog/axi/axi_port.cpp src/writer/verilog/axi/axi_port.h \
+ src/writer/verilog/axi/controller.cpp src/writer/verilog/axi/controller.h \
  src/writer/verilog/channel.cpp src/writer/verilog/channel.h \
  src/writer/verilog/common.h \
  src/writer/verilog/dataflow_state.cpp src/writer/verilog/dataflow_state.h \

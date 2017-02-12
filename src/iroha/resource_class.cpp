@@ -123,6 +123,10 @@ bool IsForeignRegister(const IResourceClass &rc) {
   return (rc.GetName() == kForeignReg);
 }
 
+bool IsAxiPort(const IResourceClass &rc) {
+  return (rc.GetName() == kAxiPort);
+}
+
 static void InstallResource(IDesign *design, const string &name,
 			    bool is_exclusive) {
   IResourceClass *klass = new IResourceClass(name, is_exclusive, design);
@@ -169,6 +173,7 @@ void InstallResourceClasses(IDesign *design) {
   InstallResource(design, resource::kBitSel, false);
   InstallResource(design, resource::kBitConcat, false);
   InstallResource(design, resource::kDataFlowIn, false);
+  InstallResource(design, resource::kAxiPort, true);
 }
 
 }  // namespace resource

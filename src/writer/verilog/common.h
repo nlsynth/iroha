@@ -29,6 +29,10 @@ class Task;
 class Ports;
 class VerilogWriter;
 
+namespace axi {
+class AxiPort;
+}  // namespace axi
+
 }  // namespace verilog
 }  // namespace writer
 }  // namespace iroha

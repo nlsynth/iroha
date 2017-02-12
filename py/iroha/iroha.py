@@ -41,6 +41,8 @@ class IDesign(object):
         self.resource_classes.append(IResourceClass("channel-write"))
         self.resource_classes.append(IResourceClass("channel-read"))
         self.resource_classes.append(IResourceClass("dataflow-in"))
+        # AXI
+        self.resource_classes.append(IResourceClass("axi-port"))
 
     def findResourceClassByName(self, name):
         for rc in self.resource_classes:

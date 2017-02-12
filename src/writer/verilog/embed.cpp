@@ -4,6 +4,7 @@
 #include "iroha/logging.h"
 #include "iroha/resource_params.h"
 #include "writer/module_template.h"
+#include "writer/verilog/axi/axi_port.h"
 #include "writer/verilog/insn_writer.h"
 #include "writer/verilog/internal_sram.h"
 #include "writer/verilog/module.h"
@@ -23,6 +24,11 @@ void EmbeddedModules::RequestModule(const ResourceParams &params) {
   if (!name.empty()) {
     files_.insert(name);
   }
+}
+
+void EmbeddedModules::RequestAxiController(const IResource *axi_port,
+					   bool reset_polarity) {
+  axi_ports_.push_back(make_pair(axi_port, reset_polarity));
 }
 
 bool EmbeddedModules::Write(ostream &os) {
@@ -48,6 +54,18 @@ bool EmbeddedModules::Write(ostream &os) {
   // Internal SRAM
   for (InternalSRAM *sram : srams_) {
     sram->Write(os);
+  }
+  // AXI ports
+  set<string> controllers;
+  for (auto p : axi_ports_) {
+    const IResource *res = p.first;
+    bool reset_polarity = p.second;
+    string name = axi::AxiPort::ControllerName(*res, p.second);
+    if (controllers.find(name) != controllers.end()) {
+      continue;
+    }
+    axi::AxiPort::WriteController(*res, reset_polarity, os);
+    controllers.insert(name);
   }
   return true;
 }

@@ -43,6 +43,7 @@ const char kShift[] = "shift";
 const char kBitSel[] = "bit-sel";
 const char kBitConcat[] = "bit-concat";
 const char kDataFlowIn[] = "dataflow-in";
+const char kAxiPort[] = "axi-port";
 
 bool IsTransition(const IResourceClass &rc);
 bool IsSelect(const IResourceClass &rc);
@@ -72,6 +73,7 @@ bool IsEmbedded(const IResourceClass &rc);
 bool IsTask(const IResourceClass &rc);
 bool IsTaskCall(const IResourceClass &rc);
 bool IsForeignRegister(const IResourceClass &rc);
+bool IsAxiPort(const IResourceClass &rc);
 
 void InstallResourceClasses(IDesign *design);
 
