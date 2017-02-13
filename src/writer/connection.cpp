@@ -70,6 +70,12 @@ void Connection::ProcessTable(ITable *tab) {
   for (IResource *reg : memory_writers) {
     shared_memory_accessors_[reg->GetSharedRegister()].push_back(reg);
   }
+  vector<IResource *> memory_ports;
+  DesignUtil::FindResourceByClassName(tab, resource::kAxiPort,
+				      &memory_ports);
+  for (IResource *reg : memory_ports) {
+    shared_memory_ports_[reg->GetSharedRegister()].push_back(reg);
+  }
 }
 
 const ChannelInfo *Connection::GetConnectionInfo(const IModule *mod) const {
@@ -177,6 +183,10 @@ const vector<IResource *> *Connection::GetSharedRegWriters(const IResource *res)
   
 const vector<IResource *> *Connection::GetSharedMemoryAccessors(const IResource *res) const {
   return GetResourceVector(shared_memory_accessors_, res);
+}
+
+const vector<IResource *> *Connection::GetSharedMemoryPorts(const IResource *res) const {
+  return GetResourceVector(shared_memory_ports_, res);
 }
 
 const vector<IResource *> *Connection::GetTaskCallers(const IResource *res) const {

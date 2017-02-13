@@ -16,7 +16,7 @@ InternalSRAM::InternalSRAM(const Module &mod, const IResource &res,
 }
 
 void InternalSRAM::Write(ostream &os) {
-  os << "// SRAM\n"
+  os << "\n// SRAM("<< num_ports_ << " port(s))\n"
      << "module " << GetModuleName() << "(clk, " << GetResetPinName() << ", ";
   for (int p = 0; p < num_ports_; ++p) {
     if (p > 0) {
@@ -82,8 +82,12 @@ string InternalSRAM::GetModuleName() const {
   IArray *array = res_.GetArray();
   CHECK(array);
   const IValueType &type = array->GetDataType();
-  return "SRAM_" + Util::Itoa(array->GetAddressWidth())
+  string n = "SRAM_" + Util::Itoa(array->GetAddressWidth())
     + "_" + Util::Itoa(type.GetWidth());
+  if (num_ports_ == 2) {
+    n += "_2";
+  }
+  return n;
 }
 
 string InternalSRAM::GetResetPinName() const {

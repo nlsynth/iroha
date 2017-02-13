@@ -19,6 +19,9 @@ public:
   static string ControllerName(const IResource &res, bool reset_polarity);
   static void WriteController(const IResource &res, bool reset_polarity,
 			      ostream &os);
+
+private:
+  void BuildInstance();
 };
 
 }  // namespace axi

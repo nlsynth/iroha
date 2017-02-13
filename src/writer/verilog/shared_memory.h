@@ -15,6 +15,13 @@ public:
   virtual void BuildResource() override;
   virtual void BuildInsn(IInsn *insn, State *st) override;
 
+  static string MemoryAddrPin(const IResource &res, int nth_port, const IResource *accessor);
+  static string MemoryRdataPin(const IResource &res, int nth_port);
+  static string MemoryWdataPin(const IResource &res, int nth_port,
+			       const IResource *accessor);
+  static string MemoryWenPin(const IResource &res, int nth_port,
+			     const IResource *accessor);
+
 private:
   void BuildMemoryAccessorResource(bool is_writer);
   void BuildMemoryResource();
@@ -27,12 +34,8 @@ private:
 
   static string MemoryPinPrefix(const IResource &res,
 				const IResource *accessor);
-  static string MemoryAddrPin(const IResource &res, const IResource *accessor);
   static string MemoryReqPin(const IResource &res, const IResource *accessor);
   static string MemoryAckPin(const IResource &res, const IResource *accessor);
-  static string MemoryRdataPin(const IResource &res);
-  static string MemoryWdataPin(const IResource &res, const IResource *accessor);
-  static string MemoryWenPin(const IResource &res, const IResource *accessor);
 };
 
 }  // namespace verilog

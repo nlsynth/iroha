@@ -16,7 +16,8 @@ public:
   ~EmbeddedModules();
   void RequestModule(const ResourceParams &params);
   InternalSRAM *RequestInternalSRAM(const Module &mod,
-				    const IResource &res);
+				    const IResource &res,
+				    int num_ports);
   void RequestAxiController(const IResource *axi_port,
 			    bool reset_polarity);
 
