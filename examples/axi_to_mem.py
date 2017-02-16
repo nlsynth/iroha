@@ -6,7 +6,10 @@ from iroha.iroha import *
 
 d = IDesign()
 
+mod_root = IModule(d, "mod_root")
+
 mod = IModule(d, "mod")
+mod.parent_module = mod_root
 tab = ITable(mod)
 st1 = IState(tab)
 st2 = IState(tab)
@@ -24,6 +27,7 @@ axi_port = axi.CreateAxiPort(tab, mem)
 insn = IInsn(axi_port)
 addr = design_tool.AllocConstNum(tab, False, 32, 1)
 insn.inputs.append(addr)
+insn.operand = "read"
 st1.insns.append(insn)
 
 minsn = IInsn(mem)

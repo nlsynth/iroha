@@ -20,7 +20,8 @@ AxiPort::AxiPort(const IResource &res, const Table &table)
 }
 
 void AxiPort::BuildResource() {
-  BuildInstance();
+  string s = BuildPort();
+  BuildInstance(s);
 }
 
 void AxiPort::BuildInsn(IInsn *insn, State *st) {
@@ -30,13 +31,14 @@ string AxiPort::ControllerName(const IResource &res, bool reset_polarity) {
   return "axi_controller";
 }
 
-void AxiPort::WriteController(const IResource &res, bool reset_polarity,
+void AxiPort::WriteController(const IResource &res,
+			      bool reset_polarity,
 			      ostream &os) {
   Controller c(res, reset_polarity);
   c.Write(os);
 }
 
-void AxiPort::BuildInstance() {
+void AxiPort::BuildInstance(const string &s) {
   bool reset_polarity = tab_.GetModule()->GetResetPolarity();
   tab_.GetEmbeddedModules()->RequestAxiController(&res_, reset_polarity);
   ostream &es = tmpl_->GetStream(kEmbeddedInstanceSection);
@@ -51,7 +53,35 @@ void AxiPort::BuildInstance() {
      << ".wdata(" << SharedMemory::MemoryWdataPin(*mem, 1, nullptr) << "), "
      << ".rdata(" << SharedMemory::MemoryRdataPin(*mem, 1) << "), "
      << ".wen(" << SharedMemory::MemoryWenPin(*mem, 1, nullptr) << ")"
+     << s
      << ");\n";
+}
+
+string AxiPort::BuildPort() {
+  bool r, w;
+  GetReadWrite(res_, &r, &w);
+  Module *mod = tab_.GetModule();
+  string s;
+  Controller::AddPorts(mod, r, w, &s);
+  for (mod = mod->GetParentModule(); mod != nullptr;
+       mod = mod->GetParentModule()) {
+    Controller::AddPorts(mod, r, w, nullptr);
+  }
+  return s;
+}
+
+void AxiPort::GetReadWrite(const IResource &res, bool *r, bool *w) {
+  vector<IInsn *> insns = DesignUtil::GetInsnsByResource(&res);
+  *r = false;
+  *w = false;
+  for (IInsn *insn : insns) {
+    if (insn->GetOperand() == "read") {
+      *r = true;
+    }
+    if (insn->GetOperand() == "write") {
+      *w = true;
+    }
+  }
 }
 
 }  // namespace axi
