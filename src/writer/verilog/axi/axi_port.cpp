@@ -2,11 +2,14 @@
 
 #include "design/design_util.h"
 #include "iroha/i_design.h"
+#include "iroha/logging.h"
 #include "writer/module_template.h"
 #include "writer/verilog/axi/controller.h"
 #include "writer/verilog/embed.h"
+#include "writer/verilog/insn_writer.h"
 #include "writer/verilog/module.h"
 #include "writer/verilog/ports.h"
+#include "writer/verilog/state.h"
 #include "writer/verilog/table.h"
 #include "writer/verilog/shared_memory.h"
 
@@ -20,15 +23,68 @@ AxiPort::AxiPort(const IResource &res, const Table &table)
 }
 
 void AxiPort::BuildResource() {
+  CHECK(tab_.GetITable() == res_.GetTable());
   string s = BuildPort();
   BuildInstance(s);
+
+  ostream &os = tmpl_->GetStream(kResourceSection);
+  os << "  reg [31:0] " << AddrPort() << ";\n"
+     << "  reg " << WenPort() << ";\n"
+     << "  reg " << ReqPort() << ";\n"
+     << "  wire " << AckPort() << ";\n";
+
+  ostream &is = tab_.InitialValueSectionStream();
+  is << "      " << AddrPort() << " <= 0;\n"
+     << "      " << WenPort() << " <= 0;\n"
+     << "      " << ReqPort() << " <= 0;\n";
+
+  map<IState *, IInsn *> accessors;
+  CollectResourceCallers("*", &accessors);
+  ostream &ss = tab_.StateOutputSectionStream();
+  ss << "      " << ReqPort() << " <= ";
+  if (accessors.size() == 0) {
+    ss << "0;\n";
+  } else {
+    ss << JoinStatesWithSubState(accessors, 0) << ";\n";
+  }
+  map<IState *, IInsn *> writers;
+  CollectResourceCallers("", &writers);
+  ss << "      " << WenPort() << " <= ";
+  if (writers.size() == 0) {
+    ss << "0;\n";
+  } else {
+    ss << JoinStatesWithSubState(writers, 0) << ";\n";
+  }
 }
 
 void AxiPort::BuildInsn(IInsn *insn, State *st) {
+    static const char I[] = "          ";
+  string insn_st = InsnWriter::MultiCycleStateName(*(insn->GetResource()));
+  ostream &os = st->StateBodySectionStream();
+  os << I << "// AXI access request\n"
+     << I << "if (" << insn_st << " == 0) begin\n"
+     << I << "  " << AddrPort() << " <= "
+     << InsnWriter::RegisterValue(*insn->inputs_[0], tab_.GetNames()) << ";\n"
+     << I << "  if (" << AckPort() << ") begin\n"
+     << I << "    " << insn_st << " <= 3;\n"
+     << I << "  end\n"
+     << I << "end\n";
 }
 
 string AxiPort::ControllerName(const IResource &res, bool reset_polarity) {
-  return "axi_controller";
+  const IResource *mem_res = res.GetSharedRegister();
+  IArray *array = mem_res->GetArray();
+  int addr_width = array->GetAddressWidth();
+  string s = "axi_controller_a" + Util::Itoa(addr_width);
+  bool r, w;
+  GetReadWrite(res, &r, &w);
+  if (r) {
+    s += "r";
+  }
+  if (w) {
+    s += "w";
+  }
+  return s;
 }
 
 void AxiPort::WriteController(const IResource &res,
@@ -48,11 +104,16 @@ void AxiPort::BuildInstance(const string &s) {
   const IResource *mem = res_.GetSharedRegister();
   es << "  " << name << " inst_" << name
      << "(.clk("<< clk << "), "
+     << ".addr(" << AddrPort() << "), "
+     << ".wen(" << WenPort() << "), "
+     << ".req(" << ReqPort() << "), "
+     << ".ack(" << AckPort() << "), "
      << "." << Controller::ResetName(reset_polarity) << "(" << rst << "), "
-     << ".addr(" << SharedMemory::MemoryAddrPin(*mem, 1, nullptr) << "), "
-     << ".wdata(" << SharedMemory::MemoryWdataPin(*mem, 1, nullptr) << "), "
-     << ".rdata(" << SharedMemory::MemoryRdataPin(*mem, 1) << "), "
-     << ".wen(" << SharedMemory::MemoryWenPin(*mem, 1, nullptr) << ")"
+     << ".sram_addr(" << SharedMemory::MemoryAddrPin(*mem, 1, nullptr) << "), "
+     << ".sram_wdata(" << SharedMemory::MemoryWdataPin(*mem, 1, nullptr)
+     << "), "
+     << ".sram_rdata(" << SharedMemory::MemoryRdataPin(*mem, 1) << "), "
+     << ".sram_wen(" << SharedMemory::MemoryWenPin(*mem, 1, nullptr) << ") "
      << s
      << ");\n";
 }
@@ -82,6 +143,27 @@ void AxiPort::GetReadWrite(const IResource &res, bool *r, bool *w) {
       *w = true;
     }
   }
+}
+
+string AxiPort::PortSuffix() {
+  const ITable *tab = res_.GetTable();
+  return Util::Itoa(tab->GetId());
+}
+
+string AxiPort::AddrPort() {
+  return "axi_addr" + PortSuffix();
+}
+
+string AxiPort::WenPort() {
+  return "axi_wen" + PortSuffix();
+}
+
+string AxiPort::ReqPort() {
+  return "axi_req" + PortSuffix();
+}
+
+string AxiPort::AckPort() {
+  return "axi_ack" + PortSuffix();
 }
 
 }  // namespace axi

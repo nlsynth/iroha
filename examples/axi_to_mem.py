@@ -25,7 +25,7 @@ mem = design_tool.CreateSharedMemory(tab, 4, 32)
 axi_port = axi.CreateAxiPort(tab, mem)
 
 insn = IInsn(axi_port)
-addr = design_tool.AllocConstNum(tab, False, 32, 1)
+addr = design_tool.AllocConstNum(tab, False, 32, 128)
 insn.inputs.append(addr)
 insn.operand = "read"
 st1.insns.append(insn)

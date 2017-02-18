@@ -25,6 +25,12 @@ public:
 private:
   void BuildInstance(const string &s);
   string BuildPort();
+
+  string PortSuffix();
+  string AddrPort();
+  string WenPort();
+  string ReqPort();
+  string AckPort();
 };
 
 }  // namespace axi

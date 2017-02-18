@@ -27,10 +27,14 @@ void Controller::Write(ostream &os) {
   string name = AxiPort::ControllerName(res_, reset_polarity_);
   ports_->AddPort("clk", Port::INPUT_CLK, 0);
   ports_->AddPort(ResetName(reset_polarity_), Port::INPUT_RESET, 0);
-  ports_->AddPort("addr", Port::OUTPUT, addr_width);
-  ports_->AddPort("wdata", Port::OUTPUT, data_width);
-  ports_->AddPort("wen", Port::OUTPUT, 0);
-  ports_->AddPort("rdata", Port::INPUT, data_width);
+  ports_->AddPort("sram_addr", Port::OUTPUT, addr_width);
+  ports_->AddPort("sram_wdata", Port::OUTPUT, data_width);
+  ports_->AddPort("sram_wen", Port::OUTPUT, 0);
+  ports_->AddPort("sram_rdata", Port::INPUT, data_width);
+  ports_->AddPort("addr", Port::INPUT, 32);
+  ports_->AddPort("wen", Port::INPUT, 0);
+  ports_->AddPort("req", Port::INPUT, 0);
+  ports_->AddPort("ack", Port::OUTPUT, 0);
   bool r, w;
   AxiPort::GetReadWrite(res_, &r, &w);
   string initials;
@@ -47,7 +51,8 @@ void Controller::Write(ostream &os) {
   os << "  always @(posedge clk) begin\n"
      << "    if (" << (reset_polarity_ ? "" : "!")
      << ResetName(reset_polarity_) << ") begin\n"
-     << "      wen <= 0;\n"
+     << "      ack <= 0;\n"
+     << "      sram_wen <= 0;\n"
      << initials
      << "    end\n";
   os << "  end\n"

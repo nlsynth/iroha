@@ -173,6 +173,9 @@ bool DesignUtil::IsMultiCycleInsn(IInsn *insn) {
       resource::IsEmbedded(*rc)) {
     return true;
   }
+  if (resource::IsAxiPort(*rc)) {
+    return true;
+  }
   if (resource::IsSharedRegReader(*rc)) {
     if (insn->GetOperand() == "wait_notify" ||
 	insn->GetOperand() == "get_semaphore") {
