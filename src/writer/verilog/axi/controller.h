@@ -29,10 +29,16 @@ private:
 			      string *s);
   static void AddPort(const string &name, int width, bool dir,
 		      Module *module, Ports *ports, string *s);
+  void OutputFsm(ostream &os);
+  void ReaderFsm(ostream &os);
+  void WriterFsm(ostream &os);
 
   const IResource &res_;
   bool reset_polarity_;
   unique_ptr<Ports> ports_;
+  bool r_, w_;
+  int addr_width_;
+  int data_width_;
 };
 
 }  // namespace axi
