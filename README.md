@@ -47,7 +47,10 @@ Please read src/iroha/iroha.h, src/iroha/iroha_main.cpp examples/ for more detai
 * P1: Better error handling
 * P1: More debug output from optimizers.
 * P1: Support profiling information from frontends.
-* P1: Export optimizer API so that users can add own phase
+* P1: Ability to merge AXI channels.
+* P1: Implement deeper FIFO.
+* P1: Connect FIFO to a dataflow table.
+* P2: Export optimizer API so that users can add own phase
 * P2: FPGA style register initialization
 * P2: I/O for embedded verilog module
 * P2: Modularize mapped resource

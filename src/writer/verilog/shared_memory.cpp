@@ -109,10 +109,16 @@ void SharedMemory::BuildMemoryResource() {
 void SharedMemory::BuildExternalMemoryConnection() {
   IArray *array = res_.GetArray();
   auto *ports = tab_.GetPorts();
-  ports->AddPort(MemoryAddrPin(res_, 0, nullptr), Port::OUTPUT_WIRE, array->GetAddressWidth());
-  ports->AddPort(MemoryWdataPin(res_, 0, nullptr), Port::OUTPUT_WIRE, array->GetDataType().GetWidth());
-  ports->AddPort(MemoryWenPin(res_, 0, nullptr), Port::OUTPUT_WIRE, 0);
-  ports->AddPort(MemoryRdataPin(res_, 0), Port::INPUT, array->GetAddressWidth());
+  ports->AddPort("sram_addr", Port::OUTPUT_WIRE, array->GetAddressWidth());
+  ports->AddPort("sram_wdata", Port::OUTPUT_WIRE, array->GetDataType().GetWidth());
+  ports->AddPort("sram_wdata_en", Port::OUTPUT_WIRE, 0);
+  ports->AddPort("sram_rdata", Port::INPUT, array->GetAddressWidth());
+
+  ostream &rs = tmpl_->GetStream(kResourceSection);
+  rs << "  assign sram_addr = " << MemoryAddrPin(res_, 0, nullptr) << ";\n";
+  rs << "  assign sram_wdata = " << MemoryWdataPin(res_, 0, nullptr) << ";\n";
+  rs << "  assign sram_wdata_en = " << MemoryWenPin(res_, 0, nullptr) << ";\n";
+  rs << "  assign " << MemoryRdataPin(res_, 0) << " = sram_rdata;\n";
 }
 
 void SharedMemory::BuildMemoryInstance() {
@@ -308,6 +314,21 @@ void SharedMemory::AddAccessPort(const IModule *imod,
       ports->AddPort(MemoryWdataPin(res_, 0, accessor), Port::INPUT,
 		    data_width);
     }
+  }
+  Module *parent_mod = mod->GetParentModule();
+  ostream &os = parent_mod->ChildModuleInstSectionStream(mod);
+  os << ", ." << MemoryAddrPin(res_, 0, accessor) << "("
+     << MemoryAddrPin(res_, 0, accessor) << ")";
+  os << ", ." << MemoryReqPin(res_, accessor) << "("
+     << MemoryReqPin(res_, accessor) << ")";
+  os << ", ." << MemoryAckPin(res_, accessor) << "("
+     << MemoryAckPin(res_, accessor) << ")";
+  if (resource::IsSharedMemoryWriter(*klass)) {
+    os << ", ." << MemoryWdataPin(res_, 0, accessor) << "("
+       << MemoryWdataPin(res_, 0, accessor) << ")";
+  } else {
+    os << ", ." << MemoryRdataPin(res_, 0) << "("
+       << MemoryRdataPin(res_, 0) << ")";
   }
 }
 
