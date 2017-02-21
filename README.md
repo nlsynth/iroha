@@ -43,24 +43,22 @@ Please read src/iroha/iroha.h, src/iroha/iroha_main.cpp examples/ for more detai
 -- TODOs
 
 * WIP: Document
-* P1: Mechanism to pass return values from task
 * P1: Test and debug SSA conversion and PHI removal
-* P1: Implement shared external memory
+* P1: Better error handling
+* P1: More debug output from optimizers.
+* P1: Support profiling information from frontends.
+* P1: Export optimizer API so that users can add own phase
 * P2: FPGA style register initialization
-* P2: Better error handling
 * P2: I/O for embedded verilog module
 * P2: Modularize mapped resource
 * P2: Values wider than 64bits
 * P2: Set constraint not to split related insns
 * P2: Simplify wait cycle if there's 1 multi cycle insn in a state
-* P2: More debug output from optimizers.
-* P2: Support profiling information from frontends.
-* P2: Export optimizer API so that users can add own phase
-* P3: Pluggable optimizer and writer
-* P3: Set reset polarity to embedded module.
-* P3: Allow multiple embedded module instances.
-* P3: Carry bit of adder as input/output.
-* P3: Use profiling information to estimate IPC.
+* P2: Pluggable optimizer and writer
+* P2: Set reset polarity to embedded module.
+* P2: Allow multiple embedded module instances.
+* P2: Carry bit of adder as input/output.
+* P2: Use profiling information to estimate IPC.
 * Q: Do we need instance/module separation?
 
 -- Source tree

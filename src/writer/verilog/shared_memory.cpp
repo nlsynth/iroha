@@ -36,7 +36,11 @@ void SharedMemory::BuildResource() {
 }
 
 void SharedMemory::BuildMemoryResource() {
-  BuildMemoryInstance();
+  if (res_.GetArray()->IsExternal()) {
+    BuildExternalMemoryConnection();
+  } else {
+    BuildMemoryInstance();
+  }
   vector<const IResource *> accessors;
   accessors.push_back(&res_);
   auto *ext_accessors =
@@ -100,6 +104,15 @@ void SharedMemory::BuildMemoryResource() {
   rs << "  assign " << wdata_wire << " = " << wdata_sel << ";\n";
   string wen_wire = MemoryWenPin(res_, 0, nullptr);
   rs << "  assign " << wen_wire << " = " << wen_sel << ";\n";
+}
+
+void SharedMemory::BuildExternalMemoryConnection() {
+  IArray *array = res_.GetArray();
+  auto *ports = tab_.GetPorts();
+  ports->AddPort(MemoryAddrPin(res_, 0, nullptr), Port::OUTPUT_WIRE, array->GetAddressWidth());
+  ports->AddPort(MemoryWdataPin(res_, 0, nullptr), Port::OUTPUT_WIRE, array->GetDataType().GetWidth());
+  ports->AddPort(MemoryWenPin(res_, 0, nullptr), Port::OUTPUT_WIRE, 0);
+  ports->AddPort(MemoryRdataPin(res_, 0), Port::INPUT, array->GetAddressWidth());
 }
 
 void SharedMemory::BuildMemoryInstance() {

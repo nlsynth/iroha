@@ -26,6 +26,7 @@ private:
   void BuildMemoryAccessorResource(bool is_writer);
   void BuildMemoryResource();
   void BuildMemoryInstance();
+  void BuildExternalMemoryConnection();
   void BuildAccessWireAll(vector<const IResource *> &acccessors);
   void AddAccessPort(const IModule *imod, const IResource *accessor, bool upward);
   void AddRdataPort(const IModule *imod, const IResource *accessor, bool upward);

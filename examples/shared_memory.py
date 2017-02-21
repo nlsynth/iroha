@@ -18,6 +18,7 @@ tab.states.append(st3)
 design_tool.AddNextState(st1, st2)
 design_tool.AddNextState(st2, st3)
 
+# mem = design_tool.CreateExternalMemory(tab, 4, 32)
 mem = design_tool.CreateSharedMemory(tab, 4, 32)
 
 self_winsn = IInsn(mem)
