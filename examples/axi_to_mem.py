@@ -13,29 +13,38 @@ mod.parent_module = mod_root
 tab = ITable(mod)
 st1 = IState(tab)
 st2 = IState(tab)
+st3 = IState(tab)
 
 tab.initialSt = st1
 tab.states.append(st1)
 tab.states.append(st2)
+tab.states.append(st3)
 
 design_tool.AddNextState(st1, st2)
+design_tool.AddNextState(st2, st3)
 
 mem = design_tool.CreateSharedMemory(tab, 4, 32)
 
 axi_port = axi.CreateAxiPort(tab, mem)
 
-insn = IInsn(axi_port)
+rinsn = IInsn(axi_port)
 addr = design_tool.AllocConstNum(tab, False, 32, 128)
-insn.inputs.append(addr)
-insn.operand = "read"
-st1.insns.append(insn)
+rinsn.inputs.append(addr)
+rinsn.operand = "read"
+st1.insns.append(rinsn)
+
+winsn = IInsn(axi_port)
+addr = design_tool.AllocConstNum(tab, False, 32, 128)
+winsn.inputs.append(addr)
+winsn.operand = "write"
+st2.insns.append(winsn)
 
 minsn = IInsn(mem)
 maddr = design_tool.AllocConstNum(tab, False, 4, 0)
 mdata = IRegister(tab, "r1")
 minsn.inputs.append(maddr)
 minsn.outputs.append(mdata)
-st2.insns.append(minsn)
+st3.insns.append(minsn)
 
 design_tool.ValidateIds(d)
 w = DesignWriter(d)

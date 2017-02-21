@@ -19,6 +19,7 @@ Controller::Controller(const IResource &res, bool reset_polarity)
   IArray *array = mem_res->GetArray();
   addr_width_ = array->GetAddressWidth();
   data_width_ = array->GetDataType().GetWidth();
+  burst_len_ = (1 << addr_width_);
 }
 
 Controller::~Controller() {
@@ -53,19 +54,18 @@ void Controller::Write(ostream &os) {
   if (r_) {
     os << "  `define S_READ_DATA 2\n";
   }
+  if (w_) {
+    os << "  `define S_WRITE_DATA 3\n";
+    os << "  `define S_WRITE_WAIT 4\n";
+  }
   os << "  reg [3:0] st;\n\n"
-     << "  reg [" << (addr_width_ - 1) << ":0] idx;\n\n";
+     << "  reg [" << addr_width_ << ":0] idx;\n\n";
   os << "  always @(posedge clk) begin\n"
      << "    if (" << (reset_polarity_ ? "" : "!")
      << ResetName(reset_polarity_) << ") begin\n"
      << "      ack <= 0;\n"
      << "      sram_wen <= 0;\n"
      << "      st <= `S_IDLE;\n";
-  int alen = (1 << addr_width_) - 1;
-  if (r_) {
-    os << "      ARLEN <= " << alen << ";\n";
-    os << "      ARSIZE <= 0;\n";
-  }
   os << initials
      << "    end else begin\n";
   OutputFsm(os);
@@ -110,8 +110,19 @@ void Controller::GenReadChannel(Module *module, Ports *ports,
 
 void Controller::GenWriteChannel(Module *module, Ports *ports,
 				 string *s) {
+  AddPort("AWADDR", 32, false, module, ports, s);
   AddPort("AWVALID", 0, false, module, ports, s);
   AddPort("AWREADY", 0, true, module, ports, s);
+  AddPort("AWLEN", 8, false, module, ports, s);
+  AddPort("AWSIZE", 3, false, module, ports, s);
+
+  AddPort("WVALID", 0, false, module, ports, s);
+  AddPort("WREADY", 0, true, module, ports, s);
+  AddPort("WDATA", 32, false, module, ports, s);
+
+  AddPort("BVALID", 0, true, module, ports, s);
+  AddPort("BREADY", 0, false, module, ports, s);
+  AddPort("BRESP", 2, true, module, ports, s);
 }
 
 void Controller::AddPort(const string &name, int width, bool dir,
@@ -141,12 +152,13 @@ void Controller::AddPort(const string &name, int width, bool dir,
   }
   if (module == nullptr) {
     if (!dir) {
-      *s = "      " + name + " <= 0;\n";
+      *s += "      " + name + " <= 0;\n";
     }
   }
 }
 
 void Controller::OutputFsm(ostream &os) {
+  int alen = burst_len_ - 1;
   os << "      sram_wen <= (st == `S_READ_DATA && RVALID);\n";
   os << "      case (st)\n"
      << "        `S_IDLE: begin\n"
@@ -155,17 +167,23 @@ void Controller::OutputFsm(ostream &os) {
      << "            st <= `S_ADDR_WAIT;\n";
   if (r_ && !w_) {
     os << "            ARVALID <= 1;\n"
-       << "            ARADDR <= addr;\n";
+       << "            ARADDR <= addr;\n"
+       << "            ARLEN <= " << alen << ";\n";
   }
   if (!r_ && w_) {
-    os << "            AWVALID <= 1;\n";
+    os << "            AWVALID <= 1;\n"
+       << "            AWADDR <= addr;\n"
+       << "            AWLEN <= " << alen << ";\n";
   }
   if (r_ && w_) {
     os << "            if (wen) begin\n"
        << "              ARVALID <= 1;\n"
        << "              ARADDR <= addr;\n"
+       << "              ARLEN <= " << alen << ";\n"
        << "            end else begin\n"
        << "              AWVALID <= 1;\n"
+       << "              AWADDR <= addr;\n"
+       << "              AWLEN <= " << alen << ";\n"
        << "            end\n";
   }
   os << "          end\n"
@@ -179,19 +197,25 @@ void Controller::OutputFsm(ostream &os) {
        << "          end\n";
   }
   if (!r_ && w_) {
-    os << "            if (AWREADY) begin\n"
-       << "            end\n";
+    os << "          if (AWREADY) begin\n"
+       << "            st <= `S_WRITE_DATA;\n"
+       << "            AWVALID <= 0;\n"
+       << "            sram_addr <= idx;\n"
+       << "          end\n";
   }
   if (r_ && w_) {
-    os << "            if (wen) begin\n"
-       << "              if (AWREADY) begin\n"
-       << "              end\n"
-       << "            end else begin\n"
-       << "              if (ARREADY) begin\n"
-       << "                st <= `S_READ_DATA;\n"
-       << "                RREADY <= 1;\n"
-       << "              end\n"
-       << "            end\n";
+    os << "          if (wen) begin\n"
+       << "            if (AWREADY) begin\n"
+       << "              st <= `S_WRITE_DATA;\n"
+       << "              AWVALID <= 0;\n"
+       << "              sram_addr <= idx;\n"
+       << "            end\n"
+       << "          end else begin\n"
+       << "            if (ARREADY) begin\n"
+       << "              st <= `S_READ_DATA;\n"
+       << "              RREADY <= 1;\n"
+       << "            end\n"
+       << "          end\n";
   }
   os << "        end\n";
   if (r_) {
@@ -218,6 +242,26 @@ void Controller::ReaderFsm(ostream &os) {
 }
 
 void Controller::WriterFsm(ostream &os) {
+  os << "        `S_WRITE_DATA: begin\n"
+     << "          if (idx < " << burst_len_ << ") begin\n"
+     << "            WVALID <= 1;\n"
+     << "            WDATA <= sram_rdata;\n"
+     << "            if (WREADY && WVALID) begin\n"
+     << "              sram_addr <= idx + 1;\n"
+     << "              idx <= idx + 1;\n"
+     << "            end\n"
+     << "          end else begin\n"
+     << "            WVALID <= 0;\n"
+     << "            st <= `S_WRITE_WAIT;\n"
+     << "            BREADY <= 1;\n"
+     << "          end\n"
+     << "        end\n"
+     << "        `S_WRITE_WAIT: begin\n"
+     << "          if (BVALID) begin\n"
+     << "            BREADY <= 0;\n"
+     << "            st <= `S_IDLE;\n"
+     << "          end\n"
+     << "        end\n";
 }
 
 }  // namespace axi
