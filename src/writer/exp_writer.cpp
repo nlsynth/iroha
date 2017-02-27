@@ -109,7 +109,8 @@ void ExpWriter::WriteResource(const IResource &res) {
   if (resource::IsSharedRegReader(rc) ||
       resource::IsSharedRegWriter(rc) ||
       resource::IsSharedMemoryReader(rc) ||
-      resource::IsSharedMemoryWriter(rc)) {
+      resource::IsSharedMemoryWriter(rc) ||
+      resource::IsAxiPort(rc)) {
     WriteSharedRegDesc(res);
   }
   os_ << "      )\n";
