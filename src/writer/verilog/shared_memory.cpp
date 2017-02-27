@@ -232,8 +232,12 @@ void SharedMemory::BuildMemoryAccessorResource(bool is_writer) {
   ostream &ss = tab_.StateOutputSectionStream();
   map<IState *, IInsn *> callers;
   CollectResourceCallers("", &callers);
-  ss << "      " << MemoryReqPin(*mem, &res_) << " <= "
-     << JoinStatesWithSubState(callers, 0) << ";\n";
+  ss << "      " << MemoryReqPin(*mem, &res_) << " <= ";
+  if (callers.size() > 0) {
+    ss << JoinStatesWithSubState(callers, 0) << ";\n";
+  } else {
+    ss << "0;\n";
+  }
   if (resource::IsSharedMemory(*klass)) {
     rs << "  reg " << MemoryWenPin(*mem, 0, &res_) << ";\n";
     is << "      " << MemoryWenPin(*mem, 0, &res_) << " <= 0;\n";

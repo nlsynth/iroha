@@ -138,9 +138,10 @@ void AxiPort::GetReadWrite(const IResource &res, bool *r, bool *w) {
   for (IInsn *insn : insns) {
     if (insn->GetOperand() == "read") {
       *r = true;
-    }
-    if (insn->GetOperand() == "write") {
+    } else if (insn->GetOperand() == "write") {
       *w = true;
+    } else {
+      CHECK(false);
     }
   }
 }

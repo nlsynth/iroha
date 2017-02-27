@@ -159,7 +159,11 @@ void Controller::AddPort(const string &name, int width, bool dir,
 
 void Controller::OutputFsm(ostream &os) {
   int alen = burst_len_ - 1;
-  os << "      sram_wen <= (st == `S_READ_DATA && RVALID);\n";
+  if (r_) {
+    os << "      sram_wen <= (st == `S_READ_DATA && RVALID);\n";
+  } else {
+    os << "      sram_wen <= 0;\n";
+  }
   os << "      case (st)\n"
      << "        `S_IDLE: begin\n"
      << "          if (req) begin\n"
