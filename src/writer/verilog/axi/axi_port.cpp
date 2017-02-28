@@ -48,7 +48,7 @@ void AxiPort::BuildResource() {
     ss << JoinStatesWithSubState(accessors, 0) << ";\n";
   }
   map<IState *, IInsn *> writers;
-  CollectResourceCallers("", &writers);
+  CollectResourceCallers("write", &writers);
   ss << "      " << WenPort() << " <= ";
   if (writers.size() == 0) {
     ss << "0;\n";
