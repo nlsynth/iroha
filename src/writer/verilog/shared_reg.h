@@ -23,12 +23,12 @@ public:
   static string RegNotifierName(const IResource &res);
   //  notification from each writer
   static string WriterNotifierName(const IResource &res);
-  // Semaphore
-  static string RegSemaphoreName(const IResource &res);
-  static string RegSemaphorePutReqName(const IResource &res);
-  static string RegSemaphorePutAckName(const IResource &res);
-  static string RegSemaphoreGetReqName(const IResource &res);
-  static string RegSemaphoreGetAckName(const IResource &res);
+  // Mailbox
+  static string RegMailboxName(const IResource &res);
+  static string RegMailboxPutReqName(const IResource &res);
+  static string RegMailboxPutAckName(const IResource &res);
+  static string RegMailboxGetReqName(const IResource &res);
+  static string RegMailboxGetAckName(const IResource &res);
 
   static void AddWire(const IModule *common_root, const Table *tab,
 		      const IResource *accessor, bool is_write);
@@ -38,7 +38,7 @@ private:
   void BuildReadWire();
   void AddReadPort(const IModule *imod, const IResource *reader, bool upward);
   void GetOptions(bool *use_notify, bool *use_sem);
-  void BuildSemaphore();
+  void BuildMailbox();
 
   int width_;
   bool has_default_output_value_;

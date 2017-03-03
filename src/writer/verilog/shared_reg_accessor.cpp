@@ -52,16 +52,16 @@ void SharedRegAccessor::BuildInsn(IInsn *insn, State *st) {
 }
 
 void SharedRegAccessor::BuildSharedRegReaderResource() {
-  if (UseSemaphore(&res_)) {
+  if (UseMailbox(&res_)) {
     ostream &rs = tmpl_->GetStream(kRegisterSection);
     ostream &is = tab_.InitialValueSectionStream();
     rs << "  // shared-reg-reader\n";
-    rs << "  reg " << SharedReg::RegSemaphoreGetReqName(res_) << ";\n";
-    is << "      " << SharedReg::RegSemaphoreGetReqName(res_) << " <= 0;\n";
+    rs << "  reg " << SharedReg::RegMailboxGetReqName(res_) << ";\n";
+    is << "      " << SharedReg::RegMailboxGetReqName(res_) << " <= 0;\n";
     map<IState *, IInsn *> getters;
-    CollectResourceCallers("get_semaphore", &getters);
+    CollectResourceCallers("get_mailbox", &getters);
     ostream &os = tab_.StateOutputSectionStream();
-    os << "      " << SharedReg::RegSemaphoreGetReqName(res_) << " <= "
+    os << "      " << SharedReg::RegMailboxGetReqName(res_) << " <= "
        << JoinStatesWithSubState(getters, 0) << ";\n";
   }
 }
@@ -82,13 +82,13 @@ void SharedRegAccessor::BuildSharedRegWriterResource() {
   if (UseNotify(&res_)) {
     is << "      " << SharedReg::WriterNotifierName(res_) << " <= 0;\n";
   }
-  // Notify and semaphore
+  // Notify and Mailbox
   if (UseNotify(&res_)) {
     rs << "  reg " << SharedReg::WriterNotifierName(res_) << ";\n";
   }
-  if (UseSemaphore(&res_)) {
-    rs << "  reg " << SharedReg::RegSemaphorePutReqName(res_) << ";\n";
-    is << "      " << SharedReg::RegSemaphorePutReqName(res_) << " <= 0;\n";
+  if (UseMailbox(&res_)) {
+    rs << "  reg " << SharedReg::RegMailboxPutReqName(res_) << ";\n";
+    is << "      " << SharedReg::RegMailboxPutReqName(res_) << " <= 0;\n";
   }
   // Write en signal.
   ostream &os = tab_.StateOutputSectionStream();
@@ -105,10 +105,10 @@ void SharedRegAccessor::BuildSharedRegWriterResource() {
     WriteStateUnion(notifiers, os);
     os << ";\n";
   }
-  if (UseSemaphore(&res_)) {
+  if (UseMailbox(&res_)) {
     map<IState *, IInsn *> putters;
-    CollectResourceCallers("put_semaphore", &putters);
-    os << "      " << SharedReg::RegSemaphorePutReqName(res_) << " <= "
+    CollectResourceCallers("put_mailbox", &putters);
+    os << "      " << SharedReg::RegMailboxPutReqName(res_) << " <= "
        << JoinStatesWithSubState(putters, 0) << ";\n";
   }
 
@@ -143,7 +143,7 @@ void SharedRegAccessor::AddWritePort(const IModule *imod,
   Ports *ports = mod->GetPorts();
   int width = writer->GetSharedRegister()->GetParams()->GetWidth();
   bool notify = UseNotify(writer);
-  bool sem = UseSemaphore(writer);
+  bool sem = UseMailbox(writer);
   if (upward) {
     ports->AddPort(SharedReg::WriterName(*writer), Port::OUTPUT_WIRE, width);
     ports->AddPort(SharedReg::WriterEnName(*writer), Port::OUTPUT_WIRE, 0);
@@ -151,7 +151,7 @@ void SharedRegAccessor::AddWritePort(const IModule *imod,
       ports->AddPort(SharedReg::WriterNotifierName(*writer), Port::OUTPUT_WIRE, 0);
     }
     if (sem) {
-      ports->AddPort(SharedReg::RegSemaphoreGetReqName(*writer), Port::OUTPUT_WIRE, 0);
+      ports->AddPort(SharedReg::RegMailboxGetReqName(*writer), Port::OUTPUT_WIRE, 0);
     }
   } else {
     ports->AddPort(SharedReg::WriterName(*writer), Port::INPUT, width);
@@ -160,7 +160,7 @@ void SharedRegAccessor::AddWritePort(const IModule *imod,
       ports->AddPort(SharedReg::WriterNotifierName(*writer), Port::INPUT, 0);
     }
     if (sem) {
-      ports->AddPort(SharedReg::RegSemaphoreGetReqName(*writer), Port::INPUT, 0);
+      ports->AddPort(SharedReg::RegMailboxGetReqName(*writer), Port::INPUT, 0);
     }
   }
   Module *parent_mod = mod->GetParentModule();
@@ -181,8 +181,8 @@ void SharedRegAccessor::GetAccessorFeatures(const IResource *accessor,
       *use_notify = true;
     }
     // ditto.
-    if (op == "get_semaphore" ||
-	op == "put_semaphore") {
+    if (op == "get_mailbox" ||
+	op == "put_mailbox") {
       *use_sem = true;
     }
   }
@@ -206,10 +206,10 @@ void SharedRegAccessor::BuildReadInsn(IInsn *insn, State *st) {
        << I << "  end\n"
        << I << "end\n";
   }
-  if (insn->GetOperand() == "get_semaphore") {
-    os << I << "// Wait get semaphore\n"
+  if (insn->GetOperand() == "get_mailbox") {
+    os << I << "// Wait get mailbox\n"
        << I << "if (" << insn_st << " == 0) begin\n"
-       << I << "  if (" << SharedReg::RegSemaphoreGetAckName(res_) << ") begin\n"
+       << I << "  if (" << SharedReg::RegMailboxGetAckName(res_) << ") begin\n"
        << I << "    " << insn_st << " <= 3;\n"
        << I << "  end\n"
        << I << "end\n";
@@ -221,13 +221,13 @@ void SharedRegAccessor::BuildWriteInsn(IInsn *insn, State *st) {
   ss << "          " << SharedReg::WriterName(res_) << " <= "
      << InsnWriter::RegisterValue(*insn->inputs_[0], tab_.GetNames())
      << ";\n";
-  if (insn->GetOperand() == "put_semaphore") {
+  if (insn->GetOperand() == "put_mailbox") {
     static const char I[] = "          ";
     string insn_st = InsnWriter::MultiCycleStateName(res_);
     ostream &os = st->StateBodySectionStream();
-    os << I << "// Wait put semaphore\n"
+    os << I << "// Wait put mailbox\n"
        << I << "if (" << insn_st << " == 0) begin\n"
-       << I << "  if (" << SharedReg::RegSemaphorePutAckName(res_) << ") begin\n"
+       << I << "  if (" << SharedReg::RegMailboxPutAckName(res_) << ") begin\n"
        << I << "    " << insn_st << " <= 3;\n"
        << I << "  end\n"
        << I << "end\n";  }
@@ -239,7 +239,7 @@ bool SharedRegAccessor::UseNotify(const IResource *accessor) {
   return n;
 }
 
-bool SharedRegAccessor::UseSemaphore(const IResource *accessor) {
+bool SharedRegAccessor::UseMailbox(const IResource *accessor) {
   bool n, s;
   GetAccessorFeatures(accessor, &n, &s);
   return s;

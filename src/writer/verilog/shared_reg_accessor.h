@@ -18,7 +18,7 @@ public:
   static void GetAccessorFeatures(const IResource *accessor,
 				  bool *use_notify, bool *use_sem);
   static bool UseNotify(const IResource *accessor);
-  static bool UseSemaphore(const IResource *accessor);
+  static bool UseMailbox(const IResource *accessor);
 
 private:
   void BuildSharedRegWriterResource();

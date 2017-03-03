@@ -82,7 +82,7 @@ void SharedReg::BuildResource() {
     is << "      " << RegNotifierName(res_) << " <= 0;\n";
   }
   if (use_sem_) {
-    BuildSemaphore();
+    BuildMailbox();
   }
   if (need_write_arbitration_) {
     // Priorities are
@@ -110,45 +110,45 @@ void SharedReg::BuildResource() {
   BuildReadWire();
 }
 
-void SharedReg::BuildSemaphore() {
+void SharedReg::BuildMailbox() {
   ostream &rs = tmpl_->GetStream(kRegisterSection);
-  rs << "  reg " << RegSemaphoreName(res_) << ";\n";
+  rs << "  reg " << RegMailboxName(res_) << ";\n";
   vector<string> higher_put_reqs;
   vector<string> put_reqs;
   for (auto *writer : *writers_) {
-    if (!SharedRegAccessor::UseSemaphore(writer)) {
+    if (!SharedRegAccessor::UseMailbox(writer)) {
       continue;
     }
-    rs << "  wire " << RegSemaphorePutAckName(*writer) << ";\n";
-    rs << "  assign " << RegSemaphorePutAckName(*writer) << " = "
-       << "(!" << RegSemaphoreName(res_) << ") && ";
+    rs << "  wire " << RegMailboxPutAckName(*writer) << ";\n";
+    rs << "  assign " << RegMailboxPutAckName(*writer) << " = "
+       << "(!" << RegMailboxName(res_) << ") && ";
     if (higher_put_reqs.size()) {
       rs << "(!(" << Util::Join(higher_put_reqs, " | ") << ")) && ";
     }
-    rs << RegSemaphorePutReqName(*writer) << ";\n";
-    put_reqs.push_back(RegSemaphorePutReqName(*writer));
+    rs << RegMailboxPutReqName(*writer) << ";\n";
+    put_reqs.push_back(RegMailboxPutReqName(*writer));
   }
   vector<string> higher_get_reqs;
   vector<string> get_reqs;
   for (auto *reader : *readers_) {
-    if (!SharedRegAccessor::UseSemaphore(reader)) {
+    if (!SharedRegAccessor::UseMailbox(reader)) {
       continue;
     }
-    rs << "  wire " << RegSemaphoreGetAckName(*reader) << ";\n";
-    rs << "  assign " << RegSemaphoreGetAckName(*reader) << " = "
-       << "(" << RegSemaphoreName(res_) << ") && ";
+    rs << "  wire " << RegMailboxGetAckName(*reader) << ";\n";
+    rs << "  assign " << RegMailboxGetAckName(*reader) << " = "
+       << "(" << RegMailboxName(res_) << ") && ";
     if (higher_get_reqs.size()) {
       rs << "(!(" << Util::Join(higher_get_reqs, " | ") << ")) && ";
     }
-    rs << RegSemaphoreGetReqName(*reader) << ";\n";
-    get_reqs.push_back(RegSemaphoreGetReqName(*reader));
+    rs << RegMailboxGetReqName(*reader) << ";\n";
+    get_reqs.push_back(RegMailboxGetReqName(*reader));
   }
   ostream &os = tab_.StateOutputSectionStream();
-  os << "      if (" << RegSemaphoreName(res_) << ") begin\n"
-     << "        " << RegSemaphoreName(res_) << " <= "
+  os << "      if (" << RegMailboxName(res_) << ") begin\n"
+     << "        " << RegMailboxName(res_) << " <= "
      << "!(" << Util::Join(get_reqs, " | ") << ");\n"
      << "      end else begin\n"
-     << "        " << RegSemaphoreName(res_) << " <= "
+     << "        " << RegMailboxName(res_) << " <= "
      << Util::Join(put_reqs, " | ") << ";\n"
      << "      end\n";
 }
@@ -190,24 +190,24 @@ string SharedReg::WriterNotifierName(const IResource &res) {
   return RegName(res) + "_write_notify";
 }
 
-string SharedReg::RegSemaphoreName(const IResource &res) {
-  return RegName(res) + "_semaphore";
+string SharedReg::RegMailboxName(const IResource &res) {
+  return RegName(res) + "_mailbox";
 }
 
-string SharedReg::RegSemaphorePutReqName(const IResource &res) {
-  return RegName(res) + "_semaphore_put_req";
+string SharedReg::RegMailboxPutReqName(const IResource &res) {
+  return RegName(res) + "_mailbox_put_req";
 }
 
-string SharedReg::RegSemaphorePutAckName(const IResource &res) {
-  return RegName(res) + "_semaphore_put_ack";
+string SharedReg::RegMailboxPutAckName(const IResource &res) {
+  return RegName(res) + "_mailbox_put_ack";
 }
 
-string SharedReg::RegSemaphoreGetReqName(const IResource &res) {
-  return RegName(res) + "_semaphore_get_req";
+string SharedReg::RegMailboxGetReqName(const IResource &res) {
+  return RegName(res) + "_mailbox_get_req";
 }
 
-string SharedReg::RegSemaphoreGetAckName(const IResource &res) {
-  return RegName(res) + "_semaphore_get_ack";
+string SharedReg::RegMailboxGetAckName(const IResource &res) {
+  return RegName(res) + "_mailbox_get_ack";
 }
 
 string SharedReg::RegName(const IResource &res) {
@@ -306,18 +306,18 @@ void SharedReg::AddWire(const IModule *common_root, const Table *tab,
       rs << RegNotifierName(*accessor) << ";\n";
     }
   }
-  bool sem = SharedRegAccessor::UseSemaphore(accessor);
+  bool sem = SharedRegAccessor::UseMailbox(accessor);
   if (sem) {
     if (is_write) {
       rs << "  wire "
-	 << RegSemaphorePutReqName(*accessor) << ";\n"
+	 << RegMailboxPutReqName(*accessor) << ";\n"
 	 << "  wire "
-	 << RegSemaphorePutAckName(*accessor) << ";\n";
+	 << RegMailboxPutAckName(*accessor) << ";\n";
     } else {
       rs << "  wire "
-	 << RegSemaphoreGetReqName(*accessor) << ";\n"
+	 << RegMailboxGetReqName(*accessor) << ";\n"
 	 << "  wire "
-	 << RegSemaphoreGetAckName(*accessor) << ";\n";
+	 << RegMailboxGetAckName(*accessor) << ";\n";
     }
   }
 }

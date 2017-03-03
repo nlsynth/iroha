@@ -29,7 +29,7 @@ wst1.insns.append(winsn)
 
 spinsn = IInsn(w)
 spinsn.inputs.append(rc)
-spinsn.operand = "put_semaphore"
+spinsn.operand = "put_mailbox"
 wst2.insns.append(spinsn)
 
 rtab = ITable(mod)
@@ -52,7 +52,7 @@ rst1.insns.append(rinsn)
 
 sginsn = IInsn(r)
 sginsn.inputs.append(rc)
-sginsn.operand = "get_semaphore"
+sginsn.operand = "get_mailbox"
 rst2.insns.append(sginsn)
 
 design_tool.ValidateIds(d)
