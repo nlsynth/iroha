@@ -35,7 +35,7 @@ SharedReg::SharedReg(const IResource &res, const Table &table)
   if (writers_ != nullptr || has_default_output_value_) {
     need_write_arbitration_ = true;
   }
-  GetOptions(&use_notify_, &use_sem_);
+  GetOptions(&use_notify_, &use_mailbox_);
 }
 
 void SharedReg::BuildResource() {
@@ -45,8 +45,8 @@ void SharedReg::BuildResource() {
   if (use_notify_) {
     rs << " use-notify";
   }
-  if (use_sem_) {
-    rs << " use-sem";
+  if (use_mailbox_) {
+    rs << " use-mailbox";
   }
   rs << "\n";
   rs << "  reg ";
@@ -81,7 +81,7 @@ void SharedReg::BuildResource() {
     os << ";\n";
     is << "      " << RegNotifierName(res_) << " <= 0;\n";
   }
-  if (use_sem_) {
+  if (use_mailbox_) {
     BuildMailbox();
   }
   if (need_write_arbitration_) {
@@ -306,8 +306,8 @@ void SharedReg::AddWire(const IModule *common_root, const Table *tab,
       rs << RegNotifierName(*accessor) << ";\n";
     }
   }
-  bool sem = SharedRegAccessor::UseMailbox(accessor);
-  if (sem) {
+  bool mb = SharedRegAccessor::UseMailbox(accessor);
+  if (mb) {
     if (is_write) {
       rs << "  wire "
 	 << RegMailboxPutReqName(*accessor) << ";\n"
@@ -337,9 +337,9 @@ void SharedReg::AddReadPort(const IModule *imod, const IResource *reader,
   AddChildWire(reader, false, os);
 }
 
-void SharedReg::GetOptions(bool *use_notify, bool *use_sem) {
+void SharedReg::GetOptions(bool *use_notify, bool *use_mailbox) {
   *use_notify = false;
-  *use_sem = false;
+  *use_mailbox = false;
   if (readers_ == nullptr || writers_ == nullptr) {
     return;
   }
@@ -347,13 +347,13 @@ void SharedReg::GetOptions(bool *use_notify, bool *use_sem) {
     bool n, s;
     SharedRegAccessor::GetAccessorFeatures(reader, &n, &s);
     *use_notify |= n;
-    *use_sem |= s;
+    *use_mailbox |= s;
   }
   for (auto *writer : *writers_) {
     bool n, s;
     SharedRegAccessor::GetAccessorFeatures(writer, &n, &s);
     *use_notify |= n;
-    *use_sem |= s;
+    *use_mailbox |= s;
   }
 }
 

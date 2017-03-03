@@ -37,7 +37,7 @@ public:
 private:
   void BuildReadWire();
   void AddReadPort(const IModule *imod, const IResource *reader, bool upward);
-  void GetOptions(bool *use_notify, bool *use_sem);
+  void GetOptions(bool *use_notify, bool *use_mailbox);
   void BuildMailbox();
 
   int width_;
@@ -47,7 +47,7 @@ private:
   const vector<IResource *> *writers_;
   bool need_write_arbitration_;
   bool use_notify_;
-  bool use_sem_;
+  bool use_mailbox_;
 };
 
 }  // namespace verilog

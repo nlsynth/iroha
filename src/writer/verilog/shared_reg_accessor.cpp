@@ -169,9 +169,10 @@ void SharedRegAccessor::AddWritePort(const IModule *imod,
 }
 
 void SharedRegAccessor::GetAccessorFeatures(const IResource *accessor,
-					    bool *use_notify, bool *use_sem) {
+					    bool *use_notify,
+					    bool *use_mailbox) {
   *use_notify = false;
-  *use_sem = false;
+  *use_mailbox = false;
   vector<IInsn *> insns = DesignUtil::GetInsnsByResource(accessor);
   for (auto *insn : insns) {
     const string &op = insn->GetOperand();
@@ -183,7 +184,7 @@ void SharedRegAccessor::GetAccessorFeatures(const IResource *accessor,
     // ditto.
     if (op == "get_mailbox" ||
 	op == "put_mailbox") {
-      *use_sem = true;
+      *use_mailbox = true;
     }
   }
 }

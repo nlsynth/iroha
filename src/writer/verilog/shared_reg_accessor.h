@@ -16,7 +16,7 @@ public:
   virtual void BuildInsn(IInsn *insn, State *st) override;
 
   static void GetAccessorFeatures(const IResource *accessor,
-				  bool *use_notify, bool *use_sem);
+				  bool *use_notify, bool *use_mailbox);
   static bool UseNotify(const IResource *accessor);
   static bool UseMailbox(const IResource *accessor);
 
