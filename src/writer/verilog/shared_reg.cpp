@@ -281,7 +281,7 @@ void SharedReg::AddWire(const IModule *common_root, const Table *tab,
   ostream &rs = tmpl->GetStream(kResourceSection);
   int width;
   if (is_write) {
-    width = accessor->GetSharedRegister()->GetParams()->GetWidth();
+    width = accessor->GetParentResource()->GetParams()->GetWidth();
   } else {
     width = accessor->GetParams()->GetWidth();
   }

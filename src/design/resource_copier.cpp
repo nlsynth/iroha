@@ -48,9 +48,9 @@ void ResourceCopier::ProcessResource(IResource *res) {
   if (foreign_register != nullptr) {
     SetForeignRegister(foreign_register, res);
   }
-  IResource *shared_reg = src_res->GetSharedRegister();
+  IResource *shared_reg = src_res->GetParentResource();
   if (shared_reg != nullptr) {
-    SetSharedRegister(shared_reg, res);
+    SetParentResource(shared_reg, res);
   }
 }
 
@@ -74,7 +74,7 @@ void ResourceCopier::SetForeignRegister(IRegister *foreign_register,
   res->SetForeignRegister(new_reg);
 }
 
-void ResourceCopier::SetSharedRegister(IResource *shared_reg,
+void ResourceCopier::SetParentResource(IResource *shared_reg,
 				       IResource *res) {
   IModule *mod = shared_reg->GetTable()->GetModule();
   IModule *new_mod = module_map_[mod];
@@ -83,7 +83,7 @@ void ResourceCopier::SetSharedRegister(IResource *shared_reg,
 			      shared_reg->GetTable()->GetId());
   IResource *new_res = DesignUtil::FindResourceById(new_tab,
 						    shared_reg->GetId());
-  res->SetSharedRegister(new_res);
+  res->SetParentResource(new_res);
 }
 
 }  // namespace iroha

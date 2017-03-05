@@ -66,7 +66,7 @@ void Importer::ProcessTapAll() {
 }
 
 void Importer::ConnectResources(IResource *w, IResource *r) {
-  r->SetSharedRegister(w);
+  r->SetParentResource(w);
 }
 
 void Importer::ProcessTap(IModule *mod) {
@@ -96,7 +96,7 @@ void Importer::ProcessTap(IModule *mod) {
       tag_to_resources_[tap->tag].push_back(res);
     }
     if (tap->resource) {
-      res->SetSharedRegister(tap->resource);
+      res->SetParentResource(tap->resource);
     }
   }
 }

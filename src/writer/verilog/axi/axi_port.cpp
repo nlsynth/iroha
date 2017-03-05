@@ -72,7 +72,7 @@ void AxiPort::BuildInsn(IInsn *insn, State *st) {
 }
 
 string AxiPort::ControllerName(const IResource &res, bool reset_polarity) {
-  const IResource *mem_res = res.GetSharedRegister();
+  const IResource *mem_res = res.GetParentResource();
   IArray *array = mem_res->GetArray();
   int addr_width = array->GetAddressWidth();
   string s = "axi_controller_a" + Util::Itoa(addr_width);
@@ -101,7 +101,7 @@ void AxiPort::BuildInstance(const string &s) {
   string name = ControllerName(res_, reset_polarity);
   const string &clk = tab_.GetPorts()->GetClk();
   const string &rst = tab_.GetPorts()->GetReset();
-  const IResource *mem = res_.GetSharedRegister();
+  const IResource *mem = res_.GetParentResource();
   es << "  " << name << " inst_" << name
      << "(.clk("<< clk << "), "
      << ".addr(" << AddrPort() << "), "

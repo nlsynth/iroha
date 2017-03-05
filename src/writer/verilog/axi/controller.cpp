@@ -15,7 +15,7 @@ Controller::Controller(const IResource &res, bool reset_polarity)
   : res_(res), reset_polarity_(reset_polarity) {
   ports_.reset(new Ports);
   AxiPort::GetReadWrite(res_, &r_, &w_);
-  const IResource *mem_res = res_.GetSharedRegister();
+  const IResource *mem_res = res_.GetParentResource();
   IArray *array = mem_res->GetArray();
   addr_width_ = array->GetAddressWidth();
   data_width_ = array->GetDataType().GetWidth();

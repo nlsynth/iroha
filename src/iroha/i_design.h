@@ -103,8 +103,8 @@ public:
   IRegister *GetForeignRegister() const;
   void SetChannel(IChannel *ch);
   IChannel *GetChannel() const;
-  IResource *GetSharedRegister() const;
-  void SetSharedRegister(IResource *res);
+  IResource *GetParentResource() const;
+  void SetParentResource(IResource *res);
 
   vector<IValueType> input_types_;
   vector<IValueType> output_types_;
@@ -118,7 +118,7 @@ private:
   ITable *callee_table_;
   IRegister *foreign_register_;
   IChannel *channel_;
-  IResource * shared_reg_;
+  IResource *parent_resource_;
 };
 
 class IChannel {

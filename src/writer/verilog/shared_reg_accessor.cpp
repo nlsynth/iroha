@@ -22,7 +22,7 @@ SharedRegAccessor::SharedRegAccessor(const IResource &res,
   : Resource(res, table) {
   auto *klass = res_.GetClass();
   if (resource::IsSharedRegWriter(*klass)) {
-    auto *params = res_.GetSharedRegister()->GetParams();
+    auto *params = res_.GetParentResource()->GetParams();
     string unused;
     params->GetExtOutputPort(&unused, &width_);
   } else {
@@ -116,7 +116,7 @@ void SharedRegAccessor::BuildSharedRegWriterResource() {
 }
 
 void SharedRegAccessor::BuildWriteWire(const IResource *writer) {
-  IResource *reg = writer->GetSharedRegister();
+  IResource *reg = writer->GetParentResource();
   IModule *reg_module = reg->GetTable()->GetModule();
   IModule *writer_module = writer->GetTable()->GetModule();
   const IModule *common_root = Connection::GetCommonRoot(reg_module,
@@ -141,7 +141,7 @@ void SharedRegAccessor::AddWritePort(const IModule *imod,
 				     bool upward) {
   Module *mod = tab_.GetModule()->GetByIModule(imod);
   Ports *ports = mod->GetPorts();
-  int width = writer->GetSharedRegister()->GetParams()->GetWidth();
+  int width = writer->GetParentResource()->GetParams()->GetWidth();
   bool notify = UseNotify(writer);
   bool sem = UseMailbox(writer);
   if (upward) {
@@ -190,7 +190,7 @@ void SharedRegAccessor::GetAccessorFeatures(const IResource *accessor,
 }
 
 void SharedRegAccessor::BuildReadInsn(IInsn *insn, State *st) {
-  IResource *source = res_.GetSharedRegister();
+  IResource *source = res_.GetParentResource();
   ostream &ws = tmpl_->GetStream(kInsnWireValueSection);
   ws << "  assign "
      << InsnWriter::InsnOutputWireName(*insn, 0)

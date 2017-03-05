@@ -24,7 +24,7 @@ private:
   void WriteArrayDesc(const IResource &res);
   void WriteForeignRegDesc(const IResource &res);
   void WriteCalleeTaskDesc(const IResource &res);
-  void WriteSharedRegDesc(const IResource &res);
+  void WriteParentResourceDesc(const IResource &res);
   void WriteValue(const IValue &value);
   void WriteValueType(const IValueType &type);
   void WriteInsnParams(const vector<IRegister *> &regs);

@@ -127,12 +127,12 @@ def CreateSharedReg(table, name, width):
 
 def CreateSharedRegReader(table, source):
     res = createResource(table, "shared-reg-reader")
-    res.shared_reg = source
+    res.parent_resource = source
     return res
 
 def CreateSharedRegWriter(table, source):
     res = createResource(table, "shared-reg-writer")
-    res.shared_reg = source
+    res.parent_resource = source
     return res
 
 def CreateSharedMemory(table, addr_width, data_width):
@@ -149,12 +149,12 @@ def CreateExternalMemory(table, addr_width, data_width):
 
 def CreateSharedMemoryReader(table, source):
     res = createResource(table, "shared-memory-reader")
-    res.shared_reg = source
+    res.parent_resource = source
     return res
 
 def CreateSharedMemoryWriter(table, source):
     res = createResource(table, "shared-memory-writer")
-    res.shared_reg = source
+    res.parent_resource = source
     return res
 
 def CreateTask(table):

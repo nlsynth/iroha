@@ -44,14 +44,14 @@ void TreeBuilder::AddChannelReaderWriter(IChannel *ch, bool is_r,
   channel_end_points_.push_back(ep);
 }
 
-void TreeBuilder::AddSharedReg(int module_id, int table_id, int res_id,
-			       IResource *res) {
-  SharedReg reg;
-  reg.mod_id = module_id;
-  reg.tab_id = table_id;
-  reg.res_id = res_id;
-  reg.reader = res;
-  shared_regs_.push_back(reg);
+void TreeBuilder::AddParentResource(int module_id, int table_id, int res_id,
+				    IResource *res) {
+  ParentResource pr;
+  pr.mod_id = module_id;
+  pr.tab_id = table_id;
+  pr.res_id = res_id;
+  pr.reader = res;
+  parent_resources_.push_back(pr);
 }
 
 void TreeBuilder::AddArrayImage(IArray *array, int imageid) {
@@ -124,14 +124,14 @@ bool TreeBuilder::Resolve() {
       ep.ch->SetWriter(res);
     }
   }
-  for (auto &reg : shared_regs_) {
-    IModule *mod = module_ids[reg.mod_id];
+  for (auto &pr : parent_resources_) {
+    IModule *mod = module_ids[pr.mod_id];
     if (mod == nullptr) {
-      builder_->SetError() << "no shared reg reader module id: " << reg.mod_id;
+      builder_->SetError() << "no shared reg reader module id: " << pr.mod_id;
       return false;
     }
-    IResource *res = FindResource(mod, reg.tab_id, reg.res_id);
-    reg.reader->SetSharedRegister(res);
+    IResource *res = FindResource(mod, pr.tab_id, pr.res_id);
+    pr.reader->SetParentResource(res);
   }
   map<int, IArrayImage *> array_ids;
   for (auto *im : design_->array_images_) {

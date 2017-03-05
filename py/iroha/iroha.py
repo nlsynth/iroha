@@ -196,7 +196,7 @@ class IResource(object):
         self.resource_params = ResourceParams()
         self.foreign_reg = None
         self.callee_table = None
-        self.shared_reg = None
+        self.parent_resource = None
 
     def Write(self, writer):
         writer.ofh.write("   (RESOURCE " + str(self.id))
@@ -221,11 +221,11 @@ class IResource(object):
             tab = self.callee_table
             writer.ofh.write("    (CALLEE-TABLE " + str(tab.module.id) + " ")
             writer.ofh.write(str(tab.id) + ")\n")
-        if self.shared_reg:
-            writer.ofh.write("    (SHARED-REG ")
-            writer.ofh.write(str(self.shared_reg.table.module.id) + " ")
-            writer.ofh.write(str(self.shared_reg.table.id) + " ")
-            writer.ofh.write(str(self.shared_reg.id))
+        if self.parent_resource:
+            writer.ofh.write("    (PARENT-RESOURCE ")
+            writer.ofh.write(str(self.parent_resource.table.module.id) + " ")
+            writer.ofh.write(str(self.parent_resource.table.id) + " ")
+            writer.ofh.write(str(self.parent_resource.id))
             writer.ofh.write(")\n")
         writer.ofh.write("   )\n")
 

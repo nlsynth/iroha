@@ -23,7 +23,7 @@ private:
   void ProcessResource(IResource *res);
   void SetCalleeTable(ITable *callee_table, IResource *res);
   void SetForeignRegister(IRegister *foreign_register, IResource *res);
-  void SetSharedRegister(IResource *shared_reg, IResource *res);
+  void SetParentResource(IResource *shared_reg, IResource *res);
 
   IModule *new_root_mod_;
   // src to dst.

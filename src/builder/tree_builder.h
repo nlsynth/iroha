@@ -22,7 +22,8 @@ public:
   void AddParentModule(int parent_mod_id, IModule *mod);
   void AddChannelReaderWriter(IChannel *ch, bool is_r, int mod_id,
 			      int tab_id, int res_id);
-  void AddSharedReg(int module_id, int table_id, int res_id, IResource *res);
+  void AddParentResource(int module_id, int table_id, int res_id,
+			 IResource *res);
   void AddArrayImage(IArray *array, int imageid);
   void AddModuleImportTap(int module_id, int table_id, int res_id,
 			  ModuleImportTap *tap);
@@ -54,13 +55,13 @@ private:
     int res_id;
   };
   vector<ChannelEndPoint> channel_end_points_;
-  struct SharedReg {
+  struct ParentResource {
     IResource *reader;
     int mod_id;
     int tab_id;
     int res_id;
   };
-  vector<SharedReg> shared_regs_;
+  vector<ParentResource> parent_resources_;
   struct ArrayImage {
     IArray *array;
     int imageid;

@@ -111,7 +111,7 @@ void ExpWriter::WriteResource(const IResource &res) {
       resource::IsSharedMemoryReader(rc) ||
       resource::IsSharedMemoryWriter(rc) ||
       resource::IsAxiPort(rc)) {
-    WriteSharedRegDesc(res);
+    WriteParentResourceDesc(res);
   }
   os_ << "      )\n";
 }
@@ -158,12 +158,12 @@ void ExpWriter::WriteCalleeTaskDesc(const IResource &res) {
       << table->GetId() << ")\n";
 }
 
-void ExpWriter::WriteSharedRegDesc(const IResource &res) {
-  const IResource *source = res.GetSharedRegister();
-  CHECK(source) << "Missing SHARED-REG";
+void ExpWriter::WriteParentResourceDesc(const IResource &res) {
+  const IResource *source = res.GetParentResource();
+  CHECK(source) << "Missing PARENT-RESOURCE";
   const ITable *table = source->GetTable();
   const IModule *mod = table->GetModule();
-  os_ << "        (SHARED-REG " <<  mod->GetId() << " "
+  os_ << "        (PARENT-RESOURCE " <<  mod->GetId() << " "
       << table->GetId() << " " << source->GetId() << ")\n";
 }
 

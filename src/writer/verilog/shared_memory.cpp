@@ -214,7 +214,7 @@ void SharedMemory::BuildMemoryAccessorResource(bool is_writer) {
   if (resource::IsSharedMemory(*klass)) {
     mem = &res_;
   } else {
-    mem = res_.GetSharedRegister();
+    mem = res_.GetParentResource();
   }
   IArray *array = mem->GetArray();
   int addr_width = array->GetAddressWidth();
@@ -266,7 +266,7 @@ void SharedMemory::BuildInsn(IInsn *insn, State *st) {
   if (resource::IsSharedMemory(*klass)) {
     mem = &res_;
   } else {
-    mem = res_.GetSharedRegister();
+    mem = res_.GetParentResource();
   }
   os << I << "if (" << st_name << " == 0) begin\n";
   os << I << "  " << MemoryAddrPin(*mem, 0, &res_) << " <= "

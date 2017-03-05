@@ -94,7 +94,7 @@ IResource::IResource(ITable *table, IResourceClass *resource_class)
   : table_(table), resource_class_(resource_class),
     params_(new ResourceParams), id_(-1), array_(nullptr),
     callee_table_(nullptr), foreign_register_(nullptr),
-    channel_(nullptr), shared_reg_(nullptr) {
+    channel_(nullptr), parent_resource_(nullptr) {
   ObjectPool *pool =
     table->GetModule()->GetDesign()->GetObjectPool();
   pool->resources_.Add(this);
@@ -156,12 +156,12 @@ IChannel *IResource::GetChannel() const {
   return channel_;
 }
 
-IResource *IResource::GetSharedRegister() const {
-  return shared_reg_;
+IResource *IResource::GetParentResource() const {
+  return parent_resource_;
 }
 
-void IResource::SetSharedRegister(IResource *res) {
-  shared_reg_ = res;
+void IResource::SetParentResource(IResource *res) {
+  parent_resource_ = res;
 }
 
 IChannel::IChannel(IDesign *design)

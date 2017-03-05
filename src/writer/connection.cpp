@@ -49,32 +49,32 @@ void Connection::ProcessTable(ITable *tab) {
   DesignUtil::FindResourceByClassName(tab, resource::kSharedRegWriter,
 				      &reg_writers);
   for (IResource *reg : reg_writers) {
-    shared_reg_writers_[reg->GetSharedRegister()].push_back(reg);
+    shared_reg_writers_[reg->GetParentResource()].push_back(reg);
   }
   vector<IResource*> reg_readers;
   DesignUtil::FindResourceByClassName(tab, resource::kSharedRegReader,
 				      &reg_readers);
   for (IResource *reg : reg_readers) {
-    shared_reg_readers_[reg->GetSharedRegister()].push_back(reg);
+    shared_reg_readers_[reg->GetParentResource()].push_back(reg);
   }
   // shared-memory
   vector<IResource *> memory_readers;
   DesignUtil::FindResourceByClassName(tab, resource::kSharedMemoryReader,
 				      &memory_readers);
   for (IResource *reg : memory_readers) {
-    shared_memory_accessors_[reg->GetSharedRegister()].push_back(reg);
+    shared_memory_accessors_[reg->GetParentResource()].push_back(reg);
   }
   vector<IResource *> memory_writers;
   DesignUtil::FindResourceByClassName(tab, resource::kSharedMemoryWriter,
 				      &memory_writers);
   for (IResource *reg : memory_writers) {
-    shared_memory_accessors_[reg->GetSharedRegister()].push_back(reg);
+    shared_memory_accessors_[reg->GetParentResource()].push_back(reg);
   }
   vector<IResource *> memory_ports;
   DesignUtil::FindResourceByClassName(tab, resource::kAxiPort,
 				      &memory_ports);
   for (IResource *reg : memory_ports) {
-    shared_memory_ports_[reg->GetSharedRegister()].push_back(reg);
+    shared_memory_ports_[reg->GetParentResource()].push_back(reg);
   }
 }
 

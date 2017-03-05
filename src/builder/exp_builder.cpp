@@ -298,15 +298,17 @@ IResource *ExpBuilder::BuildResource(Exp *e, ITable *table) {
 	SetError() << "Invalid foreign reg spec";
 	return nullptr;
       }
-    } else if (element_name == "SHARED-REG") {
+    } else if (element_name == "PARENT-RESOURCE" ||
+	       // For compatibility
+	       element_name == "SHARED-REG") {
       int sz = element->Size();
       if (sz == 4) {
-	tree_builder_->AddSharedReg(Util::Atoi(element->Str(1)),
-				    Util::Atoi(element->Str(2)),
-				    Util::Atoi(element->Str(3)),
-				    res);
+	tree_builder_->AddParentResource(Util::Atoi(element->Str(1)),
+					 Util::Atoi(element->Str(2)),
+					 Util::Atoi(element->Str(3)),
+					 res);
       } else {
-	SetError() << "Invalid SHARED-REG spec";
+	SetError() << "Invalid PARENT-RESOURCE spec";
       }
     } else {
       SetError() << "Invalid additional resource parameter";
