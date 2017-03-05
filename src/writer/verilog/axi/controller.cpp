@@ -119,6 +119,7 @@ void Controller::GenWriteChannel(Module *module, Ports *ports,
   AddPort("WVALID", 0, false, module, ports, s);
   AddPort("WREADY", 0, true, module, ports, s);
   AddPort("WDATA", 32, false, module, ports, s);
+  AddPort("WLAST", 0, false, module, ports, s);
 
   AddPort("BVALID", 0, true, module, ports, s);
   AddPort("BREADY", 0, false, module, ports, s);
@@ -254,8 +255,12 @@ void Controller::WriterFsm(ostream &os) {
      << "              sram_addr <= idx + 1;\n"
      << "              idx <= idx + 1;\n"
      << "            end\n"
+     << "            if (idx < " << burst_len_ << " - 1) begin\n"
+     << "              WLAST <= 0;\n"
+     << "            end\n"
      << "          end else begin\n"
      << "            WVALID <= 0;\n"
+     << "            WLAST <= 0;\n"
      << "            st <= `S_WRITE_WAIT;\n"
      << "            BREADY <= 1;\n"
      << "          end\n"
