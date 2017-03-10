@@ -5,6 +5,7 @@
 #include "design/design_util.h"
 #include "design/importer.h"
 #include "design/validator.h"
+#include "iroha/insn_operands.h"
 #include "iroha/resource_class.h"
 #include "iroha/resource_params.h"
 
@@ -170,9 +171,9 @@ IInsn *DesignTool::CreateShiftInsn(IRegister *reg, bool to_left, int amount) {
     DesignUtil::FindOneResourceByClassName(table, resource::kShift);
   IInsn *insn = new IInsn(shifter);
   if (to_left) {
-    insn->SetOperand("left");
+    insn->SetOperand(operand::kLeft);
   } else {
-    insn->SetOperand("right");
+    insn->SetOperand(operand::kRight);
   }
   insn->inputs_.push_back(reg);
   IRegister *a = AllocConstNum(table, 32, amount);

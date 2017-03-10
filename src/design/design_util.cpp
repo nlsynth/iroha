@@ -1,6 +1,7 @@
 #include "design/design_util.h"
 
 #include "iroha/i_design.h"
+#include "iroha/insn_operands.h"
 #include "iroha/resource_class.h"
 #include "iroha/logging.h"
 
@@ -177,13 +178,13 @@ bool DesignUtil::IsMultiCycleInsn(IInsn *insn) {
     return true;
   }
   if (resource::IsSharedRegReader(*rc)) {
-    if (insn->GetOperand() == "wait_notify" ||
-	insn->GetOperand() == "get_semaphore") {
+    if (insn->GetOperand() == operand::kWaitNotify ||
+	insn->GetOperand() == operand::kGetMailbox) {
       return true;
     }
   }
   if (resource::IsSharedRegWriter(*rc)) {
-    if (insn->GetOperand() == "put_semaphore") {
+    if (insn->GetOperand() == operand::kPutMailbox) {
       return true;
     }
   }

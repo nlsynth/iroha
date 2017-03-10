@@ -1,6 +1,7 @@
 #include "writer/verilog/shared_reg_accessor.h"
 
 #include "design/design_util.h"
+#include "iroha/insn_operands.h"
 #include "iroha/i_design.h"
 #include "iroha/resource_class.h"
 #include "iroha/resource_params.h"
@@ -177,13 +178,13 @@ void SharedRegAccessor::GetAccessorFeatures(const IResource *accessor,
   for (auto *insn : insns) {
     const string &op = insn->GetOperand();
     // reader and writer respectively.
-    if (op == "wait_notify" ||
-	op == "notify") {
+    if (op == operand::kWaitNotify ||
+	op == operand::kNotify) {
       *use_notify = true;
     }
     // ditto.
-    if (op == "get_mailbox" ||
-	op == "put_mailbox") {
+    if (op == operand::kGetMailbox ||
+	op == operand::kPutMailbox) {
       *use_mailbox = true;
     }
   }
@@ -199,7 +200,7 @@ void SharedRegAccessor::BuildReadInsn(IInsn *insn, State *st) {
   static const char I[] = "          ";
   string insn_st = InsnWriter::MultiCycleStateName(*(insn->GetResource()));
   ostream &os = st->StateBodySectionStream();
-  if (insn->GetOperand() == "wait_notify") {
+  if (insn->GetOperand() == operand::kWaitNotify) {
     os << I << "// Wait notify\n"
        << I << "if (" << insn_st << " == 0) begin\n"
        << I << "  if (" << SharedReg::RegNotifierName(*source) << ") begin\n"
@@ -207,7 +208,7 @@ void SharedRegAccessor::BuildReadInsn(IInsn *insn, State *st) {
        << I << "  end\n"
        << I << "end\n";
   }
-  if (insn->GetOperand() == "get_mailbox") {
+  if (insn->GetOperand() == operand::kGetMailbox) {
     os << I << "// Wait get mailbox\n"
        << I << "if (" << insn_st << " == 0) begin\n"
        << I << "  if (" << SharedReg::RegMailboxGetAckName(res_) << ") begin\n"
@@ -222,7 +223,7 @@ void SharedRegAccessor::BuildWriteInsn(IInsn *insn, State *st) {
   ss << "          " << SharedReg::WriterName(res_) << " <= "
      << InsnWriter::RegisterValue(*insn->inputs_[0], tab_.GetNames())
      << ";\n";
-  if (insn->GetOperand() == "put_mailbox") {
+  if (insn->GetOperand() == operand::kPutMailbox) {
     static const char I[] = "          ";
     string insn_st = InsnWriter::MultiCycleStateName(res_);
     ostream &os = st->StateBodySectionStream();

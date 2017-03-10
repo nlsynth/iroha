@@ -1,5 +1,6 @@
 #include "writer/verilog/mapped.h"
 
+#include "iroha/insn_operands.h"
 #include "iroha/i_design.h"
 #include "iroha/resource_params.h"
 #include "writer/module_template.h"
@@ -45,7 +46,7 @@ void MappedResource::BuildMemInsn(IInsn *insn, State *st) {
     res_id = "_" + Util::Itoa(res_.GetId());
   }
   const string &opr = insn->GetOperand();
-  if (opr == "sram_read_data") {
+  if (opr == operand::kSramReadData) {
     ostream &ws = tmpl_->GetStream(kInsnWireValueSection);
     ws << "  assign " << InsnWriter::InsnOutputWireName(*insn, 0)
        << " = sram_rdata" << res_id << ";\n";

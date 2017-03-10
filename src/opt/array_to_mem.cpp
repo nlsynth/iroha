@@ -5,6 +5,7 @@
 #include "design/design_tool.h"
 #include "design/design_util.h"
 #include "iroha/i_design.h"
+#include "iroha/insn_operands.h"
 #include "iroha/resource_class.h"
 #include "iroha/resource_params.h"
 
@@ -58,19 +59,19 @@ void ArrayToMem::AddMemInsn(IResource *mem, IState *st, IInsn *array_insn) {
   if (array_insn->outputs_.size() == 0) {
     // Write.
     IInsn *insn = new IInsn(mem);
-    insn->SetOperand("sram_write");
+    insn->SetOperand(operand::kSramWrite);
     st->insns_.push_back(insn);
     insn->inputs_ = array_insn->inputs_;
   } else {
     // Read.
     IInsn *addr_insn = new IInsn(mem);
-    addr_insn->SetOperand("sram_read_address");
+    addr_insn->SetOperand(operand::kSramReadAddress);
     addr_insn->inputs_ = array_insn->inputs_;
     st->insns_.push_back(addr_insn);
     // Data phase
     IState *data_st = DesignTool::InsertNextState(st);
     IInsn *data_insn = new IInsn(mem);
-    data_insn->SetOperand("sram_read_data");
+    data_insn->SetOperand(operand::kSramReadData);
     data_insn->outputs_ = array_insn->outputs_;
     data_st->insns_.push_back(data_insn);
   }

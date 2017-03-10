@@ -1,5 +1,6 @@
 #include "writer/verilog/operator.h"
 
+#include "iroha/insn_operands.h"
 #include "iroha/logging.h"
 #include "iroha/i_design.h"
 #include "iroha/resource_class.h"
@@ -119,7 +120,7 @@ void Operator::BuildBitShiftOpInsn(IInsn *insn) {
   if (rc != resource::kShift) {
     return;
   }
-  bool is_left = (insn->GetOperand() == "left");
+  bool is_left = (insn->GetOperand() == operand::kLeft);
   const IValue &value = insn->inputs_[1]->GetInitialValue();
   int amount = value.value_;
   ws << "  assign " << InsnWriter::InsnOutputWireName(*insn, 0)

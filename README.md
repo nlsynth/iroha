@@ -50,6 +50,7 @@ Please read src/iroha/iroha.h, src/iroha/iroha_main.cpp examples/ for more detai
 * P1: Ability to merge AXI channels.
 * P1: Implement deeper FIFO.
 * P1: Connect FIFO to a dataflow table.
+* P1: Support common method interface proposed at here https://gist.github.com/ikwzm/bab67c180f2f1f3291998fc7dbb5fbf0
 * P2: Export optimizer API so that users can add own phase
 * P2: FPGA style register initialization
 * P2: I/O for embedded verilog module

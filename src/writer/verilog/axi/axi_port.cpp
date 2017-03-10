@@ -1,6 +1,7 @@
 #include "writer/verilog/axi/axi_port.h"
 
 #include "design/design_util.h"
+#include "iroha/insn_operands.h"
 #include "iroha/i_design.h"
 #include "iroha/logging.h"
 #include "writer/module_template.h"
@@ -136,9 +137,9 @@ void AxiPort::GetReadWrite(const IResource &res, bool *r, bool *w) {
   *r = false;
   *w = false;
   for (IInsn *insn : insns) {
-    if (insn->GetOperand() == "read") {
+    if (insn->GetOperand() == operand::kRead) {
       *r = true;
-    } else if (insn->GetOperand() == "write") {
+    } else if (insn->GetOperand() == operand::kWrite) {
       *w = true;
     } else {
       CHECK(false);

@@ -1,5 +1,6 @@
 #include "writer/cxx/resource.h"
 
+#include "iroha/insn_operands.h"
 #include "iroha/i_design.h"
 #include "iroha/logging.h"
 #include "iroha/resource_class.h"
@@ -99,7 +100,7 @@ void Resource::WriteBitShift(IInsn *insn, ostream &os) {
   if (res_name != resource::kShift) {
     return;
   }
-  bool is_left = (insn->GetOperand() == "left");
+  bool is_left = (insn->GetOperand() == operand::kLeft);
   string op = is_left ? "<<" : ">>";
   const IValue &value = insn->inputs_[1]->GetInitialValue();
   int amount = value.value_;
@@ -134,16 +135,16 @@ void Resource::WriteMapped(IInsn *insn, ostream &os) {
   auto *params = res->GetParams();
   if (params->GetMappedName() == "mem") {
     string mem_name = MemName(res);
-    if (insn->GetOperand() == "sram_write") {
+    if (insn->GetOperand() == operand::kSramWrite) {
       os << "    " << mem_name
 	 << "->Write(" << RegValue(insn->inputs_[0]) << ", "
 	 << RegValue(insn->inputs_[1]) << ");\n";
     }
-    if (insn->GetOperand() == "sram_read_address") {
+    if (insn->GetOperand() == operand::kSramReadAddress) {
       os << "    " << mem_name
 	 << "->ReadAddr(" << RegValue(insn->inputs_[0]) << ");\n";
     }
-    if (insn->GetOperand() == "sram_read_data") {
+    if (insn->GetOperand() == operand::kSramReadData) {
       os << "    " << insn->outputs_[0]->GetName() << " = "
 	 << mem_name << "->ReadData();\n";
     }
