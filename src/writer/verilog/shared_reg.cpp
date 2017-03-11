@@ -65,9 +65,11 @@ void SharedReg::BuildResource() {
   if (use_notify_) {
     rs << "  reg " << RegNotifierName(res_) << ";\n";
     vector<string> notifiers;
-    for (auto *writer : *writers_) {
-      if (SharedRegAccessor::UseNotify(writer)) {
-	notifiers.push_back(WriterNotifierName(*writer));
+    if (writers_ != nullptr) {
+      for (auto *writer : *writers_) {
+	if (SharedRegAccessor::UseNotify(writer)) {
+	  notifiers.push_back(WriterNotifierName(*writer));
+	}
       }
     }
     ostream &os = tab_.StateOutputSectionStream();
@@ -115,33 +117,41 @@ void SharedReg::BuildMailbox() {
   rs << "  reg " << RegMailboxName(res_) << ";\n";
   vector<string> higher_put_reqs;
   vector<string> put_reqs;
-  for (auto *writer : *writers_) {
-    if (!SharedRegAccessor::UseMailbox(writer)) {
-      continue;
+  if (writers_ != nullptr) {
+    for (auto *writer : *writers_) {
+      if (!SharedRegAccessor::UseMailbox(writer)) {
+	continue;
+      }
+      rs << "  wire " << RegMailboxPutAckName(*writer) << ";\n";
+      rs << "  assign " << RegMailboxPutAckName(*writer) << " = "
+	 << "(!" << RegMailboxName(res_) << ") && ";
+      if (put_reqs.size() > 0) {
+	rs << "(!(" << Util::Join(higher_put_reqs, " | ") << ")) && ";
+      }
+      rs << RegMailboxPutReqName(*writer) << ";\n";
+      put_reqs.push_back(RegMailboxPutReqName(*writer));
     }
-    rs << "  wire " << RegMailboxPutAckName(*writer) << ";\n";
-    rs << "  assign " << RegMailboxPutAckName(*writer) << " = "
-       << "(!" << RegMailboxName(res_) << ") && ";
-    if (higher_put_reqs.size()) {
-      rs << "(!(" << Util::Join(higher_put_reqs, " | ") << ")) && ";
-    }
-    rs << RegMailboxPutReqName(*writer) << ";\n";
-    put_reqs.push_back(RegMailboxPutReqName(*writer));
+  } else {
+    put_reqs.push_back("0");
   }
   vector<string> higher_get_reqs;
   vector<string> get_reqs;
-  for (auto *reader : *readers_) {
-    if (!SharedRegAccessor::UseMailbox(reader)) {
-      continue;
+  if (readers_ != nullptr) {
+    for (auto *reader : *readers_) {
+      if (!SharedRegAccessor::UseMailbox(reader)) {
+	continue;
+      }
+      rs << "  wire " << RegMailboxGetAckName(*reader) << ";\n";
+      rs << "  assign " << RegMailboxGetAckName(*reader) << " = "
+	 << "(" << RegMailboxName(res_) << ") && ";
+      if (get_reqs.size() > 0) {
+	rs << "(!(" << Util::Join(higher_get_reqs, " | ") << ")) && ";
+      }
+      rs << RegMailboxGetReqName(*reader) << ";\n";
+      get_reqs.push_back(RegMailboxGetReqName(*reader));
     }
-    rs << "  wire " << RegMailboxGetAckName(*reader) << ";\n";
-    rs << "  assign " << RegMailboxGetAckName(*reader) << " = "
-       << "(" << RegMailboxName(res_) << ") && ";
-    if (higher_get_reqs.size()) {
-      rs << "(!(" << Util::Join(higher_get_reqs, " | ") << ")) && ";
-    }
-    rs << RegMailboxGetReqName(*reader) << ";\n";
-    get_reqs.push_back(RegMailboxGetReqName(*reader));
+  } else {
+    get_reqs.push_back("0");
   }
   ostream &os = tab_.StateOutputSectionStream();
   os << "      if (" << RegMailboxName(res_) << ") begin\n"
@@ -340,20 +350,21 @@ void SharedReg::AddReadPort(const IModule *imod, const IResource *reader,
 void SharedReg::GetOptions(bool *use_notify, bool *use_mailbox) {
   *use_notify = false;
   *use_mailbox = false;
-  if (readers_ == nullptr || writers_ == nullptr) {
-    return;
+  if (readers_ != nullptr) {
+    for (auto *reader : *readers_) {
+      bool n, m;
+      SharedRegAccessor::GetAccessorFeatures(reader, &n, &m);
+      *use_notify |= n;
+      *use_mailbox |= m;
+    }
   }
-  for (auto *reader : *readers_) {
-    bool n, s;
-    SharedRegAccessor::GetAccessorFeatures(reader, &n, &s);
-    *use_notify |= n;
-    *use_mailbox |= s;
-  }
-  for (auto *writer : *writers_) {
-    bool n, s;
-    SharedRegAccessor::GetAccessorFeatures(writer, &n, &s);
-    *use_notify |= n;
-    *use_mailbox |= s;
+  if (writers_ != nullptr) {
+    for (auto *writer : *writers_) {
+      bool n, m;
+      SharedRegAccessor::GetAccessorFeatures(writer, &n, &m);
+      *use_notify |= n;
+      *use_mailbox |= m;
+    }
   }
 }
 
