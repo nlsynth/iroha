@@ -160,6 +160,16 @@ def CreateSharedMemoryWriter(table, source):
 def CreateTask(table):
     return createResource(table, "task")
 
+def CreateExtTask(table, name):
+    res = createResource(table, "ext-task")
+    res.resource_params.AddValue("EXT-TASK", name)
+    return res
+
+def CreateExtTaskDone(table, tab):
+    res = createResource(table, "ext-task-done")
+    res.parent_resource = tab
+    return res
+
 def CreateTaskCall(table, callee):
     res = createResource(table, "task-call")
     res.callee_table = callee

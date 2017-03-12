@@ -110,6 +110,8 @@ void ExpWriter::WriteResource(const IResource &res) {
       resource::IsSharedRegWriter(rc) ||
       resource::IsSharedMemoryReader(rc) ||
       resource::IsSharedMemoryWriter(rc) ||
+      resource::IsExtTaskDone(rc) ||
+      resource::IsExtTaskWait(rc) ||
       resource::IsAxiPort(rc)) {
     WriteParentResourceDesc(res);
   }

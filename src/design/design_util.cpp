@@ -121,7 +121,11 @@ IInsn *DesignUtil::GetTransitionInsn(IState *st) {
 }
 
 IInsn *DesignUtil::FindTaskEntryInsn(ITable *table) {
-  return FindInitialInsnByClassName(table, resource::kTask);
+  IInsn *insn = FindInitialInsnByClassName(table, resource::kTask);
+  if (insn != nullptr) {
+    return insn;
+  }
+  return FindInitialInsnByClassName(table, resource::kExtTask);
 }
 
 IInsn *DesignUtil::FindInitialInsnByClassName(ITable *table, const string &name) {
@@ -171,7 +175,8 @@ bool DesignUtil::IsMultiCycleInsn(IInsn *insn) {
       resource::IsSharedMemory(*rc) ||
       resource::IsSharedMemoryReader(*rc) ||
       resource::IsSharedMemoryWriter(*rc) ||
-      resource::IsEmbedded(*rc)) {
+      resource::IsEmbedded(*rc) ||
+      resource::IsExtTaskDone(*rc)) {
     return true;
   }
   if (resource::IsAxiPort(*rc)) {

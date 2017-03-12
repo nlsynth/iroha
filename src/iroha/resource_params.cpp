@@ -302,4 +302,8 @@ string ResourceParams::GetChannelAckPort() const {
   return values_->GetStringParam(resource::kChannelAckPort, "");
 }
 
+string ResourceParams::GetExtTaskName() const {
+  return values_->GetStringParam(resource::kExtTaskName, "");
+}
+
 }  // namespace iroha

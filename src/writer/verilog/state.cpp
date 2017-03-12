@@ -5,6 +5,7 @@
 #include "iroha/logging.h"
 #include "iroha/resource_class.h"
 #include "writer/module_template.h"
+#include "writer/verilog/ext_task.h"
 #include "writer/verilog/insn_writer.h"
 #include "writer/verilog/module.h"
 #include "writer/verilog/resource.h"
@@ -87,7 +88,7 @@ void State::CopyResults(const IInsn *insn, bool to_wire, ostream &os) {
 void State::WriteTransitionBody(ostream &os) {
   const string &sv = table_->StateVariable();
   if (DesignUtil::IsTerminalState(i_state_) &&
-      table_->IsTask()) {
+      table_->IsTaskOrExtTask()) {
     os << I << "  " << sv << " <= `"
        << table_->StateName(Task::kTaskEntryStateId)
        << ";\n";
@@ -146,7 +147,12 @@ void State::WriteTransition(ostream &os) {
 void State::WriteTaskEntry(Table *tab, ostream &os) {
   os << I << "`" << tab->StateName(Task::kTaskEntryStateId)
      << ": begin\n";
-  string s = Task::TaskEnablePin(*tab->GetITable(), nullptr);
+  string s;
+  if (Task::IsTask(*tab)) {
+    s = Task::TaskEnablePin(*tab->GetITable(), nullptr);
+  } else {
+    s = ExtTask::TaskReadyPin(*tab);
+  }
   os << I << "  if (" << s << ") begin\n"
      << I << "    " << tab->StateVariable() << " <= `"
      << tab->InitialStateName() << ";\n"

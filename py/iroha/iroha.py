@@ -41,6 +41,11 @@ class IDesign(object):
         self.resource_classes.append(IResourceClass("channel-write"))
         self.resource_classes.append(IResourceClass("channel-read"))
         self.resource_classes.append(IResourceClass("dataflow-in"))
+        # Method interface
+        self.resource_classes.append(IResourceClass("ext-task"))
+        self.resource_classes.append(IResourceClass("ext-task-done"))
+        self.resource_classes.append(IResourceClass("ext-task-call"))
+        self.resource_classes.append(IResourceClass("ext-task-call-wait"))
         # AXI
         self.resource_classes.append(IResourceClass("axi-port"))
 

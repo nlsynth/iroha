@@ -9,7 +9,7 @@
 #include "writer/module_template.h"
 #include "writer/names.h"
 #include "writer/verilog/embed.h"
-#include "writer/verilog/foreign_reg.h"
+#include "writer/verilog/ext_task.h"
 #include "writer/verilog/insn_writer.h"
 #include "writer/verilog/module.h"
 #include "writer/verilog/ports.h"
@@ -27,7 +27,7 @@ Table::Table(ITable *table, Ports *ports, Module *mod, EmbeddedModules *embed,
     names_(names), tmpl_(tmpl) {
   table_id_ = table->GetId();
   st_ = "st_" + Util::Itoa(table->GetId());
-  is_task_ = Task::IsTask(*this);
+  is_task_or_ext_task_ = Task::IsTask(*this) || ExtTask::IsExtTask(*this);
 }
 
 Table::~Table() {
@@ -74,7 +74,7 @@ void Table::BuildStateDecl() {
       max_id = id;
     }
   }
-  if (IsTask()) {
+  if (IsTaskOrExtTask()) {
     ++max_id;
     sd << "  `define " << StateName(Task::kTaskEntryStateId) << " "
        << max_id << "\n";
@@ -187,7 +187,7 @@ void Table::Write(ostream &os) {
 void Table::WriteReset(ostream &os) {
   if (!IsEmpty()) {
     os << "      " << StateVariable() << " <= `";
-    if (IsTask()) {
+    if (IsTaskOrExtTask()) {
       os << StateName(Task::kTaskEntryStateId);
     } else {
       os << InitialStateName();
@@ -201,7 +201,7 @@ void Table::WriteBody(ostream &os) {
   os << StateOutputSectionContents();
   if (!IsEmpty()) {
     os << "      case (" << StateVariable() << ")\n";
-    if (IsTask()) {
+    if (IsTaskOrExtTask()) {
       State::WriteTaskEntry(this, os);
     }
     for (auto *state : states_) {
@@ -272,8 +272,8 @@ string Table::InitialStateName() {
   return StateName(initial_st->GetId());
 }
 
-bool Table::IsTask() {
-  return is_task_;
+bool Table::IsTaskOrExtTask() {
+  return is_task_or_ext_task_;
 }
 
 bool Table::IsEmpty() {

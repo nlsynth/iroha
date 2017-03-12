@@ -26,9 +26,8 @@ bool Task::IsTask(const Table &table) {
   ITable *i_table = table.GetITable();
   IInsn *task_entry_insn = DesignUtil::FindTaskEntryInsn(i_table);
   if (task_entry_insn != nullptr) {
-    if (resource::IsTask(*(task_entry_insn->GetResource()->GetClass()))) {
-      return true;
-    }
+    auto rc = *(task_entry_insn->GetResource()->GetClass());
+    return resource::IsTask(rc);
   }
   return false;
 }

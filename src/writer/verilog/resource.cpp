@@ -9,6 +9,7 @@
 #include "writer/verilog/channel.h"
 #include "writer/verilog/embed.h"
 #include "writer/verilog/ext_io.h"
+#include "writer/verilog/ext_task.h"
 #include "writer/verilog/foreign_reg.h"
 #include "writer/verilog/insn_writer.h"
 #include "writer/verilog/mapped.h"
@@ -72,6 +73,10 @@ Resource *Resource::Create(const IResource &res, const Table &table) {
   }
   if (resource::IsAxiPort(*klass)) {
     return new axi::AxiPort(res, table);
+  }
+  if (resource::IsExtTask(*klass) ||
+      resource::IsExtTaskDone(*klass)) {
+    return new ExtTask(res, table);
   }
   return new Resource(res, table);
 }

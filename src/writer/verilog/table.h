@@ -27,7 +27,7 @@ public:
   const string &StateVariable() const;
   string StateName(int id) const;
   string InitialStateName();
-  bool IsTask();
+  bool IsTaskOrExtTask();
   bool IsEmpty();
 
   Ports *GetPorts() const;
@@ -69,7 +69,7 @@ protected:
   int table_id_;
   string st_;
   vector<State *> states_;
-  bool is_task_;
+  bool is_task_or_ext_task_;
 };
 
 }  // namespace verilog

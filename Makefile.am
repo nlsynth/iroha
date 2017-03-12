@@ -82,6 +82,7 @@ libiroha_la_SOURCES = \
  src/writer/verilog/dataflow_table.cpp src/writer/verilog/dataflow_table.h \
  src/writer/verilog/embed.cpp src/writer/verilog/embed.h \
  src/writer/verilog/ext_io.cpp src/writer/verilog/ext_io.h \
+ src/writer/verilog/ext_task.cpp src/writer/verilog/ext_task.h \
  src/writer/verilog/foreign_reg.cpp src/writer/verilog/foreign_reg.h \
  src/writer/verilog/insn_writer.cpp src/writer/verilog/insn_writer.h \
  src/writer/verilog/internal_sram.cpp src/writer/verilog/internal_sram.h \

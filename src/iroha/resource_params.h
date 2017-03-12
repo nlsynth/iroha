@@ -31,6 +31,7 @@ const char kEmbeddedModuleArgs[] = "EMBEDDED-MODULE-ARGS";
 const char kChannelDataPort[] = "CHANNEL-DATA";
 const char kChannelEnPort[] = "CHANNEL-EN";
 const char kChannelAckPort[] = "CHANNEL-ACK";
+const char kExtTaskName[] = "EXT-TASK";
 }  // namespace resource
 
 class ResourceParams {
@@ -78,6 +79,8 @@ public:
   string GetChannelDataPort() const;
   string GetChannelEnPort() const;
   string GetChannelAckPort() const;
+
+  string GetExtTaskName() const;
 
 private:
   resource::ResourceParamValueSet *values_;

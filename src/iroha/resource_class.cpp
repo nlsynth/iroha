@@ -123,6 +123,22 @@ bool IsForeignRegister(const IResourceClass &rc) {
   return (rc.GetName() == kForeignReg);
 }
 
+bool IsExtTask(const IResourceClass &rc) {
+  return (rc.GetName() == kExtTask);
+}
+
+bool IsExtTaskDone(const IResourceClass &rc) {
+  return (rc.GetName() == kExtTaskDone);
+}
+
+bool IsExtTaskCall(const IResourceClass &rc) {
+  return (rc.GetName() == kExtTaskCall);
+}
+
+bool IsExtTaskWait(const IResourceClass &rc) {
+  return (rc.GetName() == kExtTaskWait);
+}
+
 bool IsAxiPort(const IResourceClass &rc) {
   return (rc.GetName() == kAxiPort);
 }
@@ -173,6 +189,10 @@ void InstallResourceClasses(IDesign *design) {
   InstallResource(design, resource::kBitSel, false);
   InstallResource(design, resource::kBitConcat, false);
   InstallResource(design, resource::kDataFlowIn, false);
+  InstallResource(design, resource::kExtTask, true);
+  InstallResource(design, resource::kExtTaskDone, true);
+  InstallResource(design, resource::kExtTaskCall, true);
+  InstallResource(design, resource::kExtTaskWait, true);
   InstallResource(design, resource::kAxiPort, true);
 }
 
