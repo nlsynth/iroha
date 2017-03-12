@@ -19,6 +19,9 @@ public:
   static string BusyPin(const IResource &res);
   static string ResValidPin(const IResource &res);
   static string ResReadyPin(const IResource &res);
+  static string ArgPin(const IResource &res, int nth);
+  // This one takes ext-task-done resource.
+  static string DataPin(const IResource &res, int nth);
 
   virtual void BuildResource();
   virtual void BuildInsn(IInsn *insn, State *st);
@@ -26,6 +29,7 @@ public:
 private:
   void BuildExtTask();
   void BuildPorts();
+  string ArgCaptureReg(int nth);
 };
 
 }  // namespace verilog

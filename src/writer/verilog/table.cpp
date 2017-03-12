@@ -127,6 +127,7 @@ void Table::BuildInsnOutputWire() {
 	rs << "  wire " << ValueWidthSpec(oreg->value_type_) << " "
 	   << InsnWriter::InsnOutputWireName(*insn, nth)
 	   << ";\n";
+	++nth;
       }
     }
   }

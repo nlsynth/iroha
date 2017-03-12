@@ -4,7 +4,9 @@
 #include "iroha/i_design.h"
 #include "iroha/resource_class.h"
 #include "iroha/resource_params.h"
+#include "writer/module_template.h"
 #include "writer/verilog/insn_writer.h"
+#include "writer/verilog/module.h"
 #include "writer/verilog/ports.h"
 #include "writer/verilog/state.h"
 #include "writer/verilog/table.h"
@@ -55,6 +57,23 @@ string ExtTask::ResReadyPin(const IResource &res) {
   return res.GetParams()->GetExtTaskName() + "_res_ready";
 }
 
+string ExtTask::ArgPin(const IResource &res, int nth) {
+  string s = res.GetParams()->GetExtTaskName() + "_req_arg";
+  if (res.output_types_.size() > 1) {
+    s += Util::Itoa(nth);
+  }
+  return s;
+}
+
+string ExtTask::DataPin(const IResource &res, int nth) {
+  IResource *parent = res.GetParentResource();
+  string s = parent->GetParams()->GetExtTaskName() + "_res_data";
+  if (res.input_types_.size() > 1) {
+    s += Util::Itoa(nth);
+  }
+  return s;
+}
+
 void ExtTask::BuildResource() {
   auto *klass = res_.GetClass();
   if (resource::IsExtTask(*klass)) {
@@ -100,6 +119,19 @@ void ExtTask::BuildExtTask() {
   ss << "      " << BusyPin(res_) << " <= !("
      << tab_.StateVariable() << " == `"
      << tab_.StateName(Task::kTaskEntryStateId) << ");\n";
+  ITable *i_table = tab_.GetITable();
+  IInsn *task_entry_insn = DesignUtil::FindTaskEntryInsn(i_table);
+  ostream &rs = tmpl_->GetStream(kRegisterSection);
+  ostream &ws = tmpl_->GetStream(kInsnWireValueSection);
+  ostream &ts = tab_.TaskEntrySectionStream();
+  for (int i = 0; i < res_.output_types_.size(); ++i) {
+    rs << "  reg "
+       << Table::WidthSpec(res_.output_types_[i].GetWidth())
+       << " " << ArgCaptureReg(i) << ";\n";
+    ws << "  assign " << InsnWriter::InsnOutputWireName(*task_entry_insn, i)
+       << " = " << ArgCaptureReg(i) << ";\n";
+    ts << "            " << ArgCaptureReg(i) << " <= " << ArgPin(res_, i) << ";\n";
+  }
   BuildPorts();
 }
 
@@ -112,6 +144,22 @@ void ExtTask::BuildPorts() {
   ports->AddPort(BusyPin(res_), Port::OUTPUT, 0);
   ports->AddPort(ResValidPin(res_), Port::OUTPUT, 0);
   ports->AddPort(ResReadyPin(res_), Port::INPUT, 0);
+  for (int i = 0; i < res_.output_types_.size(); ++i) {
+    ports->AddPort(ArgPin(res_, i), Port::INPUT,
+		   res_.output_types_[i].GetWidth());
+  }
+  IResource *done_res =
+    DesignUtil::FindOneResourceByClassName(tab_.GetITable(),
+					   resource::kExtTaskDone);
+  for (int i = 0; i < done_res->input_types_.size(); ++i) {
+    ports->AddPort(ArgPin(*done_res, i), Port::OUTPUT,
+		   res_.output_types_[i].GetWidth());
+  }
+}
+
+string ExtTask::ArgCaptureReg(int nth) {
+  return "ext_task_arg_" + Util::Itoa(tab_.GetITable()->GetId()) + "_"
+    + Util::Itoa(nth);
 }
 
 }  // namespace verilog
