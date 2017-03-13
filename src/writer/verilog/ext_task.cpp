@@ -58,20 +58,14 @@ string ExtTask::ResReadyPin(const IResource &res) {
 }
 
 string ExtTask::ArgPin(const IResource &res, int nth) {
-  string s = res.GetParams()->GetExtTaskName() + "_req_arg";
-  if (res.output_types_.size() > 1) {
-    s += Util::Itoa(nth);
-  }
-  return s;
+  return
+    res.GetParams()->GetExtTaskName() + "_" + Util::Itoa(nth) + "_req_arg";
 }
 
 string ExtTask::DataPin(const IResource &res, int nth) {
   IResource *parent = res.GetParentResource();
-  string s = parent->GetParams()->GetExtTaskName() + "_res_data";
-  if (res.input_types_.size() > 1) {
-    s += Util::Itoa(nth);
-  }
-  return s;
+  return
+    parent->GetParams()->GetExtTaskName() + "_res_" + Util::Itoa(nth);
 }
 
 void ExtTask::BuildResource() {
@@ -99,8 +93,13 @@ void ExtTask::BuildInsn(IInsn *insn, State *st) {
     os << I << "if (" << insn_st << " == 0) begin\n"
        << I << "  if (" << ResReadyPin(*(res_.GetParentResource()))
        << ") begin\n"
-       << I << "    " << insn_st << " <= 3;\n"
-       << I << "  end\n"
+       << I << "    " << insn_st << " <= 3;\n";
+    for (int i = 0; i < res_.input_types_.size(); ++i) {
+      os << I << "    " << DataPin(res_, i) << " <= "
+	 << InsnWriter::RegisterValue(*insn->inputs_[i], tab_.GetNames())
+	 << ";\n";
+    }
+    os << I << "  end\n"
        << I << "end\n";
   }
 }
@@ -152,7 +151,7 @@ void ExtTask::BuildPorts() {
     DesignUtil::FindOneResourceByClassName(tab_.GetITable(),
 					   resource::kExtTaskDone);
   for (int i = 0; i < done_res->input_types_.size(); ++i) {
-    ports->AddPort(ArgPin(*done_res, i), Port::OUTPUT,
+    ports->AddPort(DataPin(*done_res, i), Port::OUTPUT,
 		   res_.output_types_[i].GetWidth());
   }
 }
