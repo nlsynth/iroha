@@ -30,6 +30,7 @@ private:
   void BuildExtTask();
   void BuildPorts();
   string ArgCaptureReg(int nth);
+  void AddPort(const string &port, bool is_output, int width);
 };
 
 }  // namespace verilog
