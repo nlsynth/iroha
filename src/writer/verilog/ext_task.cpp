@@ -73,15 +73,6 @@ void ExtTask::BuildResource() {
   if (resource::IsExtTask(*klass)) {
     BuildExtTask();
   }
-  if (resource::IsExtTaskDone(*klass)) {
-    ostream &ss = tab_.StateOutputSectionStream();
-    map<IState *, IInsn *> callers;
-    CollectResourceCallers("", &callers);
-    ss << "      " << ResValidPin(*(res_.GetParentResource()))
-       << " <= " << JoinStatesWithSubState(callers, 0) << " & "
-       << ResReadyPin(*(res_.GetParentResource()))
-       << ";\n";
-  }
 }
 
 void ExtTask::BuildInsn(IInsn *insn, State *st) {
@@ -91,15 +82,19 @@ void ExtTask::BuildInsn(IInsn *insn, State *st) {
     string insn_st = InsnWriter::MultiCycleStateName(*(insn->GetResource()));
     static const char I[] = "          ";
     os << I << "if (" << insn_st << " == 0) begin\n"
-       << I << "  if (" << ResReadyPin(*(res_.GetParentResource()))
-       << ") begin\n"
-       << I << "    " << insn_st << " <= 3;\n";
+       << I << "  " << ResValidPin(*(res_.GetParentResource())) << " <= 1;\n"
+       << I << "  " << insn_st << " <= 1;\n";
     for (int i = 0; i < res_.input_types_.size(); ++i) {
-      os << I << "    " << DataPin(res_, i) << " <= "
+      os << I << "  " << DataPin(res_, i) << " <= "
 	 << InsnWriter::RegisterValue(*insn->inputs_[i], tab_.GetNames())
 	 << ";\n";
     }
-    os << I << "  end\n"
+    os << I << "end\n";
+    os << I << "if (" << insn_st << " == 1) begin\n"
+       << I << "  if (" << ResReadyPin(*(res_.GetParentResource())) << ") begin\n"
+       << I << "    " << ResValidPin(*(res_.GetParentResource())) << " <= 0;\n"
+       << I << "    " << insn_st << " <= 3;\n"
+       << I << "  end\n"
        << I << "end\n";
   }
 }
