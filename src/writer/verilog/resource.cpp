@@ -234,6 +234,30 @@ string Resource::SelectValueByState(const string &default_value) {
   return v;
 }
 
+void Resource::AddPortToTop(const string &port, bool is_output, int width) {
+  Port::PortType type;
+  if (is_output) {
+    type = Port::OUTPUT;
+  } else {
+    type = Port::INPUT;
+  }
+  auto *ports = tab_.GetPorts();
+  ports->AddPort(port, type, width);
+  if (is_output) {
+    type = Port::OUTPUT_WIRE;
+  }
+  for (Module *mod = tab_.GetModule(); mod != nullptr;
+       mod = mod->GetParentModule()) {
+    Module *parent_mod = mod->GetParentModule();
+    if (parent_mod != nullptr) {
+      ostream &os = parent_mod->ChildModuleInstSectionStream(mod);
+      os << ", ." << port << "(" << port << ")";
+      auto *parent_ports = parent_mod->GetPorts();
+      parent_ports->AddPort(port, type, width);
+    }
+  }
+}
+
 }  // namespace verilog
 }  // namespace writer
 }  // namespace iroha

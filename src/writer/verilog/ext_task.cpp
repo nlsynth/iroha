@@ -132,45 +132,21 @@ void ExtTask::BuildExtTask() {
 void ExtTask::BuildPorts() {
   auto *params = res_.GetParams();
   string fn = params->GetExtTaskName();
-  AddPort(ReqValidPin(res_), false, 0);
-  AddPort(ReqReadyPin(res_), true, 0);
-  AddPort(BusyPin(res_), true, 0);
-  AddPort(ResValidPin(res_), true, 0);
-  AddPort(ResReadyPin(res_), false, 0);
+  AddPortToTop(ReqValidPin(res_), false, 0);
+  AddPortToTop(ReqReadyPin(res_), true, 0);
+  AddPortToTop(BusyPin(res_), true, 0);
+  AddPortToTop(ResValidPin(res_), true, 0);
+  AddPortToTop(ResReadyPin(res_), false, 0);
   for (int i = 0; i < res_.output_types_.size(); ++i) {
-    AddPort(ArgPin(res_, i), false,
-	    res_.output_types_[i].GetWidth());
+    AddPortToTop(ArgPin(res_, i), false,
+		 res_.output_types_[i].GetWidth());
   }
   IResource *done_res =
     DesignUtil::FindOneResourceByClassName(tab_.GetITable(),
 					   resource::kExtTaskDone);
   for (int i = 0; i < done_res->input_types_.size(); ++i) {
-    AddPort(DataPin(*done_res, i), true,
-	    res_.output_types_[i].GetWidth());
-  }
-}
-
-void ExtTask::AddPort(const string &port, bool is_output, int width) {
-  Port::PortType type;
-  if (is_output) {
-    type = Port::OUTPUT;
-  } else {
-    type = Port::INPUT;
-  }
-  auto *ports = tab_.GetPorts();
-  ports->AddPort(port, type, width);
-  if (is_output) {
-    type = Port::OUTPUT_WIRE;
-  }
-  for (Module *mod = tab_.GetModule(); mod != nullptr;
-       mod = mod->GetParentModule()) {
-    Module *parent_mod = mod->GetParentModule();
-    if (parent_mod != nullptr) {
-      ostream &os = parent_mod->ChildModuleInstSectionStream(mod);
-      os << ", ." << port << "(" << port << ")";
-      auto *parent_ports = parent_mod->GetPorts();
-      parent_ports->AddPort(port, type, width);
-    }
+    AddPortToTop(DataPin(*done_res, i), true,
+		 res_.output_types_[i].GetWidth());
   }
 }
 
