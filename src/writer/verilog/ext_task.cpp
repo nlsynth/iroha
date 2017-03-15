@@ -146,7 +146,7 @@ void ExtTask::BuildPorts() {
 					   resource::kExtTaskDone);
   for (int i = 0; i < done_res->input_types_.size(); ++i) {
     AddPortToTop(DataPin(*done_res, i), true,
-		 res_.output_types_[i].GetWidth());
+		 done_res->input_types_[i].GetWidth());
   }
 }
 
