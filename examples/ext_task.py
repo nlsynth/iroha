@@ -5,7 +5,10 @@ from iroha import *
 from iroha.iroha import *
 
 d = IDesign()
-mod = IModule(d, "M_top")
+mod = IModule(d, "mod")
+
+#mod_top = IModule(d, "M_top")
+#mod.parent_module = mod_top
 
 # task tab
 tab = ITable(mod)

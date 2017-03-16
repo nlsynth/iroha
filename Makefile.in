@@ -143,6 +143,7 @@ am_libiroha_la_OBJECTS = src/iroha/common.lo src/iroha/iroha.lo \
 	src/writer/verilog/dataflow_table.lo \
 	src/writer/verilog/embed.lo src/writer/verilog/ext_io.lo \
 	src/writer/verilog/ext_task.lo \
+	src/writer/verilog/ext_task_call.lo \
 	src/writer/verilog/foreign_reg.lo \
 	src/writer/verilog/insn_writer.lo \
 	src/writer/verilog/internal_sram.lo \
@@ -532,6 +533,7 @@ libiroha_la_SOURCES = \
  src/writer/verilog/embed.cpp src/writer/verilog/embed.h \
  src/writer/verilog/ext_io.cpp src/writer/verilog/ext_io.h \
  src/writer/verilog/ext_task.cpp src/writer/verilog/ext_task.h \
+ src/writer/verilog/ext_task_call.cpp src/writer/verilog/ext_task_call.h \
  src/writer/verilog/foreign_reg.cpp src/writer/verilog/foreign_reg.h \
  src/writer/verilog/insn_writer.cpp src/writer/verilog/insn_writer.h \
  src/writer/verilog/internal_sram.cpp src/writer/verilog/internal_sram.h \
@@ -785,6 +787,9 @@ src/writer/verilog/ext_io.lo: src/writer/verilog/$(am__dirstamp) \
 	src/writer/verilog/$(DEPDIR)/$(am__dirstamp)
 src/writer/verilog/ext_task.lo: src/writer/verilog/$(am__dirstamp) \
 	src/writer/verilog/$(DEPDIR)/$(am__dirstamp)
+src/writer/verilog/ext_task_call.lo:  \
+	src/writer/verilog/$(am__dirstamp) \
+	src/writer/verilog/$(DEPDIR)/$(am__dirstamp)
 src/writer/verilog/foreign_reg.lo: src/writer/verilog/$(am__dirstamp) \
 	src/writer/verilog/$(DEPDIR)/$(am__dirstamp)
 src/writer/verilog/insn_writer.lo: src/writer/verilog/$(am__dirstamp) \
@@ -973,6 +978,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/writer/verilog/$(DEPDIR)/embed.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/writer/verilog/$(DEPDIR)/ext_io.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/writer/verilog/$(DEPDIR)/ext_task.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/writer/verilog/$(DEPDIR)/ext_task_call.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/writer/verilog/$(DEPDIR)/foreign_reg.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/writer/verilog/$(DEPDIR)/insn_writer.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/writer/verilog/$(DEPDIR)/internal_sram.Plo@am__quote@

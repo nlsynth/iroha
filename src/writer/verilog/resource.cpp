@@ -10,6 +10,7 @@
 #include "writer/verilog/embed.h"
 #include "writer/verilog/ext_io.h"
 #include "writer/verilog/ext_task.h"
+#include "writer/verilog/ext_task_call.h"
 #include "writer/verilog/foreign_reg.h"
 #include "writer/verilog/insn_writer.h"
 #include "writer/verilog/mapped.h"
@@ -77,6 +78,10 @@ Resource *Resource::Create(const IResource &res, const Table &table) {
   if (resource::IsExtTask(*klass) ||
       resource::IsExtTaskDone(*klass)) {
     return new ExtTask(res, table);
+  }
+  if (resource::IsExtTaskCall(*klass) ||
+      resource::IsExtTaskWait(*klass)) {
+    return new ExtTaskCall(res, table);
   }
   return new Resource(res, table);
 }

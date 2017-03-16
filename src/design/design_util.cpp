@@ -176,7 +176,9 @@ bool DesignUtil::IsMultiCycleInsn(IInsn *insn) {
       resource::IsSharedMemoryReader(*rc) ||
       resource::IsSharedMemoryWriter(*rc) ||
       resource::IsEmbedded(*rc) ||
-      resource::IsExtTaskDone(*rc)) {
+      resource::IsExtTaskDone(*rc) ||
+      resource::IsExtTaskCall(*rc) ||
+      resource::IsExtTaskWait(*rc)) {
     return true;
   }
   if (resource::IsAxiPort(*rc)) {
