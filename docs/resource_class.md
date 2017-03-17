@@ -226,3 +226,7 @@ The table will be configured as a task. Other tables in super modules can kick t
 #### dataflow-in
 
 The table will be configured as a data flow pipeline instead of a state machine.
+
+#### ext-task, ext-task-done, ext-task-call, ext-task-wait
+
+This supports common method interface proposed at here https://gist.github.com/ikwzm/bab67c180f2f1f3291998fc7dbb5fbf0

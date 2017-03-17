@@ -44,7 +44,6 @@ Please read src/iroha/iroha.h, src/iroha/iroha_main.cpp examples/ for more detai
 
 * WIP: Document
 * P1: Test and debug SSA conversion and PHI removal
-* P1: Support common method interface proposed at here https://gist.github.com/ikwzm/bab67c180f2f1f3291998fc7dbb5fbf0
 * P1: Better error handling
 * P1: More debug output from optimizers.
 * P1: Support profiling information from frontends.

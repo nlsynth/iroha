@@ -1,5 +1,6 @@
 #include "opt/clean/unused_resource.h"
 
+#include "design/resource_attr.h"
 #include "iroha/i_design.h"
 
 namespace iroha {
@@ -45,7 +46,8 @@ bool CleanUnusedResourcePhase::ScanTable(ITable *table) {
 bool CleanUnusedResourcePhase::CollectResource(ITable *table) {
   vector<IResource *> new_resources;
   for (IResource *res : table->resources_) {
-    if (used_resources_.find(res) != used_resources_.end()) {
+    if (ResourceAttr::IsExtAccessResource(res) ||
+	used_resources_.find(res) != used_resources_.end()) {
       new_resources.push_back(res);
     }
   }
