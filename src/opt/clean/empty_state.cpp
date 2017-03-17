@@ -17,7 +17,7 @@ Phase *CleanEmptyStatePhase::Create() {
   return new CleanEmptyStatePhase();
 }
 
-bool CleanEmptyStatePhase::ApplyForTable(ITable *table) {
+bool CleanEmptyStatePhase::ApplyForTable(const string &key, ITable *table) {
   CleanEmptyState shrink(table, annotation_);
   return shrink.Perform();
 }

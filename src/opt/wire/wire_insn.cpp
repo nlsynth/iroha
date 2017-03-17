@@ -19,7 +19,7 @@ Phase *WireInsnPhase::Create() {
   return new WireInsnPhase();
 }
 
-bool WireInsnPhase::ApplyForTable(ITable *table) {
+bool WireInsnPhase::ApplyForTable(const string &key, ITable *table) {
   WireInsn wire_insn(table, annotation_);
   return wire_insn.Perform();
 }

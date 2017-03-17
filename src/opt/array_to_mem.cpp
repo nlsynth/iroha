@@ -21,7 +21,7 @@ Phase *ArrayToMem::Create() {
   return new ArrayToMem();
 }
 
-bool ArrayToMem::ApplyForTable(ITable *table) {
+bool ArrayToMem::ApplyForTable(const string &key, ITable *table) {
   map<IResource *, IResource *> array_to_mem;
   auto copied_res = table->resources_;
   for (IResource *res : copied_res) {

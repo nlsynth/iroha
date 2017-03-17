@@ -13,7 +13,7 @@ Phase *CleanUnusedResourcePhase::Create() {
   return new CleanUnusedResourcePhase();
 }
 
-bool CleanUnusedResourcePhase::ApplyForTable(ITable *table) {
+bool CleanUnusedResourcePhase::ApplyForTable(const string &key, ITable *table) {
   set<IResource *> used_resources;
   for (IState *st : table->states_) {
     for (IInsn *insn : st->insns_) {

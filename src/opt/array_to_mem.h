@@ -14,7 +14,7 @@ public:
   static Phase *Create();
 
 private:
-  virtual bool ApplyForTable(ITable *table);
+  virtual bool ApplyForTable(const string &key, ITable *table);
 
   IResource *GetResource(IResource *array);
   void AddMemInsn(IResource *mem, IState *st, IInsn *array_insn);

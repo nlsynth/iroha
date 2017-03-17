@@ -14,7 +14,8 @@ Phase *CleanUnreachableStatePhase::Create() {
   return new CleanUnreachableStatePhase();
 }
 
-bool CleanUnreachableStatePhase::ApplyForTable(ITable *table) {
+bool CleanUnreachableStatePhase::ApplyForTable(const string &key,
+					       ITable *table) {
   set<IState *> reachables;
   OptUtil::CollectReachableStates(table, &reachables);
   vector<IState *> reachable_states;

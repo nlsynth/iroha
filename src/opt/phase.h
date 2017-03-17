@@ -15,8 +15,8 @@ public:
   virtual bool ApplyForDesign(IDesign *design);
 
 protected:
-  virtual bool ApplyForModule(IModule *module);
-  virtual bool ApplyForTable(ITable *table);
+  virtual bool ApplyForModule(const string &key, IModule *module);
+  virtual bool ApplyForTable(const string &key, ITable *table);
 
   DebugAnnotation *annotation_;
 };

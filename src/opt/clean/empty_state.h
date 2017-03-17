@@ -18,7 +18,7 @@ public:
   static Phase *Create();
 
 private:
-  virtual bool ApplyForTable(ITable *table);
+  virtual bool ApplyForTable(const string &key, ITable *table);
 };
 
 class CleanEmptyState {

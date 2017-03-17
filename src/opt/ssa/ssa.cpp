@@ -14,7 +14,7 @@ Phase *SSAConverterPhase::Create() {
   return new SSAConverterPhase();
 }
 
-bool SSAConverterPhase::ApplyForTable(ITable *table) {
+bool SSAConverterPhase::ApplyForTable(const string &key, ITable *table) {
   SSAConverter converter(table, annotation_);
   converter.Perform();
   return true;
@@ -27,7 +27,7 @@ Phase *PhiCleanerPhase::Create() {
   return new PhiCleanerPhase();
 }
 
-bool PhiCleanerPhase::ApplyForTable(ITable *table) {
+bool PhiCleanerPhase::ApplyForTable(const string &key, ITable *table) {
   PhiCleaner cleaner(table, annotation_);
   cleaner.Perform();
   return true;

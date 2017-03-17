@@ -14,7 +14,7 @@ Phase *CleanPseudoResourcePhase::Create() {
   return new CleanPseudoResourcePhase();
 }
 
-bool CleanPseudoResourcePhase::ApplyForTable(ITable *table) {
+bool CleanPseudoResourcePhase::ApplyForTable(const string &key, ITable *table) {
   for (IState *st : table->states_) {
     vector<IInsn *> real_insns;
     for (IInsn *insn : st->insns_) {
