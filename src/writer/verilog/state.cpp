@@ -1,6 +1,7 @@
 #include "writer/verilog/state.h"
 
 #include "design/design_util.h"
+#include "design/resource_attr.h"
 #include "iroha/i_design.h"
 #include "iroha/logging.h"
 #include "iroha/resource_class.h"
@@ -21,7 +22,7 @@ namespace verilog {
 State::State(IState *i_state, Table *table, Names *names)
   : i_state_(i_state), table_(table), names_(names),
     transition_insn_(nullptr) {
-  is_compound_cycle_ = DesignUtil::NumMultiCycleInsn(i_state) > 0;
+  is_compound_cycle_ = ResourceAttr::NumMultiCycleInsn(i_state) > 0;
   transition_insn_ = DesignUtil::FindTransitionInsn(i_state);
 }
 
@@ -121,7 +122,7 @@ void State::WriteTransition(ostream &os) {
     os << I << "  if (";
     vector<string> sts;
     for (IInsn *insn : i_state_->insns_) {
-      if (!DesignUtil::IsMultiCycleInsn(insn)) {
+      if (!ResourceAttr::IsMultiCycleInsn(insn)) {
 	continue;
       }
       IResource *res = insn->GetResource();
@@ -132,7 +133,7 @@ void State::WriteTransition(ostream &os) {
     os << Util::Join(sts, " && ");
     os << ") begin\n";
     for (IInsn *insn : i_state_->insns_) {
-      if (DesignUtil::IsMultiCycleInsn(insn)) {
+      if (ResourceAttr::IsMultiCycleInsn(insn)) {
 	string st = InsnWriter::MultiCycleStateName(*insn->GetResource());
 	os << I << "    " << st << " <= " << "0;\n";
       }

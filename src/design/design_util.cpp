@@ -1,7 +1,6 @@
 #include "design/design_util.h"
 
 #include "iroha/i_design.h"
-#include "iroha/insn_operands.h"
 #include "iroha/resource_class.h"
 #include "iroha/logging.h"
 
@@ -53,7 +52,8 @@ void DesignUtil::FindResourceByClassName(ITable *table,
   }
 }
 
-IResource *DesignUtil::FindOneResourceByClassName(ITable *table, const string &name) {
+IResource *DesignUtil::FindOneResourceByClassName(ITable *table,
+						  const string &name) {
   vector<IResource *> resources;
   FindResourceByClassName(table, name, &resources);
   if (resources.size() == 0) {
@@ -128,7 +128,8 @@ IInsn *DesignUtil::FindTaskEntryInsn(ITable *table) {
   return FindInitialInsnByClassName(table, resource::kExtTask);
 }
 
-IInsn *DesignUtil::FindInitialInsnByClassName(ITable *table, const string &name) {
+IInsn *DesignUtil::FindInitialInsnByClassName(ITable *table,
+					      const string &name) {
   IResource *res = FindOneResourceByClassName(table, name);
   if (res != nullptr) {
     return DesignUtil::FindInsnByResource(table->GetInitialState(), res);
@@ -164,48 +165,6 @@ bool DesignUtil::IsTerminalState(IState *st) {
     return true;
   }
   return false;
-}
-
-bool DesignUtil::IsMultiCycleInsn(IInsn *insn) {
-  IResource *res = insn->GetResource();
-  IResourceClass *rc = res->GetClass();
-  if (resource::IsTaskCall(*rc) ||
-      resource::IsChannelRead(*rc) ||
-      resource::IsChannelWrite(*rc) ||
-      resource::IsSharedMemory(*rc) ||
-      resource::IsSharedMemoryReader(*rc) ||
-      resource::IsSharedMemoryWriter(*rc) ||
-      resource::IsEmbedded(*rc) ||
-      resource::IsExtTaskDone(*rc) ||
-      resource::IsExtTaskCall(*rc) ||
-      resource::IsExtTaskWait(*rc)) {
-    return true;
-  }
-  if (resource::IsAxiPort(*rc)) {
-    return true;
-  }
-  if (resource::IsSharedRegReader(*rc)) {
-    if (insn->GetOperand() == operand::kWaitNotify ||
-	insn->GetOperand() == operand::kGetMailbox) {
-      return true;
-    }
-  }
-  if (resource::IsSharedRegWriter(*rc)) {
-    if (insn->GetOperand() == operand::kPutMailbox) {
-      return true;
-    }
-  }
-  return false;
-}
-
-int DesignUtil::NumMultiCycleInsn(IState *st) {
-  int n = 0;
-  for (IInsn *insn : st->insns_) {
-    if (IsMultiCycleInsn(insn)) {
-      ++n;
-    }
-  }
-  return n;
 }
 
 IResource *DesignUtil::FindResourceById(ITable *tab,

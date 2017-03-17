@@ -36,6 +36,7 @@ libiroha_la_SOURCES = \
  src/design/design_util.cpp src/design/design_util.h \
  src/design/importer.cpp src/design/importer.h \
  src/design/module_copier.cpp src/design/module_copier.h \
+ src/design/resource_attr.cpp src/design/resource_attr.h \
  src/design/resource_copier.cpp src/design/resource_copier.h \
  src/design/table_copier.cpp src/design/table_copier.h \
  src/design/validator.cpp src/design/validator.h \

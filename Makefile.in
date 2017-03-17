@@ -118,11 +118,11 @@ am_libiroha_la_OBJECTS = src/iroha/common.lo src/iroha/iroha.lo \
 	src/builder/reader.lo src/builder/tree_builder.lo \
 	src/design/design_tool.lo src/design/design_util.lo \
 	src/design/importer.lo src/design/module_copier.lo \
-	src/design/resource_copier.lo src/design/table_copier.lo \
-	src/design/validator.lo src/design/validator.lo \
-	src/opt/array_to_mem.lo src/opt/bb_collector.lo \
-	src/opt/bb_set.lo src/opt/clean/empty_state.lo \
-	src/opt/clean/pseudo_resource.lo \
+	src/design/resource_attr.lo src/design/resource_copier.lo \
+	src/design/table_copier.lo src/design/validator.lo \
+	src/design/validator.lo src/opt/array_to_mem.lo \
+	src/opt/bb_collector.lo src/opt/bb_set.lo \
+	src/opt/clean/empty_state.lo src/opt/clean/pseudo_resource.lo \
 	src/opt/clean/unreachable_state.lo \
 	src/opt/clean/unused_resource.lo src/opt/data_flow.lo \
 	src/opt/data_flow_collector.lo src/opt/debug_annotation.lo \
@@ -486,6 +486,7 @@ libiroha_la_SOURCES = \
  src/design/design_util.cpp src/design/design_util.h \
  src/design/importer.cpp src/design/importer.h \
  src/design/module_copier.cpp src/design/module_copier.h \
+ src/design/resource_attr.cpp src/design/resource_attr.h \
  src/design/resource_copier.cpp src/design/resource_copier.h \
  src/design/table_copier.cpp src/design/table_copier.h \
  src/design/validator.cpp src/design/validator.h \
@@ -648,6 +649,8 @@ src/design/design_util.lo: src/design/$(am__dirstamp) \
 src/design/importer.lo: src/design/$(am__dirstamp) \
 	src/design/$(DEPDIR)/$(am__dirstamp)
 src/design/module_copier.lo: src/design/$(am__dirstamp) \
+	src/design/$(DEPDIR)/$(am__dirstamp)
+src/design/resource_attr.lo: src/design/$(am__dirstamp) \
 	src/design/$(DEPDIR)/$(am__dirstamp)
 src/design/resource_copier.lo: src/design/$(am__dirstamp) \
 	src/design/$(DEPDIR)/$(am__dirstamp)
@@ -928,6 +931,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/design/$(DEPDIR)/design_util.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/design/$(DEPDIR)/importer.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/design/$(DEPDIR)/module_copier.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/design/$(DEPDIR)/resource_attr.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/design/$(DEPDIR)/resource_copier.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/design/$(DEPDIR)/table_copier.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/design/$(DEPDIR)/validator.Plo@am__quote@

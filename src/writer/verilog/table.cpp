@@ -1,6 +1,6 @@
 #include "writer/verilog/table.h"
 
-#include "design/design_util.h"
+#include "design/resource_attr.h"
 #include "iroha/i_design.h"
 #include "iroha/logging.h"
 #include "iroha/resource_class.h"
@@ -137,7 +137,7 @@ void Table::BuildMultiCycleStateReg() {
   set<IResource *> mc_resources;
   for (IState *st : i_table_->states_) {
     for (IInsn *insn : st->insns_) {
-      if (DesignUtil::IsMultiCycleInsn(insn)) {
+      if (ResourceAttr::IsMultiCycleInsn(insn)) {
 	mc_resources.insert(insn->GetResource());
       }
     }
