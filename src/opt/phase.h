@@ -12,11 +12,14 @@ public:
   Phase();
   virtual ~Phase();
 
+  void SetAnnotation(DebugAnnotation *annotation);
   virtual bool ApplyForDesign(IDesign *design);
 
 protected:
   virtual bool ApplyForModule(const string &key, IModule *module);
   virtual bool ApplyForTable(const string &key, ITable *table);
+
+  bool ApplyForAllModules(const string &key, IDesign *design);
 
   DebugAnnotation *annotation_;
 };

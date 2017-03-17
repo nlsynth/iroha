@@ -14,8 +14,15 @@ public:
 
   static Phase *Create();
 
+  virtual bool ApplyForDesign(IDesign *design);
+
 private:
   virtual bool ApplyForTable(const string &key, ITable *table);
+
+  bool ScanTable(ITable *table);
+  bool CollectResource(ITable *table);
+
+  set<IResource *> used_resources_;
 };
 
 }  // namespace clean

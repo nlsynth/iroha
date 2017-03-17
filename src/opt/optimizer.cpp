@@ -50,6 +50,7 @@ bool Optimizer::ApplyPhase(const string &name) {
   }
   auto factory = it->second;
   unique_ptr<Phase> phase(factory());
+  phase->SetAnnotation(design_->GetDebugAnnotation());
   if (phase->ApplyForDesign(design_)) {
     Validator::Validate(design_);
     return true;

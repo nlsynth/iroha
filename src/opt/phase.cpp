@@ -11,11 +11,18 @@ Phase::Phase() : annotation_(nullptr) {
 Phase::~Phase() {
 }
 
+void Phase::SetAnnotation(DebugAnnotation *annotation) {
+  annotation_ = annotation;
+}
+
 bool Phase::ApplyForDesign(IDesign *design) {
-  annotation_ = design->GetDebugAnnotation();
+  return ApplyForAllModules("", design);
+}
+
+bool Phase::ApplyForAllModules(const string &key, IDesign *design) {
   bool all_ok = true;
   for (auto *mod : design->modules_) {
-    all_ok &= ApplyForModule("", mod);
+    all_ok &= ApplyForModule(key, mod);
   }
   return all_ok;
 }
