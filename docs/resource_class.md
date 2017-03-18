@@ -230,3 +230,7 @@ The table will be configured as a data flow pipeline instead of a state machine.
 #### ext-task, ext-task-done, ext-task-call, ext-task-wait
 
 This supports common method interface proposed at here https://gist.github.com/ikwzm/bab67c180f2f1f3291998fc7dbb5fbf0
+
+#### ticker
+
+A counter incremented by every clock cycle. This might be used to measure performance of the circuit, optimizer and so on.

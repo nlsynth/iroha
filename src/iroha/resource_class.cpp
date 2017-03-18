@@ -143,6 +143,10 @@ bool IsAxiPort(const IResourceClass &rc) {
   return (rc.GetName() == kAxiPort);
 }
 
+bool IsTicker(const IResourceClass &rc) {
+  return (rc.GetName() == kTicker);
+}
+
 static void InstallResource(IDesign *design, const string &name,
 			    bool is_exclusive) {
   IResourceClass *klass = new IResourceClass(name, is_exclusive, design);
@@ -194,6 +198,7 @@ void InstallResourceClasses(IDesign *design) {
   InstallResource(design, resource::kExtTaskCall, true);
   InstallResource(design, resource::kExtTaskWait, true);
   InstallResource(design, resource::kAxiPort, true);
+  InstallResource(design, resource::kTicker, true);
 }
 
 }  // namespace resource

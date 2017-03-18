@@ -197,3 +197,6 @@ def AddArgsToEmbeddedResource(res, arg):
 def SetHandShakeToEmbeddedResource(res, req, ack):
     res.resource_params.AddValue("EMBEDDED-MODULE-REQ", req)
     res.resource_params.AddValue("EMBEDDED-MODULE-ACK", ack)
+
+def CreateTicker(table):
+    return createResource(table, "ticker")

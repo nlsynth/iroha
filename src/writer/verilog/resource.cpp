@@ -23,6 +23,7 @@
 #include "writer/verilog/state.h"
 #include "writer/verilog/table.h"
 #include "writer/verilog/task.h"
+#include "writer/verilog/ticker.h"
 
 namespace iroha {
 namespace writer {
@@ -82,6 +83,9 @@ Resource *Resource::Create(const IResource &res, const Table &table) {
   if (resource::IsExtTaskCall(*klass) ||
       resource::IsExtTaskWait(*klass)) {
     return new ExtTaskCall(res, table);
+  }
+  if (resource::IsTicker(*klass)) {
+    return new Ticker(res, table);
   }
   return new Resource(res, table);
 }

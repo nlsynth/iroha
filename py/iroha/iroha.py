@@ -41,6 +41,7 @@ class IDesign(object):
         self.resource_classes.append(IResourceClass("channel-write"))
         self.resource_classes.append(IResourceClass("channel-read"))
         self.resource_classes.append(IResourceClass("dataflow-in"))
+        self.resource_classes.append(IResourceClass("ticker"))
         # Method interface
         self.resource_classes.append(IResourceClass("ext-task"))
         self.resource_classes.append(IResourceClass("ext-task-done"))
