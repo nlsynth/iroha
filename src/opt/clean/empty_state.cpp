@@ -44,7 +44,10 @@ void CleanEmptyState::ShrinkBB(BB *bb) {
     bool has_insn = false;
     for (IInsn *insn : st->insns_) {
       if (insn->GetResource() == transition_) {
-	CHECK(insn->target_states_.size() <= 1);
+	if (insn->target_states_.size() > 1) {
+	  // Consider branch as an insn.
+	  has_insn = true;
+	}
       } else {
 	has_insn = true;
       }
