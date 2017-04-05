@@ -24,6 +24,7 @@ void DataFlowState::BuildIncomingTransitions(const vector<DataFlowStateTransitio
     const IState *prev_st = tr.from->GetIState();
     string s;
     if (prev_st->GetTable()->GetInitialState() == prev_st) {
+      // Comes from initial state.
       IInsn *insn = DesignUtil::FindDataFlowInInsn(prev_st->GetTable());
       s = InsnWriter::RegisterValue(*insn->inputs_[0], names_);
     } else {

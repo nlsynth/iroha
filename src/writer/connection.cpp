@@ -57,6 +57,15 @@ void Connection::ProcessTable(ITable *tab) {
   for (IResource *reg : reg_readers) {
     shared_reg_readers_[reg->GetParentResource()].push_back(reg);
   }
+  vector<IResource*> reg_children;
+  DesignUtil::FindResourceByClassName(tab, resource::kDataFlowIn,
+				      &reg_children);
+  for (IResource *reg : reg_children) {
+    IResource *p = reg->GetParentResource();
+    if (p != nullptr) {
+      shared_reg_children_[p].push_back(reg);
+    }
+  }
   // shared-memory
   vector<IResource *> memory_readers;
   DesignUtil::FindResourceByClassName(tab, resource::kSharedMemoryReader,
@@ -179,6 +188,10 @@ const vector<IResource *> *Connection::GetSharedRegReaders(const IResource *res)
 
 const vector<IResource *> *Connection::GetSharedRegWriters(const IResource *res) const {
   return GetResourceVector(shared_reg_writers_, res);
+}
+
+const vector<IResource *> *Connection::GetSharedRegChildren(const IResource *res) const {
+  return GetResourceVector(shared_reg_children_, res);
 }
   
 const vector<IResource *> *Connection::GetSharedMemoryAccessors(const IResource *res) const {

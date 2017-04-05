@@ -106,13 +106,7 @@ void ExpWriter::WriteResource(const IResource &res) {
   if (resource::IsTaskCall(rc)) {
     WriteCalleeTaskDesc(res);
   }
-  if (resource::IsSharedRegReader(rc) ||
-      resource::IsSharedRegWriter(rc) ||
-      resource::IsSharedMemoryReader(rc) ||
-      resource::IsSharedMemoryWriter(rc) ||
-      resource::IsExtTaskDone(rc) ||
-      resource::IsExtTaskWait(rc) ||
-      resource::IsAxiPort(rc)) {
+  if (res.GetParentResource() != nullptr) {
     WriteParentResourceDesc(res);
   }
   os_ << "      )\n";

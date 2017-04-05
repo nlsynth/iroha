@@ -78,6 +78,7 @@ bool IsEmbedded(const IResourceClass &rc);
 bool IsTask(const IResourceClass &rc);
 bool IsTaskCall(const IResourceClass &rc);
 bool IsForeignRegister(const IResourceClass &rc);
+bool IsDataFlowIn(const IResourceClass &rc);
 bool IsExtTask(const IResourceClass &rc);
 bool IsExtTaskDone(const IResourceClass &rc);
 bool IsExtTaskCall(const IResourceClass &rc);

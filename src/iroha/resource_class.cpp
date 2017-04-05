@@ -123,6 +123,10 @@ bool IsForeignRegister(const IResourceClass &rc) {
   return (rc.GetName() == kForeignReg);
 }
 
+bool IsDataFlowIn(const IResourceClass &rc) {
+  return (rc.GetName() == kDataFlowIn);
+}
+
 bool IsExtTask(const IResourceClass &rc) {
   return (rc.GetName() == kExtTask);
 }

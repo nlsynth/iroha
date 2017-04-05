@@ -43,7 +43,8 @@ private:
   int width_;
   bool has_default_output_value_;
   int default_output_value_;
-  const vector<IResource *> *readers_;
+  // readers_ includes dataflow-in for pipeline.
+  vector<IResource *> readers_;
   const vector<IResource *> *writers_;
   bool need_write_arbitration_;
   bool use_notify_;

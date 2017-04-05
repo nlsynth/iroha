@@ -60,7 +60,7 @@ void SharedRegAccessor::BuildSharedRegReaderResource() {
     rs << "  reg " << SharedReg::RegMailboxGetReqName(res_) << ";\n";
     is << "      " << SharedReg::RegMailboxGetReqName(res_) << " <= 0;\n";
     map<IState *, IInsn *> getters;
-    CollectResourceCallers("get_mailbox", &getters);
+    CollectResourceCallers(operand::kGetMailbox, &getters);
     ostream &os = tab_.StateOutputSectionStream();
     os << "      " << SharedReg::RegMailboxGetReqName(res_) << " <= "
        << JoinStatesWithSubState(getters, 0) << ";\n";
@@ -101,14 +101,14 @@ void SharedRegAccessor::BuildSharedRegWriterResource() {
   // write notify signal.
   if (UseNotify(&res_)) {
     map<IState *, IInsn *> notifiers;
-    CollectResourceCallers("notify", &notifiers);
+    CollectResourceCallers(operand::kNotify, &notifiers);
     os << "      " << SharedReg::WriterNotifierName(res_) << " <= ";
     WriteStateUnion(notifiers, os);
     os << ";\n";
   }
   if (UseMailbox(&res_)) {
     map<IState *, IInsn *> putters;
-    CollectResourceCallers("put_mailbox", &putters);
+    CollectResourceCallers(operand::kPutMailbox, &putters);
     os << "      " << SharedReg::RegMailboxPutReqName(res_) << " <= "
        << JoinStatesWithSubState(putters, 0) << ";\n";
   }

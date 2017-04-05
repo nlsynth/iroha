@@ -21,7 +21,7 @@ namespace verilog {
 SharedReg::SharedReg(const IResource &res, const Table &table)
   : Resource(res, table), has_default_output_value_(false),
     default_output_value_(0),
-    readers_(nullptr), writers_(nullptr),
+    writers_(nullptr),
     need_write_arbitration_(false) {
   auto *klass = res_.GetClass();
   CHECK(resource::IsSharedReg(*klass));
@@ -30,7 +30,20 @@ SharedReg::SharedReg(const IResource &res, const Table &table)
   params->GetExtOutputPort(&unused, &width_);
   has_default_output_value_ =
     params->GetDefaultValue(&default_output_value_);
-  readers_ = table.GetModule()->GetConnection().GetSharedRegReaders(&res_);
+  auto *readers =
+    table.GetModule()->GetConnection().GetSharedRegReaders(&res_);
+  if (readers != nullptr) {
+    for (auto *r : *readers) {
+      readers_.push_back(r);
+    }
+  }
+  auto *children =
+    table.GetModule()->GetConnection().GetSharedRegChildren(&res_);
+  if (children != nullptr) {
+    for (auto *r : *children) {
+      readers_.push_back(r);
+    }
+  }
   writers_ = table.GetModule()->GetConnection().GetSharedRegWriters(&res_);
   if (writers_ != nullptr || has_default_output_value_) {
     need_write_arbitration_ = true;
@@ -136,8 +149,8 @@ void SharedReg::BuildMailbox() {
   }
   vector<string> higher_get_reqs;
   vector<string> get_reqs;
-  if (readers_ != nullptr) {
-    for (auto *reader : *readers_) {
+  if (readers_.size() > 0) {
+    for (auto *reader : readers_) {
       if (!SharedRegAccessor::UseMailbox(reader)) {
 	continue;
       }
@@ -248,14 +261,11 @@ void SharedReg::AddChildWire(const IResource *res, bool is_write, ostream &os) {
 }
 
 void SharedReg::BuildReadWire() {
-  if (readers_ == nullptr) {
-    return;
-  }
   IModule *reg_module = res_.GetTable()->GetModule();
   set<const IModule *> wired_modules;
   set<const IModule *> has_upward;
   set<const IModule *> has_downward;
-  for (auto *reader : *readers_) {
+  for (auto *reader : readers_) {
     IModule *reader_module = reader->GetTable()->GetModule();
     const IModule *common_root = Connection::GetCommonRoot(reg_module,
 							   reader_module);
@@ -350,8 +360,10 @@ void SharedReg::AddReadPort(const IModule *imod, const IResource *reader,
 void SharedReg::GetOptions(bool *use_notify, bool *use_mailbox) {
   *use_notify = false;
   *use_mailbox = false;
-  if (readers_ != nullptr) {
-    for (auto *reader : *readers_) {
+  for (auto *reader : readers_) {
+    if (resource::IsDataFlowIn(*(reader->GetClass()))) {
+      *use_notify |= true;
+    } else {
       bool n, m;
       SharedRegAccessor::GetAccessorFeatures(reader, &n, &m);
       *use_notify |= n;
