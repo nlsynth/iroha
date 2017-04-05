@@ -317,7 +317,8 @@ void SharedReg::AddWire(const IModule *common_root, const Table *tab,
   if (is_write) {
     rs << "  wire " << WriterEnName(*accessor) << ";\n";
   }
-  bool notify = SharedRegAccessor::UseNotify(accessor);
+  bool notify = SharedRegAccessor::UseNotify(accessor)
+    || resource::IsDataFlowIn(*(accessor->GetClass()));
   if (notify) {
     rs << "  wire ";
     if (is_write) {

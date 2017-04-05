@@ -29,6 +29,8 @@ public:
   vector<DataFlowStateTransition> GetTransitions();
 
 private:
+  string StartCondition(IInsn *insn);
+
   string incoming_transitions_;
 };
 

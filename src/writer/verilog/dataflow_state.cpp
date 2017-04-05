@@ -2,7 +2,9 @@
 
 #include "design/design_util.h"
 #include "iroha/i_design.h"
+#include "iroha/resource_class.h"
 #include "writer/verilog/insn_writer.h"
+#include "writer/verilog/shared_reg.h"
 
 namespace iroha {
 namespace writer {
@@ -26,7 +28,7 @@ void DataFlowState::BuildIncomingTransitions(const vector<DataFlowStateTransitio
     if (prev_st->GetTable()->GetInitialState() == prev_st) {
       // Comes from initial state.
       IInsn *insn = DesignUtil::FindDataFlowInInsn(prev_st->GetTable());
-      s = InsnWriter::RegisterValue(*insn->inputs_[0], names_);
+      s = StartCondition(insn);
     } else {
       s = StateVariable(prev_st);
     }
@@ -44,10 +46,11 @@ void DataFlowState::Write(ostream &os) {
   string s;
   if (i_state_->GetTable()->GetInitialState() == i_state_) {
     IInsn *insn = DesignUtil::FindDataFlowInInsn(i_state_->GetTable());
-    s = InsnWriter::RegisterValue(*insn->inputs_[0], names_);
+    s = StartCondition(insn);
   } else {
     s = StateVariable(i_state_);
   }
+  os << "      // State: " << i_state_->GetId() << "\n";
   os << incoming_transitions_;
   os << "      if (" << s << ") begin\n";
   WriteStateBody(os);
@@ -80,6 +83,17 @@ vector<DataFlowStateTransition> DataFlowState::GetTransitions() {
     trs.push_back(tr);
   }
   return trs;
+}
+
+string DataFlowState::StartCondition(IInsn *insn) {
+  IResource *res = insn->GetResource();
+  IResource *p = res->GetParentResource();
+  if (p != nullptr &&
+      resource::IsSharedReg(*(p->GetClass()))) {
+    return SharedReg::RegNotifierName(*p);
+  } else {
+    return InsnWriter::RegisterValue(*insn->inputs_[0], names_);
+  }
 }
 
 }  // namespace verilog
