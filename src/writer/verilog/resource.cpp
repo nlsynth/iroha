@@ -7,6 +7,7 @@
 #include "writer/module_template.h"
 #include "writer/verilog/axi/axi_port.h"
 #include "writer/verilog/channel.h"
+#include "writer/verilog/dataflow_in.h"
 #include "writer/verilog/embed.h"
 #include "writer/verilog/ext_io.h"
 #include "writer/verilog/ext_task.h"
@@ -86,6 +87,9 @@ Resource *Resource::Create(const IResource &res, const Table &table) {
   }
   if (resource::IsTicker(*klass)) {
     return new Ticker(res, table);
+  }
+  if (resource::IsDataFlowIn(*klass)) {
+    return new DataFlowIn(res, table);
   }
   return new Resource(res, table);
 }

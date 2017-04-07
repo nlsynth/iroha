@@ -139,6 +139,7 @@ am_libiroha_la_OBJECTS = src/iroha/common.lo src/iroha/iroha.lo \
 	src/writer/cxx/table.lo src/writer/verilog/axi/axi_port.lo \
 	src/writer/verilog/axi/controller.lo \
 	src/writer/verilog/channel.lo \
+	src/writer/verilog/dataflow_in.lo \
 	src/writer/verilog/dataflow_state.lo \
 	src/writer/verilog/dataflow_table.lo \
 	src/writer/verilog/embed.lo src/writer/verilog/ext_io.lo \
@@ -529,6 +530,7 @@ libiroha_la_SOURCES = \
  src/writer/verilog/axi/controller.cpp src/writer/verilog/axi/controller.h \
  src/writer/verilog/channel.cpp src/writer/verilog/channel.h \
  src/writer/verilog/common.h \
+ src/writer/verilog/dataflow_in.cpp src/writer/verilog/dataflow_in.h \
  src/writer/verilog/dataflow_state.cpp src/writer/verilog/dataflow_state.h \
  src/writer/verilog/dataflow_table.cpp src/writer/verilog/dataflow_table.h \
  src/writer/verilog/embed.cpp src/writer/verilog/embed.h \
@@ -779,6 +781,8 @@ src/writer/verilog/$(DEPDIR)/$(am__dirstamp):
 	@: > src/writer/verilog/$(DEPDIR)/$(am__dirstamp)
 src/writer/verilog/channel.lo: src/writer/verilog/$(am__dirstamp) \
 	src/writer/verilog/$(DEPDIR)/$(am__dirstamp)
+src/writer/verilog/dataflow_in.lo: src/writer/verilog/$(am__dirstamp) \
+	src/writer/verilog/$(DEPDIR)/$(am__dirstamp)
 src/writer/verilog/dataflow_state.lo:  \
 	src/writer/verilog/$(am__dirstamp) \
 	src/writer/verilog/$(DEPDIR)/$(am__dirstamp)
@@ -980,6 +984,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/writer/cxx/$(DEPDIR)/state.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/writer/cxx/$(DEPDIR)/table.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/writer/verilog/$(DEPDIR)/channel.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/writer/verilog/$(DEPDIR)/dataflow_in.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/writer/verilog/$(DEPDIR)/dataflow_state.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/writer/verilog/$(DEPDIR)/dataflow_table.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/writer/verilog/$(DEPDIR)/embed.Plo@am__quote@

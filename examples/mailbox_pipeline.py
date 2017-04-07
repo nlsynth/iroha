@@ -46,6 +46,8 @@ design_tool.AddNextState(pst1, pst2)
 
 df_res = design_tool.GetResource(ptab, "dataflow-in")
 df_insn = IInsn(df_res)
+df_arg = IRegister(ptab, "arg")
+df_insn.outputs.append(df_arg)
 ptab.states[0].insns.append(df_insn)
 
 df_res.parent_resource = sreg
