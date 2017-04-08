@@ -1,8 +1,11 @@
-# gyp src/iroha.gyp --depth=. -f make --no-duplicate-basename-check
+# $ gyp src/iroha.gyp --depth=. -f make
+# maybe with --generator-output=src
 {
   'make_global_settings': [
   ],
   'target_defaults': {
+    'cflags': [ '-std=c++11', ],
+    'defines': ['PACKAGE="iroha"', 'VERSION="0.0.1"'],
   },
   'targets': [
     {
@@ -138,6 +141,21 @@
         'writer/module_template.h',
         'writer/names.cpp',
         'writer/names.h',
+        'writer/writer.cpp',
+        'writer/writer.h',
+      ],
+      'dependencies': [
+        ':verilog_writer'
+      ],
+    },
+    {
+      'target_name': 'verilog_writer',
+      'product_name': 'verilog_writer',
+      'type': 'static_library',
+      'include_dirs': [
+        './',
+      ],
+      'sources': [
         'writer/verilog/axi/axi_port.cpp',
         'writer/verilog/axi/axi_port.h',
         'writer/verilog/axi/controller.cpp',
@@ -191,11 +209,9 @@
         'writer/verilog/ticker.h',
         'writer/verilog/verilog_writer.cpp',
         'writer/verilog/verilog_writer.h',
-        'writer/writer.cpp',
-        'writer/writer.h',
       ],
-      'cflags': [ '-std=c++11', ],
-      'defines': ['PACKAGE="iroha"', 'VERSION="0.0.1"'],
+      'dependencies': [
+      ],
     },
-  ] # targets
+  ]
 }
