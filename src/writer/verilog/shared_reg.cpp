@@ -237,7 +237,9 @@ string SharedReg::RegName(const IResource &res) {
   auto *params = res.GetParams();
   int unused_width;
   string port_name;
-  params->GetExtOutputPort(&port_name, &unused_width);
+  if (params != nullptr) {
+    params->GetExtOutputPort(&port_name, &unused_width);
+  }
   ITable *tab = res.GetTable();
   IModule *mod = tab->GetModule();
   return "shared_reg_" +

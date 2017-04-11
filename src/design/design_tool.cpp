@@ -136,6 +136,10 @@ IResource *DesignTool::CreateTaskCallResource(ITable *table,
   return res;
 }
 
+IResource *DesignTool::CreateDataFlowInResource(ITable *table) {
+  return DesignUtil::CreateResource(table, resource::kDataFlowIn);
+}
+
 IRegister *DesignTool::AllocRegister(ITable *table, const string &name,
 				     int width) {
   IRegister *reg = new IRegister(table, name);
