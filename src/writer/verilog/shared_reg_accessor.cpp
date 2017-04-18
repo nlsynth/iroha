@@ -193,10 +193,20 @@ void SharedRegAccessor::GetAccessorFeatures(const IResource *accessor,
 void SharedRegAccessor::BuildReadInsn(IInsn *insn, State *st) {
   IResource *source = res_.GetParentResource();
   ostream &ws = tmpl_->GetStream(kInsnWireValueSection);
-  ws << "  assign "
-     << InsnWriter::InsnOutputWireName(*insn, 0)
-     << " = "
-     << SharedReg::RegName(*source) << ";\n";
+  int s = 0;
+  for (int i = 0; i < insn->outputs_.size(); ++i) {
+    ws << "  assign "
+       << InsnWriter::InsnOutputWireName(*insn, i)
+       << " = "
+       << SharedReg::RegName(*source);
+    if (insn->outputs_.size() > 1) {
+      IRegister *reg = insn->outputs_[i];
+      int w = reg->value_type_.GetWidth();
+      ws << "[" << (s + w - 1) << ":" << s << "]";
+      s += w;
+    }
+    ws << ";\n";
+  }
   static const char I[] = "          ";
   string insn_st = InsnWriter::MultiCycleStateName(*(insn->GetResource()));
   ostream &os = st->StateBodySectionStream();
@@ -220,9 +230,19 @@ void SharedRegAccessor::BuildReadInsn(IInsn *insn, State *st) {
 
 void SharedRegAccessor::BuildWriteInsn(IInsn *insn, State *st) {
   ostream &ss = st->StateBodySectionStream();
-  ss << "          " << SharedReg::WriterName(res_) << " <= "
-     << InsnWriter::RegisterValue(*insn->inputs_[0], tab_.GetNames())
-     << ";\n";
+  int s = 0;
+  for (int i = 0; i < insn->inputs_.size(); ++i) {
+    ss << "          " << SharedReg::WriterName(res_);
+    if (insn->inputs_.size() > 1) {
+      IRegister *reg = insn->inputs_[i];
+      int w = reg->value_type_.GetWidth();
+      ss << "[" << (s + w - 1) << ":" << s << "]";
+      s += w;
+    }
+    ss << " <= "
+       << InsnWriter::RegisterValue(*insn->inputs_[i], tab_.GetNames())
+       << ";\n";
+  }
   if (insn->GetOperand() == operand::kPutMailbox) {
     static const char I[] = "          ";
     string insn_st = InsnWriter::MultiCycleStateName(res_);
