@@ -140,6 +140,27 @@ IResource *DesignTool::CreateDataFlowInResource(ITable *table) {
   return DesignUtil::CreateResource(table, resource::kDataFlowIn);
 }
 
+IResource *DesignTool::CreateSharedRegResource(ITable *table,
+					       int width) {
+  IResource *res = DesignUtil::CreateResource(table, resource::kSharedReg);
+  res->GetParams()->SetWidth(width);
+  return res;
+}
+
+IResource *DesignTool::CreateSharedRegReaderResource(IResource *reg) {
+  IResource *res = DesignUtil::CreateResource(reg->GetTable(),
+					      resource::kSharedRegReader);
+  res->SetParentResource(reg);
+  return res;
+}
+
+IResource *DesignTool::CreateSharedRegWriterResource(IResource *reg) {
+  IResource *res = DesignUtil::CreateResource(reg->GetTable(),
+					      resource::kSharedRegWriter);
+  res->SetParentResource(reg);
+  return res;
+}
+
 IRegister *DesignTool::AllocRegister(ITable *table, const string &name,
 				     int width) {
   IRegister *reg = new IRegister(table, name);

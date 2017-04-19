@@ -36,6 +36,10 @@ public:
   static IResource *CreateTaskCallResource(ITable *caller,
 					   ITable *callee);
   static IResource *CreateDataFlowInResource(ITable *table);
+  static IResource *CreateSharedRegResource(ITable *table,
+					    int width);
+  static IResource *CreateSharedRegReaderResource(IResource *reg);
+  static IResource *CreateSharedRegWriterResource(IResource *reg);
   static IRegister *AllocRegister(ITable *table, const string &name,
 				  int width);
   static IRegister *AllocConstNum(ITable *table,
