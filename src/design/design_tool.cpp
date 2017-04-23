@@ -147,15 +147,17 @@ IResource *DesignTool::CreateSharedRegResource(ITable *table,
   return res;
 }
 
-IResource *DesignTool::CreateSharedRegReaderResource(IResource *reg) {
-  IResource *res = DesignUtil::CreateResource(reg->GetTable(),
+IResource *DesignTool::CreateSharedRegReaderResource(ITable *table,
+						     IResource *reg) {
+  IResource *res = DesignUtil::CreateResource(table,
 					      resource::kSharedRegReader);
   res->SetParentResource(reg);
   return res;
 }
 
-IResource *DesignTool::CreateSharedRegWriterResource(IResource *reg) {
-  IResource *res = DesignUtil::CreateResource(reg->GetTable(),
+IResource *DesignTool::CreateSharedRegWriterResource(ITable *table,
+						     IResource *reg) {
+  IResource *res = DesignUtil::CreateResource(table,
 					      resource::kSharedRegWriter);
   res->SetParentResource(reg);
   return res;

@@ -38,8 +38,10 @@ public:
   static IResource *CreateDataFlowInResource(ITable *table);
   static IResource *CreateSharedRegResource(ITable *table,
 					    int width);
-  static IResource *CreateSharedRegReaderResource(IResource *reg);
-  static IResource *CreateSharedRegWriterResource(IResource *reg);
+  static IResource *CreateSharedRegReaderResource(ITable *table,
+						  IResource *reg);
+  static IResource *CreateSharedRegWriterResource(ITable *table,
+						  IResource *reg);
   static IRegister *AllocRegister(ITable *table, const string &name,
 				  int width);
   static IRegister *AllocConstNum(ITable *table,
