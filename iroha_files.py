@@ -6,7 +6,8 @@ VERSION="0.1.0"
 
 ARCHIVE=PACKAGE + "-" + VERSION
 
-EXTRA = ["configure.ac", "configure", "ltmain.sh", "depcomp", "Makefile.in", "config.sub", "lib/cxx-rt.h", "missing", "config.guess", "install-sh", "aclocal.m4", "Makefile.am", "compile", "m4/ltoptions.m4", "m4/ltversion.m4", "m4/m4_ax_check_compile_flag.m4", "m4/libtool.m4", "m4/ltsugar.m4", "m4/lt~obsolete.m4", "iroha_files.py", "src/iroha.gyp"]
+EXTRA = ["configure", "lib/cxx-rt.h", "Makefile",
+         "iroha_files.py", "src/iroha.gyp", "config.mk"]
 
 def GetGypFileList(gyp):
     gypdir = os.path.dirname(gyp) + "/"

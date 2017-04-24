@@ -19,4 +19,4 @@ while len(PREFIX) > 1 and PREFIX.endswith("/"):
 fh = open("config.mk", "w")
 fh.write("prefix=" + PREFIX + "\n")
 fh.close()
-os.system("make -f Makefile.gyp src/Makefile")
+os.system("make -f Makefile src/Makefile")

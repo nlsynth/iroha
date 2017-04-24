@@ -7,7 +7,7 @@ TL;DR: Aiming to be LLVM for HLS
 
 (0) First of all, build the binary.
 
-    > $ ./configure.gyp ; make -f Makefile.gyp
+    > $ ./configure ; make
 
 (1) Try to read Iroha IR in S-expression and just dump it.
 
