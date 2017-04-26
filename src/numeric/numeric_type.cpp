@@ -1,4 +1,4 @@
-#include "numeric/numeric.h"
+#include "numeric/numeric_type.h"
 
 namespace iroha {
 

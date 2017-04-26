@@ -1,6 +1,6 @@
 // -*- C++ -*-
-#ifndef _numeric_numeric_h_
-#define _numeric_numeric_h_
+#ifndef _numeric_numeric_type_h_
+#define _numeric_numeric_type_h_
 
 #include <cstdint>
 
@@ -31,4 +31,4 @@ public:
 
 }  // namespace iroha
 
-#endif  // _numeric_numeric_h_
+#endif  // _numeric_numeric_type_h_
