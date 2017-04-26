@@ -5,6 +5,7 @@
 #include "iroha/module_import.h"
 #include "iroha/resource_class.h"
 #include "iroha/resource_params.h"
+#include "numeric/numeric_type.h"
 
 namespace iroha {
 
@@ -213,7 +214,7 @@ void ExpWriter::WriteValueType(const IValueType &type) {
   os_ << " " << type.GetWidth() << ")";
 }
 
-void ExpWriter::WriteValue(const IValue &value) {
+void ExpWriter::WriteValue(const Numeric &value) {
   os_ << value.value_;
 }
 

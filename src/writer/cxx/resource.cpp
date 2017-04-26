@@ -102,7 +102,7 @@ void Resource::WriteBitShift(IInsn *insn, ostream &os) {
   }
   bool is_left = (insn->GetOperand() == operand::kLeft);
   string op = is_left ? "<<" : ">>";
-  const IValue &value = insn->inputs_[1]->GetInitialValue();
+  const Numeric &value = insn->inputs_[1]->GetInitialValue();
   int amount = value.value_;
   os << "    " << insn->outputs_[0]->GetName() << " = "
      << RegValue(insn->inputs_[0]) << " " << op << " "

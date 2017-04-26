@@ -141,8 +141,8 @@ public:
   const string &GetName() const;
   void SetName(const string &name);
 
-  void SetInitialValue(IValue &value);
-  const IValue &GetInitialValue() const;
+  void SetInitialValue(Numeric &value);
+  const Numeric &GetInitialValue() const;
   bool HasInitialValue() const;
   void SetConst(bool c);
   bool IsConst() const;
@@ -157,7 +157,7 @@ private:
   ITable *table_;
   string name_;
   int id_;
-  IValue initial_value_;
+  Numeric initial_value_;
   bool has_initial_value_;
   bool is_const_;
   bool state_local_;

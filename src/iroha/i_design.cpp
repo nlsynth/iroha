@@ -267,13 +267,13 @@ void IRegister::SetId(int id) {
   id_ = id;
 }
 
-void IRegister::SetInitialValue(IValue &value) {
+void IRegister::SetInitialValue(Numeric &value) {
   has_initial_value_ = true;
   initial_value_ = value;
   value_type_ = value.type_;
 }
 
-const IValue &IRegister::GetInitialValue() const {
+const Numeric &IRegister::GetInitialValue() const {
   return initial_value_;
 }
 

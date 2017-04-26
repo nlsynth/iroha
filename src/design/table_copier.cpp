@@ -79,7 +79,7 @@ void TableCopier::CopyRegister() {
     IRegister *new_reg = new IRegister(new_tab_, src_reg->GetName());
     new_reg->SetId(src_reg->GetId());
     if (src_reg->HasInitialValue()) {
-      IValue v = src_reg->GetInitialValue();
+      Numeric v = src_reg->GetInitialValue();
       new_reg->SetInitialValue(v);
     }
     new_reg->SetConst(src_reg->IsConst());

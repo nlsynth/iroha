@@ -128,7 +128,7 @@ void HtmlWriter::WriteRegister(const IRegister &reg) {
   os_ << "\n";
 }
 
-void HtmlWriter::WriteValue(const IValue &val) {
+void HtmlWriter::WriteValue(const Numeric &val) {
   os_ << " " << val.value_ << " (" << val.type_.GetWidth() << ")";
 }
 

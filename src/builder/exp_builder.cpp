@@ -210,7 +210,7 @@ IRegister *ExpBuilder::BuildRegister(Exp *e, ITable *table) {
   BuildValueType(e->vec[4], &reg->value_type_);
   if (!e->Str(5).empty()) {
     const string &ini = e->Str(5);
-    IValue value;
+    Numeric value;
     value.value_ = Util::Atoi(ini);
     value.type_ = reg->value_type_;
     reg->SetInitialValue(value);

@@ -28,7 +28,7 @@ private:
   void WriteRegister(const IRegister &reg);
   void WriteResources(const ITable &tab);
   void WriteResource(const IResource &res);
-  void WriteValue(const IValue &val);
+  void WriteValue(const Numeric &val);
 
   const IDesign *design_;
   ostream &os_;

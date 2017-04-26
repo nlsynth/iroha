@@ -22,9 +22,9 @@ private:
   bool is_signed_;
 };
 
-class IValue {
+class Numeric {
 public:
-  IValue();
+  Numeric();
   uint64_t value_;
   IValueType type_;
 };
