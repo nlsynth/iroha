@@ -239,9 +239,6 @@ void IValueType::SetIsSigned(bool is_signed) {
   is_signed_ = is_signed;
 }
 
-IValue::IValue() : value_(0) {
-}
-
 IRegister::IRegister(ITable *table, const string &name)
   : table_(table), name_(name), id_(-1),
     has_initial_value_(false), is_const_(false), state_local_(false) {

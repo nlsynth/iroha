@@ -80,6 +80,8 @@
         'iroha/resource_params.h',
         'iroha/stl_util.h',
         'iroha/writer_api.h',
+	'numeric/numeric.cpp',
+	'numeric/numeric.h',
         'opt/array_to_mem.cpp',
         'opt/array_to_mem.h',
         'opt/bb_collector.cpp',

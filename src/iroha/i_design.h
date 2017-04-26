@@ -3,6 +3,7 @@
 #define _iroha_i_design_h_
 
 #include "iroha/common.h"
+#include "numeric/numeric.h"
 
 namespace iroha {
 
@@ -26,23 +27,6 @@ private:
   const string name_;
   IDesign *design_;
   bool is_exclusive_;
-};
-
-// Value type. This object is not managed by memory pool.
-class IValueType {
-public:
-  IValueType();
-
-  // Width 0 means a scalar value e.g. 'reg v;'.
-  int GetWidth() const;
-  void SetWidth(int width);
-
-  bool IsSigned() const;
-  void SetIsSigned(bool is_signed);
-
-private:
-  int width_;
-  bool is_signed_;
 };
 
 class IArrayImage {
@@ -146,14 +130,6 @@ private:
   IResource *writer_;
   IResource *reader_;
   ResourceParams *params_;
-};
-
-// Literal value. This object is not managed by memory pool.
-class IValue {
-public:
-  IValue();
-  uint64_t value_;
-  IValueType type_;
 };
 
 class IRegister {

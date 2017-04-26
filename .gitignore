@@ -10,8 +10,6 @@
 Makefile
 *.Makefile
 src/*.mk
-autom4te.cache/
-config.log
-config.status
-libtool
+src/out/
+src/src/
 ./iroha
