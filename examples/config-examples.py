@@ -1,3 +1,5 @@
+#! /usr/bin/python
+
 # Run this to generate Makefile, then run 'make'
 EXAMPLES = {
     'minimum' : {'minimum'},
@@ -28,7 +30,7 @@ for k, v in EXAMPLES.iteritems():
     for o in v:
         objs.append(o + '.o')
     obj_lst = ' '.join(objs)
-    ofh.write(k + '\t: ../libiroha.la ' + obj_lst + '\n')
-    ofh.write('\t../libtool --tag=CXX --mode=link g++ -o ' + k + ' ' + obj_lst + ' ../libiroha.la\n')
+    ofh.write(k + '\t: ../src/out/Default/obj.target/src/libiroha.a ' + obj_lst + '\n')
+    ofh.write('\tg++ -o ' + k + ' ' + obj_lst + ' -L../src/out/Default/obj.target/src/ -liroha -lverilog_writer -liroha\n')
 
 print('Generated Makefile. Please run \'make\'')
