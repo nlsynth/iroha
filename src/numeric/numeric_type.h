@@ -25,8 +25,14 @@ private:
 class Numeric {
 public:
   Numeric();
-  uint64_t value_;
+
+  uint64_t GetValue() const;
+  void SetValue(uint64_t value);
+
   IValueType type_;
+
+private:
+  uint64_t value_;
 };
 
 }  // namespace iroha

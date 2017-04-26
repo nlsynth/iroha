@@ -129,7 +129,7 @@ void HtmlWriter::WriteRegister(const IRegister &reg) {
 }
 
 void HtmlWriter::WriteValue(const Numeric &val) {
-  os_ << " " << val.value_ << " (" << val.type_.GetWidth() << ")";
+  os_ << " " << val.GetValue() << " (" << val.type_.GetWidth() << ")";
 }
 
 void HtmlWriter::WriteResources(const ITable &tab) {

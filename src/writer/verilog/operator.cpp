@@ -122,7 +122,7 @@ void Operator::BuildBitShiftOpInsn(IInsn *insn) {
   }
   bool is_left = (insn->GetOperand() == operand::kLeft);
   const Numeric &value = insn->inputs_[1]->GetInitialValue();
-  int amount = value.value_;
+  int amount = value.GetValue();
   ws << "  assign " << InsnWriter::InsnOutputWireName(*insn, 0)
      << " = "
      << InsnWriter::RegisterValue(*insn->inputs_[0], tab_.GetNames());

@@ -113,7 +113,7 @@ void Table::BuildRegister() {
     }
     if (!reg->IsConst() && reg->HasInitialValue()) {
       is << "      " << names_->GetRegName(*reg) << " <= "
-	 << reg->GetInitialValue().value_ << ";\n";
+	 << reg->GetInitialValue().GetValue() << ";\n";
     }
   }
 }
