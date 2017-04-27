@@ -31,7 +31,7 @@ bool ResourceAttr::IsMultiCycleInsn(IInsn *insn) {
       resource::IsExtTaskWait(rc)) {
     return true;
   }
-  if (resource::IsAxiPort(rc)) {
+  if (resource::IsAxiMasterPort(rc)) {
     return true;
   }
   if (resource::IsSharedRegReader(rc)) {
@@ -52,7 +52,7 @@ bool ResourceAttr::IsExtAccessResource(IResource *res) {
   IResourceClass &rc = *(res->GetClass());
   if (resource::IsExtInput(rc) ||
       resource::IsExtOutput(rc) ||
-      resource::IsAxiPort(rc) ||
+      resource::IsAxiMasterPort(rc) ||
       resource::IsExtTask(rc) ||
       resource::IsExtTaskDone(rc) ||
       resource::IsExtTaskCall(rc) ||

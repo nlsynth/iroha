@@ -1,6 +1,6 @@
 // -*- C++ -*-
-#ifndef _writer_verilog_axi_controller_h_
-#define _writer_verilog_axi_controller_h_
+#ifndef _writer_verilog_axi_master_controller_h_
+#define _writer_verilog_axi_master_controller_h_
 
 #include "writer/verilog/common.h"
 
@@ -9,11 +9,11 @@ namespace writer {
 namespace verilog {
 namespace axi {
 
-class Controller {
+class MasterController {
 public:
-  Controller(const IResource &res,
+  MasterController(const IResource &res,
 	     bool reset_polarity);
-  ~Controller();
+  ~MasterController();
 
   void Write(ostream &os);
 
@@ -47,4 +47,4 @@ private:
 }  // namespace writer
 }  // namespace iroha
 
-#endif // _writer_verilog_axi_controller_h_
+#endif // _writer_verilog_axi_master_controller_h_

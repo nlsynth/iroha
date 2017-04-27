@@ -5,7 +5,7 @@
 #include "iroha/resource_class.h"
 #include "iroha/resource_params.h"
 #include "writer/module_template.h"
-#include "writer/verilog/axi/axi_port.h"
+#include "writer/verilog/axi/master_port.h"
 #include "writer/verilog/channel.h"
 #include "writer/verilog/dataflow_in.h"
 #include "writer/verilog/embed.h"
@@ -74,8 +74,8 @@ Resource *Resource::Create(const IResource &res, const Table &table) {
   if (resource::IsMapped(*klass)) {
     return new MappedResource(res, table);
   }
-  if (resource::IsAxiPort(*klass)) {
-    return new axi::AxiPort(res, table);
+  if (resource::IsAxiMasterPort(*klass)) {
+    return new axi::MasterPort(res, table);
   }
   if (resource::IsExtTask(*klass) ||
       resource::IsExtTaskDone(*klass)) {

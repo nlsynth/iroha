@@ -1,7 +1,7 @@
-#include "writer/verilog/axi/controller.h"
+#include "writer/verilog/axi/master_controller.h"
 
 #include "iroha/i_design.h"
-#include "writer/verilog/axi/axi_port.h"
+#include "writer/verilog/axi/master_port.h"
 #include "writer/verilog/module.h"
 #include "writer/verilog/ports.h"
 #include "writer/verilog/table.h"
@@ -11,10 +11,10 @@ namespace writer {
 namespace verilog {
 namespace axi {
 
-Controller::Controller(const IResource &res, bool reset_polarity)
+MasterController::MasterController(const IResource &res, bool reset_polarity)
   : res_(res), reset_polarity_(reset_polarity) {
   ports_.reset(new Ports);
-  AxiPort::GetReadWrite(res_, &r_, &w_);
+  MasterPort::GetReadWrite(res_, &r_, &w_);
   const IResource *mem_res = res_.GetParentResource();
   IArray *array = mem_res->GetArray();
   addr_width_ = array->GetAddressWidth();
@@ -22,11 +22,11 @@ Controller::Controller(const IResource &res, bool reset_polarity)
   burst_len_ = (1 << addr_width_);
 }
 
-Controller::~Controller() {
+MasterController::~MasterController() {
 }
 
-void Controller::Write(ostream &os) {
-  string name = AxiPort::ControllerName(res_, reset_polarity_);
+void MasterController::Write(ostream &os) {
+  string name = MasterPort::ControllerName(res_, reset_polarity_);
   ports_->AddPort("clk", Port::INPUT_CLK, 0);
   ports_->AddPort(ResetName(reset_polarity_), Port::INPUT_RESET, 0);
   ports_->AddPort("sram_addr", Port::OUTPUT, addr_width_);
@@ -74,7 +74,7 @@ void Controller::Write(ostream &os) {
      << "endmodule\n";
 }
 
-string Controller::ResetName(bool polarity) {
+string MasterController::ResetName(bool polarity) {
   if (polarity) {
     return "rst";
   } else {
@@ -82,8 +82,8 @@ string Controller::ResetName(bool polarity) {
   }
 }
 
-void Controller::AddPorts(Module *mod, bool r, bool w,
-			  string *s) {
+void MasterController::AddPorts(Module *mod, bool r, bool w,
+				string *s) {
   Ports *ports = mod->GetPorts();
   if (r) {
     GenReadChannel(mod, ports, s);
@@ -93,8 +93,8 @@ void Controller::AddPorts(Module *mod, bool r, bool w,
   }
 }
 
-void Controller::GenReadChannel(Module *module, Ports *ports,
-				string *s) {
+void MasterController::GenReadChannel(Module *module, Ports *ports,
+				      string *s) {
   // TODO: More ports.
   AddPort("ARADDR", 32, false, module, ports, s);
   AddPort("ARVALID", 0, false, module, ports, s);
@@ -108,8 +108,8 @@ void Controller::GenReadChannel(Module *module, Ports *ports,
   AddPort("RLAST", 0, true, module, ports, s);
 }
 
-void Controller::GenWriteChannel(Module *module, Ports *ports,
-				 string *s) {
+void MasterController::GenWriteChannel(Module *module, Ports *ports,
+				       string *s) {
   AddPort("AWADDR", 32, false, module, ports, s);
   AddPort("AWVALID", 0, false, module, ports, s);
   AddPort("AWREADY", 0, true, module, ports, s);
@@ -126,9 +126,9 @@ void Controller::GenWriteChannel(Module *module, Ports *ports,
   AddPort("BRESP", 2, true, module, ports, s);
 }
 
-void Controller::AddPort(const string &name, int width, bool dir,
-			 Module *module, Ports *ports,
-			 string *s) {
+void MasterController::AddPort(const string &name, int width, bool dir,
+			       Module *module, Ports *ports,
+			       string *s) {
   Port::PortType t;
   if (dir) {
     t = Port::INPUT;
@@ -158,7 +158,7 @@ void Controller::AddPort(const string &name, int width, bool dir,
   }
 }
 
-void Controller::OutputFsm(ostream &os) {
+void MasterController::OutputFsm(ostream &os) {
   int alen = burst_len_ - 1;
   if (r_) {
     os << "      sram_wen <= (st == `S_READ_DATA && RVALID);\n";
@@ -232,7 +232,7 @@ void Controller::OutputFsm(ostream &os) {
   os << "      endcase\n";
 }
 
-void Controller::ReaderFsm(ostream &os) {
+void MasterController::ReaderFsm(ostream &os) {
   os << "        `S_READ_DATA: begin\n"
      << "          if (RVALID) begin\n"
      << "            sram_addr <= idx;\n"
@@ -246,7 +246,7 @@ void Controller::ReaderFsm(ostream &os) {
      << "        end\n";
 }
 
-void Controller::WriterFsm(ostream &os) {
+void MasterController::WriterFsm(ostream &os) {
   os << "        `S_WRITE_DATA: begin\n"
      << "          if (idx < " << burst_len_ << ") begin\n"
      << "            WVALID <= 1;\n"

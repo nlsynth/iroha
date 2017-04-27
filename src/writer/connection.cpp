@@ -80,7 +80,7 @@ void Connection::ProcessTable(ITable *tab) {
     shared_memory_accessors_[reg->GetParentResource()].push_back(reg);
   }
   vector<IResource *> memory_ports;
-  DesignUtil::FindResourceByClassName(tab, resource::kAxiPort,
+  DesignUtil::FindResourceByClassName(tab, resource::kAxiMasterPort,
 				      &memory_ports);
   for (IResource *reg : memory_ports) {
     shared_memory_ports_[reg->GetParentResource()].push_back(reg);

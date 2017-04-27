@@ -1,11 +1,11 @@
-#include "writer/verilog/axi/axi_port.h"
+#include "writer/verilog/axi/master_port.h"
 
 #include "design/design_util.h"
 #include "iroha/insn_operands.h"
 #include "iroha/i_design.h"
 #include "iroha/logging.h"
 #include "writer/module_template.h"
-#include "writer/verilog/axi/controller.h"
+#include "writer/verilog/axi/master_controller.h"
 #include "writer/verilog/embed.h"
 #include "writer/verilog/insn_writer.h"
 #include "writer/verilog/module.h"
@@ -19,11 +19,11 @@ namespace writer {
 namespace verilog {
 namespace axi {
 
-AxiPort::AxiPort(const IResource &res, const Table &table)
+MasterPort::MasterPort(const IResource &res, const Table &table)
   : Resource(res, table) {
 }
 
-void AxiPort::BuildResource() {
+void MasterPort::BuildResource() {
   CHECK(tab_.GetITable() == res_.GetTable());
   string s = BuildPort();
   BuildInstance(s);
@@ -58,7 +58,7 @@ void AxiPort::BuildResource() {
   }
 }
 
-void AxiPort::BuildInsn(IInsn *insn, State *st) {
+void MasterPort::BuildInsn(IInsn *insn, State *st) {
     static const char I[] = "          ";
   string insn_st = InsnWriter::MultiCycleStateName(*(insn->GetResource()));
   ostream &os = st->StateBodySectionStream();
@@ -72,7 +72,7 @@ void AxiPort::BuildInsn(IInsn *insn, State *st) {
      << I << "end\n";
 }
 
-string AxiPort::ControllerName(const IResource &res, bool reset_polarity) {
+string MasterPort::ControllerName(const IResource &res, bool reset_polarity) {
   const IResource *mem_res = res.GetParentResource();
   IArray *array = mem_res->GetArray();
   int addr_width = array->GetAddressWidth();
@@ -88,16 +88,16 @@ string AxiPort::ControllerName(const IResource &res, bool reset_polarity) {
   return s;
 }
 
-void AxiPort::WriteController(const IResource &res,
-			      bool reset_polarity,
-			      ostream &os) {
-  Controller c(res, reset_polarity);
+void MasterPort::WriteController(const IResource &res,
+				 bool reset_polarity,
+				 ostream &os) {
+  MasterController c(res, reset_polarity);
   c.Write(os);
 }
 
-void AxiPort::BuildInstance(const string &s) {
+void MasterPort::BuildInstance(const string &s) {
   bool reset_polarity = tab_.GetModule()->GetResetPolarity();
-  tab_.GetEmbeddedModules()->RequestAxiController(&res_, reset_polarity);
+  tab_.GetEmbeddedModules()->RequestAxiMasterController(&res_, reset_polarity);
   ostream &es = tmpl_->GetStream(kEmbeddedInstanceSection);
   string name = ControllerName(res_, reset_polarity);
   const string &clk = tab_.GetPorts()->GetClk();
@@ -109,7 +109,8 @@ void AxiPort::BuildInstance(const string &s) {
      << ".wen(" << WenPort() << "), "
      << ".req(" << ReqPort() << "), "
      << ".ack(" << AckPort() << "), "
-     << "." << Controller::ResetName(reset_polarity) << "(" << rst << "), "
+     << "." << MasterController::ResetName(reset_polarity)
+     << "(" << rst << "), "
      << ".sram_addr(" << SharedMemory::MemoryAddrPin(*mem, 1, nullptr) << "), "
      << ".sram_wdata(" << SharedMemory::MemoryWdataPin(*mem, 1, nullptr)
      << "), "
@@ -119,20 +120,20 @@ void AxiPort::BuildInstance(const string &s) {
      << ");\n";
 }
 
-string AxiPort::BuildPort() {
+string MasterPort::BuildPort() {
   bool r, w;
   GetReadWrite(res_, &r, &w);
   Module *mod = tab_.GetModule();
   string s;
-  Controller::AddPorts(mod, r, w, &s);
+  MasterController::AddPorts(mod, r, w, &s);
   for (mod = mod->GetParentModule(); mod != nullptr;
        mod = mod->GetParentModule()) {
-    Controller::AddPorts(mod, r, w, nullptr);
+    MasterController::AddPorts(mod, r, w, nullptr);
   }
   return s;
 }
 
-void AxiPort::GetReadWrite(const IResource &res, bool *r, bool *w) {
+void MasterPort::GetReadWrite(const IResource &res, bool *r, bool *w) {
   vector<IInsn *> insns = DesignUtil::GetInsnsByResource(&res);
   *r = false;
   *w = false;
@@ -147,24 +148,24 @@ void AxiPort::GetReadWrite(const IResource &res, bool *r, bool *w) {
   }
 }
 
-string AxiPort::PortSuffix() {
+string MasterPort::PortSuffix() {
   const ITable *tab = res_.GetTable();
   return Util::Itoa(tab->GetId());
 }
 
-string AxiPort::AddrPort() {
+string MasterPort::AddrPort() {
   return "axi_addr" + PortSuffix();
 }
 
-string AxiPort::WenPort() {
+string MasterPort::WenPort() {
   return "axi_wen" + PortSuffix();
 }
 
-string AxiPort::ReqPort() {
+string MasterPort::ReqPort() {
   return "axi_req" + PortSuffix();
 }
 
-string AxiPort::AckPort() {
+string MasterPort::AckPort() {
   return "axi_ack" + PortSuffix();
 }
 

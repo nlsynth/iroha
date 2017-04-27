@@ -143,8 +143,8 @@ bool IsExtTaskWait(const IResourceClass &rc) {
   return (rc.GetName() == kExtTaskWait);
 }
 
-bool IsAxiPort(const IResourceClass &rc) {
-  return (rc.GetName() == kAxiPort);
+bool IsAxiMasterPort(const IResourceClass &rc) {
+  return (rc.GetName() == kAxiMasterPort);
 }
 
 bool IsTicker(const IResourceClass &rc) {
@@ -201,7 +201,7 @@ void InstallResourceClasses(IDesign *design) {
   InstallResource(design, resource::kExtTaskDone, true);
   InstallResource(design, resource::kExtTaskCall, true);
   InstallResource(design, resource::kExtTaskWait, true);
-  InstallResource(design, resource::kAxiPort, true);
+  InstallResource(design, resource::kAxiMasterPort, true);
   InstallResource(design, resource::kTicker, true);
 }
 

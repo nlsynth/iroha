@@ -47,7 +47,7 @@ const char kExtTask[] = "ext-task";
 const char kExtTaskDone[] = "ext-task-done";
 const char kExtTaskCall[] = "ext-task-call";
 const char kExtTaskWait[] = "ext-task-wait";
-const char kAxiPort[] = "axi-port";
+const char kAxiMasterPort[] = "axi-master-port";
 const char kTicker[] = "ticker";
 
 bool IsTransition(const IResourceClass &rc);
@@ -83,7 +83,7 @@ bool IsExtTask(const IResourceClass &rc);
 bool IsExtTaskDone(const IResourceClass &rc);
 bool IsExtTaskCall(const IResourceClass &rc);
 bool IsExtTaskWait(const IResourceClass &rc);
-bool IsAxiPort(const IResourceClass &rc);
+bool IsAxiMasterPort(const IResourceClass &rc);
 bool IsTicker(const IResourceClass &rc);
 
 void InstallResourceClasses(IDesign *design);

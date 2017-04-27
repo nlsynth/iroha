@@ -18,8 +18,8 @@ public:
   InternalSRAM *RequestInternalSRAM(const Module &mod,
 				    const IResource &res,
 				    int num_ports);
-  void RequestAxiController(const IResource *axi_port,
-			    bool reset_polarity);
+  void RequestAxiMasterController(const IResource *axi_port,
+				  bool reset_polarity);
 
   // Writes embedded file contents.
   bool Write(ostream &os);
@@ -27,7 +27,7 @@ public:
 private:
   set<string> files_;
   vector<InternalSRAM *> srams_;
-  vector<pair<const IResource *, bool> > axi_ports_;
+  vector<pair<const IResource *, bool> > axi_master_ports_;
 };
 
 class EmbeddedResource : public Resource {

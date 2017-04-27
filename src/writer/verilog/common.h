@@ -30,7 +30,7 @@ class Ports;
 class VerilogWriter;
 
 namespace axi {
-class AxiPort;
+class MasterPort;
 }  // namespace axi
 
 }  // namespace verilog
