@@ -25,15 +25,15 @@ design_tool.AddNextState(st2, st3)
 
 mem = design_tool.CreateSharedMemory(tab, 4, 32)
 
-axi_port = axi.CreateAxiPort(tab, mem)
+axi_master_port = axi.CreateAxiMasterPort(tab, mem)
 
-rinsn = IInsn(axi_port)
+rinsn = IInsn(axi_master_port)
 addr = design_tool.AllocConstNum(tab, False, 32, 128)
 rinsn.inputs.append(addr)
 rinsn.operand = "read"
 st1.insns.append(rinsn)
 
-winsn = IInsn(axi_port)
+winsn = IInsn(axi_master_port)
 addr = design_tool.AllocConstNum(tab, False, 32, 128)
 winsn.inputs.append(addr)
 winsn.operand = "write"
