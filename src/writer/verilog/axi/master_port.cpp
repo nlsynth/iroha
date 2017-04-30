@@ -76,7 +76,7 @@ string MasterPort::ControllerName(const IResource &res, bool reset_polarity) {
   const IResource *mem_res = res.GetParentResource();
   IArray *array = mem_res->GetArray();
   int addr_width = array->GetAddressWidth();
-  string s = "axi_controller_a" + Util::Itoa(addr_width);
+  string s = "axi_master_controller_a" + Util::Itoa(addr_width);
   bool r, w;
   GetReadWrite(res, &r, &w);
   if (r) {

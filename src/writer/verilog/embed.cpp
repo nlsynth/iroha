@@ -2,9 +2,11 @@
 
 #include "iroha/i_design.h"
 #include "iroha/logging.h"
+#include "iroha/resource_class.h"
 #include "iroha/resource_params.h"
 #include "writer/module_template.h"
 #include "writer/verilog/axi/master_port.h"
+#include "writer/verilog/axi/slave_port.h"
 #include "writer/verilog/insn_writer.h"
 #include "writer/verilog/internal_sram.h"
 #include "writer/verilog/module.h"
@@ -29,6 +31,11 @@ void EmbeddedModules::RequestModule(const ResourceParams &params) {
 void EmbeddedModules::RequestAxiMasterController(const IResource *axi_port,
 						 bool reset_polarity) {
   axi_master_ports_.push_back(make_pair(axi_port, reset_polarity));
+}
+
+void EmbeddedModules::RequestAxiSlaveController(const IResource *axi_port,
+						bool reset_polarity) {
+  axi_slave_ports_.push_back(make_pair(axi_port, reset_polarity));
 }
 
 bool EmbeddedModules::Write(ostream &os) {
@@ -60,11 +67,20 @@ bool EmbeddedModules::Write(ostream &os) {
   for (auto p : axi_master_ports_) {
     const IResource *res = p.first;
     bool reset_polarity = p.second;
-    string name = axi::MasterPort::ControllerName(*res, p.second);
-    if (controllers.find(name) != controllers.end()) {
-      continue;
+    string name;
+    if (resource::IsAxiMasterPort(*(res->GetClass()))) {
+      name = axi::MasterPort::ControllerName(*res, p.second);
+      if (controllers.find(name) != controllers.end()) {
+	continue;
+      }
+      axi::MasterPort::WriteController(*res, reset_polarity, os);
+    } else {
+      name = axi::SlavePort::ControllerName(*res, p.second);
+      if (controllers.find(name) != controllers.end()) {
+	continue;
+      }
+      axi::SlavePort::WriteController(*res, reset_polarity, os);
     }
-    axi::MasterPort::WriteController(*res, reset_polarity, os);
     controllers.insert(name);
   }
   return true;

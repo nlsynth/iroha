@@ -1,6 +1,6 @@
 // -*- C++ -*-
-#ifndef _writer_verilog_axi_master_port_h_
-#define _writer_verilog_axi_master_port_h_
+#ifndef _writer_verilog_axi_slave_port_h_
+#define _writer_verilog_axi_slave_port_h_
 
 #include "writer/verilog/resource.h"
 
@@ -9,28 +9,16 @@ namespace writer {
 namespace verilog {
 namespace axi {
 
-class MasterPort : public Resource {
+class SlavePort : public Resource {
 public:
-  MasterPort(const IResource &res, const Table &table);
+  SlavePort(const IResource &res, const Table &table);
 
   virtual void BuildResource();
   virtual void BuildInsn(IInsn *insn, State *st);
 
-  static void GetReadWrite(const IResource &res, bool *r, bool *w);
-
   static string ControllerName(const IResource &res, bool reset_polarity);
   static void WriteController(const IResource &res,
 			      bool reset_polarity, ostream &os);
-
-private:
-  void BuildInstance(const string &s);
-  string BuildPort();
-
-  string PortSuffix();
-  string AddrPort();
-  string WenPort();
-  string ReqPort();
-  string AckPort();
 };
 
 }  // namespace axi
@@ -38,4 +26,4 @@ private:
 }  // namespace writer
 }  // namespace iroha
 
-#endif  // _writer_verilog_axi_master_port_h_
+#endif  // _writer_verilog_axi_slave_port_h_

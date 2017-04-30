@@ -12,7 +12,7 @@ namespace axi {
 class MasterController {
 public:
   MasterController(const IResource &res,
-	     bool reset_polarity);
+		   bool reset_polarity);
   ~MasterController();
 
   void Write(ostream &os);

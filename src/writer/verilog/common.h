@@ -31,6 +31,7 @@ class VerilogWriter;
 
 namespace axi {
 class MasterPort;
+class SlavePort;
 }  // namespace axi
 
 }  // namespace verilog

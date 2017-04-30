@@ -49,6 +49,7 @@ class IDesign(object):
         self.resource_classes.append(IResourceClass("ext-task-wait"))
         # AXI
         self.resource_classes.append(IResourceClass("axi-master-port"))
+        self.resource_classes.append(IResourceClass("axi-slave-port"))
 
     def findResourceClassByName(self, name):
         for rc in self.resource_classes:
