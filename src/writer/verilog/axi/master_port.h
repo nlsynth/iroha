@@ -2,14 +2,14 @@
 #ifndef _writer_verilog_axi_master_port_h_
 #define _writer_verilog_axi_master_port_h_
 
-#include "writer/verilog/resource.h"
+#include "writer/verilog/axi/axi_port.h"
 
 namespace iroha {
 namespace writer {
 namespace verilog {
 namespace axi {
 
-class MasterPort : public Resource {
+class MasterPort : public AxiPort {
 public:
   MasterPort(const IResource &res, const Table &table);
 

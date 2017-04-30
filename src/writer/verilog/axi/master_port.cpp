@@ -20,7 +20,7 @@ namespace verilog {
 namespace axi {
 
 MasterPort::MasterPort(const IResource &res, const Table &table)
-  : Resource(res, table) {
+  : AxiPort(res, table) {
 }
 
 void MasterPort::BuildResource() {

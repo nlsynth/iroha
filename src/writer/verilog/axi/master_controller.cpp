@@ -12,7 +12,7 @@ namespace verilog {
 namespace axi {
 
 MasterController::MasterController(const IResource &res, bool reset_polarity)
-  : res_(res), reset_polarity_(reset_polarity) {
+  : AxiController(res, reset_polarity_) {
   ports_.reset(new Ports);
   MasterPort::GetReadWrite(res_, &r_, &w_);
   const IResource *mem_res = res_.GetParentResource();
@@ -74,14 +74,6 @@ void MasterController::Write(ostream &os) {
      << "endmodule\n";
 }
 
-string MasterController::ResetName(bool polarity) {
-  if (polarity) {
-    return "rst";
-  } else {
-    return "rst_n";
-  }
-}
-
 void MasterController::AddPorts(Module *mod, bool r, bool w,
 				string *s) {
   Ports *ports = mod->GetPorts();
@@ -90,71 +82,6 @@ void MasterController::AddPorts(Module *mod, bool r, bool w,
   }
   if (w) {
     GenWriteChannel(mod, ports, s);
-  }
-}
-
-void MasterController::GenReadChannel(Module *module, Ports *ports,
-				      string *s) {
-  // TODO: More ports.
-  AddPort("ARADDR", 32, false, module, ports, s);
-  AddPort("ARVALID", 0, false, module, ports, s);
-  AddPort("ARREADY", 0, true, module, ports, s);
-  AddPort("ARLEN", 8, false, module, ports, s);
-  AddPort("ARSIZE", 3, false, module, ports, s);
-
-  AddPort("RVALID", 0, true, module, ports, s);
-  AddPort("RDATA", 32, true, module, ports, s);
-  AddPort("RREADY", 0, false, module, ports, s);
-  AddPort("RLAST", 0, true, module, ports, s);
-}
-
-void MasterController::GenWriteChannel(Module *module, Ports *ports,
-				       string *s) {
-  AddPort("AWADDR", 32, false, module, ports, s);
-  AddPort("AWVALID", 0, false, module, ports, s);
-  AddPort("AWREADY", 0, true, module, ports, s);
-  AddPort("AWLEN", 8, false, module, ports, s);
-  AddPort("AWSIZE", 3, false, module, ports, s);
-
-  AddPort("WVALID", 0, false, module, ports, s);
-  AddPort("WREADY", 0, true, module, ports, s);
-  AddPort("WDATA", 32, false, module, ports, s);
-  AddPort("WLAST", 0, false, module, ports, s);
-
-  AddPort("BVALID", 0, true, module, ports, s);
-  AddPort("BREADY", 0, false, module, ports, s);
-  AddPort("BRESP", 2, true, module, ports, s);
-}
-
-void MasterController::AddPort(const string &name, int width, bool dir,
-			       Module *module, Ports *ports,
-			       string *s) {
-  Port::PortType t;
-  if (dir) {
-    t = Port::INPUT;
-  } else {
-    if (module == nullptr) {
-      t = Port::OUTPUT;
-    } else {
-      t = Port::OUTPUT_WIRE;
-    }
-  }
-  ports->AddPort(name, t, width);
-  string p = ", ." + name + "(" + name + ")";
-  if (s != nullptr && module != nullptr) {
-    *s += p;
-  }
-  if (module != nullptr) {
-    Module *parent = module->GetParentModule();
-    if (parent != nullptr) {
-      ostream &os = parent->ChildModuleInstSectionStream(module);
-      os << p;
-    }
-  }
-  if (module == nullptr) {
-    if (!dir) {
-      *s += "      " + name + " <= 0;\n";
-    }
   }
 }
 

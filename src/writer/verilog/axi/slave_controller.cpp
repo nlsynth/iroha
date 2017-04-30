@@ -9,7 +9,7 @@ namespace axi {
 
 SlaveController::SlaveController(const IResource &res,
 				 bool reset_polarity)
-  : res_(res), reset_polarity_(reset_polarity) {
+  : AxiController(res, reset_polarity) {
 }
 
 SlaveController::~SlaveController() {

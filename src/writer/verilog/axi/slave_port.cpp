@@ -12,12 +12,12 @@ namespace verilog {
 namespace axi {
 
 SlavePort::SlavePort(const IResource &res, const Table &table)
-  : Resource(res, table) {
+  : AxiPort(res, table) {
 }
 
 void SlavePort::BuildResource() {
   bool reset_polarity = tab_.GetModule()->GetResetPolarity();
-  tab_.GetEmbeddedModules()->RequestAxiMasterController(&res_, reset_polarity);
+  tab_.GetEmbeddedModules()->RequestAxiSlaveController(&res_, reset_polarity);
 }
 
 void SlavePort::BuildInsn(IInsn *insn, State *st) {

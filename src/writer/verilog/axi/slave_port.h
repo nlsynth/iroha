@@ -2,14 +2,14 @@
 #ifndef _writer_verilog_axi_slave_port_h_
 #define _writer_verilog_axi_slave_port_h_
 
-#include "writer/verilog/resource.h"
+#include "writer/verilog/axi/axi_port.h"
 
 namespace iroha {
 namespace writer {
 namespace verilog {
 namespace axi {
 
-class SlavePort : public Resource {
+class SlavePort : public AxiPort {
 public:
   SlavePort(const IResource &res, const Table &table);
 
