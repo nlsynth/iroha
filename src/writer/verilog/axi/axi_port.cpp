@@ -13,4 +13,3 @@ AxiPort::AxiPort(const IResource &res, const Table &table)
 }  // namespace verilog
 }  // namespace writer
 }  // namespace iroha
-

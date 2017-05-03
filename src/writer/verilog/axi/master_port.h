@@ -24,7 +24,7 @@ public:
 
 private:
   void BuildInstance(const string &s);
-  string BuildPort();
+  string BuildPortToExt();
 
   string PortSuffix();
   string AddrPort();

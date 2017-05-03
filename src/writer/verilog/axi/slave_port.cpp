@@ -18,6 +18,8 @@ SlavePort::SlavePort(const IResource &res, const Table &table)
 void SlavePort::BuildResource() {
   bool reset_polarity = tab_.GetModule()->GetResetPolarity();
   tab_.GetEmbeddedModules()->RequestAxiSlaveController(&res_, reset_polarity);
+
+  BuildPortToExt();
 }
 
 void SlavePort::BuildInsn(IInsn *insn, State *st) {
@@ -35,6 +37,17 @@ void SlavePort::WriteController(const IResource &res,
 				ostream &os) {
   SlaveController c(res, reset_polarity);
   c.Write(os);
+}
+
+string SlavePort::BuildPortToExt() {
+  string s;
+  Module *mod = tab_.GetModule();
+  SlaveController::AddPorts(mod, &s);
+  for (mod = mod->GetParentModule(); mod != nullptr;
+       mod = mod->GetParentModule()) {
+    SlaveController::AddPorts(mod, nullptr);
+  }
+  return s;
 }
 
 }  // namespace axi

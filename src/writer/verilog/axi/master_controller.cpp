@@ -13,12 +13,7 @@ namespace axi {
 
 MasterController::MasterController(const IResource &res, bool reset_polarity)
   : AxiController(res, reset_polarity_) {
-  ports_.reset(new Ports);
   MasterPort::GetReadWrite(res_, &r_, &w_);
-  const IResource *mem_res = res_.GetParentResource();
-  IArray *array = mem_res->GetArray();
-  addr_width_ = array->GetAddressWidth();
-  data_width_ = array->GetDataType().GetWidth();
   burst_len_ = (1 << addr_width_);
 }
 
@@ -26,24 +21,19 @@ MasterController::~MasterController() {
 }
 
 void MasterController::Write(ostream &os) {
-  string name = MasterPort::ControllerName(res_, reset_polarity_);
-  ports_->AddPort("clk", Port::INPUT_CLK, 0);
-  ports_->AddPort(ResetName(reset_polarity_), Port::INPUT_RESET, 0);
-  ports_->AddPort("sram_addr", Port::OUTPUT, addr_width_);
-  ports_->AddPort("sram_wdata", Port::OUTPUT, data_width_);
-  ports_->AddPort("sram_wen", Port::OUTPUT, 0);
-  ports_->AddPort("sram_rdata", Port::INPUT, data_width_);
+  AddSramPorts();
   ports_->AddPort("addr", Port::INPUT, 32);
   ports_->AddPort("wen", Port::INPUT, 0);
   ports_->AddPort("req", Port::INPUT, 0);
   ports_->AddPort("ack", Port::OUTPUT, 0);
   string initials;
   if (r_) {
-    GenReadChannel(nullptr, ports_.get(), &initials);
+    GenReadChannel(true, nullptr, ports_.get(), &initials);
   }
   if (w_) {
-    GenWriteChannel(nullptr, ports_.get(), &initials);
+    GenWriteChannel(true, nullptr, ports_.get(), &initials);
   }
+  string name = MasterPort::ControllerName(res_, reset_polarity_);
   os << "module " << name << "(";
   ports_->Output(Ports::PORT_NAME, os);
   os << ");\n";
@@ -78,10 +68,10 @@ void MasterController::AddPorts(Module *mod, bool r, bool w,
 				string *s) {
   Ports *ports = mod->GetPorts();
   if (r) {
-    GenReadChannel(mod, ports, s);
+    GenReadChannel(true, mod, ports, s);
   }
   if (w) {
-    GenWriteChannel(mod, ports, s);
+    GenWriteChannel(true, mod, ports, s);
   }
 }
 

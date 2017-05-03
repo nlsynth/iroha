@@ -31,8 +31,7 @@ public:
 private:
   set<string> files_;
   vector<InternalSRAM *> srams_;
-  vector<pair<const IResource *, bool> > axi_master_ports_;
-  vector<pair<const IResource *, bool> > axi_slave_ports_;
+  vector<pair<const IResource *, bool> > axi_ports_;
 };
 
 class EmbeddedResource : public Resource {

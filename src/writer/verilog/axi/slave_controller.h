@@ -16,6 +16,8 @@ public:
   ~SlaveController();
 
   void Write(ostream &os);
+
+  static void AddPorts(Module *mod, string *s);
 };
 
 }  // namespace axi

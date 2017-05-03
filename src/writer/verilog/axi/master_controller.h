@@ -27,8 +27,6 @@ private:
 
   unique_ptr<Ports> ports_;
   bool r_, w_;
-  int addr_width_;
-  int data_width_;
   int burst_len_;
 };
 

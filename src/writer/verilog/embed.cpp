@@ -30,12 +30,12 @@ void EmbeddedModules::RequestModule(const ResourceParams &params) {
 
 void EmbeddedModules::RequestAxiMasterController(const IResource *axi_port,
 						 bool reset_polarity) {
-  axi_master_ports_.push_back(make_pair(axi_port, reset_polarity));
+  axi_ports_.push_back(make_pair(axi_port, reset_polarity));
 }
 
 void EmbeddedModules::RequestAxiSlaveController(const IResource *axi_port,
 						bool reset_polarity) {
-  axi_slave_ports_.push_back(make_pair(axi_port, reset_polarity));
+  axi_ports_.push_back(make_pair(axi_port, reset_polarity));
 }
 
 bool EmbeddedModules::Write(ostream &os) {
@@ -64,7 +64,7 @@ bool EmbeddedModules::Write(ostream &os) {
   }
   // AXI ports
   set<string> controllers;
-  for (auto p : axi_master_ports_) {
+  for (auto p : axi_ports_) {
     const IResource *res = p.first;
     bool reset_polarity = p.second;
     string name;

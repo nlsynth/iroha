@@ -25,7 +25,7 @@ MasterPort::MasterPort(const IResource &res, const Table &table)
 
 void MasterPort::BuildResource() {
   CHECK(tab_.GetITable() == res_.GetTable());
-  string s = BuildPort();
+  string s = BuildPortToExt();
   BuildInstance(s);
 
   ostream &os = tmpl_->GetStream(kResourceSection);
@@ -105,12 +105,12 @@ void MasterPort::BuildInstance(const string &s) {
   const IResource *mem = res_.GetParentResource();
   es << "  " << name << " inst_" << name
      << "(.clk("<< clk << "), "
+     << "." << MasterController::ResetName(reset_polarity)
+     << "(" << rst << "), "
      << ".addr(" << AddrPort() << "), "
      << ".wen(" << WenPort() << "), "
      << ".req(" << ReqPort() << "), "
      << ".ack(" << AckPort() << "), "
-     << "." << MasterController::ResetName(reset_polarity)
-     << "(" << rst << "), "
      << ".sram_addr(" << SharedMemory::MemoryAddrPin(*mem, 1, nullptr) << "), "
      << ".sram_wdata(" << SharedMemory::MemoryWdataPin(*mem, 1, nullptr)
      << "), "
@@ -120,7 +120,7 @@ void MasterPort::BuildInstance(const string &s) {
      << ");\n";
 }
 
-string MasterPort::BuildPort() {
+string MasterPort::BuildPortToExt() {
   bool r, w;
   GetReadWrite(res_, &r, &w);
   Module *mod = tab_.GetModule();
