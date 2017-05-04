@@ -25,7 +25,6 @@ private:
   void ReaderFsm(ostream &os);
   void WriterFsm(ostream &os);
 
-  unique_ptr<Ports> ports_;
   bool r_, w_;
   int burst_len_;
 };
