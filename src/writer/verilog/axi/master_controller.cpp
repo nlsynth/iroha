@@ -12,7 +12,7 @@ namespace verilog {
 namespace axi {
 
 MasterController::MasterController(const IResource &res, bool reset_polarity)
-  : AxiController(res, reset_polarity_) {
+  : AxiController(res, reset_polarity) {
   MasterPort::GetReadWrite(res_, &r_, &w_);
   burst_len_ = (1 << addr_width_);
 }
@@ -173,7 +173,7 @@ void MasterController::WriterFsm(ostream &os) {
      << "              idx <= idx + 1;\n"
      << "            end\n"
      << "            if (idx < " << burst_len_ << " - 1) begin\n"
-     << "              WLAST <= 0;\n"
+     << "              WLAST <= 1;\n"
      << "            end\n"
      << "          end else begin\n"
      << "            WVALID <= 0;\n"
