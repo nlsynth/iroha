@@ -45,20 +45,36 @@ void MasterController::Write(ostream &os) {
     os << "  `define S_READ_DATA 2\n";
   }
   if (w_) {
-    os << "  `define S_WRITE_DATA 3\n";
     os << "  `define S_WRITE_WAIT 4\n";
   }
-  os << "  reg [3:0] st;\n\n"
-     << "  reg [" << addr_width_ << ":0] idx;\n\n";
+  os << "  reg [3:0] st;\n\n";
+  if (w_) {
+    os << "  `define WS_IDLE 0\n"
+       << "  `define WS_WRITE 1\n"
+       << "  `define WS_WAIT 2\n"
+       << "  reg [3:0] wst;\n\n";
+  }
+  if (r_) {
+    os << "  reg [" << addr_width_ << ":0] ridx;\n\n";
+  }
+  if (r_) {
+    os << "  reg [" << addr_width_ << ":0] widx;\n\n";
+  }
   os << "  always @(posedge clk) begin\n"
      << "    if (" << (reset_polarity_ ? "" : "!")
      << ResetName(reset_polarity_) << ") begin\n"
      << "      ack <= 0;\n"
      << "      sram_wen <= 0;\n"
      << "      st <= `S_IDLE;\n";
+  if (w_) {
+    os << "      wst <= `WS_IDLE;\n";
+  }
   os << initials
      << "    end else begin\n";
-  OutputFsm(os);
+  OutputMainFsm(os);
+  if (w_) {
+    OutputWriterFsm(os);
+  }
   os << "    end\n"
      << "  end\n"
      << "endmodule\n";
@@ -75,7 +91,7 @@ void MasterController::AddPorts(Module *mod, bool r, bool w,
   }
 }
 
-void MasterController::OutputFsm(ostream &os) {
+void MasterController::OutputMainFsm(ostream &os) {
   int alen = burst_len_ - 1;
   if (r_) {
     os << "      sram_wen <= (st == `S_READ_DATA && RVALID);\n";
@@ -85,7 +101,7 @@ void MasterController::OutputFsm(ostream &os) {
   os << "      case (st)\n"
      << "        `S_IDLE: begin\n"
      << "          if (req) begin\n"
-     << "            idx <= 0;\n"
+     << "            ridx <= 0;\n"
      << "            st <= `S_ADDR_WAIT;\n";
   if (r_ && !w_) {
     os << "            ARVALID <= 1;\n"
@@ -120,17 +136,17 @@ void MasterController::OutputFsm(ostream &os) {
   }
   if (!r_ && w_) {
     os << "          if (AWREADY) begin\n"
-       << "            st <= `S_WRITE_DATA;\n"
+       << "            st <= `S_WRITE_WAIT;\n"
        << "            AWVALID <= 0;\n"
-       << "            sram_addr <= idx;\n"
+       << "            sram_addr <= ridx;\n"
        << "          end\n";
   }
   if (r_ && w_) {
     os << "          if (wen) begin\n"
        << "            if (AWREADY) begin\n"
-       << "              st <= `S_WRITE_DATA;\n"
+       << "              st <= `S_WRITE_WAIT;\n"
        << "              AWVALID <= 0;\n"
-       << "              sram_addr <= idx;\n"
+       << "              sram_addr <= ridx;\n"
        << "            end\n"
        << "          end else begin\n"
        << "            if (ARREADY) begin\n"
@@ -141,20 +157,30 @@ void MasterController::OutputFsm(ostream &os) {
   }
   os << "        end\n";
   if (r_) {
-    ReaderFsm(os);
+    ReadState(os);
   }
   if (w_) {
-    WriterFsm(os);
+    os << "        `S_WRITE_WAIT: begin\n"
+       << "          if (BVALID) begin\n"
+       << "            st <= `S_IDLE;\n"
+       << "          end\n"
+       << "          if (wst == `WS_IDLE && req && wen) begin\n"
+       << "            sram_addr <= 0;\n"
+       << "          end\n"
+       << "          if (wst == `WS_WRITE && WREADY && WVALID) begin\n"
+       << "            sram_addr <= widx + 1;\n"
+       << "          end\n"
+       << "        end\n";
   }
   os << "      endcase\n";
 }
 
-void MasterController::ReaderFsm(ostream &os) {
+void MasterController::ReadState(ostream &os) {
   os << "        `S_READ_DATA: begin\n"
      << "          if (RVALID) begin\n"
-     << "            sram_addr <= idx;\n"
+     << "            sram_addr <= ridx;\n"
      << "            sram_wdata <= RDATA;\n"
-     << "            idx <= idx + 1;\n"
+     << "            ridx <= ridx + 1;\n"
      << "            if (RLAST) begin\n"
      << "              RREADY <= 0;\n"
      << "              st <= `S_IDLE;\n"
@@ -163,31 +189,39 @@ void MasterController::ReaderFsm(ostream &os) {
      << "        end\n";
 }
 
-void MasterController::WriterFsm(ostream &os) {
-  os << "        `S_WRITE_DATA: begin\n"
-     << "          if (idx < " << burst_len_ << ") begin\n"
+void MasterController::OutputWriterFsm(ostream &os) {
+  os << "       case (wst)\n"
+     << "        `WS_IDLE: begin\n"
+     << "          if (req && wen) begin\n"
+     << "            wst <= `WS_WRITE;\n"
+     << "            widx <= 0;\n"
+     << "          end\n"
+     << "        end\n"
+     << "        `WS_WRITE: begin\n"
+     << "          if (widx < " << burst_len_ << ") begin\n"
      << "            WVALID <= 1;\n"
      << "            WDATA <= sram_rdata;\n"
      << "            if (WREADY && WVALID) begin\n"
-     << "              sram_addr <= idx + 1;\n"
-     << "              idx <= idx + 1;\n"
+     << "              widx <= widx + 1;\n"
      << "            end\n"
-     << "            if (idx < " << burst_len_ << " - 1) begin\n"
+     << "            if (widx < " << burst_len_ << " - 1) begin\n"
      << "              WLAST <= 1;\n"
      << "            end\n"
      << "          end else begin\n"
      << "            WVALID <= 0;\n"
      << "            WLAST <= 0;\n"
-     << "            st <= `S_WRITE_WAIT;\n"
+     << "            wst <= `WS_WAIT;\n"
      << "            BREADY <= 1;\n"
      << "          end\n"
      << "        end\n"
-     << "        `S_WRITE_WAIT: begin\n"
+     << "        `WS_WAIT: begin\n"
      << "          if (BVALID) begin\n"
      << "            BREADY <= 0;\n"
-     << "            st <= `S_IDLE;\n"
+     << "            st <= `WS_IDLE;\n"
      << "          end\n"
-     << "        end\n";
+     << "        end\n"
+     << "      endcase\n";
+
 }
 
 }  // namespace axi

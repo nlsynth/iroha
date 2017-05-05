@@ -21,9 +21,9 @@ public:
 		       string *s);
 
 private:
-  void OutputFsm(ostream &os);
-  void ReaderFsm(ostream &os);
-  void WriterFsm(ostream &os);
+  void OutputMainFsm(ostream &os);
+  void ReadState(ostream &os);
+  void OutputWriterFsm(ostream &os);
 
   bool r_, w_;
   int burst_len_;
