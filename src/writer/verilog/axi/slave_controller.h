@@ -18,6 +18,9 @@ public:
   void Write(ostream &os);
 
   static void AddPorts(Module *mod, string *s);
+
+protected:
+  void OutputFSM(ostream &os);
 };
 
 }  // namespace axi
