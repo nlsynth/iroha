@@ -45,14 +45,14 @@ void MasterController::Write(ostream &os) {
     os << "  `define S_READ_DATA 2\n";
   }
   if (w_) {
-    os << "  `define S_WRITE_WAIT 4\n";
+    os << "  `define S_WRITE_WAIT 3\n";
   }
-  os << "  reg [3:0] st;\n\n";
+  os << "  reg [1:0] st;\n\n";
   if (w_) {
     os << "  `define WS_IDLE 0\n"
        << "  `define WS_WRITE 1\n"
        << "  `define WS_WAIT 2\n"
-       << "  reg [3:0] wst;\n\n";
+       << "  reg [1:0] wst;\n\n";
   }
   if (r_) {
     os << "  reg [" << addr_width_ << ":0] ridx;\n\n";

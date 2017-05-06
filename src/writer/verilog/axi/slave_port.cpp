@@ -1,9 +1,11 @@
 #include "writer/verilog/axi/slave_port.h"
 
 #include "iroha/i_design.h"
+#include "writer/module_template.h"
 #include "writer/verilog/axi/slave_controller.h"
 #include "writer/verilog/embed.h"
 #include "writer/verilog/module.h"
+#include "writer/verilog/ports.h"
 #include "writer/verilog/table.h"
 
 namespace iroha {
@@ -16,10 +18,8 @@ SlavePort::SlavePort(const IResource &res, const Table &table)
 }
 
 void SlavePort::BuildResource() {
-  bool reset_polarity = tab_.GetModule()->GetResetPolarity();
-  tab_.GetEmbeddedModules()->RequestAxiSlaveController(&res_, reset_polarity);
-
-  BuildPortToExt();
+  string wires = BuildPortToExt();
+  BuildControllerInstance(wires);
 }
 
 void SlavePort::BuildInsn(IInsn *insn, State *st) {
@@ -37,6 +37,20 @@ void SlavePort::WriteController(const IResource &res,
 				ostream &os) {
   SlaveController c(res, reset_polarity);
   c.Write(os);
+}
+
+void SlavePort::BuildControllerInstance(const string &wires) {
+  tab_.GetEmbeddedModules()->RequestAxiSlaveController(&res_, reset_polarity_);
+  ostream &es = tmpl_->GetStream(kEmbeddedInstanceSection);
+  string name = ControllerName(res_, reset_polarity_);
+  const string &clk = tab_.GetPorts()->GetClk();
+  const string &rst = tab_.GetPorts()->GetReset();
+  const IResource *mem = res_.GetParentResource();
+  es << "  " << name << " inst_" << name
+     << "(";
+  OutputSRAMConnection(es);
+  es << wires
+     << ");\n";
 }
 
 string SlavePort::BuildPortToExt() {

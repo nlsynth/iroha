@@ -12,7 +12,6 @@
 #include "writer/verilog/ports.h"
 #include "writer/verilog/state.h"
 #include "writer/verilog/table.h"
-#include "writer/verilog/shared_memory.h"
 
 namespace iroha {
 namespace writer {
@@ -26,7 +25,7 @@ MasterPort::MasterPort(const IResource &res, const Table &table)
 void MasterPort::BuildResource() {
   CHECK(tab_.GetITable() == res_.GetTable());
   string s = BuildPortToExt();
-  BuildInstance(s);
+  BuildControllerInstance(s);
 
   ostream &os = tmpl_->GetStream(kResourceSection);
   os << "  reg [31:0] " << AddrPort() << ";\n"
@@ -95,28 +94,18 @@ void MasterPort::WriteController(const IResource &res,
   c.Write(os);
 }
 
-void MasterPort::BuildInstance(const string &s) {
-  bool reset_polarity = tab_.GetModule()->GetResetPolarity();
-  tab_.GetEmbeddedModules()->RequestAxiMasterController(&res_, reset_polarity);
+void MasterPort::BuildControllerInstance(const string &wires) {
+  tab_.GetEmbeddedModules()->RequestAxiMasterController(&res_, reset_polarity_);
   ostream &es = tmpl_->GetStream(kEmbeddedInstanceSection);
-  string name = ControllerName(res_, reset_polarity);
-  const string &clk = tab_.GetPorts()->GetClk();
-  const string &rst = tab_.GetPorts()->GetReset();
-  const IResource *mem = res_.GetParentResource();
+  string name = ControllerName(res_, reset_polarity_);
   es << "  " << name << " inst_" << name
-     << "(.clk("<< clk << "), "
-     << "." << MasterController::ResetName(reset_polarity)
-     << "(" << rst << "), "
-     << ".addr(" << AddrPort() << "), "
+     << "(";
+  OutputSRAMConnection(es);
+  es << ", .addr(" << AddrPort() << "), "
      << ".wen(" << WenPort() << "), "
      << ".req(" << ReqPort() << "), "
-     << ".ack(" << AckPort() << "), "
-     << ".sram_addr(" << SharedMemory::MemoryAddrPin(*mem, 1, nullptr) << "), "
-     << ".sram_wdata(" << SharedMemory::MemoryWdataPin(*mem, 1, nullptr)
-     << "), "
-     << ".sram_rdata(" << SharedMemory::MemoryRdataPin(*mem, 1) << "), "
-     << ".sram_wen(" << SharedMemory::MemoryWenPin(*mem, 1, nullptr) << ") "
-     << s
+     << ".ack(" << AckPort() << ") "
+     << wires
      << ");\n";
 }
 
@@ -146,27 +135,6 @@ void MasterPort::GetReadWrite(const IResource &res, bool *r, bool *w) {
       CHECK(false);
     }
   }
-}
-
-string MasterPort::PortSuffix() {
-  const ITable *tab = res_.GetTable();
-  return Util::Itoa(tab->GetId());
-}
-
-string MasterPort::AddrPort() {
-  return "axi_addr" + PortSuffix();
-}
-
-string MasterPort::WenPort() {
-  return "axi_wen" + PortSuffix();
-}
-
-string MasterPort::ReqPort() {
-  return "axi_req" + PortSuffix();
-}
-
-string MasterPort::AckPort() {
-  return "axi_ack" + PortSuffix();
 }
 
 }  // namespace axi

@@ -22,6 +22,7 @@ public:
 
 private:
   string BuildPortToExt();
+  void BuildControllerInstance(const string &wires);
 };
 
 }  // namespace axi

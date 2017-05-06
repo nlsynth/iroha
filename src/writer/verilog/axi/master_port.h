@@ -23,14 +23,8 @@ public:
 			      bool reset_polarity, ostream &os);
 
 private:
-  void BuildInstance(const string &s);
+  void BuildControllerInstance(const string &wires);
   string BuildPortToExt();
-
-  string PortSuffix();
-  string AddrPort();
-  string WenPort();
-  string ReqPort();
-  string AckPort();
 };
 
 }  // namespace axi

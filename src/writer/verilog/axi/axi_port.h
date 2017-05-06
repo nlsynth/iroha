@@ -12,6 +12,17 @@ namespace axi {
 class AxiPort : public Resource {
 public:
   AxiPort(const IResource &res, const Table &table);
+
+protected:
+  void OutputSRAMConnection(ostream &os);
+
+  string PortSuffix();
+  string AddrPort();
+  string WenPort();
+  string ReqPort();
+  string AckPort();
+
+  bool reset_polarity_;
 };
 
 }  // namespace axi
