@@ -37,12 +37,14 @@ void SlaveController::Write(ostream &os) {
   os << "  reg [1:0] st;\n\n";
   os << "  reg [" << addr_width_ << ":0] idx;\n\n";
   os << "  reg first_addr;";
+  os << "  reg [1:0] rlen;\n\n";
 
   os << "  always @(posedge clk) begin\n"
      << "    if (" << (reset_polarity_ ? "" : "!")
      << ResetName(reset_polarity_) << ") begin\n"
      << "      st <= `S_IDLE;\n"
-     << "      first_addr <= 0;\n";
+     << "      first_addr <= 0;\n"
+     << "      rlen <= 0;\n";
   os << initials
      << "    end else begin\n";
   OutputFSM(os);
@@ -58,13 +60,15 @@ void SlaveController::AddPorts(Module *mod, string *s) {
 }
 
 void SlaveController::OutputFSM(ostream &os) {
-  os << "      sram_wen <= (st == `S_WRITE && WVALID);\n";
+  os << "      sram_wen <= (st == `S_WRITE && WVALID);\n"
+     << "      RLAST <= (st == `S_READ && rlen == 0);\n";
   os << "      case (st)\n"
      << "        `S_IDLE: begin\n"
      << "          if (ARVALID) begin\n"
      << "            st <= `S_READ;\n"
      << "            ARREADY <= 1;\n"
      << "            sram_addr <= ARADDR[" << (addr_width_ - 1) << ":0];\n"
+     << "            rlen <= ARLEN;\n"
      << "          end else if (AWVALID) begin\n"
      << "            st <= `S_WRITE;\n"
      << "            AWREADY <= 1;\n"
@@ -75,6 +79,12 @@ void SlaveController::OutputFSM(ostream &os) {
      << "        end\n"
      << "        `S_READ: begin\n"
      << "          ARREADY <= 0;\n"
+     << "          RVALID <= 1;\n"
+     << "          if (RREADY) begin\n"
+     << "            sram_addr <= sram_addr + 1;\n"
+     << "            rlen <= rlen - 1;\n"
+     << "          end\n"
+     << "          RDATA <= sram_rdata;\n"
      << "        end\n"
      << "        `S_WRITE: begin\n"
      << "          AWREADY <= 0;\n"
