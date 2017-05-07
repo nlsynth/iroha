@@ -17,7 +17,7 @@ public:
 
   void Write(ostream &os);
 
-  static void AddPorts(Module *mod, string *s);
+  static void AddPorts(const PortConfig &cfg, Module *mod, string *s);
 
 protected:
   void OutputFSM(ostream &os);

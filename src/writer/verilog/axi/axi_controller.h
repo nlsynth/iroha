@@ -3,6 +3,7 @@
 #define _writer_verilog_axi_axi_controller_h_
 
 #include "writer/verilog/common.h"
+#include "writer/verilog/axi/axi_port.h"  // for PortConfig
 
 namespace iroha {
 namespace writer {
@@ -23,9 +24,11 @@ protected:
   static void AddPort(const string &name, int width, bool dir_s2m,
 		      bool is_master,
 		      Module *module, Ports *ports, string *s);
-  static void GenReadChannel(bool is_master, Module *module, Ports *ports,
+  static void GenReadChannel(const PortConfig &cfg,
+			     bool is_master, Module *module, Ports *ports,
 			     string *s);
-  static void GenWriteChannel(bool is_master, Module *module, Ports *ports,
+  static void GenWriteChannel(const PortConfig &cfg,
+			      bool is_master, Module *module, Ports *ports,
 			      string *s);
   void AddSramPorts();
 
@@ -33,8 +36,8 @@ protected:
   bool reset_polarity_;
 
   unique_ptr<Ports> ports_;
-  int addr_width_;
-  int data_width_;
+  PortConfig cfg_;
+  int sram_addr_width_;
 };
 
 }  // namespace axi

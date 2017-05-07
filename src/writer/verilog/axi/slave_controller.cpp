@@ -24,8 +24,8 @@ void SlaveController::Write(ostream &os) {
      << name << "\n";
   AddSramPorts();
   string initials;
-  GenReadChannel(false, nullptr, ports_.get(), &initials);
-  GenWriteChannel(false, nullptr, ports_.get(), &initials);
+  GenReadChannel(cfg_, false, nullptr, ports_.get(), &initials);
+  GenWriteChannel(cfg_, false, nullptr, ports_.get(), &initials);
   os << "module " << name << "(";
   ports_->Output(Ports::PORT_NAME, os);
   os << ");\n";
@@ -35,7 +35,7 @@ void SlaveController::Write(ostream &os) {
      << "  `define S_READ 1\n"
      << "  `define S_WRITE 2\n";
   os << "  reg [1:0] st;\n\n";
-  os << "  reg [" << addr_width_ << ":0] idx;\n\n";
+  os << "  reg [" << sram_addr_width_ << ":0] idx;\n\n";
   os << "  reg first_addr;";
   os << "  reg [1:0] rlen;\n\n";
 
@@ -53,10 +53,10 @@ void SlaveController::Write(ostream &os) {
      << "endmodule\n";
 }
 
-void SlaveController::AddPorts(Module *mod, string *s) {
+void SlaveController::AddPorts(const PortConfig &cfg, Module *mod, string *s) {
   Ports *ports = mod->GetPorts();
-  GenWriteChannel(false, mod, ports, s);
-  GenReadChannel(false, mod, ports, s);
+  GenWriteChannel(cfg, false, mod, ports, s);
+  GenReadChannel(cfg, false, mod, ports, s);
 }
 
 void SlaveController::OutputFSM(ostream &os) {
@@ -67,13 +67,13 @@ void SlaveController::OutputFSM(ostream &os) {
      << "          if (ARVALID) begin\n"
      << "            st <= `S_READ;\n"
      << "            ARREADY <= 1;\n"
-     << "            sram_addr <= ARADDR[" << (addr_width_ - 1) << ":0];\n"
+     << "            sram_addr <= ARADDR[" << (sram_addr_width_ - 1) << ":0];\n"
      << "            rlen <= ARLEN;\n"
      << "          end else if (AWVALID) begin\n"
      << "            st <= `S_WRITE;\n"
      << "            AWREADY <= 1;\n"
      << "            first_addr <= 1;\n"
-     << "            sram_addr <= AWADDR[" << (addr_width_ - 1) << ":0];\n"
+     << "            sram_addr <= AWADDR[" << (sram_addr_width_ - 1) << ":0];\n"
      << "            WREADY <= 1;\n"
      << "          end\n"
      << "        end\n"

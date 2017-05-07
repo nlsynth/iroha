@@ -1,6 +1,7 @@
 #include "writer/verilog/axi/axi_port.h"
 
 #include "iroha/i_design.h"
+#include "iroha/resource_params.h"
 #include "writer/verilog/axi/axi_controller.h"
 #include "writer/verilog/module.h"
 #include "writer/verilog/ports.h"
@@ -29,6 +30,15 @@ void AxiPort::OutputSRAMConnection(ostream &os) {
      << "), "
      << ".sram_rdata(" << SharedMemory::MemoryRdataPin(*mem, 1) << "), "
      << ".sram_wen(" << SharedMemory::MemoryWenPin(*mem, 1, nullptr) << ")";
+}
+
+PortConfig AxiPort::GetPortConfig(const IResource &res) {
+  PortConfig cfg;
+  cfg.addr_width = res.GetParams()->GetAddrWidth();
+  const IResource *mem_res = res.GetParentResource();
+  IArray *array = mem_res->GetArray();
+  cfg.data_width = array->GetDataType().GetWidth();
+  return cfg;
 }
 
 string AxiPort::PortSuffix() {

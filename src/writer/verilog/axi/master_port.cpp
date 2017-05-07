@@ -114,10 +114,11 @@ string MasterPort::BuildPortToExt() {
   GetReadWrite(res_, &r, &w);
   Module *mod = tab_.GetModule();
   string s;
-  MasterController::AddPorts(mod, r, w, &s);
+  PortConfig cfg = AxiPort::GetPortConfig(res_);
+  MasterController::AddPorts(cfg, mod, r, w, &s);
   for (mod = mod->GetParentModule(); mod != nullptr;
        mod = mod->GetParentModule()) {
-    MasterController::AddPorts(mod, r, w, nullptr);
+    MasterController::AddPorts(cfg, mod, r, w, nullptr);
   }
   return s;
 }

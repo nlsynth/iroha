@@ -9,9 +9,21 @@ namespace writer {
 namespace verilog {
 namespace axi {
 
+class PortConfig {
+public:
+  PortConfig() : addr_width(32) {
+  }
+
+  int addr_width;
+  int data_width;
+  string prefix;
+};
+
 class AxiPort : public Resource {
 public:
   AxiPort(const IResource &res, const Table &table);
+
+  static PortConfig GetPortConfig(const IResource &res);
 
 protected:
   void OutputSRAMConnection(ostream &os);

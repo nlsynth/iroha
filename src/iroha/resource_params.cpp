@@ -215,6 +215,10 @@ void ResourceParams::SetResetName(const string &name) {
   values_->SetStringParam(resource::kResetName, name);
 }
 
+int ResourceParams::GetAddrWidth() const {
+  return values_->GetIntParam(resource::kAddrWidth, 32);
+}
+
 void ResourceParams::SetExtInputPort(const string &input, int width) {
   values_->SetStringParam(resource::kExtInputPort, input);
   values_->SetIntParam(resource::kExtIOWidth, width);

@@ -17,6 +17,7 @@ const char kMappedName[] = "MAPPED-NAME";
 const char kResetPolarity[] = "RESET-POLARITY";
 const char kModuleNamePrefix[] = "MODULE-NAME-PREFIX";
 const char kResetName[] = "RESET-NAME";
+const char kAddrWidth[] = "ADDR-WIDTH";
 const char kExtInputPort[] = "INPUT";
 const char kExtOutputPort[] = "OUTPUT";
 const char kExtIOWidth[] = "WIDTH";
@@ -58,11 +59,14 @@ public:
   string GetResetName() const;
   void SetResetName(const string &name);
 
+  int GetAddrWidth() const;
+
   void SetExtInputPort(const string &input, int width);
   void GetExtInputPort(string *name, int *width);
   void SetExtOutputPort(const string &output, int width);
   void GetExtOutputPort(string *name, int *width);
 
+  // DEFAULT-VALUE
   bool GetDefaultValue(int *value) const;
   int GetWidth();
   void SetWidth(int w);

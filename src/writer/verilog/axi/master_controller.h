@@ -17,7 +17,7 @@ public:
 
   void Write(ostream &os);
 
-  static void AddPorts(Module *mod, bool r, bool w,
+  static void AddPorts(const PortConfig &cfg, Module *mod, bool r, bool w,
 		       string *s);
 
 private:

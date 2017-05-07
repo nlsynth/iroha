@@ -56,10 +56,11 @@ void SlavePort::BuildControllerInstance(const string &wires) {
 string SlavePort::BuildPortToExt() {
   string s;
   Module *mod = tab_.GetModule();
-  SlaveController::AddPorts(mod, &s);
+  PortConfig cfg = AxiPort::GetPortConfig(res_);
+  SlaveController::AddPorts(cfg, mod, &s);
   for (mod = mod->GetParentModule(); mod != nullptr;
        mod = mod->GetParentModule()) {
-    SlaveController::AddPorts(mod, nullptr);
+    SlaveController::AddPorts(cfg, mod, nullptr);
   }
   return s;
 }

@@ -14,7 +14,7 @@ namespace axi {
 MasterController::MasterController(const IResource &res, bool reset_polarity)
   : AxiController(res, reset_polarity) {
   MasterPort::GetReadWrite(res_, &r_, &w_);
-  burst_len_ = (1 << addr_width_);
+  burst_len_ = (1 << sram_addr_width_);
 }
 
 MasterController::~MasterController() {
@@ -28,10 +28,10 @@ void MasterController::Write(ostream &os) {
   ports_->AddPort("ack", Port::OUTPUT, 0);
   string initials;
   if (r_) {
-    GenReadChannel(true, nullptr, ports_.get(), &initials);
+    GenReadChannel(cfg_, true, nullptr, ports_.get(), &initials);
   }
   if (w_) {
-    GenWriteChannel(true, nullptr, ports_.get(), &initials);
+    GenWriteChannel(cfg_, true, nullptr, ports_.get(), &initials);
   }
   string name = MasterPort::ControllerName(res_, reset_polarity_);
   os << "module " << name << "(";
@@ -55,10 +55,10 @@ void MasterController::Write(ostream &os) {
        << "  reg [1:0] wst;\n\n";
   }
   if (r_) {
-    os << "  reg [" << addr_width_ << ":0] ridx;\n\n";
+    os << "  reg [" << sram_addr_width_ << ":0] ridx;\n\n";
   }
   if (r_) {
-    os << "  reg [" << addr_width_ << ":0] widx;\n\n";
+    os << "  reg [" << sram_addr_width_ << ":0] widx;\n\n";
   }
   os << "  always @(posedge clk) begin\n"
      << "    if (" << (reset_polarity_ ? "" : "!")
@@ -80,14 +80,15 @@ void MasterController::Write(ostream &os) {
      << "endmodule\n";
 }
 
-void MasterController::AddPorts(Module *mod, bool r, bool w,
+void MasterController::AddPorts(const PortConfig &cfg,
+				Module *mod, bool r, bool w,
 				string *s) {
   Ports *ports = mod->GetPorts();
   if (r) {
-    GenReadChannel(true, mod, ports, s);
+    GenReadChannel(cfg, true, mod, ports, s);
   }
   if (w) {
-    GenWriteChannel(true, mod, ports, s);
+    GenWriteChannel(cfg, true, mod, ports, s);
   }
 }
 

@@ -21,9 +21,10 @@ tab.states.append(st3)
 design_tool.AddNextState(st1, st2)
 design_tool.AddNextState(st2, st3)
 
-mem = design_tool.CreateSharedMemory(tab, 4, 32)
+mem = design_tool.CreateSharedMemory(tab, 4, 512)
 
 axi_slave_port = axi.CreateAxiSlavePort(tab, mem)
+axi_slave_port = axi_slave_port.resource_params.AddValue("ADDR-WIDTH", "64")
 
 design_tool.ValidateIds(d)
 DesignWriter(d).Write()
