@@ -16,6 +16,7 @@ class ResourceParamValueSet;
 const char kMappedName[] = "MAPPED-NAME";
 const char kResetPolarity[] = "RESET-POLARITY";
 const char kModuleNamePrefix[] = "MODULE-NAME-PREFIX";
+const char kPortNamePrefix[] = "PORT-NAME-PREFIX";
 const char kResetName[] = "RESET-NAME";
 const char kAddrWidth[] = "ADDR-WIDTH";
 const char kExtInputPort[] = "INPUT";
@@ -48,6 +49,8 @@ public:
 
   string GetModuleNamePrefix() const;
   void SetModuleNamePrefix(const string &name);
+
+  string GetPortNamePrefix() const;
 
   string GetMappedName() const;
   void SetMappedName(const string &name);

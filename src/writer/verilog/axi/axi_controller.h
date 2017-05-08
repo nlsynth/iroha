@@ -21,7 +21,8 @@ public:
 protected:
   // module==nullptr: Can get register initializer.
   // module!=nullptr: Child module wirings.
-  static void AddPort(const string &name, int width, bool dir_s2m,
+  static void AddPort(const PortConfig &cfg, const string &name, int width,
+		      bool dir_s2m,
 		      bool is_master,
 		      Module *module, Ports *ports, string *s);
   static void GenReadChannel(const PortConfig &cfg,

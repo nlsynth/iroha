@@ -34,6 +34,7 @@ void AxiPort::OutputSRAMConnection(ostream &os) {
 
 PortConfig AxiPort::GetPortConfig(const IResource &res) {
   PortConfig cfg;
+  cfg.prefix = res.GetParams()->GetPortNamePrefix();
   cfg.addr_width = res.GetParams()->GetAddrWidth();
   const IResource *mem_res = res.GetParentResource();
   IArray *array = mem_res->GetArray();

@@ -36,39 +36,40 @@ void AxiController::GenReadChannel(const PortConfig &cfg,
 				   Ports *ports,
 				   string *s) {
   // TODO: More ports.
-  AddPort("ARADDR", cfg.addr_width, false, is_master, module, ports, s);
-  AddPort("ARVALID", 0, false, is_master, module, ports, s);
-  AddPort("ARREADY", 0, true, is_master, module, ports, s);
-  AddPort("ARLEN", 8, false, is_master, module, ports, s);
-  AddPort("ARSIZE", 3, false, is_master, module, ports, s);
+  AddPort(cfg, "ARADDR", cfg.addr_width, false, is_master, module, ports, s);
+  AddPort(cfg, "ARVALID", 0, false, is_master, module, ports, s);
+  AddPort(cfg, "ARREADY", 0, true, is_master, module, ports, s);
+  AddPort(cfg, "ARLEN", 8, false, is_master, module, ports, s);
+  AddPort(cfg, "ARSIZE", 3, false, is_master, module, ports, s);
 
-  AddPort("RVALID", 0, true, is_master, module, ports, s);
-  AddPort("RDATA", cfg.data_width, true, is_master, module, ports, s);
-  AddPort("RREADY", 0, false, is_master, module, ports, s);
-  AddPort("RLAST", 0, true, is_master, module, ports, s);
+  AddPort(cfg, "RVALID", 0, true, is_master, module, ports, s);
+  AddPort(cfg, "RDATA", cfg.data_width, true, is_master, module, ports, s);
+  AddPort(cfg, "RREADY", 0, false, is_master, module, ports, s);
+  AddPort(cfg, "RLAST", 0, true, is_master, module, ports, s);
 }
 
 void AxiController::GenWriteChannel(const PortConfig &cfg,
 				    bool is_master, Module *module,
 				    Ports *ports,
 				    string *s) {
-  AddPort("AWADDR", cfg.addr_width, false, is_master, module, ports, s);
-  AddPort("AWVALID", 0, false, is_master, module, ports, s);
-  AddPort("AWREADY", 0, true, is_master, module, ports, s);
-  AddPort("AWLEN", 8, false, is_master, module, ports, s);
-  AddPort("AWSIZE", 3, false, is_master, module, ports, s);
+  AddPort(cfg, "AWADDR", cfg.addr_width, false, is_master, module, ports, s);
+  AddPort(cfg, "AWVALID", 0, false, is_master, module, ports, s);
+  AddPort(cfg, "AWREADY", 0, true, is_master, module, ports, s);
+  AddPort(cfg, "AWLEN", 8, false, is_master, module, ports, s);
+  AddPort(cfg, "AWSIZE", 3, false, is_master, module, ports, s);
 
-  AddPort("WVALID", 0, false, is_master, module, ports, s);
-  AddPort("WREADY", 0, true, is_master, module, ports, s);
-  AddPort("WDATA", cfg.data_width, false, is_master, module, ports, s);
-  AddPort("WLAST", 0, false, is_master, module, ports, s);
+  AddPort(cfg, "WVALID", 0, false, is_master, module, ports, s);
+  AddPort(cfg, "WREADY", 0, true, is_master, module, ports, s);
+  AddPort(cfg, "WDATA", cfg.data_width, false, is_master, module, ports, s);
+  AddPort(cfg, "WLAST", 0, false, is_master, module, ports, s);
 
-  AddPort("BVALID", 0, true, is_master, module, ports, s);
-  AddPort("BREADY", 0, false, is_master, module, ports, s);
-  AddPort("BRESP", 2, true, is_master, module, ports, s);
+  AddPort(cfg, "BVALID", 0, true, is_master, module, ports, s);
+  AddPort(cfg, "BREADY", 0, false, is_master, module, ports, s);
+  AddPort(cfg, "BRESP", 2, true, is_master, module, ports, s);
 }
 
-void AxiController::AddPort(const string &name, int width, bool dir_s2m,
+void AxiController::AddPort(const PortConfig &cfg,
+			    const string &name, int width, bool dir_s2m,
 			    bool is_master,
 			    Module *module, Ports *ports,
 			    string *s) {
@@ -88,18 +89,26 @@ void AxiController::AddPort(const string &name, int width, bool dir_s2m,
       t = Port::OUTPUT_WIRE;
     }
   }
-  ports->AddPort(name, t, width);
-  string p = ", ." + name + "(" + name + ")";
-  if (s != nullptr && module != nullptr) {
+  string ext_port_name = name;
+  if (module != nullptr) {
+    ext_port_name = cfg.prefix + name;
+  }
+  ports->AddPort(ext_port_name, t, width);
+  // On the controller instantiation. Owner of the controller.
+  if (module != nullptr && s != nullptr) {
+    string p = ", ." + name + "(" + cfg.prefix + name + ")";
     *s += p;
   }
+  // Non controller.
   if (module != nullptr) {
     Module *parent = module->GetParentModule();
     if (parent != nullptr) {
       ostream &os = parent->ChildModuleInstSectionStream(module);
+      string p = ", ." + cfg.prefix + name + "(" + cfg.prefix + name + ")";
       os << p;
     }
   }
+  // Controller.
   if (module == nullptr) {
     if (!is_input) {
       *s += "      " + name + " <= 0;\n";

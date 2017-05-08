@@ -186,6 +186,10 @@ void ResourceParams::SetModuleNamePrefix(const string &prefix) {
   values_->SetStringParam(resource::kModuleNamePrefix, prefix);
 }
 
+string ResourceParams::GetPortNamePrefix() const {
+  return values_->GetStringParam(resource::kPortNamePrefix, "");
+}
+
 string ResourceParams::GetMappedName() const {
   return values_->GetStringParam(resource::kMappedName, "");
 }
