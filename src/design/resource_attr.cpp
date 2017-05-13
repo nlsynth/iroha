@@ -53,6 +53,7 @@ bool ResourceAttr::IsExtAccessResource(IResource *res) {
   if (resource::IsExtInput(rc) ||
       resource::IsExtOutput(rc) ||
       resource::IsAxiMasterPort(rc) ||
+      resource::IsAxiSlavePort(rc) ||
       resource::IsExtTask(rc) ||
       resource::IsExtTaskDone(rc) ||
       resource::IsExtTaskCall(rc) ||

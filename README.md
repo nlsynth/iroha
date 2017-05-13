@@ -60,6 +60,8 @@ Please read src/iroha/iroha.h, src/iroha/iroha_main.cpp examples/ for more detai
 * P2: Carry bit of adder as input/output.
 * P2: Use profiling information to estimate IPC.
 * Q: Do we need instance/module separation?
+* AXI: Allow to use single port ram.
+* AXI: Allow or fail to attach both master/slave to an array.
 
 -- Source tree
 

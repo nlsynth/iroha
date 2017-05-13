@@ -26,7 +26,9 @@ class Numeric {
 public:
   Numeric();
 
-  uint64_t GetValue() const;
+  uint64_t GetValue() const {
+    return value_;
+  }
   void SetValue(uint64_t value);
 
   IValueType type_;

@@ -26,6 +26,7 @@ design_tool.AddNextState(st2, st3)
 mem = design_tool.CreateSharedMemory(tab, 4, 32)
 
 axi_master_port = axi.CreateAxiMasterPort(tab, mem)
+axi_master_port.resource_params.AddValue("PORT-NAME-PREFIX", "a1_")
 
 rinsn = IInsn(axi_master_port)
 addr = design_tool.AllocConstNum(tab, False, 32, 128)
