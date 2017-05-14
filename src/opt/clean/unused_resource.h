@@ -20,6 +20,7 @@ private:
   virtual bool ApplyForTable(const string &key, ITable *table);
 
   bool ScanTable(ITable *table);
+  void MarkResource(IResource *res);
   bool CollectResource(ITable *table);
 
   set<IResource *> used_resources_;

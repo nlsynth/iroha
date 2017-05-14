@@ -33,21 +33,31 @@ bool CleanUnusedResourcePhase::ScanTable(ITable *table) {
   for (IState *st : table->states_) {
     for (IInsn *insn : st->insns_) {
       IResource *res = insn->GetResource();
-      used_resources_.insert(res);
-      IResource *parent = res->GetParentResource();
-      if (parent != nullptr) {
-	used_resources_.insert(parent);
-      }
+      MarkResource(res);
+    }
+  }
+  for (IResource *res : table->resources_) {
+    if (ResourceAttr::IsExtAccessResource(res)) {
+      MarkResource(res);
     }
   }
   return true;
 }
 
+void CleanUnusedResourcePhase::MarkResource(IResource *res) {
+  if (used_resources_.find(res) != used_resources_.end()) {
+    return;
+  }
+  for (IResource *parent = res;
+       res != nullptr; res = res->GetParentResource()) {
+    used_resources_.insert(res);
+  }
+}
+
 bool CleanUnusedResourcePhase::CollectResource(ITable *table) {
   vector<IResource *> new_resources;
   for (IResource *res : table->resources_) {
-    if (ResourceAttr::IsExtAccessResource(res) ||
-	used_resources_.find(res) != used_resources_.end()) {
+    if (used_resources_.find(res) != used_resources_.end()) {
       new_resources.push_back(res);
     }
   }
