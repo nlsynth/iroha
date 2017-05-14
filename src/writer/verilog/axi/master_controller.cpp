@@ -27,12 +27,8 @@ void MasterController::Write(ostream &os) {
   ports_->AddPort("req", Port::INPUT, 0);
   ports_->AddPort("ack", Port::OUTPUT, 0);
   string initials;
-  if (r_) {
-    GenReadChannel(cfg_, true, nullptr, ports_.get(), &initials);
-  }
-  if (w_) {
-    GenWriteChannel(cfg_, true, nullptr, ports_.get(), &initials);
-  }
+  GenReadChannel(cfg_, true, nullptr, ports_.get(), &initials);
+  GenWriteChannel(cfg_, true, nullptr, ports_.get(), &initials);
   string name = MasterPort::ControllerName(res_, reset_polarity_);
   os << "module " << name << "(";
   ports_->Output(Ports::PORT_NAME, os);
@@ -100,65 +96,69 @@ void MasterController::OutputMainFsm(ostream &os) {
     os << "      sram_wen <= 0;\n";
   }
   os << "      case (st)\n"
-     << "        `S_IDLE: begin\n"
-     << "          if (req) begin\n";
-  if (r_) {
-    os << "            ridx <= 0;\n";
-  }
-  os << "            st <= `S_ADDR_WAIT;\n";
-  if (r_ && !w_) {
-    os << "            ARVALID <= 1;\n"
-       << "            ARADDR <= addr;\n"
-       << "            ARLEN <= " << alen << ";\n";
-  }
-  if (!r_ && w_) {
-    os << "            AWVALID <= 1;\n"
-       << "            AWADDR <= addr;\n"
-       << "            AWLEN <= " << alen << ";\n";
-  }
-  if (r_ && w_) {
-    os << "            if (wen) begin\n"
-       << "              ARVALID <= 1;\n"
-       << "              ARADDR <= addr;\n"
-       << "              ARLEN <= " << alen << ";\n"
-       << "            end else begin\n"
-       << "              AWVALID <= 1;\n"
-       << "              AWADDR <= addr;\n"
-       << "              AWLEN <= " << alen << ";\n"
-       << "            end\n";
-  }
-  os << "          end\n"
-     << "        end\n"
-     << "        `S_ADDR_WAIT: begin\n";
-  if (r_ && !w_) {
-    os << "          if (ARREADY) begin\n"
-       << "            st <= `S_READ_DATA;\n"
-       << "            ARVALID <= 0;\n"
-       << "            RREADY <= 1;\n"
-       << "          end\n";
-  }
-  if (!r_ && w_) {
-    os << "          if (AWREADY) begin\n"
-       << "            st <= `S_WRITE_WAIT;\n"
-       << "            AWVALID <= 0;\n"
-       << "            sram_addr <= ridx;\n"
-       << "          end\n";
-  }
-  if (r_ && w_) {
-    os << "          if (wen) begin\n"
-       << "            if (AWREADY) begin\n"
-       << "              st <= `S_WRITE_WAIT;\n"
-       << "              AWVALID <= 0;\n"
-       << "              sram_addr <= ridx;\n"
-       << "            end\n"
-       << "          end else begin\n"
-       << "            if (ARREADY) begin\n"
-       << "              st <= `S_READ_DATA;\n"
-       << "              RREADY <= 1;\n"
-       << "            end\n"
-       << "          end\n";
+     << "        `S_IDLE: begin\n";
+  if (r_ || w_) {
+    os << "          if (req) begin\n";
+    if (r_) {
+      os << "            ridx <= 0;\n";
+    }
+    os << "            st <= `S_ADDR_WAIT;\n";
+    if (r_ && !w_) {
+      os << "            ARVALID <= 1;\n"
+	 << "            ARADDR <= addr;\n"
+	 << "            ARLEN <= " << alen << ";\n";
+    }
+    if (!r_ && w_) {
+      os << "            AWVALID <= 1;\n"
+	 << "            AWADDR <= addr;\n"
+	 << "            AWLEN <= " << alen << ";\n";
+    }
+    if (r_ && w_) {
+      os << "            if (wen) begin\n"
+	 << "              ARVALID <= 1;\n"
+	 << "              ARADDR <= addr;\n"
+	 << "              ARLEN <= " << alen << ";\n"
+	 << "            end else begin\n"
+	 << "              AWVALID <= 1;\n"
+	 << "              AWADDR <= addr;\n"
+	 << "              AWLEN <= " << alen << ";\n"
+	 << "            end\n";
+    }
+    os << "          end\n";
   }
   os << "        end\n";
+  if (r_ || w_) {
+    os << "        `S_ADDR_WAIT: begin\n";
+    if (r_ && !w_) {
+      os << "          if (ARREADY) begin\n"
+	 << "            st <= `S_READ_DATA;\n"
+	 << "            ARVALID <= 0;\n"
+	 << "            RREADY <= 1;\n"
+	 << "          end\n";
+    }
+    if (!r_ && w_) {
+      os << "          if (AWREADY) begin\n"
+	 << "            st <= `S_WRITE_WAIT;\n"
+	 << "            AWVALID <= 0;\n"
+	 << "            sram_addr <= ridx;\n"
+	 << "          end\n";
+    }
+    if (r_ && w_) {
+      os << "          if (wen) begin\n"
+	 << "            if (AWREADY) begin\n"
+	 << "              st <= `S_WRITE_WAIT;\n"
+	 << "              AWVALID <= 0;\n"
+	 << "              sram_addr <= ridx;\n"
+	 << "            end\n"
+	 << "          end else begin\n"
+	 << "            if (ARREADY) begin\n"
+	 << "              st <= `S_READ_DATA;\n"
+	 << "              RREADY <= 1;\n"
+	 << "            end\n"
+	 << "          end\n";
+    }
+    os << "        end\n";
+  }
   if (r_) {
     ReadState(os);
   }
