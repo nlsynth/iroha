@@ -101,9 +101,11 @@ void MasterController::OutputMainFsm(ostream &os) {
   }
   os << "      case (st)\n"
      << "        `S_IDLE: begin\n"
-     << "          if (req) begin\n"
-     << "            ridx <= 0;\n"
-     << "            st <= `S_ADDR_WAIT;\n";
+     << "          if (req) begin\n";
+  if (r_) {
+    os << "            ridx <= 0;\n";
+  }
+  os << "            st <= `S_ADDR_WAIT;\n";
   if (r_ && !w_) {
     os << "            ARVALID <= 1;\n"
        << "            ARADDR <= addr;\n"
