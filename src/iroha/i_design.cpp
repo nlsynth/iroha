@@ -220,23 +220,11 @@ ResourceParams *IChannel::GetParams() const {
   return params_;
 }
 
-IValueType::IValueType() : width_(32), is_signed_(false) {
-}
-
-int IValueType::GetWidth() const {
-  return width_;
-}
-
-void IValueType::SetWidth(int width) {
-  width_ = width;
-}
-
-bool IValueType::IsSigned() const {
-  return is_signed_;
-}
-
-void IValueType::SetIsSigned(bool is_signed) {
-  is_signed_ = is_signed;
+IValueType IValueType::FromNumericWidth(const NumericWidth &w) {
+  IValueType iv;
+  iv.SetWidth(w.GetWidth());
+  iv.SetIsSigned(w.IsSigned());
+  return iv;
 }
 
 IRegister::IRegister(ITable *table, const string &name)
@@ -270,7 +258,7 @@ void IRegister::SetId(int id) {
 void IRegister::SetInitialValue(Numeric &value) {
   has_initial_value_ = true;
   initial_value_ = value;
-  value_type_ = value.type_;
+  value_type_ = IValueType::FromNumericWidth(value.type_);
 }
 
 const Numeric &IRegister::GetInitialValue() const {

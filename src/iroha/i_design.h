@@ -29,6 +29,11 @@ private:
   bool is_exclusive_;
 };
 
+class IValueType : public NumericWidth {
+public:
+  static IValueType FromNumericWidth(const NumericWidth &w);
+};
+
 class IArrayImage {
 public:
   IArrayImage(IDesign *design);

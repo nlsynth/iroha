@@ -6,9 +6,9 @@
 
 namespace iroha {
 
-class IValueType {
+class NumericWidth {
 public:
-  IValueType();
+  NumericWidth();
 
   // Width 0 means a scalar value e.g. 'reg v;'.
   int GetWidth() const;
@@ -31,7 +31,7 @@ public:
   }
   void SetValue(uint64_t value);
 
-  IValueType type_;
+  NumericWidth type_;
 
 private:
   uint64_t value_;

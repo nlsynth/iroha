@@ -110,15 +110,13 @@ void MasterPort::BuildControllerInstance(const string &wires) {
 }
 
 string MasterPort::BuildPortToExt() {
-  bool r, w;
-  GetReadWrite(res_, &r, &w);
   Module *mod = tab_.GetModule();
   string s;
   PortConfig cfg = AxiPort::GetPortConfig(res_);
-  MasterController::AddPorts(cfg, mod, r, w, &s);
+  MasterController::AddPorts(cfg, mod, true, true, &s);
   for (mod = mod->GetParentModule(); mod != nullptr;
        mod = mod->GetParentModule()) {
-    MasterController::AddPorts(cfg, mod, r, w, nullptr);
+    MasterController::AddPorts(cfg, mod, true, true, nullptr);
   }
   return s;
 }
