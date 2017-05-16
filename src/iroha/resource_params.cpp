@@ -190,6 +190,10 @@ string ResourceParams::GetPortNamePrefix() const {
   return values_->GetStringParam(resource::kPortNamePrefix, "");
 }
 
+void ResourceParams::SetPortNamePrefix(const string &prefix) {
+  values_->SetStringParam(resource::kPortNamePrefix, prefix);
+}
+
 string ResourceParams::GetMappedName() const {
   return values_->GetStringParam(resource::kMappedName, "");
 }

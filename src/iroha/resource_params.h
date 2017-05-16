@@ -51,6 +51,7 @@ public:
   void SetModuleNamePrefix(const string &name);
 
   string GetPortNamePrefix() const;
+  void SetPortNamePrefix(const string &name);
 
   string GetMappedName() const;
   void SetMappedName(const string &name);
