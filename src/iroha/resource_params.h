@@ -64,6 +64,7 @@ public:
   void SetResetName(const string &name);
 
   int GetAddrWidth() const;
+  void SetAddrWidth(int width);
 
   void SetExtInputPort(const string &input, int width);
   void GetExtInputPort(string *name, int *width);

@@ -227,6 +227,10 @@ int ResourceParams::GetAddrWidth() const {
   return values_->GetIntParam(resource::kAddrWidth, 32);
 }
 
+void ResourceParams::SetAddrWidth(int width) {
+  values_->SetIntParam(resource::kAddrWidth, width);
+}
+
 void ResourceParams::SetExtInputPort(const string &input, int width) {
   values_->SetStringParam(resource::kExtInputPort, input);
   values_->SetIntParam(resource::kExtIOWidth, width);
