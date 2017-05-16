@@ -59,8 +59,14 @@ bool EmbeddedModules::Write(ostream &os) {
     os << "\n";
   }
   // Internal SRAM
+  set<string> sram_names;
   for (InternalSRAM *sram : srams_) {
+    string name = sram->GetModuleName();
+    if (sram_names.find(name) != sram_names.end()) {
+      continue;
+    }
     sram->Write(os);
+    sram_names.insert(name);
   }
   // AXI ports
   set<string> controllers;
