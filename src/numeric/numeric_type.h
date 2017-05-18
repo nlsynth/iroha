@@ -11,15 +11,22 @@ public:
   NumericWidth();
 
   // Width 0 means a scalar value e.g. 'reg v;'.
-  int GetWidth() const;
+  int GetWidth() const {
+    return width_;
+  }
   void SetWidth(int width);
-
-  bool IsSigned() const;
+  bool IsSigned() const {
+    return is_signed_;
+  }
   void SetIsSigned(bool is_signed);
+  uint64_t GetMask() const {
+    return mask_;
+  }
 
 private:
   int width_;
   bool is_signed_;
+  uint64_t mask_;
 };
 
 class Numeric {
