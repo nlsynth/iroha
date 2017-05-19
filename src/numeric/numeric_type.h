@@ -9,6 +9,7 @@ namespace iroha {
 class NumericWidth {
 public:
   NumericWidth();
+  NumericWidth(bool is_signed, int width);
 
   // Width 0 means a scalar value e.g. 'reg v;'.
   int GetWidth() const {
@@ -24,8 +25,8 @@ public:
   }
 
 private:
-  int width_;
   bool is_signed_;
+  int width_;
   uint64_t mask_;
 };
 
