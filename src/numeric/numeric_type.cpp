@@ -7,7 +7,7 @@ NumericWidth::NumericWidth() : is_signed_(false), width_(32) {
 }
 
 NumericWidth::NumericWidth(bool is_signed, int width)
-  : is_signed_(is_signed), width_(32) {
+  : is_signed_(is_signed), width_(width) {
   SetWidth(width_);
 }
 
