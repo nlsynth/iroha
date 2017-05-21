@@ -31,6 +31,6 @@ for k, v in EXAMPLES.iteritems():
         objs.append(o + '.o')
     obj_lst = ' '.join(objs)
     ofh.write(k + '\t: ../src/out/Default/obj.target/src/libiroha.a ' + obj_lst + '\n')
-    ofh.write('\tg++ -o ' + k + ' ' + obj_lst + ' -L../src/out/Default/obj.target/src/ -liroha -lverilog_writer -liroha\n')
+    ofh.write('\tg++ -o ' + k + ' ' + obj_lst + ' -L../src/out/Default/obj.target/src/ -liroha -lverilog_writer -lnumeric -liroha\n')
 
 print('Generated Makefile. Please run \'make\'')

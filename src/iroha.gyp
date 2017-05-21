@@ -28,6 +28,20 @@
       ],
     },
     {
+      'target_name': 'numeric_test',
+      'product_name': 'numeric_test',
+      'type': 'executable',
+      'include_dirs': [
+        './',
+      ],
+      'sources': [
+        'numeric/numeric_test.cpp',
+      ],
+      'dependencies': [
+        ':numeric'
+      ],
+    },
+    {
       'target_name': 'libiroha',
       'product_name': 'iroha',
       'type': 'static_library',
@@ -80,8 +94,6 @@
         'iroha/resource_params.h',
         'iroha/stl_util.h',
         'iroha/writer_api.h',
-        'numeric/numeric_type.cpp',
-        'numeric/numeric_type.h',
         'opt/array_to_mem.cpp',
         'opt/array_to_mem.h',
         'opt/bb_collector.cpp',
@@ -152,7 +164,22 @@
         'writer/writer.h',
       ],
       'dependencies': [
+        ':numeric',
         ':verilog_writer'
+      ],
+    },
+    {
+      'target_name': 'numeric',
+      'product_name': 'numeric',
+      'type': 'static_library',
+      'include_dirs': [
+        './',
+      ],
+      'sources': [
+        'numeric/numeric_op.cpp',
+        'numeric/numeric_op.h',
+        'numeric/numeric_type.cpp',
+        'numeric/numeric_type.h',
       ],
     },
     {
