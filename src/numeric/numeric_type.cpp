@@ -2,12 +2,12 @@
 
 namespace iroha {
 
-NumericWidth::NumericWidth() : is_signed_(false) {
+NumericWidth::NumericWidth() : is_signed_(false), width_(32) {
   SetWidth(width_);
 }
 
 NumericWidth::NumericWidth(bool is_signed, int width)
-  : is_signed_(is_signed) {
+  : is_signed_(is_signed), width_(32) {
   SetWidth(width_);
 }
 
