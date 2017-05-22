@@ -3,6 +3,7 @@
 #define _numeric_numeric_type_h_
 
 #include <cstdint>
+#include <string>
 
 namespace iroha {
 
@@ -29,9 +30,13 @@ public:
   int GetValueCount() {
     return value_count_;
   }
+  bool IsWide() const {
+    return is_wide_;
+  }
 
 private:
   bool is_signed_;
+  bool is_wide_;
   int value_count_;
   int width_;
   uint64_t mask_;
@@ -45,6 +50,7 @@ public:
     return value_[0];
   }
   void SetValue(uint64_t value);
+  std::string Format() const;
 
   NumericWidth type_;
 

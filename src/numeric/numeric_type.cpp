@@ -1,5 +1,8 @@
 #include "numeric/numeric_type.h"
 
+#include <sstream>
+#include "iroha/common.h"
+
 namespace iroha {
 
 NumericWidth::NumericWidth() : is_signed_(false), width_(32) {
@@ -21,6 +24,11 @@ void NumericWidth::SetWidth(int width) {
     value_count_ = ((width_ - 1) / 64) + 1;
   } else {
     value_count_ = 1;
+  }
+  if (value_count_ > 1) {
+    is_wide_ = true;
+  } else {
+    is_wide_ = false;
   }
 }
 
@@ -45,6 +53,21 @@ Numeric::Numeric() {
 
 void Numeric::SetValue(uint64_t value) {
   value_[0] = value;
+}
+
+string Numeric::Format() const {
+  if (type_.IsWide()) {
+  } else {
+    uint64_t v = value_[0];
+    string s;
+    if (type_.IsSigned() && (v & (1 << (type_.GetWidth() - 1)))) {
+      s = "-";
+      v = (~v) + 1;
+    }
+    std::stringstream ss;
+    ss << v;
+    return s + ss.str();
+  }
 }
 
 }  // namespace iroha
