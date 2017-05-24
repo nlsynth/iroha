@@ -180,6 +180,8 @@
         'numeric/numeric_op.h',
         'numeric/numeric_type.cpp',
         'numeric/numeric_type.h',
+        'numeric/wide_op.cpp',
+        'numeric/wide_op.h',
       ],
     },
     {

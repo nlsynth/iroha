@@ -50,6 +50,12 @@ public:
     return value_[0];
   }
   void SetValue(uint64_t value);
+  const uint64_t *GetArray() const {
+    return value_;
+  }
+  uint64_t *GetMutableArray() {
+    return value_;
+  }
   std::string Format() const;
 
   NumericWidth type_;

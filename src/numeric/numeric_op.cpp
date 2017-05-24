@@ -1,5 +1,7 @@
 #include "numeric/numeric_op.h"
 
+#include "numeric/wide_op.h"
+
 namespace iroha {
 
 NumericWidth Op::ValueWidth(const Numeric &src_num) {
@@ -21,6 +23,9 @@ NumericWidth Op::ValueWidth(const Numeric &src_num) {
 }
 
 bool Op::IsZero(const Numeric &n) {
+  if (n.type_.IsWide()) {
+    return WideOp::IsZero(n);
+  }
   return n.GetValue() == 0;
 }
 
@@ -42,11 +47,16 @@ void Op::CalcBinOp(BinOp op, const Numeric &x, const Numeric &y,
   case BINOP_LSHIFT:
   case BINOP_RSHIFT:
     {
-      int c = y.GetValue();
-      if (op == BINOP_LSHIFT) {
-	res->SetValue(x.GetValue() << c);
+      if (x.type_.IsWide()) {
+	int c = y.GetValue();
+	WideOp::Shift(x, c, (op == BINOP_LSHIFT), res);
       } else {
-	res->SetValue(x.GetValue() >> c);
+	int c = y.GetValue();
+	if (op == BINOP_LSHIFT) {
+	  res->SetValue(x.GetValue() << c);
+	} else {
+	  res->SetValue(x.GetValue() >> c);
+	}
       }
     }
     break;
@@ -68,6 +78,17 @@ void Op::CalcBinOp(BinOp op, const Numeric &x, const Numeric &y,
 void Op::Minus(const Numeric &x, Numeric *res) {
   *res = x;
   res->SetValue(res->GetValue() * -1);
+}
+
+void Op::Clear(Numeric *res) {
+  if (res->type_.IsWide()) {
+    uint64_t *v = res->GetMutableArray();
+    for (int i = 0; i < 8; ++i) {
+      v[i] = 0;
+    }
+  } else {
+    res->SetValue(0);
+  }
 }
 
 bool Op::Compare(CompareOp op, const Numeric &x, const Numeric &y) {

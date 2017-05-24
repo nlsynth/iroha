@@ -17,5 +17,10 @@ int main(int argc, char **argv) {
   cout << "n=" << n.Format() << "\n";
   n.SetValue(15);
   cout << "n=" << n.Format() << "\n";
+
+  Numeric w;
+  w.type_.SetWidth(512);
+  Op::Clear(&w);
+  cout << "w=" << w.Format() << "\n";
   return 0;
 }

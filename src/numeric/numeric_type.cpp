@@ -1,7 +1,7 @@
 #include "numeric/numeric_type.h"
 
+#include <iomanip>
 #include <sstream>
-#include "iroha/common.h"
 
 namespace iroha {
 
@@ -55,11 +55,23 @@ void Numeric::SetValue(uint64_t value) {
   value_[0] = value;
 }
 
-string Numeric::Format() const {
+std::string Numeric::Format() const {
   if (type_.IsWide()) {
+    int w = type_.GetWidth() / 64;
+    std::stringstream ss;
+    bool first = true;
+    for (int i = w - 1; i >= 0; --i) {
+      if (!first) {
+	ss << "_";
+      }
+      ss << std::hex << std::setw(16) << std::setfill('0');
+      ss << value_[i];
+      first = false;
+    }
+    return ss.str();
   } else {
     uint64_t v = value_[0];
-    string s;
+    std::string s;
     if (type_.IsSigned() && (v & (1 << (type_.GetWidth() - 1)))) {
       s = "-";
       v = (~v) + 1;

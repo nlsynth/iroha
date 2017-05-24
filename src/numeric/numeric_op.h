@@ -28,6 +28,7 @@ public:
   static NumericWidth ValueWidth(const Numeric &n);
   static void Add(const Numeric &x, const Numeric &y, Numeric *a);
   static void Sub(const Numeric &x, const Numeric &y, Numeric *a);
+  static void Clear(Numeric *res);
   static void Minus(const Numeric &num, Numeric *res);
   static bool Compare(enum CompareOp op, const Numeric &x, const Numeric &y);
   static void CalcBinOp(enum BinOp op, const Numeric &x, const Numeric &y,
@@ -42,4 +43,4 @@ public:
 
 }  // namespace iroha
 
-#endif  // _numeric_numeric_type_h_
+#endif  // _numeric_numeric_op_h_
