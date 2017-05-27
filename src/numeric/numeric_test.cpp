@@ -17,11 +17,22 @@ void shift() {
   Numeric m;
   m.type_.SetWidth(512);
   Op::Clear(&m);
+  // Left
   WideOp::Shift(n, 1, true, &m);
   cout << "m=" << m.Format() << "\n";
   WideOp::Shift(n, 64, true, &m);
   cout << "m=" << m.Format() << "\n";
   WideOp::Shift(n, 65, true, &m);
+  cout << "m=" << m.Format() << "\n";
+  WideOp::Shift(n, 385, true, &m);
+  cout << "m=" << m.Format() << "\n";
+  // Right
+  n = m;
+  WideOp::Shift(n, 0, false, &m);
+  cout << "m=" << m.Format() << "\n";
+  WideOp::Shift(n, 64, false, &m);
+  cout << "m=" << m.Format() << "\n";
+  WideOp::Shift(n, 65, false, &m);
   cout << "m=" << m.Format() << "\n";
 }
 
