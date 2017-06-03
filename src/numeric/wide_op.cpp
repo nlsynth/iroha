@@ -66,4 +66,37 @@ void WideOp::Shift(const Numeric &s, int a, bool left, Numeric *res) {
   }
 }
 
+void WideOp::BinBitOp(enum BinOp op, const Numeric &x, const Numeric &y, Numeric *res) {
+  uint64_t *rv = res->GetMutableArray();
+  const uint64_t *xv = x.GetArray();
+  const uint64_t *yv = y.GetArray();
+  switch (op) {
+  case BINOP_AND:
+    {
+      for (int i = 0; i < 8; ++i) {
+	rv[i] = xv[i] & yv[i];
+      }
+    }
+    break;
+  case BINOP_OR:
+    {
+      for (int i = 0; i < 8; ++i) {
+	rv[i] = xv[i] | yv[i];
+      }
+    }
+    break;
+  case BINOP_XOR:
+    {
+      for (int i = 0; i < 8; ++i) {
+	rv[i] = xv[i] ^ yv[i];
+      }
+    }
+    break;
+  }
+}
+
+void WideOp::SelectBits(const Numeric &num, int h, int l, Numeric *res) {
+  Shift(num, l, false, res);
+}
+
 }  // namespace iroha

@@ -43,20 +43,34 @@ void Op::MakeConst(uint64_t value, Numeric *num) {
 
 void Op::CalcBinOp(BinOp op, const Numeric &x, const Numeric &y,
 		   Numeric *res) {
+  if (x.type_.IsWide()) {
+    switch (op) {
+    case BINOP_LSHIFT:
+    case BINOP_RSHIFT:
+      {
+	int c = y.GetValue();
+	WideOp::Shift(x, c, (op == BINOP_LSHIFT), res);
+      }
+      break;
+    case BINOP_AND:
+    case BINOP_OR:
+    case BINOP_XOR:
+      {
+	WideOp::BinBitOp(op, x, y, res);
+      }
+      break;
+    }
+    return;
+  }
   switch (op) {
   case BINOP_LSHIFT:
   case BINOP_RSHIFT:
     {
-      if (x.type_.IsWide()) {
-	int c = y.GetValue();
-	WideOp::Shift(x, c, (op == BINOP_LSHIFT), res);
+      int c = y.GetValue();
+      if (op == BINOP_LSHIFT) {
+	res->SetValue(x.GetValue() << c);
       } else {
-	int c = y.GetValue();
-	if (op == BINOP_LSHIFT) {
-	  res->SetValue(x.GetValue() << c);
-	} else {
-	  res->SetValue(x.GetValue() >> c);
-	}
+	res->SetValue(x.GetValue() >> c);
       }
     }
     break;
@@ -117,9 +131,14 @@ void Op::FixupWidth(const NumericWidth &w, Numeric *num) {
 
 void Op::SelectBits(const Numeric &num, int h, int l,
 		    Numeric *res) {
+  int width = h - l + 1;
+  if (num.type_.IsWide()) {
+    WideOp::SelectBits(num, h, l, res);
+    res->type_ = NumericWidth(false, width);
+    return;
+  }
   *res = num;
   res->SetValue(0);
-  int width = h - l + 1;
   for (int i = 0; i < width; ++i) {
     if ((1UL << (l + i)) & num.GetValue()) {
       res->SetValue(res->GetValue() | (1UL << i));
