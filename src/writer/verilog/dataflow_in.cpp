@@ -21,11 +21,21 @@ void DataFlowIn::BuildResource() {
 void DataFlowIn::BuildInsn(IInsn *insn, State *st) {
   IResource *res = insn->GetResource();
   IResource *parent = res->GetParentResource();
-  if (insn->outputs_.size() == 1 && parent != nullptr &&
+  if (parent != nullptr &&
       resource::IsSharedReg(*(parent->GetClass()))) {
-    ostream &ws = tmpl_->GetStream(kInsnWireValueSection);
-    ws << "  assign " << InsnWriter::InsnOutputWireName(*insn, 0)
-       << " = " << SharedReg::RegName(*parent) << ";\n";
+    int s = 0;
+    for (int i = 0; i < insn->outputs_.size(); ++i) {
+      ostream &ws = tmpl_->GetStream(kInsnWireValueSection);
+      ws << "  assign " << InsnWriter::InsnOutputWireName(*insn, i)
+	 << " = " << SharedReg::RegName(*parent);
+      if (insn->outputs_.size() > 1) {
+	IRegister *reg = insn->outputs_[i];
+	int w = reg->value_type_.GetWidth();
+	ws << "[" << (s + w - 1) << ":" << s << "]";
+	s += w;
+      }
+      ws << ";\n";
+    }
   }
 }
 
