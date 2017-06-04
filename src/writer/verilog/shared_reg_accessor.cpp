@@ -202,6 +202,9 @@ void SharedRegAccessor::BuildReadInsn(IInsn *insn, State *st) {
     if (insn->outputs_.size() > 1) {
       IRegister *reg = insn->outputs_[i];
       int w = reg->value_type_.GetWidth();
+      if (w == 0) {
+	w = 1;
+      }
       ws << "[" << (s + w - 1) << ":" << s << "]";
       s += w;
     }
@@ -236,6 +239,9 @@ void SharedRegAccessor::BuildWriteInsn(IInsn *insn, State *st) {
     if (insn->inputs_.size() > 1) {
       IRegister *reg = insn->inputs_[i];
       int w = reg->value_type_.GetWidth();
+      if (w == 0) {
+	w = 1;
+      }
       ss << "[" << (s + w - 1) << ":" << s << "]";
       s += w;
     }
