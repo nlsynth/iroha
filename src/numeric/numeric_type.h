@@ -34,6 +34,7 @@ public:
   bool IsWide() const {
     return is_wide_;
   }
+  std::string Format() const;
 
 private:
   bool is_signed_;

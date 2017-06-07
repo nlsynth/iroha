@@ -47,6 +47,16 @@ NumericWidth NumericWidth::CommonWidth(const NumericWidth &w1,
   return iroha::NumericWidth(is_signed, int_part);
 }
 
+std::string NumericWidth::Format() const {
+  std::stringstream ss;
+  ss << "<";
+  if (IsSigned()) {
+    ss << "+,";
+  }
+  ss << GetWidth() << ">";
+  return ss.str();
+}
+
 Numeric::Numeric() {
   value_[0] = 0;
 }
