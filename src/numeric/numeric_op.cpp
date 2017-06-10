@@ -96,9 +96,9 @@ void Op::Minus(const Numeric &x, Numeric *res) {
 
 void Op::Clear(Numeric *res) {
   if (res->type_.IsWide()) {
-    uint64_t *v = res->GetMutableArray();
+    NumericValue *v = res->GetMutableArray();
     for (int i = 0; i < 8; ++i) {
-      v[i] = 0;
+      v->value_[i] = 0;
     }
   } else {
     res->SetValue(0);

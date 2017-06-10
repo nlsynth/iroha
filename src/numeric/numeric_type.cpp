@@ -58,11 +58,11 @@ std::string NumericWidth::Format() const {
 }
 
 Numeric::Numeric() {
-  value_[0] = 0;
+  value_.value_[0] = 0;
 }
 
 void Numeric::SetValue(uint64_t value) {
-  value_[0] = value;
+  value_.value_[0] = value;
 }
 
 std::string Numeric::Format() const {
@@ -75,12 +75,12 @@ std::string Numeric::Format() const {
 	ss << "_";
       }
       ss << std::hex << std::setw(16) << std::setfill('0');
-      ss << value_[i];
+      ss << value_.value_[i];
       first = false;
     }
     return ss.str();
   } else {
-    uint64_t v = value_[0];
+    uint64_t v = value_.value_[0];
     std::string s;
     if (type_.IsSigned() && (v & (1 << (type_.GetWidth() - 1)))) {
       s = "-";

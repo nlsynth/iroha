@@ -44,26 +44,31 @@ private:
   uint64_t mask_;
 };
 
+class NumericValue {
+public:
+  uint64_t value_[8];
+};
+
 class Numeric {
 public:
   Numeric();
 
   uint64_t GetValue() const {
-    return value_[0];
+    return value_.value_[0];
   }
   void SetValue(uint64_t value);
-  const uint64_t *GetArray() const {
+  const NumericValue &GetArray() const {
     return value_;
   }
-  uint64_t *GetMutableArray() {
-    return value_;
+  NumericValue *GetMutableArray() {
+    return &value_;
   }
   std::string Format() const;
 
   NumericWidth type_;
 
 private:
-  uint64_t value_[8];
+  NumericValue value_;
 };
 
 }  // namespace iroha

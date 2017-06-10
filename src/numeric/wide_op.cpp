@@ -3,7 +3,7 @@
 namespace iroha {
 
 bool WideOp::IsZero(const Numeric &n) {
-  const uint64_t *v = n.GetArray();
+  const uint64_t *v = n.GetArray().value_;
   for (int i = 0; i < 8; ++i) {
     if (v[i] > 0) {
       return false;
@@ -17,7 +17,7 @@ void WideOp::Shift(const Numeric &s, int a, bool left, Numeric *res) {
   int d = 0;
   uint64_t tv[8];
   if (a64 > 0) {
-    const uint64_t *sv = s.GetArray();
+    const uint64_t *sv = s.GetArray().value_;
     if (left) {
       int j = 0;
       for (int i = a64; i < 8; ++i, ++j) {
@@ -36,14 +36,14 @@ void WideOp::Shift(const Numeric &s, int a, bool left, Numeric *res) {
       }
     }
   } else {
-    const uint64_t *sv = s.GetArray();
+    const uint64_t *sv = s.GetArray().value_;
     for (int i = 0; i < 8; ++i) {
       tv[i] = sv[i];
     }
   }
 
   int a1 = a % 64;
-  uint64_t *rv = res->GetMutableArray();
+  uint64_t *rv = res->GetMutableArray()->value_;
   if (a1 > 0) {
     if (left) {
       uint64_t carry = 0;
@@ -67,9 +67,9 @@ void WideOp::Shift(const Numeric &s, int a, bool left, Numeric *res) {
 }
 
 void WideOp::BinBitOp(enum BinOp op, const Numeric &x, const Numeric &y, Numeric *res) {
-  uint64_t *rv = res->GetMutableArray();
-  const uint64_t *xv = x.GetArray();
-  const uint64_t *yv = y.GetArray();
+  uint64_t *rv = res->GetMutableArray()->value_;
+  const uint64_t *xv = x.GetArray().value_;
+  const uint64_t *yv = y.GetArray().value_;
   switch (op) {
   case BINOP_AND:
     {
