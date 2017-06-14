@@ -4,6 +4,7 @@
 #include "iroha/i_design.h"
 #include "iroha/resource_class.h"
 #include "iroha/logging.h"
+#include "iroha/stl_util.h"
 
 #include <set>
 
@@ -11,6 +12,11 @@ namespace iroha {
 namespace writer {
 
 Connection::Connection(const IDesign *design) : design_(design) {
+}
+
+Connection::~Connection() {
+  STLDeleteSecondElements(&channel_info_);
+  STLDeleteSecondElements(&reg_connection_);
 }
 
 void Connection::Build() {
@@ -93,13 +99,12 @@ void Connection::ProcessTable(ITable *tab) {
   }
 }
 
-const ChannelInfo *Connection::GetConnectionInfo(const IModule *mod) const {
+const ChannelInfo *Connection::GetChannelInfo(const IModule *mod) const {
   auto it = channel_info_.find(mod);
   if (it == channel_info_.end()) {
     return nullptr;
   }
-  const ChannelInfo &ci = it->second;
-  return &ci;
+  return it->second;
 }
 
 const RegConnectionInfo *Connection::GetRegConnectionInfo(const IModule *mod) const {
@@ -107,8 +112,7 @@ const RegConnectionInfo *Connection::GetRegConnectionInfo(const IModule *mod) co
   if (it == reg_connection_.end()) {
     return nullptr;
   }
-  const RegConnectionInfo &ri = it->second;
-  return &ri;
+  return it->second;
 }
 
 void Connection::ProcessChannel(const IChannel *ch) {
@@ -139,8 +143,8 @@ void Connection::MakeInDesignChannelPath(const IChannel *ch) {
     return;
   }
   const IModule *common_root = GetCommonRoot(reader_mod, writer_mod);
-  ChannelInfo &ci = channel_info_[common_root];
-  ci.common_root_.push_back(ch);
+  ChannelInfo *ci = FindChannelInfo(common_root);
+  ci->common_root_.push_back(ch);
   MakeSimpleChannelPath(ch, writer_mod, common_root, false);
   MakeSimpleChannelPath(ch, reader_mod, common_root, true);
 }
@@ -157,19 +161,19 @@ void Connection::MakeSimpleChannelPath(const IChannel *ch,
 
 void Connection::AddChannelInfo(const IChannel *ch, const IModule *mod,
 				bool parent_is_write) {
-  ChannelInfo &ci = channel_info_[mod];
+  ChannelInfo *ci = FindChannelInfo(mod);
   if (parent_is_write) {
-    ci.downward_.push_back(ch);
+    ci->downward_.push_back(ch);
   } else {
-    ci.upward_.push_back(ch);
+    ci->upward_.push_back(ch);
   }
   const IModule *parent = mod->GetParentModule();
   if (parent != nullptr) {
-    ChannelInfo &pci = channel_info_[parent];
+    ChannelInfo *pci = FindChannelInfo(parent);
     if (parent_is_write) {
-      pci.child_downward_[mod].push_back(ch);
+      pci->child_downward_[mod].push_back(ch);
     } else {
-      pci.child_upward_[mod].push_back(ch);
+      pci->child_upward_[mod].push_back(ch);
     }
   }
 }
@@ -227,38 +231,58 @@ void Connection::ProcessForeignReg(IResource *freg) {
   if (reg_module == reader_module) {
     return;
   }
-  RegConnectionInfo &sc = reg_connection_[reg_module];
-  sc.is_source.insert(reg);
+  RegConnectionInfo *sc = FindRegConnectionInfo(reg_module);
+  sc->is_source.insert(reg);
   const IModule *common_root = GetCommonRoot(reg_module, reader_module);
   if (common_root == reg_module) {
     // reg is uppper and the accessor is below.
     for (IModule *mod = reader_module; mod != common_root;
 	 mod = mod->GetParentModule()) {
-      RegConnectionInfo &rc = reg_connection_[mod];
-      rc.has_downward_port.insert(reg);
+      RegConnectionInfo *rc = FindRegConnectionInfo(mod);
+      rc->has_downward_port.insert(reg);
     }
   } else if (common_root == reader_module) {
     for (IModule *mod = reg_module; mod != common_root;
 	 mod = mod->GetParentModule()) {
-      RegConnectionInfo &rc = reg_connection_[mod];
-      rc.has_upward_port.insert(reg);
+      RegConnectionInfo *rc = FindRegConnectionInfo(mod);
+      rc->has_upward_port.insert(reg);
     }
-    RegConnectionInfo &rc = reg_connection_[common_root];
-    rc.has_wire.insert(reg);
+    RegConnectionInfo *rc = FindRegConnectionInfo(common_root);
+    rc->has_wire.insert(reg);
   } else {
-    RegConnectionInfo &cc = reg_connection_[common_root];
-    cc.has_wire.insert(reg);
+    RegConnectionInfo *cc = FindRegConnectionInfo(common_root);
+    cc->has_wire.insert(reg);
     for (IModule *mod = reader_module; mod != common_root;
 	 mod = mod->GetParentModule()) {
-      RegConnectionInfo &rc = reg_connection_[mod];
-      rc.has_upward_port.insert(reg);
+      RegConnectionInfo *rc = FindRegConnectionInfo(mod);
+      rc->has_upward_port.insert(reg);
     }
     for (IModule *mod = reg_module; mod != common_root;
 	 mod = mod->GetParentModule()) {
-      RegConnectionInfo &rc = reg_connection_[mod];
-      rc.has_downward_port.insert(reg);
+      RegConnectionInfo *rc = FindRegConnectionInfo(mod);
+      rc->has_downward_port.insert(reg);
     }
   }
+}
+
+ChannelInfo *Connection::FindChannelInfo(const IModule *mod) {
+  auto it = channel_info_.find(mod);
+  if (it == channel_info_.end()) {
+    ChannelInfo *ci = new ChannelInfo();
+    channel_info_[mod] = ci;
+    return ci;
+  }
+  return it->second;
+}
+
+RegConnectionInfo *Connection::FindRegConnectionInfo(const IModule *mod) {
+  auto it = reg_connection_.find(mod);
+  if (it == reg_connection_.end()) {
+    RegConnectionInfo *ri = new RegConnectionInfo();
+    reg_connection_[mod] = ri;
+    return ri;
+  }
+  return it->second;
 }
 
 }  // namespace writer

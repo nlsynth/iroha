@@ -37,8 +37,11 @@ public:
 class Connection {
 public:
   Connection(const IDesign *design);
+  ~Connection();
+
   void Build();
-  const ChannelInfo *GetConnectionInfo(const IModule *mod) const;
+
+  const ChannelInfo *GetChannelInfo(const IModule *mod) const;
   const RegConnectionInfo *GetRegConnectionInfo(const IModule *mod) const;
   const vector<IResource *> *GetSharedRegWriters(const IResource *res) const;
   const vector<IResource *> *GetSharedRegReaders(const IResource *res) const;
@@ -46,6 +49,7 @@ public:
   const vector<IResource *> *GetSharedMemoryAccessors(const IResource *res) const;
   const vector<IResource *> *GetSharedMemoryPorts(const IResource *res) const;
   const vector<IResource *> *GetTaskCallers(const IResource *res) const;
+
   static const IModule *GetCommonRoot(const IModule *m1, const IModule *m2);
 
 private:
@@ -60,12 +64,15 @@ private:
   void AddChannelInfo(const IChannel *ch, const IModule *mod,
 		      bool parent_is_write);
   void ProcessForeignReg(IResource *freg);
-  const vector<IResource *> *GetResourceVector(const map<const IResource *, vector<IResource *>> &m, const IResource *res) const;
+  const vector<IResource *> *GetResourceVector(const map<const IResource *,
+					       vector<IResource *>> &m, const IResource *res) const;
   void ProcessTable(ITable *tab);
+  ChannelInfo *FindChannelInfo(const IModule *mod);
+  RegConnectionInfo *FindRegConnectionInfo(const IModule *mod);
 
   const IDesign *design_;
-  map<const IModule *, ChannelInfo> channel_info_;
-  map<const IModule *, RegConnectionInfo> reg_connection_;
+  map<const IModule *, ChannelInfo *> channel_info_;
+  map<const IModule *, RegConnectionInfo *> reg_connection_;
   map<const IResource *, vector<IResource *>> shared_reg_readers_;
   map<const IResource *, vector<IResource *>> shared_reg_writers_;
   map<const IResource *, vector<IResource *>> shared_reg_children_;

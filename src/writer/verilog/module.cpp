@@ -125,7 +125,7 @@ void Module::Build() {
     tab->Build();
   }
 
-  const ChannelInfo *ci = conn_.GetConnectionInfo(i_mod_);
+  const ChannelInfo *ci = conn_.GetChannelInfo(i_mod_);
   if (ci != nullptr) {
     Channel::BuildChannelPorts(*ci, ports_.get());
     Channel::BuildRootWire(*ci, this);
@@ -151,7 +151,7 @@ void Module::BuildChildModuleInstSection(vector<Module *> &child_mods) {
     is << current_content;
     // Channel
     const IModule *child_imod = child_mod->GetIModule();
-    const ChannelInfo *ci = conn_.GetConnectionInfo(i_mod_);
+    const ChannelInfo *ci = conn_.GetChannelInfo(i_mod_);
     if (ci != nullptr) {
       Channel::BuildChildChannelWire(*ci, child_imod, is);
     }
