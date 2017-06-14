@@ -34,6 +34,18 @@ public:
   set<IRegister *> is_source;
 };
 
+class AccessorInfo {
+public:
+  vector<IResource *> task_callers_;
+  vector<IResource *> shared_memory_accessors_;
+  // resources accesses secondary port of this memory resource.
+  vector<IResource *> shared_memory_ports_;
+  vector<IResource *> shared_reg_readers_;
+  vector<IResource *> shared_reg_writers_;
+  // dataflowin-s attached to this shared register resource.
+  vector<IResource *> shared_reg_children_;
+};
+
 class Connection {
 public:
   Connection(const IDesign *design);
@@ -43,12 +55,13 @@ public:
 
   const ChannelInfo *GetChannelInfo(const IModule *mod) const;
   const RegConnectionInfo *GetRegConnectionInfo(const IModule *mod) const;
-  const vector<IResource *> *GetSharedRegWriters(const IResource *res) const;
-  const vector<IResource *> *GetSharedRegReaders(const IResource *res) const;
-  const vector<IResource *> *GetSharedRegChildren(const IResource *res) const;
-  const vector<IResource *> *GetSharedMemoryAccessors(const IResource *res) const;
-  const vector<IResource *> *GetSharedMemoryPorts(const IResource *res) const;
-  const vector<IResource *> *GetTaskCallers(const IResource *res) const;
+  const AccessorInfo *GetAccessorInfo(const IResource *res) const;
+  const vector<IResource *> &GetTaskCallers(const IResource *res) const;
+  const vector<IResource *> &GetSharedRegWriters(const IResource *res) const;
+  const vector<IResource *> &GetSharedRegReaders(const IResource *res) const;
+  const vector<IResource *> &GetSharedRegChildren(const IResource *res) const;
+  const vector<IResource *> &GetSharedMemoryAccessors(const IResource *res) const;
+  const vector<IResource *> &GetSharedMemoryPorts(const IResource *res) const;
 
   static const IModule *GetCommonRoot(const IModule *m1, const IModule *m2);
 
@@ -69,16 +82,13 @@ private:
   void ProcessTable(ITable *tab);
   ChannelInfo *FindChannelInfo(const IModule *mod);
   RegConnectionInfo *FindRegConnectionInfo(const IModule *mod);
+  AccessorInfo *FindAccessorInfo(const IResource *res);
 
   const IDesign *design_;
   map<const IModule *, ChannelInfo *> channel_info_;
   map<const IModule *, RegConnectionInfo *> reg_connection_;
-  map<const IResource *, vector<IResource *>> shared_reg_readers_;
-  map<const IResource *, vector<IResource *>> shared_reg_writers_;
-  map<const IResource *, vector<IResource *>> shared_reg_children_;
-  map<const IResource *, vector<IResource *>> shared_memory_accessors_;
-  map<const IResource *, vector<IResource *>> shared_memory_ports_;
-  map<const IResource *, vector<IResource *>> task_callers_;
+  map<const IResource *, AccessorInfo *> accessors_;
+  AccessorInfo empty_accessors_;
 };
 
 }  // namespace writer

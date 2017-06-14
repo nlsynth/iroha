@@ -21,7 +21,6 @@ namespace verilog {
 SharedReg::SharedReg(const IResource &res, const Table &table)
   : Resource(res, table), has_default_output_value_(false),
     default_output_value_(0),
-    writers_(nullptr),
     need_write_arbitration_(false) {
   auto *klass = res_.GetClass();
   CHECK(resource::IsSharedReg(*klass));
@@ -30,22 +29,18 @@ SharedReg::SharedReg(const IResource &res, const Table &table)
   params->GetExtOutputPort(&unused, &width_);
   has_default_output_value_ =
     params->GetDefaultValue(&default_output_value_);
-  auto *readers =
+  auto &readers =
     table.GetModule()->GetConnection().GetSharedRegReaders(&res_);
-  if (readers != nullptr) {
-    for (auto *r : *readers) {
-      readers_.push_back(r);
-    }
+  for (auto *r : readers) {
+    readers_.push_back(r);
   }
-  auto *children =
+  auto &children =
     table.GetModule()->GetConnection().GetSharedRegChildren(&res_);
-  if (children != nullptr) {
-    for (auto *r : *children) {
-      readers_.push_back(r);
-    }
+  for (auto *r : children) {
+    readers_.push_back(r);
   }
   writers_ = table.GetModule()->GetConnection().GetSharedRegWriters(&res_);
-  if (writers_ != nullptr || has_default_output_value_) {
+  if (writers_.size() > 0 || has_default_output_value_) {
     need_write_arbitration_ = true;
   }
   GetOptions(&use_notify_, &use_mailbox_);
@@ -78,11 +73,9 @@ void SharedReg::BuildResource() {
   if (use_notify_) {
     rs << "  reg " << RegNotifierName(res_) << ";\n";
     vector<string> notifiers;
-    if (writers_ != nullptr) {
-      for (auto *writer : *writers_) {
-	if (SharedRegAccessor::UseNotify(writer)) {
-	  notifiers.push_back(WriterNotifierName(*writer));
-	}
+    for (auto *writer : writers_) {
+      if (SharedRegAccessor::UseNotify(writer)) {
+	notifiers.push_back(WriterNotifierName(*writer));
       }
     }
     ostream &os = tab_.StateOutputSectionStream();
@@ -112,10 +105,8 @@ void SharedReg::BuildResource() {
     } else {
       value = RegName(res_);
     }
-    if (writers_ != nullptr) {
-      for (auto *res : *writers_) {
-	value = WriterEnName(*res) + " ? " + WriterName(*res) + " : (" + value + ")";
-      }
+    for (auto *res : writers_) {
+      value = WriterEnName(*res) + " ? " + WriterName(*res) + " : (" + value + ")";
     }
     os << SelectValueByState(value);
     os << ";\n";
@@ -130,8 +121,8 @@ void SharedReg::BuildMailbox() {
   rs << "  reg " << RegMailboxName(res_) << ";\n";
   vector<string> higher_put_reqs;
   vector<string> put_reqs;
-  if (writers_ != nullptr) {
-    for (auto *writer : *writers_) {
+  if (writers_.size() > 0) {
+    for (auto *writer : writers_) {
       if (!SharedRegAccessor::UseMailbox(writer)) {
 	continue;
       }
@@ -373,13 +364,11 @@ void SharedReg::GetOptions(bool *use_notify, bool *use_mailbox) {
       *use_mailbox |= m;
     }
   }
-  if (writers_ != nullptr) {
-    for (auto *writer : *writers_) {
-      bool n, m;
-      SharedRegAccessor::GetAccessorFeatures(writer, &n, &m);
-      *use_notify |= n;
-      *use_mailbox |= m;
-    }
+  for (auto *writer : writers_) {
+    bool n, m;
+    SharedRegAccessor::GetAccessorFeatures(writer, &n, &m);
+    *use_notify |= n;
+    *use_mailbox |= m;
   }
 }
 

@@ -78,17 +78,17 @@ void Task::BuildInsn(IInsn *insn, State *st) {
 
 void Task::BuildTaskResource() {
   auto &conn = tab_.GetModule()->GetConnection();
-  auto *callers = conn.GetTaskCallers(&res_);
-  if (callers == nullptr) {
+  const auto &callers = conn.GetTaskCallers(&res_);
+  if (callers.size() == 0) {
     return;
   }
   // Inter module wires.
-  for (IResource *caller : *callers) {
+  for (IResource *caller : callers) {
     BuildCallWire(caller);
   }
   // EN
   vector<string> task_en;
-  for (IResource *caller : *callers) {
+  for (IResource *caller : callers) {
     task_en.push_back(TaskEnablePin(*(tab_.GetITable()), caller->GetTable()));
   }
   string common_en = TaskEnablePin(*(tab_.GetITable()), nullptr);
@@ -123,7 +123,7 @@ void Task::BuildTaskResource() {
   }
   // Capturing args
   bool is_first = true;
-  for (IResource *caller : *callers) {
+  for (IResource *caller : callers) {
     string e;
     if (!is_first) {
       e = "else ";
@@ -141,7 +141,7 @@ void Task::BuildTaskResource() {
 
   // Arbitration to EN
   string high_en;
-  for (IResource *caller : *callers) {
+  for (IResource *caller : callers) {
     string a = TaskAckPin(*(tab_.GetITable()), caller->GetTable());
     rs << "  assign " << a << " = ";
     string en = TaskEnablePin(*(tab_.GetITable()), caller->GetTable());

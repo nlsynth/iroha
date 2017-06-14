@@ -43,12 +43,10 @@ void SharedMemory::BuildMemoryResource() {
   }
   vector<const IResource *> accessors;
   accessors.push_back(&res_);
-  auto *ext_accessors =
+  auto &ext_accessors =
     tab_.GetModule()->GetConnection().GetSharedMemoryAccessors(&res_);
-  if (ext_accessors != nullptr) {
-    for (IResource *r : *ext_accessors) {
-      accessors.push_back(r);
-    }
+  for (IResource *r : ext_accessors) {
+    accessors.push_back(r);
   }
   BuildAccessWireAll(accessors);
   ostream &is = tab_.InitialValueSectionStream();
@@ -123,10 +121,10 @@ void SharedMemory::BuildExternalMemoryConnection() {
 
 void SharedMemory::BuildMemoryInstance() {
   int num_ports = 1;
-  auto *port_users =
+  auto &port_users =
     tab_.GetModule()->GetConnection().GetSharedMemoryPorts(&res_);
-  if (port_users != nullptr) {
-    CHECK(port_users->size() == 1);
+  if (port_users.size() > 0) {
+    CHECK(port_users.size() == 1);
     num_ports = 2;
   }
   InternalSRAM *sram =

@@ -45,7 +45,7 @@ private:
   int default_output_value_;
   // readers_ includes dataflow-in for pipeline.
   vector<IResource *> readers_;
-  const vector<IResource *> *writers_;
+  vector<IResource *> writers_;
   bool need_write_arbitration_;
   bool use_notify_;
   bool use_mailbox_;

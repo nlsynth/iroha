@@ -17,6 +17,7 @@ Connection::Connection(const IDesign *design) : design_(design) {
 Connection::~Connection() {
   STLDeleteSecondElements(&channel_info_);
   STLDeleteSecondElements(&reg_connection_);
+  STLDeleteSecondElements(&accessors_);
 }
 
 void Connection::Build() {
@@ -48,20 +49,23 @@ void Connection::ProcessTable(ITable *tab) {
 					resource::kTask,
 					&res);
     CHECK(res.size() == 1);
-    task_callers_[res[0]].push_back(reg);
+    auto *ai = FindAccessorInfo(res[0]);
+    ai->task_callers_.push_back(reg);
   }
   // shared-reg
   vector<IResource*> reg_writers;
   DesignUtil::FindResourceByClassName(tab, resource::kSharedRegWriter,
 				      &reg_writers);
   for (IResource *reg : reg_writers) {
-    shared_reg_writers_[reg->GetParentResource()].push_back(reg);
+    auto *ai = FindAccessorInfo(reg->GetParentResource());
+    ai->shared_reg_writers_.push_back(reg);
   }
   vector<IResource*> reg_readers;
   DesignUtil::FindResourceByClassName(tab, resource::kSharedRegReader,
 				      &reg_readers);
   for (IResource *reg : reg_readers) {
-    shared_reg_readers_[reg->GetParentResource()].push_back(reg);
+    auto *ai = FindAccessorInfo(reg->GetParentResource());
+    ai->shared_reg_readers_.push_back(reg);
   }
   vector<IResource*> reg_children;
   DesignUtil::FindResourceByClassName(tab, resource::kDataFlowIn,
@@ -69,7 +73,8 @@ void Connection::ProcessTable(ITable *tab) {
   for (IResource *reg : reg_children) {
     IResource *p = reg->GetParentResource();
     if (p != nullptr) {
-      shared_reg_children_[p].push_back(reg);
+      auto *ai = FindAccessorInfo(p);
+      ai->shared_reg_children_.push_back(reg);
     }
   }
   // shared-memory
@@ -77,25 +82,29 @@ void Connection::ProcessTable(ITable *tab) {
   DesignUtil::FindResourceByClassName(tab, resource::kSharedMemoryReader,
 				      &memory_readers);
   for (IResource *reg : memory_readers) {
-    shared_memory_accessors_[reg->GetParentResource()].push_back(reg);
+    auto *ai = FindAccessorInfo(reg->GetParentResource());
+    ai->shared_memory_accessors_.push_back(reg);
   }
   vector<IResource *> memory_writers;
   DesignUtil::FindResourceByClassName(tab, resource::kSharedMemoryWriter,
 				      &memory_writers);
   for (IResource *reg : memory_writers) {
-    shared_memory_accessors_[reg->GetParentResource()].push_back(reg);
+    auto *ai = FindAccessorInfo(reg->GetParentResource());
+    ai->shared_memory_accessors_.push_back(reg);
   }
   vector<IResource *> master_ports;
   DesignUtil::FindResourceByClassName(tab, resource::kAxiMasterPort,
 				      &master_ports);
   for (IResource *reg : master_ports) {
-    shared_memory_ports_[reg->GetParentResource()].push_back(reg);
+    auto *ai = FindAccessorInfo(reg->GetParentResource());
+    ai->shared_memory_ports_.push_back(reg);
   }
   vector<IResource *> slave_ports;
   DesignUtil::FindResourceByClassName(tab, resource::kAxiSlavePort,
 				      &slave_ports);
   for (IResource *reg : slave_ports) {
-    shared_memory_ports_[reg->GetParentResource()].push_back(reg);
+    auto *ai = FindAccessorInfo(reg->GetParentResource());
+    ai->shared_memory_ports_.push_back(reg);
   }
 }
 
@@ -111,6 +120,14 @@ const RegConnectionInfo *Connection::GetRegConnectionInfo(const IModule *mod) co
   auto it = reg_connection_.find(mod);
   if (it == reg_connection_.end()) {
     return nullptr;
+  }
+  return it->second;
+}
+
+const AccessorInfo *Connection::GetAccessorInfo(const IResource *res) const {
+  auto it = accessors_.find(res);
+  if (it == accessors_.end()) {
+    return &empty_accessors_;
   }
   return it->second;
 }
@@ -192,28 +209,34 @@ const IModule *Connection::GetCommonRoot(const IModule *m1,
   return nullptr;
 }
 
-const vector<IResource *> *Connection::GetSharedRegReaders(const IResource *res) const {
-  return GetResourceVector(shared_reg_readers_, res);
+const vector<IResource *> &Connection::GetSharedRegReaders(const IResource *res) const {
+  const auto *ai = GetAccessorInfo(res);
+  return ai->shared_reg_readers_;
 }
 
-const vector<IResource *> *Connection::GetSharedRegWriters(const IResource *res) const {
-  return GetResourceVector(shared_reg_writers_, res);
+const vector<IResource *> &Connection::GetSharedRegWriters(const IResource *res) const {
+  const auto *ai = GetAccessorInfo(res);
+  return ai->shared_reg_writers_;
 }
 
-const vector<IResource *> *Connection::GetSharedRegChildren(const IResource *res) const {
-  return GetResourceVector(shared_reg_children_, res);
+const vector<IResource *> &Connection::GetSharedRegChildren(const IResource *res) const {
+  const auto *ai = GetAccessorInfo(res);
+  return ai->shared_reg_children_;
 }
   
-const vector<IResource *> *Connection::GetSharedMemoryAccessors(const IResource *res) const {
-  return GetResourceVector(shared_memory_accessors_, res);
+const vector<IResource *> &Connection::GetSharedMemoryAccessors(const IResource *res) const {
+  const auto *ai = GetAccessorInfo(res);
+  return ai->shared_memory_accessors_;
 }
 
-const vector<IResource *> *Connection::GetSharedMemoryPorts(const IResource *res) const {
-  return GetResourceVector(shared_memory_ports_, res);
+const vector<IResource *> &Connection::GetSharedMemoryPorts(const IResource *res) const {
+  const auto *ai = GetAccessorInfo(res);
+  return ai->shared_memory_ports_;
 }
 
-const vector<IResource *> *Connection::GetTaskCallers(const IResource *res) const {
-  return GetResourceVector(task_callers_, res);
+const vector<IResource *> &Connection::GetTaskCallers(const IResource *res) const {
+  const auto *ai = GetAccessorInfo(res);
+  return ai->task_callers_;
 }
 
 const vector<IResource *> *Connection::GetResourceVector(const map<const IResource *, vector<IResource *>> &m, const IResource *res) const {
@@ -281,6 +304,16 @@ RegConnectionInfo *Connection::FindRegConnectionInfo(const IModule *mod) {
     RegConnectionInfo *ri = new RegConnectionInfo();
     reg_connection_[mod] = ri;
     return ri;
+  }
+  return it->second;
+}
+
+AccessorInfo *Connection::FindAccessorInfo(const IResource *res) {
+  auto it = accessors_.find(res);
+  if (it == accessors_.end()) {
+    AccessorInfo *ai = new AccessorInfo();
+    accessors_[res] = ai;
+    return ai;
   }
   return it->second;
 }
