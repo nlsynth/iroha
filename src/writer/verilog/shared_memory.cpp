@@ -122,7 +122,7 @@ void SharedMemory::BuildExternalMemoryConnection() {
 void SharedMemory::BuildMemoryInstance() {
   int num_ports = 1;
   auto &port_users =
-    tab_.GetModule()->GetConnection().GetSharedMemoryPorts(&res_);
+    tab_.GetModule()->GetConnection().GetSharedMemoryPort1Accessors(&res_);
   if (port_users.size() > 0) {
     CHECK(port_users.size() == 1);
     num_ports = 2;

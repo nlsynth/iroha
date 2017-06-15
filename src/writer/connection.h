@@ -38,8 +38,8 @@ class AccessorInfo {
 public:
   vector<IResource *> task_callers_;
   vector<IResource *> shared_memory_accessors_;
-  // resources accesses secondary port of this memory resource.
-  vector<IResource *> shared_memory_ports_;
+  // resources accesses secondary port (port1) of this memory resource.
+  vector<IResource *> shared_memory_port1_accessors_;
   vector<IResource *> shared_reg_readers_;
   vector<IResource *> shared_reg_writers_;
   // dataflowin-s attached to this shared register resource.
@@ -61,7 +61,7 @@ public:
   const vector<IResource *> &GetSharedRegReaders(const IResource *res) const;
   const vector<IResource *> &GetSharedRegChildren(const IResource *res) const;
   const vector<IResource *> &GetSharedMemoryAccessors(const IResource *res) const;
-  const vector<IResource *> &GetSharedMemoryPorts(const IResource *res) const;
+  const vector<IResource *> &GetSharedMemoryPort1Accessors(const IResource *res) const;
 
   static const IModule *GetCommonRoot(const IModule *m1, const IModule *m2);
 
@@ -80,6 +80,8 @@ private:
   const vector<IResource *> *GetResourceVector(const map<const IResource *,
 					       vector<IResource *>> &m, const IResource *res) const;
   void ProcessTable(ITable *tab);
+  void ProcessSharedRegAccessors(ITable *tab);
+  void ProcessSharedMemoryAccessors(ITable *tab);
   ChannelInfo *FindChannelInfo(const IModule *mod);
   RegConnectionInfo *FindRegConnectionInfo(const IModule *mod);
   AccessorInfo *FindAccessorInfo(const IResource *res);

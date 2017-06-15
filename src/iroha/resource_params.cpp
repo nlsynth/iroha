@@ -194,6 +194,14 @@ void ResourceParams::SetPortNamePrefix(const string &prefix) {
   values_->SetStringParam(resource::kPortNamePrefix, prefix);
 }
 
+string ResourceParams::GetSramPortIndex() const {
+  return values_->GetStringParam(resource::kSramPortIndex, "");
+}
+
+void ResourceParams::SetSramPortIndex(const string &idx) {
+  values_->SetStringParam(resource::kSramPortIndex, idx);
+}
+
 string ResourceParams::GetMappedName() const {
   return values_->GetStringParam(resource::kMappedName, "");
 }

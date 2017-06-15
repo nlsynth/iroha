@@ -53,6 +53,12 @@ void Connection::ProcessTable(ITable *tab) {
     ai->task_callers_.push_back(reg);
   }
   // shared-reg
+  ProcessSharedRegAccessors(tab);
+  // shared-memory
+  ProcessSharedMemoryAccessors(tab);
+}
+
+void Connection::ProcessSharedRegAccessors(ITable *tab) {
   vector<IResource*> reg_writers;
   DesignUtil::FindResourceByClassName(tab, resource::kSharedRegWriter,
 				      &reg_writers);
@@ -77,7 +83,9 @@ void Connection::ProcessTable(ITable *tab) {
       ai->shared_reg_children_.push_back(reg);
     }
   }
-  // shared-memory
+}
+
+void Connection::ProcessSharedMemoryAccessors(ITable *tab) {
   vector<IResource *> memory_readers;
   DesignUtil::FindResourceByClassName(tab, resource::kSharedMemoryReader,
 				      &memory_readers);
@@ -97,14 +105,14 @@ void Connection::ProcessTable(ITable *tab) {
 				      &master_ports);
   for (IResource *reg : master_ports) {
     auto *ai = FindAccessorInfo(reg->GetParentResource());
-    ai->shared_memory_ports_.push_back(reg);
+    ai->shared_memory_port1_accessors_.push_back(reg);
   }
   vector<IResource *> slave_ports;
   DesignUtil::FindResourceByClassName(tab, resource::kAxiSlavePort,
 				      &slave_ports);
   for (IResource *reg : slave_ports) {
     auto *ai = FindAccessorInfo(reg->GetParentResource());
-    ai->shared_memory_ports_.push_back(reg);
+    ai->shared_memory_port1_accessors_.push_back(reg);
   }
 }
 
@@ -229,9 +237,9 @@ const vector<IResource *> &Connection::GetSharedMemoryAccessors(const IResource 
   return ai->shared_memory_accessors_;
 }
 
-const vector<IResource *> &Connection::GetSharedMemoryPorts(const IResource *res) const {
+const vector<IResource *> &Connection::GetSharedMemoryPort1Accessors(const IResource *res) const {
   const auto *ai = GetAccessorInfo(res);
-  return ai->shared_memory_ports_;
+  return ai->shared_memory_port1_accessors_;
 }
 
 const vector<IResource *> &Connection::GetTaskCallers(const IResource *res) const {

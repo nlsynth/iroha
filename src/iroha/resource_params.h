@@ -30,6 +30,7 @@ const char kEmbeddedModuleReset[] = "EMBEDDED-MODULE-RESET";
 const char kEmbeddedModuleReq[] = "EMBEDDED-MODULE-REQ";
 const char kEmbeddedModuleAck[] = "EMBEDDED-MODULE-ACK";
 const char kEmbeddedModuleArgs[] = "EMBEDDED-MODULE-ARGS";
+const char kSramPortIndex[] = "SRAM-PORT-INDEX";
 const char kChannelDataPort[] = "CHANNEL-DATA";
 const char kChannelEnPort[] = "CHANNEL-EN";
 const char kChannelAckPort[] = "CHANNEL-ACK";
@@ -52,6 +53,9 @@ public:
 
   string GetPortNamePrefix() const;
   void SetPortNamePrefix(const string &name);
+
+  string GetSramPortIndex() const;
+  void SetSramPortIndex(const string &idx);
 
   string GetMappedName() const;
   void SetMappedName(const string &name);
