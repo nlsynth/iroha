@@ -22,14 +22,19 @@ void AxiPort::OutputSRAMConnection(ostream &os) {
   const string &clk = tab_.GetPorts()->GetClk();
   const string &rst = tab_.GetPorts()->GetReset();
   const IResource *mem = res_.GetParentResource();
+  int idx = 0;
+  if (IsExclusiveAccessor()) {
+    idx = 1;
+  }
   os << ".clk("<< clk << "), "
      << "." << AxiController::ResetName(reset_polarity_)
      << "(" << rst << "), "
-     << ".sram_addr(" << SharedMemory::MemoryAddrPin(*mem, 1, nullptr) << "), "
-     << ".sram_wdata(" << SharedMemory::MemoryWdataPin(*mem, 1, nullptr)
+     << ".sram_addr(" << SharedMemory::MemoryAddrPin(*mem, idx, nullptr)
      << "), "
-     << ".sram_rdata(" << SharedMemory::MemoryRdataPin(*mem, 1) << "), "
-     << ".sram_wen(" << SharedMemory::MemoryWenPin(*mem, 1, nullptr) << ")";
+     << ".sram_wdata(" << SharedMemory::MemoryWdataPin(*mem, idx, nullptr)
+     << "), "
+     << ".sram_rdata(" << SharedMemory::MemoryRdataPin(*mem, idx) << "), "
+     << ".sram_wen(" << SharedMemory::MemoryWenPin(*mem, idx, nullptr) << ")";
 }
 
 PortConfig AxiPort::GetPortConfig(const IResource &res) {
@@ -61,6 +66,14 @@ string AxiPort::ReqPort() {
 
 string AxiPort::AckPort() {
   return "axi_ack" + PortSuffix();
+}
+
+bool AxiPort::IsExclusiveAccessor() {
+  auto *params = res_.GetParams();
+  if (params->GetSramPortIndex() == "0") {
+    return false;
+  }
+  return true;
 }
 
 }  // namespace axi

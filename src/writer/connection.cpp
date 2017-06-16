@@ -3,6 +3,7 @@
 #include "design/design_util.h"
 #include "iroha/i_design.h"
 #include "iroha/resource_class.h"
+#include "iroha/resource_params.h"
 #include "iroha/logging.h"
 #include "iroha/stl_util.h"
 
@@ -43,14 +44,14 @@ void Connection::ProcessTable(ITable *tab) {
   vector<IResource *> task_callers;
   DesignUtil::FindResourceByClassName(tab, resource::kTaskCall,
 				      &task_callers);
-  for (IResource *reg : task_callers) {
+  for (IResource *caller : task_callers) {
     vector<IResource *> res;
-    DesignUtil::FindResourceByClassName(reg->GetCalleeTable(),
+    DesignUtil::FindResourceByClassName(caller->GetCalleeTable(),
 					resource::kTask,
 					&res);
     CHECK(res.size() == 1);
     auto *ai = FindAccessorInfo(res[0]);
-    ai->task_callers_.push_back(reg);
+    ai->task_callers_.push_back(caller);
   }
   // shared-reg
   ProcessSharedRegAccessors(tab);
@@ -59,60 +60,43 @@ void Connection::ProcessTable(ITable *tab) {
 }
 
 void Connection::ProcessSharedRegAccessors(ITable *tab) {
-  vector<IResource*> reg_writers;
-  DesignUtil::FindResourceByClassName(tab, resource::kSharedRegWriter,
-				      &reg_writers);
-  for (IResource *reg : reg_writers) {
-    auto *ai = FindAccessorInfo(reg->GetParentResource());
-    ai->shared_reg_writers_.push_back(reg);
-  }
-  vector<IResource*> reg_readers;
-  DesignUtil::FindResourceByClassName(tab, resource::kSharedRegReader,
-				      &reg_readers);
-  for (IResource *reg : reg_readers) {
-    auto *ai = FindAccessorInfo(reg->GetParentResource());
-    ai->shared_reg_readers_.push_back(reg);
-  }
-  vector<IResource*> reg_children;
-  DesignUtil::FindResourceByClassName(tab, resource::kDataFlowIn,
-				      &reg_children);
-  for (IResource *reg : reg_children) {
-    IResource *p = reg->GetParentResource();
-    if (p != nullptr) {
-      auto *ai = FindAccessorInfo(p);
-      ai->shared_reg_children_.push_back(reg);
+  for (IResource *res : tab->resources_) {
+    IResource *p = res->GetParentResource();
+    if (p == nullptr) {
+      continue;
+    }
+    auto *ai = FindAccessorInfo(p);
+    auto *rc = res->GetClass();
+    if (resource::IsSharedRegWriter(*rc)) {
+      ai->shared_reg_writers_.push_back(res);
+    }
+    if (resource::IsSharedRegReader(*rc)) {
+      ai->shared_reg_readers_.push_back(res);
+    }
+    if (resource::IsDataFlowIn(*rc)) {
+      ai->shared_reg_children_.push_back(res);
     }
   }
 }
 
 void Connection::ProcessSharedMemoryAccessors(ITable *tab) {
-  vector<IResource *> memory_readers;
-  DesignUtil::FindResourceByClassName(tab, resource::kSharedMemoryReader,
-				      &memory_readers);
-  for (IResource *reg : memory_readers) {
-    auto *ai = FindAccessorInfo(reg->GetParentResource());
-    ai->shared_memory_accessors_.push_back(reg);
-  }
-  vector<IResource *> memory_writers;
-  DesignUtil::FindResourceByClassName(tab, resource::kSharedMemoryWriter,
-				      &memory_writers);
-  for (IResource *reg : memory_writers) {
-    auto *ai = FindAccessorInfo(reg->GetParentResource());
-    ai->shared_memory_accessors_.push_back(reg);
-  }
-  vector<IResource *> master_ports;
-  DesignUtil::FindResourceByClassName(tab, resource::kAxiMasterPort,
-				      &master_ports);
-  for (IResource *reg : master_ports) {
-    auto *ai = FindAccessorInfo(reg->GetParentResource());
-    ai->shared_memory_port1_accessors_.push_back(reg);
-  }
-  vector<IResource *> slave_ports;
-  DesignUtil::FindResourceByClassName(tab, resource::kAxiSlavePort,
-				      &slave_ports);
-  for (IResource *reg : slave_ports) {
-    auto *ai = FindAccessorInfo(reg->GetParentResource());
-    ai->shared_memory_port1_accessors_.push_back(reg);
+  for (IResource *res : tab->resources_) {
+    auto *ai = FindAccessorInfo(res->GetParentResource());
+    auto *rc = res->GetClass();
+    auto *params = res->GetParams();
+    if (resource::IsSharedMemoryReader(*rc) ||
+	resource::IsSharedMemoryWriter(*rc)) {
+      ai->shared_memory_accessors_.push_back(res);
+    }
+    if (resource::IsAxiMasterPort(*rc) ||
+	resource::IsAxiSlavePort(*rc)) {
+      if (params->GetSramPortIndex() == "0") {
+	ai->shared_memory_accessors_.push_back(res);
+      } else {
+	// Exclusive access only by a DMAC.
+	ai->shared_memory_port1_accessors_.push_back(res);
+      }
+    }
   }
 }
 

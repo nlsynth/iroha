@@ -34,6 +34,8 @@ protected:
   string ReqPort();
   string AckPort();
 
+  bool IsExclusiveAccessor();
+
   bool reset_polarity_;
 };
 
