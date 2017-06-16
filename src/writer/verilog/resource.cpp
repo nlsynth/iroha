@@ -135,7 +135,7 @@ void Resource::CollectNames(Names *names) {
 }
 
 void Resource::CollectResourceCallers(const string &opr,
-				      map<IState *, IInsn *> *callers) {
+				      map<IState *, IInsn *> *callers) const {
   vector<string> v;
   Util::SplitStringUsing(opr, ",", &v);
   set<string> oprs;
@@ -206,7 +206,7 @@ void Resource::WriteStateUnion(const map<IState *, IInsn *> &callers,
   }
 }
 
-string Resource::JoinStates(const map<IState *, IInsn *> &sts) {
+string Resource::JoinStates(const map<IState *, IInsn *> &sts) const {
   vector<string> conds;
   for (auto &p : sts) {
     IState *st = p.first;
@@ -218,7 +218,7 @@ string Resource::JoinStates(const map<IState *, IInsn *> &sts) {
 }
 
 string Resource::JoinStatesWithSubState(const map<IState *, IInsn *> &sts,
-					int sub) {
+					int sub) const {
   vector<string> conds;
   for (auto &p : sts) {
     IState *st = p.first;
@@ -273,6 +273,18 @@ void Resource::AddPortToTop(const string &port, bool is_output, int width) {
       parent_ports->AddPort(port, type, width);
     }
   }
+}
+
+ModuleTemplate *Resource::GetModuleTemplate() const {
+  return tmpl_;
+}
+
+const Table &Resource::GetTable() const {
+  return tab_;
+}
+
+const IResource &Resource::GetIResource() const {
+  return res_;
 }
 
 }  // namespace verilog

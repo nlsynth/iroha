@@ -20,17 +20,22 @@ public:
   virtual void BuildInsn(IInsn *insn, State *st);
   virtual void CollectNames(Names *names);
 
+  ModuleTemplate *GetModuleTemplate() const;
+  const Table &GetTable() const;
+  const IResource &GetIResource() const;
+
+  string JoinStatesWithSubState(const map<IState *, IInsn *> &sts, int sub) const;
+  void CollectResourceCallers(const string &opr,
+			      map<IState *, IInsn *> *callers) const;
+
 protected:
   void WriteInputSel(const string &name,
 		     const map<IState *, IInsn *> &callers,
 		     int nth,
 		     ostream &os);
-  void CollectResourceCallers(const string &opr,
-			      map<IState *, IInsn *> *callers);
   void WriteWire(const string &name, const IValueType &type,
 		 ostream &os);
-  string JoinStates(const map<IState *, IInsn *> &sts);
-  string JoinStatesWithSubState(const map<IState *, IInsn *> &sts, int sub);
+  string JoinStates(const map<IState *, IInsn *> &sts) const;
   void WriteStateUnion(const map<IState *, IInsn *> &callers,
 		       ostream &os);
   string SelectValueByState(const string &default_value);

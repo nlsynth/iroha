@@ -22,8 +22,10 @@ public:
   static string MemoryWenPin(const IResource &res, int nth_port,
 			     const IResource *accessor);
 
+  static void BuildMemoryAccessorResource(const Resource &accessor,
+					  bool is_writer, const IResource *mem);
+
 private:
-  void BuildMemoryAccessorResource(bool is_writer);
   void BuildMemoryResource();
   void BuildMemoryInstance();
   void BuildExternalMemoryConnection();

@@ -6,6 +6,7 @@
 #include "writer/verilog/embed.h"
 #include "writer/verilog/module.h"
 #include "writer/verilog/ports.h"
+#include "writer/verilog/shared_memory.h"
 #include "writer/verilog/table.h"
 
 namespace iroha {
@@ -20,6 +21,10 @@ SlavePort::SlavePort(const IResource &res, const Table &table)
 void SlavePort::BuildResource() {
   string wires = BuildPortToExt();
   BuildControllerInstance(wires);
+  if (!IsExclusiveAccessor()) {
+    SharedMemory::BuildMemoryAccessorResource(*this, true,
+					      res_.GetParentResource());
+  }
 }
 
 void SlavePort::BuildInsn(IInsn *insn, State *st) {

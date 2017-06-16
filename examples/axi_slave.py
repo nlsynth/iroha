@@ -24,7 +24,9 @@ design_tool.AddNextState(st2, st3)
 mem = design_tool.CreateSharedMemory(tab, 4, 512)
 
 axi_slave_port = axi.CreateAxiSlavePort(tab, mem)
-axi_slave_port = axi_slave_port.resource_params.AddValue("ADDR-WIDTH", "64")
+axi_slave_port.resource_params.AddValue("ADDR-WIDTH", "64")
+# 0 to use shared port. 1 to use dual port memory and exclusive mode.
+# axi_slave_port.resource_params.AddValue("SRAM-PORT-INDEX", "0")
 
 design_tool.ValidateIds(d)
 DesignWriter(d).Write()

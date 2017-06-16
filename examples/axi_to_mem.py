@@ -27,6 +27,8 @@ mem = design_tool.CreateSharedMemory(tab, 4, 32)
 
 axi_master_port = axi.CreateAxiMasterPort(tab, mem)
 axi_master_port.resource_params.AddValue("PORT-NAME-PREFIX", "a1_")
+# 0 to use shared port. 1 to use dual port memory and exclusive mode.
+# axi_master_port.resource_params.AddValue("SRAM-PORT-INDEX", "0")
 
 rinsn = IInsn(axi_master_port)
 addr = design_tool.AllocConstNum(tab, False, 32, 128)
