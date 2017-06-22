@@ -123,6 +123,9 @@ void AxiController::AddSramPorts() {
   ports_->AddPort("sram_wdata", Port::OUTPUT, cfg_.data_width);
   ports_->AddPort("sram_wen", Port::OUTPUT, 0);
   ports_->AddPort("sram_rdata", Port::INPUT, cfg_.data_width);
+  ports_->AddPort("sram_EXCLUSIVE", Port::INPUT, 0);
+  ports_->AddPort("sram_req", Port::OUTPUT, 0);
+  ports_->AddPort("sram_ack", Port::INPUT, 0);
 }
 
 }  // namespace axi

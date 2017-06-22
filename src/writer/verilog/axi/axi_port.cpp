@@ -23,18 +23,32 @@ void AxiPort::OutputSRAMConnection(ostream &os) {
   const string &rst = tab_.GetPorts()->GetReset();
   const IResource *mem = res_.GetParentResource();
   int idx = 0;
+  int excl = 0;
+  const IResource *accessor;
   if (IsExclusiveAccessor()) {
     idx = 1;
+    excl = 1;
+    accessor = nullptr;
+  } else {
+    accessor = &res_;
   }
   os << ".clk("<< clk << "), "
      << "." << AxiController::ResetName(reset_polarity_)
      << "(" << rst << "), "
-     << ".sram_addr(" << SharedMemory::MemoryAddrPin(*mem, idx, nullptr)
+     << ".sram_addr(" << SharedMemory::MemoryAddrPin(*mem, idx, accessor)
      << "), "
-     << ".sram_wdata(" << SharedMemory::MemoryWdataPin(*mem, idx, nullptr)
+     << ".sram_wdata(" << SharedMemory::MemoryWdataPin(*mem, idx, accessor)
      << "), "
      << ".sram_rdata(" << SharedMemory::MemoryRdataPin(*mem, idx) << "), "
-     << ".sram_wen(" << SharedMemory::MemoryWenPin(*mem, idx, nullptr) << ")";
+     << ".sram_wen(" << SharedMemory::MemoryWenPin(*mem, idx, accessor) << "), "
+     << ".sram_EXCLUSIVE(" << excl << ")";
+  if (excl) {
+    os << ", .sram_req(/*not connected*/), .sram_ack(1)";
+  } else {
+    os << ", .sram_req(" << SharedMemory::MemoryReqPin(*mem, accessor)
+       << "), .sram_ack(" << SharedMemory::MemoryAckPin(*mem, accessor)
+       << ")";
+  }
 }
 
 PortConfig AxiPort::GetPortConfig(const IResource &res) {

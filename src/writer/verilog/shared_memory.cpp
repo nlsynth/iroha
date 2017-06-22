@@ -25,13 +25,13 @@ void SharedMemory::BuildResource() {
   auto *klass = res_.GetClass();
   if (resource::IsSharedMemory(*klass)) {
     BuildMemoryResource();
-    BuildMemoryAccessorResource(*this, true, &res_);
+    BuildMemoryAccessorResource(*this, true, true, &res_);
   }
   if (resource::IsSharedMemoryReader(*klass)) {
-    BuildMemoryAccessorResource(*this, false, res_.GetParentResource());
+    BuildMemoryAccessorResource(*this, false, true, res_.GetParentResource());
   }
   if (resource::IsSharedMemoryWriter(*klass)) {
-    BuildMemoryAccessorResource(*this, true, res_.GetParentResource());
+    BuildMemoryAccessorResource(*this, true, true, res_.GetParentResource());
   }
 }
 
@@ -81,13 +81,17 @@ void SharedMemory::BuildMemoryResource() {
     }
     auto *klass = accessor->GetClass();
     if (resource::IsSharedMemory(*klass) ||
-	resource::IsSharedMemoryWriter(*klass)) {
-      string wen;
-      if (resource::IsSharedMemory(*klass)) {
-	wen = MemoryWenPin(res_, 0, accessor);
+	resource::IsSharedMemoryWriter(*klass) ||
+	resource::IsAxiMasterPort(*klass) ||
+	resource::IsAxiSlavePort(*klass)) {
+      string wen = "(";
+      if (resource::IsSharedMemoryWriter(*klass)) {
+	// write only, so assumes req=wen.
+	wen += MemoryReqPin(res_, accessor);
       } else {
-	wen = MemoryReqPin(res_, accessor);
+	wen += MemoryWenPin(res_, 0, accessor);
       }
+      wen += " & !" + MemoryAckPin(res_, accessor) + ")";
       if (wen_sel.empty()) {
 	wen_sel = wen;
       } else {
@@ -207,35 +211,48 @@ void SharedMemory::BuildAccessWireAll(vector<const IResource *> &accessors) {
 }
 
 void SharedMemory::BuildMemoryAccessorResource(const Resource &accessor,
-					       bool is_writer, const IResource *mem) {
+					       bool do_write,
+					       bool gen_reg,
+					       const IResource *mem) {
   IArray *array = mem->GetArray();
   int addr_width = array->GetAddressWidth();
   ModuleTemplate *tmpl = accessor.GetModuleTemplate();
   ostream &rs = tmpl->GetStream(kResourceSection);
   const IResource &res = accessor.GetIResource();
-  rs << "  reg " << Table::WidthSpec(addr_width)
+  string storage;
+  if (gen_reg) {
+    storage = "reg";
+  } else {
+    storage = "wire";
+  }
+  rs << "  " << storage << " " << Table::WidthSpec(addr_width)
      << MemoryAddrPin(*mem, 0, &res) << ";\n";
-  rs << "  reg " << MemoryReqPin(*mem, &res) << ";\n";
+  rs << "  " << storage << " " << MemoryReqPin(*mem, &res) << ";\n";
   const Table &tab = accessor.GetTable();
   ostream &is = tab.InitialValueSectionStream();
-  is << "      " << MemoryReqPin(*mem, &res) << " <= 0;\n";
-  if (is_writer) {
+  if (gen_reg) {
+    is << "      " << MemoryReqPin(*mem, &res) << " <= 0;\n";
+  }
+  if (do_write) {
     int data_width = array->GetDataType().GetWidth();
-    rs << "  reg " << Table::WidthSpec(data_width)
+    rs << "  " << storage << " " << Table::WidthSpec(data_width)
        << MemoryWdataPin(*mem, 0, &res) << ";\n";
+    rs << "  " << storage << " "
+       << MemoryWenPin(*mem, 0, &res) << ";\n";
   }
   ostream &ss = tab.StateOutputSectionStream();
   map<IState *, IInsn *> callers;
   accessor.CollectResourceCallers("", &callers);
-  ss << "      " << MemoryReqPin(*mem, &res) << " <= ";
-  if (callers.size() > 0) {
-    ss << accessor.JoinStatesWithSubState(callers, 0) << ";\n";
-  } else {
-    ss << "0;\n";
+  if (gen_reg) {
+    ss << "      " << MemoryReqPin(*mem, &res) << " <= ";
+    if (callers.size() > 0) {
+      ss << accessor.JoinStatesWithSubState(callers, 0) << ";\n";
+    } else {
+      ss << "0;\n";
+    }
   }
   auto *klass = res.GetClass();
   if (resource::IsSharedMemory(*klass)) {
-    rs << "  reg " << MemoryWenPin(*mem, 0, &res) << ";\n";
     is << "      " << MemoryWenPin(*mem, 0, &res) << " <= 0;\n";
     map<IState *, IInsn *> writers;
     for (auto it : callers) {

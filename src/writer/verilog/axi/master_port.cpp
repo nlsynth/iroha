@@ -28,7 +28,7 @@ void MasterPort::BuildResource() {
   string s = BuildPortToExt();
   BuildControllerInstance(s);
   if (!IsExclusiveAccessor()) {
-    SharedMemory::BuildMemoryAccessorResource(*this, true,
+    SharedMemory::BuildMemoryAccessorResource(*this, true, false,
 					      res_.GetParentResource());
   }
 

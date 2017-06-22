@@ -21,9 +21,14 @@ public:
 			       const IResource *accessor);
   static string MemoryWenPin(const IResource &res, int nth_port,
 			     const IResource *accessor);
+  static string MemoryReqPin(const IResource &res, const IResource *accessor);
+  static string MemoryAckPin(const IResource &res, const IResource *accessor);
 
+  // gen_reg determines if addr/wdata/req/wen are driven from this module.
+  // generates wires and let them driven by dmac.
   static void BuildMemoryAccessorResource(const Resource &accessor,
-					  bool is_writer, const IResource *mem);
+					  bool do_write, bool gen_reg,
+					  const IResource *mem);
 
 private:
   void BuildMemoryResource();
@@ -37,8 +42,6 @@ private:
 
   static string MemoryPinPrefix(const IResource &res,
 				const IResource *accessor);
-  static string MemoryReqPin(const IResource &res, const IResource *accessor);
-  static string MemoryAckPin(const IResource &res, const IResource *accessor);
 };
 
 }  // namespace verilog

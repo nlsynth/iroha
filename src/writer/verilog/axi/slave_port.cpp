@@ -22,7 +22,7 @@ void SlavePort::BuildResource() {
   string wires = BuildPortToExt();
   BuildControllerInstance(wires);
   if (!IsExclusiveAccessor()) {
-    SharedMemory::BuildMemoryAccessorResource(*this, true,
+    SharedMemory::BuildMemoryAccessorResource(*this, true, false,
 					      res_.GetParentResource());
   }
 }
