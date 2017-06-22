@@ -38,12 +38,13 @@ void MasterController::Write(ostream &os) {
      << "  `define S_IDLE 0\n"
      << "  `define S_ADDR_WAIT 1\n";
   if (r_) {
-    os << "  `define S_READ_DATA 2\n";
+    os << "  `define S_READ_DATA 2\n"
+       << "  `define S_READ_DATA_WAIT 3\n";
   }
   if (w_) {
-    os << "  `define S_WRITE_WAIT 3\n";
+    os << "  `define S_WRITE_WAIT 4\n";
   }
-  os << "  reg [1:0] st;\n\n";
+  os << "  reg [2:0] st;\n\n";
   if (w_) {
     os << "  `define WS_IDLE 0\n"
        << "  `define WS_WRITE 1\n"
@@ -51,7 +52,8 @@ void MasterController::Write(ostream &os) {
        << "  reg [1:0] wst;\n\n";
   }
   if (r_) {
-    os << "  reg [" << sram_addr_width_ << ":0] ridx;\n\n";
+    os << "  reg [" << sram_addr_width_ << ":0] ridx;\n"
+       << "  reg read_last;\n\n";
   }
   if (r_) {
     os << "  reg [" << sram_addr_width_ << ":0] widx;\n\n";
@@ -60,6 +62,7 @@ void MasterController::Write(ostream &os) {
      << "    if (" << (reset_polarity_ ? "" : "!")
      << ResetName(reset_polarity_) << ") begin\n"
      << "      ack <= 0;\n"
+     << "      sram_req <= 0;\n"
      << "      sram_wen <= 0;\n"
      << "      st <= `S_IDLE;\n";
   if (w_) {
@@ -91,7 +94,9 @@ void MasterController::AddPorts(const PortConfig &cfg,
 void MasterController::OutputMainFsm(ostream &os) {
   int alen = burst_len_ - 1;
   if (r_) {
-    os << "      sram_wen <= (st == `S_READ_DATA && RVALID);\n";
+    os << "      if (!sram_EXCLUSIVE) begin\n"
+       << "        sram_wen <= (st == `S_READ_DATA && RVALID);\n"
+       << "      end\n";
   } else {
     os << "      sram_wen <= 0;\n";
   }
@@ -184,9 +189,27 @@ void MasterController::ReadState(ostream &os) {
      << "            sram_addr <= ridx;\n"
      << "            sram_wdata <= RDATA;\n"
      << "            ridx <= ridx + 1;\n"
-     << "            if (RLAST) begin\n"
+     << "            if (sram_EXCLUSIVE) begin\n"
+     << "              if (RLAST) begin\n"
+     << "                RREADY <= 0;\n"
+     << "                st <= `S_IDLE;\n"
+     << "              end\n"
+     << "            end else begin\n"
+     << "              st <= `S_READ_DATA_WAIT;\n"
+     << "              sram_wen <= 1;\n"
      << "              RREADY <= 0;\n"
+     << "              read_last <= RLAST;\n"
+     << "            end\n"
+     << "          end\n"
+     << "        end\n"
+     << "        `S_READ_DATA_WAIT: begin\n" // !sram_EXCLUSIVE
+     << "          if (sram_ack) begin\n"
+     << "            sram_wen <= 0;\n"
+     << "            if (read_last) begin\n"
      << "              st <= `S_IDLE;\n"
+     << "            end else begin\n"
+     << "              st <= `S_READ_DATA;\n"
+     << "              RREADY <= 1;\n"
      << "            end\n"
      << "          end\n"
      << "        end\n";
