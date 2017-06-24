@@ -196,6 +196,7 @@ void MasterController::ReadState(ostream &os) {
      << "              end\n"
      << "            end else begin\n"
      << "              st <= `S_READ_DATA_WAIT;\n"
+     << "              sram_req <= 1;\n"
      << "              sram_wen <= 1;\n"
      << "              RREADY <= 0;\n"
      << "              read_last <= RLAST;\n"
@@ -204,6 +205,7 @@ void MasterController::ReadState(ostream &os) {
      << "        end\n"
      << "        `S_READ_DATA_WAIT: begin\n" // !sram_EXCLUSIVE
      << "          if (sram_ack) begin\n"
+     << "            sram_req <= 0;\n"
      << "            sram_wen <= 0;\n"
      << "            if (read_last) begin\n"
      << "              st <= `S_IDLE;\n"
