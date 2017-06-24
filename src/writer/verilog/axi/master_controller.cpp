@@ -94,7 +94,7 @@ void MasterController::AddPorts(const PortConfig &cfg,
 void MasterController::OutputMainFsm(ostream &os) {
   int alen = burst_len_ - 1;
   if (r_) {
-    os << "      if (!sram_EXCLUSIVE) begin\n"
+    os << "      if (sram_EXCLUSIVE) begin\n"
        << "        sram_wen <= (st == `S_READ_DATA && RVALID);\n"
        << "      end\n";
   } else {
