@@ -37,7 +37,7 @@ void SlaveController::Write(ostream &os) {
   os << "  reg [1:0] st;\n\n";
   os << "  reg [" << sram_addr_width_ << ":0] idx;\n\n";
   os << "  reg first_addr;";
-  os << "  reg [1:0] rlen;\n\n";
+  os << "  reg [7:0] rlen;\n\n";
 
   os << "  always @(posedge clk) begin\n"
      << "    if (" << (reset_polarity_ ? "" : "!")
@@ -80,9 +80,12 @@ void SlaveController::OutputFSM(ostream &os) {
      << "        `S_READ: begin\n"
      << "          ARREADY <= 0;\n"
      << "          RVALID <= 1;\n"
-     << "          if (RREADY) begin\n"
+     << "          if (RREADY && RVALID) begin\n"
      << "            sram_addr <= sram_addr + 1;\n"
      << "            rlen <= rlen - 1;\n"
+     << "            if (rlen == 0) begin\n"
+     << "              st <= `S_IDLE;\n"
+     << "            end\n"
      << "          end\n"
      << "          RDATA <= sram_rdata;\n"
      << "        end\n"
