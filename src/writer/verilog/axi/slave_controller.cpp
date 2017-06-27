@@ -61,8 +61,7 @@ void SlaveController::AddPorts(const PortConfig &cfg, Module *mod, string *s) {
 
 void SlaveController::OutputFSM(ostream &os) {
   os << "      sram_wen <= (st == `S_WRITE && WVALID);\n"
-     << "      RLAST <= (st == `S_READ && rlen == 0);\n";
-  os << "      case (st)\n"
+     << "      case (st)\n"
      << "        `S_IDLE: begin\n"
      << "          if (ARVALID) begin\n"
      << "            if (ARREADY) begin\n"
@@ -91,10 +90,14 @@ void SlaveController::OutputFSM(ostream &os) {
      << "            rlen <= rlen - 1;\n"
      << "            if (rlen == 0) begin\n"
      << "              st <= `S_IDLE;\n"
+     << "              RLAST <= 0;\n"
      << "              RVALID <= 0;\n"
      << "            end\n"
      << "          end else begin\n"
      << "            RVALID <= 1;\n"
+     << "            if (rlen == 0) begin\n"
+     << "              RLAST <= 1;\n"
+     << "            end\n"
      << "          end\n"
      << "          RDATA <= sram_rdata;\n"
      << "        end\n"
