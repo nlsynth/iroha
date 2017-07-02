@@ -67,7 +67,7 @@ void Numeric::SetValue(uint64_t value) {
 
 std::string Numeric::Format() const {
   if (type_.IsWide()) {
-    int w = type_.GetWidth() / 64;
+    int w = (type_.GetWidth() + 63) / 64;
     std::stringstream ss;
     bool first = true;
     for (int i = w - 1; i >= 0; --i) {

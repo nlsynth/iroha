@@ -99,4 +99,13 @@ void WideOp::SelectBits(const Numeric &num, int h, int l, Numeric *res) {
   Shift(num, l, false, res);
 }
 
+void WideOp::Concat(const Numeric &x, const Numeric &y, Numeric *a) {
+  Numeric tmp;
+  Shift(x, y.type_.GetWidth(), true, &tmp);
+  BinBitOp(BINOP_OR, tmp, y, a);
+  NumericWidth w = NumericWidth(false,
+				x.type_.GetWidth() + y.type_.GetWidth());
+  a->type_ = w;
+}
+
 }  // namespace iroha

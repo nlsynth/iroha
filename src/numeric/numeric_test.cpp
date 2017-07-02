@@ -8,6 +8,7 @@ using namespace iroha;
 using namespace std;
 
 void shift() {
+  cout << "shift\n";
   Numeric n;
   n.type_.SetWidth(512);
   Op::Clear(&n);
@@ -36,6 +37,18 @@ void shift() {
   cout << "m=" << m.Format() << "\n";
 }
 
+void concat() {
+  cout << "concat\n";
+  Numeric m, n;
+  m.type_.SetWidth(64);
+  m.SetValue(0x5555555555555550ULL);
+  n.type_.SetWidth(63);
+  n.SetValue(0x5555555555555550ULL);
+  Numeric r;
+  Op::Concat(m, n, &r);
+  cout << "r=" << r.Format() << "\n";
+}
+
 int main(int argc, char **argv) {
   cout << "sizeof(width)=" << sizeof(NumericWidth) << "\n";
   cout << "sizeof(numeric)=" << sizeof(Numeric) << "\n";
@@ -54,6 +67,7 @@ int main(int argc, char **argv) {
   cout << "w=" << w.Format() << "\n";
 
   shift();
+  concat();
 
   return 0;
 }

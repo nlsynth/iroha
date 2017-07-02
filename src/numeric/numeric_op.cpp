@@ -149,9 +149,14 @@ void Op::SelectBits(const Numeric &num, int h, int l,
 
 void Op::Concat(const Numeric &x, const Numeric &y,
 		Numeric *a) {
+  NumericWidth w = NumericWidth(false,
+				x.type_.GetWidth() + y.type_.GetWidth());
+  if (w.IsWide()) {
+    WideOp::Concat(x, y, a);
+    return;
+  }
   a->SetValue((x.GetValue() << y.type_.GetWidth()) + y.GetValue());
-  a->type_ = NumericWidth(false,
-			  x.type_.GetWidth() + y.type_.GetWidth());
+  a->type_ = w;
 }
 
 }  // namespace iroha
