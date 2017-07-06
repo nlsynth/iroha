@@ -26,7 +26,6 @@ private:
   void OutputWriterFsm(ostream &os);
 
   bool r_, w_;
-  int burst_len_;
 };
 
 }  // namespace axi

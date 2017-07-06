@@ -37,6 +37,9 @@ void MasterPort::BuildResource() {
      << "  reg " << WenPort() << ";\n"
      << "  reg " << ReqPort() << ";\n"
      << "  wire " << AckPort() << ";\n";
+  PortConfig cfg = AxiPort::GetPortConfig(res_);
+  os << "  wire [" << (cfg.sram_addr_width - 1) << ":0] " << LenPort() << ";\n"
+     << "  assign " << LenPort() << " = ~0;\n";
 
   ostream &is = tab_.InitialValueSectionStream();
   is << "      " << AddrPort() << " <= 0;\n"
@@ -109,6 +112,7 @@ void MasterPort::BuildControllerInstance(const string &wires) {
   es << ", .addr(" << AddrPort() << "), "
      << ".wen(" << WenPort() << "), "
      << ".req(" << ReqPort() << "), "
+     << ".len(" << LenPort() << "), "
      << ".ack(" << AckPort() << ") "
      << wires
      << ");\n";
@@ -139,6 +143,9 @@ void MasterPort::GetReadWrite(const IResource &res, bool *r, bool *w) {
       CHECK(false);
     }
   }
+}
+string MasterPort::LenPort() {
+  return "axi_len" + PortSuffix();
 }
 
 }  // namespace axi

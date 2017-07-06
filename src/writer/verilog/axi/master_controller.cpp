@@ -14,7 +14,6 @@ namespace axi {
 MasterController::MasterController(const IResource &res, bool reset_polarity)
   : AxiController(res, reset_polarity) {
   MasterPort::GetReadWrite(res_, &r_, &w_);
-  burst_len_ = (1 << sram_addr_width_);
 }
 
 MasterController::~MasterController() {
@@ -23,6 +22,7 @@ MasterController::~MasterController() {
 void MasterController::Write(ostream &os) {
   AddSramPorts();
   ports_->AddPort("addr", Port::INPUT, 32);
+  ports_->AddPort("len", Port::INPUT, sram_addr_width_);
   ports_->AddPort("wen", Port::INPUT, 0);
   ports_->AddPort("req", Port::INPUT, 0);
   ports_->AddPort("ack", Port::OUTPUT, 0);
@@ -49,7 +49,8 @@ void MasterController::Write(ostream &os) {
     os << "  `define WS_IDLE 0\n"
        << "  `define WS_WRITE 1\n"
        << "  `define WS_WAIT 2\n"
-       << "  reg [1:0] wst;\n\n";
+       << "  reg [1:0] wst;\n"
+       << "  reg [" << sram_addr_width_ << ":0] wmax;\n\n";
   }
   if (r_) {
     os << "  reg [" << sram_addr_width_ << ":0] ridx;\n"
@@ -66,7 +67,8 @@ void MasterController::Write(ostream &os) {
      << "      sram_wen <= 0;\n"
      << "      st <= `S_IDLE;\n";
   if (w_) {
-    os << "      wst <= `WS_IDLE;\n";
+    os << "      wst <= `WS_IDLE;\n"
+       << "      wmax <= 0;\n";
   }
   os << initials
      << "    end else begin\n";
@@ -92,7 +94,6 @@ void MasterController::AddPorts(const PortConfig &cfg,
 }
 
 void MasterController::OutputMainFsm(ostream &os) {
-  int alen = burst_len_ - 1;
   if (r_) {
     os << "      if (sram_EXCLUSIVE) begin\n"
        << "        sram_wen <= (st == `S_READ_DATA && RVALID);\n"
@@ -111,22 +112,23 @@ void MasterController::OutputMainFsm(ostream &os) {
     if (r_ && !w_) {
       os << "            ARVALID <= 1;\n"
 	 << "            ARADDR <= addr;\n"
-	 << "            ARLEN <= " << alen << ";\n";
+	 << "            ARLEN <= len;\n";
     }
     if (!r_ && w_) {
       os << "            AWVALID <= 1;\n"
 	 << "            AWADDR <= addr;\n"
-	 << "            AWLEN <= " << alen << ";\n";
+	 << "            AWLEN <= len;\n";
     }
     if (r_ && w_) {
       os << "            if (wen) begin\n"
 	 << "              ARVALID <= 1;\n"
 	 << "              ARADDR <= addr;\n"
-	 << "              ARLEN <= " << alen << ";\n"
+	 << "              ARLEN <= len;\n"
 	 << "            end else begin\n"
 	 << "              AWVALID <= 1;\n"
 	 << "              AWADDR <= addr;\n"
-	 << "              AWLEN <= " << alen << ";\n"
+	 << "              AWLEN <= len;\n"
+	 << "              wmax <= len;\n"
 	 << "            end\n";
     }
     os << "          end\n";
@@ -236,11 +238,11 @@ void MasterController::OutputWriterFsm(ostream &os) {
      << "          end\n"
      << "        end\n"
      << "        `WS_WRITE: begin\n"
-     << "          if (widx < " << burst_len_ << ") begin\n"
+     << "          if (widx <= wmax) begin\n"
      << "            if (sram_EXCLUSIVE || sram_ack) begin\n"
      << "              WVALID <= 1;\n"
      << "              WDATA <= sram_rdata;\n"
-     << "              if (widx == " << burst_len_ << " - 1) begin\n"
+     << "              if (widx == wmax) begin\n"
      << "                WLAST <= 1;\n"
      << "              end\n"
      << "            end\n"

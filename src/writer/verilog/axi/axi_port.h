@@ -11,10 +11,11 @@ namespace axi {
 
 class PortConfig {
 public:
-  PortConfig() : addr_width(32) {
+  PortConfig() : axi_addr_width(32) {
   }
 
-  int addr_width;
+  int axi_addr_width;
+  int sram_addr_width;
   int data_width;
   string prefix;
 };

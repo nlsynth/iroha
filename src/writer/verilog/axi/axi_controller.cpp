@@ -36,7 +36,7 @@ void AxiController::GenReadChannel(const PortConfig &cfg,
 				   Ports *ports,
 				   string *s) {
   // TODO: More ports.
-  AddPort(cfg, "ARADDR", cfg.addr_width, false, is_master, module, ports, s);
+  AddPort(cfg, "ARADDR", cfg.axi_addr_width, false, is_master, module, ports, s);
   AddPort(cfg, "ARVALID", 0, false, is_master, module, ports, s);
   AddPort(cfg, "ARREADY", 0, true, is_master, module, ports, s);
   AddPort(cfg, "ARLEN", 8, false, is_master, module, ports, s);
@@ -52,7 +52,7 @@ void AxiController::GenWriteChannel(const PortConfig &cfg,
 				    bool is_master, Module *module,
 				    Ports *ports,
 				    string *s) {
-  AddPort(cfg, "AWADDR", cfg.addr_width, false, is_master, module, ports, s);
+  AddPort(cfg, "AWADDR", cfg.axi_addr_width, false, is_master, module, ports, s);
   AddPort(cfg, "AWVALID", 0, false, is_master, module, ports, s);
   AddPort(cfg, "AWREADY", 0, true, is_master, module, ports, s);
   AddPort(cfg, "AWLEN", 8, false, is_master, module, ports, s);

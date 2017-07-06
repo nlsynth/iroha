@@ -25,6 +25,8 @@ public:
 private:
   void BuildControllerInstance(const string &wires);
   string BuildPortToExt();
+  // Other ports are defined in axi_port.h.
+  string LenPort();
 };
 
 }  // namespace axi
