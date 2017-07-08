@@ -23,6 +23,7 @@ void MasterController::Write(ostream &os) {
   AddSramPorts();
   ports_->AddPort("addr", Port::INPUT, 32);
   ports_->AddPort("len", Port::INPUT, sram_addr_width_);
+  ports_->AddPort("start", Port::INPUT, sram_addr_width_);
   ports_->AddPort("wen", Port::INPUT, 0);
   ports_->AddPort("req", Port::INPUT, 0);
   ports_->AddPort("ack", Port::OUTPUT, 0);
@@ -147,7 +148,6 @@ void MasterController::OutputMainFsm(ostream &os) {
       os << "          if (AWREADY) begin\n"
 	 << "            st <= `S_WRITE_WAIT;\n"
 	 << "            AWVALID <= 0;\n"
-	 << "            sram_addr <= ridx;\n"
 	 << "          end\n";
     }
     if (r_ && w_) {
@@ -175,14 +175,14 @@ void MasterController::OutputMainFsm(ostream &os) {
        << "            st <= `S_IDLE;\n"
        << "          end\n"
        << "          if (wst == `WS_IDLE && req && wen) begin\n"
-       << "            sram_addr <= 0;\n"
+       << "            sram_addr <= start;\n"
        << "            if (!sram_EXCLUSIVE) begin\n"
        << "              sram_req <= 1;\n"
        << "            end\n"
        << "          end\n"
        << "          if (wst == `WS_WRITE) begin\n"
        << "            if (WREADY && WVALID) begin\n"
-       << "              sram_addr <= widx + 1;\n"
+       << "              sram_addr <= sram_addr + 1;\n"
        << "              if (!sram_EXCLUSIVE) begin\n"
        << "                sram_req <= 1;\n"
        << "              end\n"
@@ -198,7 +198,7 @@ void MasterController::OutputMainFsm(ostream &os) {
 void MasterController::ReadState(ostream &os) {
   os << "        `S_READ_DATA: begin\n"
      << "          if (RVALID) begin\n"
-     << "            sram_addr <= ridx;\n"
+     << "            sram_addr <= start + ridx;\n"
      << "            sram_wdata <= RDATA;\n"
      << "            ridx <= ridx + 1;\n"
      << "            if (sram_EXCLUSIVE) begin\n"

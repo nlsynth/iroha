@@ -27,6 +27,7 @@ private:
   string BuildPortToExt();
   // Other ports are defined in axi_port.h.
   string LenPort();
+  string StartPort();
 };
 
 }  // namespace axi
