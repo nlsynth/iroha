@@ -38,8 +38,7 @@ void MasterPort::BuildResource() {
      << "  reg " << ReqPort() << ";\n"
      << "  wire " << AckPort() << ";\n";
   PortConfig cfg = AxiPort::GetPortConfig(res_);
-  os << "  wire [" << (cfg.sram_addr_width - 1) << ":0] " << LenPort() << ";\n"
-     << "  assign " << LenPort() << " = ~0;\n";
+  os << "  reg [" << (cfg.sram_addr_width - 1) << ":0] " << LenPort() << ";\n";
 
   ostream &is = tab_.InitialValueSectionStream();
   is << "      " << AddrPort() << " <= 0;\n"
@@ -72,8 +71,15 @@ void MasterPort::BuildInsn(IInsn *insn, State *st) {
   os << I << "// AXI access request\n"
      << I << "if (" << insn_st << " == 0) begin\n"
      << I << "  " << AddrPort() << " <= "
-     << InsnWriter::RegisterValue(*insn->inputs_[0], tab_.GetNames()) << ";\n"
-     << I << "  if (" << AckPort() << ") begin\n"
+     << InsnWriter::RegisterValue(*insn->inputs_[0], tab_.GetNames()) << ";\n";
+  os << I << "  " << LenPort() << " <= ";
+  if (insn->inputs_.size() >= 2) {
+    os << InsnWriter::RegisterValue(*insn->inputs_[1], tab_.GetNames());
+  } else {
+    os << "~0";
+  }
+  os << ";\n";
+  os << I << "  if (" << AckPort() << ") begin\n"
      << I << "    " << insn_st << " <= 3;\n"
      << I << "  end\n"
      << I << "end\n";
