@@ -40,8 +40,7 @@ void MasterPort::BuildResource() {
   PortConfig cfg = AxiPort::GetPortConfig(res_);
   int aw = cfg.sram_addr_width - 1;
   os << "  reg [" << aw << ":0] " << LenPort() << ";\n"
-     << "  wire[" << aw << ":0] " << StartPort() << ";\n"
-     << "  assign " << StartPort() << " = 0;\n";
+     << "  reg [" << aw << ":0] " << StartPort() << ";\n";
 
   ostream &is = tab_.InitialValueSectionStream();
   is << "      " << AddrPort() << " <= 0;\n"
@@ -75,11 +74,20 @@ void MasterPort::BuildInsn(IInsn *insn, State *st) {
      << I << "if (" << insn_st << " == 0) begin\n"
      << I << "  " << AddrPort() << " <= "
      << InsnWriter::RegisterValue(*insn->inputs_[0], tab_.GetNames()) << ";\n";
+  // Length.
   os << I << "  " << LenPort() << " <= ";
   if (insn->inputs_.size() >= 2) {
     os << InsnWriter::RegisterValue(*insn->inputs_[1], tab_.GetNames());
   } else {
     os << "~0";
+  }
+  os << ";\n";
+  // Start.
+  os << I << "  " << StartPort() << " <= ";
+  if (insn->inputs_.size() >= 3) {
+    os << InsnWriter::RegisterValue(*insn->inputs_[2], tab_.GetNames());
+  } else {
+    os << "0";
   }
   os << ";\n";
   os << I << "  if (" << AckPort() << ") begin\n"

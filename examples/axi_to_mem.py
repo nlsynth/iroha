@@ -33,6 +33,10 @@ axi_master_port.resource_params.AddValue("PORT-NAME-PREFIX", "a1_")
 rinsn = IInsn(axi_master_port)
 addr = design_tool.AllocConstNum(tab, False, 32, 128)
 rinsn.inputs.append(addr)
+rlen = design_tool.AllocConstNum(tab, False, 4, 7)
+rinsn.inputs.append(rlen)
+rstart = design_tool.AllocConstNum(tab, False, 4, 8)
+rinsn.inputs.append(rstart)
 rinsn.operand = "read"
 st1.insns.append(rinsn)
 
