@@ -94,6 +94,7 @@ public:
   string GetChannelAckPort() const;
 
   string GetExtTaskName() const;
+  void SetExtTaskName(const string &name);
 
 private:
   resource::ResourceParamValueSet *values_;

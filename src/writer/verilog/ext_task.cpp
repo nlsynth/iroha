@@ -2,6 +2,7 @@
 
 #include "design/design_util.h"
 #include "iroha/i_design.h"
+#include "iroha/logging.h"
 #include "iroha/resource_class.h"
 #include "iroha/resource_params.h"
 #include "writer/module_template.h"
@@ -144,6 +145,7 @@ void ExtTask::BuildPorts() {
   IResource *done_res =
     DesignUtil::FindOneResourceByClassName(tab_.GetITable(),
 					   resource::kExtTaskDone);
+  CHECK(done_res);
   for (int i = 0; i < done_res->input_types_.size(); ++i) {
     AddPortToTop(DataPin(*done_res, i), true,
 		 done_res->input_types_[i].GetWidth());

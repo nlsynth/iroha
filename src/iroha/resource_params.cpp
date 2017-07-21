@@ -330,4 +330,8 @@ string ResourceParams::GetExtTaskName() const {
   return values_->GetStringParam(resource::kExtTaskName, "");
 }
 
+void ResourceParams::SetExtTaskName(const string &name) {
+  values_->SetStringParam(resource::kExtTaskName, name);
+}
+
 }  // namespace iroha
