@@ -129,7 +129,8 @@ void Task::BuildTaskResource() {
       e = "else ";
     }
     string en = TaskEnablePin(*(tab_.GetITable()), caller->GetTable());
-    fs << "     " << e << "if (" << ack_cond << " && " << en << ") begin\n";
+    fs << "      " << e << "if (" << ack_cond << " && " << en << ") begin\n"
+       << "      // Capturing args\n";
     for (int i = 0; i < res_.output_types_.size(); ++i) {
       string ad = TaskArgPin(*(tab_.GetITable()), i, false, nullptr);
       string as = TaskArgPin(*(tab_.GetITable()), i, false, caller->GetTable());

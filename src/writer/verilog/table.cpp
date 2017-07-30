@@ -64,6 +64,7 @@ void Table::BuildStateDecl() {
     return;
   }
   ostream &sd = tmpl_->GetStream(kStateDeclSection);
+  sd << "  // state names\n";
 
   int max_id = 0;
   for (auto *st : i_table_->states_) {
@@ -298,7 +299,8 @@ Task *Table::GetTask() const {
 }
 
 string Table::GetStateCondition(const IState *st) const {
-  return StateVariable() + " == " + Util::Itoa(st->GetId());
+  return StateVariable() + " == `" +
+    StateNameFromTable(*i_table_, st->GetId());
 }
 
 }  // namespace verilog

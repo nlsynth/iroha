@@ -17,6 +17,7 @@ public:
   virtual void Write(ostream &os);
   const IState *GetIState() const;
   static void WriteTaskEntry(Table *tab, ostream &os);
+  bool IsCompoundCycle() const;
   Names *GetNames() const;
 
   ostream &StateBodySectionStream() const;
@@ -27,9 +28,11 @@ private:
   void WriteTransitionBody(ostream &os);
   void CopyResults(const IInsn *insn, bool to_wire, ostream &os);
   string StateBodySectionName() const;
+  string MultiCycleTransitionCond();
 
 protected:
   void WriteStateBody(ostream &os);
+  void ClearMultiCycleState(ostream &os);
 
   IState *i_state_;
   Table *table_;

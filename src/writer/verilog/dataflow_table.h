@@ -22,14 +22,21 @@ public:
 
   virtual string GetStateCondition(const IState *st) const;
 
+  string BlockingCondition() const;
+  bool CanBlock() const;
+
 private:
   virtual void BuildStates();
   virtual void BuildStateDecl();
   virtual void WriteReset(ostream &os);
   virtual void WriteBody(ostream &os);
 
+  bool ScanMultiCycle();
+  void BuildBlockingCondition(ostream &os) const;
+
   // Same vector as states_.
   vector<DataFlowState *> df_states_;
+  bool has_multi_cycle_;
 };
 
 }  // namespace verilog

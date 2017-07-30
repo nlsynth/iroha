@@ -6,7 +6,7 @@
 
 namespace iroha {
 
-int ResourceAttr::NumMultiCycleInsn(IState *st) {
+int ResourceAttr::NumMultiCycleInsn(const IState *st) {
   int n = 0;
   for (IInsn *insn : st->insns_) {
     if (IsMultiCycleInsn(insn)) {

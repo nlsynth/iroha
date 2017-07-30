@@ -223,8 +223,7 @@ string Resource::JoinStatesWithSubState(const map<IState *, IInsn *> &sts,
   for (auto &p : sts) {
     IState *st = p.first;
     IInsn *insn = p.second;
-    conds.push_back("(" + tab_.StateVariable() + " == `" +
-		    Table::StateNameFromTable(*tab_.GetITable(), st->GetId()) +
+    conds.push_back("(" + tab_.GetStateCondition(st) +
 		    " && " +
 		    InsnWriter::MultiCycleStateName(*insn->GetResource()) +
 		    " == " + Util::Itoa(sub) +

@@ -9,7 +9,7 @@ namespace iroha {
 class ResourceAttr {
 public:
   static bool IsMultiCycleInsn(IInsn *insn);
-  static int NumMultiCycleInsn(IState *st);
+  static int NumMultiCycleInsn(const IState *st);
   static bool IsExtAccessResource(IResource *res);
 };
 

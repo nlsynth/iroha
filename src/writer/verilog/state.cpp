@@ -119,30 +119,42 @@ void State::WriteTransitionBody(ostream &os) {
 
 void State::WriteTransition(ostream &os) {
   if (is_compound_cycle_) {
+    ClearMultiCycleState(os);
     os << I << "  if (";
-    vector<string> sts;
-    for (IInsn *insn : i_state_->insns_) {
-      if (!ResourceAttr::IsMultiCycleInsn(insn)) {
-	continue;
-      }
-      IResource *res = insn->GetResource();
-      string st = InsnWriter::MultiCycleStateName(*res);
-      st = "(" + st + " == 3)";
-      sts.push_back(st);
-    }
-    os << Util::Join(sts, " && ");
+    os << MultiCycleTransitionCond();
     os << ") begin\n";
-    for (IInsn *insn : i_state_->insns_) {
-      if (ResourceAttr::IsMultiCycleInsn(insn)) {
-	string st = InsnWriter::MultiCycleStateName(*insn->GetResource());
-	os << I << "    " << st << " <= " << "0;\n";
-      }
-    }
   }
   WriteTransitionBody(os);
   if (is_compound_cycle_) {
     os << I << "  end\n";
   }
+}
+
+void State::ClearMultiCycleState(ostream &os) {
+  os << I << "  if ("
+     << MultiCycleTransitionCond()
+     << ") begin\n";
+  for (IInsn *insn : i_state_->insns_) {
+    if (ResourceAttr::IsMultiCycleInsn(insn)) {
+      string st = InsnWriter::MultiCycleStateName(*insn->GetResource());
+      os << I << "    " << st << " <= " << "0;\n";
+    }
+  }
+  os << I << "  end\n";
+}
+
+string State::MultiCycleTransitionCond() {
+  vector<string> sts;
+  for (IInsn *insn : i_state_->insns_) {
+    if (!ResourceAttr::IsMultiCycleInsn(insn)) {
+      continue;
+    }
+    IResource *res = insn->GetResource();
+    string st = InsnWriter::MultiCycleStateName(*res);
+    st = "(" + st + " == 3)";
+    sts.push_back(st);
+  }
+  return Util::Join(sts, " && ");
 }
 
 void State::WriteTaskEntry(Table *tab, ostream &os) {
@@ -160,6 +172,10 @@ void State::WriteTaskEntry(Table *tab, ostream &os) {
      << tab->TaskEntrySectionContents()
      << I << "  end\n"
      << I << "end\n";
+}
+
+bool State::IsCompoundCycle() const {
+  return is_compound_cycle_;
 }
 
 Names *State::GetNames() const {

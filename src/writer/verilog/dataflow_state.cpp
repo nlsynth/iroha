@@ -3,6 +3,7 @@
 #include "design/design_util.h"
 #include "iroha/i_design.h"
 #include "iroha/resource_class.h"
+#include "writer/verilog/dataflow_table.h"
 #include "writer/verilog/insn_writer.h"
 #include "writer/verilog/shared_reg.h"
 
@@ -10,8 +11,8 @@ namespace iroha {
 namespace writer {
 namespace verilog {
 
-DataFlowState::DataFlowState(IState *state, Table *table, Names *names)
-  : State(state, table, names) {
+DataFlowState::DataFlowState(IState *state, DataFlowTable *table, Names *names)
+  : State(state, table, names), df_table_(table) {
 }
 
 DataFlowState::~DataFlowState() {
@@ -38,6 +39,10 @@ void DataFlowState::BuildIncomingTransitions(const vector<DataFlowStateTransitio
     conds.push_back(s);
   }
   string c = Util::Join(conds, " || ");
+  if (df_table_->CanBlock()) {
+    //    c = "(" + c + ") && !" + df_table_->BlockingCondition();
+    c = df_table_->BlockingCondition() + " ? 0 : " + c;
+  }
   incoming_transitions_ =
     "      " + StateVariable(i_state_) + " <= " + c + ";\n";
 }
@@ -47,19 +52,34 @@ void DataFlowState::Write(ostream &os) {
   if (i_state_->GetTable()->GetInitialState() == i_state_) {
     IInsn *insn = DesignUtil::FindDataFlowInInsn(i_state_->GetTable());
     s = StartCondition(insn);
+    if (df_table_->CanBlock()) {
+      s += " && !" + df_table_->BlockingCondition();
+    }
   } else {
     s = StateVariable(i_state_);
   }
   os << "      // State: " << i_state_->GetId() << "\n";
   os << incoming_transitions_;
+  if (df_table_->CanBlock()) {
+    os << "      " << StateWaitVariable(i_state_)
+       << " <= " << StateVariable(i_state_) << " && "
+       << df_table_->BlockingCondition() << ";\n";
+  }
   os << "      if (" << s << ") begin\n";
   WriteStateBody(os);
+  if (is_compound_cycle_) {
+    ClearMultiCycleState(os);
+  }
   os << "      end\n";
 }
 
 string DataFlowState::StateVariable(const IState *st) {
   return "st_" + Util::Itoa(st->GetTable()->GetId()) + "_" +
     Util::Itoa(st->GetId());
+}
+
+string DataFlowState::StateWaitVariable(const IState *st) {
+  return StateVariable(st) + "_w";
 }
 
 vector<DataFlowStateTransition> DataFlowState::GetTransitions() {

@@ -19,11 +19,12 @@ struct DataFlowStateTransition {
 
 class DataFlowState : public State {
 public:
-  DataFlowState(IState *state, Table *table, Names *names);
+  DataFlowState(IState *state, DataFlowTable *table, Names *names);
   virtual ~DataFlowState();
 
   virtual void Write(ostream &os);
   static string StateVariable(const IState *st);
+  static string StateWaitVariable(const IState *st);
   void BuildIncomingTransitions(const vector<DataFlowStateTransition> &trs);
 
   vector<DataFlowStateTransition> GetTransitions();
@@ -32,6 +33,8 @@ private:
   string StartCondition(IInsn *insn);
 
   string incoming_transitions_;
+  // Same as table_.
+  DataFlowTable *df_table_;
 };
 
 }  // namespace verilog
