@@ -40,7 +40,6 @@ void DataFlowState::BuildIncomingTransitions(const vector<DataFlowStateTransitio
   }
   string c = Util::Join(conds, " || ");
   if (df_table_->CanBlock()) {
-    //    c = "(" + c + ") && !" + df_table_->BlockingCondition();
     c = df_table_->BlockingCondition() + " ? 0 : " + c;
   }
   incoming_transitions_ =

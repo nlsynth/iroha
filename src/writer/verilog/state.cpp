@@ -53,11 +53,17 @@ void State::Write(ostream &os) {
 
 void State::WriteStateBody(ostream &os) {
   os << StateBodySectionContents();
+  if (is_compound_cycle_) {
+    os << I << "  if (" << MultiCycleTransitionCond() << ") begin\n";
+  }
   for (auto *insn : i_state_->insns_) {
     auto *res = insn->GetResource();
     if (!resource::IsSet(*res->GetClass())) {
       CopyResults(insn, false, os);
     }
+  }
+  if (is_compound_cycle_) {
+    os << I << "  end\n";
   }
 }
 
