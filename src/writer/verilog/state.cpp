@@ -54,7 +54,8 @@ void State::Write(ostream &os) {
 void State::WriteStateBody(ostream &os) {
   os << StateBodySectionContents();
   if (is_compound_cycle_) {
-    os << I << "  if (" << MultiCycleTransitionCond() << ") begin\n";
+    os << I << "  if (" << MultiCycleTransitionCond() << ") begin\n"
+       << I << "    // 1 cycle insns\n";
   }
   for (auto *insn : i_state_->insns_) {
     auto *res = insn->GetResource();
@@ -126,9 +127,8 @@ void State::WriteTransitionBody(ostream &os) {
 void State::WriteTransition(ostream &os) {
   if (is_compound_cycle_) {
     ClearMultiCycleState(os);
-    os << I << "  if (";
-    os << MultiCycleTransitionCond();
-    os << ") begin\n";
+    os << I << "  if (" << MultiCycleTransitionCond()
+       << ") begin\n";
   }
   WriteTransitionBody(os);
   if (is_compound_cycle_) {
@@ -138,8 +138,8 @@ void State::WriteTransition(ostream &os) {
 
 void State::ClearMultiCycleState(ostream &os) {
   os << I << "  if ("
-     << MultiCycleTransitionCond()
-     << ") begin\n";
+     << MultiCycleTransitionCond() << ") begin\n"
+     << I << "    // clears sub states\n";
   for (IInsn *insn : i_state_->insns_) {
     if (ResourceAttr::IsMultiCycleInsn(insn)) {
       string st = InsnWriter::MultiCycleStateName(*insn->GetResource());

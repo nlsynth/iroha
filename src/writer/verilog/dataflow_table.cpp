@@ -110,8 +110,9 @@ void DataFlowTable::BuildBlockingCondition(ostream &os) const {
 	subs.push_back(d);
       }
     }
-    string c = "(!" + DataFlowState::StateVariable(ist) +
-      " && (" + Util::Join(subs, " || ") + "))";
+    string c = "(" + DataFlowState::StateVariable(ist) + " || (" +
+      DataFlowState::StateWaitVariable(ist) +
+      " && !(" + Util::Join(subs, " && ") + ")))";
     conds.push_back(c);
   }
   os << Util::Join(conds, " || ") << ";\n";

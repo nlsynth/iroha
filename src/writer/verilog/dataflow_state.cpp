@@ -2,6 +2,7 @@
 
 #include "design/design_util.h"
 #include "iroha/i_design.h"
+#include "iroha/logging.h"
 #include "iroha/resource_class.h"
 #include "writer/verilog/dataflow_table.h"
 #include "writer/verilog/insn_writer.h"
@@ -33,6 +34,13 @@ void DataFlowState::BuildIncomingTransitions(const vector<DataFlowStateTransitio
     } else {
       s = StateVariable(prev_st);
     }
+    if (df_table_->CanBlock()) {
+      if (tr.from->IsCompoundCycle()) {
+	s = "(" + StateWaitVariable(prev_st) + ")";
+      } else {
+	s = "(" + s + " || " + StateWaitVariable(prev_st) + ")";
+      }
+    }
     if (!tr.cond.empty()) {
       s = "(" + s + " && " + tr.cond + ")";
     }
@@ -47,22 +55,26 @@ void DataFlowState::BuildIncomingTransitions(const vector<DataFlowStateTransitio
 }
 
 void DataFlowState::Write(ostream &os) {
-  string s;
-  if (i_state_->GetTable()->GetInitialState() == i_state_) {
-    IInsn *insn = DesignUtil::FindDataFlowInInsn(i_state_->GetTable());
-    s = StartCondition(insn);
-    if (df_table_->CanBlock()) {
-      s += " && !" + df_table_->BlockingCondition();
-    }
-  } else {
-    s = StateVariable(i_state_);
-  }
   os << "      // State: " << i_state_->GetId() << "\n";
   os << incoming_transitions_;
   if (df_table_->CanBlock()) {
     os << "      " << StateWaitVariable(i_state_)
-       << " <= " << StateVariable(i_state_) << " && "
-       << df_table_->BlockingCondition() << ";\n";
+       << " <= " << StateVariable(i_state_) << " || ("
+       << StateWaitVariable(i_state_) << " && "
+       << df_table_->BlockingCondition() << ");\n";
+  }
+  string s;
+  if (i_state_->GetTable()->GetInitialState() == i_state_) {
+    CHECK(!is_compound_cycle_) << "Can't process compound && initial state";
+    IInsn *insn = DesignUtil::FindDataFlowInInsn(i_state_->GetTable());
+    s = StartCondition(insn);
+  } else if (is_compound_cycle_) {
+    s = StateVariable(i_state_) + " || " + StateWaitVariable(i_state_);
+  } else {
+    s = StateVariable(i_state_);
+  }
+  if (!is_compound_cycle_ && df_table_->CanBlock()) {
+      s += " && !" + df_table_->BlockingCondition();
   }
   os << "      if (" << s << ") begin\n";
   WriteStateBody(os);
