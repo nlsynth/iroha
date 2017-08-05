@@ -4,6 +4,7 @@
 #include "iroha/resource_class.h"
 #include "iroha/resource_params.h"
 #include "writer/module_template.h"
+#include "writer/verilog/embed.h"
 #include "writer/verilog/ext_task.h"
 #include "writer/verilog/insn_writer.h"
 #include "writer/verilog/module.h"
@@ -22,32 +23,67 @@ ExtTaskCall::ExtTaskCall(const IResource &res, const Table &table)
 void ExtTaskCall::BuildResource() {
   auto *klass = res_.GetClass();
   if (resource::IsExtTaskCall(*klass)) {
-    auto *params = res_.GetParams();
-    string fn = params->GetExtTaskName();
-    AddPortToTop(ExtTask::ReqValidPin(res_), true, 0);
-    AddPortToTop(ExtTask::ReqReadyPin(res_), false, 0);
-    for (int i = 0; i < res_.input_types_.size(); ++i) {
-      AddPortToTop(ExtTask::ArgPin(res_, i), true,
-		   res_.input_types_[i].GetWidth());
-    }
-    AddPortToTop(ExtTask::ResValidPin(res_), false, 0);
-    AddPortToTop(ExtTask::ResReadyPin(res_), true, 0);
-    // Finds corresponding ext-task-wait resource.
-    const IResource *wait_res = nullptr;
-    for (IResource *res : tab_.GetITable()->resources_) {
-      if (res->GetParentResource() == &res_) {
-	wait_res = &res_;
-      }
-    }
-    ostream &rs = tmpl_->GetStream(kRegisterSection);
-    for (int i = 0; i < wait_res->output_types_.size(); ++i) {
-      AddPortToTop(ExtTask::DataPin(*wait_res, i), false,
-		   wait_res->output_types_[i].GetWidth());
-      rs << "  reg "
-	 << Table::WidthSpec(wait_res->output_types_[i].GetWidth())
-	 << " " << ResCaptureReg(i) << ";\n";
-    }
+    BuildExtTaskCallResource();
   }
+  // does nothing for resource::IsExtTaskWait().
+}
+
+void ExtTaskCall::BuildExtTaskCallResource() {
+  auto *params = res_.GetParams();
+  string fn = params->GetExtTaskName();
+  string connection;
+  AddPort(ExtTask::ReqValidPin(res_), true, 0, &connection);
+  AddPort(ExtTask::ReqReadyPin(res_), false, 0, &connection);
+  for (int i = 0; i < res_.input_types_.size(); ++i) {
+    AddPort(ExtTask::ArgPin(res_, i), true,
+	    res_.input_types_[i].GetWidth(), &connection);
+  }
+  AddPort(ExtTask::ResValidPin(res_), false, 0, &connection);
+  AddPort(ExtTask::ResReadyPin(res_), true, 0, &connection);
+  const IResource *wait_res = GetWaitResource();
+  ostream &rs = tmpl_->GetStream(kRegisterSection);
+  for (int i = 0; i < wait_res->output_types_.size(); ++i) {
+    AddPort(ExtTask::DataPin(*wait_res, i), false,
+	    wait_res->output_types_[i].GetWidth(), &connection);
+    rs << "  reg "
+       << Table::WidthSpec(wait_res->output_types_[i].GetWidth())
+       << " " << ResCaptureReg(i) << ";\n";
+  }
+  if (IsEmbedded()) {
+    BuildEmbeddedModule(connection);
+  }
+}
+
+void ExtTaskCall::AddPort(const string &name, bool is_output, int width,
+			  string *connection) {
+  ostream &rs = tmpl_->GetStream(kRegisterSection);
+  if (IsEmbedded()) {
+    if (is_output) {
+      rs << "  reg";
+    } else {
+      rs << "  wire";
+    }
+    rs << " " << Table::WidthSpec(width) << name << ";\n";
+    *connection += ", ." + name + "(" + name + ")";
+  } else {
+    AddPortToTop(name, is_output, width);
+  }
+}
+
+void ExtTaskCall::BuildEmbeddedModule(const string &connection) {
+  auto *params = res_.GetParams();
+  tab_.GetEmbeddedModules()->RequestModule(*params);
+
+  auto *ports = tab_.GetPorts();
+  ostream &is = tmpl_->GetStream(kEmbeddedInstanceSection);
+  string name = params->GetEmbeddedModuleName();
+  is << "  // " << name << "\n"
+     << "  "  << name << " inst_" << tab_.GetITable()->GetId() << "_" << name
+     << "(";
+  is << "." << params->GetEmbeddedModuleClk() << "(" << ports->GetClk() << "), "
+     << "." << params->GetEmbeddedModuleReset() << "(" << ports->GetReset() << ")";
+  is << connection;
+  is << ");\n";
 }
 
 void ExtTaskCall::BuildInsn(IInsn *insn, State *st) {
@@ -111,6 +147,21 @@ void ExtTaskCall::BuildInsn(IInsn *insn, State *st) {
 string ExtTaskCall::ResCaptureReg(int nth) {
   return "ext_task_res_" + Util::Itoa(tab_.GetITable()->GetId()) + "_"
     + Util::Itoa(nth);
+}
+
+bool ExtTaskCall::IsEmbedded() const {
+  auto *params = res_.GetParams();
+  return !(params->GetEmbeddedModuleName().empty());
+}
+
+const IResource *ExtTaskCall::GetWaitResource() const {
+  const IResource *wait_res = nullptr;
+  for (IResource *res : tab_.GetITable()->resources_) {
+    if (res->GetParentResource() == &res_) {
+      wait_res = &res_;
+    }
+  }
+  return wait_res;
 }
 
 }  // namespace verilog

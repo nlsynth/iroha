@@ -16,7 +16,14 @@ public:
   virtual void BuildInsn(IInsn *insn, State *st);
 
 private:
+  void BuildExtTaskCallResource();
+  void BuildEmbeddedModule(const string &connection);
   string ResCaptureReg(int nth);
+  bool IsEmbedded() const;
+  // Finds corresponding ext-task-wait resource.
+  const IResource *GetWaitResource() const;
+  void AddPort(const string &name, bool is_output, int width,
+	       string *connection);
 };
 
 }  // namespace verilog
