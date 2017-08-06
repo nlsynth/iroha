@@ -302,18 +302,6 @@ string ResourceParams::GetEmbeddedModuleReset() const {
   return values_->GetStringParam(resource::kEmbeddedModuleReset, "rst");
 }
 
-string ResourceParams::GetEmbeddedModuleReq() const {
-  return values_->GetStringParam(resource::kEmbeddedModuleReq, "");
-}
-
-string ResourceParams::GetEmbeddedModuleAck() const {
-  return values_->GetStringParam(resource::kEmbeddedModuleAck, "");
-}
-
-vector<string> ResourceParams::GetEmbeddedModuleArgs() const {
-  return values_->GetValues(resource::kEmbeddedModuleArgs);
-}
-
 string ResourceParams::GetChannelDataPort() const {
   return values_->GetStringParam(resource::kChannelDataPort, "");
 }

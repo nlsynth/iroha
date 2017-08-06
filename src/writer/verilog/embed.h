@@ -14,6 +14,7 @@ namespace verilog {
 class EmbeddedModules {
 public:
   ~EmbeddedModules();
+
   void RequestModule(const ResourceParams &params);
   InternalSRAM *RequestInternalSRAM(const Module &mod,
 				    const IResource &res,
@@ -32,19 +33,6 @@ private:
   set<string> files_;
   vector<InternalSRAM *> srams_;
   vector<pair<const IResource *, bool> > axi_ports_;
-};
-
-class EmbeddedResource : public Resource {
-public:
-  EmbeddedResource(const IResource &res, const Table &table);
-
-  virtual void BuildResource() override;
-  virtual void BuildInsn(IInsn *insn, State *st) override;
-
-private:
-  string ArgRegName(const ResourceParams &params, int nth);
-  string AckWireName(const ResourceParams &params);
-  string ReqRegName(const ResourceParams &params);
 };
 
 }  // namespace verilog

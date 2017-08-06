@@ -1,24 +1,23 @@
-module mod_hello(clk, rst_n, req_hello, ack_hello, arg_hello);
+module mod_hello(clk, rst_n, req_valid, req_ready);
    input clk;
    input rst_n;
-   input req_hello;
-   input [31:0] arg_hello;
-   output ack_hello;
+   input req_valid;
+   output req_ready;
 
-   reg 	  ack_hello;
+   reg 	  req_ready;
    reg 	  done;
 
    always @(posedge clk) begin
       if (!rst_n) begin
 	 done <= 0;
       end else begin
-	 if (req_hello) begin
+	 if (req_valid) begin
 	    if (!done) begin
-		$display("Hello world [%d]", arg_hello);
+		$display("Hello world!");
 		done <= 1;
 	    end
 	 end
-	 ack_hello <= req_hello;
+	 req_ready <= req_valid;
       end
    end
 endmodule

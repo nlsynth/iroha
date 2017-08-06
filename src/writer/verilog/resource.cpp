@@ -9,7 +9,6 @@
 #include "writer/verilog/axi/slave_port.h"
 #include "writer/verilog/channel.h"
 #include "writer/verilog/dataflow_in.h"
-#include "writer/verilog/embed.h"
 #include "writer/verilog/ext_io.h"
 #include "writer/verilog/ext_task.h"
 #include "writer/verilog/ext_task_call.h"
@@ -26,6 +25,8 @@
 #include "writer/verilog/table.h"
 #include "writer/verilog/task.h"
 #include "writer/verilog/ticker.h"
+
+#include <set>
 
 namespace iroha {
 namespace writer {
@@ -48,9 +49,6 @@ Resource *Resource::Create(const IResource &res, const Table &table) {
   }
   if (resource::IsForeignRegister(*klass)) {
     return new ForeignReg(res, table);
-  }
-  if (resource::IsEmbedded(*klass)) {
-    return new EmbeddedResource(res, table);
   }
   if (resource::IsChannelRead(*klass) ||
       resource::IsChannelWrite(*klass)) {
@@ -85,7 +83,8 @@ Resource *Resource::Create(const IResource &res, const Table &table) {
       resource::IsExtTaskDone(*klass)) {
     return new ExtTask(res, table);
   }
-  if (resource::IsExtTaskCall(*klass) ||
+  if (resource::IsEmbedded(*klass) ||
+      resource::IsExtTaskCall(*klass) ||
       resource::IsExtTaskWait(*klass)) {
     return new ExtTaskCall(res, table);
   }

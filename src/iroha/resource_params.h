@@ -27,9 +27,6 @@ const char kEmbeddedModule[] = "EMBEDDED-MODULE";
 const char kEmbeddedModuleFile[] = "EMBEDDED-MODULE-FILE";
 const char kEmbeddedModuleClk[] = "EMBEDDED-MODULE-CLOCK";
 const char kEmbeddedModuleReset[] = "EMBEDDED-MODULE-RESET";
-const char kEmbeddedModuleReq[] = "EMBEDDED-MODULE-REQ";
-const char kEmbeddedModuleAck[] = "EMBEDDED-MODULE-ACK";
-const char kEmbeddedModuleArgs[] = "EMBEDDED-MODULE-ARGS";
 const char kSramPortIndex[] = "SRAM-PORT-INDEX";
 const char kChannelDataPort[] = "CHANNEL-DATA";
 const char kChannelEnPort[] = "CHANNEL-EN";
@@ -85,9 +82,6 @@ public:
   string GetEmbeddedModuleFileName() const;
   string GetEmbeddedModuleClk() const;
   string GetEmbeddedModuleReset() const;
-  string GetEmbeddedModuleReq() const;
-  string GetEmbeddedModuleAck() const;
-  vector<string> GetEmbeddedModuleArgs() const;
 
   string GetChannelDataPort() const;
   string GetChannelEnPort() const;

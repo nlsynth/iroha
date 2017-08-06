@@ -73,7 +73,10 @@ string ExtTask::DataPin(const IResource *res, int nth) {
 
 string ExtTask::PinName(const IResource *res, const string &name) {
   if (res != nullptr) {
-    return res->GetParams()->GetExtTaskName() + "_" + name;
+    const string &prefix = res->GetParams()->GetExtTaskName();
+    if (!prefix.empty()) {
+      return res->GetParams()->GetExtTaskName() + "_" + name;
+    }
   }
   return name;
 }
