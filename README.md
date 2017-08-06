@@ -54,13 +54,11 @@ Please read src/iroha/iroha.h, src/iroha/iroha_main.cpp examples/ for more detai
 * P2: Values wider than 64bits
 * P2: Set constraint not to split related insns
 * P2: Simplify wait cycle if there's 1 multi cycle insn in a state
-* P2: Pluggable optimizer and writer
 * P2: Set reset polarity to embedded module.
 * P2: Allow multiple embedded module instances.
 * P2: Carry bit of adder as input/output.
 * P2: Use profiling information to estimate IPC.
 * Q: Do we need instance/module separation?
-* AXI: Allow to use single port ram.
 * AXI: Allow or fail to attach both master/slave to an array.
 
 -- Source tree

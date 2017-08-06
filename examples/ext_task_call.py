@@ -18,7 +18,8 @@ design_tool.AddNextState(st1, st2)
 design_tool.AddNextState(st2, st3)
 tab.initialSt = st1
 
-task_call = design_tool.CreateExtTaskCall(tab, "fn")
+# task_call = design_tool.CreateExtTaskCall(tab, "fn")
+task_call = design_tool.CreateEmbeddedExtTaskCall(tab, "mod_task", "mod_task.v", "clk", "rst_n")
 task_wait = design_tool.CreateExtTaskWait(tab, task_call)
 
 task_call.input_types.append(IValueType(False, 32))

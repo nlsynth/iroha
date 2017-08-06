@@ -22,7 +22,8 @@ private:
   bool IsEmbedded() const;
   // Finds corresponding ext-task-wait resource.
   const IResource *GetWaitResource() const;
-  void AddPort(const string &name, bool is_output, int width,
+  void AddPort(const string &name, const string &wire_name,
+	       bool is_output, int width,
 	       string *connection);
 };
 

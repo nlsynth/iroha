@@ -172,6 +172,14 @@ def CreateExtTaskCall(table, name):
     res.resource_params.AddValue("EXT-TASK", name)
     return res
 
+def CreateEmbeddedExtTaskCall(table, name, fn, clk, rst):
+    res = CreateExtTaskCall(table, name)
+    res.resource_params.AddValue("EMBEDDED-MODULE", name)
+    res.resource_params.AddValue("EMBEDDED-MODULE-FILE", fn)
+    res.resource_params.AddValue("EMBEDDED-MODULE-CLOCK", clk)
+    res.resource_params.AddValue("EMBEDDED-MODULE-RESET", rst)
+    return res
+
 def CreateExtTaskWait(table, tab):
     res = createResource(table, "ext-task-wait")
     res.parent_resource = tab

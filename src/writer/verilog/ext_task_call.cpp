@@ -32,18 +32,24 @@ void ExtTaskCall::BuildExtTaskCallResource() {
   auto *params = res_.GetParams();
   string fn = params->GetExtTaskName();
   string connection;
-  AddPort(ExtTask::ReqValidPin(res_), true, 0, &connection);
-  AddPort(ExtTask::ReqReadyPin(res_), false, 0, &connection);
+  AddPort(ExtTask::ReqValidPin(&res_), ExtTask::ReqValidPin(nullptr),
+	  true, 0, &connection);
+  AddPort(ExtTask::ReqReadyPin(&res_), ExtTask::ReqReadyPin(nullptr),
+	  false, 0, &connection);
   for (int i = 0; i < res_.input_types_.size(); ++i) {
-    AddPort(ExtTask::ArgPin(res_, i), true,
+    AddPort(ExtTask::ArgPin(&res_, i),
+	    ExtTask::ArgPin(nullptr, i), true,
 	    res_.input_types_[i].GetWidth(), &connection);
   }
-  AddPort(ExtTask::ResValidPin(res_), false, 0, &connection);
-  AddPort(ExtTask::ResReadyPin(res_), true, 0, &connection);
+  AddPort(ExtTask::ResValidPin(&res_), ExtTask::ResValidPin(nullptr),
+	  false, 0, &connection);
+  AddPort(ExtTask::ResReadyPin(&res_), ExtTask::ResReadyPin(nullptr),
+	  true, 0, &connection);
   const IResource *wait_res = GetWaitResource();
   ostream &rs = tmpl_->GetStream(kRegisterSection);
   for (int i = 0; i < wait_res->output_types_.size(); ++i) {
-    AddPort(ExtTask::DataPin(*wait_res, i), false,
+    AddPort(ExtTask::DataPin(wait_res, i),
+	    ExtTask::DataPin(nullptr, i), false,
 	    wait_res->output_types_[i].GetWidth(), &connection);
     rs << "  reg "
        << Table::WidthSpec(wait_res->output_types_[i].GetWidth())
@@ -54,7 +60,8 @@ void ExtTaskCall::BuildExtTaskCallResource() {
   }
 }
 
-void ExtTaskCall::AddPort(const string &name, bool is_output, int width,
+void ExtTaskCall::AddPort(const string &name, const string &wire_name,
+			  bool is_output, int width,
 			  string *connection) {
   ostream &rs = tmpl_->GetStream(kRegisterSection);
   if (IsEmbedded()) {
@@ -64,7 +71,7 @@ void ExtTaskCall::AddPort(const string &name, bool is_output, int width,
       rs << "  wire";
     }
     rs << " " << Table::WidthSpec(width) << name << ";\n";
-    *connection += ", ." + name + "(" + name + ")";
+    *connection += ", ." + wire_name + "(" + name + ")";
   } else {
     AddPortToTop(name, is_output, width);
   }
@@ -93,18 +100,18 @@ void ExtTaskCall::BuildInsn(IInsn *insn, State *st) {
     string insn_st = InsnWriter::MultiCycleStateName(*(insn->GetResource()));
     static const char I[] = "          ";
     os << I << "if (" << insn_st << " == 0) begin\n"
-       << I << "  " << ExtTask::ReqValidPin(res_)
+       << I << "  " << ExtTask::ReqValidPin(&res_)
        << " <= 1;\n"
        << I << "  " << insn_st << " <= 1;\n";
     for (int i = 0; i < insn->inputs_.size(); ++i) {
-      os << I << "  " << ExtTask::ArgPin(res_, i) << " <= "
+      os << I << "  " << ExtTask::ArgPin(&res_, i) << " <= "
 	 << InsnWriter::RegisterValue(*insn->inputs_[i], tab_.GetNames())
 	 << ";\n";
     }
     os << I << "end\n";
     os << I << "if (" << insn_st << " == 1) begin\n"
-       << I << "  if (" << ExtTask::ResValidPin(res_) << ") begin\n"
-       << I << "    " << ExtTask::ReqValidPin(res_)
+       << I << "  if (" << ExtTask::ResValidPin(&res_) << ") begin\n"
+       << I << "    " << ExtTask::ReqValidPin(&res_)
        << " <= 0;\n"
        << I << "    " << insn_st << " <= 3;\n"
        << I << "  end\n";
@@ -125,13 +132,13 @@ void ExtTaskCall::BuildInsn(IInsn *insn, State *st) {
     static const char I[] = "          ";
     const IResource *call = res_.GetParentResource();
     os << I << "if (" << insn_st << " == 0) begin\n"
-       << I << "  " << ExtTask::ResReadyPin(*call)
+       << I << "  " << ExtTask::ResReadyPin(call)
        << " <= 1;\n"
        << I << "  " << insn_st << " <= 1;\n"
        << I << "end\n"
        << I << "if (" << insn_st << " == 1) begin\n"
-       << I << "  if (" << ExtTask::ResValidPin(*call) << ") begin\n"
-       << I << "    " << ExtTask::ResReadyPin(*call)
+       << I << "  if (" << ExtTask::ResValidPin(call) << ") begin\n"
+       << I << "    " << ExtTask::ResReadyPin(call)
        << " <= 0;\n"
        << I << "  " << insn_st << " <= 3;\n";
     for (int i = 0; i < insn->outputs_.size(); ++i) {

@@ -14,14 +14,14 @@ public:
 
   static bool IsExtTask(const Table &table);
   static string TaskReadyPin(const Table &table);
-  static string ReqValidPin(const IResource &res);
-  static string ReqReadyPin(const IResource &res);
-  static string BusyPin(const IResource &res);
-  static string ResValidPin(const IResource &res);
-  static string ResReadyPin(const IResource &res);
-  static string ArgPin(const IResource &res, int nth);
+  static string ReqValidPin(const IResource *res);
+  static string ReqReadyPin(const IResource *res);
+  static string BusyPin(const IResource *res);
+  static string ResValidPin(const IResource *res);
+  static string ResReadyPin(const IResource *res);
+  static string ArgPin(const IResource *res, int nth);
   // This one takes ext-task-done resource.
-  static string DataPin(const IResource &res, int nth);
+  static string DataPin(const IResource *res, int nth);
 
   virtual void BuildResource();
   virtual void BuildInsn(IInsn *insn, State *st);
@@ -30,6 +30,7 @@ private:
   void BuildExtTask();
   void BuildPorts();
   string ArgCaptureReg(int nth);
+  static string PinName(const IResource *res, const string &name);
 };
 
 }  // namespace verilog
