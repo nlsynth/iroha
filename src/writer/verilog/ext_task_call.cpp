@@ -119,11 +119,7 @@ void ExtTaskCall::BuildInsn(IInsn *insn, State *st) {
   }
   if (resource::IsExtTaskWait(*klass)) {
     ostream &ws = tmpl_->GetStream(kInsnWireValueSection);
-    ostream &rs = tmpl_->GetStream(kRegisterSection);
     for (int i = 0; i < insn->outputs_.size(); ++i) {
-      rs << "  reg "
-	 << Table::WidthSpec(res_.output_types_[i].GetWidth())
-	 << " " << ResCaptureReg(i) << ";\n";
       ws << "  assign " << InsnWriter::InsnOutputWireName(*insn, i)
 	 << " = " << ResCaptureReg(i) << ";\n";
     }
@@ -143,7 +139,7 @@ void ExtTaskCall::BuildInsn(IInsn *insn, State *st) {
        << I << "  " << insn_st << " <= 3;\n";
     for (int i = 0; i < insn->outputs_.size(); ++i) {
       os << I << "  " << ResCaptureReg(i) << " <= "
-	 << InsnWriter::RegisterValue(*insn->outputs_[i], tab_.GetNames())
+	 << ExtTask::DataPin(&res_, i)
 	 << ";\n";
     }
     os << I << "  end\n"
@@ -165,7 +161,7 @@ const IResource *ExtTaskCall::GetWaitResource() const {
   const IResource *wait_res = nullptr;
   for (IResource *res : tab_.GetITable()->resources_) {
     if (res->GetParentResource() == &res_) {
-      wait_res = &res_;
+      wait_res = res;
     }
   }
   return wait_res;
