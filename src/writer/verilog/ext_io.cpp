@@ -33,7 +33,7 @@ void ExtIO::BuildResource() {
     string input_port;
     int width;
     params->GetExtInputPort(&input_port, &width);
-    AddPortToTop(input_port, false, width);
+    AddPortToTop(input_port, false, false, width);
   }
   if (resource::IsExtOutput(*klass)) {
     string output_port;
@@ -44,7 +44,7 @@ void ExtIO::BuildResource() {
       os << "      " << output_port << " <= "
 	 << SelectValueByState(Util::Itoa(default_output_value_)) << ";\n";
     }
-    AddPortToTop(output_port, true, width);
+    AddPortToTop(output_port, true, false, width);
   }
 }
 

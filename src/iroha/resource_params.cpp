@@ -302,6 +302,22 @@ string ResourceParams::GetEmbeddedModuleReset() const {
   return values_->GetStringParam(resource::kEmbeddedModuleReset, "rst");
 }
 
+void ResourceParams::SetEmbeddedModuleIO(bool is_output, const vector<string> &ports) {
+  if (is_output) {
+    SetValues(resource::kEmbeddedModuleOutputs, ports);
+  } else {
+    SetValues(resource::kEmbeddedModuleInputs, ports);
+  }
+}
+
+vector<string> ResourceParams::GetEmbeddedModuleIO(bool is_output) {
+  if (is_output) {
+    return GetValues(resource::kEmbeddedModuleOutputs);
+  } else {
+    return GetValues(resource::kEmbeddedModuleInputs);
+  }
+}
+
 string ResourceParams::GetChannelDataPort() const {
   return values_->GetStringParam(resource::kChannelDataPort, "");
 }

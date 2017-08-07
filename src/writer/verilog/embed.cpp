@@ -4,15 +4,9 @@
 #include "iroha/logging.h"
 #include "iroha/resource_class.h"
 #include "iroha/resource_params.h"
-#include "writer/module_template.h"
 #include "writer/verilog/axi/master_port.h"
 #include "writer/verilog/axi/slave_port.h"
-#include "writer/verilog/insn_writer.h"
 #include "writer/verilog/internal_sram.h"
-#include "writer/verilog/module.h"
-#include "writer/verilog/ports.h"
-#include "writer/verilog/state.h"
-#include "writer/verilog/table.h"
 
 namespace iroha {
 namespace writer {

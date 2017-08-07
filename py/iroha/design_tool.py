@@ -97,6 +97,12 @@ def CreateEmbedResource(table, name, fn, clk, rst):
     res.resource_params.AddValue("EMBEDDED-MODULE-RESET", rst)
     return res
 
+def AddEmbeddedModuleIO(res, inputs, outputs):
+    for i in inputs:
+        res.resource_params.AddValue("EMBEDDED-MODULE-INPUTS", i)
+    for o in outputs:
+        res.resource_params.AddValue("EMBEDDED-MODULE-OUTPUTS", o)
+
 def CreateIsolatedRegister(module, tab=None):
     if not tab:
         tab = ITable(module)

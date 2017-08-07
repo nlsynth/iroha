@@ -25,6 +25,8 @@ private:
   void AddPort(const string &name, const string &wire_name,
 	       bool is_output, int width,
 	       string *connection);
+  void AddIO(string *connection);
+  void AddIOPorts(bool is_output, string *connection);
 };
 
 }  // namespace verilog

@@ -59,6 +59,7 @@ void ExtTaskCall::BuildExtTaskCallResource() {
     }
   }
   if (IsEmbedded()) {
+    AddIO(&connection);
     BuildEmbeddedModule(connection);
   }
 }
@@ -76,7 +77,7 @@ void ExtTaskCall::AddPort(const string &name, const string &wire_name,
     rs << " " << Table::WidthSpec(width) << name << ";\n";
     *connection += ", ." + wire_name + "(" + name + ")";
   } else {
-    AddPortToTop(name, is_output, width);
+    AddPortToTop(name, is_output, false, width);
   }
 }
 
@@ -147,6 +148,28 @@ void ExtTaskCall::BuildInsn(IInsn *insn, State *st) {
     }
     os << I << "  end\n"
        << I << "end\n";
+  }
+}
+
+void ExtTaskCall::AddIO(string *connection) {
+  AddIOPorts(false, connection);
+  AddIOPorts(true, connection);
+}
+
+void ExtTaskCall::AddIOPorts(bool is_output, string *connection) {
+  auto *params = res_.GetParams();
+  vector<string> ports = params->GetEmbeddedModuleIO(is_output);
+  for (string &p : ports) {
+    vector<string> s;
+    Util::SplitStringUsing(p, ":", &s);
+    string name = s[0];
+    int w = 0;
+    if (s.size() == 2) {
+      w = Util::Atoi(s[1]);
+
+    }
+    AddPortToTop(name, is_output, true, w);
+    *connection += ", ." + name + "(" + name + ")";
   }
 }
 

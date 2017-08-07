@@ -39,7 +39,8 @@ protected:
   void WriteStateUnion(const map<IState *, IInsn *> &callers,
 		       ostream &os);
   string SelectValueByState(const string &default_value);
-  void AddPortToTop(const string &port, bool is_output, int width);
+  void AddPortToTop(const string &port, bool is_output, bool from_embedded,
+		    int width);
 
   const IResource &res_;
   const Table &tab_;

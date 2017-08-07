@@ -249,15 +249,21 @@ string Resource::SelectValueByState(const string &default_value) {
   return v;
 }
 
-void Resource::AddPortToTop(const string &port, bool is_output, int width) {
+void Resource::AddPortToTop(const string &port, bool is_output,
+			    bool from_embedded, int width) {
+  // Owner module.
   Port::PortType type;
   if (is_output) {
     type = Port::OUTPUT;
+    if (is_output) {
+      type = Port::OUTPUT_WIRE;
+    }
   } else {
     type = Port::INPUT;
   }
   auto *ports = tab_.GetPorts();
   ports->AddPort(port, type, width);
+  // Outer modules.
   if (is_output) {
     type = Port::OUTPUT_WIRE;
   }

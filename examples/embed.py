@@ -16,6 +16,8 @@ design_tool.AddNextState(st1, st2)
 
 res = design_tool.CreateEmbedResource(tab, "mod_hello", "mod_hello.v", "clk", "rst_n")
 
+design_tool.AddEmbeddedModuleIO(res, ["x:32", "y:32"], ["z"])
+
 insn = IInsn(res)
 st1.insns.append(insn)
 

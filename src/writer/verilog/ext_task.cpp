@@ -146,13 +146,13 @@ void ExtTask::BuildExtTask() {
 void ExtTask::BuildPorts() {
   auto *params = res_.GetParams();
   string fn = params->GetExtTaskName();
-  AddPortToTop(ReqValidPin(&res_), false, 0);
-  AddPortToTop(ReqReadyPin(&res_), true, 0);
-  AddPortToTop(BusyPin(&res_), true, 0);
-  AddPortToTop(ResValidPin(&res_), true, 0);
-  AddPortToTop(ResReadyPin(&res_), false, 0);
+  AddPortToTop(ReqValidPin(&res_), false, false, 0);
+  AddPortToTop(ReqReadyPin(&res_), true, false, 0);
+  AddPortToTop(BusyPin(&res_), true, false, 0);
+  AddPortToTop(ResValidPin(&res_), true, false, 0);
+  AddPortToTop(ResReadyPin(&res_), false, false, 0);
   for (int i = 0; i < res_.output_types_.size(); ++i) {
-    AddPortToTop(ArgPin(&res_, i), false,
+    AddPortToTop(ArgPin(&res_, i), false, false,
 		 res_.output_types_[i].GetWidth());
   }
   IResource *done_res =
@@ -160,7 +160,7 @@ void ExtTask::BuildPorts() {
 					   resource::kExtTaskDone);
   CHECK(done_res);
   for (int i = 0; i < done_res->input_types_.size(); ++i) {
-    AddPortToTop(DataPin(done_res, i), true,
+    AddPortToTop(DataPin(done_res, i), true, false,
 		 done_res->input_types_[i].GetWidth());
   }
 }
