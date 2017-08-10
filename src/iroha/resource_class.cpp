@@ -127,6 +127,14 @@ bool IsDataFlowIn(const IResourceClass &rc) {
   return (rc.GetName() == kDataFlowIn);
 }
 
+bool IsExtFlowCall(const IResourceClass &rc) {
+  return (rc.GetName() == kExtFlowCall);
+}
+
+bool IsExtFlowResult(const IResourceClass &rc) {
+  return (rc.GetName() == kExtFlowResult);
+}
+
 bool IsExtTask(const IResourceClass &rc) {
   return (rc.GetName() == kExtTask);
 }
@@ -201,6 +209,8 @@ void InstallResourceClasses(IDesign *design) {
   InstallResource(design, resource::kBitSel, false);
   InstallResource(design, resource::kBitConcat, false);
   InstallResource(design, resource::kDataFlowIn, false);
+  InstallResource(design, resource::kExtFlowCall, true);
+  InstallResource(design, resource::kExtFlowResult, true);
   InstallResource(design, resource::kExtTask, true);
   InstallResource(design, resource::kExtTaskDone, true);
   InstallResource(design, resource::kExtTaskCall, true);

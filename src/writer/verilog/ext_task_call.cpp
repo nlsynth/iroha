@@ -23,7 +23,8 @@ ExtTaskCall::ExtTaskCall(const IResource &res, const Table &table)
 void ExtTaskCall::BuildResource() {
   auto *klass = res_.GetClass();
   // Embedded resource is also allowed for compatibility.
-  if (resource::IsExtTaskCall(*klass) || resource::IsEmbedded(*klass)) {
+  if (resource::IsExtTaskCall(*klass) || resource::IsExtFlowCall(*klass) ||
+      resource::IsEmbedded(*klass)) {
     BuildExtTaskCallResource();
   }
   // does nothing for resource::IsExtTaskWait().
@@ -32,11 +33,14 @@ void ExtTaskCall::BuildResource() {
 void ExtTaskCall::BuildExtTaskCallResource() {
   auto *params = res_.GetParams();
   string fn = params->GetExtTaskName();
+  bool use_handshake = UseHandShake();
   string connection;
-  AddPort(ExtTask::ReqValidPin(&res_), ExtTask::ReqValidPin(nullptr),
-	  true, 0, &connection);
-  AddPort(ExtTask::ReqReadyPin(&res_), ExtTask::ReqReadyPin(nullptr),
-	  false, 0, &connection);
+  if (use_handshake) {
+    AddPort(ExtTask::ReqValidPin(&res_), ExtTask::ReqValidPin(nullptr),
+	    true, 0, &connection);
+    AddPort(ExtTask::ReqReadyPin(&res_), ExtTask::ReqReadyPin(nullptr),
+	    false, 0, &connection);
+  }
   for (int i = 0; i < res_.input_types_.size(); ++i) {
     AddPort(ExtTask::ArgPin(&res_, i),
 	    ExtTask::ArgPin(nullptr, i), true,
@@ -44,10 +48,12 @@ void ExtTaskCall::BuildExtTaskCallResource() {
   }
   const IResource *wait_res = GetWaitResource();
   if (wait_res != nullptr) {
-    AddPort(ExtTask::ResValidPin(&res_), ExtTask::ResValidPin(nullptr),
-	    false, 0, &connection);
-    AddPort(ExtTask::ResReadyPin(&res_), ExtTask::ResReadyPin(nullptr),
-	    true, 0, &connection);
+    if (use_handshake) {
+      AddPort(ExtTask::ResValidPin(&res_), ExtTask::ResValidPin(nullptr),
+	      false, 0, &connection);
+      AddPort(ExtTask::ResReadyPin(&res_), ExtTask::ResReadyPin(nullptr),
+	      true, 0, &connection);
+    }
     ostream &rs = tmpl_->GetStream(kRegisterSection);
     for (int i = 0; i < wait_res->output_types_.size(); ++i) {
       AddPort(ExtTask::DataPin(wait_res, i),
@@ -100,55 +106,87 @@ void ExtTaskCall::BuildEmbeddedModule(const string &connection) {
 void ExtTaskCall::BuildInsn(IInsn *insn, State *st) {
   auto *klass = res_.GetClass();
   if (resource::IsExtTaskCall(*klass) || resource::IsEmbedded(*klass)) {
-    ostream &os = st->StateBodySectionStream();
-    string insn_st = InsnWriter::MultiCycleStateName(*(insn->GetResource()));
-    static const char I[] = "          ";
-    os << I << "if (" << insn_st << " == 0) begin\n"
-       << I << "  " << ExtTask::ReqValidPin(&res_)
-       << " <= 1;\n"
-       << I << "  " << insn_st << " <= 1;\n";
-    for (int i = 0; i < insn->inputs_.size(); ++i) {
-      os << I << "  " << ExtTask::ArgPin(&res_, i) << " <= "
-	 << InsnWriter::RegisterValue(*insn->inputs_[i], tab_.GetNames())
-	 << ";\n";
-    }
-    os << I << "end\n";
-    os << I << "if (" << insn_st << " == 1) begin\n"
-       << I << "  if (" << ExtTask::ReqReadyPin(&res_) << ") begin\n"
-       << I << "    " << ExtTask::ReqValidPin(&res_)
-       << " <= 0;\n"
-       << I << "    " << insn_st << " <= 3;\n"
-       << I << "  end\n";
-    os << I << "end\n";
+    BuildTaskCallInsn(insn, st);
   }
   if (resource::IsExtTaskWait(*klass)) {
-    ostream &ws = tmpl_->GetStream(kInsnWireValueSection);
-    for (int i = 0; i < insn->outputs_.size(); ++i) {
-      ws << "  assign " << InsnWriter::InsnOutputWireName(*insn, i)
-	 << " = " << ResCaptureReg(i) << ";\n";
-    }
-    ostream &os = st->StateBodySectionStream();
-    string insn_st = InsnWriter::MultiCycleStateName(*(insn->GetResource()));
-    static const char I[] = "          ";
-    const IResource *call = res_.GetParentResource();
-    os << I << "if (" << insn_st << " == 0) begin\n"
-       << I << "  " << ExtTask::ResReadyPin(call)
-       << " <= 1;\n"
-       << I << "  " << insn_st << " <= 1;\n"
-       << I << "end\n"
-       << I << "if (" << insn_st << " == 1) begin\n"
-       << I << "  if (" << ExtTask::ResValidPin(call) << ") begin\n"
-       << I << "    " << ExtTask::ResReadyPin(call)
-       << " <= 0;\n"
-       << I << "  " << insn_st << " <= 3;\n";
-    for (int i = 0; i < insn->outputs_.size(); ++i) {
-      os << I << "  " << ResCaptureReg(i) << " <= "
-	 << ExtTask::DataPin(&res_, i)
-	 << ";\n";
-    }
-    os << I << "  end\n"
-       << I << "end\n";
+    BuildTaskWaitInsn(insn, st);
   }
+  if (resource::IsExtFlowCall(*klass)) {
+    BuildFlowCallInsn(insn, st);
+  }
+  if (resource::IsExtFlowResult(*klass)) {
+    BuildFlowResultInsn(insn, st);
+  }
+}
+
+void ExtTaskCall::BuildFlowCallInsn(IInsn *insn, State *st) {
+  static const char I[] = "          ";
+  ostream &os = st->StateBodySectionStream();
+  for (int i = 0; i < insn->inputs_.size(); ++i) {
+    os << I << ExtTask::ArgPin(&res_, i) << " <= "
+       << InsnWriter::RegisterValue(*insn->inputs_[i], tab_.GetNames())
+       << ";\n";
+  }
+}
+
+void ExtTaskCall::BuildFlowResultInsn(IInsn *insn, State *st) {
+  ostream &ws = tmpl_->GetStream(kInsnWireValueSection);
+  for (int i = 0; i < insn->outputs_.size(); ++i) {
+    ws << "  assign " << InsnWriter::InsnOutputWireName(*insn, i)
+       << " = " << ExtTask::DataPin(&res_, i) << ";\n";
+  }
+}
+
+void ExtTaskCall::BuildTaskCallInsn(IInsn *insn, State *st) {
+  ostream &os = st->StateBodySectionStream();
+  string insn_st = InsnWriter::MultiCycleStateName(*(insn->GetResource()));
+  static const char I[] = "          ";
+  os << I << "if (" << insn_st << " == 0) begin\n"
+     << I << "  " << ExtTask::ReqValidPin(&res_)
+     << " <= 1;\n"
+     << I << "  " << insn_st << " <= 1;\n";
+  for (int i = 0; i < insn->inputs_.size(); ++i) {
+    os << I << "  " << ExtTask::ArgPin(&res_, i) << " <= "
+       << InsnWriter::RegisterValue(*insn->inputs_[i], tab_.GetNames())
+       << ";\n";
+  }
+  os << I << "end\n";
+  os << I << "if (" << insn_st << " == 1) begin\n"
+     << I << "  if (" << ExtTask::ReqReadyPin(&res_) << ") begin\n"
+     << I << "    " << ExtTask::ReqValidPin(&res_)
+     << " <= 0;\n"
+     << I << "    " << insn_st << " <= 3;\n"
+     << I << "  end\n";
+  os << I << "end\n";
+}
+
+void ExtTaskCall::BuildTaskWaitInsn(IInsn *insn, State *st) {
+  ostream &ws = tmpl_->GetStream(kInsnWireValueSection);
+  for (int i = 0; i < insn->outputs_.size(); ++i) {
+    ws << "  assign " << InsnWriter::InsnOutputWireName(*insn, i)
+       << " = " << ResCaptureReg(i) << ";\n";
+  }
+  ostream &os = st->StateBodySectionStream();
+  string insn_st = InsnWriter::MultiCycleStateName(*(insn->GetResource()));
+  static const char I[] = "          ";
+  const IResource *call = res_.GetParentResource();
+  os << I << "if (" << insn_st << " == 0) begin\n"
+     << I << "  " << ExtTask::ResReadyPin(call)
+     << " <= 1;\n"
+     << I << "  " << insn_st << " <= 1;\n"
+     << I << "end\n"
+     << I << "if (" << insn_st << " == 1) begin\n"
+     << I << "  if (" << ExtTask::ResValidPin(call) << ") begin\n"
+     << I << "    " << ExtTask::ResReadyPin(call)
+     << " <= 0;\n"
+     << I << "  " << insn_st << " <= 3;\n";
+  for (int i = 0; i < insn->outputs_.size(); ++i) {
+    os << I << "  " << ResCaptureReg(i) << " <= "
+       << ExtTask::DataPin(&res_, i)
+       << ";\n";
+  }
+  os << I << "  end\n"
+     << I << "end\n";
 }
 
 void ExtTaskCall::AddIO(string *connection) {
@@ -181,6 +219,14 @@ string ExtTaskCall::ResCaptureReg(int nth) {
 bool ExtTaskCall::IsEmbedded() const {
   auto *params = res_.GetParams();
   return !(params->GetEmbeddedModuleName().empty());
+}
+
+bool ExtTaskCall::UseHandShake() const {
+  auto *klass = res_.GetClass();
+  if (resource::IsExtFlowCall(*klass) || resource::IsExtFlowResult(*klass)) {
+    return false;
+  }
+  return true;
 }
 
 const IResource *ExtTaskCall::GetWaitResource() const {

@@ -85,7 +85,9 @@ Resource *Resource::Create(const IResource &res, const Table &table) {
   }
   if (resource::IsEmbedded(*klass) ||
       resource::IsExtTaskCall(*klass) ||
-      resource::IsExtTaskWait(*klass)) {
+      resource::IsExtTaskWait(*klass) ||
+      resource::IsExtFlowCall(*klass) ||
+      resource::IsExtFlowResult(*klass)) {
     return new ExtTaskCall(res, table);
   }
   if (resource::IsTicker(*klass)) {

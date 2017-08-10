@@ -18,8 +18,13 @@ public:
 private:
   void BuildExtTaskCallResource();
   void BuildEmbeddedModule(const string &connection);
+  void BuildTaskCallInsn(IInsn *insn, State *st);
+  void BuildTaskWaitInsn(IInsn *insn, State *st);
+  void BuildFlowCallInsn(IInsn *insn, State *st);
+  void BuildFlowResultInsn(IInsn *insn, State *st);
   string ResCaptureReg(int nth);
   bool IsEmbedded() const;
+  bool UseHandShake() const;
   // Finds corresponding ext-task-wait resource.
   const IResource *GetWaitResource() const;
   void AddPort(const string &name, const string &wire_name,

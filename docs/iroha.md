@@ -20,7 +20,7 @@ Reads from specified file name
 
         -opt [pass name]
 
-Performs speficied optimization
+Performs speficied optimization passes.
 
         -I [comman separated pathes]
 
@@ -45,6 +45,8 @@ Outputs Verilog
         -h
 
 Outputs HTML
+
+Iroha just outputs IR if no format is specified.
 
 ## Verilog specific
 

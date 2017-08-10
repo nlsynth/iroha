@@ -47,6 +47,9 @@ class IDesign(object):
         self.resource_classes.append(IResourceClass("ext-task-done"))
         self.resource_classes.append(IResourceClass("ext-task-call"))
         self.resource_classes.append(IResourceClass("ext-task-wait"))
+        # Method interface (flow)
+        self.resource_classes.append(IResourceClass("ext-flow-call"))
+        self.resource_classes.append(IResourceClass("ext-flow-result"))
         # AXI
         self.resource_classes.append(IResourceClass("axi-master-port"))
         self.resource_classes.append(IResourceClass("axi-slave-port"))

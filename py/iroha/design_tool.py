@@ -89,14 +89,6 @@ def createResource(table, klass):
     table.resources.append(res)
     return res
 
-def CreateEmbedResource(table, name, fn, clk, rst):
-    res = createResource(table, "embedded")
-    res.resource_params.AddValue("EMBEDDED-MODULE", name)
-    res.resource_params.AddValue("EMBEDDED-MODULE-FILE", fn)
-    res.resource_params.AddValue("EMBEDDED-MODULE-CLOCK", clk)
-    res.resource_params.AddValue("EMBEDDED-MODULE-RESET", rst)
-    return res
-
 def AddEmbeddedModuleIO(res, inputs, outputs):
     for i in inputs:
         res.resource_params.AddValue("EMBEDDED-MODULE-INPUTS", i)
@@ -188,6 +180,24 @@ def CreateEmbeddedExtTaskCall(table, name, fn, clk, rst):
 
 def CreateExtTaskWait(table, tab):
     res = createResource(table, "ext-task-wait")
+    res.parent_resource = tab
+    return res
+
+def CreateExtFlowCall(table, name):
+    res = createResource(table, "ext-flow-call")
+    res.resource_params.AddValue("EXT-TASK", name)
+    return res
+
+def CreateEmbeddedExtFlowCall(table, name, fn, clk, rst):
+    res = CreateExtFlowCall(table, name)
+    res.resource_params.AddValue("EMBEDDED-MODULE", name)
+    res.resource_params.AddValue("EMBEDDED-MODULE-FILE", fn)
+    res.resource_params.AddValue("EMBEDDED-MODULE-CLOCK", clk)
+    res.resource_params.AddValue("EMBEDDED-MODULE-RESET", rst)
+    return res
+
+def CreateExtFlowResult(table, tab):
+    res = createResource(table, "ext-flow-result")
     res.parent_resource = tab
     return res
 

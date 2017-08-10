@@ -14,7 +14,7 @@ tab.states.append(st2)
 tab.initialSt = st1
 design_tool.AddNextState(st1, st2)
 
-res = design_tool.CreateEmbedResource(tab, "mod_hello", "mod_hello.v", "clk", "rst_n")
+res = design_tool.CreateEmbeddedExtTaskCall(tab, "mod_hello", "mod_hello.v", "clk", "rst_n")
 
 design_tool.AddEmbeddedModuleIO(res, ["x:32", "y:32"], ["z"])
 
