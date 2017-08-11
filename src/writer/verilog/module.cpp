@@ -76,7 +76,7 @@ void Module::Write(ostream &os) {
     os << ChildModuleInstSectionContents(child, false);
     os << ");\n";
   }
-  os << "\nendmodule\n";
+  os << "\nendmodule // " << GetName() << "\n";
 }
 
 bool Module::GetResetPolarity() const {
