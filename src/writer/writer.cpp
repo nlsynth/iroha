@@ -27,6 +27,9 @@ bool Writer::Write(const string &fn) {
       return false;
     }
     os_deleter.reset(os);
+    if (!output_marker_.empty()) {
+      cout << output_marker_ << fn << "\n";
+    }
   }
   string shell;
   if (output_shell_module_) {
@@ -62,6 +65,10 @@ bool Writer::SetLanguage(const string &lang) {
 void Writer::OutputShellModule(bool b, bool self_clock) {
   output_shell_module_ = b;
   output_self_clock_ = self_clock;
+}
+
+void Writer::SetOutputMarker(const string &marker) {
+  output_marker_ = marker;
 }
 
 void Writer::DumpTable(const ITable *table, ostream &os) {

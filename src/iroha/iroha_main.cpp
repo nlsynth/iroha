@@ -20,7 +20,16 @@ void printVersion() {
 	    << "  -d Debug dump\n"
 	    << "  -j Don't process module-import\n"
 	    << "  -k Don't validate ids and names\n"
+	    << "  --output_marker=[marker]\n"
 	    << "  -opt [optimizers]\n";
+}
+
+string getFlagValue(int argc, char **argv, int *idx) {
+  (*idx)++;
+  if (!(*idx < argc)) {
+    return "";
+  }
+  return argv[*idx];
 }
 
 // Internal main function to embed the functionality in different binaries.
@@ -36,6 +45,7 @@ int main(int argc, char **argv) {
 
   string output;
   string debug_dump;
+  string output_marker;
   vector<string> opts;
   vector<string> paths;
 
@@ -77,24 +87,32 @@ int main(int argc, char **argv) {
       skipValidation = true;
       continue;
     }
-    if (arg == "-o" && i + 1 < argc) {
-      output = string(argv[i + 1]);
-      ++i;
+    if (arg == "-o") {
+      output = getFlagValue(argc, argv, &i);
       continue;
     }
-    if (arg == "-d" && i + 1 < argc) {
-      debug_dump = string(argv[i + 1]);
-      ++i;
+    if (arg == "-d") {
+      debug_dump = getFlagValue(argc, argv, &i);
       continue;
     }
-    if (arg == "-I" && i + 1 < argc) {
-      iroha::Util::SplitStringUsing(argv[i + 1], ",", &paths);
-      ++i;
+    if (arg == "-I") {
+      string inc = getFlagValue(argc, argv, &i);
+      iroha::Util::SplitStringUsing(inc, ",", &paths);
       continue;
     }
-    if (arg == "-opt" && i + 1 < argc) {
-      iroha::Util::SplitStringUsing(argv[i + 1], ",", &opts);
-      ++i;
+    if (arg == "-opt") {
+      string o = getFlagValue(argc, argv, &i);
+      iroha::Util::SplitStringUsing(o, ",", &opts);
+      continue;
+    }
+    vector<string> tokens;
+    iroha::Util::SplitStringUsing(arg, "=", &tokens);
+    if (tokens[0] == "--output_marker") {
+      if (tokens.size() == 1) {
+	output_marker = getFlagValue(argc, argv, &i);
+      } else {
+	output_marker = tokens[1];
+      }
       continue;
     }
     // The name can be "-".
@@ -129,6 +147,9 @@ int main(int argc, char **argv) {
       cerr << "Failed to optimize the design: " << fn << "\n";
     }
     WriterAPI *writer = Iroha::CreateWriter(design);
+    if (!output_marker.empty()) {
+      writer->SetOutputMarker(output_marker);
+    }
     if (shell || selfShell) {
       if (!output.empty()) {
 	writer->OutputShellModule(true, selfShell);
