@@ -21,6 +21,7 @@ void printVersion() {
 	    << "  -j Don't process module-import\n"
 	    << "  -k Don't validate ids and names\n"
 	    << "  --output_marker=[marker]\n"
+	    << "  --root=[root dir]\n"
 	    << "  -opt [optimizers]\n";
 }
 
@@ -46,6 +47,7 @@ int main(int argc, char **argv) {
   string output;
   string debug_dump;
   string output_marker;
+  string root_dir;
   vector<string> opts;
   vector<string> paths;
 
@@ -115,6 +117,14 @@ int main(int argc, char **argv) {
       }
       continue;
     }
+    if (tokens[0] == "--root") {
+      if (tokens.size() == 1) {
+	root_dir = getFlagValue(argc, argv, &i);
+      } else {
+	root_dir = tokens[1];
+      }
+      continue;
+    }
     // The name can be "-".
     files.push_back(arg);
   }
@@ -147,8 +157,8 @@ int main(int argc, char **argv) {
       cerr << "Failed to optimize the design: " << fn << "\n";
     }
     WriterAPI *writer = Iroha::CreateWriter(design);
-    if (!output_marker.empty()) {
-      writer->SetOutputMarker(output_marker);
+    if (!output_marker.empty() || !root_dir.empty()) {
+      writer->SetOutputConfig(root_dir, output_marker);
     }
     if (shell || selfShell) {
       if (!output.empty()) {

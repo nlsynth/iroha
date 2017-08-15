@@ -22,7 +22,11 @@ bool Writer::Write(const string &fn) {
   if (fn.empty()) {
     os = &cout;
   } else {
-    os = new ofstream(fn);
+    string fn_path = fn;
+    if (!root_dir_.empty()) {
+      fn_path = root_dir_ + "/" + fn_path;
+    }
+    os = new ofstream(fn_path);
     if (os == nullptr) {
       return false;
     }
@@ -67,7 +71,8 @@ void Writer::OutputShellModule(bool b, bool self_clock) {
   output_self_clock_ = self_clock;
 }
 
-void Writer::SetOutputMarker(const string &marker) {
+void Writer::SetOutputConfig(const string &root, const string &marker) {
+  root_dir_ = root;
   output_marker_ = marker;
 }
 

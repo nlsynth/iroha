@@ -14,7 +14,8 @@ public:
   virtual bool Write(const string &fn) override;
   virtual bool SetLanguage(const string &lang) override;
   virtual void OutputShellModule(bool b, bool self_clock) override;
-  virtual void SetOutputMarker(const string &marker) override;
+  virtual void SetOutputConfig(const string &root,
+			       const string &marker) override;
 
   static void DumpTable(const ITable *table, ostream &os);
 
@@ -26,6 +27,7 @@ private:
   bool output_shell_module_;
   bool output_self_clock_;
   string output_marker_;
+  string root_dir_;
 };
 
 }  // namespace writer
