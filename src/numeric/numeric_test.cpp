@@ -49,6 +49,19 @@ void concat() {
   cout << "r=" << r.Format() << "\n";
 }
 
+void fixup() {
+  cout << "fixup\n";
+  Numeric n;
+  n.type_.SetWidth(68);
+  n.SetValue(0xfffffffffffffff0ULL);
+  Numeric m;
+  WideOp::Shift(n, 16, true, &m);
+  m.type_ = n.type_;
+  cout << "m=" << m.Format() << "\n";
+  Op::FixupWidth(m.type_, &m);
+  cout << "m=" << m.Format() << "\n";
+}
+
 int main(int argc, char **argv) {
   cout << "sizeof(width)=" << sizeof(NumericWidth) << "\n";
   cout << "sizeof(numeric)=" << sizeof(Numeric) << "\n";
@@ -68,6 +81,7 @@ int main(int argc, char **argv) {
 
   shift();
   concat();
+  fixup();
 
   return 0;
 }

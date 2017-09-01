@@ -28,7 +28,7 @@ public:
   uint64_t GetMask() const {
     return mask_;
   }
-  int GetValueCount() {
+  int GetValueCount() const {
     return value_count_;
   }
   bool IsWide() const {

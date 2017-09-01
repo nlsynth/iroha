@@ -21,6 +21,12 @@ enum BinOp {
   BINOP_MUL,
 };
 
+// NOTE:
+// * Arithmetic operations wider than 64bits may not be implemented.
+// * Must not rely on output arg's .type_.
+// * Do not rely on input arg's .type_ as much as possible.
+// TODO: Add width argument to methods
+// (or even take NumericValue instead of Numeric.)
 class Op {
 public:
   static bool IsZero(const Numeric &n);

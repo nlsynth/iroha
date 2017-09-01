@@ -108,4 +108,15 @@ void WideOp::Concat(const Numeric &x, const Numeric &y, Numeric *a) {
   a->type_ = w;
 }
 
+void WideOp::FixupWidth(const NumericWidth &w, Numeric *num) {
+  uint64_t mask = ~0;
+  mask >>= (64 - (w.GetWidth() % 64));
+  int value_count = w.GetValueCount();
+  uint64_t *rv = num->GetMutableArray()->value_;
+  for (int i = value_count; i < value_count; ++i) {
+    rv[i] = 0;
+  }
+  rv[value_count - 1] &= mask;
+}
+
 }  // namespace iroha

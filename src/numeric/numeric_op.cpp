@@ -125,8 +125,11 @@ void Op::BitInv(const Numeric &num, Numeric *res) {
 }
 
 void Op::FixupWidth(const NumericWidth &w, Numeric *num) {
+  if (w.IsWide()) {
+    WideOp::FixupWidth(w, num);
+    return;
+  }
   num->SetValue(num->GetValue() & w.GetMask());
-  num->type_ = w;
 }
 
 void Op::SelectBits(const Numeric &num, int h, int l,
