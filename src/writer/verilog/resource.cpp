@@ -257,7 +257,7 @@ void Resource::AddPortToTop(const string &port, bool is_output,
   Port::PortType type;
   if (is_output) {
     type = Port::OUTPUT;
-    if (is_output) {
+    if (from_embedded) {
       type = Port::OUTPUT_WIRE;
     }
   } else {
