@@ -53,10 +53,22 @@ void SharedRegAccessor::BuildInsn(IInsn *insn, State *st) {
 }
 
 void SharedRegAccessor::BuildSharedRegReaderResource() {
+  ostream &rs = tmpl_->GetStream(kRegisterSection);
+  // NOTE: This part may be dup of AddCommonRootWire()
+  rs << "  // shared-reg-reader\n";
+  const IResource *reg = res_.GetParentResource();
+  int width = reg->GetParams()->GetWidth();
+  rs << "  wire ";
+  if (width > 0) {
+    rs << "[" << width - 1 << ":0] ";
+  }
+  rs << SharedReg::RegName(*reg) << ";\n";
+  if (UseNotify(&res_)) {
+    rs << "  wire " << SharedReg::RegNotifierName(*reg) << ";\n";
+  }
   if (UseMailbox(&res_)) {
     ostream &rs = tmpl_->GetStream(kRegisterSection);
     ostream &is = tab_.InitialValueSectionStream();
-    rs << "  // shared-reg-reader\n";
     rs << "  reg " << SharedReg::RegMailboxGetReqName(res_) << ";\n";
     is << "      " << SharedReg::RegMailboxGetReqName(res_) << " <= 0;\n";
     map<IState *, IInsn *> getters;
@@ -123,7 +135,7 @@ void SharedRegAccessor::BuildWriteWire(const IResource *writer) {
   const IModule *common_root = Connection::GetCommonRoot(reg_module,
 							 writer_module);
   if (writer_module != common_root) {
-    SharedReg::AddWire(common_root, &tab_, writer, true);
+    SharedReg::AddCommonRootWire(common_root, &tab_, writer, true);
   }
   // downward
   for (IModule *imod = reg_module; imod != common_root;
@@ -174,6 +186,11 @@ void SharedRegAccessor::GetAccessorFeatures(const IResource *accessor,
 					    bool *use_mailbox) {
   *use_notify = false;
   *use_mailbox = false;
+  auto *klass = accessor->GetClass();
+  if (resource::IsDataFlowIn(*klass)) {
+    *use_notify = true;
+    return;
+  }
   vector<IInsn *> insns = DesignUtil::GetInsnsByResource(accessor);
   for (auto *insn : insns) {
     const string &op = insn->GetOperand();

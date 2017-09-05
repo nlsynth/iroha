@@ -264,7 +264,7 @@ void SharedReg::BuildReadWire() {
 							   reader_module);
     if (reader_module != common_root && reg_module != common_root) {
       if (wired_modules.find(common_root) == wired_modules.end()) {
-	AddWire(common_root, &tab_, &res_, false);
+	AddCommonRootWire(common_root, &tab_, reader, false);
 	wired_modules.insert(common_root);
       }
     }
@@ -287,17 +287,18 @@ void SharedReg::BuildReadWire() {
   }
 }
 
-void SharedReg::AddWire(const IModule *common_root, const Table *tab,
-			const IResource *accessor, bool is_write) {
+void SharedReg::AddCommonRootWire(const IModule *common_root, const Table *tab,
+				  const IResource *accessor, bool is_write) {
+  const IResource *source;
+  if (is_write) {
+    source = accessor;
+  } else {
+    source = accessor->GetParentResource();
+  }
   Module *mod = tab->GetModule()->GetByIModule(common_root);
   auto *tmpl = mod->GetModuleTemplate();
   ostream &rs = tmpl->GetStream(kResourceSection);
-  int width;
-  if (is_write) {
-    width = accessor->GetParentResource()->GetParams()->GetWidth();
-  } else {
-    width = accessor->GetParams()->GetWidth();
-  }
+  int width = accessor->GetParentResource()->GetParams()->GetWidth();
   rs << "  wire ";
   if (width > 0) {
     rs << "[" << width - 1 << ":0] ";
@@ -305,19 +306,18 @@ void SharedReg::AddWire(const IModule *common_root, const Table *tab,
   if (is_write) {
     rs << WriterName(*accessor) << ";\n";
   } else {
-    rs << RegName(*accessor) << ";\n";
+    rs << RegName(*source) << ";\n";
   }
   if (is_write) {
     rs << "  wire " << WriterEnName(*accessor) << ";\n";
   }
-  bool notify = SharedRegAccessor::UseNotify(accessor)
-    || resource::IsDataFlowIn(*(accessor->GetClass()));
+  bool notify = SharedRegAccessor::UseNotify(accessor);
   if (notify) {
     rs << "  wire ";
     if (is_write) {
       rs << WriterNotifierName(*accessor) << ";\n";
     } else {
-      rs << RegNotifierName(*accessor) << ";\n";
+      rs << RegNotifierName(*source) << ";\n";
     }
   }
   bool mb = SharedRegAccessor::UseMailbox(accessor);

@@ -30,8 +30,8 @@ public:
   static string RegMailboxGetReqName(const IResource &res);
   static string RegMailboxGetAckName(const IResource &res);
 
-  static void AddWire(const IModule *common_root, const Table *tab,
-		      const IResource *accessor, bool is_write);
+  static void AddCommonRootWire(const IModule *common_root, const Table *tab,
+				const IResource *accessor, bool is_write);
   static void AddChildWire(const IResource *res, bool is_write, ostream &os);
 
 private:
