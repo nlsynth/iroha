@@ -188,67 +188,80 @@ void SharedReg::BuildInsn(IInsn *insn, State *st) {
   }
 }
 
-string SharedReg::WriterName(const IResource &res) {
-  return RegName(res) + "_w";
+string SharedReg::WriterName(const IResource &writer) {
+  return RegName(writer) + "_w";
 }
 
-string SharedReg::WriterEnName(const IResource &res) {
-  return WriterName(res) + "_en";
+string SharedReg::WriterEnName(const IResource &writer) {
+  return WriterName(writer) + "_en";
 }
 
-string SharedReg::RegNotifierName(const IResource &res) {
-  return RegName(res) + "_notify";
+string SharedReg::RegNotifierName(const IResource &reg) {
+  return RegName(reg) + "_notify";
 }
 
-string SharedReg::WriterNotifierName(const IResource &res) {
-  return RegName(res) + "_write_notify";
+string SharedReg::WriterNotifierName(const IResource &writer) {
+  return RegName(writer) + "_write_notify";
 }
 
-string SharedReg::RegMailboxName(const IResource &res) {
-  return RegName(res) + "_mailbox";
+string SharedReg::RegMailboxName(const IResource &reg) {
+  return RegName(reg) + "_mailbox";
 }
 
-string SharedReg::RegMailboxPutReqName(const IResource &res) {
-  return RegName(res) + "_mailbox_put_req";
+string SharedReg::RegMailboxPutReqName(const IResource &writer) {
+  return RegName(writer) + "_mailbox_put_req";
 }
 
-string SharedReg::RegMailboxPutAckName(const IResource &res) {
-  return RegName(res) + "_mailbox_put_ack";
+string SharedReg::RegMailboxPutAckName(const IResource &writer) {
+  return RegName(writer) + "_mailbox_put_ack";
 }
 
-string SharedReg::RegMailboxGetReqName(const IResource &res) {
-  return RegName(res) + "_mailbox_get_req";
+string SharedReg::RegMailboxGetReqName(const IResource &reader) {
+  return RegName(reader) + "_mailbox_get_req";
 }
 
-string SharedReg::RegMailboxGetAckName(const IResource &res) {
-  return RegName(res) + "_mailbox_get_ack";
+string SharedReg::RegMailboxGetAckName(const IResource &reader) {
+  return RegName(reader) + "_mailbox_get_ack";
 }
 
-string SharedReg::RegName(const IResource &res) {
-  auto *params = res.GetParams();
+string SharedReg::RegName(const IResource &reg) {
+  auto *params = reg.GetParams();
   int unused_width;
   string port_name;
   if (params != nullptr) {
     params->GetExtOutputPort(&port_name, &unused_width);
   }
-  ITable *tab = res.GetTable();
+  ITable *tab = reg.GetTable();
   IModule *mod = tab->GetModule();
-  return "shared_reg_" +
+  string n = "shared_reg_" +
     Util::Itoa(mod->GetId()) + "_" +
-    Util::Itoa(tab->GetId()) + "_" + Util::Itoa(res.GetId()) +
-    "_" + port_name;
+    Util::Itoa(tab->GetId()) + "_" + Util::Itoa(reg.GetId());
+  if (!port_name.empty()) {
+    n += "_" + port_name;
+  }
+  return n;
 }
 
-void SharedReg::AddChildWire(const IResource *res, bool is_write, ostream &os) {
+void SharedReg::AddChildWire(const IResource *accessor, bool is_write,
+			     bool use_notify, ostream &os) {
+  const IResource *reg = accessor->GetParentResource();
   string name;
   if (is_write) {
-    name = WriterName(*res);
+    name = WriterName(*accessor);
   } else {
-    name = RegName(*res);
+    name = RegName(*reg);
   }
   os << ", ." << name << "(" << name << ")";
   if (is_write) {
-    name = WriterEnName(*res);
+    name = WriterEnName(*accessor);
+    os << ", ." << name << "(" << name << ")";
+  }
+  if (use_notify) {
+    if (is_write) {
+      name = WriterNotifierName(*accessor);
+    } else {
+      name = RegNotifierName(*reg);
+    }
     os << ", ." << name << "(" << name << ")";
   }
 }
@@ -272,7 +285,7 @@ void SharedReg::BuildReadWire() {
     for (IModule *imod = reg_module; imod != common_root;
 	 imod = imod->GetParentModule()) {
       if (has_upward.find(imod) == has_upward.end()) {
-	AddReadPort(imod, &res_, true);
+	AddReadPort(imod, reader, true);
 	has_upward.insert(imod);
       }
     }
@@ -280,7 +293,7 @@ void SharedReg::BuildReadWire() {
     for (IModule *imod = reader_module; imod != common_root;
 	 imod = imod->GetParentModule()) {
       if (has_downward.find(imod) == has_downward.end()) {
-	AddReadPort(imod, &res_, false);
+	AddReadPort(imod, reader, false);
 	has_downward.insert(imod);
       }
     }
@@ -340,15 +353,25 @@ void SharedReg::AddReadPort(const IModule *imod, const IResource *reader,
 			    bool upward) {
   Module *mod = tab_.GetModule()->GetByIModule(imod);
   Ports *ports = mod->GetPorts();
-  int width = reader->GetParams()->GetWidth();
+  const IResource *reg = reader->GetParentResource();
+  int width = reg->GetParams()->GetWidth();
   if (upward) {
-    ports->AddPort(RegName(*reader), Port::OUTPUT_WIRE, width);
+    ports->AddPort(RegName(*reg), Port::OUTPUT_WIRE, width);
   } else {
-    ports->AddPort(RegName(*reader), Port::INPUT, width);
+    ports->AddPort(RegName(*reg), Port::INPUT, width);
   }
   Module *parent_mod = mod->GetParentModule();
   ostream &os = parent_mod->ChildModuleInstSectionStream(mod);
-  AddChildWire(reader, false, os);
+  bool use_notify = SharedRegAccessor::UseNotify(reader);
+  if (use_notify) {
+    if (upward) {
+      ports->AddPort(RegNotifierName(*reg), Port::OUTPUT_WIRE, 0);
+    } else {
+      ports->AddPort(RegNotifierName(*reg), Port::INPUT, 0);
+    }
+  }
+  // TODO: Fix mailbox.
+  AddChildWire(reader, false, use_notify, os);
 }
 
 void SharedReg::GetOptions(bool *use_notify, bool *use_mailbox) {

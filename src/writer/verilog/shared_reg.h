@@ -15,24 +15,24 @@ public:
   virtual void BuildResource() override;
   virtual void BuildInsn(IInsn *insn, State *st) override;
 
-  static string RegName(const IResource &res);
-  static string WriterName(const IResource &res);
-  static string WriterEnName(const IResource &res);
+  static string RegName(const IResource &reg);
+  static string WriterName(const IResource &writer);
+  static string WriterEnName(const IResource &writer);
   // Notifier
   //  notification wire to readers
-  static string RegNotifierName(const IResource &res);
+  static string RegNotifierName(const IResource &reg);
   //  notification from each writer
-  static string WriterNotifierName(const IResource &res);
+  static string WriterNotifierName(const IResource &writer);
   // Mailbox
-  static string RegMailboxName(const IResource &res);
-  static string RegMailboxPutReqName(const IResource &res);
-  static string RegMailboxPutAckName(const IResource &res);
-  static string RegMailboxGetReqName(const IResource &res);
-  static string RegMailboxGetAckName(const IResource &res);
+  static string RegMailboxName(const IResource &reg);
+  static string RegMailboxPutReqName(const IResource &writer);
+  static string RegMailboxPutAckName(const IResource &writer);
+  static string RegMailboxGetReqName(const IResource &reader);
+  static string RegMailboxGetAckName(const IResource &reader);
 
   static void AddCommonRootWire(const IModule *common_root, const Table *tab,
 				const IResource *accessor, bool is_write);
-  static void AddChildWire(const IResource *res, bool is_write, ostream &os);
+  static void AddChildWire(const IResource *accessor, bool is_write, bool use_notify, ostream &os);
 
 private:
   void BuildReadWire();
