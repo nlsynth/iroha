@@ -243,26 +243,40 @@ string SharedReg::RegName(const IResource &reg) {
 }
 
 void SharedReg::AddChildWire(const IResource *accessor, bool is_write,
-			     bool use_notify, ostream &os) {
+			     bool use_notify, bool use_mailbox,
+			     ostream &os) {
   const IResource *reg = accessor->GetParentResource();
+  vector<string> names;
   string name;
   if (is_write) {
-    name = WriterName(*accessor);
+    names.push_back(WriterName(*accessor));
   } else {
-    name = RegName(*reg);
+    names.push_back(RegName(*reg));
   }
-  os << ", ." << name << "(" << name << ")";
   if (is_write) {
-    name = WriterEnName(*accessor);
-    os << ", ." << name << "(" << name << ")";
+    names.push_back(WriterEnName(*accessor));
   }
   if (use_notify) {
     if (is_write) {
-      name = WriterNotifierName(*accessor);
+      names.push_back(WriterNotifierName(*accessor));
     } else {
-      name = RegNotifierName(*reg);
+      names.push_back(RegNotifierName(*reg));
     }
-    os << ", ." << name << "(" << name << ")";
+  }
+  if (use_mailbox) {
+    if (is_write) {
+      names.push_back(RegMailboxPutReqName(*accessor));
+    } else {
+      names.push_back(RegMailboxGetReqName(*accessor));
+    }
+    if (is_write) {
+      names.push_back(RegMailboxPutAckName(*accessor));
+    } else {
+      names.push_back(RegMailboxGetAckName(*accessor));
+    }
+  }
+  for (const string &s : names) {
+    os << ", ." << s << "(" << s << ")";
   }
 }
 
@@ -370,8 +384,17 @@ void SharedReg::AddReadPort(const IModule *imod, const IResource *reader,
       ports->AddPort(RegNotifierName(*reg), Port::INPUT, 0);
     }
   }
-  // TODO: Fix mailbox.
-  AddChildWire(reader, false, use_notify, os);
+  bool use_mailbox = SharedRegAccessor::UseMailbox(reader);
+  if (use_mailbox) {
+    if (upward) {
+      ports->AddPort(RegMailboxPutReqName(*reader), Port::INPUT, 0);
+      ports->AddPort(RegMailboxPutAckName(*reader), Port::OUTPUT_WIRE, 0);
+    } else {
+      ports->AddPort(RegMailboxPutReqName(*reader), Port::OUTPUT_WIRE, 0);
+      ports->AddPort(RegMailboxPutAckName(*reader), Port::INPUT, 0);
+    }
+  }
+  AddChildWire(reader, false, use_notify, use_mailbox, os);
 }
 
 void SharedReg::GetOptions(bool *use_notify, bool *use_mailbox) {

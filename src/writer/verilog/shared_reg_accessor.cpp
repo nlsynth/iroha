@@ -178,7 +178,7 @@ void SharedRegAccessor::AddWritePort(const IModule *imod,
   }
   Module *parent_mod = mod->GetParentModule();
   ostream &os = parent_mod->ChildModuleInstSectionStream(mod);
-  SharedReg::AddChildWire(writer, true, notify, os);
+  SharedReg::AddChildWire(writer, true, notify, sem, os);
 }
 
 void SharedRegAccessor::GetAccessorFeatures(const IResource *accessor,

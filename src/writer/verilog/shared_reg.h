@@ -32,7 +32,8 @@ public:
 
   static void AddCommonRootWire(const IModule *common_root, const Table *tab,
 				const IResource *accessor, bool is_write);
-  static void AddChildWire(const IResource *accessor, bool is_write, bool use_notify, ostream &os);
+  // Generates wiring in a sub module declaration .abc(abc)
+  static void AddChildWire(const IResource *accessor, bool is_write, bool use_notify, bool use_mailbox, ostream &os);
 
 private:
   void BuildReadWire();
