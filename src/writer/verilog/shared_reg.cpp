@@ -291,7 +291,7 @@ void SharedReg::BuildReadWire() {
 							   reader_module);
     if (reader_module != common_root && reg_module != common_root) {
       if (wired_modules.find(common_root) == wired_modules.end()) {
-	AddCommonRootWire(common_root, &tab_, reader, false);
+	AddSignals(common_root, &tab_, reader, true);
 	wired_modules.insert(common_root);
       }
     }
@@ -314,48 +314,54 @@ void SharedReg::BuildReadWire() {
   }
 }
 
-void SharedReg::AddCommonRootWire(const IModule *common_root, const Table *tab,
-				  const IResource *accessor, bool is_write) {
-  const IResource *source;
-  if (is_write) {
-    source = accessor;
-  } else {
-    source = accessor->GetParentResource();
-  }
-  Module *mod = tab->GetModule()->GetByIModule(common_root);
+void SharedReg::AddSignals(const IModule *imod, const Table *tab,
+			   const IResource *accessor, bool wire_only) {
+  // NOTE: SharedReg::BuildResource() may have some dups of this code.
+  bool is_writer = resource::IsSharedRegWriter(*(accessor->GetClass()));
+  const IResource *reg = accessor->GetParentResource();
+  Module *mod = tab->GetModule()->GetByIModule(imod);
   auto *tmpl = mod->GetModuleTemplate();
   ostream &rs = tmpl->GetStream(kResourceSection);
   int width = accessor->GetParentResource()->GetParams()->GetWidth();
-  rs << "  wire ";
+  string drive_by_writer = "wire";
+  string drive_by_reader = "wire";
+  if (!wire_only) {
+    if (is_writer) {
+      drive_by_writer = "reg";
+    } else {
+      drive_by_reader = "reg";
+    }
+  }
+  rs << "  " << drive_by_writer << " ";
   if (width > 0) {
     rs << "[" << width - 1 << ":0] ";
   }
-  if (is_write) {
+  if (is_writer) {
     rs << WriterName(*accessor) << ";\n";
   } else {
-    rs << RegName(*source) << ";\n";
+    rs << RegName(*reg) << ";\n";
   }
-  if (is_write) {
-    rs << "  wire " << WriterEnName(*accessor) << ";\n";
+  if (is_writer) {
+    rs << "  " << drive_by_writer << " " << WriterEnName(*accessor) << ";\n";
   }
   bool notify = SharedRegAccessor::UseNotify(accessor);
   if (notify) {
-    rs << "  wire ";
-    if (is_write) {
+    rs << "  " << drive_by_writer << " ";
+    if (is_writer) {
       rs << WriterNotifierName(*accessor) << ";\n";
     } else {
-      rs << RegNotifierName(*source) << ";\n";
+      rs << RegNotifierName(*reg) << ";\n";
     }
   }
   bool mb = SharedRegAccessor::UseMailbox(accessor);
   if (mb) {
-    if (is_write) {
-      rs << "  wire "
+    if (is_writer) {
+      rs << "  " << drive_by_writer << " "
 	 << RegMailboxPutReqName(*accessor) << ";\n"
 	 << "  wire "
 	 << RegMailboxPutAckName(*accessor) << ";\n";
     } else {
-      rs << "  wire "
+      rs << "  " << drive_by_reader << " "
 	 << RegMailboxGetReqName(*accessor) << ";\n"
 	 << "  wire "
 	 << RegMailboxGetAckName(*accessor) << ";\n";

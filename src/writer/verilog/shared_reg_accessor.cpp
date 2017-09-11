@@ -53,23 +53,12 @@ void SharedRegAccessor::BuildInsn(IInsn *insn, State *st) {
 }
 
 void SharedRegAccessor::BuildSharedRegReaderResource() {
-  ostream &rs = tmpl_->GetStream(kRegisterSection);
-  // NOTE: This part may be dup of AddCommonRootWire()
+  ostream &rs = tmpl_->GetStream(kResourceSection);
   rs << "  // shared-reg-reader\n";
+  SharedReg::AddSignals(res_.GetTable()->GetModule(), &tab_, &res_, false);
   const IResource *reg = res_.GetParentResource();
-  int width = reg->GetParams()->GetWidth();
-  rs << "  wire ";
-  if (width > 0) {
-    rs << "[" << width - 1 << ":0] ";
-  }
-  rs << SharedReg::RegName(*reg) << ";\n";
-  if (UseNotify(&res_)) {
-    rs << "  wire " << SharedReg::RegNotifierName(*reg) << ";\n";
-  }
   if (UseMailbox(&res_)) {
-    ostream &rs = tmpl_->GetStream(kRegisterSection);
     ostream &is = tab_.InitialValueSectionStream();
-    rs << "  reg " << SharedReg::RegMailboxGetReqName(res_) << ";\n";
     is << "      " << SharedReg::RegMailboxGetReqName(res_) << " <= 0;\n";
     map<IState *, IInsn *> getters;
     CollectResourceCallers(operand::kGetMailbox, &getters);
@@ -80,14 +69,9 @@ void SharedRegAccessor::BuildSharedRegReaderResource() {
 }
 
 void SharedRegAccessor::BuildSharedRegWriterResource() {
-  ostream &rs = tmpl_->GetStream(kRegisterSection);
+  ostream &rs = tmpl_->GetStream(kResourceSection);
   rs << "  // shared-reg-writer\n";
-  rs << "  reg ";
-  if (width_ > 0) {
-    rs << "[" << width_ - 1 << ":0]";
-  }
-  rs << " " << SharedReg::WriterName(res_) << ";\n";
-  rs << "  reg " << SharedReg::WriterEnName(res_) << ";\n";
+  SharedReg::AddSignals(res_.GetTable()->GetModule(), &tab_, &res_, false);
   // Reset value
   ostream &is = tab_.InitialValueSectionStream();
   is << "      " << SharedReg::WriterName(res_) << " <= 0;\n"
@@ -96,11 +80,7 @@ void SharedRegAccessor::BuildSharedRegWriterResource() {
     is << "      " << SharedReg::WriterNotifierName(res_) << " <= 0;\n";
   }
   // Notify and Mailbox
-  if (UseNotify(&res_)) {
-    rs << "  reg " << SharedReg::WriterNotifierName(res_) << ";\n";
-  }
   if (UseMailbox(&res_)) {
-    rs << "  reg " << SharedReg::RegMailboxPutReqName(res_) << ";\n";
     is << "      " << SharedReg::RegMailboxPutReqName(res_) << " <= 0;\n";
   }
   // Write en signal.
@@ -135,7 +115,7 @@ void SharedRegAccessor::BuildWriteWire(const IResource *writer) {
   const IModule *common_root = Connection::GetCommonRoot(reg_module,
 							 writer_module);
   if (writer_module != common_root) {
-    SharedReg::AddCommonRootWire(common_root, &tab_, writer, true);
+    SharedReg::AddSignals(common_root, &tab_, writer, true);
   }
   // downward
   for (IModule *imod = reg_module; imod != common_root;
