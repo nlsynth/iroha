@@ -55,7 +55,7 @@ void SharedRegAccessor::BuildInsn(IInsn *insn, State *st) {
 void SharedRegAccessor::BuildSharedRegReaderResource() {
   ostream &rs = tmpl_->GetStream(kResourceSection);
   rs << "  // shared-reg-reader\n";
-  SharedReg::AddSignals(res_.GetTable()->GetModule(), &tab_, &res_, false);
+  SharedReg::AddAccessorSignals(res_.GetTable()->GetModule(), &tab_, &res_, false);
   const IResource *reg = res_.GetParentResource();
   if (UseMailbox(&res_)) {
     ostream &is = tab_.InitialValueSectionStream();
@@ -71,7 +71,8 @@ void SharedRegAccessor::BuildSharedRegReaderResource() {
 void SharedRegAccessor::BuildSharedRegWriterResource() {
   ostream &rs = tmpl_->GetStream(kResourceSection);
   rs << "  // shared-reg-writer\n";
-  SharedReg::AddSignals(res_.GetTable()->GetModule(), &tab_, &res_, false);
+  SharedReg::AddAccessorSignals(res_.GetTable()->GetModule(),
+				&tab_, &res_, false);
   // Reset value
   ostream &is = tab_.InitialValueSectionStream();
   is << "      " << SharedReg::WriterName(res_) << " <= 0;\n"
@@ -115,7 +116,7 @@ void SharedRegAccessor::BuildWriteWire(const IResource *writer) {
   const IModule *common_root = Connection::GetCommonRoot(reg_module,
 							 writer_module);
   if (writer_module != common_root) {
-    SharedReg::AddSignals(common_root, &tab_, writer, true);
+    SharedReg::AddAccessorSignals(common_root, &tab_, writer, true);
   }
   // downward
   for (IModule *imod = reg_module; imod != common_root;

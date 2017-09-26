@@ -31,8 +31,8 @@ public:
   static string RegMailboxGetAckName(const IResource &reader);
 
   // Adds wire/reg decls for accessors and their common root.
-  static void AddSignals(const IModule *imod, const Table *tab,
-			 const IResource *accessor, bool wire_only);
+  static void AddAccessorSignals(const IModule *imod, const Table *tab,
+				 const IResource *accessor, bool wire_only);
   // Generates wiring in a sub module declaration .abc(abc)
   static void AddChildWire(const IResource *accessor, bool is_write, bool use_notify, bool use_mailbox, ostream &os);
 

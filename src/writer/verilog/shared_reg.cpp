@@ -1,3 +1,9 @@
+// A shared register can have shared register writers, readers and
+// dataflow entries (equivalent to readers).
+//
+// shared-reg-writer generates connections from shared-reg-writer to shared-reg.
+// shared-reg generates connections from shared-reg to shared-reg-reader.
+
 #include "writer/verilog/shared_reg.h"
 
 #include "design/design_util.h"
@@ -291,7 +297,7 @@ void SharedReg::BuildReadWire() {
 							   reader_module);
     if (reader_module != common_root && reg_module != common_root) {
       if (wired_modules.find(common_root) == wired_modules.end()) {
-	AddSignals(common_root, &tab_, reader, true);
+	AddAccessorSignals(common_root, &tab_, reader, true);
 	wired_modules.insert(common_root);
       }
     }
@@ -314,11 +320,15 @@ void SharedReg::BuildReadWire() {
   }
 }
 
-void SharedReg::AddSignals(const IModule *imod, const Table *tab,
-			   const IResource *accessor, bool wire_only) {
+void SharedReg::AddAccessorSignals(const IModule *imod, const Table *tab,
+				   const IResource *accessor, bool wire_only) {
   // NOTE: SharedReg::BuildResource() may have some dups of this code.
   bool is_writer = resource::IsSharedRegWriter(*(accessor->GetClass()));
   const IResource *reg = accessor->GetParentResource();
+  bool same_module = false;
+  if (reg->GetTable()->GetModule() == accessor->GetTable()->GetModule()) {
+    same_module = true;
+  }
   Module *mod = tab->GetModule()->GetByIModule(imod);
   auto *tmpl = mod->GetModuleTemplate();
   ostream &rs = tmpl->GetStream(kResourceSection);
@@ -332,39 +342,48 @@ void SharedReg::AddSignals(const IModule *imod, const Table *tab,
       drive_by_reader = "reg";
     }
   }
-  rs << "  " << drive_by_writer << " ";
-  if (width > 0) {
-    rs << "[" << width - 1 << ":0] ";
-  }
-  if (is_writer) {
-    rs << WriterName(*accessor) << ";\n";
-  } else {
-    rs << RegName(*reg) << ";\n";
+  if (is_writer || !same_module) {
+    rs << "  " << drive_by_writer << " ";
+    if (width > 0) {
+      rs << "[" << width - 1 << ":0] ";
+    }
+    if (is_writer) {
+      rs << WriterName(*accessor) << ";\n";
+    } else {
+      rs << RegName(*reg) << ";\n";
+    }
   }
   if (is_writer) {
     rs << "  " << drive_by_writer << " " << WriterEnName(*accessor) << ";\n";
   }
   bool notify = SharedRegAccessor::UseNotify(accessor);
   if (notify) {
-    rs << "  " << drive_by_writer << " ";
     if (is_writer) {
-      rs << WriterNotifierName(*accessor) << ";\n";
+      rs << "  " << drive_by_writer << " "
+	 << WriterNotifierName(*accessor) << ";\n";
     } else {
-      rs << RegNotifierName(*reg) << ";\n";
+      if (!same_module) {
+	rs << "  " << drive_by_writer << " "
+	   << RegNotifierName(*reg) << ";\n";
+      }
     }
   }
   bool mb = SharedRegAccessor::UseMailbox(accessor);
   if (mb) {
     if (is_writer) {
       rs << "  " << drive_by_writer << " "
-	 << RegMailboxPutReqName(*accessor) << ";\n"
-	 << "  wire "
-	 << RegMailboxPutAckName(*accessor) << ";\n";
+	 << RegMailboxPutReqName(*accessor) << ";\n";
+      if (!same_module) {
+	rs << "  wire "
+	   << RegMailboxPutAckName(*accessor) << ";\n";
+      }
     } else {
       rs << "  " << drive_by_reader << " "
-	 << RegMailboxGetReqName(*accessor) << ";\n"
-	 << "  wire "
-	 << RegMailboxGetAckName(*accessor) << ";\n";
+	 << RegMailboxGetReqName(*accessor) << ";\n";
+      if (!same_module) {
+	rs << "  wire "
+	   << RegMailboxGetAckName(*accessor) << ";\n";
+      }
     }
   }
 }
