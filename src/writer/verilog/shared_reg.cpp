@@ -144,7 +144,6 @@ void SharedReg::BuildMailbox() {
   } else {
     put_reqs.push_back("0");
   }
-  vector<string> higher_get_reqs;
   vector<string> get_reqs;
   if (readers_.size() > 0) {
     for (auto *reader : readers_) {
@@ -155,7 +154,7 @@ void SharedReg::BuildMailbox() {
       rs << "  assign " << RegMailboxGetAckName(*reader) << " = "
 	 << "(" << RegMailboxName(res_) << ") && ";
       if (get_reqs.size() > 0) {
-	rs << "(!(" << Util::Join(higher_get_reqs, " | ") << ")) && ";
+	rs << "(!(" << Util::Join(get_reqs, " | ") << ")) && ";
       }
       rs << RegMailboxGetReqName(*reader) << ";\n";
       get_reqs.push_back(RegMailboxGetReqName(*reader));
