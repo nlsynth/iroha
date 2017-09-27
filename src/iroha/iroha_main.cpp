@@ -12,6 +12,7 @@ void printVersion() {
 	    << "  Read standard input when FILE is -\n\n"
 	    << "  -s Generate shell module\n"
 	    << "  -S Generate self contained (with clock and reset) shell module\n"
+	    << "  -vcd Output vcd (-s or -S should be specified)\n"
 	    << "  -c Output C++\n"
 	    << "  -v Output Verilog\n"
 	    << "  -I Set import paths (comma separated)\n"
@@ -41,6 +42,7 @@ int main(int argc, char **argv) {
   bool html = false;
   bool shell = false;
   bool selfShell = false;
+  bool vcd = false;
   bool skipImport = false;
   bool skipValidation = false;
 
@@ -87,6 +89,10 @@ int main(int argc, char **argv) {
     }
     if (arg == "-k") {
       skipValidation = true;
+      continue;
+    }
+    if (arg == "-vcd") {
+      vcd = true;
       continue;
     }
     if (arg == "-o") {
@@ -162,7 +168,7 @@ int main(int argc, char **argv) {
     }
     if (shell || selfShell) {
       if (!output.empty()) {
-	writer->OutputShellModule(true, selfShell);
+	writer->OutputShellModule(true, selfShell, vcd);
       }
     }
     if (paths.size() > 0) {

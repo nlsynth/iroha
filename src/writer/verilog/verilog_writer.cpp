@@ -18,7 +18,7 @@ VerilogWriter::VerilogWriter(const IDesign *design, const Connection &conn,
 			     ostream &os)
   : design_(design), conn_(conn), os_(os),
     embedded_modules_(new EmbeddedModules), with_self_clock_(false),
-    names_(new Names(nullptr)) {
+    output_vcd_(false), names_(new Names(nullptr)) {
 }
 
 VerilogWriter::~VerilogWriter() {
@@ -56,9 +56,10 @@ bool VerilogWriter::Write() {
   return true;
 }
 
-void VerilogWriter::SetShellModuleName(const string &n, bool with_self_clock) {
+void VerilogWriter::SetShellModuleName(const string &n, bool with_self_clock, bool output_vcd) {
   shell_module_name_ = n;
   with_self_clock_ = with_self_clock;
+  output_vcd_ = output_vcd;
 }
 
 Module *VerilogWriter::GetByIModule(const IModule *mod) const {
@@ -131,6 +132,12 @@ void VerilogWriter::WriteShellModule(const Module *mod) {
     ports->Output(Ports::PORT_CONNECTION, os_);
   }
   os_ << ");\n";
+  if (output_vcd_) {
+    os_ << "  initial begin\n"
+	<< "    $dumpfile(\"/tmp/" << shell_module_name_ << ".vcd\");\n"
+	<< "    $dumpvars(0, " << name << "_inst);\n"
+	<< "  end\n";
+  }
   os_ << "endmodule\n";
 }
 

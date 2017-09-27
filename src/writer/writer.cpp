@@ -13,7 +13,8 @@ namespace iroha {
 namespace writer {
 
 Writer::Writer(const IDesign *design)
-  : design_(design), output_shell_module_(false), output_self_clock_(false) {
+  : design_(design), output_shell_module_(false), output_self_clock_(false),
+    output_vcd_(false) {
 }
 
 bool Writer::Write(const string &fn) {
@@ -45,7 +46,7 @@ bool Writer::Write(const string &fn) {
     conn.Build();
     verilog::VerilogWriter writer(design_, conn, *os);
     if (!shell.empty()) {
-      writer.SetShellModuleName(shell, output_self_clock_);
+      writer.SetShellModuleName(shell, output_self_clock_, output_vcd_);
     }
     res = writer.Write();
   } else if (language_ == "cxx") {
@@ -66,9 +67,10 @@ bool Writer::SetLanguage(const string &lang) {
   return true;
 }
 
-void Writer::OutputShellModule(bool b, bool self_clock) {
+void Writer::OutputShellModule(bool b, bool self_clock, bool vcd) {
   output_shell_module_ = b;
   output_self_clock_ = self_clock;
+  output_vcd_ = vcd;
 }
 
 void Writer::SetOutputConfig(const string &root, const string &marker) {

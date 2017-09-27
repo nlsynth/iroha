@@ -16,7 +16,7 @@ public:
   ~VerilogWriter();
 
   bool Write();
-  void SetShellModuleName(const string &n, bool with_self_clock);
+  void SetShellModuleName(const string &n, bool with_self_clock, bool output_vcd);
   Module *GetByIModule(const IModule *mod) const;
 
 private:
@@ -35,6 +35,7 @@ private:
   unique_ptr<EmbeddedModules> embedded_modules_;
   string shell_module_name_;
   bool with_self_clock_;
+  bool output_vcd_;
   unique_ptr<Names> names_;
 };
 

@@ -13,7 +13,7 @@ public:
 
   virtual bool Write(const string &fn) override;
   virtual bool SetLanguage(const string &lang) override;
-  virtual void OutputShellModule(bool b, bool self_clock) override;
+  virtual void OutputShellModule(bool b, bool self_clock, bool vcd) override;
   virtual void SetOutputConfig(const string &root,
 			       const string &marker) override;
 
@@ -26,6 +26,7 @@ private:
   string language_;
   bool output_shell_module_;
   bool output_self_clock_;
+  bool output_vcd_;
   string output_marker_;
   string root_dir_;
 };
