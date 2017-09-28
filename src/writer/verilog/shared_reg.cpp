@@ -111,8 +111,17 @@ void SharedReg::BuildResource() {
     } else {
       value = RegName(res_);
     }
-    for (auto *res : writers_) {
-      value = WriterEnName(*res) + " ? " + WriterName(*res) + " : (" + value + ")";
+    for (auto *writer : writers_) {
+      string en = WriterEnName(*writer);
+      bool n, m;
+      SharedRegAccessor::GetAccessorFeatures(writer, &n, &m);
+      if (m) {
+	// Writes the value only when put to the mailbox is granted.
+	// en && (!req || ack)
+	en = "(" + en + " && (!" + RegMailboxPutReqName(*writer) +
+	  " || " + RegMailboxPutAckName(*writer) + "))";
+      }
+      value = en + " ? " + WriterName(*writer) + " : (" + value + ")";
     }
     os << SelectValueByState(value);
     os << ";\n";
