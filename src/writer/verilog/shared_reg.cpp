@@ -125,7 +125,6 @@ void SharedReg::BuildResource() {
 void SharedReg::BuildMailbox() {
   ostream &rs = tmpl_->GetStream(kRegisterSection);
   rs << "  reg " << RegMailboxName(res_) << ";\n";
-  vector<string> higher_put_reqs;
   vector<string> put_reqs;
   if (writers_.size() > 0) {
     for (auto *writer : writers_) {
@@ -136,7 +135,7 @@ void SharedReg::BuildMailbox() {
       rs << "  assign " << RegMailboxPutAckName(*writer) << " = "
 	 << "(!" << RegMailboxName(res_) << ") && ";
       if (put_reqs.size() > 0) {
-	rs << "(!(" << Util::Join(higher_put_reqs, " | ") << ")) && ";
+	rs << "(!(" << Util::Join(put_reqs, " | ") << ")) && ";
       }
       rs << RegMailboxPutReqName(*writer) << ";\n";
       put_reqs.push_back(RegMailboxPutReqName(*writer));
