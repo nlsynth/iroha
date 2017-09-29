@@ -378,17 +378,17 @@ void SharedReg::AddAccessorSignals(const IModule *imod, const Table *tab,
   bool mb = SharedRegAccessor::UseMailbox(accessor);
   if (mb) {
     if (is_writer) {
-      rs << "  " << drive_by_writer << " "
-	 << RegMailboxPutReqName(*accessor) << ";\n";
       if (!same_module) {
 	rs << "  wire "
+	   << RegMailboxPutReqName(*accessor) << ";\n"
+	   << "  wire "
 	   << RegMailboxPutAckName(*accessor) << ";\n";
       }
     } else {
-      rs << "  " << drive_by_reader << " "
-	 << RegMailboxGetReqName(*accessor) << ";\n";
       if (!same_module) {
 	rs << "  wire "
+	   << RegMailboxGetReqName(*accessor) << ";\n"
+	   << "  wire "
 	   << RegMailboxGetAckName(*accessor) << ";\n";
       }
     }

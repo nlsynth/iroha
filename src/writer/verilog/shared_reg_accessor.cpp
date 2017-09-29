@@ -59,11 +59,9 @@ void SharedRegAccessor::BuildSharedRegReaderResource() {
   const IResource *reg = res_.GetParentResource();
   if (UseMailbox(&res_)) {
     ostream &is = tab_.InitialValueSectionStream();
-    is << "      " << SharedReg::RegMailboxGetReqName(res_) << " <= 0;\n";
     map<IState *, IInsn *> getters;
     CollectResourceCallers(operand::kGetMailbox, &getters);
-    ostream &os = tab_.StateOutputSectionStream();
-    os << "      " << SharedReg::RegMailboxGetReqName(res_) << " <= "
+    rs << "  assign " << SharedReg::RegMailboxGetReqName(res_) << " = "
        << JoinStatesWithSubState(getters, 0) << ";\n";
   }
 }
@@ -79,10 +77,6 @@ void SharedRegAccessor::BuildSharedRegWriterResource() {
      << "      " << SharedReg::WriterEnName(res_) << " <= 0;\n";
   if (UseNotify(&res_)) {
     is << "      " << SharedReg::WriterNotifierName(res_) << " <= 0;\n";
-  }
-  // Notify and Mailbox
-  if (UseMailbox(&res_)) {
-    is << "      " << SharedReg::RegMailboxPutReqName(res_) << " <= 0;\n";
   }
   // Write en signal.
   ostream &os = tab_.StateOutputSectionStream();
@@ -102,7 +96,7 @@ void SharedRegAccessor::BuildSharedRegWriterResource() {
   if (UseMailbox(&res_)) {
     map<IState *, IInsn *> putters;
     CollectResourceCallers(operand::kPutMailbox, &putters);
-    os << "      " << SharedReg::RegMailboxPutReqName(res_) << " <= "
+    rs << "  assign " << SharedReg::RegMailboxPutReqName(res_) << " = "
        << JoinStatesWithSubState(putters, 0) << ";\n";
   }
 
@@ -137,14 +131,14 @@ void SharedRegAccessor::AddWritePort(const IModule *imod,
   Ports *ports = mod->GetPorts();
   int width = writer->GetParentResource()->GetParams()->GetWidth();
   bool notify = UseNotify(writer);
-  bool sem = UseMailbox(writer);
+  bool mb = UseMailbox(writer);
   if (upward) {
     ports->AddPort(SharedReg::WriterName(*writer), Port::OUTPUT_WIRE, width);
     ports->AddPort(SharedReg::WriterEnName(*writer), Port::OUTPUT_WIRE, 0);
     if (notify) {
       ports->AddPort(SharedReg::WriterNotifierName(*writer), Port::OUTPUT_WIRE, 0);
     }
-    if (sem) {
+    if (mb) {
       ports->AddPort(SharedReg::RegMailboxGetReqName(*writer), Port::OUTPUT_WIRE, 0);
     }
   } else {
@@ -153,13 +147,13 @@ void SharedRegAccessor::AddWritePort(const IModule *imod,
     if (notify) {
       ports->AddPort(SharedReg::WriterNotifierName(*writer), Port::INPUT, 0);
     }
-    if (sem) {
+    if (mb) {
       ports->AddPort(SharedReg::RegMailboxGetReqName(*writer), Port::INPUT, 0);
     }
   }
   Module *parent_mod = mod->GetParentModule();
   ostream &os = parent_mod->ChildModuleInstSectionStream(mod);
-  SharedReg::AddChildWire(writer, true, notify, sem, os);
+  SharedReg::AddChildWire(writer, true, notify, mb, os);
 }
 
 void SharedRegAccessor::GetAccessorFeatures(const IResource *accessor,
