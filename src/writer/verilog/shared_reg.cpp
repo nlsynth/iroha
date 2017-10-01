@@ -351,9 +351,7 @@ void SharedReg::AddAccessorSignals(const IModule *imod, const Table *tab,
   }
   if (is_writer || !same_module) {
     rs << "  " << drive_by_writer << " ";
-    if (width > 0) {
-      rs << "[" << width - 1 << ":0] ";
-    }
+    rs << Table::WidthSpec(width);
     if (is_writer) {
       rs << WriterName(*accessor) << ";\n";
     } else {

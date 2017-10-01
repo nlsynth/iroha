@@ -224,23 +224,29 @@ void SharedRegAccessor::BuildReadInsn(IInsn *insn, State *st) {
 }
 
 void SharedRegAccessor::BuildWriteInsn(IInsn *insn, State *st) {
+  ostream &ws = tmpl_->GetStream(kInsnWireValueSection);
+  int width = res_.GetParentResource()->GetParams()->GetWidth();
+  ws << "  wire " << Table::WidthSpec(width)
+     << InsnWriter::InsnSpecificWireName(*insn) << ";\n";
   ostream &ss = st->StateBodySectionStream();
   int s = 0;
   for (int i = 0; i < insn->inputs_.size(); ++i) {
-    ss << "          " << SharedReg::WriterName(res_);
+    ws << "  assign " << InsnWriter::InsnSpecificWireName(*insn);
     if (insn->inputs_.size() > 1) {
       IRegister *reg = insn->inputs_[i];
       int w = reg->value_type_.GetWidth();
       if (w == 0) {
 	w = 1;
       }
-      ss << "[" << (s + w - 1) << ":" << s << "]";
+      ws << "[" << (s + w - 1) << ":" << s << "]";
       s += w;
     }
-    ss << " <= "
+    ws << " = "
        << InsnWriter::RegisterValue(*insn->inputs_[i], tab_.GetNames())
        << ";\n";
   }
+  ss << "          " << SharedReg::WriterName(res_) << " <= "
+     << InsnWriter::InsnSpecificWireName(*insn) << ";\n";
   if (insn->GetOperand() == operand::kPutMailbox) {
     static const char I[] = "          ";
     string insn_st = InsnWriter::MultiCycleStateName(res_);

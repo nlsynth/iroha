@@ -20,6 +20,8 @@ public:
   static string ConstValue(const IRegister &reg);
   static string ResourceName(const IResource &res);
   static string InsnOutputWireName(const IInsn &insn, int nth);
+  // Up to each resource.
+  static string InsnSpecificWireName(const IInsn &insn);
   static string MultiCycleStateName(const IResource &res);
 
 private:
