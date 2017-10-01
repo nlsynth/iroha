@@ -23,6 +23,7 @@ public:
 			     const IResource *accessor);
   static string MemoryReqPin(const IResource &res, const IResource *accessor);
   static string MemoryAckPin(const IResource &res, const IResource *accessor);
+  static string MemoryRdataBuf(const IResource &res, const IResource *accessor);
 
   // gen_reg determines if addr/wdata/req/wen are driven from this module.
   // generates wires and let them driven by dmac.

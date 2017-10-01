@@ -216,6 +216,7 @@ void SharedMemory::BuildMemoryAccessorResource(const Resource &accessor,
 					       const IResource *mem) {
   IArray *array = mem->GetArray();
   int addr_width = array->GetAddressWidth();
+  int data_width = array->GetDataType().GetWidth();
   ModuleTemplate *tmpl = accessor.GetModuleTemplate();
   ostream &rs = tmpl->GetStream(kResourceSection);
   const IResource &res = accessor.GetIResource();
@@ -234,12 +235,13 @@ void SharedMemory::BuildMemoryAccessorResource(const Resource &accessor,
     is << "      " << MemoryReqPin(*mem, &res) << " <= 0;\n";
   }
   if (do_write) {
-    int data_width = array->GetDataType().GetWidth();
     rs << "  " << storage << " " << Table::WidthSpec(data_width)
        << MemoryWdataPin(*mem, 0, &res) << ";\n";
     rs << "  " << storage << " "
        << MemoryWenPin(*mem, 0, &res) << ";\n";
   }
+  // TODO: Output this only for read.
+  rs << "  reg " << Table::WidthSpec(data_width) << MemoryRdataBuf(*mem, &res) << ";\n";
   ostream &ss = tab.StateOutputSectionStream();
   map<IState *, IInsn *> callers;
   accessor.CollectResourceCallers("", &callers);
@@ -298,9 +300,12 @@ void SharedMemory::BuildInsn(IInsn *insn, State *st) {
       (resource::IsSharedMemory(*klass) &&
        insn->outputs_.size() == 1)) {
     os << I << "    "
-       << InsnWriter::RegisterValue(*insn->outputs_[0], tab_.GetNames())
+       << MemoryRdataBuf(*mem, &res_)
        << " <= " << MemoryRdataPin(*mem, 0)
        << ";\n";
+    ostream &ws = tmpl_->GetStream(kInsnWireValueSection);
+    ws << "  assign " << InsnWriter::InsnOutputWireName(*insn, 0)
+       << " = " << MemoryRdataBuf(*mem, &res_) << ";\n";
   }
   os << I << "  end\n";
   os << I << "end\n";
@@ -402,6 +407,10 @@ string SharedMemory::MemoryPinPrefix(const IResource &mem,
       "_" + Util::Itoa(accessor->GetId());
   }
   return s;
+}
+
+string SharedMemory::MemoryRdataBuf(const IResource &res, const IResource *accessor) {
+  return MemoryPinPrefix(res, accessor) + "_rbuf";
 }
 
 string SharedMemory::MemoryAddrPin(const IResource &res,
