@@ -237,8 +237,8 @@ string SharedReg::RegMailboxGetAckName(const IResource &reader) {
   return RegName(reader) + "_mailbox_get_ack";
 }
 
-string SharedReg::RegMailboxGetBufName(const IResource &reader) {
-  return RegName(reader) + "_mailbox_get_buf";
+string SharedReg::RegMailboxBufName(const IResource &reader) {
+  return RegName(reader) + "_mailbox_buf";
 }
 
 string SharedReg::RegName(const IResource &reg) {

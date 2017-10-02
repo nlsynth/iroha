@@ -62,9 +62,11 @@ void SharedRegAccessor::BuildSharedRegReaderResource() {
     CollectResourceCallers(operand::kGetMailbox, &getters);
     rs << "  assign " << SharedReg::RegMailboxGetReqName(res_) << " = "
        << JoinStatesWithSubState(getters, 0) << ";\n";
+  }
+  if (UseMailbox(&res_) || UseNotify(&res_)) {
     int width = res_.GetParentResource()->GetParams()->GetWidth();
     rs << "  reg " << Table::WidthSpec(width) << " "
-       << SharedReg::RegMailboxGetBufName(res_) << ";\n";
+       << SharedReg::RegMailboxBufName(res_) << ";\n";
   }
 }
 
@@ -195,8 +197,9 @@ void SharedRegAccessor::BuildReadInsn(IInsn *insn, State *st) {
     ws << "  assign "
        << InsnWriter::InsnOutputWireName(*insn, i)
        << " = ";
-    if (insn->GetOperand() == operand::kGetMailbox) {
-      ws << SharedReg::RegMailboxGetBufName(res_);
+    if (insn->GetOperand() == operand::kGetMailbox ||
+	insn->GetOperand() == operand::kWaitNotify) {
+      ws << SharedReg::RegMailboxBufName(res_);
     } else {
       ws << SharedReg::RegName(*source);
     }
@@ -218,6 +221,8 @@ void SharedRegAccessor::BuildReadInsn(IInsn *insn, State *st) {
     os << I << "// Wait notify\n"
        << I << "if (" << insn_st << " == 0) begin\n"
        << I << "  if (" << SharedReg::RegNotifierName(*source) << ") begin\n"
+       << I << "    " << SharedReg::RegMailboxBufName(res_) << " <= "
+       << SharedReg::RegName(*source) << ";\n"
        << I << "    " << insn_st << " <= 3;\n"
        << I << "  end\n"
        << I << "end\n";
@@ -226,7 +231,7 @@ void SharedRegAccessor::BuildReadInsn(IInsn *insn, State *st) {
     os << I << "// Wait get mailbox\n"
        << I << "if (" << insn_st << " == 0) begin\n"
        << I << "  if (" << SharedReg::RegMailboxGetAckName(res_) << ") begin\n"
-       << I << "    " << SharedReg::RegMailboxGetBufName(res_) << " <= "
+       << I << "    " << SharedReg::RegMailboxBufName(res_) << " <= "
        << SharedReg::RegName(*source) << ";\n"
        << I << "    " << insn_st << " <= 3;\n"
        << I << "  end\n"

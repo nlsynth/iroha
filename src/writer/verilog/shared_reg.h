@@ -29,7 +29,8 @@ public:
   static string RegMailboxPutAckName(const IResource &writer);
   static string RegMailboxGetReqName(const IResource &reader);
   static string RegMailboxGetAckName(const IResource &reader);
-  static string RegMailboxGetBufName(const IResource &reader);
+  // Either notifier or mailbox.
+  static string RegMailboxBufName(const IResource &reader);
 
   // Adds wire/reg decls for accessors and their common root.
   static void AddAccessorSignals(const IModule *imod, const Table *tab,
