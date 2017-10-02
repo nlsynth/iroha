@@ -58,11 +58,13 @@ void SharedRegAccessor::BuildSharedRegReaderResource() {
   SharedReg::AddAccessorSignals(res_.GetTable()->GetModule(), &tab_, &res_, false);
   const IResource *reg = res_.GetParentResource();
   if (UseMailbox(&res_)) {
-    ostream &is = tab_.InitialValueSectionStream();
     map<IState *, IInsn *> getters;
     CollectResourceCallers(operand::kGetMailbox, &getters);
     rs << "  assign " << SharedReg::RegMailboxGetReqName(res_) << " = "
        << JoinStatesWithSubState(getters, 0) << ";\n";
+    int width = res_.GetParentResource()->GetParams()->GetWidth();
+    rs << "  reg " << Table::WidthSpec(width) << " "
+       << SharedReg::RegMailboxGetBufName(res_) << ";\n";
   }
 }
 
@@ -198,8 +200,12 @@ void SharedRegAccessor::BuildReadInsn(IInsn *insn, State *st) {
   for (int i = 0; i < insn->outputs_.size(); ++i) {
     ws << "  assign "
        << InsnWriter::InsnOutputWireName(*insn, i)
-       << " = "
-       << SharedReg::RegName(*source);
+       << " = ";
+    if (insn->GetOperand() == operand::kGetMailbox) {
+      ws << SharedReg::RegMailboxGetBufName(res_);
+    } else {
+      ws << SharedReg::RegName(*source);
+    }
     if (insn->outputs_.size() > 1) {
       IRegister *reg = insn->outputs_[i];
       int w = reg->value_type_.GetWidth();
@@ -226,6 +232,8 @@ void SharedRegAccessor::BuildReadInsn(IInsn *insn, State *st) {
     os << I << "// Wait get mailbox\n"
        << I << "if (" << insn_st << " == 0) begin\n"
        << I << "  if (" << SharedReg::RegMailboxGetAckName(res_) << ") begin\n"
+       << I << "    " << SharedReg::RegMailboxGetBufName(res_) << " <= "
+       << SharedReg::RegName(*source) << ";\n"
        << I << "    " << insn_st << " <= 3;\n"
        << I << "  end\n"
        << I << "end\n";

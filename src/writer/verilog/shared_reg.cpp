@@ -237,6 +237,10 @@ string SharedReg::RegMailboxGetAckName(const IResource &reader) {
   return RegName(reader) + "_mailbox_get_ack";
 }
 
+string SharedReg::RegMailboxGetBufName(const IResource &reader) {
+  return RegName(reader) + "_mailbox_get_buf";
+}
+
 string SharedReg::RegName(const IResource &reg) {
   auto *params = reg.GetParams();
   int unused_width;
