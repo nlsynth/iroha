@@ -73,8 +73,6 @@ void SharedRegAccessor::BuildSharedRegWriterResource() {
 				&tab_, &res_, false);
   // Reset value
   ostream &is = tab_.InitialValueSectionStream();
-  is << "      " << SharedReg::WriterName(res_) << " <= 0;\n"
-     << "      " << SharedReg::WriterEnName(res_) << " <= 0;\n";
   if (UseNotify(&res_)) {
     is << "      " << SharedReg::WriterNotifierName(res_) << " <= 0;\n";
   }
@@ -82,9 +80,20 @@ void SharedRegAccessor::BuildSharedRegWriterResource() {
   ostream &os = tab_.StateOutputSectionStream();
   map<IState *, IInsn *> callers;
   CollectResourceCallers("*", &callers);
-  os << "      " << SharedReg::WriterEnName(res_) << " <= ";
-  WriteStateUnion(callers, os);
-  os << ";\n";
+  rs << "  assign " << SharedReg::WriterEnName(res_) << " = ";
+  WriteStateUnion(callers, rs);
+  rs << ";\n";
+  rs << "  assign " << SharedReg::WriterName(res_) << " = ";
+  string v;
+  for (auto &p : callers) {
+    if (v.empty()) {
+      v = InsnWriter::InsnSpecificWireName(*(p.second));
+    } else {
+      v = "(" + tab_.GetStateCondition(p.first) + ") ? " +
+	InsnWriter::InsnSpecificWireName(*(p.second)) + " : (" + v + ")";
+    }
+  }
+  rs << v << ";\n";
   // write notify signal.
   if (UseNotify(&res_)) {
     map<IState *, IInsn *> notifiers;
@@ -228,7 +237,6 @@ void SharedRegAccessor::BuildWriteInsn(IInsn *insn, State *st) {
   int width = res_.GetParentResource()->GetParams()->GetWidth();
   ws << "  wire " << Table::WidthSpec(width)
      << InsnWriter::InsnSpecificWireName(*insn) << ";\n";
-  ostream &ss = st->StateBodySectionStream();
   int s = 0;
   for (int i = 0; i < insn->inputs_.size(); ++i) {
     ws << "  assign " << InsnWriter::InsnSpecificWireName(*insn);
@@ -245,8 +253,6 @@ void SharedRegAccessor::BuildWriteInsn(IInsn *insn, State *st) {
        << InsnWriter::RegisterValue(*insn->inputs_[i], tab_.GetNames())
        << ";\n";
   }
-  ss << "          " << SharedReg::WriterName(res_) << " <= "
-     << InsnWriter::InsnSpecificWireName(*insn) << ";\n";
   if (insn->GetOperand() == operand::kPutMailbox) {
     static const char I[] = "          ";
     string insn_st = InsnWriter::MultiCycleStateName(res_);

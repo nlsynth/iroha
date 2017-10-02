@@ -350,8 +350,8 @@ void SharedReg::AddAccessorSignals(const IModule *imod, const Table *tab,
     }
   }
   if (is_writer || !same_module) {
-    rs << "  " << drive_by_writer << " ";
-    rs << Table::WidthSpec(width);
+    rs << "  wire "
+       << Table::WidthSpec(width);
     if (is_writer) {
       rs << WriterName(*accessor) << ";\n";
     } else {
@@ -359,7 +359,7 @@ void SharedReg::AddAccessorSignals(const IModule *imod, const Table *tab,
     }
   }
   if (is_writer) {
-    rs << "  " << drive_by_writer << " " << WriterEnName(*accessor) << ";\n";
+    rs << "  wire " << WriterEnName(*accessor) << ";\n";
   }
   bool notify = SharedRegAccessor::UseNotify(accessor);
   if (notify) {
