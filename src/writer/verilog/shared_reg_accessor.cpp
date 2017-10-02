@@ -73,13 +73,7 @@ void SharedRegAccessor::BuildSharedRegWriterResource() {
   rs << "  // shared-reg-writer\n";
   SharedReg::AddAccessorSignals(res_.GetTable()->GetModule(),
 				&tab_, &res_, false);
-  // Reset value
-  ostream &is = tab_.InitialValueSectionStream();
-  if (UseNotify(&res_)) {
-    is << "      " << SharedReg::WriterNotifierName(res_) << " <= 0;\n";
-  }
   // Write en signal.
-  ostream &os = tab_.StateOutputSectionStream();
   map<IState *, IInsn *> callers;
   CollectResourceCallers("*", &callers);
   rs << "  assign " << SharedReg::WriterEnName(res_) << " = ";
@@ -100,9 +94,9 @@ void SharedRegAccessor::BuildSharedRegWriterResource() {
   if (UseNotify(&res_)) {
     map<IState *, IInsn *> notifiers;
     CollectResourceCallers(operand::kNotify, &notifiers);
-    os << "      " << SharedReg::WriterNotifierName(res_) << " <= ";
-    WriteStateUnion(notifiers, os);
-    os << ";\n";
+    rs << "  assign " << SharedReg::WriterNotifierName(res_) << " = ";
+    WriteStateUnion(notifiers, rs);
+    rs << ";\n";
   }
   if (UseMailbox(&res_)) {
     map<IState *, IInsn *> putters;

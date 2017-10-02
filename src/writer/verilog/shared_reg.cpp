@@ -368,11 +368,11 @@ void SharedReg::AddAccessorSignals(const IModule *imod, const Table *tab,
   bool notify = SharedRegAccessor::UseNotify(accessor);
   if (notify) {
     if (is_writer) {
-      rs << "  " << drive_by_writer << " "
+      rs << "  wire "
 	 << WriterNotifierName(*accessor) << ";\n";
     } else {
       if (!same_module) {
-	rs << "  " << drive_by_writer << " "
+	rs << "  wire "
 	   << RegNotifierName(*reg) << ";\n";
       }
     }
