@@ -246,9 +246,11 @@ void SharedMemory::BuildMemoryAccessorResource(const Resource &accessor,
   map<IState *, IInsn *> callers;
   accessor.CollectResourceCallers("", &callers);
   if (gen_reg) {
-    ss << "      " << MemoryReqPin(*mem, &res) << " <= ";
+    ss << "      " << MemoryReqPin(*mem, &res) << " <= (";
     if (callers.size() > 0) {
-      ss << accessor.JoinStatesWithSubState(callers, 0) << ";\n";
+      ss << accessor.JoinStatesWithSubState(callers, 0)
+	 << ") && !" << MemoryAckPin(*mem, &res)
+	 << ";\n";
     } else {
       ss << "0;\n";
     }
@@ -268,7 +270,7 @@ void SharedMemory::BuildMemoryAccessorResource(const Resource &accessor,
       wen = "0";
     }
     ss << "      " << MemoryWenPin(*mem, 0, &res) << " <= "
-       << wen << ";\n";
+       << wen << " && !" << MemoryAckPin(*mem, &res) << ";\n";
   }
 }
 
