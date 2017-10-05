@@ -252,7 +252,7 @@ void SharedMemory::BuildMemoryAccessorResource(const Resource &accessor,
 	 << ") && !" << MemoryAckPin(*mem, &res)
 	 << ";\n";
     } else {
-      ss << "0;\n";
+      ss << "0);\n";
     }
   }
   auto *klass = res.GetClass();
