@@ -105,7 +105,8 @@ void MasterController::OutputMainFsm(ostream &os) {
   os << "      case (st)\n"
      << "        `S_IDLE: begin\n";
   if (r_ || w_) {
-    os << "          if (req) begin\n";
+    os << "          if (req) begin\n"
+       << "            ack <= 1;\n";
     if (r_) {
       os << "            ridx <= 0;\n";
     }
@@ -136,7 +137,8 @@ void MasterController::OutputMainFsm(ostream &os) {
   }
   os << "        end\n";
   if (r_ || w_) {
-    os << "        `S_ADDR_WAIT: begin\n";
+    os << "        `S_ADDR_WAIT: begin\n"
+       << "          ack <= 0;\n";
     if (r_ && !w_) {
       os << "          if (ARREADY) begin\n"
 	 << "            st <= `S_READ_DATA;\n"
