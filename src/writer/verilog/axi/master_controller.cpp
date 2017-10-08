@@ -57,7 +57,7 @@ void MasterController::Write(ostream &os) {
     os << "  reg [" << sram_addr_width_ << ":0] ridx;\n"
        << "  reg read_last;\n\n";
   }
-  if (r_) {
+  if (w_) {
     os << "  reg [" << sram_addr_width_ << ":0] widx;\n\n";
   }
   os << "  always @(posedge clk) begin\n"
