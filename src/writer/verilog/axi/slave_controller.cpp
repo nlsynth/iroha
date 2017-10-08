@@ -32,6 +32,7 @@ void SlaveController::Write(ostream &os) {
   ports_->Output(Ports::PORT_TYPE, os);
 
   os << "  `define S_IDLE 0\n"
+     << "  `define S_WRITE_DONE 7\n"
      << "  // single cycle mode (sram_EXCLUSIVE)\n"
      << "  `define S_READ 1\n"
      << "  `define S_WRITE 2\n"
@@ -129,7 +130,8 @@ void SlaveController::OutputFSM(ostream &os) {
      << "            end\n"
      << "          end\n"
      << "          if (WLAST && WVALID) begin\n"
-     << "            st <= `S_IDLE;\n"
+     << "            st <= `S_WRITE_DONE;\n"
+     << "            BVALID <= 1;\n"
      << "            WREADY <= 0;\n"
      << "          end\n"
      << "        end\n"
@@ -176,6 +178,12 @@ void SlaveController::OutputFSM(ostream &os) {
      << "              sram_addr <= sram_addr + 1;\n"
      << "              WREADY <= 1;\n"
      << "            end\n"
+     << "          end\n"
+     << "        end\n"
+     << "        `S_WRITE_DONE: begin\n"
+     << "          st <= `S_IDLE;\n"
+     << "          if (BREADY) begin\n"
+     << "            BVALID <= 0;\n"
      << "          end\n"
      << "        end\n";
   os << "      endcase\n";

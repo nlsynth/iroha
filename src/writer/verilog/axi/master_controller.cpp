@@ -119,7 +119,8 @@ void MasterController::OutputMainFsm(ostream &os) {
     if (!r_ && w_) {
       os << "            AWVALID <= 1;\n"
 	 << "            AWADDR <= addr;\n"
-	 << "            AWLEN <= len;\n";
+	 << "            AWLEN <= len;\n"
+	 << "            wmax <= len;\n";
     }
     if (r_ && w_) {
       os << "            if (wen) begin\n"
@@ -150,6 +151,10 @@ void MasterController::OutputMainFsm(ostream &os) {
       os << "          if (AWREADY) begin\n"
 	 << "            st <= `S_WRITE_WAIT;\n"
 	 << "            AWVALID <= 0;\n"
+	 << "            sram_addr <= start;\n"
+	 << "            if (!sram_EXCLUSIVE) begin\n"
+	 << "              sram_req <= 1;\n"
+	 << "            end\n"
 	 << "          end\n";
     }
     if (r_ && w_) {
@@ -157,7 +162,10 @@ void MasterController::OutputMainFsm(ostream &os) {
 	 << "            if (AWREADY) begin\n"
 	 << "              st <= `S_WRITE_WAIT;\n"
 	 << "              AWVALID <= 0;\n"
-	 << "              sram_addr <= ridx;\n"
+	 << "              sram_addr <= start;\n"
+	 << "              if (!sram_EXCLUSIVE) begin\n"
+	 << "                sram_req <= 1;\n"
+	 << "              end\n"
 	 << "            end\n"
 	 << "          end else begin\n"
 	 << "            if (ARREADY) begin\n"
