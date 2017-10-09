@@ -63,7 +63,8 @@ void MasterPort::BuildResource() {
   if (writers.size() == 0) {
     ss << "0;\n";
   } else {
-    ss << JoinStatesWithSubState(writers, 0) << ";\n";
+    ss << JoinStatesWithSubState(writers, 0)  << " && !"
+       << AckPort() <<";\n";
   }
 }
 
