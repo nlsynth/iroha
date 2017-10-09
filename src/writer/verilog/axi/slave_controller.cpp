@@ -53,7 +53,8 @@ void SlaveController::Write(ostream &os) {
      << "      st <= `S_IDLE;\n"
      << "      first_addr <= 0;\n"
      << "      last_write <= 0;\n"
-     << "      rlen <= 0;\n";
+     << "      rlen <= 0;\n"
+     << "      sram_req <= 0;\n";
   os << initials
      << "    end else begin\n";
   OutputFSM(os);
@@ -177,6 +178,7 @@ void SlaveController::OutputFSM(ostream &os) {
      << "            end else begin\n"
      << "              sram_addr <= sram_addr + 1;\n"
      << "              WREADY <= 1;\n"
+     << "              st <= `S_WRITE_AXI;\n"
      << "            end\n"
      << "          end\n"
      << "        end\n"
