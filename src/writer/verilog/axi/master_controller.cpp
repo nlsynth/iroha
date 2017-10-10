@@ -160,7 +160,7 @@ void MasterController::OutputMainFsm(ostream &os) {
 	 << "          end\n";
     }
     if (r_ && w_) {
-      os << "          if (wen) begin\n"
+      os << "          if (AWVALID) begin\n"
 	 << "            if (AWREADY) begin\n"
 	 << "              st <= `S_WRITE_WAIT;\n"
 	 << "              AWVALID <= 0;\n"
@@ -172,6 +172,7 @@ void MasterController::OutputMainFsm(ostream &os) {
 	 << "          end else begin\n"
 	 << "            if (ARREADY) begin\n"
 	 << "              st <= `S_READ_DATA;\n"
+	 << "              ARVALID <= 0;\n"
 	 << "              RREADY <= 1;\n"
 	 << "            end\n"
 	 << "          end\n";
