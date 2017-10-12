@@ -34,7 +34,8 @@ string SlavePort::ControllerName(const IResource &res, bool reset_polarity) {
   const IResource *mem_res = res.GetParentResource();
   IArray *array = mem_res->GetArray();
   int addr_width = array->GetAddressWidth();
-  return "axi_slave_controller_a" + Util::Itoa(addr_width);
+  return "axi_slave_controller_a" + Util::Itoa(addr_width) +
+    "d" + Util::Itoa(array->GetDataType().GetWidth());
 }
 
 void SlavePort::WriteController(const IResource &res,
@@ -51,8 +52,8 @@ void SlavePort::BuildControllerInstance(const string &wires) {
   const string &clk = tab_.GetPorts()->GetClk();
   const string &rst = tab_.GetPorts()->GetReset();
   const IResource *mem = res_.GetParentResource();
-  es << "  " << name << " inst_" << name
-     << "(";
+  es << "  " << name << " inst_" << PortSuffix()
+     << "_" << name << "(";
   OutputSRAMConnection(es);
   es << wires
      << ");\n";

@@ -64,7 +64,7 @@ PortConfig AxiPort::GetPortConfig(const IResource &res) {
 
 string AxiPort::PortSuffix() {
   const ITable *tab = res_.GetTable();
-  return Util::Itoa(tab->GetId());
+  return Util::Itoa(tab->GetId()) + "_" + Util::Itoa(res_.GetId());
 }
 
 string AxiPort::AddrPort() {

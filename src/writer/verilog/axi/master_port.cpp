@@ -111,6 +111,7 @@ string MasterPort::ControllerName(const IResource &res, bool reset_polarity) {
   if (w) {
     s += "w";
   }
+  s += "d" + Util::Itoa(array->GetDataType().GetWidth());
   return s;
 }
 
@@ -125,8 +126,8 @@ void MasterPort::BuildControllerInstance(const string &wires) {
   tab_.GetEmbeddedModules()->RequestAxiMasterController(&res_, reset_polarity_);
   ostream &es = tmpl_->GetStream(kEmbeddedInstanceSection);
   string name = ControllerName(res_, reset_polarity_);
-  es << "  " << name << " inst_" << name
-     << "(";
+  es << "  " << name << " inst_" << PortSuffix()
+     << "_" << name << "(";
   OutputSRAMConnection(es);
   es << ", .addr(" << AddrPort() << "), "
      << ".wen(" << WenPort() << "), "
