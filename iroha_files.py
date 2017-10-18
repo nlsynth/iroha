@@ -9,6 +9,10 @@ ARCHIVE=PACKAGE + "-" + VERSION
 EXTRA = ["configure", "lib/cxx-rt.h", "Makefile",
          "iroha_files.py", "src/iroha.gyp", "config.mk"]
 
+DOCS = ["docs/glossary.md", "docs/iroha.md", "docs/resource_class.md", "docs/structure.md"]
+
+EXTRA += DOCS
+
 def GetGypFileList(gyp):
     gypdir = os.path.dirname(gyp) + "/"
     d = eval(open(gyp).read())

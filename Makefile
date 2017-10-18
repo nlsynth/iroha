@@ -18,3 +18,8 @@ src/Makefile: src/iroha.gyp
 clean:
 	rm -rf src/out/
 	rm -f iroha
+
+install:
+	install -D iroha $(prefix)/bin/iroha
+
+.PHONY: build clean install
