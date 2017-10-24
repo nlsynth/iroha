@@ -30,6 +30,7 @@ protected:
   void OutputSRAMConnection(ostream &os);
 
   string PortSuffix();
+  // master dmac.
   string AddrPort();
   string WenPort();
   string ReqPort();

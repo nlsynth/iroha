@@ -69,7 +69,7 @@ void MasterPort::BuildResource() {
 }
 
 void MasterPort::BuildInsn(IInsn *insn, State *st) {
-    static const char I[] = "          ";
+  static const char I[] = "          ";
   string insn_st = InsnWriter::MultiCycleStateName(*(insn->GetResource()));
   ostream &os = st->StateBodySectionStream();
   os << I << "// AXI access request\n"

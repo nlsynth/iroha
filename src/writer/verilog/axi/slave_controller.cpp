@@ -23,6 +23,7 @@ void SlaveController::Write(ostream &os) {
   os << "// slave controller: "
      << name << "\n";
   AddSramPorts();
+  AddNotifierPorts();
   string initials;
   GenReadChannel(cfg_, false, nullptr, ports_.get(), &initials);
   GenWriteChannel(cfg_, false, nullptr, ports_.get(), &initials);
@@ -54,7 +55,8 @@ void SlaveController::Write(ostream &os) {
      << "      first_addr <= 0;\n"
      << "      last_write <= 0;\n"
      << "      rlen <= 0;\n"
-     << "      sram_req <= 0;\n";
+     << "      sram_req <= 0;\n"
+     << "      access_notify <= 0;\n";
   os << initials
      << "    end else begin\n";
   OutputFSM(os);
@@ -73,6 +75,9 @@ void SlaveController::OutputFSM(ostream &os) {
   os << "      sram_wen <= (st == `S_WRITE && WVALID);\n"
      << "      case (st)\n"
      << "        `S_IDLE: begin\n"
+     << "          if (access_ack) begin\n"
+     << "            access_notify <= 0;\n"
+     << "          end\n"
      << "          if (ARVALID) begin\n"
      << "            if (ARREADY) begin\n"
      << "              ARREADY <= 0;\n"
@@ -108,6 +113,7 @@ void SlaveController::OutputFSM(ostream &os) {
      << "            rlen <= rlen - 1;\n"
      << "            if (rlen == 0) begin\n"
      << "              st <= `S_IDLE;\n"
+     << "              access_notify <= 1;\n"
      << "              RLAST <= 0;\n"
      << "              RVALID <= 0;\n"
      << "            end else if (rlen == 1) begin\n"
@@ -142,6 +148,7 @@ void SlaveController::OutputFSM(ostream &os) {
      << "            RLAST <= 0;\n"
      << "            rlen <= rlen - 1;\n"
      << "            if (rlen == 0) begin\n"
+     << "              access_notify <= 1;\n"
      << "              st <= `S_IDLE;\n"
      << "            end else begin\n"
      << "              st <= `S_READ_SRAM;\n"
@@ -186,9 +193,15 @@ void SlaveController::OutputFSM(ostream &os) {
      << "          st <= `S_IDLE;\n"
      << "          if (BREADY) begin\n"
      << "            BVALID <= 0;\n"
+     << "            access_notify <= 1;\n"
      << "          end\n"
      << "        end\n";
   os << "      endcase\n";
+}
+
+void SlaveController::AddNotifierPorts() {
+  ports_->AddPort("access_notify", Port::OUTPUT, 0);
+  ports_->AddPort("access_ack", Port::INPUT, 0);
 }
 
 }  // namespace axi

@@ -22,7 +22,11 @@ public:
 
 private:
   string BuildPortToExt();
-  void BuildControllerInstance(const string &wires);
+  void BuildControllerInstance(const string &wires_to_ext);
+  void OutputNotifierConnection(ostream &os);
+
+  string NotifyWire();
+  string NotifyAckWire();
 };
 
 }  // namespace axi

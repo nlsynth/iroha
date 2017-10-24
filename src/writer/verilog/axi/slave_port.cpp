@@ -4,9 +4,11 @@
 #include "writer/module_template.h"
 #include "writer/verilog/axi/slave_controller.h"
 #include "writer/verilog/embed.h"
+#include "writer/verilog/insn_writer.h"
 #include "writer/verilog/module.h"
 #include "writer/verilog/ports.h"
 #include "writer/verilog/shared_memory.h"
+#include "writer/verilog/state.h"
 #include "writer/verilog/table.h"
 
 namespace iroha {
@@ -19,15 +21,38 @@ SlavePort::SlavePort(const IResource &res, const Table &table)
 }
 
 void SlavePort::BuildResource() {
-  string wires = BuildPortToExt();
-  BuildControllerInstance(wires);
+  string wires_to_ext = BuildPortToExt();
+  BuildControllerInstance(wires_to_ext);
   if (!IsExclusiveAccessor()) {
     SharedMemory::BuildMemoryAccessorResource(*this, true, false,
 					      res_.GetParentResource());
   }
+
+  ostream &os = tmpl_->GetStream(kResourceSection);
+  os << "  wire " << NotifyWire() << ";\n"
+     << "  reg " << NotifyAckWire() << ";\n";
+
+  ostream &is = tab_.InitialValueSectionStream();
+  is << "      " << NotifyAckWire() << " <= 0;\n";
 }
 
 void SlavePort::BuildInsn(IInsn *insn, State *st) {
+  static const char I[] = "          ";
+  string insn_st = InsnWriter::MultiCycleStateName(*(insn->GetResource()));
+  ostream &os = st->StateBodySectionStream();
+  os << I << "// AXI notification wait\n"
+     << I << "if (" << insn_st << " == 0) begin\n"
+     << I << "  if (" << NotifyWire() << ") begin\n"
+     << I << "    " << NotifyAckWire() << " <= 1;\n"
+     << I << "    " << insn_st << " <= 1;\n"
+     << I << "  end\n"
+     << I << "end\n"
+     << I << "if (" << insn_st << " == 1) begin\n"
+     << I << "  if (!" << NotifyWire() << ") begin\n"
+     << I << "    " << NotifyAckWire() << " <= 0;\n"
+     << I << "    " << insn_st << " <= 3;\n"
+     << I << "  end\n"
+     << I << "end\n";
 }
 
 string SlavePort::ControllerName(const IResource &res, bool reset_polarity) {
@@ -45,7 +70,7 @@ void SlavePort::WriteController(const IResource &res,
   c.Write(os);
 }
 
-void SlavePort::BuildControllerInstance(const string &wires) {
+void SlavePort::BuildControllerInstance(const string &wires_to_ext) {
   tab_.GetEmbeddedModules()->RequestAxiSlaveController(&res_, reset_polarity_);
   ostream &es = tmpl_->GetStream(kEmbeddedInstanceSection);
   string name = ControllerName(res_, reset_polarity_);
@@ -55,7 +80,8 @@ void SlavePort::BuildControllerInstance(const string &wires) {
   es << "  " << name << " inst_" << PortSuffix()
      << "_" << name << "(";
   OutputSRAMConnection(es);
-  es << wires
+  OutputNotifierConnection(es);
+  es << wires_to_ext
      << ");\n";
 }
 
@@ -69,6 +95,19 @@ string SlavePort::BuildPortToExt() {
     SlaveController::AddPorts(cfg, mod, nullptr);
   }
   return s;
+}
+
+void SlavePort::OutputNotifierConnection(ostream &os) {
+  os << ", .access_notify(" << NotifyWire()
+     << "), .access_ack(" << NotifyAckWire() << ")";
+}
+
+string SlavePort::NotifyWire() {
+  return "access_notify" + PortSuffix();
+}
+
+string SlavePort::NotifyAckWire() {
+  return "access_ack" + PortSuffix();
 }
 
 }  // namespace axi

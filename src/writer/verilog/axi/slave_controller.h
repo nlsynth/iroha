@@ -21,6 +21,7 @@ public:
 
 protected:
   void OutputFSM(ostream &os);
+  void AddNotifierPorts();
 };
 
 }  // namespace axi
