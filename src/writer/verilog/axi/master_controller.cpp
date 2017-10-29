@@ -104,6 +104,13 @@ void MasterController::OutputMainFsm(ostream &os) {
   } else {
     os << "      sram_wen <= 0;\n";
   }
+  int rwsize;
+  if (cfg_.data_width == 32) {
+    rwsize = 2;
+  } else {
+    // 64bit.
+    rwsize = 3;
+  }
   os << "      case (st)\n"
      << "        `S_IDLE: begin\n";
   if (r_ || w_) {
@@ -116,24 +123,28 @@ void MasterController::OutputMainFsm(ostream &os) {
     if (r_ && !w_) {
       os << "            ARVALID <= 1;\n"
 	 << "            ARADDR <= addr;\n"
-	 << "            ARLEN <= len;\n";
+	 << "            ARLEN <= len;\n"
+	 << "            ARSIZE <= " << rwsize << ";\n";
     }
     if (!r_ && w_) {
       os << "            AWVALID <= 1;\n"
 	 << "            AWADDR <= addr;\n"
 	 << "            AWLEN <= len;\n"
+	 << "            AWSIZE <= " << rwsize << ";\n"
 	 << "            wmax <= len;\n";
     }
     if (r_ && w_) {
       os << "            if (wen) begin\n"
-	 << "              ARVALID <= 1;\n"
-	 << "              ARADDR <= addr;\n"
-	 << "              ARLEN <= len;\n"
-	 << "            end else begin\n"
 	 << "              AWVALID <= 1;\n"
 	 << "              AWADDR <= addr;\n"
 	 << "              AWLEN <= len;\n"
+	 << "              AWSIZE <= " << rwsize << ";\n"
 	 << "              wmax <= len;\n"
+	 << "            end else begin\n"
+	 << "              ARVALID <= 1;\n"
+	 << "              ARADDR <= addr;\n"
+	 << "              ARLEN <= len;\n"
+	 << "              ARSIZE <= " << rwsize << ";\n"
 	 << "            end\n";
     }
     os << "          end\n";
