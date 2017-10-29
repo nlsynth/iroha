@@ -10,13 +10,13 @@ namespace verilog {
 
 class InternalSRAM {
 public:
-  InternalSRAM(const Module &mod, const IResource &res, int num_ports);
+  InternalSRAM(const Module &mod, const IArray &array,
+	       int num_ports);
 
   void Write(ostream &os);
 
   string GetModuleName() const;
   string GetResetPinName() const;
-  const IResource &GetResource() const;
 
   string GetAddrPin(int port) const;
   string GetRdataPin(int port) const;
@@ -32,7 +32,7 @@ private:
   string MaybePortPrefix(int port) const;
 
   const Module &mod_;
-  const IResource &res_;
+  const IArray &array_;
   int num_ports_;
   bool reset_polarity_;
 };

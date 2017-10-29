@@ -8,9 +8,9 @@ namespace iroha {
 namespace writer {
 namespace verilog {
 
-InternalSRAM::InternalSRAM(const Module &mod, const IResource &res,
+InternalSRAM::InternalSRAM(const Module &mod, const IArray &array,
 			   int num_ports)
-  : mod_(mod), res_(res), num_ports_(num_ports) {
+  : mod_(mod), array_(array), num_ports_(num_ports) {
   CHECK(num_ports == 1 || num_ports == 2);
   reset_polarity_ = mod_.GetResetPolarity();
 }
@@ -42,8 +42,7 @@ void InternalSRAM::Write(ostream &os) {
 }
 
 void InternalSRAM::WriteInternal(ostream &os) {
-  IArray *array = res_.GetArray();
-  int array_size = 1 << array->GetAddressWidth();
+  int array_size = 1 << array_.GetAddressWidth();
   os << "  reg " << DataWidthSpec()
      << "data [0:" << (array_size - 1) << "];\n\n";
   os << "  always @(posedge clk) begin\n"
@@ -52,7 +51,7 @@ void InternalSRAM::WriteInternal(ostream &os) {
     os << "!";
   }
   os << GetResetPinName() << ") begin\n";
-  IArrayImage *im = array->GetArrayImage();
+  IArrayImage *im = array_.GetArrayImage();
   if (im != nullptr) {
     for (int i = 0; i < im->values_.size(); ++i) {
       os << "      data[" << i << "] <= " << im->values_[i] << ";\n";
@@ -74,15 +73,9 @@ void InternalSRAM::WriteInternal(ostream &os) {
   }
 }
 
-const IResource &InternalSRAM::GetResource() const {
-  return res_;
-}
-
 string InternalSRAM::GetModuleName() const {
-  IArray *array = res_.GetArray();
-  CHECK(array);
-  const IValueType &type = array->GetDataType();
-  string n = "SRAM_" + Util::Itoa(array->GetAddressWidth())
+  const IValueType &type = array_.GetDataType();
+  string n = "SRAM_" + Util::Itoa(array_.GetAddressWidth())
     + "_" + Util::Itoa(type.GetWidth());
   if (num_ports_ == 2) {
     n += "_2";
@@ -99,13 +92,11 @@ string InternalSRAM::GetResetPinName() const {
 }
 
 string InternalSRAM::AddressWidthSpec() const {
-  IArray *array = res_.GetArray();
-  return WidthSpec(array->GetAddressWidth());
+  return WidthSpec(array_.GetAddressWidth());
 }
 
 string InternalSRAM::DataWidthSpec() const {
-  IArray *array = res_.GetArray();
-  return WidthSpec(array->GetDataType().GetWidth());
+  return WidthSpec(array_.GetDataType().GetWidth());
 }
 
 string InternalSRAM::WidthSpec(int w) {
