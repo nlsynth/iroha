@@ -217,3 +217,19 @@ def CreateChannelWrite(table):
 
 def CreateTicker(table):
     return createResource(table, "ticker")
+
+def CreateFifo(table, width, addrWidth):
+    res = createResource(table, "fifo")
+    res.resource_params.AddValue("WIDTH", str(width))
+    res.resource_params.AddValue("ADDR-WIDTH", str(width))
+    return res
+
+def CreateFifoReader(table, fifo):
+    res = createResource(table, "fifo-reader")
+    res.parent_resource = fifo
+    return res
+
+def CreateFifoWriter(table, fifo):
+    res = createResource(table, "fifo-writer")
+    res.parent_resource = fifo
+    return res

@@ -25,6 +25,7 @@ tab.states.append(st5)
 
 design_tool.AddNextState(st0, st1)
 design_tool.AddNextState(st1, st2)
+design_tool.AddNextState(st2, st3)
 design_tool.AddNextState(st3, st5)
 design_tool.AddNextState(st4, st5)
 

@@ -53,6 +53,10 @@ class IDesign(object):
         # AXI
         self.resource_classes.append(IResourceClass("axi-master-port"))
         self.resource_classes.append(IResourceClass("axi-slave-port"))
+        # FIFO
+        self.resource_classes.append(IResourceClass("fifo"))
+        self.resource_classes.append(IResourceClass("fifo-reader"))
+        self.resource_classes.append(IResourceClass("fifo-writer"))
 
     def findResourceClassByName(self, name):
         for rc in self.resource_classes:
