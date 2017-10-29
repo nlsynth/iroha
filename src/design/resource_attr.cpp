@@ -35,6 +35,11 @@ bool ResourceAttr::IsMultiCycleInsn(IInsn *insn) {
       resource::IsAxiSlavePort(rc)) {
     return true;
   }
+  if (resource::IsFifo(rc) ||
+      resource::IsFifoReader(rc) ||
+      resource::IsFifoWriter(rc)) {
+    return true;
+  }
   if (resource::IsSharedRegReader(rc)) {
     if (insn->GetOperand() == operand::kWaitNotify ||
 	insn->GetOperand() == operand::kGetMailbox) {

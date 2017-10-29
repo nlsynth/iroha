@@ -159,6 +159,18 @@ bool IsAxiSlavePort(const IResourceClass &rc) {
   return (rc.GetName() == kAxiSlavePort);
 }
 
+bool IsFifo(const IResourceClass &rc) {
+  return (rc.GetName() == kFifo);
+}
+
+bool IsFifoReader(const IResourceClass &rc) {
+  return (rc.GetName() == kFifoReader);
+}
+
+bool IsFifoWriter(const IResourceClass &rc) {
+  return (rc.GetName() == kFifoWriter);
+}
+
 bool IsTicker(const IResourceClass &rc) {
   return (rc.GetName() == kTicker);
 }
@@ -217,6 +229,9 @@ void InstallResourceClasses(IDesign *design) {
   InstallResource(design, resource::kExtTaskWait, true);
   InstallResource(design, resource::kAxiMasterPort, true);
   InstallResource(design, resource::kAxiSlavePort, true);
+  InstallResource(design, resource::kFifo, true);
+  InstallResource(design, resource::kFifoReader, true);
+  InstallResource(design, resource::kFifoWriter, true);
   InstallResource(design, resource::kTicker, true);
 }
 

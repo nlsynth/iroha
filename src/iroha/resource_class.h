@@ -52,6 +52,9 @@ const char kExtTaskCall[] = "ext-task-call";
 const char kExtTaskWait[] = "ext-task-wait";
 const char kAxiMasterPort[] = "axi-master-port";
 const char kAxiSlavePort[] = "axi-slave-port";
+const char kFifo[] = "fifo";
+const char kFifoReader[] = "fifo-reader";
+const char kFifoWriter[] = "fifo-writer";
 const char kTicker[] = "ticker";
 
 bool IsTransition(const IResourceClass &rc);
@@ -91,6 +94,9 @@ bool IsExtTaskCall(const IResourceClass &rc);
 bool IsExtTaskWait(const IResourceClass &rc);
 bool IsAxiMasterPort(const IResourceClass &rc);
 bool IsAxiSlavePort(const IResourceClass &rc);
+bool IsFifo(const IResourceClass &rc);
+bool IsFifoReader(const IResourceClass &rc);
+bool IsFifoWriter(const IResourceClass &rc);
 bool IsTicker(const IResourceClass &rc);
 
 void InstallResourceClasses(IDesign *design);
