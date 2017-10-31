@@ -87,9 +87,9 @@ bool EmbeddedModules::Write(ostream &os) {
 }
 
 InternalSRAM *EmbeddedModules::RequestInternalSRAM(const Module &mod,
-						   const IResource &res,
+						   const IArray &arr,
 						   int num_ports) {
-  InternalSRAM *sram = new InternalSRAM(mod, *res.GetArray(), num_ports);
+  InternalSRAM *sram = new InternalSRAM(mod, arr, num_ports);
   srams_.push_back(sram);
   return sram;
 }

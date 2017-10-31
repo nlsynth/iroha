@@ -58,6 +58,9 @@ IArray::IArray(IResource *res, int address_width, const IValueType &data_type,
 	       bool is_external, bool is_ram)
   : res_(res), address_width_(address_width), data_type_(data_type),
     is_external_(is_external), is_ram_(is_ram), array_image_(nullptr) {
+  if (res == nullptr) {
+    return;
+  }
   auto *pool = res->GetTable()->GetModule()->GetDesign()->GetObjectPool();
   pool->arrays_.Add(this);
 }

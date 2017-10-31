@@ -57,6 +57,8 @@ void Connection::ProcessTable(ITable *tab) {
   ProcessSharedRegAccessors(tab);
   // shared-memory
   ProcessSharedMemoryAccessors(tab);
+  // fifo
+  ProcessFifoAccessors(tab);
 }
 
 void Connection::ProcessSharedRegAccessors(ITable *tab) {
@@ -96,6 +98,20 @@ void Connection::ProcessSharedMemoryAccessors(ITable *tab) {
 	// Exclusive access only by a DMAC.
 	ai->shared_memory_port1_accessors_.push_back(res);
       }
+    }
+  }
+}
+
+void Connection::ProcessFifoAccessors(ITable *tab) {
+  for (IResource *res : tab->resources_) {
+    auto *ai = FindAccessorInfo(res->GetParentResource());
+    auto *rc = res->GetClass();
+    auto *params = res->GetParams();
+    if (resource::IsFifoReader(*rc)) {
+      ai->fifo_readers_.push_back(res);
+    }
+    if (resource::IsFifoWriter(*rc)) {
+      ai->fifo_writers_.push_back(res);
     }
   }
 }
@@ -224,6 +240,16 @@ const vector<IResource *> &Connection::GetSharedMemoryAccessors(const IResource 
 const vector<IResource *> &Connection::GetSharedMemoryPort1Accessors(const IResource *res) const {
   const auto *ai = GetAccessorInfo(res);
   return ai->shared_memory_port1_accessors_;
+}
+
+const vector<IResource *> &Connection::GetFifoWriters(const IResource *res) const {
+  const auto *ai = GetAccessorInfo(res);
+  return ai->fifo_writers_;
+}
+
+const vector<IResource *> &Connection::GetFifoReaders(const IResource *res) const {
+  const auto *ai = GetAccessorInfo(res);
+  return ai->fifo_readers_;
 }
 
 const vector<IResource *> &Connection::GetTaskCallers(const IResource *res) const {

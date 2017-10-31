@@ -10,9 +10,14 @@ namespace verilog {
 
 InternalSRAM::InternalSRAM(const Module &mod, const IArray &array,
 			   int num_ports)
-  : mod_(mod), array_(array), num_ports_(num_ports) {
+  : mod_(mod), num_ports_(num_ports) {
   CHECK(num_ports == 1 || num_ports == 2);
   reset_polarity_ = mod_.GetResetPolarity();
+  // Take a copy.
+  array_.reset(new IArray(array));
+}
+
+InternalSRAM::~InternalSRAM() {
 }
 
 void InternalSRAM::Write(ostream &os) {
@@ -42,7 +47,7 @@ void InternalSRAM::Write(ostream &os) {
 }
 
 void InternalSRAM::WriteInternal(ostream &os) {
-  int array_size = 1 << array_.GetAddressWidth();
+  int array_size = 1 << array_->GetAddressWidth();
   os << "  reg " << DataWidthSpec()
      << "data [0:" << (array_size - 1) << "];\n\n";
   os << "  always @(posedge clk) begin\n"
@@ -51,7 +56,7 @@ void InternalSRAM::WriteInternal(ostream &os) {
     os << "!";
   }
   os << GetResetPinName() << ") begin\n";
-  IArrayImage *im = array_.GetArrayImage();
+  IArrayImage *im = array_->GetArrayImage();
   if (im != nullptr) {
     for (int i = 0; i < im->values_.size(); ++i) {
       os << "      data[" << i << "] <= " << im->values_[i] << ";\n";
@@ -74,8 +79,8 @@ void InternalSRAM::WriteInternal(ostream &os) {
 }
 
 string InternalSRAM::GetModuleName() const {
-  const IValueType &type = array_.GetDataType();
-  string n = "SRAM_" + Util::Itoa(array_.GetAddressWidth())
+  const IValueType &type = array_->GetDataType();
+  string n = "SRAM_" + Util::Itoa(array_->GetAddressWidth())
     + "_" + Util::Itoa(type.GetWidth());
   if (num_ports_ == 2) {
     n += "_2";
@@ -92,11 +97,11 @@ string InternalSRAM::GetResetPinName() const {
 }
 
 string InternalSRAM::AddressWidthSpec() const {
-  return WidthSpec(array_.GetAddressWidth());
+  return WidthSpec(array_->GetAddressWidth());
 }
 
 string InternalSRAM::DataWidthSpec() const {
-  return WidthSpec(array_.GetDataType().GetWidth());
+  return WidthSpec(array_->GetDataType().GetWidth());
 }
 
 string InternalSRAM::WidthSpec(int w) {

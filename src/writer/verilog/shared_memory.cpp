@@ -132,7 +132,8 @@ void SharedMemory::BuildMemoryInstance() {
     num_ports = 2;
   }
   InternalSRAM *sram =
-    tab_.GetEmbeddedModules()->RequestInternalSRAM(*tab_.GetModule(), res_,
+    tab_.GetEmbeddedModules()->RequestInternalSRAM(*tab_.GetModule(),
+						   *res_.GetArray(),
 						   num_ports);
   auto *ports = tab_.GetPorts();
   ostream &es = tmpl_->GetStream(kEmbeddedInstanceSection);

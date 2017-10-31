@@ -16,8 +16,9 @@ public:
   ~EmbeddedModules();
 
   void RequestModule(const ResourceParams &params);
+  // Creates copy of the array.
   InternalSRAM *RequestInternalSRAM(const Module &mod,
-				    const IResource &res,
+				    const IArray &arr,
 				    int num_ports);
   // Called from MasterPort::BuildResource()
   void RequestAxiMasterController(const IResource *axi_port,

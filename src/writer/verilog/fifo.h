@@ -9,13 +9,18 @@ namespace iroha {
 namespace writer {
 namespace verilog {
 
-// Fifo can have depth and will supersede Channel.
+// Fifo can have depth and will supersede Channel (WIP).
 class Fifo : public Resource {
 public:
   Fifo(const IResource &res, const Table &table);
 
   virtual void BuildResource() override;
   virtual void BuildInsn(IInsn *insn, State *st) override;
+
+private:
+  string WritePtr();
+  string ReadPtr();
+  string PinPrefix();
 };
 
 }  // namespace verilog

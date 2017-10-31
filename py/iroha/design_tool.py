@@ -221,7 +221,7 @@ def CreateTicker(table):
 def CreateFifo(table, width, addrWidth):
     res = createResource(table, "fifo")
     res.resource_params.AddValue("WIDTH", str(width))
-    res.resource_params.AddValue("ADDR-WIDTH", str(width))
+    res.resource_params.AddValue("ADDR-WIDTH", str(addrWidth))
     return res
 
 def CreateFifoReader(table, fifo):

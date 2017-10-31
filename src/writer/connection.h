@@ -34,6 +34,7 @@ public:
   set<IRegister *> is_source;
 };
 
+// Keyed by owner (parent) resource.
 class AccessorInfo {
 public:
   vector<IResource *> task_callers_;
@@ -44,6 +45,8 @@ public:
   vector<IResource *> shared_reg_writers_;
   // dataflowin-s attached to this shared register resource.
   vector<IResource *> shared_reg_children_;
+  vector<IResource *> fifo_readers_;
+  vector<IResource *> fifo_writers_;
 };
 
 class Connection {
@@ -62,6 +65,8 @@ public:
   const vector<IResource *> &GetSharedRegChildren(const IResource *res) const;
   const vector<IResource *> &GetSharedMemoryAccessors(const IResource *res) const;
   const vector<IResource *> &GetSharedMemoryPort1Accessors(const IResource *res) const;
+  const vector<IResource *> &GetFifoWriters(const IResource *res) const;
+  const vector<IResource *> &GetFifoReaders(const IResource *res) const;
 
   static const IModule *GetCommonRoot(const IModule *m1, const IModule *m2);
 
@@ -82,6 +87,7 @@ private:
   void ProcessTable(ITable *tab);
   void ProcessSharedRegAccessors(ITable *tab);
   void ProcessSharedMemoryAccessors(ITable *tab);
+  void ProcessFifoAccessors(ITable *tab);
   ChannelInfo *FindChannelInfo(const IModule *mod);
   RegConnectionInfo *FindRegConnectionInfo(const IModule *mod);
   AccessorInfo *FindAccessorInfo(const IResource *res);
