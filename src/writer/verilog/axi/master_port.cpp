@@ -54,7 +54,7 @@ void MasterPort::BuildResource() {
   if (accessors.size() == 0) {
     ss << "0;\n";
   } else {
-    ss << JoinStatesWithSubState(accessors, 0) << " && !"
+    ss << "(" << JoinStatesWithSubState(accessors, 0) << ") && !"
        << AckPort() <<";\n";
   }
   map<IState *, IInsn *> writers;
@@ -63,7 +63,7 @@ void MasterPort::BuildResource() {
   if (writers.size() == 0) {
     ss << "0;\n";
   } else {
-    ss << JoinStatesWithSubState(writers, 0)  << " && !"
+    ss << "(" << JoinStatesWithSubState(writers, 0)  << ") && !"
        << AckPort() <<";\n";
   }
 }
