@@ -13,6 +13,7 @@
 #include "writer/verilog/ext_task.h"
 #include "writer/verilog/ext_task_call.h"
 #include "writer/verilog/fifo.h"
+#include "writer/verilog/fifo_accessor.h"
 #include "writer/verilog/foreign_reg.h"
 #include "writer/verilog/insn_writer.h"
 #include "writer/verilog/mapped.h"
@@ -84,10 +85,12 @@ Resource *Resource::Create(const IResource &res, const Table &table) {
       resource::IsExtTaskDone(*klass)) {
     return new ExtTask(res, table);
   }
-  if (resource::IsFifo(*klass) ||
-      resource::IsFifoReader(*klass) ||
-      resource::IsFifoWriter(*klass)) {
+  if (resource::IsFifo(*klass)) {
     return new Fifo(res, table);
+  }
+  if (resource::IsFifoReader(*klass) ||
+      resource::IsFifoWriter(*klass)) {
+    return new FifoAccessor(res, table);
   }
   if (resource::IsEmbedded(*klass) ||
       resource::IsExtTaskCall(*klass) ||

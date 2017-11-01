@@ -223,6 +223,8 @@
         'writer/verilog/ext_task.h',
         'writer/verilog/fifo.cpp',
         'writer/verilog/fifo.h',
+        'writer/verilog/fifo_accessor.cpp',
+        'writer/verilog/fifo_accessor.h',
         'writer/verilog/foreign_reg.cpp',
         'writer/verilog/foreign_reg.h',
         'writer/verilog/insn_writer.cpp',

@@ -17,10 +17,17 @@ public:
   virtual void BuildResource() override;
   virtual void BuildInsn(IInsn *insn, State *st) override;
 
+  static string RReq(const IResource &res, const IResource *accessor);
+  static string RAck(const IResource &res, const IResource *accessor);
+  static string RData(const IResource &res);
+  static string WReq(const IResource &res, const IResource *accessor);
+  static string WAck(const IResource &res, const IResource *accessor);
+  static string WData(const IResource &res, const IResource *accessor);
+
 private:
   string WritePtr();
   string ReadPtr();
-  string PinPrefix();
+  static string PinPrefix(const IResource &res, const IResource *accessor);
 };
 
 }  // namespace verilog

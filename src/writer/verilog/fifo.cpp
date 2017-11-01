@@ -1,7 +1,6 @@
 #include "writer/verilog/fifo.h"
 
 #include "iroha/i_design.h"
-#include "iroha/resource_class.h"
 #include "iroha/resource_params.h"
 #include "writer/module_template.h"
 #include "writer/verilog/embed.h"
@@ -19,10 +18,6 @@ Fifo::Fifo(const IResource &res, const Table &table) : Resource(res, table) {
 
 void Fifo::BuildResource() {
   // WIP.
-  auto *klass = res_.GetClass();
-  if (!resource::IsFifo(*klass)) {
-    return;
-  }
   auto *params = res_.GetParams();
   IValueType data_type;
   data_type.SetWidth(params->GetWidth());
@@ -64,17 +59,47 @@ void Fifo::BuildInsn(IInsn *insn, State *st) {
 }
 
 string Fifo::WritePtr() {
-  return PinPrefix() + "_wptr";
+  return PinPrefix(res_, nullptr) + "_wptr";
 }
 
 string Fifo::ReadPtr() {
-  return PinPrefix() + "_rptr";
+  return PinPrefix(res_, nullptr) + "_rptr";
 }
 
-string Fifo::PinPrefix() {
-  return "fifo_" + Util::Itoa(res_.GetTable()->GetModule()->GetId()) +
-    "_" + Util::Itoa(res_.GetTable()->GetId()) +
-    "_" + Util::Itoa(res_.GetId());
+string Fifo::PinPrefix(const IResource &res, const IResource *accessor) {
+  string s = "fifo_" + Util::Itoa(res.GetTable()->GetModule()->GetId()) +
+    "_" + Util::Itoa(res.GetTable()->GetId()) +
+    "_" + Util::Itoa(res.GetId());
+  if (accessor != nullptr) {
+    s += "_" + Util::Itoa(accessor->GetTable()->GetModule()->GetId()) +
+      "_" + Util::Itoa(accessor->GetTable()->GetId()) +
+      "_" + Util::Itoa(accessor->GetId());
+  }
+  return s;
+}
+
+string Fifo::RReq(const IResource &res, const IResource *accessor) {
+  return PinPrefix(res, accessor) + "_rreq";
+}
+
+string Fifo::RAck(const IResource &res, const IResource *accessor) {
+  return PinPrefix(res, accessor) + "_rack";
+}
+
+string Fifo::RData(const IResource &res) {
+  return PinPrefix(res, nullptr) + "_rdata";
+}
+
+string Fifo::WReq(const IResource &res, const IResource *accessor) {
+  return PinPrefix(res, accessor) + "_wreq";
+}
+
+string Fifo::WAck(const IResource &res, const IResource *accessor) {
+  return PinPrefix(res, accessor) + "_wack";
+}
+
+string Fifo::WData(const IResource &res, const IResource *accessor) {
+  return PinPrefix(res, accessor) + "_wdata";
 }
 
 }  // namespace verilog
