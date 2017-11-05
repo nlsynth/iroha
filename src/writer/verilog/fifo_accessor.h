@@ -19,6 +19,9 @@ public:
 private:
   void BuildReader();
   void BuildWriter();
+  void BuildReadInsn(IInsn *insn, State *st);
+  void BuildWriteInsn(IInsn *insn, State *st);
+  void BuildReq(bool is_writer);
 };
 
 }  // namespace verilog
