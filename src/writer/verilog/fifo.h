@@ -17,9 +17,6 @@ public:
   virtual void BuildResource() override;
   virtual void BuildInsn(IInsn *insn, State *st) override;
 
-  static void AddAccessorSignals(const IModule *imod, const Table *tab,
-				 const IResource *accessor, bool wire_only);
-
   static string RReq(const IResource &res, const IResource *accessor);
   static string RAck(const IResource &res, const IResource *accessor);
   static string RData(const IResource &res);
@@ -38,7 +35,6 @@ private:
   void BuildWires();
   void BuildAccessConnectionsAll();
   void BuildAccessConnection(IResource *accessor);
-  void AddWire(const IModule *imod, IResource *caller);
 };
 
 }  // namespace verilog

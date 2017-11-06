@@ -2,6 +2,7 @@
 
 #include "iroha/i_design.h"
 #include "iroha/resource_class.h"
+#include "iroha/resource_params.h"
 #include "writer/module_template.h"
 #include "writer/verilog/fifo.h"
 #include "writer/verilog/insn_writer.h"
@@ -39,14 +40,14 @@ void FifoAccessor::BuildInsn(IInsn *insn, State *st) {
 }
 
 void FifoAccessor::BuildReader() {
-  Fifo::AddAccessorSignals(res_.GetTable()->GetModule(),
-			   &tab_, &res_, false);
   BuildReq(false);
+  int dw = res_.GetParentResource()->GetParams()->GetWidth();
+  ostream &rs = tmpl_->GetStream(kResourceSection);
+  rs << "  reg " << Table::WidthSpec(dw)
+     << Fifo::RDataBuf(res_) << ";\n";
 }
 
 void FifoAccessor::BuildWriter() {
-  Fifo::AddAccessorSignals(res_.GetTable()->GetModule(),
-			   &tab_, &res_, false);
   BuildReq(true);
 }
 

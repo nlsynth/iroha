@@ -231,6 +231,8 @@
         'writer/verilog/insn_writer.h',
         'writer/verilog/internal_sram.cpp',
         'writer/verilog/internal_sram.h',
+        'writer/verilog/inter_module_wire.cpp',
+        'writer/verilog/inter_module_wire.h',
         'writer/verilog/mapped.cpp',
         'writer/verilog/mapped.h',
         'writer/verilog/module.cpp',

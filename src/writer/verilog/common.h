@@ -21,6 +21,7 @@ class DataFlowState;
 class DataFlowTable;
 class EmbeddedModules;
 class InternalSRAM;
+class InterModuleWire;
 class Module;
 class Resource;
 class State;

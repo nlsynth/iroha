@@ -7,6 +7,7 @@
 #include "writer/module_template.h"
 #include "writer/verilog/embed.h"
 #include "writer/verilog/internal_sram.h"
+#include "writer/verilog/inter_module_wire.h"
 #include "writer/verilog/module.h"
 #include "writer/verilog/ports.h"
 #include "writer/verilog/table.h"
@@ -35,7 +36,6 @@ void Fifo::BuildWires() {
      << "  reg [" << aw << ":0] " << WritePtr() << ";\n"
      << "  wire " << Full() << ";\n"
      << "  wire " << Empty() << ";\n"
-     << "  wire [" << (dw - 1) << ":0] " << RData(res_) << ";\n"
      << "  wire [" << (dw - 1) << ":0] " << WData(res_, nullptr) << ";\n"
      << "  wire " << WReq(res_, nullptr) << ";\n\n";
 
@@ -98,55 +98,20 @@ void Fifo::BuildAccessConnectionsAll() {
 }
 
 void Fifo::BuildAccessConnection(IResource *accessor) {
-  IModule *fifo_module = res_.GetTable()->GetModule();
-  IModule *accessor_module = accessor->GetTable()->GetModule();
-  const IModule *common_root = Connection::GetCommonRoot(fifo_module,
-							 accessor_module);
-  if (accessor_module != common_root) {
-    AddWire(common_root, accessor);
-  }
-  // upward
-  for (IModule *imod = accessor_module; imod != common_root;
-       imod = imod->GetParentModule()) {
-  }
-  // downward
-  for (IModule *imod = fifo_module; imod != common_root;
-       imod = imod->GetParentModule()) {
-  }
-}
-
-void Fifo::AddWire(const IModule *imod, IResource *caller) {
-}
-
-void Fifo::AddAccessorSignals(const IModule *imod, const Table *tab,
-			      const IResource *accessor, bool wire_only) {
+  InterModuleWire wire(*this);
   IResource *fifo = accessor->GetParentResource();
+  bool is_reader = resource::IsFifoReader(*(accessor->GetClass()));
   auto *params = fifo->GetParams();
   int dw = params->GetWidth();
-  bool is_reader = resource::IsFifoReader(*(accessor->GetClass()));
-  bool same_module = false;
-  if (fifo->GetTable()->GetModule() == accessor->GetTable()->GetModule()) {
-    same_module = true;
-  }
-  Module *mod = tab->GetModule()->GetByIModule(imod);
-  auto *tmpl = mod->GetModuleTemplate();
-  ostream &rs = tmpl->GetStream(kResourceSection);
   if (is_reader) {
-    rs << "  reg " << RReq(*fifo, accessor) << ";\n";
-    rs << "  wire " << RAck(*fifo, accessor) << ";\n";
-    if (!same_module) {
-      rs << "  wire " << Table::WidthSpec(dw)
-	 << RData(*fifo) << ";\n";
-    }
-    if (!wire_only) {
-      rs << "  reg " << Table::WidthSpec(dw)
-	 << RDataBuf(*accessor) << ";\n";
-    }
+    wire.AddWire(*accessor, RReq(*fifo, accessor), 0, false, true);
+    wire.AddWire(*accessor, RAck(*fifo, accessor), 0, true, true);
+    // TODO: Make this shared between accessors.
+    wire.AddWire(*accessor, RData(*fifo), dw, false, false);
   } else {
-    rs << "  reg " << WReq(*fifo, accessor) << ";\n";
-    rs << "  wire " << WAck(*fifo, accessor) << ";\n";
-    rs << "  reg " << Table::WidthSpec(dw)
-       << WData(*fifo, accessor) << ";\n";
+    wire.AddWire(*accessor, WReq(*fifo, accessor), 0, false, true);
+    wire.AddWire(*accessor, WAck(*fifo, accessor), 0, true, true);
+    wire.AddWire(*accessor, WData(*fifo, accessor), dw, false, true);
   }
 }
 
