@@ -34,7 +34,6 @@ private:
   void BuildMemoryInstance();
   void BuildWires();
   void BuildAccessConnectionsAll();
-  void BuildAccessConnection(IResource *accessor);
 };
 
 }  // namespace verilog

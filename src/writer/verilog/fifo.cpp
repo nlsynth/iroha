@@ -87,31 +87,20 @@ void Fifo::BuildInsn(IInsn *insn, State *st) {
 }
 
 void Fifo::BuildAccessConnectionsAll() {
+  InterModuleWire wire(*this);
+  int dw = res_.GetParams()->GetWidth();
   auto &readers = tab_.GetModule()->GetConnection().GetFifoReaders(&res_);
   for (auto *reader : readers) {
-    BuildAccessConnection(reader);
+    wire.AddWire(*reader, RReq(res_, reader), 0, false, true);
+    wire.AddWire(*reader, RAck(res_, reader), 0, true, true);
   }
+  // Driven from sram module.
+  wire.AddSharedWires(readers, RData(res_), dw, true, false);
   auto &writers = tab_.GetModule()->GetConnection().GetFifoWriters(&res_);
   for (auto *writer : writers) {
-    BuildAccessConnection(writer);
-  }
-}
-
-void Fifo::BuildAccessConnection(IResource *accessor) {
-  InterModuleWire wire(*this);
-  IResource *fifo = accessor->GetParentResource();
-  bool is_reader = resource::IsFifoReader(*(accessor->GetClass()));
-  auto *params = fifo->GetParams();
-  int dw = params->GetWidth();
-  if (is_reader) {
-    wire.AddWire(*accessor, RReq(*fifo, accessor), 0, false, true);
-    wire.AddWire(*accessor, RAck(*fifo, accessor), 0, true, true);
-    // TODO: Make this shared between accessors.
-    wire.AddWire(*accessor, RData(*fifo), dw, false, false);
-  } else {
-    wire.AddWire(*accessor, WReq(*fifo, accessor), 0, false, true);
-    wire.AddWire(*accessor, WAck(*fifo, accessor), 0, true, true);
-    wire.AddWire(*accessor, WData(*fifo, accessor), dw, false, true);
+    wire.AddWire(*writer, WReq(res_, writer), 0, false, true);
+    wire.AddWire(*writer, WAck(res_, writer), 0, true, true);
+    wire.AddWire(*writer, WData(res_, writer), dw, false, true);
   }
 }
 
