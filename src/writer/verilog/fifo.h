@@ -28,12 +28,22 @@ public:
 private:
   string WritePtr();
   string ReadPtr();
+  string WritePtrBuf();
+  string ReadPtrBuf();
   string Full();
   string Empty();
   static string PinPrefix(const IResource &res, const IResource *accessor);
   void BuildMemoryInstance();
   void BuildWires();
+  void BuildHandShake();
   void BuildAccessConnectionsAll();
+  void BuildController();
+  void BuildReq(bool is_write, const vector<IResource *> &accessors);
+  void BuildAck(bool is_write, const vector<IResource *> &accessors);
+  void BuildAckAssigns(bool is_write, const string &ack,
+		       const vector<IResource *> &accessors,
+		       const string &indent,
+		       ostream &os);
 };
 
 }  // namespace verilog
