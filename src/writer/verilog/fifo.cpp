@@ -42,7 +42,9 @@ void Fifo::BuildWires() {
      << "  wire " << Empty() << ";\n"
      << "  wire [" << (dw - 1) << ":0] " << WData(res_, nullptr) << ";\n"
      << "  wire " << RReq(res_, nullptr) << ";\n"
-     << "  wire " << WReq(res_, nullptr) << ";\n\n";
+     << "  wire " << WReq(res_, nullptr) << ";\n"
+     << "  wire " << RAck(res_, nullptr) << ";\n"
+     << "  wire " << WAck(res_, nullptr) << ";\n\n";
 
   rs << "  assign " << Empty()
      << " = (" << ReadPtr() << " == " << WritePtr() << ");\n";
@@ -57,10 +59,10 @@ void Fifo::BuildWires() {
 void Fifo::BuildHandShake() {
   // Reader.
   auto &readers = tab_.GetModule()->GetConnection().GetFifoReaders(&res_);
-  BuildReq(false, readers);
+  BuildReqAckAssign(false, readers);
   // Writer.
   auto &writers = tab_.GetModule()->GetConnection().GetFifoWriters(&res_);
-  BuildReq(true, writers);
+  BuildReqAckAssign(true, writers);
   ostream &rs = tmpl_->GetStream(kResourceSection);
   string s;
   for (auto *writer : writers) {
@@ -73,27 +75,39 @@ void Fifo::BuildHandShake() {
   rs << "  assign " << WData(res_, nullptr) << " = " << s << ";\n";
 }
 
-void Fifo::BuildReq(bool is_write, const vector<IResource *> &accessors) {
+void Fifo::BuildReqAckAssign(bool is_write,
+			     const vector<IResource *> &accessors) {
+  vector<string> acks;
   vector<string> reqs;
   for (auto *accessor : accessors) {
     if (is_write) {
+      acks.push_back(WAck(res_, accessor));
       reqs.push_back(WReq(res_, accessor));
     } else {
+      acks.push_back(RAck(res_, accessor));
       reqs.push_back(RReq(res_, accessor));
     }
   }
   ostream &rs = tmpl_->GetStream(kResourceSection);
-  rs << "  assign ";
   if (is_write) {
-    rs << WReq(res_, nullptr);
+    AssignJoin(WReq(res_, nullptr), reqs, rs);
   } else {
-    rs << RReq(res_, nullptr);
+    AssignJoin(RReq(res_, nullptr), reqs, rs);
   }
-  rs << " = ";
-  if (reqs.size() == 0) {
-    rs << "0;\n";
+  if (is_write) {
+    AssignJoin(WAck(res_, nullptr), acks, rs);
   } else {
-    rs << Util::Join(reqs, " | ") << ";\n";
+    AssignJoin(RAck(res_, nullptr), acks, rs);
+  }
+}
+
+void Fifo::AssignJoin(const string &lhs, const vector<string> &accessors,
+		      ostream &os) {
+  os << "  assign " << lhs << " = ";
+  if (accessors.size() == 0) {
+    os << "0;\n";
+  } else {
+    os << Util::Join(accessors, " | ") << ";\n";
   }
 }
 
@@ -123,7 +137,8 @@ void Fifo::BuildMemoryInstance() {
      << ", .addr_1_i(" << WritePtrBuf() << "[" << (aw - 1) << ":0])"
      << ", .rdata_1_o(/*not connected*/)"
      << ", .wdata_1_i(" << WData(res_, nullptr) << ")"
-     << ", .write_en_1_i(" << WReq(res_, nullptr) << ")"
+     << ", .write_en_1_i(" << WReq(res_, nullptr) << " && "
+     << WAck(res_, nullptr) << ")"
      << ");\n";
 }
 
@@ -174,7 +189,8 @@ void Fifo::BuildController() {
      << "      " << ReadPtr() << " <= 0;\n"
      << "      " << WritePtr() << " <= 0;\n"
      << "    end else begin\n"
-     << "      if (" << WReq(res_, nullptr) << " && !" << Full() << ") begin\n"
+     << "      if (" << WReq(res_, nullptr) << " && !" << Full()
+     << " && !" << WAck(res_, nullptr) << ") begin\n"
      << "        " << WritePtr() << " <= " << WritePtr() << " + 1;\n"
      << "        " << WritePtrBuf() << " <= " << WritePtr() << ";\n";
   auto &writers = tab_.GetModule()->GetConnection().GetFifoWriters(&res_);
@@ -182,7 +198,8 @@ void Fifo::BuildController() {
   es << "      end else begin\n";
   BuildAckAssigns(true, "", writers, "        ", es);
   es << "      end\n"
-     << "      if (" << RReq(res_, nullptr) << " && !" << Empty() << ") begin\n"
+     << "      if (" << RReq(res_, nullptr) << " && !" << Empty()
+     << " && !" << RAck(res_, nullptr) << ") begin\n"
      << "        " << ReadPtr() << " <= " << ReadPtr() << " + 1;\n"
      << "        " << ReadPtrBuf() << " <= " << ReadPtr() << ";\n";
   auto &readers = tab_.GetModule()->GetConnection().GetFifoReaders(&res_);

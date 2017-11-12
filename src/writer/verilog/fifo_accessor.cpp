@@ -56,16 +56,19 @@ void FifoAccessor::BuildReq(bool is_writer) {
   map<IState *, IInsn *> callers;
   CollectResourceCallers("", &callers);
   string sig;
+  string ack;
   if (is_writer) {
     sig = Fifo::WReq(*(res_.GetParentResource()), &res_);
+    ack = Fifo::WAck(*(res_.GetParentResource()), &res_);
   } else {
     sig = Fifo::RReq(*(res_.GetParentResource()), &res_);
+    ack = Fifo::RAck(*(res_.GetParentResource()), &res_);
   }
   string req = JoinStatesWithSubState(callers, 0);
   if (req.empty()) {
     req = "0";
   }
-  ss << "      " << sig << " <= " << req << ";\n";
+  ss << "      " << sig << " <= (" << req << ") && !" << ack << ";\n";
 }
 
 void FifoAccessor::BuildReadInsn(IInsn *insn, State *st) {

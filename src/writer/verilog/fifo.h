@@ -38,12 +38,14 @@ private:
   void BuildHandShake();
   void BuildAccessConnectionsAll();
   void BuildController();
-  void BuildReq(bool is_write, const vector<IResource *> &accessors);
+  void BuildReqAckAssign(bool is_write, const vector<IResource *> &accessors);
   void BuildAck(bool is_write, const vector<IResource *> &accessors);
   void BuildAckAssigns(bool is_write, const string &ack,
 		       const vector<IResource *> &accessors,
 		       const string &indent,
 		       ostream &os);
+  void AssignJoin(const string &lhs, const vector<string> &accessors,
+		  ostream &os);
 };
 
 }  // namespace verilog
