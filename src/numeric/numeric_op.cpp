@@ -16,7 +16,7 @@ NumericWidth Op::ValueWidth(const Numeric &src_num) {
     is_signed = true;
   }
   uint64_t n;
-  n = num.GetValue();
+  n = num.GetValue0();
   int w;
   for (w = 0; n > 0; w++, n /= 2);
   return NumericWidth(is_signed, w);
@@ -26,19 +26,19 @@ bool Op::IsZero(const Numeric &n) {
   if (n.type_.IsWide()) {
     return WideOp::IsZero(n);
   }
-  return n.GetValue() == 0;
+  return n.GetValue0() == 0;
 }
 
 void Op::Add(const Numeric &x, const Numeric &y, Numeric *a) {
-  a->SetValue(x.GetValue() + y.GetValue());
+  a->SetValue0(x.GetValue0() + y.GetValue0());
 }
 
 void Op::Sub(const Numeric &x, const Numeric &y, Numeric *a) {
-  a->SetValue(x.GetValue() - y.GetValue());
+  a->SetValue0(x.GetValue0() - y.GetValue0());
 }
 
 void Op::MakeConst(uint64_t value, Numeric *num) {
-  num->SetValue(value);
+  num->SetValue0(value);
 }
 
 void Op::CalcBinOp(BinOp op, const Numeric &x, const Numeric &y,
@@ -48,7 +48,7 @@ void Op::CalcBinOp(BinOp op, const Numeric &x, const Numeric &y,
     case BINOP_LSHIFT:
     case BINOP_RSHIFT:
       {
-	int c = y.GetValue();
+	int c = y.GetValue0();
 	WideOp::Shift(x, c, (op == BINOP_LSHIFT), res);
       }
       break;
@@ -66,32 +66,32 @@ void Op::CalcBinOp(BinOp op, const Numeric &x, const Numeric &y,
   case BINOP_LSHIFT:
   case BINOP_RSHIFT:
     {
-      int c = y.GetValue();
+      int c = y.GetValue0();
       if (op == BINOP_LSHIFT) {
-	res->SetValue(x.GetValue() << c);
+	res->SetValue0(x.GetValue0() << c);
       } else {
-	res->SetValue(x.GetValue() >> c);
+	res->SetValue0(x.GetValue0() >> c);
       }
     }
     break;
   case BINOP_AND:
-    res->SetValue(x.GetValue() & y.GetValue());
+    res->SetValue0(x.GetValue0() & y.GetValue0());
     break;
   case BINOP_OR:
-    res->SetValue(x.GetValue() | y.GetValue());
+    res->SetValue0(x.GetValue0() | y.GetValue0());
     break;
   case BINOP_XOR:
-    res->SetValue(x.GetValue() ^ y.GetValue());
+    res->SetValue0(x.GetValue0() ^ y.GetValue0());
     break;
   case BINOP_MUL:
-    res->SetValue(x.GetValue() * y.GetValue());
+    res->SetValue0(x.GetValue0() * y.GetValue0());
     break;
   }
 }
 
 void Op::Minus(const Numeric &x, Numeric *res) {
   *res = x;
-  res->SetValue(res->GetValue() * -1);
+  res->SetValue0(res->GetValue0() * -1);
 }
 
 void Op::Clear(Numeric *res) {
@@ -101,18 +101,18 @@ void Op::Clear(Numeric *res) {
       v->value_[i] = 0;
     }
   } else {
-    res->SetValue(0);
+    res->SetValue0(0);
   }
 }
 
 bool Op::Compare(CompareOp op, const Numeric &x, const Numeric &y) {
   switch (op) {
   case COMPARE_LT:
-    return x.GetValue() < y.GetValue();
+    return x.GetValue0() < y.GetValue0();
   case COMPARE_GT:
-    return x.GetValue() > y.GetValue();
+    return x.GetValue0() > y.GetValue0();
   case COMPARE_EQ:
-    return x.GetValue() == y.GetValue();
+    return x.GetValue0() == y.GetValue0();
   default:
     break;
   }
@@ -121,7 +121,7 @@ bool Op::Compare(CompareOp op, const Numeric &x, const Numeric &y) {
 
 void Op::BitInv(const Numeric &num, Numeric *res) {
   *res = num;
-  res->SetValue(~res->GetValue());
+  res->SetValue0(~res->GetValue0());
 }
 
 void Op::FixupWidth(const NumericWidth &w, Numeric *num) {
@@ -129,7 +129,7 @@ void Op::FixupWidth(const NumericWidth &w, Numeric *num) {
     WideOp::FixupWidth(w, num);
     return;
   }
-  num->SetValue(num->GetValue() & w.GetMask());
+  num->SetValue0(num->GetValue0() & w.GetMask());
 }
 
 void Op::SelectBits(const Numeric &num, int h, int l,
@@ -141,10 +141,10 @@ void Op::SelectBits(const Numeric &num, int h, int l,
     return;
   }
   *res = num;
-  res->SetValue(0);
+  res->SetValue0(0);
   for (int i = 0; i < width; ++i) {
-    if ((1UL << (l + i)) & num.GetValue()) {
-      res->SetValue(res->GetValue() | (1UL << i));
+    if ((1UL << (l + i)) & num.GetValue0()) {
+      res->SetValue0(res->GetValue0() | (1UL << i));
     }
   }
   res->type_ = NumericWidth(false, width);
@@ -158,7 +158,7 @@ void Op::Concat(const Numeric &x, const Numeric &y,
     WideOp::Concat(x, y, a);
     return;
   }
-  a->SetValue((x.GetValue() << y.type_.GetWidth()) + y.GetValue());
+  a->SetValue0((x.GetValue0() << y.type_.GetWidth()) + y.GetValue0());
   a->type_ = w;
 }
 

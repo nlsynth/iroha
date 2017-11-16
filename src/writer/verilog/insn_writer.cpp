@@ -25,7 +25,7 @@ string InsnWriter::RegisterValue(const IRegister &reg, Names *names) {
     if (w == 0) {
       w = 1;
     }
-    return Util::Itoa(w) + "'d" + Util::Itoa(reg.GetInitialValue().GetValue());
+    return Util::Itoa(w) + "'d" + Util::Itoa(reg.GetInitialValue().GetValue0());
   } else {
     return names->GetRegName(reg);
   }
@@ -33,7 +33,7 @@ string InsnWriter::RegisterValue(const IRegister &reg, Names *names) {
 
 string InsnWriter::ConstValue(const IRegister &reg) {
   CHECK(reg.IsConst());
-  return Util::Itoa(reg.GetInitialValue().GetValue());
+  return Util::Itoa(reg.GetInitialValue().GetValue0());
 }
 
 string InsnWriter::ResourceName(const IResource &res) {

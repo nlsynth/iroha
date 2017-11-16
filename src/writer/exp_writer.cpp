@@ -215,7 +215,7 @@ void ExpWriter::WriteValueType(const IValueType &type) {
 }
 
 void ExpWriter::WriteValue(const Numeric &value) {
-  os_ << value.GetValue();
+  os_ << value.GetValue0();
 }
 
 void ExpWriter::WriteState(const IState &st) {

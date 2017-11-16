@@ -53,7 +53,7 @@ void Table::BuildConstructor() {
   for (auto *reg : i_tab_->registers_) {
     if (!reg->IsConst() && reg->HasInitialValue()) {
       os << "    " << reg->GetName() << " = "
-	 << reg->GetInitialValue().GetValue() << ";\n";
+	 << reg->GetInitialValue().GetValue0() << ";\n";
     }
   }
   cm->body_ = os.str();

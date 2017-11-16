@@ -12,7 +12,7 @@ void shift() {
   Numeric n;
   n.type_.SetWidth(512);
   Op::Clear(&n);
-  n.SetValue(0xfffffffffffffff0ULL);
+  n.SetValue0(0xfffffffffffffff0ULL);
   cout << "n=" << n.Format() << "\n";
 
   Numeric m;
@@ -41,9 +41,9 @@ void concat() {
   cout << "concat\n";
   Numeric m, n;
   m.type_.SetWidth(64);
-  m.SetValue(0x5555555555555550ULL);
+  m.SetValue0(0x5555555555555550ULL);
   n.type_.SetWidth(63);
-  n.SetValue(0x5555555555555550ULL);
+  n.SetValue0(0x5555555555555550ULL);
   Numeric r;
   Op::Concat(m, n, &r);
   cout << "r=" << r.Format() << "\n";
@@ -53,7 +53,7 @@ void fixup() {
   cout << "fixup\n";
   Numeric n;
   n.type_.SetWidth(68);
-  n.SetValue(0xfffffffffffffff0ULL);
+  n.SetValue0(0xfffffffffffffff0ULL);
   Numeric m;
   WideOp::Shift(n, 16, true, &m);
   m.type_ = n.type_;
@@ -69,9 +69,9 @@ int main(int argc, char **argv) {
   Numeric n;
   n.type_.SetWidth(64);
   n.type_.SetIsSigned(true);
-  n.SetValue(0xfffffffffffffff0ULL);
+  n.SetValue0(0xfffffffffffffff0ULL);
   cout << "n=" << n.Format() << "\n";
-  n.SetValue(15);
+  n.SetValue0(15);
   cout << "n=" << n.Format() << "\n";
 
   Numeric w;

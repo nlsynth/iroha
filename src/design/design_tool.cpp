@@ -175,7 +175,7 @@ IRegister *DesignTool::AllocConstNum(ITable *table,
 				     int width, uint64_t value) {
   IRegister *reg = new IRegister(table, "");
   Numeric v;
-  v.SetValue(value);
+  v.SetValue0(value);
   v.type_.SetWidth(width);
 
   reg->SetInitialValue(v);
@@ -188,7 +188,7 @@ void DesignTool::SetRegisterInitialValue(uint64_t value,
 					 IRegister *reg) {
   Numeric v;
   v.type_ = reg->value_type_;
-  v.SetValue(value);
+  v.SetValue0(value);
   reg->SetInitialValue(v);
 }
 

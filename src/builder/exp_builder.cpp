@@ -211,7 +211,7 @@ IRegister *ExpBuilder::BuildRegister(Exp *e, ITable *table) {
   if (!e->Str(5).empty()) {
     const string &ini = e->Str(5);
     Numeric value;
-    value.SetValue(Util::Atoi(ini));
+    value.SetValue0(Util::Atoi(ini));
     value.type_ = reg->value_type_;
     reg->SetInitialValue(value);
   }

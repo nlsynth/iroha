@@ -61,7 +61,7 @@ Numeric::Numeric() {
   value_.value_[0] = 0;
 }
 
-void Numeric::SetValue(uint64_t value) {
+void Numeric::SetValue0(uint64_t value) {
   value_.value_[0] = value;
 }
 

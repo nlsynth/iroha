@@ -53,10 +53,11 @@ class Numeric {
 public:
   Numeric();
 
-  uint64_t GetValue() const {
+  // Get/SetValue0 are convenient interface for small values.
+  uint64_t GetValue0() const {
     return value_.value_[0];
   }
-  void SetValue(uint64_t value);
+  void SetValue0(uint64_t value);
   const NumericValue &GetArray() const {
     return value_;
   }
