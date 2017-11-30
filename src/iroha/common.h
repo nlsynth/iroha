@@ -33,6 +33,7 @@ class Util {
 public:
   static string Itoa(int i);
   static int Atoi(const string &a);
+  static uint64_t AtoULL(const string &a);
   static bool IsInteger(const string &a);
   static void SetImportPaths(const vector<string> &paths);
   static void SplitStringUsing(const string &str, const char *delim,

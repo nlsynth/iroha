@@ -434,7 +434,7 @@ void ExpBuilder::BuildArrayImage(Exp *e, IDesign *design) {
   array_image->SetName(e->Str(2));
   Exp *array = e->vec[3];
   for (int i = 0; i < array->Size(); ++i) {
-    array_image->values_.push_back(Util::Atoi(array->Str(i)));
+    array_image->values_.push_back(Util::AtoULL(array->Str(i)));
   }
   design->array_images_.push_back(array_image);
 }

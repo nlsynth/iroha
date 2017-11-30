@@ -23,6 +23,14 @@ int Util::Atoi(const string &str) {
   return i;
 }
 
+uint64_t Util::AtoULL(const string &str) {
+  stringstream ss;
+  ss << str;
+  uint64_t i = 0;
+  ss >> i;
+  return i;
+}
+
 bool Util::IsInteger(const string &a) {
   return Atoi(a) != 0 || a == "0";
 }
