@@ -44,7 +44,7 @@ public:
   const string &GetName() const;
   void SetName(const string &name);
 
-  vector<int64_t> values_;
+  vector<uint64_t> values_;
 private:
   IDesign *design_;
   int id_;
