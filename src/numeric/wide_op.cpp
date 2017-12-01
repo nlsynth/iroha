@@ -102,7 +102,9 @@ void WideOp::SelectBits(const Numeric &num, int h, int l, Numeric *res) {
 void WideOp::Concat(const Numeric &x, const Numeric &y, Numeric *a) {
   Numeric tmp;
   Shift(x, y.type_.GetWidth(), true, &tmp);
-  BinBitOp(BINOP_OR, tmp, y, a);
+  Numeric yy = y;
+  FixupWidth(y.type_, &yy);
+  BinBitOp(BINOP_OR, tmp, yy, a);
   NumericWidth w = NumericWidth(false,
 				x.type_.GetWidth() + y.type_.GetWidth());
   a->type_ = w;
@@ -113,7 +115,7 @@ void WideOp::FixupWidth(const NumericWidth &w, Numeric *num) {
   mask >>= (64 - (w.GetWidth() % 64));
   int value_count = w.GetValueCount();
   uint64_t *rv = num->GetMutableArray()->value_;
-  for (int i = value_count; i < value_count; ++i) {
+  for (int i = value_count; i < 8; ++i) {
     rv[i] = 0;
   }
   rv[value_count - 1] &= mask;
