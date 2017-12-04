@@ -25,7 +25,7 @@ string InsnWriter::RegisterValue(const IRegister &reg, Names *names) {
     if (w == 0) {
       w = 1;
     }
-    return Util::Itoa(w) + "'d" + Util::Itoa(reg.GetInitialValue().GetValue0());
+    return Util::Itoa(w) + "'d" + Util::ULLtoA(reg.GetInitialValue().GetValue0());
   } else {
     return names->GetRegName(reg);
   }

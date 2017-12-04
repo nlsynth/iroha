@@ -31,6 +31,12 @@ uint64_t Util::AtoULL(const string &str) {
   return i;
 }
 
+string Util::ULLtoA(uint64_t u) {
+  stringstream ss;
+  ss << u;
+  return ss.str();
+}
+
 bool Util::IsInteger(const string &a) {
   return Atoi(a) != 0 || a == "0";
 }
