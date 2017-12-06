@@ -94,7 +94,7 @@ void MappedResource::BuildInternalSRAM() {
      << ", ." << sram->GetWdataPin(0) << "(sram_wdata_" << res_id << ")"
      << ", ." << sram->GetWenPin(0) << "(sram_wdata_en_" << res_id << ")"
      <<");\n";
-  ostream &rs = tmpl_->GetStream(kResourceSection);
+  ostream &rs = tab_.ResourceSectionStream();
   rs << "  reg " << sram->AddressWidthSpec() << "sram_addr_" << res_id << ";\n"
      << "  wire " << sram->DataWidthSpec() << "sram_rdata_" << res_id << ";\n"
      << "  reg " << sram->DataWidthSpec() << "sram_wdata_" << res_id << ";\n"

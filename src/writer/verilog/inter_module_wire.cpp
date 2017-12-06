@@ -32,7 +32,7 @@ void InterModuleWire::AddWire(IResource &accessor, const string &name,
   Module *accessor_module = mod->GetByIModule(accessor_imodule);
   if (!HasWire(accessor_module, name)) {
     auto *tmpl_a = accessor_module->GetModuleTemplate();
-    ostream &rs_a = tmpl_a->GetStream(kResourceSection);
+    ostream &rs_a = res_.GetTable().ResourceSectionStream();
     if (from_parent) {
       if (!same_module) {
 	rs_a << "  wire " << a;
@@ -46,7 +46,7 @@ void InterModuleWire::AddWire(IResource &accessor, const string &name,
   // (parent) Resource.
   if (!HasWire(mod, name)) {
     auto *tmpl_p = mod->GetModuleTemplate();
-    ostream &rs_p = tmpl_p->GetStream(kResourceSection);
+    ostream &rs_p = res_.GetTable().ResourceSectionStream();
     if (from_parent) {
       rs_p << "  " << drive << " " << a;
       AddWire(mod, name);
@@ -64,7 +64,7 @@ void InterModuleWire::AddWire(IResource &accessor, const string &name,
     Module *m = mod->GetByIModule(common_root);
     if (!HasWire(m, name)) {
       auto *tmpl = m->GetModuleTemplate();
-      ostream &rs = tmpl->GetStream(kResourceSection);
+      ostream &rs = res_.GetTable().ResourceSectionStream();
       rs << "  wire " << a;
       AddWire(m, name);
     }

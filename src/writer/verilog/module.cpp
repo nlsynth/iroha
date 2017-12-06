@@ -51,17 +51,24 @@ void Module::Write(ostream &os) {
 
   os << "  // State decls\n"
      << tmpl_->GetContents(kStateDeclSection)
-     << "  // State vars\n"
-     << tmpl_->GetContents(kStateVarSection)
-     << "  // Registers\n"
-     << tmpl_->GetContents(kRegisterSection)
-     << "  // Resources\n"
-     << tmpl_->GetContents(kResourceSection)
      << "  // Insn wires\n"
      << tmpl_->GetContents(kInsnWireDeclSection)
      << "  // Insn assigns\n"
      << tmpl_->GetContents(kInsnWireValueSection);
   os << "\n";
+
+  for (auto *tab : tables_) {
+    string s = tab->RegisterSectionContents();
+    if (!s.empty()) {
+      os << "  // Registers for table " << tab->GetITable()->GetId() << "\n";
+      os << s << "\n";
+    }
+    s = tab->ResourceSectionContents();
+    if (!s.empty()) {
+      os << "  // Resources for table " << tab->GetITable()->GetId() << "\n";
+      os << s << "\n";
+    }
+  }
 
   for (auto *tab : tables_) {
     tab->Write(os);

@@ -33,7 +33,7 @@ void Fifo::BuildWires() {
   int aw = params->GetAddrWidth();
   int dw = params->GetWidth();
 
-  ostream &rs = tmpl_->GetStream(kResourceSection);
+  ostream &rs = tab_.ResourceSectionStream();
   rs << "  reg [" << aw << ":0] " << ReadPtr() << ";\n"
      << "  reg [" << aw << ":0] " << ReadPtrBuf() << ";\n"
      << "  reg [" << aw << ":0] " << WritePtr() << ";\n"
@@ -63,7 +63,7 @@ void Fifo::BuildHandShake() {
   // Writer.
   auto &writers = tab_.GetModule()->GetConnection().GetFifoWriters(&res_);
   BuildReqAckAssign(true, writers);
-  ostream &rs = tmpl_->GetStream(kResourceSection);
+  ostream &rs = tab_.ResourceSectionStream();
   string s;
   for (auto *writer : writers) {
     if (s.empty()) {
@@ -88,7 +88,7 @@ void Fifo::BuildReqAckAssign(bool is_write,
       reqs.push_back(RReq(res_, accessor));
     }
   }
-  ostream &rs = tmpl_->GetStream(kResourceSection);
+  ostream &rs = tab_.ResourceSectionStream();
   if (is_write) {
     AssignJoin(WReq(res_, nullptr), reqs, rs);
   } else {

@@ -54,7 +54,7 @@ void ExtTaskCall::BuildExtTaskCallResource() {
       AddPort(ExtTask::ResReadyPin(&res_), ExtTask::ResReadyPin(nullptr),
 	      true, 0, &connection);
     }
-    ostream &rs = tmpl_->GetStream(kRegisterSection);
+    ostream &rs = tab_.ResourceSectionStream();
     for (int i = 0; i < wait_res->output_types_.size(); ++i) {
       AddPort(ExtTask::DataPin(wait_res, i),
 	      ExtTask::DataPin(nullptr, i), false,
@@ -73,7 +73,7 @@ void ExtTaskCall::BuildExtTaskCallResource() {
 void ExtTaskCall::AddPort(const string &name, const string &wire_name,
 			  bool is_output, int width,
 			  string *connection) {
-  ostream &rs = tmpl_->GetStream(kRegisterSection);
+  ostream &rs = tab_.ResourceSectionStream();
   if (IsEmbedded()) {
     if (is_output) {
       rs << "  reg";

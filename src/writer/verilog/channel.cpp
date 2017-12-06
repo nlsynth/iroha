@@ -22,7 +22,7 @@ Channel::Channel(const IResource &res, const Table &table)
 
 void Channel::BuildResource() {
   if (resource::IsChannelWrite(*res_.GetClass())) {
-    ostream &rs = tmpl_->GetStream(kRegisterSection);
+    ostream &rs = tab_.ResourceSectionStream();
     IChannel *ic = res_.GetChannel();
     rs << "  reg" << Table::ValueWidthSpec(ic->GetValueType())
        << " " << DataPort(*ic) << ";\n";
@@ -32,7 +32,7 @@ void Channel::BuildResource() {
        << "      " << EnPort(*ic) << " <= 0;\n";
   }
   if (resource::IsChannelRead(*res_.GetClass())) {
-    ostream &rs = tmpl_->GetStream(kRegisterSection);
+    ostream &rs = tab_.ResourceSectionStream();
     IChannel *ic = res_.GetChannel();
     rs << "  reg " << AckPort(*ic) << ";\n";
     ostream &is = tab_.InitialValueSectionStream();

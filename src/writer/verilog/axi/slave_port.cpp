@@ -28,7 +28,7 @@ void SlavePort::BuildResource() {
 					      res_.GetParentResource());
   }
 
-  ostream &os = tmpl_->GetStream(kResourceSection);
+  ostream &os = tab_.ResourceSectionStream();
   os << "  wire " << NotifyWire() << ";\n"
      << "  reg " << NotifyAckWire() << ";\n";
 

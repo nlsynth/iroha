@@ -92,7 +92,7 @@ void Task::BuildTaskResource() {
     task_en.push_back(TaskEnablePin(*(tab_.GetITable()), caller->GetTable()));
   }
   string common_en = TaskEnablePin(*(tab_.GetITable()), nullptr);
-  ostream &rs = tmpl_->GetStream(kResourceSection);
+  ostream &rs = tab_.ResourceSectionStream();
   rs << "  wire " << common_en << ";\n";
   rs << "  assign " << common_en << " = " << Util::Join(task_en, " | ")
      << ";\n";
@@ -185,7 +185,7 @@ void Task::AddWire(const IModule *imod, IResource *caller) {
   string en = TaskEnablePin(*(tab_.GetITable()), caller->GetTable());
   string ack = TaskAckPin(*(tab_.GetITable()), caller->GetTable());
   auto *tmpl = mod->GetModuleTemplate();
-  ostream &rs = tmpl->GetStream(kResourceSection);
+  ostream &rs = tab_.ResourceSectionStream();
   rs << "  wire " << en << ";\n";
   rs << "  wire " << ack << ";\n";
   for (int i = 0; i < res_.output_types_.size(); ++i) {
@@ -232,7 +232,7 @@ void Task::AddPort(const IModule *imod, IResource *caller, bool upward) {
 }
 
 void Task::BuildTaskCallResource() {
-  ostream &rs = tmpl_->GetStream(kResourceSection);
+  ostream &rs = tab_.ResourceSectionStream();
   string en = TaskEnablePin(*(res_.GetCalleeTable()), tab_.GetITable());
   rs << "  reg " << en << ";\n";
   map<IState *, IInsn *> callers;

@@ -32,7 +32,7 @@ void MasterPort::BuildResource() {
 					      res_.GetParentResource());
   }
 
-  ostream &os = tmpl_->GetStream(kResourceSection);
+  ostream &os = tab_.ResourceSectionStream();
   os << "  reg [31:0] " << AddrPort() << ";\n"
      << "  reg " << WenPort() << ";\n"
      << "  reg " << ReqPort() << ";\n"

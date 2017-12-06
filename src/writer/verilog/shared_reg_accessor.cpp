@@ -53,7 +53,7 @@ void SharedRegAccessor::BuildInsn(IInsn *insn, State *st) {
 }
 
 void SharedRegAccessor::BuildSharedRegReaderResource() {
-  ostream &rs = tmpl_->GetStream(kResourceSection);
+  ostream &rs = tab_.ResourceSectionStream();
   rs << "  // shared-reg-reader\n";
   SharedReg::AddAccessorSignals(res_.GetTable()->GetModule(), &tab_, &res_, false);
   const IResource *reg = res_.GetParentResource();
@@ -71,7 +71,7 @@ void SharedRegAccessor::BuildSharedRegReaderResource() {
 }
 
 void SharedRegAccessor::BuildSharedRegWriterResource() {
-  ostream &rs = tmpl_->GetStream(kResourceSection);
+  ostream &rs = tab_.ResourceSectionStream();
   rs << "  // shared-reg-writer\n";
   SharedReg::AddAccessorSignals(res_.GetTable()->GetModule(),
 				&tab_, &res_, false);

@@ -51,7 +51,7 @@ void SharedMemory::BuildMemoryResource() {
   BuildAccessWireAll(accessors);
   ostream &is = tab_.InitialValueSectionStream();
   ostream &ss = tab_.StateOutputSectionStream();
-  ostream &rs = tmpl_->GetStream(kResourceSection);
+  ostream &rs = tab_.ResourceSectionStream();
   string high_req = "0";
   for (auto *accessor : accessors) {
     string ack = MemoryAckPin(res_, accessor);
@@ -116,7 +116,7 @@ void SharedMemory::BuildExternalMemoryConnection() {
   ports->AddPort("sram_wdata_en", Port::OUTPUT_WIRE, 0);
   ports->AddPort("sram_rdata", Port::INPUT, array->GetAddressWidth());
 
-  ostream &rs = tmpl_->GetStream(kResourceSection);
+  ostream &rs = tab_.ResourceSectionStream();
   rs << "  assign sram_addr = " << MemoryAddrPin(res_, 0, nullptr) << ";\n";
   rs << "  assign sram_wdata = " << MemoryWdataPin(res_, 0, nullptr) << ";\n";
   rs << "  assign sram_wdata_en = " << MemoryWenPin(res_, 0, nullptr) << ";\n";
@@ -162,7 +162,7 @@ void SharedMemory::BuildMemoryInstance() {
        << MemoryWenPin(res_, 1, nullptr) << ")";
   }
   es <<");\n";
-  ostream &rs = tmpl_->GetStream(kResourceSection);
+  ostream &rs = tab_.ResourceSectionStream();
   rs << "  wire " << sram->AddressWidthSpec() << " " << addr_wire << ";\n";
   rs << "  wire " << sram->DataWidthSpec() << " " << rdata_wire << ";\n";
   rs << "  wire " << sram->DataWidthSpec() << " " << wdata_wire << ";\n";
@@ -219,7 +219,7 @@ void SharedMemory::BuildMemoryAccessorResource(const Resource &accessor,
   int addr_width = array->GetAddressWidth();
   int data_width = array->GetDataType().GetWidth();
   ModuleTemplate *tmpl = accessor.GetModuleTemplate();
-  ostream &rs = tmpl->GetStream(kResourceSection);
+  ostream &rs = accessor.GetTable().ResourceSectionStream();
   const IResource &res = accessor.GetIResource();
   string storage;
   if (gen_reg) {
@@ -375,7 +375,7 @@ void SharedMemory::AddRdataPort(const IModule *imod, const IResource *accessor,
 void SharedMemory::AddWire(const IModule *imod, const IResource *accessor) {
   Module *mod = tab_.GetModule()->GetByIModule(imod);
   auto *tmpl = mod->GetModuleTemplate();
-  ostream &rs = tmpl->GetStream(kResourceSection);
+  ostream &rs = tab_.ResourceSectionStream();
   IArray *array = res_.GetArray();
   int addr_width = array->GetAddressWidth();
   auto *klass = accessor->GetClass();
@@ -392,7 +392,7 @@ void SharedMemory::AddWire(const IModule *imod, const IResource *accessor) {
 void SharedMemory::AddRdataWire(const IModule *imod, const IResource *accessor) {
   Module *mod = tab_.GetModule()->GetByIModule(imod);
   auto *tmpl = mod->GetModuleTemplate();
-  ostream &rs = tmpl->GetStream(kResourceSection);
+  ostream &rs = tab_.ResourceSectionStream();
   IArray *array = res_.GetArray();
   int data_width = array->GetDataType().GetWidth();
   rs << "  wire " << Table::WidthSpec(data_width);

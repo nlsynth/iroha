@@ -43,6 +43,10 @@ public:
   string InitialValueSectionContents() const;
   ostream &TaskEntrySectionStream() const;
   string TaskEntrySectionContents() const;
+  ostream &ResourceSectionStream() const;
+  string ResourceSectionContents() const;
+  ostream &RegisterSectionStream() const;
+  string RegisterSectionContents() const;
 
   static string ValueWidthSpec(const IValueType &type);
   static string WidthSpec(int w);

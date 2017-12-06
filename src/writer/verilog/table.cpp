@@ -100,7 +100,7 @@ void Table::BuildResource() {
 }
 
 void Table::BuildRegister() {
-  ostream &rs = tmpl_->GetStream(kRegisterSection);
+  ostream &rs = RegisterSectionStream();
   ostream &is = InitialValueSectionStream();
   for (auto *reg : i_table_->registers_) {
     if (!reg->IsConst()) {
@@ -266,6 +266,22 @@ string Table::TaskEntrySectionContents() const {
   return tmpl_->GetContents(kTaskEntrySection + Util::Itoa(table_id_));
 }
 
+ostream &Table::ResourceSectionStream() const {
+  return tmpl_->GetStream(kResourceSection + Util::Itoa(table_id_));
+}
+
+string Table::ResourceSectionContents() const {
+  return tmpl_->GetContents(kResourceSection + Util::Itoa(table_id_));
+}
+
+ostream &Table::RegisterSectionStream() const {
+  return tmpl_->GetStream(kRegisterSection + Util::Itoa(table_id_));
+}
+
+string Table::RegisterSectionContents() const {
+  return tmpl_->GetContents(kRegisterSection + Util::Itoa(table_id_));
+}
+  
 string Table::InitialStateName() {
   IState *initial_st = i_table_->GetInitialState();
   if (initial_st == nullptr) {

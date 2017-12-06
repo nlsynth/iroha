@@ -128,7 +128,7 @@ void ExtTask::BuildExtTask() {
      << tab_.StateName(Task::kTaskEntryStateId) << ");\n";
   ITable *i_table = tab_.GetITable();
   IInsn *task_entry_insn = DesignUtil::FindTaskEntryInsn(i_table);
-  ostream &rs = tmpl_->GetStream(kRegisterSection);
+  ostream &rs = tab_.ResourceSectionStream();
   ostream &ws = tmpl_->GetStream(kInsnWireValueSection);
   ostream &ts = tab_.TaskEntrySectionStream();
   for (int i = 0; i < res_.output_types_.size(); ++i) {

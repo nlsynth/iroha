@@ -16,7 +16,7 @@ Ticker::Ticker(const IResource &res, const Table &table)
 
 void Ticker::BuildResource() {
   string n = TickerName();
-  ostream &rs = tmpl_->GetStream(kRegisterSection);
+  ostream &rs = tab_.ResourceSectionStream();
   rs << "  reg [31:0] " << n << ";\n";
   ostream &is = tab_.InitialValueSectionStream();
   is << "      " << n << " <= 0;\n";

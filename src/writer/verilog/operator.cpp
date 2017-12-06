@@ -44,7 +44,7 @@ void Operator::BuildInsn(IInsn *insn, State *st) {
 }
 
 void Operator::BuildExclusiveBinOp() {
-  ostream &rs = tmpl_->GetStream(kResourceSection);
+  ostream &rs = tab_.ResourceSectionStream();
   const string &res_name = res_.GetClass()->GetName();
   rs << "  // " << res_name << ":" << res_.GetId() << "\n";
   map<IState *, IInsn *> callers;

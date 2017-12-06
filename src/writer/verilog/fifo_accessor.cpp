@@ -42,7 +42,7 @@ void FifoAccessor::BuildInsn(IInsn *insn, State *st) {
 void FifoAccessor::BuildReader() {
   BuildReq(false);
   int dw = res_.GetParentResource()->GetParams()->GetWidth();
-  ostream &rs = tmpl_->GetStream(kResourceSection);
+  ostream &rs = tab_.ResourceSectionStream();
   rs << "  reg " << Table::WidthSpec(dw)
      << Fifo::RDataBuf(res_) << ";\n";
 }

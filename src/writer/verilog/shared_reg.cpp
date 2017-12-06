@@ -53,7 +53,7 @@ SharedReg::SharedReg(const IResource &res, const Table &table)
 }
 
 void SharedReg::BuildResource() {
-  ostream &rs = tmpl_->GetStream(kRegisterSection);
+  ostream &rs = tab_.ResourceSectionStream();
   ostream &is = tab_.InitialValueSectionStream();
   rs << "  // shared-reg";
   if (use_notify_) {
@@ -132,7 +132,7 @@ void SharedReg::BuildResource() {
 }
 
 void SharedReg::BuildMailbox() {
-  ostream &rs = tmpl_->GetStream(kRegisterSection);
+  ostream &rs = tab_.ResourceSectionStream();
   rs << "  reg " << RegMailboxName(res_) << ";\n";
   vector<string> put_reqs;
   if (writers_.size() > 0) {
@@ -342,7 +342,7 @@ void SharedReg::AddAccessorSignals(const IModule *imod, const Table *tab,
   }
   Module *mod = tab->GetModule()->GetByIModule(imod);
   auto *tmpl = mod->GetModuleTemplate();
-  ostream &rs = tmpl->GetStream(kResourceSection);
+  ostream &rs = tab->ResourceSectionStream();
   int width = accessor->GetParentResource()->GetParams()->GetWidth();
   string drive_by_writer = "wire";
   string drive_by_reader = "wire";
