@@ -68,22 +68,29 @@ void SharedMemory::BuildMemoryResource() {
   // From low to high priority.
   for (auto it = accessors.rbegin(); it != accessors.rend(); ++it) {
     const IResource *accessor = *it;
-    string addr = MemoryAddrPin(res_, 0, accessor);
-    string wdata = MemoryWdataPin(res_, 0, accessor);
-    if (addr_sel.empty()) {
-      addr_sel = addr;
-      wdata_sel = wdata;
-    } else {
-      addr_sel = MemoryReqPin(res_, accessor) +
-	" ? " + addr + " : (" + addr_sel + ")";
-      wdata_sel = MemoryReqPin(res_, accessor) +
-	" ? " + wdata + " : (" + wdata_sel + ")";
-    }
     auto *klass = accessor->GetClass();
+    bool may_write = false;
     if (resource::IsSharedMemory(*klass) ||
 	resource::IsSharedMemoryWriter(*klass) ||
 	resource::IsAxiMasterPort(*klass) ||
 	resource::IsAxiSlavePort(*klass)) {
+      may_write = true;
+    }
+    string addr = MemoryAddrPin(res_, 0, accessor);
+    string wdata = MemoryWdataPin(res_, 0, accessor);
+    if (addr_sel.empty()) {
+      addr_sel = addr;
+    } else {
+      addr_sel = MemoryReqPin(res_, accessor) +
+	" ? " + addr + " : (" + addr_sel + ")";
+    }
+    if (may_write) {
+      if (wdata_sel.empty()) {
+	wdata_sel = wdata;
+      } else {
+	wdata_sel = MemoryReqPin(res_, accessor) +
+	  " ? " + wdata + " : (" + wdata_sel + ")";
+      }
       string wen = "(";
       if (resource::IsSharedMemoryWriter(*klass)) {
 	// write only, so assumes req=wen.
