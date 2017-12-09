@@ -47,7 +47,6 @@ public:
   Module *GetByIModule(const IModule *mod) const;
 
 private:
-  bool ResolveResetPolarity();
   string ChildModuleInstSectionContents(Module *child, bool clear) const;
 
   const IModule *i_mod_;
@@ -61,7 +60,6 @@ private:
   vector<Table *> tables_;
   vector<Module *> child_modules_;
   string name_;
-  bool reset_polarity_;
   string reset_name_;
 };
 

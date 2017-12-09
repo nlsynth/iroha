@@ -3,6 +3,7 @@
 #include "design/design_util.h"
 #include "iroha/logging.h"
 #include "iroha/i_design.h"
+#include "iroha/resource_params.h"
 #include "iroha/stl_util.h"
 #include "writer/names.h"
 #include "writer/verilog/embed.h"
@@ -18,7 +19,7 @@ VerilogWriter::VerilogWriter(const IDesign *design, const Connection &conn,
 			     ostream &os)
   : design_(design), conn_(conn), os_(os),
     embedded_modules_(new EmbeddedModules), with_self_clock_(false),
-    output_vcd_(false), names_(new Names(nullptr)) {
+    output_vcd_(false), names_(new Names(nullptr)), reset_polarity_(false) {
 }
 
 VerilogWriter::~VerilogWriter() {
@@ -41,6 +42,7 @@ bool VerilogWriter::Write() {
     return false;
   }
   PrepareModulesRec(root);
+  ResolveResetPolarity(root);
   BuildModules(root);
   if (!embedded_modules_->Write(os_)) {
     LOG(ERROR) << "Failed to write embedded modules.";
@@ -68,6 +70,19 @@ Module *VerilogWriter::GetByIModule(const IModule *mod) const {
     return it->second;
   }
   return nullptr;
+}
+
+bool VerilogWriter::GetResetPolarity() const {
+  return reset_polarity_;
+}
+
+void VerilogWriter::ResolveResetPolarity(const IModule *root) {
+  if (root->GetParams()->HasResetPolarity()) {
+    reset_polarity_ = root->GetParams()->GetResetPolarity();
+    return;
+  }
+  // This may return the default value.
+  reset_polarity_ = design_->GetParams()->GetResetPolarity();
 }
 
 void VerilogWriter::PrepareModulesRec(const IModule *imod) {

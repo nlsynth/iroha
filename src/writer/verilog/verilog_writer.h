@@ -18,6 +18,7 @@ public:
   bool Write();
   void SetShellModuleName(const string &n, bool with_self_clock, bool output_vcd);
   Module *GetByIModule(const IModule *mod) const;
+  bool GetResetPolarity() const;
 
 private:
   void PrepareModulesRec(const IModule *imod);
@@ -26,6 +27,7 @@ private:
   void WriteShellModule(const Module *mod);
   void WriteSelfClockGenerator(const Module *mod);
   void WriteSelfClockConnection(const Module *mod);
+  void ResolveResetPolarity(const IModule *root);
 
   const IDesign *design_;
   const Connection &conn_;
@@ -37,6 +39,7 @@ private:
   bool with_self_clock_;
   bool output_vcd_;
   unique_ptr<Names> names_;
+  bool reset_polarity_;
 };
 
 }  // namespace verilog

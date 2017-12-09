@@ -24,15 +24,7 @@ Module::Module(const IModule *i_mod, const VerilogWriter *writer,
     parent_(nullptr) {
   tmpl_.reset(new ModuleTemplate);
   ports_.reset(new Ports);
-  reset_polarity_ = ResolveResetPolarity();
   reset_name_ = i_mod->GetParams()->GetResetName();
-  if (reset_name_.empty()) {
-    if (reset_polarity_) {
-      reset_name_ = "rst";
-    } else {
-      reset_name_ = "rst_n";
-    }
-  }
   name_ = i_mod_->GetDesign()->GetParams()->GetModuleNamePrefix()
     + i_mod->GetName();
 }
@@ -87,7 +79,7 @@ void Module::Write(ostream &os) {
 }
 
 bool Module::GetResetPolarity() const {
-  return reset_polarity_;
+  return writer_->GetResetPolarity();
 }
 
 Module *Module::GetParentModule() const {
@@ -125,6 +117,14 @@ void Module::PrepareTables() {
 }
 
 void Module::Build() {
+  if (reset_name_.empty()) {
+    if (GetResetPolarity()) {
+      reset_name_ = "rst";
+    } else {
+      reset_name_ = "rst_n";
+    }
+  }
+
   ports_->AddPort("clk", Port::INPUT_CLK, 0);
   ports_->AddPort(reset_name_, Port::INPUT_RESET, 0);
 
@@ -168,17 +168,6 @@ void Module::BuildChildModuleInstSection(vector<Module *> &child_mods) {
       ForeignReg::BuildChildWire(*ri, child_mod->GetNames(), is);
     }
   }
-}
-
-bool Module::ResolveResetPolarity() {
-  for (const IModule *mod = i_mod_; mod != nullptr;
-       mod = mod->GetParentModule()) {
-    if (mod->GetParams()->HasResetPolarity()) {
-      return mod->GetParams()->GetResetPolarity();
-    }
-  }
-  // This may return the default value.
-  return i_mod_->GetDesign()->GetParams()->GetResetPolarity();
 }
 
 ostream &Module::ChildModuleInstSectionStream(Module *child) const {
