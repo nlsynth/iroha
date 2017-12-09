@@ -8,6 +8,8 @@
 #include "writer/verilog/axi/slave_port.h"
 #include "writer/verilog/internal_sram.h"
 
+#include <set>
+
 namespace iroha {
 namespace writer {
 namespace verilog {
@@ -18,7 +20,8 @@ EmbeddedModules::~EmbeddedModules() {
 void EmbeddedModules::RequestModule(const ResourceParams &params) {
   string name = params.GetEmbeddedModuleFileName();
   if (!name.empty()) {
-    files_.insert(name);
+    string rst = params.GetEmbeddedModuleReset();
+    files_.insert(make_pair(name, rst));
   }
 }
 
@@ -32,20 +35,11 @@ void EmbeddedModules::RequestAxiSlaveController(const IResource *axi_port) {
 
 bool EmbeddedModules::Write(bool reset_polarity, ostream &os) {
   // Files
-  for (auto &s : files_) {
-    istream *ifs = Util::OpenFile(s);
-    if (ifs == nullptr) {
-      LOG(ERROR) << "Failed to open: " << s;
+  for (auto &it : files_) {
+    bool ok = CopyFile(it.first, it.second, reset_polarity, os);
+    if (!ok) {
       return false;
     }
-    unique_ptr<istream> deleter(ifs);
-    os << "// Copied from " << s << "\n";
-    while (!ifs->eof()) {
-      string line;
-      getline(*ifs, line);
-      os << line << "\n";
-    }
-    os << "//\n";
   }
   if (files_.size() > 0) {
     os << "\n";
@@ -79,6 +73,37 @@ bool EmbeddedModules::Write(bool reset_polarity, ostream &os) {
     }
     controllers.insert(name);
   }
+  return true;
+}
+
+bool EmbeddedModules::CopyFile(const string &fn, const string &rst,
+			       bool reset_polarity, ostream &os) {
+  istream *ifs = Util::OpenFile(fn);
+  if (ifs == nullptr) {
+    LOG(ERROR) << "Failed to open: " << fn;
+    return false;
+  }
+  unique_ptr<istream> deleter(ifs);
+  os << "// Copied from " << fn;
+  if (!reset_polarity) {
+    os << " (inverted reset polarity)";
+  }
+  os << "\n";
+  while (!ifs->eof()) {
+    string line;
+    getline(*ifs, line);
+    if (!reset_polarity) {
+      // TODO: Allow negative reset to be imported too.
+      // rewrite "(rst)" to "(!rst)"
+      string r = "(" + rst + ")";
+      int pos = line.find(r);
+      if (pos != string::npos) {
+	line = line.replace(pos, r.size(), "(!" + rst + ")");
+      }
+    }
+    os << line << "\n";
+  }
+  os << "//\n";
   return true;
 }
 

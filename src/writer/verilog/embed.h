@@ -5,7 +5,7 @@
 #include "writer/verilog/common.h"
 #include "writer/verilog/resource.h"
 
-#include <set>
+#include <map>
 
 namespace iroha {
 namespace writer {
@@ -29,7 +29,11 @@ public:
   bool Write(bool reset_polarity, ostream &os);
 
 private:
-  set<string> files_;
+  bool CopyFile(const string &fn, const string &rst,
+		bool reset_polarity, ostream &os);
+
+  // file name to reset pin name.
+  map<string, string> files_;
   vector<InternalSRAM *> srams_;
   vector<const IResource *> axi_ports_;
 };
