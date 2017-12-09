@@ -19,7 +19,7 @@ SlaveController::~SlaveController() {
 }
 
 void SlaveController::Write(ostream &os) {
-  string name = SlavePort::ControllerName(res_, reset_polarity_);
+  string name = SlavePort::ControllerName(res_);
   os << "// slave controller: "
      << name << "\n";
   AddSramPorts();

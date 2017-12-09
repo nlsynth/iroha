@@ -30,7 +30,7 @@ void MasterController::Write(ostream &os) {
   string initials;
   GenReadChannel(cfg_, true, nullptr, ports_.get(), &initials);
   GenWriteChannel(cfg_, true, nullptr, ports_.get(), &initials);
-  string name = MasterPort::ControllerName(res_, reset_polarity_);
+  string name = MasterPort::ControllerName(res_);
   os << "module " << name << "(";
   ports_->Output(Ports::PORT_NAME, os);
   os << ");\n";

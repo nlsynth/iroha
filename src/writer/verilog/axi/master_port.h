@@ -18,7 +18,7 @@ public:
 
   static void GetReadWrite(const IResource &res, bool *r, bool *w);
 
-  static string ControllerName(const IResource &res, bool reset_polarity);
+  static string ControllerName(const IResource &res);
   static void WriteController(const IResource &res,
 			      bool reset_polarity, ostream &os);
 

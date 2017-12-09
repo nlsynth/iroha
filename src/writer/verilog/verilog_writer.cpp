@@ -44,7 +44,7 @@ bool VerilogWriter::Write() {
   PrepareModulesRec(root);
   ResolveResetPolarity(root);
   BuildModules(root);
-  if (!embedded_modules_->Write(os_)) {
+  if (!embedded_modules_->Write(GetResetPolarity(), os_)) {
     LOG(ERROR) << "Failed to write embedded modules.";
     return false;
   }

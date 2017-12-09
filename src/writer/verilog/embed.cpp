@@ -22,17 +22,15 @@ void EmbeddedModules::RequestModule(const ResourceParams &params) {
   }
 }
 
-void EmbeddedModules::RequestAxiMasterController(const IResource *axi_port,
-						 bool reset_polarity) {
-  axi_ports_.push_back(make_pair(axi_port, reset_polarity));
+void EmbeddedModules::RequestAxiMasterController(const IResource *axi_port) {
+  axi_ports_.push_back(axi_port);
 }
 
-void EmbeddedModules::RequestAxiSlaveController(const IResource *axi_port,
-						bool reset_polarity) {
-  axi_ports_.push_back(make_pair(axi_port, reset_polarity));
+void EmbeddedModules::RequestAxiSlaveController(const IResource *axi_port) {
+  axi_ports_.push_back(axi_port);
 }
 
-bool EmbeddedModules::Write(ostream &os) {
+bool EmbeddedModules::Write(bool reset_polarity, ostream &os) {
   // Files
   for (auto &s : files_) {
     istream *ifs = Util::OpenFile(s);
@@ -64,18 +62,16 @@ bool EmbeddedModules::Write(ostream &os) {
   }
   // AXI ports
   set<string> controllers;
-  for (auto p : axi_ports_) {
-    const IResource *res = p.first;
-    bool reset_polarity = p.second;
+  for (const IResource *res : axi_ports_) {
     string name;
     if (resource::IsAxiMasterPort(*(res->GetClass()))) {
-      name = axi::MasterPort::ControllerName(*res, p.second);
+      name = axi::MasterPort::ControllerName(*res);
       if (controllers.find(name) != controllers.end()) {
 	continue;
       }
       axi::MasterPort::WriteController(*res, reset_polarity, os);
     } else {
-      name = axi::SlavePort::ControllerName(*res, p.second);
+      name = axi::SlavePort::ControllerName(*res);
       if (controllers.find(name) != controllers.end()) {
 	continue;
       }

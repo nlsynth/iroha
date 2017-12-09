@@ -55,7 +55,7 @@ void SlavePort::BuildInsn(IInsn *insn, State *st) {
      << I << "end\n";
 }
 
-string SlavePort::ControllerName(const IResource &res, bool reset_polarity) {
+string SlavePort::ControllerName(const IResource &res) {
   const IResource *mem_res = res.GetParentResource();
   IArray *array = mem_res->GetArray();
   int addr_width = array->GetAddressWidth();
@@ -71,9 +71,9 @@ void SlavePort::WriteController(const IResource &res,
 }
 
 void SlavePort::BuildControllerInstance(const string &wires_to_ext) {
-  tab_.GetEmbeddedModules()->RequestAxiSlaveController(&res_, reset_polarity_);
+  tab_.GetEmbeddedModules()->RequestAxiSlaveController(&res_);
   ostream &es = tmpl_->GetStream(kEmbeddedInstanceSection);
-  string name = ControllerName(res_, reset_polarity_);
+  string name = ControllerName(res_);
   const string &clk = tab_.GetPorts()->GetClk();
   const string &rst = tab_.GetPorts()->GetReset();
   const IResource *mem = res_.GetParentResource();

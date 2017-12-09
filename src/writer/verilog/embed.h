@@ -21,19 +21,17 @@ public:
 				    const IArray &arr,
 				    int num_ports);
   // Called from MasterPort::BuildResource()
-  void RequestAxiMasterController(const IResource *axi_port,
-				  bool reset_polarity);
+  void RequestAxiMasterController(const IResource *axi_port);
   // Called from SlavePort::BuildResource()
-  void RequestAxiSlaveController(const IResource *axi_port,
-				 bool reset_polarity);
+  void RequestAxiSlaveController(const IResource *axi_port);
 
   // Writes embedded file contents.
-  bool Write(ostream &os);
+  bool Write(bool reset_polarity, ostream &os);
 
 private:
   set<string> files_;
   vector<InternalSRAM *> srams_;
-  vector<pair<const IResource *, bool> > axi_ports_;
+  vector<const IResource *> axi_ports_;
 };
 
 }  // namespace verilog

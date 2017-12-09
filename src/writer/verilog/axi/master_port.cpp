@@ -98,7 +98,7 @@ void MasterPort::BuildInsn(IInsn *insn, State *st) {
      << I << "end\n";
 }
 
-string MasterPort::ControllerName(const IResource &res, bool reset_polarity) {
+string MasterPort::ControllerName(const IResource &res) {
   const IResource *mem_res = res.GetParentResource();
   IArray *array = mem_res->GetArray();
   int addr_width = array->GetAddressWidth();
@@ -123,9 +123,9 @@ void MasterPort::WriteController(const IResource &res,
 }
 
 void MasterPort::BuildControllerInstance(const string &wires) {
-  tab_.GetEmbeddedModules()->RequestAxiMasterController(&res_, reset_polarity_);
+  tab_.GetEmbeddedModules()->RequestAxiMasterController(&res_);
   ostream &es = tmpl_->GetStream(kEmbeddedInstanceSection);
-  string name = ControllerName(res_, reset_polarity_);
+  string name = ControllerName(res_);
   es << "  " << name << " inst_" << PortSuffix()
      << "_" << name << "(";
   OutputSRAMConnection(es);
