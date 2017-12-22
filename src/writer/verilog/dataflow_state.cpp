@@ -48,7 +48,7 @@ void DataFlowState::BuildIncomingTransitions(const vector<DataFlowStateTransitio
   }
   string c = Util::Join(conds, " || ");
   if (df_table_->CanBlock()) {
-    c = df_table_->BlockingCondition() + " ? 0 : " + c;
+    c = "!" + df_table_->BlockingCondition() + " && (" + c + ")";
   }
   incoming_transitions_ =
     "      " + StateVariable(i_state_) + " <= " + c + ";\n";
@@ -59,9 +59,9 @@ void DataFlowState::Write(ostream &os) {
   os << incoming_transitions_;
   if (df_table_->CanBlock()) {
     os << "      " << StateWaitVariable(i_state_)
-       << " <= " << StateVariable(i_state_) << " || ("
-       << StateWaitVariable(i_state_) << " && "
-       << df_table_->BlockingCondition() << ");\n";
+       << " <= " << df_table_->BlockingCondition()
+       << " && (" << StateVariable(i_state_) << " || "
+       << StateWaitVariable(i_state_) << ");\n";
   }
   string s;
   if (i_state_->GetTable()->GetInitialState() == i_state_) {
@@ -72,9 +72,6 @@ void DataFlowState::Write(ostream &os) {
     s = StateVariable(i_state_) + " || " + StateWaitVariable(i_state_);
   } else {
     s = StateVariable(i_state_);
-  }
-  if (!is_compound_cycle_ && df_table_->CanBlock()) {
-      s += " && !" + df_table_->BlockingCondition();
   }
   os << "      if (" << s << ") begin\n";
   WriteStateBody(os);
