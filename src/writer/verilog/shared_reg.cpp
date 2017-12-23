@@ -117,9 +117,7 @@ void SharedReg::BuildResource() {
       SharedRegAccessor::GetAccessorFeatures(writer, &n, &m);
       if (m) {
 	// Writes the value only when put to the mailbox is granted.
-	// en && (!req || ack)
-	en = "(" + en + " && (!" + RegMailboxPutReqName(*writer) +
-	  " || " + RegMailboxPutAckName(*writer) + "))";
+	en = "(" + en + " || " + RegMailboxPutAckName(*writer) + ")";
       }
       value = en + " ? " + WriterName(*writer) + " : (" + value + ")";
     }
