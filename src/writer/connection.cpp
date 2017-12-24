@@ -64,7 +64,8 @@ void Connection::ProcessTable(ITable *tab) {
 void Connection::ProcessSharedRegAccessors(ITable *tab) {
   for (IResource *res : tab->resources_) {
     IResource *p = res->GetParentResource();
-    if (p == nullptr) {
+    if (p == nullptr ||
+	!resource::IsSharedReg(*(p->GetClass()))) {
       continue;
     }
     auto *ai = FindAccessorInfo(p);
@@ -104,7 +105,12 @@ void Connection::ProcessSharedMemoryAccessors(ITable *tab) {
 
 void Connection::ProcessFifoAccessors(ITable *tab) {
   for (IResource *res : tab->resources_) {
-    auto *ai = FindAccessorInfo(res->GetParentResource());
+    IResource *p = res->GetParentResource();
+    if (p == nullptr ||
+	!resource::IsFifo(*(p->GetClass()))) {
+      continue;
+    }
+    auto *ai = FindAccessorInfo(p);
     auto *rc = res->GetClass();
     auto *params = res->GetParams();
     if (resource::IsFifoReader(*rc)) {
@@ -112,6 +118,9 @@ void Connection::ProcessFifoAccessors(ITable *tab) {
     }
     if (resource::IsFifoWriter(*rc)) {
       ai->fifo_writers_.push_back(res);
+    }
+    if (resource::IsDataFlowIn(*rc)) {
+      ai->fifo_readers_.push_back(res);
     }
   }
 }

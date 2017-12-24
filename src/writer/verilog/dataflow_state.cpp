@@ -5,6 +5,7 @@
 #include "iroha/logging.h"
 #include "iroha/resource_class.h"
 #include "writer/verilog/dataflow_table.h"
+#include "writer/verilog/fifo.h"
 #include "writer/verilog/insn_writer.h"
 #include "writer/verilog/shared_reg.h"
 
@@ -116,9 +117,14 @@ vector<DataFlowStateTransition> DataFlowState::GetTransitions() {
 string DataFlowState::StartCondition(IInsn *insn) {
   IResource *res = insn->GetResource();
   IResource *p = res->GetParentResource();
-  if (p != nullptr &&
-      resource::IsSharedReg(*(p->GetClass()))) {
-    return SharedReg::RegNotifierName(*p);
+  if (p != nullptr) {
+    if (resource::IsSharedReg(*(p->GetClass()))) {
+      return SharedReg::RegNotifierName(*p);
+    }
+    if (resource::IsFifo(*(p->GetClass()))) {
+      return Fifo::RAck(*p, res);
+    }
+    CHECK(false);
   } else {
     return InsnWriter::RegisterValue(*insn->inputs_[0], names_);
   }

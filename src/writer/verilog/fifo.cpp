@@ -150,7 +150,11 @@ void Fifo::BuildAccessConnectionsAll() {
   int dw = res_.GetParams()->GetWidth();
   auto &readers = tab_.GetModule()->GetConnection().GetFifoReaders(&res_);
   for (auto *reader : readers) {
-    wire.AddWire(*reader, RReq(res_, reader), 0, false, true);
+    bool drive_req_by_reg = true;
+    if (resource::IsDataFlowIn(*(reader->GetClass()))) {
+      drive_req_by_reg = false;
+    }
+    wire.AddWire(*reader, RReq(res_, reader), 0, false, drive_req_by_reg);
     wire.AddWire(*reader, RAck(res_, reader), 0, true, true);
   }
   // Driven from sram module.
