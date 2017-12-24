@@ -3,6 +3,7 @@
 #include "iroha/i_design.h"
 #include "iroha/resource_class.h"
 #include "writer/module_template.h"
+#include "writer/verilog/dataflow_table.h"
 #include "writer/verilog/fifo.h"
 #include "writer/verilog/insn_writer.h"
 #include "writer/verilog/module.h"
@@ -18,8 +19,18 @@ DataFlowIn::DataFlowIn(const IResource &res, const Table &table)
 }
 
 void DataFlowIn::BuildResource() {
-  ostream &rs = tab_.ResourceSectionStream();
-  rs << "  assign " << Fifo::RReq(*(res_.GetParentResource()), &res_) << " = 1;\n";
+  IResource *parent = res_.GetParentResource();
+  if (parent != nullptr &&
+      resource::IsFifo(*(parent->GetClass()))) {
+    ostream &rs = tab_.ResourceSectionStream();
+    rs << "  assign " << Fifo::RReq(*(res_.GetParentResource()), &res_) << " = ";
+    const DataFlowTable *df = tab_.GetDataFlowTable();
+    if (df->CanBlock()) {
+      rs << "!" << df->BlockingCondition() << ";\n";
+    } else {
+      rs << "1;\n";
+    }
+  }
 }
 
 void DataFlowIn::BuildInsn(IInsn *insn, State *st) {

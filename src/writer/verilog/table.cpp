@@ -319,6 +319,10 @@ string Table::GetStateCondition(const IState *st) const {
     StateNameFromTable(*i_table_, st->GetId());
 }
 
+const DataFlowTable *Table::GetDataFlowTable() const {
+  return nullptr;
+}
+
 }  // namespace verilog
 }  // namespace writer
 }  // namespace iroha

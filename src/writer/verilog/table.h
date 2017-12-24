@@ -22,6 +22,7 @@ public:
 
   // Returns a string to test if current state == st.
   virtual string GetStateCondition(const IState *st) const;
+  virtual const DataFlowTable *GetDataFlowTable() const;
 
   ITable *GetITable() const;
   const string &StateVariable() const;

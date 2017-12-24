@@ -133,6 +133,10 @@ bool DataFlowTable::ScanMultiCycle() {
   return false;
 }
 
+const DataFlowTable *DataFlowTable::GetDataFlowTable() const {
+  return this;
+}
+
 }  // namespace verilog
 }  // namespace writer
 }  // namespace iroha

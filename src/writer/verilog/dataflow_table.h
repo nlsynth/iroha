@@ -21,6 +21,7 @@ public:
   virtual void Write(ostream &os);
 
   virtual string GetStateCondition(const IState *st) const;
+  virtual const DataFlowTable *GetDataFlowTable() const;
 
   string BlockingCondition() const;
   bool CanBlock() const;
