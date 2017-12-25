@@ -42,6 +42,9 @@ public:
 						  IResource *reg);
   static IResource *CreateSharedRegWriterResource(ITable *table,
 						  IResource *reg);
+  static IResource *CreateFifoResource(ITable *table, int width);
+  static IResource *CreateFifoReaderResource(ITable *table, IResource *fifo);
+  static IResource *CreateFifoWriterResource(ITable *table, IResource *fifo);
   static IRegister *AllocRegister(ITable *table, const string &name,
 				  int width);
   static IRegister *AllocConstNum(ITable *table,

@@ -163,6 +163,26 @@ IResource *DesignTool::CreateSharedRegWriterResource(ITable *table,
   return res;
 }
 
+IResource *DesignTool::CreateFifoResource(ITable *table, int width) {
+  IResource *res = DesignUtil::CreateResource(table, resource::kFifo);
+  res->GetParams()->SetWidth(width);
+  return res;
+}
+
+IResource *DesignTool::CreateFifoReaderResource(ITable *table, IResource *fifo) {
+  IResource *res = DesignUtil::CreateResource(table,
+					      resource::kFifoReader);
+  res->SetParentResource(fifo);
+  return res;
+}
+
+IResource *DesignTool::CreateFifoWriterResource(ITable *table, IResource *fifo) {
+  IResource *res = DesignUtil::CreateResource(table,
+					      resource::kFifoWriter);
+  res->SetParentResource(fifo);
+  return res;
+}
+
 IRegister *DesignTool::AllocRegister(ITable *table, const string &name,
 				     int width) {
   IRegister *reg = new IRegister(table, name);
