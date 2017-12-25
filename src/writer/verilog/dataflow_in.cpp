@@ -1,6 +1,7 @@
 #include "writer/verilog/dataflow_in.h"
 
 #include "iroha/i_design.h"
+#include "iroha/logging.h"
 #include "iroha/resource_class.h"
 #include "writer/module_template.h"
 #include "writer/verilog/dataflow_table.h"
@@ -36,13 +37,21 @@ void DataFlowIn::BuildResource() {
 void DataFlowIn::BuildInsn(IInsn *insn, State *st) {
   IResource *res = insn->GetResource();
   IResource *parent = res->GetParentResource();
+  CHECK(parent != nullptr);
+  auto &rc = *(parent->GetClass());
   if (parent != nullptr &&
-      resource::IsSharedReg(*(parent->GetClass()))) {
+      (resource::IsSharedReg(rc) ||
+       resource::IsFifo(rc))) {
     int s = 0;
     for (int i = 0; i < insn->outputs_.size(); ++i) {
       ostream &ws = tmpl_->GetStream(kInsnWireValueSection);
       ws << "  assign " << InsnWriter::InsnOutputWireName(*insn, i)
-	 << " = " << SharedReg::RegName(*parent);
+	 << " = ";
+      if (resource::IsFifo(rc)) {
+	ws << Fifo::RData(*parent);
+      } else {
+	ws << SharedReg::RegName(*parent);
+      }
       if (insn->outputs_.size() > 1) {
 	IRegister *reg = insn->outputs_[i];
 	int w = reg->value_type_.GetWidth();
