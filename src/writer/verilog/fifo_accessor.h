@@ -21,6 +21,7 @@ private:
   void BuildWriter();
   void BuildReadInsn(IInsn *insn, State *st);
   void BuildWriteInsn(IInsn *insn, State *st);
+  void BuildNoWaitWriteInsn(IInsn *insn, State *st);
   void BuildReq(bool is_writer);
 };
 

@@ -1,5 +1,6 @@
 #include "writer/verilog/fifo_accessor.h"
 
+#include "iroha/insn_operands.h"
 #include "iroha/i_design.h"
 #include "iroha/resource_class.h"
 #include "iroha/resource_params.h"
@@ -55,6 +56,8 @@ void FifoAccessor::BuildReq(bool is_writer) {
   ostream &ss = tab_.StateOutputSectionStream();
   map<IState *, IInsn *> callers;
   CollectResourceCallers("", &callers);
+  map<IState *, IInsn *> nw_callers;
+  CollectResourceCallers(operand::kNoWait, &nw_callers);
   string sig;
   string ack;
   if (is_writer) {
@@ -67,6 +70,10 @@ void FifoAccessor::BuildReq(bool is_writer) {
   string req = JoinStatesWithSubState(callers, 0);
   if (req.empty()) {
     req = "0";
+  }
+  string nw_req = JoinStates(nw_callers);
+  if (!nw_req.empty()) {
+    req = "(" + req + ") || (" + nw_req + ")";
   }
   ss << "      " << sig << " <= (" << req << ") && !" << ack << ";\n";
 }
@@ -87,6 +94,10 @@ void FifoAccessor::BuildReadInsn(IInsn *insn, State *st) {
 }
 
 void FifoAccessor::BuildWriteInsn(IInsn *insn, State *st) {
+  if (insn->GetOperand() == operand::kNoWait) {
+    BuildNoWaitWriteInsn(insn, st);
+    return;
+  }
   ostream &os = st->StateBodySectionStream();
   static const char I[] = "          ";
   string st_name = InsnWriter::MultiCycleStateName(*(insn->GetResource()));
@@ -98,6 +109,13 @@ void FifoAccessor::BuildWriteInsn(IInsn *insn, State *st) {
      << I << "    " << st_name << " <= 3;\n"
      << I << "  end\n";
   os << I << "end\n";
+}
+
+void FifoAccessor::BuildNoWaitWriteInsn(IInsn *insn, State *st) {
+  ostream &os = st->StateBodySectionStream();
+  static const char I[] = "          ";
+  os << I << Fifo::WData(*(res_.GetParentResource()), &res_) << " <= "
+     << InsnWriter::RegisterValue(*insn->inputs_[0], tab_.GetNames()) << ";\n";
 }
 
 }  // namespace verilog

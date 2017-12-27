@@ -8,6 +8,7 @@ const char kLeft[] = "left";
 const char kRight[] = "right";
 const char kRead[] = "read";
 const char kWrite[] = "write";
+const char kNoWait[] = "no_wait";
 const char kNotify[] = "notify";
 const char kWaitNotify[] = "wait_notify";
 const char kGetMailbox[] = "get_mailbox";

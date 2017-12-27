@@ -36,8 +36,11 @@ bool ResourceAttr::IsMultiCycleInsn(IInsn *insn) {
     return true;
   }
   if (resource::IsFifo(rc) ||
-      resource::IsFifoReader(rc) ||
-      resource::IsFifoWriter(rc)) {
+      resource::IsFifoReader(rc)) {
+    return true;
+  }
+  if (resource::IsFifoWriter(rc) &&
+      insn->GetOperand() != operand::kNoWait) {
     return true;
   }
   if (resource::IsSharedRegReader(rc)) {
