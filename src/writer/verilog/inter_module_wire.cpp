@@ -21,58 +21,66 @@ void InterModuleWire::AddWire(IResource &accessor, const string &name,
   if (drive_by_reg) {
     drive = "reg";
   }
-  Module *mod = res_.GetTable().GetModule();
+  Module *parent_mod = res_.GetTable().GetModule();
+  const IModule *parent_imodule = parent_mod->GetIModule();
+  IModule *accessor_imodule = accessor.GetTable()->GetModule();
+  const Module *accessor_module = parent_mod->GetByIModule(accessor_imodule);
   bool same_module = false;
-  if (accessor.GetTable()->GetModule() == mod->GetIModule()) {
+  if (accessor_imodule == parent_imodule) {
     same_module = true;
   }
   string a = Table::WidthSpec(width) + name + ";\n";
   // Accessor.
-  IModule *accessor_imodule = accessor.GetTable()->GetModule();
-  Module *accessor_module = mod->GetByIModule(accessor_imodule);
+  const IModule *common_root =
+    Connection::GetCommonRoot(parent_imodule,
+			      accessor_imodule);
   if (!HasWire(accessor_module, name)) {
     auto *tmpl_a = accessor_module->GetModuleTemplate();
-    ostream &rs_a = res_.GetTable().ResourceSectionStream();
-    if (from_parent) {
-      if (!same_module) {
-	rs_a << "  wire " << a;
-	AddWire(accessor_module, name);
-      }
-    } else {
+    ostream &rs_a = tmpl_a->GetStream(kInsnWireDeclSection);
+    if (!from_parent) {
       rs_a << "  " << drive << " " << a;
-      AddWire(accessor_module, name);
+      AddWireName(accessor_module, name);
+    } else {
+      if (common_root == accessor_imodule &&
+	  !same_module) {
+	// TODO: Fix this not to run for AddSharedWIres(), if there are other
+	// accessors upward and an input/output is generated for this module.
+	// ditto for resource side.
+	rs_a << "  wire " << a;
+	AddWireName(accessor_module, name);
+      }
     }
   }
   // (parent) Resource.
-  if (!HasWire(mod, name)) {
-    auto *tmpl_p = mod->GetModuleTemplate();
+  if (!HasWire(parent_mod, name)) {
+    auto *tmpl_p = parent_mod->GetModuleTemplate();
     ostream &rs_p = res_.GetTable().ResourceSectionStream();
     if (from_parent) {
       rs_p << "  " << drive << " " << a;
-      AddWire(mod, name);
+      AddWireName(parent_mod, name);
     } else {
-      if (!same_module) {
+      if (common_root == parent_imodule &&
+	  !same_module) {
 	rs_p << "  wire " << a;
-	AddWire(mod, name);
+	AddWireName(parent_mod, name);
       }
     }
   }
   // Path.
-  const IModule *common_root = Connection::GetCommonRoot(mod->GetIModule(),
-							 accessor_imodule);
-  if (mod->GetIModule() != common_root && accessor_imodule != common_root) {
-    Module *m = mod->GetByIModule(common_root);
+  if (parent_mod->GetIModule() != common_root &&
+      accessor_imodule != common_root) {
+    Module *m = parent_mod->GetByIModule(common_root);
     if (!HasWire(m, name)) {
       auto *tmpl = m->GetModuleTemplate();
-      ostream &rs = res_.GetTable().ResourceSectionStream();
+      ostream &rs = tmpl->GetStream(kInsnWireDeclSection);
       rs << "  wire " << a;
-      AddWire(m, name);
+      AddWireName(m, name);
     }
   }
   // upward
-  for (const IModule *imod = mod->GetIModule(); imod != common_root;
+  for (const IModule *imod = parent_mod->GetIModule(); imod != common_root;
        imod = imod->GetParentModule()) {
-    Module *m = mod->GetByIModule(imod);
+    Module *m = parent_mod->GetByIModule(imod);
     bool is_upward = false;
     if (from_parent) {
       is_upward = true;
@@ -82,7 +90,7 @@ void InterModuleWire::AddWire(IResource &accessor, const string &name,
   // downward
   for (const IModule *imod = accessor_imodule; imod != common_root;
        imod = imod->GetParentModule()) {
-    Module *m = mod->GetByIModule(imod);
+    Module *m = parent_mod->GetByIModule(imod);
     bool is_upward = true;
     if (from_parent) {
       is_upward = false;
@@ -98,7 +106,7 @@ void InterModuleWire::AddPort(Module *mod, const string &name, int width,
   if (HasWire(mod, wire_key)) {
     return;
   } else {
-    AddWire(mod, wire_key);
+    AddWireName(mod, wire_key);
   }
 
   Ports *ports = mod->GetPorts();
@@ -120,7 +128,7 @@ void InterModuleWire::AddSharedWires(const vector<IResource *> &accessors,
   }
 }
 
-bool InterModuleWire::HasWire(Module *mod, const string &name) {
+bool InterModuleWire::HasWire(const Module *mod, const string &name) {
   auto it = has_wire_.find(mod);
   if (it == has_wire_.end()) {
     return false;
@@ -132,7 +140,7 @@ bool InterModuleWire::HasWire(Module *mod, const string &name) {
   return true;
 }
 
-void InterModuleWire::AddWire(Module *mod, const string &name) {
+void InterModuleWire::AddWireName(const Module *mod, const string &name) {
   has_wire_[mod].insert(name);
 }
 
