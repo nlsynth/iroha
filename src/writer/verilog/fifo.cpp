@@ -40,6 +40,7 @@ void Fifo::BuildWires() {
      << "  reg [" << aw << ":0] " << WritePtrBuf() << ";\n"
      << "  wire " << Full() << ";\n"
      << "  wire " << Empty() << ";\n"
+     << "  wire " << WEn() << ";\n"
      << "  wire [" << (dw - 1) << ":0] " << WData(res_, nullptr) << ";\n"
      << "  wire " << RReq(res_, nullptr) << ";\n"
      << "  wire " << WReq(res_, nullptr) << ";\n"
@@ -54,6 +55,8 @@ void Fifo::BuildWires() {
      << WritePtr() << "[" << aw << ":" << aw << "])"
      << " && (" << ReadPtr() << "[" << msb << ":" << "0] == "
      << WritePtr() << "[" << msb << ":" << "0]));\n";
+  rs << "  assign " << WEn() << " = "
+     << WReq(res_, nullptr) << " && " << WAck(res_, nullptr) << ";\n";
 }
 
 void Fifo::BuildHandShake() {
@@ -137,8 +140,7 @@ void Fifo::BuildMemoryInstance() {
      << ", .addr_1_i(" << WritePtrBuf() << "[" << (aw - 1) << ":0])"
      << ", .rdata_1_o(/*not connected*/)"
      << ", .wdata_1_i(" << WData(res_, nullptr) << ")"
-     << ", .write_en_1_i(" << WReq(res_, nullptr) << " && "
-     << WAck(res_, nullptr) << ")"
+     << ", .write_en_1_i(" << WEn() << ")"
      << ");\n";
 }
 
@@ -181,6 +183,10 @@ string Fifo::WritePtrBuf() {
 
 string Fifo::ReadPtrBuf() {
   return ReadPtr() + "_buf";
+}
+
+string Fifo::WEn() {
+  return PinPrefix(res_, nullptr) + "_wen";
 }
 
 void Fifo::BuildController() {

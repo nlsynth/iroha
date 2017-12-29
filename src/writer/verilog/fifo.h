@@ -32,7 +32,10 @@ private:
   string ReadPtrBuf();
   string Full();
   string Empty();
+  string WEn();
+
   static string PinPrefix(const IResource &res, const IResource *accessor);
+
   void BuildMemoryInstance();
   void BuildWires();
   void BuildHandShake();
