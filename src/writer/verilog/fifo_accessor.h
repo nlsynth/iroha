@@ -16,6 +16,8 @@ public:
   virtual void BuildResource() override;
   virtual void BuildInsn(IInsn *insn, State *st) override;
 
+  static bool UseNoWait(const IResource *accessor);
+
 private:
   void BuildReader();
   void BuildWriter();

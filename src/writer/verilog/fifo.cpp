@@ -6,6 +6,7 @@
 #include "writer/connection.h"
 #include "writer/module_template.h"
 #include "writer/verilog/embed.h"
+#include "writer/verilog/fifo_accessor.h"
 #include "writer/verilog/internal_sram.h"
 #include "writer/verilog/inter_module_wire.h"
 #include "writer/verilog/module.h"
@@ -37,7 +38,6 @@ void Fifo::BuildWires() {
   rs << "  reg [" << aw << ":0] " << ReadPtr() << ";\n"
      << "  reg [" << aw << ":0] " << ReadPtrBuf() << ";\n"
      << "  reg [" << aw << ":0] " << WritePtr() << ";\n"
-     << "  reg [" << aw << ":0] " << WritePtrBuf() << ";\n"
      << "  wire " << Full() << ";\n"
      << "  wire " << Empty() << ";\n"
      << "  wire " << WEn() << ";\n"
@@ -55,8 +55,18 @@ void Fifo::BuildWires() {
      << WritePtr() << "[" << aw << ":" << aw << "])"
      << " && (" << ReadPtr() << "[" << msb << ":" << "0] == "
      << WritePtr() << "[" << msb << ":" << "0]));\n";
-  rs << "  assign " << WEn() << " = "
-     << WReq(res_, nullptr) << " && " << WAck(res_, nullptr) << ";\n";
+  vector<string> nw_reqs;
+  auto &writers = tab_.GetModule()->GetConnection().GetFifoWriters(&res_);
+  for (auto *writer : writers) {
+    if (FifoAccessor::UseNoWait(writer)) {
+      nw_reqs.push_back(WNoWait(res_, writer));
+    }
+  }
+  string e = WReq(res_, nullptr) + " && " + WAck(res_, nullptr);
+  if (nw_reqs.size() > 0) {
+    e = "(" + e + ") || (" + Util::Join(nw_reqs, " || ") + ")";
+  }
+  rs << "  assign " << WEn() << " = " << e << ";\n";
 }
 
 void Fifo::BuildHandShake() {
@@ -68,6 +78,16 @@ void Fifo::BuildHandShake() {
   BuildReqAckAssign(true, writers);
   ostream &rs = tab_.ResourceSectionStream();
   string s;
+  for (auto *writer : writers) {
+    if (FifoAccessor::UseNoWait(writer)) {
+      if (s.empty()) {
+	s = WData(res_, writer);
+      } else {
+	s = WNoWait(res_, writer) + " ? " + WData(res_, writer) +
+	  " : (" + s + ")";
+      }
+    }
+  }
   for (auto *writer : writers) {
     if (s.empty()) {
       s = WData(res_, writer);
@@ -137,7 +157,7 @@ void Fifo::BuildMemoryInstance() {
      << ", .wdata_0_i(/*not connected*/)"
      << ", .write_en_0_i(0)"
     // Write.
-     << ", .addr_1_i(" << WritePtrBuf() << "[" << (aw - 1) << ":0])"
+     << ", .addr_1_i(" << WritePtr() << "[" << (aw - 1) << ":0])"
      << ", .rdata_1_o(/*not connected*/)"
      << ", .wdata_1_i(" << WData(res_, nullptr) << ")"
      << ", .write_en_1_i(" << WEn() << ")"
@@ -166,6 +186,9 @@ void Fifo::BuildAccessConnectionsAll() {
     wire.AddWire(*writer, WReq(res_, writer), 0, false, true);
     wire.AddWire(*writer, WAck(res_, writer), 0, true, true);
     wire.AddWire(*writer, WData(res_, writer), dw, false, true);
+    if (FifoAccessor::UseNoWait(writer)) {
+      wire.AddWire(*writer, WNoWait(res_, writer), 0, false, true);
+    }
   }
 }
 
@@ -175,10 +198,6 @@ string Fifo::WritePtr() {
 
 string Fifo::ReadPtr() {
   return PinPrefix(res_, nullptr) + "_rptr";
-}
-
-string Fifo::WritePtrBuf() {
-  return WritePtr() + "_buf";
 }
 
 string Fifo::ReadPtrBuf() {
@@ -199,10 +218,11 @@ void Fifo::BuildController() {
      << "      " << ReadPtr() << " <= 0;\n"
      << "      " << WritePtr() << " <= 0;\n"
      << "    end else begin\n"
-     << "      if (" << WReq(res_, nullptr) << " && !" << Full()
-     << " && !" << WAck(res_, nullptr) << ") begin\n"
+     << "      if (" << WEn() << ") begin\n"
      << "        " << WritePtr() << " <= " << WritePtr() << " + 1;\n"
-     << "        " << WritePtrBuf() << " <= " << WritePtr() << ";\n";
+     << "      end\n"
+     << "      if (" << WReq(res_, nullptr) << " && !" << Full()
+     << " && !" << WAck(res_, nullptr) << ") begin\n";
   auto &writers = tab_.GetModule()->GetConnection().GetFifoWriters(&res_);
   BuildAck(true, writers);
   es << "      end else begin\n";
@@ -308,6 +328,10 @@ string Fifo::WAck(const IResource &res, const IResource *accessor) {
 
 string Fifo::WData(const IResource &res, const IResource *accessor) {
   return PinPrefix(res, accessor) + "_wdata";
+}
+
+string Fifo::WNoWait(const IResource &res, const IResource *accessor) {
+  return PinPrefix(res, accessor) + "_wno_wait";
 }
 
 string Fifo::Full() {

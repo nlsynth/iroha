@@ -1,5 +1,6 @@
 #include "writer/verilog/fifo_accessor.h"
 
+#include "design/design_util.h"
 #include "iroha/insn_operands.h"
 #include "iroha/i_design.h"
 #include "iroha/resource_class.h"
@@ -71,11 +72,12 @@ void FifoAccessor::BuildReq(bool is_writer) {
   if (req.empty()) {
     req = "0";
   }
+  ss << "      " << sig << " <= (" << req << ") && !" << ack << ";\n";
   string nw_req = JoinStates(nw_callers);
   if (!nw_req.empty()) {
-    req = "(" + req + ") || (" + nw_req + ")";
+    ss << "      " << Fifo::WNoWait(*(res_.GetParentResource()), &res_)
+       << " <= " << nw_req << ";\n";
   }
-  ss << "      " << sig << " <= (" << req << ") && !" << ack << ";\n";
 }
 
 void FifoAccessor::BuildReadInsn(IInsn *insn, State *st) {
@@ -116,6 +118,16 @@ void FifoAccessor::BuildNoWaitWriteInsn(IInsn *insn, State *st) {
   static const char I[] = "          ";
   os << I << Fifo::WData(*(res_.GetParentResource()), &res_) << " <= "
      << InsnWriter::RegisterValue(*insn->inputs_[0], tab_.GetNames()) << ";\n";
+}
+
+bool FifoAccessor::UseNoWait(const IResource *accessor) {
+  vector<IInsn *> insns = DesignUtil::GetInsnsByResource(accessor);
+  for (auto *insn : insns) {
+    if (insn->GetOperand() == operand::kNoWait) {
+      return true;
+    }
+  }
+  return false;
 }
 
 }  // namespace verilog

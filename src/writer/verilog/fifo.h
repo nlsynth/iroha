@@ -24,11 +24,11 @@ public:
   static string WReq(const IResource &res, const IResource *accessor);
   static string WAck(const IResource &res, const IResource *accessor);
   static string WData(const IResource &res, const IResource *accessor);
+  static string WNoWait(const IResource &res, const IResource *accessor);
 
 private:
   string WritePtr();
   string ReadPtr();
-  string WritePtrBuf();
   string ReadPtrBuf();
   string Full();
   string Empty();
