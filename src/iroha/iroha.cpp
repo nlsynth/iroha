@@ -1,4 +1,4 @@
-// Copyright (c) 2015-2017, Yusuke Tabata (tabata.yusuke@gmail.com) and the team.
+// Copyright (c) 2015-2018, Yusuke Tabata (tabata.yusuke@gmail.com) and the team.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
