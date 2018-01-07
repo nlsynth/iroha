@@ -14,6 +14,7 @@
 #include "writer/connection.h"
 #include "writer/module_template.h"
 #include "writer/verilog/insn_writer.h"
+#include "writer/verilog/inter_module_wire.h"
 #include "writer/verilog/module.h"
 #include "writer/verilog/ports.h"
 #include "writer/verilog/state.h"
@@ -63,11 +64,13 @@ void SharedReg::BuildResource() {
     rs << " use-mailbox";
   }
   rs << "\n";
-  rs << "  reg ";
-  if (width_ > 0) {
-    rs << "[" << width_ - 1 << ":0]";
+  if (readers_.size() == 0) {
+    rs << "  reg ";
+    if (width_ > 0) {
+      rs << "[" << width_ - 1 << ":0]";
+    }
+    rs << " " << RegName(res_) << ";\n";
   }
-  rs << " " << RegName(res_) << ";\n";
   // Reset value
   is << "      " << RegName(res_) << " <= ";
   if (has_default_output_value_) {
@@ -77,7 +80,6 @@ void SharedReg::BuildResource() {
   }
   is << ";\n";
   if (use_notify_) {
-    rs << "  reg " << RegNotifierName(res_) << ";\n";
     vector<string> notifiers;
     for (auto *writer : writers_) {
       if (SharedRegAccessor::UseNotify(writer)) {
@@ -124,9 +126,7 @@ void SharedReg::BuildResource() {
     os << SelectValueByState(value);
     os << ";\n";
   }
-  // Read wires from shared-reg
-  // (on the other hand, write wires are wired from shared-reg-writer)
-  BuildReadWire();
+  BuildAccessorWire();
 }
 
 void SharedReg::BuildMailbox() {
@@ -265,8 +265,6 @@ void SharedReg::AddChildWire(const IResource *accessor, bool is_write,
   string name;
   if (is_write) {
     names.push_back(WriterName(*accessor));
-  } else {
-    names.push_back(RegName(*reg));
   }
   if (is_write) {
     names.push_back(WriterEnName(*accessor));
@@ -274,20 +272,14 @@ void SharedReg::AddChildWire(const IResource *accessor, bool is_write,
   if (use_notify) {
     if (is_write) {
       names.push_back(WriterNotifierName(*accessor));
-    } else {
-      names.push_back(RegNotifierName(*reg));
     }
   }
   if (use_mailbox) {
     if (is_write) {
       names.push_back(RegMailboxPutReqName(*accessor));
-    } else {
-      names.push_back(RegMailboxGetReqName(*accessor));
     }
     if (is_write) {
       names.push_back(RegMailboxPutAckName(*accessor));
-    } else {
-      names.push_back(RegMailboxGetAckName(*accessor));
     }
   }
   for (const string &s : names) {
@@ -295,36 +287,19 @@ void SharedReg::AddChildWire(const IResource *accessor, bool is_write,
   }
 }
 
-void SharedReg::BuildReadWire() {
-  IModule *reg_module = res_.GetTable()->GetModule();
-  set<const IModule *> wired_modules;
-  set<const IModule *> has_upward;
-  set<const IModule *> has_downward;
-  for (auto *reader : readers_) {
-    IModule *reader_module = reader->GetTable()->GetModule();
-    const IModule *common_root = Connection::GetCommonRoot(reg_module,
-							   reader_module);
-    if (reader_module != common_root && reg_module != common_root) {
-      if (wired_modules.find(common_root) == wired_modules.end()) {
-	AddAccessorSignals(common_root, &tab_, reader, true);
-	wired_modules.insert(common_root);
-      }
+void SharedReg::BuildAccessorWire() {
+  // TODO: Move all writer wiring logic to here too.
+  InterModuleWire wire(*this);
+  int dw = res_.GetParams()->GetWidth();
+  auto &readers = tab_.GetModule()->GetConnection().GetSharedRegReaders(&res_);
+  for (auto *reader : readers) {
+    wire.AddWire(*reader, RegName(res_), dw, true, true);
+    if (SharedRegAccessor::UseNotify(reader)) {
+      wire.AddWire(*reader, RegNotifierName(res_), 0, true, true);
     }
-    // upward
-    for (IModule *imod = reg_module; imod != common_root;
-	 imod = imod->GetParentModule()) {
-      if (has_upward.find(imod) == has_upward.end()) {
-	AddReadPort(imod, reader, true);
-	has_upward.insert(imod);
-      }
-    }
-    // downward
-    for (IModule *imod = reader_module; imod != common_root;
-	 imod = imod->GetParentModule()) {
-      if (has_downward.find(imod) == has_downward.end()) {
-	AddReadPort(imod, reader, false);
-	has_downward.insert(imod);
-      }
+    if (SharedRegAccessor::UseMailbox(reader)) {
+      wire.AddWire(*reader, RegMailboxPutReqName(*reader), 0, false, true);
+      wire.AddWire(*reader, RegMailboxPutAckName(*reader), 0, true, true);
     }
   }
 }
@@ -352,12 +327,10 @@ void SharedReg::AddAccessorSignals(const IModule *imod, const Table *tab,
     }
   }
   if (is_writer || !same_module) {
-    rs << "  wire "
-       << Table::WidthSpec(width);
     if (is_writer) {
+      rs << "  wire "
+	 << Table::WidthSpec(width);
       rs << WriterName(*accessor) << ";\n";
-    } else {
-      rs << RegName(*reg) << ";\n";
     }
   }
   if (is_writer) {
@@ -369,10 +342,6 @@ void SharedReg::AddAccessorSignals(const IModule *imod, const Table *tab,
       rs << "  wire "
 	 << WriterNotifierName(*accessor) << ";\n";
     } else {
-      if (!same_module) {
-	rs << "  wire "
-	   << RegNotifierName(*reg) << ";\n";
-      }
     }
   }
   bool mb = SharedRegAccessor::UseMailbox(accessor);
@@ -384,49 +353,8 @@ void SharedReg::AddAccessorSignals(const IModule *imod, const Table *tab,
 	   << "  wire "
 	   << RegMailboxPutAckName(*accessor) << ";\n";
       }
-    } else {
-      if (!same_module) {
-	rs << "  wire "
-	   << RegMailboxGetReqName(*accessor) << ";\n"
-	   << "  wire "
-	   << RegMailboxGetAckName(*accessor) << ";\n";
-      }
     }
   }
-}
-
-void SharedReg::AddReadPort(const IModule *imod, const IResource *reader,
-			    bool upward) {
-  Module *mod = tab_.GetModule()->GetByIModule(imod);
-  Ports *ports = mod->GetPorts();
-  const IResource *reg = reader->GetParentResource();
-  int width = reg->GetParams()->GetWidth();
-  if (upward) {
-    ports->AddPort(RegName(*reg), Port::OUTPUT_WIRE, width);
-  } else {
-    ports->AddPort(RegName(*reg), Port::INPUT, width);
-  }
-  Module *parent_mod = mod->GetParentModule();
-  ostream &os = parent_mod->ChildModuleInstSectionStream(mod);
-  bool use_notify = SharedRegAccessor::UseNotify(reader);
-  if (use_notify) {
-    if (upward) {
-      ports->AddPort(RegNotifierName(*reg), Port::OUTPUT_WIRE, 0);
-    } else {
-      ports->AddPort(RegNotifierName(*reg), Port::INPUT, 0);
-    }
-  }
-  bool use_mailbox = SharedRegAccessor::UseMailbox(reader);
-  if (use_mailbox) {
-    if (upward) {
-      ports->AddPort(RegMailboxPutReqName(*reader), Port::INPUT, 0);
-      ports->AddPort(RegMailboxPutAckName(*reader), Port::OUTPUT_WIRE, 0);
-    } else {
-      ports->AddPort(RegMailboxPutReqName(*reader), Port::OUTPUT_WIRE, 0);
-      ports->AddPort(RegMailboxPutAckName(*reader), Port::INPUT, 0);
-    }
-  }
-  AddChildWire(reader, false, use_notify, use_mailbox, os);
 }
 
 void SharedReg::GetOptions(bool *use_notify, bool *use_mailbox) {

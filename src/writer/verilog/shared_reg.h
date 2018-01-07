@@ -39,8 +39,7 @@ public:
   static void AddChildWire(const IResource *accessor, bool is_write, bool use_notify, bool use_mailbox, ostream &os);
 
 private:
-  void BuildReadWire();
-  void AddReadPort(const IModule *imod, const IResource *reader, bool upward);
+  void BuildAccessorWire();
   void GetOptions(bool *use_notify, bool *use_mailbox);
   void BuildMailbox();
 
