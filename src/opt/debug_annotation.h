@@ -10,18 +10,20 @@
 namespace iroha {
 namespace opt {
 
+// Per design object to store debug strings.
 class DebugAnnotation {
 public:
   ~DebugAnnotation();
 
+  // Called by optimizers.
   void DumpIntermediateTable(const ITable *tab);
   void GetDumpedContent(ostream &os);
   ostream &GetDumpStream();
-
   ostream &Table(const ITable *tab);
-  string GetTableAnnotation(const ITable *tab) const;
-
   ostream &State(const IState *st);
+
+  // Called by HTML dumper.
+  string GetTableAnnotation(const ITable *tab) const;
   string GetStateAnnotation(const IState *st) const;
 
 private:

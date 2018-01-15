@@ -78,6 +78,14 @@ void Writer::SetOutputConfig(const string &root, const string &marker) {
   output_marker_ = marker;
 }
 
+void Writer::WriteDumpHeader(ostream &os) {
+  HtmlWriter::WriteHeader(os);
+}
+
+void Writer::WriteDumpFooter(ostream &os) {
+  HtmlWriter::WriteFooter(os);
+}
+
 void Writer::DumpTable(const ITable *table, ostream &os) {
   HtmlWriter writer(table->GetModule()->GetDesign(), os);
   writer.WriteIntermediateTable(*table);

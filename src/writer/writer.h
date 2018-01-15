@@ -17,6 +17,9 @@ public:
   virtual void SetOutputConfig(const string &root,
 			       const string &marker) override;
 
+  // For debug dump.
+  static void WriteDumpHeader(ostream &os);
+  static void WriteDumpFooter(ostream &os);
   static void DumpTable(const ITable *table, ostream &os);
 
 private:

@@ -16,10 +16,10 @@ public:
 
   void Write();
   void WriteIntermediateTable(const ITable &tab);
+  static void WriteHeader(ostream &os);
+  static void WriteFooter(ostream &os);
 
 private:
-  void WriteHeader();
-  void WriteFooter();
   void WriteModule(const IModule &mod);
   void WriteTable(const ITable &tab);
   void WriteTableStates(const ITable &tab);

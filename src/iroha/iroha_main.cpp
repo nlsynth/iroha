@@ -150,7 +150,7 @@ int main(int argc, char **argv) {
     }
     std::unique_ptr<IDesign> deleter(design);
     OptAPI *optimizer = Iroha::CreateOptimizer(design);
-    if (html || !debug_dump.empty()) {
+    if (!debug_dump.empty()) {
       optimizer->EnableDebugAnnotation();
     }
     bool has_opt_err = false;

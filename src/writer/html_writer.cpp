@@ -10,19 +10,19 @@ HtmlWriter::HtmlWriter(const IDesign *design, ostream &os)
 }
 
 void HtmlWriter::Write() {
-  WriteHeader();
+  WriteHeader(os_);
   for (auto *mod : design_->modules_) {
     WriteModule(*mod);
   }
-  WriteFooter();
+  WriteFooter(os_);
 }
 
-void HtmlWriter::WriteHeader() {
-  os_ << "<html>\n";
+void HtmlWriter::WriteHeader(ostream &os) {
+  os << "<html><head></head><body>\n";
 }
 
-void HtmlWriter::WriteFooter() {
-  os_ << "</html>\n";
+void HtmlWriter::WriteFooter(ostream &os) {
+  os << "</body></html>\n";
 }
 
 void HtmlWriter::WriteModule(const IModule &mod) {

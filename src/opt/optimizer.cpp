@@ -12,6 +12,7 @@
 #include "opt/phase.h"
 #include "opt/ssa/ssa.h"
 #include "opt/wire/wire_insn.h"
+#include "writer/writer.h"
 
 #include <fstream>
 
@@ -65,7 +66,9 @@ void Optimizer::EnableDebugAnnotation() {
 void Optimizer::DumpIntermediate(const string &fn) {
   auto *an = design_->GetDebugAnnotation();
   ofstream os(fn);
+  writer::Writer::WriteDumpHeader(os);
   an->GetDumpedContent(os);
+  writer::Writer::WriteDumpFooter(os);
 }
 
 }  // namespace opt
