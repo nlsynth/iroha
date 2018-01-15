@@ -15,8 +15,6 @@ A circuit design in Iroha contains following elements.
     * consists of resources and states.
 * Resource
     * Various kinds of operation like numeric operation, memory access and so on.
-* Channel
-    * connects a resource to another resource in the design or outside of the design.
 * State
     * A state in a state machine.
     * consists of instructions.
@@ -28,11 +26,7 @@ A circuit design in Iroha contains following elements.
 
 Structure of a design in Iroha is described in following BNF.
 
-design          := params? (channel | array-image | module)*
-
-channel         := "(" "CHANNEL" channel-id:number channel-name:label value-type reader-ep:channel-ep writer-ep:channel-ep params")"
-
-channel-ep      := "(" module-id:number table-id:number resource-id:number ")"
+design          := params? (array-image | module)*
 
 module          := "(" "MODULE" module-id:number module-name:label params parent-module table* ")"
 
@@ -55,7 +49,6 @@ resources       := "(" "RESOURCES" resource* ")"
 resource        := "(" "RESOURCE" res-id:number res-class:resource-class input-types:value-types output-types:value-types params? resource-option? ")"
 
 resource-class  := "tr" | "set" | "print" | "phi" | "select" | "assert" | "mapped" |
-                   "channel-write" | "channel-read" |
                    "sibling-task" | "sibling-task-call" | "sub-module-task" | "sub-module-task-call" |
                    "ext-input" | "ext-output" |
                    "array" | "embedded" | "foreign-reg" |
@@ -108,12 +101,11 @@ label-or-empty  := label | "(" ")"
 
 ## Design
 
-A design contains (1) modules, (2) channels connect module to module or outside of design and (3) parameters of the design.
+A design contains modules and parameters of the design.
 
 e.g.
 
 (PARAMS (RESET-POLARITY true) ..)
-(CHANNEL ...)
 (MODULE module-id name ...)
 
 -- Module
@@ -128,20 +120,6 @@ e.g.
  (TABLE table-id ...)
  (TABLE table-id ...)
 )
-
--- Channel
-
-Channel has a reader and a writer.
-
-e.g.
-
-; table to another table
-
-(CHANNEL 1 (UINT 32) (1 2 1) (1 1 1))
-
-; reader in a module and reads from outside of the design
-
-(CHANNEL 1 (UINT 32) (1 2 1) ())
 
 -- Table
 
@@ -216,7 +194,9 @@ e.g.
 
 -- Params (design)
 
-(PARAMS)
+-- (Channel)
+
+Deprecated. Related code will be removed.
 
 ## format this document
 

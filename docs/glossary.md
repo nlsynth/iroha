@@ -111,4 +111,4 @@ resource based connection:
  ext-input will be mapped to shared-reg-reader and reads from shared-reg
 
 
-MEMO(yt76): May also support shared-reg-writer and channel.
+MEMO(yt76): May also support shared-reg-writer.

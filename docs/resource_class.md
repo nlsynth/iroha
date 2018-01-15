@@ -2,7 +2,7 @@
 
 ## Overview
 
-Resource represents an operation and its circuit.
+A resource represents an operation and its circuit.
 
 Various kinds of operation can be represented as a resource including
 
@@ -45,6 +45,14 @@ Each insn uses a resource in a state like this.
       ; output register ids. e.g. r2 <= add(r1, r4)
       (2))
 
+Some classes of resources can have a parent or a set of children.
+For example, following RESOURCE has a parent resource.
+
+    (RESOURCE 5 shared-reg-reader
+      () () (PARAMS)
+      (PARENT-RESOURCE 1 2 3)
+
+In this case, the shared-reg-reader is supposed to have a shared-reg as its parent and the shared-reg can have multiple shared-reg-reader(s), shared-reg-writer(s) and so on.
 
 ## Details
 
@@ -74,7 +82,7 @@ Adds 2 input values and outputs the result.
 
 #### sub
 
-Subtracts 2 input values and outputs the result.
+Subtracts 2 input[1] from input[0].
 
 #### mul
 
@@ -111,15 +119,17 @@ Applies bit XOR operation to 2 inputs and outputs the result.
 
 #### bit-inv
 
-Invert bits of 1 input and outputs the result.
+Inverts bits of 1 input and outputs the result.
 
 #### bit-sel
 
-TBD.
+Selects specified range of bits from input. The output is v[msb:lsb] where
+v = input[0], msb = input[1], lsb = input[2].
 
 #### bit-concat
 
-TBD.
+Concatenates all inputs in bit wise. The order is from left to right.
+e.g. input[0] :: input[1] :: ... :: input[n-1]
 
 ### Pseudo instructions
 
@@ -133,7 +143,7 @@ Other passes may not be able to accept a design with pseudo resource and insns u
 
 #### phi
 
-Phi appears in optimzation passes use SSA form.
+Phi appears in optimization passes use SSA form.
 
 #### print
 
@@ -145,6 +155,10 @@ Takes 1 input and displays error message if it is false.
 
 
 ### Resource access
+
+#### axi-master-port
+
+#### axi-slave-port
 
 #### array
 
@@ -174,58 +188,67 @@ Embed a Verilog module. Insn pass values to the module, if it accepts them.
 
 ### Communication
 
-#### channel-write
+#### FIFO
 
-Writes input value to the channel.
+##### fifo
 
-#### channel-read
+A fifo can have multiple multiple readers and writers as its children.
 
-Reads value from the channel.
+##### fifo-reader
 
-#### sibling-task-call
+##### fifo-writer
 
-Kicks the specified state machine in sibling-task table.
+#### task-call
 
-#### sub-module-task-call
-
-Kicks the specified state machine in sub-module-task table.
-
+Kicks the specified state machine in a task table.
 
 #### foreign-reg
 
 Reads a register in another table. The register can be accessed from multiple tables.
 
-#### shared-reg
+#### Shared register
+
+TODO: Describe notification and mailbox.
+
+##### shared-reg
 
 This resource holds a value and can be read or written from other tables via shared-reg-reader(s) and shared-reg-writer(s).
 It also can be read or written from the belonging table.
 If writes come from multiple shared-reg-writers, arbitration (fixed priority for now) selects one value.
 
-#### shared-reg-writer
+##### shared-reg-writer
 
 Attach to a shared-reg in another table and allow to write to it via this resource.
 Multiple shared-reg-writer can write a same shared-reg.
 
-#### shared-reg-reader
+##### shared-reg-reader
 
 Attach to a shared-reg in another table and allow to read it via this resource.
 Multiple shared-reg-writer can read from a same shared-reg.
+
+#### Shared memory
+
+##### shared-memory
+
+This resource represents an array and can be accessed from other tables.
+
+##### shared-memory-reader
+
+##### shared-memory-writer
 
 ### Table type modifier
 
 If there is an insn using following resource in the initial state, the meaning of table will be different from normal state machine.
 
-#### sibling-task
+#### task
 
-The table will be configured as a task. Other tables in this module can kick this table.
-
-#### sub-module-task
-
-The table will be configured as a task. Other tables in super modules can kick this table.
+The table will be configured as a task. Other tables can kick the table.
 
 #### dataflow-in
 
 The table will be configured as a data flow pipeline instead of a state machine.
+
+#### ext-flow-call, ext-flow-result
 
 #### ext-task, ext-task-done, ext-task-call, ext-task-wait
 
