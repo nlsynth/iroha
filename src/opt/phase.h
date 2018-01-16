@@ -12,16 +12,23 @@ public:
   Phase();
   virtual ~Phase();
 
+  void SetName(const string &name);
   void SetAnnotation(DebugAnnotation *annotation);
-  virtual bool ApplyForDesign(IDesign *design);
+  bool Apply(IDesign *design);
 
 protected:
+  // Default implementation just traverses modules and tables.
+  // Each phase can implement its own strategies to process modules and tables
+  // like skipping or multi pass traversal.
+  virtual bool ApplyForDesign(IDesign *design);
   virtual bool ApplyForModule(const string &key, IModule *module);
   virtual bool ApplyForTable(const string &key, ITable *table);
 
   bool ApplyForAllModules(const string &key, IDesign *design);
+  void OutputPhaseHeader(const string &msg);
 
   DebugAnnotation *annotation_;
+  string name_;
 };
 
 }  // namespace opt

@@ -14,9 +14,8 @@ public:
 
   static Phase *Create();
 
-  virtual bool ApplyForDesign(IDesign *design);
-
 private:
+  virtual bool ApplyForDesign(IDesign *design);
   virtual bool ApplyForTable(const string &key, ITable *table);
 
   bool ScanTable(ITable *table);
