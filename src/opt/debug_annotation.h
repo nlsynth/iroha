@@ -21,6 +21,8 @@ public:
   ostream &GetDumpStream();
   ostream &Table(const ITable *tab);
   ostream &State(const IState *st);
+  void Clear();
+  void ClearForTable(const ITable *tab);
 
   // Called by HTML dumper.
   string GetTableAnnotation(const ITable *tab) const;

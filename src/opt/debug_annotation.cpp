@@ -1,4 +1,6 @@
 #include "opt/debug_annotation.h"
+
+#include "iroha/i_design.h"
 #include "writer/writer.h"
 
 namespace iroha {
@@ -41,6 +43,23 @@ string DebugAnnotation::GetStateAnnotation(const IState *st) const {
     return string();
   }
   return it->second.str();
+}
+
+void DebugAnnotation::ClearForTable(const ITable *tab) {
+  table_.erase(tab);
+  for (auto it = state_.begin(); it != state_.end(); ) {
+    const auto *st = it->first;
+    if (st->GetTable() == tab) {
+      it = state_.erase(it);
+    } else {
+      ++it;
+    }
+  }
+}
+
+void DebugAnnotation::Clear() {
+  table_.clear();
+  state_.clear();
 }
 
 }  // namespace opt

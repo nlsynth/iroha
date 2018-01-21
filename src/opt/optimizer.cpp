@@ -52,12 +52,16 @@ bool Optimizer::ApplyPhase(const string &name) {
   auto factory = it->second;
   unique_ptr<Phase> phase(factory());
   phase->SetName(name);
-  phase->SetAnnotation(design_->GetDebugAnnotation());
-  if (phase->Apply(design_)) {
-    Validator::Validate(design_);
-    return true;
+  auto *annotation = design_->GetDebugAnnotation();
+  phase->SetAnnotation(annotation);
+  if (annotation != nullptr) {
+    annotation->Clear();
   }
-  return false;
+  bool isOk = phase->Apply(design_);
+  if (isOk) {
+    Validator::Validate(design_);
+  }
+  return isOk;
 }
 
 void Optimizer::EnableDebugAnnotation() {

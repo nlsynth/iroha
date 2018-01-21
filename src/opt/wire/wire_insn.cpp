@@ -39,6 +39,9 @@ bool WireInsn::Perform() {
   transition_ = DesignUtil::FindTransitionResource(table_);
   bset_ = BBSet::Create(table_, annotation_);
   data_flow_ = DataFlow::Create(bset_, annotation_);
+  if (annotation_ != nullptr) {
+    annotation_->DumpIntermediateTable(table_);
+  }
   CollectReachingRegisters();
   for (BB *bb : bset_->bbs_) {
     BuildDependency(bb);
