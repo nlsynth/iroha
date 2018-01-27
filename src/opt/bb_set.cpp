@@ -42,8 +42,11 @@ void BBSet::SortBBs(const set<BB *> &input, vector<BB *> *sorted) {
 
 void BBSet::Annotate(DebugAnnotation *annotation) {
   for (int i = 0; i < bbs_.size(); ++i) {
+    int id = bbs_[i]->bb_id_;
+    int idx = 0;
     for (IState *st : bbs_[i]->states_) {
-      annotation->State(st) << "bb:" << i;
+      annotation->State(st) << "bb:" << id << ":" << idx;
+      ++idx;
     }
   }
 }

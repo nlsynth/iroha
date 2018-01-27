@@ -46,15 +46,16 @@ private:
   PerInsn *GetPerInsn(IInsn *insn);
   // Build info.
   void CollectReachingRegisters();
-  void CollectUsedRegs();
+  void CollectUsedRegsPerBB();
   void BuildDependency(BB *bb);
-  void BuildRWDependencyPair(IInsn *insn, IRegister *reg,
+  void BuildRWDependencyPair(IInsn *insn, IRegister *source_reg,
                              map<IRegister *, IInsn *> &dep_map);
   // Mutate.
-  void SplitInsnOutputBB(BB *bb);
-  void SplitInsnOutput(IInsn *insn);
+  void ReplaceInsnOutputWithWireBB(BB *bb);
+  void ReplaceInsnOutputWithWire(IInsn *insn);
   void AddWireToRegMapping(IInsn *insn, IRegister *wire, IRegister *reg);
   void ScanBBToMoveInsn(BB *bb);
+  void MoveLastTransitionInsn(BB *bb);
   bool CanMoveInsn(IInsn *insn, BB *bb, int target_pos);
   void MoveInsn(IInsn *insn, BB *bb, int target_pos);
   bool CanUseResourceInState(IState *st, IResource *resource);

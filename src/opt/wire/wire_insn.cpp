@@ -1,5 +1,6 @@
 #include "opt/wire/wire_insn.h"
 
+#include "iroha/logging.h"
 #include "design/design_util.h"
 #include "design/design_tool.h"
 #include "iroha/i_design.h"
@@ -48,10 +49,13 @@ bool WireInsn::Perform() {
   }
 
   for (BB *bb : bset_->bbs_) {
-    SplitInsnOutputBB(bb);
+    ReplaceInsnOutputWithWireBB(bb);
     ScanBBToMoveInsn(bb);
   }
   AddWireToRegisterAssignments();
+  for (BB *bb : bset_->bbs_) {
+    MoveLastTransitionInsn(bb);
+  }
   if (annotation_ != nullptr) {
     annotation_->DumpIntermediateTable(table_);
   }
@@ -59,7 +63,7 @@ bool WireInsn::Perform() {
 }
 
 void WireInsn::CollectReachingRegisters() {
-  CollectUsedRegs();
+  CollectUsedRegsPerBB();
   // Collect defs used somewhere in this table.
   set<RegDef *> active_defs;
   for (BB *bb : bset_->bbs_) {
@@ -85,7 +89,7 @@ void WireInsn::CollectReachingRegisters() {
   }
 }
 
-void WireInsn::CollectUsedRegs() {
+void WireInsn::CollectUsedRegsPerBB() {
   for (IState *st : table_->states_) {
     BB *bb = bset_->state_to_bb_[st];
     for (IInsn *insn : st->insns_) {
@@ -125,22 +129,21 @@ void WireInsn::BuildDependency(BB *bb) {
   }
 }
 
-void WireInsn::BuildRWDependencyPair(IInsn *insn, IRegister *reg,
+void WireInsn::BuildRWDependencyPair(IInsn *insn, IRegister *source_reg,
 				     map<IRegister *, IInsn *> &dep_map) {
-  IRegister *input = reg;
-  IInsn *def_insn = dep_map[input];
+  IInsn *def_insn = dep_map[source_reg];
   if (!def_insn) {
     // not written/read in this block.
     return;
   }
   PerInsn *pi = GetPerInsn(insn);
-  pi->depending_insn_[input] = def_insn;
+  pi->depending_insn_[source_reg] = def_insn;
   // adds reverse mapping too.
   PerInsn *def_insn_pi = GetPerInsn(def_insn);
-  def_insn_pi->using_insns_[input].insert(insn);
+  def_insn_pi->using_insns_[source_reg].insert(insn);
 }
 
-void WireInsn::SplitInsnOutputBB(BB *bb) {
+void WireInsn::ReplaceInsnOutputWithWireBB(BB *bb) {
   for (IState *st : bb->states_) {
     for (IInsn *insn : st->insns_) {
       // TODO(yt76): Don't touch multi cycles insns like memory ops.
@@ -148,13 +151,13 @@ void WireInsn::SplitInsnOutputBB(BB *bb) {
         PerInsn *pi = GetPerInsn(insn);
         pi->is_assign = true;
       } else {
-        SplitInsnOutput(insn);
+        ReplaceInsnOutputWithWire(insn);
       }
     }
   }
 }
 
-void WireInsn::SplitInsnOutput(IInsn *insn) {
+void WireInsn::ReplaceInsnOutputWithWire(IInsn *insn) {
   for (auto it = insn->outputs_.begin(); it != insn->outputs_.end(); ++it) {
     IRegister *reg = *it;
     if (reg->IsConst() || reg->IsStateLocal()) {
@@ -193,6 +196,60 @@ void WireInsn::ScanBBToMoveInsn(BB *bb) {
   }
 }
 
+void WireInsn::MoveLastTransitionInsn(BB *bb) {
+  IState *last_st = bb->states_[bb->states_.size() - 1];
+  IInsn *last_tr_insn = DesignUtil::FindInsnByResource(last_st, transition_);
+  if (last_tr_insn == nullptr ||
+      last_tr_insn->target_states_.size() < 2) {
+    // last transition is not a conditional.
+    return;
+  }
+  int last_non_tr_insn_idx = 0;
+  for (int i = 0; i < bb->states_.size() - 1; ++i) {
+    IState *st = bb->states_[i];
+    for (IInsn *insn : st->insns_) {
+      if (insn->GetResource() != transition_) {
+	last_non_tr_insn_idx = i;
+	break;
+      }
+    }
+  }
+  if (last_non_tr_insn_idx == bb->states_.size() - 1) {
+    // Last state has non transition insn, so nothing to do.
+    return;
+  }
+  // Truncate unnecessry transitions after last state.
+  for (int i = last_non_tr_insn_idx; i < bb->states_.size() - 1; ++i) {
+    IState *st = bb->states_[i];
+    vector<IInsn *> insns;
+    for (IInsn *insn : st->insns_) {
+      if (insn->GetResource() != transition_) {
+	insns.push_back(insn);
+      }
+    }
+    st->insns_ = insns;
+  }
+  // Move.
+  IState *new_last_st = bb->states_[last_non_tr_insn_idx];
+  new_last_st->insns_.push_back(last_tr_insn);
+  bb->states_[bb->states_.size() - 1]->insns_.clear();
+  // May rewrite the condition.
+  CHECK(last_tr_insn->inputs_.size() == 1);
+  IRegister *cond = last_tr_insn->inputs_[0];
+  if (cond->IsConst()) {
+    return;
+  }
+  CHECK(!cond->IsStateLocal());
+  for (IInsn *insn : new_last_st->insns_) {
+    if (insn->GetResource() != assign_) {
+      continue;
+    }
+    if (insn->outputs_[0] == cond) {
+      last_tr_insn->inputs_[0] = insn->inputs_[0];
+    }
+  }
+}
+
 bool WireInsn::CanMoveInsn(IInsn *insn, BB *bb, int target_pos) {
   if (insn->GetResource() == transition_) {
     return false;
@@ -222,7 +279,6 @@ void WireInsn::MoveInsn(IInsn *insn, BB *bb, int target_pos) {
   IState *dst_st = bb->states_[target_pos];
   DesignTool::MoveInsn(insn, src_st, dst_st);
   pi->nth_state = target_pos;
-  //  for (IRegister *ireg : insn->inputs_) {
   for (auto it = insn->inputs_.begin(); it != insn->inputs_.end(); ++it) {
     IRegister *ireg = *it;
     IInsn *src_insn = pi->depending_insn_[ireg];
