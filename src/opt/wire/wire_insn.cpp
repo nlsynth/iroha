@@ -166,6 +166,7 @@ void WireInsn::ReplaceInsnOutputWithWire(IInsn *insn) {
     IRegister *wire_reg =
       new IRegister(table_, reg->GetName() + "_" + Util::Itoa(insn->GetId()));
     wire_reg->SetStateLocal(true);
+    wire_reg->value_type_ = reg->value_type_;
     table_->registers_.push_back(wire_reg);
     AddWireToRegMapping(insn, wire_reg, reg);
     *it = wire_reg;
