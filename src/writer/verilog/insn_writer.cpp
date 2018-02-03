@@ -71,6 +71,11 @@ string InsnWriter::InsnOutputWireName(const IInsn &insn, int nth) {
     + Util::Itoa(insn.GetId()) + "_" + Util::Itoa(nth);
 }
 
+string InsnWriter::InsnConstWireName(const IInsn &insn) {
+  return "insn_c_" + Util::Itoa(insn.GetResource()->GetTable()->GetId()) + "_"
+    + Util::Itoa(insn.GetId());
+}
+
 string InsnWriter::InsnSpecificWireName(const IInsn &insn) {
   return "insn_" + Util::Itoa(insn.GetResource()->GetTable()->GetId()) + "_"
     + Util::Itoa(insn.GetId());

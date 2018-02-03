@@ -3,7 +3,7 @@
 // This class manages names in output file in order to avoid conflits
 // between names or against reserved keywords.
 // Basic strategies are:
-// * Avoid names with out '_' (underscore), since they are likely be reserved.
+// * Avoid names without '_' (underscore), since they are likely be reserved.
 // * Use the substring before first '_' as a prefix and add prefix to the
 //   original name, if necessary.
 //

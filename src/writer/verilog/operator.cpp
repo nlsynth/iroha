@@ -136,7 +136,19 @@ void Operator::BuildBitShiftOpInsn(IInsn *insn) {
 
 void Operator::BuildBitSelInsn(IInsn *insn) {
   ostream &ws = tmpl_->GetStream(kInsnWireValueSection);
-  string r = InsnWriter::RegisterValue(*insn->inputs_[0], tab_.GetNames());
+  IRegister *reg = insn->inputs_[0];
+  string r;
+  if (reg->IsConst()) {
+    // Generates a temporary wire to have the const value,
+    // since bit slice on a immediate is not allowed in Verilog.
+    // (e.g. 123[1:0] is not allowed)
+    r = InsnWriter::InsnConstWireName(*insn);
+    ws << "  wire " << Table::WidthSpec(reg->value_type_.GetWidth())
+       << r << " = " << InsnWriter::RegisterValue(*reg, tab_.GetNames())
+       << ";\n";
+  } else {
+    r = InsnWriter::RegisterValue(*reg, tab_.GetNames());
+  }
   string msb = InsnWriter::ConstValue(*insn->inputs_[1]);
   string lsb = InsnWriter::ConstValue(*insn->inputs_[2]);
   ws << "  assign " << InsnWriter::InsnOutputWireName(*insn, 0)
