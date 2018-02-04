@@ -27,9 +27,9 @@ public:
 private:
   class PerInsn {
   public:
-    PerInsn() : is_assign(false) {
+    PerInsn() : is_simple_assign(false) {
     }
-    bool is_assign;
+    bool is_simple_assign;
     // Adds assignment instruction (normal <- wire), if the result is
     // used later or in other BBs.
     // {insn, wire register} -> normal register.
@@ -53,6 +53,7 @@ private:
   // Mutate.
   void ReplaceInsnOutputWithWireBB(BB *bb);
   void ReplaceInsnOutputWithWire(IInsn *insn);
+  bool IsSimpleAssign(IInsn *insn);
   void AddWireToRegMapping(IInsn *insn, IRegister *wire, IRegister *reg);
   void ScanBBToMoveInsn(BB *bb);
   void MoveLastTransitionInsn(BB *bb);

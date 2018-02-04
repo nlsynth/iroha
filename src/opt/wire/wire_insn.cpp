@@ -147,14 +147,25 @@ void WireInsn::ReplaceInsnOutputWithWireBB(BB *bb) {
   for (IState *st : bb->states_) {
     for (IInsn *insn : st->insns_) {
       // TODO(yt76): Don't touch multi cycles insns like memory ops.
-      if (insn->GetResource() == assign_) {
+      if (IsSimpleAssign(insn)) {
         PerInsn *pi = GetPerInsn(insn);
-        pi->is_assign = true;
+        pi->is_simple_assign = true;
       } else {
         ReplaceInsnOutputWithWire(insn);
       }
     }
   }
+}
+
+bool WireInsn::IsSimpleAssign(IInsn *insn) {
+  if (insn->GetResource() != assign_) {
+    return false;
+  }
+  if (insn->inputs_[0]->value_type_.GetWidth() !=
+      insn->outputs_[0]->value_type_.GetWidth()) {
+    return false;
+  }
+  return true;
 }
 
 void WireInsn::ReplaceInsnOutputWithWire(IInsn *insn) {
@@ -292,8 +303,12 @@ void WireInsn::MoveInsn(IInsn *insn, BB *bb, int target_pos) {
       // so the wire is not avaialble.
       continue;
     }
+    CHECK(src_pi->nth_state == target_pos);
+    // Tries 2 sources to to shortcut the input.
+    // (1) Direct output wire from the source insn.
+    // (2) RHS of the assign, if the source is a simple assign insn.
     IRegister *alt_input = src_pi->register_to_wire_[ireg];
-    if (alt_input == nullptr && src_pi->is_assign) {
+    if (alt_input == nullptr && src_pi->is_simple_assign) {
       alt_input = *(src_insn->inputs_.begin());
     }
     if (alt_input != nullptr) {
