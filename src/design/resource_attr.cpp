@@ -80,4 +80,18 @@ bool ResourceAttr::IsExtAccessResource(IResource *res) {
   return false;
 }
 
+bool ResourceAttr::IsExtAccessInsn(IInsn *insn) {
+  return IsExtAccessResource(insn->GetResource());
+}
+
+int ResourceAttr::NumExtAccessInsn(const IState *st) {
+  int n = 0;
+  for (IInsn *insn : st->insns_) {
+    if (IsExtAccessInsn(insn)) {
+      ++n;
+    }
+  }
+  return n;
+}
+
 }  // namespace iroha

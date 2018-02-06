@@ -3,6 +3,7 @@
 #include "iroha/logging.h"
 #include "design/design_util.h"
 #include "design/design_tool.h"
+#include "design/resource_attr.h"
 #include "iroha/i_design.h"
 #include "iroha/resource_class.h"
 #include "opt/bb_set.h"
@@ -192,11 +193,21 @@ void WireInsn::AddWireToRegMapping(IInsn *insn, IRegister *wire,
 }
 
 void WireInsn::ScanBBToMoveInsn(BB *bb) {
+  // Moves insns from src-th state to target-th state.
   for (int target = 0; target < bb->states_.size() - 1; ++target) {
-    for (int pos = target + 1; pos < bb->states_.size(); ++pos) {
+    bool seen_ext_access = false;
+    for (int src_pos = target + 1; src_pos < bb->states_.size(); ++src_pos) {
       vector<IInsn *> movable_insns;
-      IState *src_st = bb->states_[pos];
+      IState *src_st = bb->states_[src_pos];
       for (IInsn *insn : src_st->insns_) {
+	if (ResourceAttr::IsExtAccessInsn(insn)) {
+	  // Skip to move the insns if there are ext access insns between
+	  // target & src_pos.
+	  if (seen_ext_access) {
+	    continue;
+	  }
+	  seen_ext_access = true;
+	}
 	if (CanMoveInsn(insn, bb, target)) {
 	  movable_insns.push_back(insn);
 	}
@@ -267,6 +278,10 @@ bool WireInsn::CanMoveInsn(IInsn *insn, BB *bb, int target_pos) {
     return false;
   }
   IState *target_st = bb->states_[target_pos];
+  if (ResourceAttr::IsExtAccessInsn(insn) &&
+      ResourceAttr::NumExtAccessInsn(target_st) > 0) {
+    return false;
+  }
   if (!CanUseResourceInState(target_st, insn->GetResource())) {
     return false;
   }

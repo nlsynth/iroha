@@ -11,6 +11,8 @@ public:
   static bool IsMultiCycleInsn(IInsn *insn);
   static int NumMultiCycleInsn(const IState *st);
   static bool IsExtAccessResource(IResource *res);
+  static bool IsExtAccessInsn(IInsn *insn);
+  static int NumExtAccessInsn(const IState *st);
 };
 
 }  // namespace iroha
