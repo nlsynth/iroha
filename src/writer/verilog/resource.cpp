@@ -132,7 +132,8 @@ void Resource::BuildInsn(IInsn *insn, State *st) {
     }
     return;
   }
-  InsnWriter writer(insn, st, os);
+  ostream &ts = st->StateTransitionSectionStream();
+  InsnWriter writer(insn, st, ts);
   const string &rc_name = rc->GetName();
   if (rc_name == resource::kPrint) {
     writer.Print();

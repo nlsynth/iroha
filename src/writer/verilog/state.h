@@ -22,12 +22,15 @@ public:
 
   ostream &StateBodySectionStream() const;
   string StateBodySectionContents() const;
+  ostream &StateTransitionSectionStream() const;
+  string StateTransitionSectionContents() const;
 
 private:
   void WriteTransition(ostream &os);
   void WriteTransitionBody(ostream &os);
   void CopyResults(const IInsn *insn, bool to_wire, ostream &os);
   string StateBodySectionName() const;
+  string StateTransitionSectionName() const;
   string MultiCycleTransitionCond();
 
 protected:

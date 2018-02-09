@@ -57,6 +57,7 @@ void State::WriteStateBody(ostream &os) {
     os << I << "  if (" << MultiCycleTransitionCond() << ") begin\n"
        << I << "    // 1 cycle insns\n";
   }
+  os << StateTransitionSectionContents();
   for (auto *insn : i_state_->insns_) {
     auto *res = insn->GetResource();
     if (!resource::IsSet(*res->GetClass())) {
@@ -198,8 +199,24 @@ string State::StateBodySectionContents() const {
   return tmpl->GetContents(StateBodySectionName());
 }
 
+ostream &State::StateTransitionSectionStream() const {
+  ModuleTemplate *tmpl = table_->GetModuleTemplate();
+  return tmpl->GetStream(StateTransitionSectionName());
+}
+
+string State::StateTransitionSectionContents() const {
+  ModuleTemplate *tmpl = table_->GetModuleTemplate();
+  return tmpl->GetContents(StateTransitionSectionName());
+}
+
 string State::StateBodySectionName() const {
   return kStateBodySection +
+    Util::Itoa(table_->GetITable()->GetId()) +
+    ":" + Util::Itoa(i_state_->GetId());
+}
+
+string State::StateTransitionSectionName() const {
+  return kStateTransitionSection +
     Util::Itoa(table_->GetITable()->GetId()) +
     ":" + Util::Itoa(i_state_->GetId());
 }

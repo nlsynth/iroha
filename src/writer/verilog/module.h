@@ -22,6 +22,7 @@ static const char kStateOutputSection[] = "state_output";
 static const char kTaskEntrySection[] = "task_entry";
 // For each state (with table and state id)
 static const char kStateBodySection[] = "state_body";
+static const char kStateTransitionSection[] = "state_tr";
 
 class Module {
 public:
