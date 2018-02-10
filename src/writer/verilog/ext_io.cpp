@@ -59,7 +59,7 @@ void ExtIO::BuildInsn(IInsn *insn, State *st) {
     string output_port;
     int width;
     params->GetExtOutputPort(&output_port, &width);
-    ostream &os = st->StateBodySectionStream();
+    ostream &os = st->StateTransitionSectionStream();
     os << "          " << output_port << " <= "
        << InsnWriter::RegisterValue(*insn->inputs_[0], tab_.GetNames());
     os << ";\n";
