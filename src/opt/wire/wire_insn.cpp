@@ -193,27 +193,57 @@ void WireInsn::AddWireToRegMapping(IInsn *insn, IRegister *wire,
 }
 
 void WireInsn::ScanBBToMoveInsn(BB *bb) {
+  bool is_task = false;
+  for (IInsn *insn : bb->states_[0]->insns_) {
+    if (resource::IsTask(*(insn->GetResource()->GetClass()))) {
+      is_task = true;
+    }
+  }
   // Moves insns from src-th state to target-th state.
-  for (int target = 0; target < bb->states_.size() - 1; ++target) {
+  for (int target_pos = 0; target_pos < bb->states_.size() - 1; ++target_pos) {
+    if (is_task && target_pos == 0) {
+      // Kludge to avoid to move insns to the same state of task entry.
+      // This is to avoid a neon light specific bug that it fails to catch
+      // to early notification of a return value.
+      // TODO: Remove this when (a) instruction dependency is implemented
+      // or (b) neon light changes its method call protocol not to use
+      // a notifier.
+      continue;
+    }
+    IState *target_st = bb->states_[target_pos];
     bool seen_ext_access = false;
-    for (int src_pos = target + 1; src_pos < bb->states_.size(); ++src_pos) {
+    bool seen_multi_cycle = false;
+    for (int src_pos = target_pos + 1;
+	 src_pos < bb->states_.size(); ++src_pos) {
       vector<IInsn *> movable_insns;
       IState *src_st = bb->states_[src_pos];
       for (IInsn *insn : src_st->insns_) {
 	if (ResourceAttr::IsExtAccessInsn(insn)) {
 	  // Skip to move the insns if there are ext access insns between
-	  // target & src_pos.
+	  // target_pos & src_pos.
 	  if (seen_ext_access) {
 	    continue;
 	  }
 	  seen_ext_access = true;
 	}
-	if (CanMoveInsn(insn, bb, target)) {
+	if (ResourceAttr::IsMultiCycleInsn(insn)) {
+	  // Ditto for multi cycle insns.
+	  // TODO: Remove this once insn dependency is implemented.
+	  if (seen_multi_cycle) {
+	    continue;
+	  }
+	  seen_multi_cycle = true;
+	}
+	if (CanMoveInsn(insn, bb, target_pos)) {
 	  movable_insns.push_back(insn);
 	}
       }
       for (IInsn *insn : movable_insns) {
-	MoveInsn(insn, bb, target);
+	if (ResourceAttr::NumMultiCycleInsn(target_st) > 0) {
+	  // TODO: Ditto.
+	  break;
+	}
+	MoveInsn(insn, bb, target_pos);
       }
     }
   }
