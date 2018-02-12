@@ -29,7 +29,6 @@ def GetBinOpResource(table, name, isSigned, width):
     return res
 
 def ValidateIds(design):
-    doValidateIds(design.channels)
     doValidateIds(design.modules)
     for mod in design.modules:
         doValidateIds(mod.tables)
@@ -208,12 +207,6 @@ def CreateTaskCall(table, callee):
     res = createResource(table, "task-call")
     res.callee_table = callee
     return res
-
-def CreateChannelRead(table):
-    return createResource(table, "channel-read")
-
-def CreateChannelWrite(table):
-    return createResource(table, "channel-write")
 
 def CreateTicker(table):
     return createResource(table, "ticker")

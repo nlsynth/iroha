@@ -5,15 +5,12 @@ import sys
 class IDesign(object):
     def __init__(self):
         self.modules = []
-        self.channels = []
         self.resource_classes = []
         self.installResourceClasses()
         self.resource_params = ResourceParams()
 
     def Write(self, writer):
         self.resource_params.Write(writer)
-        for ch in self.channels:
-            ch.Write(writer)
         for m in self.modules:
             m.Write(writer)
 
@@ -38,8 +35,6 @@ class IDesign(object):
         self.resource_classes.append(IResourceClass("foreign-reg"))
         self.resource_classes.append(IResourceClass("task"))
         self.resource_classes.append(IResourceClass("task-call"))
-        self.resource_classes.append(IResourceClass("channel-write"))
-        self.resource_classes.append(IResourceClass("channel-read"))
         self.resource_classes.append(IResourceClass("dataflow-in"))
         self.resource_classes.append(IResourceClass("ticker"))
         # Method interface
@@ -310,37 +305,6 @@ class ResourceParams(object):
         writer.ofh.write(" ".join(kv for kv in kvs))
         writer.ofh.write(")\n")
 
-class IChannel(object):
-    def __init__(self, design):
-        design.channels.append(self)
-        self.id = -1
-        self.design = design
-        self.reader = None
-        self.writer = None
-        self.valueType = IValueType(False, 32)
-
-    def SetReader(self, reader):
-        self.reader = reader
-
-    def SetWriter(self, writer):
-        self.writer = writer
-
-    def Write(self, writer):
-        writer.ofh.write("(CHANNEL " + str(self.id) + " ")
-        self.valueType.Write(writer)
-        writer.ofh.write(" ")
-        self.writeEndPoint(writer, self.reader)
-        writer.ofh.write(" ")
-        self.writeEndPoint(writer, self.writer)
-        writer.ofh.write(")\n")
-
-    def writeEndPoint(self, writer, ep):
-        if ep:
-            tab = ep.table
-            mod = tab.module
-            writer.ofh.write("(" + str(mod.id) + " " + str(tab.id) + " " + str(ep.id) + ")")
-        else:
-            writer.ofh.write("()")
 
 class TapDesc(object):
     def __init__(self, rc):
