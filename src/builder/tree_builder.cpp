@@ -32,18 +32,6 @@ void TreeBuilder::AddParentModule(int parent_mod_id, IModule *mod) {
   parent_module_ids_[mod] = parent_mod_id;
 }
 
-void TreeBuilder::AddChannelReaderWriter(IChannel *ch, bool is_r,
-					 int mod_id,
-					 int tab_id, int res_id) {
-  ChannelEndPoint ep;
-  ep.ch = ch;
-  ep.is_r = is_r;
-  ep.mod_id = mod_id;
-  ep.tab_id = tab_id;
-  ep.res_id = res_id;
-  channel_end_points_.push_back(ep);
-}
-
 void TreeBuilder::AddParentResource(int module_id, int table_id, int res_id,
 				    IResource *res) {
   ParentResource pr;
@@ -110,19 +98,6 @@ bool TreeBuilder::Resolve() {
     IModule *mod = module_ids[mod_id];
     IRegister *foreign_reg = FindForeignRegister(mod, table_id, register_id);
     res->SetForeignRegister(foreign_reg);
-  }
-  for (auto &ep : channel_end_points_) {
-    IModule *mod = module_ids[ep.mod_id];
-    if (mod == nullptr) {
-      builder_->SetError() << "no endpoint module id: " << ep.mod_id;
-      return false;
-    }
-    IResource *res = FindResource(mod, ep.tab_id, ep.res_id);
-    if (ep.is_r) {
-      ep.ch->SetReader(res);
-    } else {
-      ep.ch->SetWriter(res);
-    }
   }
   for (auto &pr : parent_resources_) {
     IModule *mod = module_ids[pr.mod_id];

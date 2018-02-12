@@ -318,18 +318,6 @@ vector<string> ResourceParams::GetEmbeddedModuleIO(bool is_output) {
   }
 }
 
-string ResourceParams::GetChannelDataPort() const {
-  return values_->GetStringParam(resource::kChannelDataPort, "");
-}
-
-string ResourceParams::GetChannelEnPort() const {
-  return values_->GetStringParam(resource::kChannelEnPort, "");
-}
-
-string ResourceParams::GetChannelAckPort() const {
-  return values_->GetStringParam(resource::kChannelAckPort, "");
-}
-
 string ResourceParams::GetExtTaskName() const {
   return values_->GetStringParam(resource::kExtTaskName, "");
 }

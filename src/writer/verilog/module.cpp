@@ -6,7 +6,6 @@
 #include "iroha/stl_util.h"
 #include "writer/connection.h"
 #include "writer/module_template.h"
-#include "writer/verilog/channel.h"
 #include "writer/verilog/dataflow_table.h"
 #include "writer/verilog/foreign_reg.h"
 #include "writer/verilog/ports.h"
@@ -132,11 +131,6 @@ void Module::Build() {
     tab->Build();
   }
 
-  const ChannelInfo *ci = conn_.GetChannelInfo(i_mod_);
-  if (ci != nullptr) {
-    Channel::BuildChannelPorts(*ci, ports_.get());
-    Channel::BuildRootWire(*ci, this);
-  }
   const RegConnectionInfo *ri = conn_.GetRegConnectionInfo(i_mod_);
   if (ri != nullptr) {
     ForeignReg::BuildPorts(*ri, ports_.get(), names_);
@@ -156,13 +150,8 @@ void Module::BuildChildModuleInstSection(vector<Module *> &child_mods) {
     is << ", ." << child_mod->GetPorts()->GetReset()
        << "(" << GetPorts()->GetReset() << ")";
     is << current_content;
-    // Channel
-    const IModule *child_imod = child_mod->GetIModule();
-    const ChannelInfo *ci = conn_.GetChannelInfo(i_mod_);
-    if (ci != nullptr) {
-      Channel::BuildChildChannelWire(*ci, child_imod, is);
-    }
     // Registers
+    const IModule *child_imod = child_mod->GetIModule();
     const RegConnectionInfo *ri = conn_.GetRegConnectionInfo(child_imod);
     if (ri != nullptr) {
       ForeignReg::BuildChildWire(*ri, child_mod->GetNames(), is);

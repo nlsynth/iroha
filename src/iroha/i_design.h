@@ -90,8 +90,6 @@ public:
   void SetCalleeTable(ITable *table);
   void SetForeignRegister(IRegister *reg);
   IRegister *GetForeignRegister() const;
-  void SetChannel(IChannel *ch);
-  IChannel *GetChannel() const;
   IResource *GetParentResource() const;
   void SetParentResource(IResource *res);
 
@@ -106,35 +104,7 @@ private:
   IArray *array_;
   ITable *callee_table_;
   IRegister *foreign_register_;
-  IChannel *channel_;
   IResource *parent_resource_;
-};
-
-class IChannel {
-public:
-  IChannel(IDesign *design);
-
-  IDesign *GetDesign() const;
-  int GetId() const;
-  void SetId(int id);
-  const string &GetName() const;
-  void SetName(const string &name);
-  const IValueType &GetValueType() const;
-  void SetValueType(const IValueType &value_type);
-  void SetWriter(IResource *res);
-  void SetReader(IResource *res);
-  IResource *GetWriter() const;
-  IResource *GetReader() const;
-  ResourceParams *GetParams() const;
-
-private:
-  IDesign *design_;
-  int id_;
-  string name_;
-  IValueType value_type_;
-  IResource *writer_;
-  IResource *reader_;
-  ResourceParams *params_;
 };
 
 class IRegister {
@@ -272,7 +242,6 @@ public:
 
   vector<IModule *> modules_;
   vector<IResourceClass *> resource_classes_;
-  vector<IChannel *> channels_;
   vector<IArrayImage *> array_images_;
 
 private:

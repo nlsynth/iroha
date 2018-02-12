@@ -20,8 +20,6 @@ bool ResourceAttr::IsMultiCycleInsn(IInsn *insn) {
   IResource *res = insn->GetResource();
   IResourceClass &rc = *(res->GetClass());
   if (resource::IsTaskCall(rc) ||
-      resource::IsChannelRead(rc) ||
-      resource::IsChannelWrite(rc) ||
       resource::IsSharedMemory(rc) ||
       resource::IsSharedMemoryReader(rc) ||
       resource::IsSharedMemoryWriter(rc) ||
@@ -68,14 +66,6 @@ bool ResourceAttr::IsExtAccessResource(IResource *res) {
       resource::IsExtTaskCall(rc) ||
       resource::IsExtTaskWait(rc)) {
     return true;
-  }
-  if (resource::IsChannelRead(rc) ||
-      resource::IsChannelWrite(rc)) {
-    IChannel *ch = res->GetChannel();
-    if (ch->GetReader() == nullptr ||
-	ch->GetWriter() == nullptr) {
-      return true;
-    }
   }
   return false;
 }

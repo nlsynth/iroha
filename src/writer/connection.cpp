@@ -16,15 +16,11 @@ Connection::Connection(const IDesign *design) : design_(design) {
 }
 
 Connection::~Connection() {
-  STLDeleteSecondElements(&channel_info_);
   STLDeleteSecondElements(&reg_connection_);
   STLDeleteSecondElements(&accessors_);
 }
 
 void Connection::Build() {
-  for (auto *ch : design_->channels_) {
-    ProcessChannel(ch);
-  }
   for (auto *mod : design_->modules_) {
     for (auto *tab : mod->tables_) {
       ProcessTable(tab);
@@ -125,14 +121,6 @@ void Connection::ProcessFifoAccessors(ITable *tab) {
   }
 }
 
-const ChannelInfo *Connection::GetChannelInfo(const IModule *mod) const {
-  auto it = channel_info_.find(mod);
-  if (it == channel_info_.end()) {
-    return nullptr;
-  }
-  return it->second;
-}
-
 const RegConnectionInfo *Connection::GetRegConnectionInfo(const IModule *mod) const {
   auto it = reg_connection_.find(mod);
   if (it == reg_connection_.end()) {
@@ -147,69 +135,6 @@ const AccessorInfo *Connection::GetAccessorInfo(const IResource *res) const {
     return &empty_accessors_;
   }
   return it->second;
-}
-
-void Connection::ProcessChannel(const IChannel *ch) {
-  if (ch->GetReader() != nullptr &&
-      ch->GetWriter() != nullptr) {
-    // Internal.
-    MakeInDesignChannelPath(ch);
-  } else {
-    // External R/W.
-    MarkExtChannelPath(ch, ch->GetReader(), true);
-    MarkExtChannelPath(ch, ch->GetWriter(), false);
-  }
-}
-
-void Connection::MarkExtChannelPath(const IChannel *ch, const IResource *res,
-				    bool parent_is_write) {
-  if (!res) {
-    return;
-  }
-  MakeSimpleChannelPath(ch, res->GetTable()->GetModule(), nullptr,
-			parent_is_write);
-}
-
-void Connection::MakeInDesignChannelPath(const IChannel *ch) {
-  const IModule *reader_mod = ch->GetReader()->GetTable()->GetModule();
-  const IModule *writer_mod = ch->GetWriter()->GetTable()->GetModule();
-  if (reader_mod == writer_mod) {
-    return;
-  }
-  const IModule *common_root = GetCommonRoot(reader_mod, writer_mod);
-  ChannelInfo *ci = FindChannelInfo(common_root);
-  ci->common_root_.push_back(ch);
-  MakeSimpleChannelPath(ch, writer_mod, common_root, false);
-  MakeSimpleChannelPath(ch, reader_mod, common_root, true);
-}
-
-void Connection::MakeSimpleChannelPath(const IChannel *ch,
-				       const IModule *source,
-				       const IModule *common_parent,
-				       bool parent_is_write) {
-  for (auto *mod = source; mod != common_parent;
-       mod = mod->GetParentModule()) {
-    AddChannelInfo(ch, mod, parent_is_write);
-  }
-}
-
-void Connection::AddChannelInfo(const IChannel *ch, const IModule *mod,
-				bool parent_is_write) {
-  ChannelInfo *ci = FindChannelInfo(mod);
-  if (parent_is_write) {
-    ci->downward_.push_back(ch);
-  } else {
-    ci->upward_.push_back(ch);
-  }
-  const IModule *parent = mod->GetParentModule();
-  if (parent != nullptr) {
-    ChannelInfo *pci = FindChannelInfo(parent);
-    if (parent_is_write) {
-      pci->child_downward_[mod].push_back(ch);
-    } else {
-      pci->child_upward_[mod].push_back(ch);
-    }
-  }
 }
 
 const IModule *Connection::GetCommonRoot(const IModule *m1,
@@ -313,16 +238,6 @@ void Connection::ProcessForeignReg(IResource *freg) {
       rc->has_downward_port.insert(reg);
     }
   }
-}
-
-ChannelInfo *Connection::FindChannelInfo(const IModule *mod) {
-  auto it = channel_info_.find(mod);
-  if (it == channel_info_.end()) {
-    ChannelInfo *ci = new ChannelInfo();
-    channel_info_[mod] = ci;
-    return ci;
-  }
-  return it->second;
 }
 
 RegConnectionInfo *Connection::FindRegConnectionInfo(const IModule *mod) {

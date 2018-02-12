@@ -204,8 +204,6 @@
         'writer/verilog/axi/slave_controller.h',
         'writer/verilog/axi/slave_port.cpp',
         'writer/verilog/axi/slave_port.h',
-        'writer/verilog/channel.cpp',
-        'writer/verilog/channel.h',
         'writer/verilog/common.h',
         'writer/verilog/dataflow_in.cpp',
         'writer/verilog/dataflow_in.h',

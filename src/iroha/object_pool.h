@@ -30,7 +30,6 @@ public:
   Pool<IRegister> registers_;
   Pool<IInsn> insns_;
   Pool<ResourceParams> resource_params_;
-  Pool<IChannel> channels_;
   Pool<IArray> arrays_;
   Pool<IArrayImage> array_images_;
 };

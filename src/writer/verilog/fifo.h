@@ -9,7 +9,6 @@ namespace iroha {
 namespace writer {
 namespace verilog {
 
-// Fifo can have depth and will supersede Channel (WIP).
 class Fifo : public Resource {
 public:
   Fifo(const IResource &res, const Table &table);

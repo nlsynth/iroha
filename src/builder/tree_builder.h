@@ -20,8 +20,6 @@ public:
   void AddForeignReg(int mod_id, int table_id, int reg_id,
 		     IResource *res);
   void AddParentModule(int parent_mod_id, IModule *mod);
-  void AddChannelReaderWriter(IChannel *ch, bool is_r, int mod_id,
-			      int tab_id, int res_id);
   void AddParentResource(int module_id, int table_id, int res_id,
 			 IResource *res);
   void AddArrayImage(IArray *array, int imageid);
@@ -47,14 +45,6 @@ private:
     int reg_id;
   };
   map<IResource *, ForeignRegister> foreign_registers_;
-  struct ChannelEndPoint {
-    IChannel *ch;
-    bool is_r;
-    int mod_id;
-    int tab_id;
-    int res_id;
-  };
-  vector<ChannelEndPoint> channel_end_points_;
   struct ParentResource {
     IResource *reader;
     int mod_id;

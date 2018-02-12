@@ -35,7 +35,6 @@ static void ValidateVectorId(vector<T *> &v) {
 
 void Validator::Validate(IDesign *design) {
   ValidateModuleId(design);
-  ValidateChannelId(design);
   ValidateArrayImageId(design);
   for (auto *mod : design->modules_) {
     ValidateTableId(mod);
@@ -56,10 +55,6 @@ void Validator::ValidateTable(ITable *table) {
 
 void Validator::ValidateModuleId(IDesign *design) {
   ValidateVectorId(design->modules_);
-}
-
-void Validator::ValidateChannelId(IDesign *design) {
-  ValidateVectorId(design->channels_);
 }
 
 void Validator::ValidateArrayImageId(IDesign *design) {

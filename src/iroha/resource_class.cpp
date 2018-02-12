@@ -95,14 +95,6 @@ bool IsSharedMemoryWriter(const IResourceClass &rc) {
   return (rc.GetName() == kSharedMemoryWriter);
 }
 
-bool IsChannelRead(const IResourceClass &rc) {
-  return (rc.GetName() == kChannelRead);
-}
-
-bool IsChannelWrite(const IResourceClass &rc) {
-  return (rc.GetName() == kChannelWrite);
-}
-
 bool IsMapped(const IResourceClass &rc) {
   return (rc.GetName() == kMapped);
 }
@@ -191,8 +183,6 @@ void InstallResourceClasses(IDesign *design) {
   InstallResource(design, resource::kPrint, false);
   InstallResource(design, resource::kAssert, false);
   InstallResource(design, resource::kMapped, true);
-  InstallResource(design, resource::kChannelWrite, true);
-  InstallResource(design, resource::kChannelRead, false);
   InstallResource(design, resource::kTask, true);
   InstallResource(design, resource::kTaskCall, true);
   InstallResource(design, resource::kTransition, true);

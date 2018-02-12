@@ -7,7 +7,6 @@
 namespace iroha {
 namespace writer {
 
-class ChannelInfo;
 class Connection;
 class ModuleTemplate;
 class Names;

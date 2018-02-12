@@ -30,9 +30,6 @@ const char kEmbeddedModuleReset[] = "EMBEDDED-MODULE-RESET";
 const char kEmbeddedModuleInputs[] = "EMBEDDED-MODULE-INPUTS";
 const char kEmbeddedModuleOutputs[] = "EMBEDDED-MODULE-OUTPUTS";
 const char kSramPortIndex[] = "SRAM-PORT-INDEX";
-const char kChannelDataPort[] = "CHANNEL-DATA";
-const char kChannelEnPort[] = "CHANNEL-EN";
-const char kChannelAckPort[] = "CHANNEL-ACK";
 const char kExtTaskName[] = "EXT-TASK";
 }  // namespace resource
 
@@ -86,10 +83,6 @@ public:
   string GetEmbeddedModuleReset() const;
   void SetEmbeddedModuleIO(bool is_output, const vector<string> &ports);
   vector<string> GetEmbeddedModuleIO(bool is_output);
-
-  string GetChannelDataPort() const;
-  string GetChannelEnPort() const;
-  string GetChannelAckPort() const;
 
   string GetExtTaskName() const;
   void SetExtTaskName(const string &name);

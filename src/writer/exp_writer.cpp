@@ -15,9 +15,6 @@ ExpWriter::ExpWriter(const IDesign *design, ostream &os)
 
 void ExpWriter::Write() {
   WriteResourceParams(*design_->GetParams(), "");
-  for (auto *ch : design_->channels_) {
-    WriteChannel(*ch);
-  }
   for (auto *im : design_->array_images_) {
     WriteArrayImage(*im);
   }
@@ -297,34 +294,6 @@ void ExpWriter::WriteResourceParams(const ResourceParams &params,
     os_ << ")";
     is_first = false;
   }
-  os_ << ")\n";
-}
-
-void ExpWriter::WriteChannel(const IChannel &ch) {
-  os_ << "(CHANNEL " << ch.GetId() << " ";
-  if (ch.GetName().empty()) {
-    os_ << "()";
-  } else {
-    os_ << ch.GetName();
-  }
-  os_ << " ";
-  WriteValueType(ch.GetValueType());
-  os_ << " ";
-  IResource *reader = ch.GetReader();
-  if (reader == nullptr) {
-    os_ << "()";
-  } else {
-    WriteResourceDesc(*reader);
-  }
-  os_ << " ";
-  IResource *writer = ch.GetWriter();
-  if (writer == nullptr) {
-    os_ << "()";
-  } else {
-    WriteResourceDesc(*writer);
-  }
-  os_ << "\n";
-  WriteResourceParams(*(ch.GetParams()), "  ");
   os_ << ")\n";
 }
 

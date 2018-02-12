@@ -49,8 +49,6 @@ IDesign *ExpBuilder::Build(vector<Exp *> &exps) {
       }
     } else if (element_name == "PARAMS") {
       BuildResourceParams(root, design->GetParams());
-    } else if (element_name == "CHANNEL") {
-      BuildChannel(root, design);
     } else if (element_name == "ARRAY-IMAGE") {
       BuildArrayImage(root, design);
     } else {
@@ -401,29 +399,6 @@ ostream &ExpBuilder::SetError() {
   return errors_;
 }
 
-void ExpBuilder::BuildChannel(Exp *e, IDesign *design) {
-  IChannel *ch = new IChannel(design);
-  design->channels_.push_back(ch);
-  ch->SetId(Util::Atoi(e->Str(1)));
-  int idx = 2;
-  if (e->vec[idx]->Size() == 0) {
-    ch->SetName(e->Str(idx));
-    ++idx;
-  }
-  IValueType vt;
-  BuildValueType(e->vec[idx], &vt);
-  ++idx;
-  ch->SetValueType(vt);
-  BuildChannelReaderWriter(e->vec[idx], true, ch);
-  BuildChannelReaderWriter(e->vec[idx + 1], false, ch);
-  idx += 2;
-  if (e->Size() > idx) {
-    if (e->vec[idx]->GetHead() == "PARAMS") {
-      BuildResourceParams(e->vec[idx], ch->GetParams());
-    }
-  }
-}
-
 void ExpBuilder::BuildArrayImage(Exp *e, IDesign *design) {
   if (e->Size() != 4) {
     SetError() << "Invalid array image";
@@ -437,16 +412,6 @@ void ExpBuilder::BuildArrayImage(Exp *e, IDesign *design) {
     array_image->values_.push_back(Util::AtoULL(array->Str(i)));
   }
   design->array_images_.push_back(array_image);
-}
-
-void ExpBuilder::BuildChannelReaderWriter(Exp *e, bool is_r, IChannel *ch) {
-  if (e->Size() == 0) {
-    return;
-  }
-  tree_builder_->AddChannelReaderWriter(ch, is_r,
-					Util::Atoi(e->Str(0)),
-					Util::Atoi(e->Str(1)),
-					Util::Atoi(e->Str(2)));
 }
 
 void ExpBuilder::BuildModuleImport(Exp *e, IModule *mod) {

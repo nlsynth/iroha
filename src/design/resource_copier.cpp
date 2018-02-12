@@ -39,7 +39,6 @@ void ResourceCopier::ProcessResource(IResource *res) {
 					      res->GetTable()->GetId());
   IResource *src_res = DesignUtil::FindResourceById(src_tab,
 						    res->GetId());
-  // TODO copy channels too.
   ITable *callee_table = src_res->GetCalleeTable();
   if (callee_table != nullptr) {
     SetCalleeTable(callee_table, res);

@@ -97,7 +97,7 @@ IResource::IResource(ITable *table, IResourceClass *resource_class)
   : table_(table), resource_class_(resource_class),
     params_(new ResourceParams), id_(-1), array_(nullptr),
     callee_table_(nullptr), foreign_register_(nullptr),
-    channel_(nullptr), parent_resource_(nullptr) {
+    parent_resource_(nullptr) {
   ObjectPool *pool =
     table->GetModule()->GetDesign()->GetObjectPool();
   pool->resources_.Add(this);
@@ -151,76 +151,12 @@ IRegister *IResource::GetForeignRegister() const{
   return foreign_register_;
 }
 
-void IResource::SetChannel(IChannel *ch) {
-  channel_ = ch;
-}
-
-IChannel *IResource::GetChannel() const {
-  return channel_;
-}
-
 IResource *IResource::GetParentResource() const {
   return parent_resource_;
 }
 
 void IResource::SetParentResource(IResource *res) {
   parent_resource_ = res;
-}
-
-IChannel::IChannel(IDesign *design)
-  : design_(design), id_(-1), writer_(nullptr), reader_(nullptr),
-    params_(new ResourceParams) {
-  design_->GetObjectPool()->channels_.Add(this);
-}
-
-IDesign *IChannel::GetDesign() const {
-  return design_;
-}
-
-int IChannel::GetId() const {
-  return id_;
-}
-
-void IChannel::SetId(int id) {
-  id_ = id;
-}
-
-const string &IChannel::GetName() const {
-  return name_;
-}
-
-void IChannel::SetName(const string &name) {
-  name_ = name;
-}
-
-const IValueType &IChannel::GetValueType() const {
-  return value_type_;
-}
-
-void IChannel::SetValueType(const IValueType &value_type) {
-  value_type_ = value_type;
-}
-
-void IChannel::SetWriter(IResource *res) {
-  writer_ = res;
-  res->SetChannel(this);
-}
-
-void IChannel::SetReader(IResource *res) {
-  reader_ = res;
-  res->SetChannel(this);
-}
-
-IResource *IChannel::GetWriter() const {
-  return writer_;
-}
-
-IResource *IChannel::GetReader() const {
-  return reader_;
-}
-
-ResourceParams *IChannel::GetParams() const {
-  return params_;
 }
 
 IValueType IValueType::FromNumericWidth(const NumericWidth &w) {

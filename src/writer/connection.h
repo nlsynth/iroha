@@ -10,21 +10,6 @@
 namespace iroha {
 namespace writer {
 
-// Per module channel path information.
-class ChannelInfo {
-public:
-  // This module has data output ports.
-  vector<const IChannel *> upward_;
-  // This module has data input ports.
-  vector<const IChannel *> downward_;
-  // Highest module in the path.
-  vector<const IChannel *> common_root_;
-
-  // child -> channels.
-  map<const IModule *, vector<const IChannel *> > child_upward_;
-  map<const IModule *, vector<const IChannel *> > child_downward_;
-};
-
 // Per module foreign register access connections.
 class RegConnectionInfo {
 public:
@@ -56,7 +41,6 @@ public:
 
   void Build();
 
-  const ChannelInfo *GetChannelInfo(const IModule *mod) const;
   const RegConnectionInfo *GetRegConnectionInfo(const IModule *mod) const;
   const AccessorInfo *GetAccessorInfo(const IResource *res) const;
   const vector<IResource *> &GetTaskCallers(const IResource *res) const;
@@ -71,16 +55,6 @@ public:
   static const IModule *GetCommonRoot(const IModule *m1, const IModule *m2);
 
 private:
-  void ProcessChannel(const IChannel *ch);
-  void MarkExtChannelPath(const IChannel *ch, const IResource *res,
-			  bool parent_is_write);
-  void MakeInDesignChannelPath(const IChannel *ch);
-  void MakeSimpleChannelPath(const IChannel *ch,
-			     const IModule *source,
-			     const IModule *common_parent,
-			     bool parent_is_write);
-  void AddChannelInfo(const IChannel *ch, const IModule *mod,
-		      bool parent_is_write);
   void ProcessForeignReg(IResource *freg);
   const vector<IResource *> *GetResourceVector(const map<const IResource *,
 					       vector<IResource *>> &m, const IResource *res) const;
@@ -88,12 +62,10 @@ private:
   void ProcessSharedRegAccessors(ITable *tab);
   void ProcessSharedMemoryAccessors(ITable *tab);
   void ProcessFifoAccessors(ITable *tab);
-  ChannelInfo *FindChannelInfo(const IModule *mod);
   RegConnectionInfo *FindRegConnectionInfo(const IModule *mod);
   AccessorInfo *FindAccessorInfo(const IResource *res);
 
   const IDesign *design_;
-  map<const IModule *, ChannelInfo *> channel_info_;
   map<const IModule *, RegConnectionInfo *> reg_connection_;
   map<const IResource *, AccessorInfo *> accessors_;
   AccessorInfo empty_accessors_;

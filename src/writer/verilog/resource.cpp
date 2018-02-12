@@ -7,7 +7,6 @@
 #include "writer/module_template.h"
 #include "writer/verilog/axi/master_port.h"
 #include "writer/verilog/axi/slave_port.h"
-#include "writer/verilog/channel.h"
 #include "writer/verilog/dataflow_in.h"
 #include "writer/verilog/ext_io.h"
 #include "writer/verilog/ext_task.h"
@@ -51,10 +50,6 @@ Resource *Resource::Create(const IResource &res, const Table &table) {
   }
   if (resource::IsForeignRegister(*klass)) {
     return new ForeignReg(res, table);
-  }
-  if (resource::IsChannelRead(*klass) ||
-      resource::IsChannelWrite(*klass)) {
-    return new Channel(res, table);
   }
   if (resource::IsExtInput(*klass) ||
       resource::IsExtOutput(*klass)) {

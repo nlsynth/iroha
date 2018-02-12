@@ -23,14 +23,7 @@ TL;DR: Aiming to be LLVM for HLS
     > $ python loop.py | ../iroha - -v -o loop.v
     > (or other .py files)
 
-(3) Examples to build Iroha IR from C++.
-
-    > $ cd examples
-    > $ python config-examples.py
-    > $ make
-    > $ ./minimum
-
-(4) Example to use optimizers
+(3) Example to use optimizers
 
     > $ ./examples/xorshift | ./iroha - -opt wire_insn,clean_empty_state,clean_unreachable_state | ./iroha - -v -o /tmp/xorshift.v
 
@@ -40,12 +33,12 @@ Please read src/iroha/iroha.h, src/iroha/iroha_main.cpp examples/ for more detai
 -- TODOs
 
 * WIP: Document
+* P1: Insn dependency.
 * P1: Test and debug SSA conversion and PHI removal
 * P1: Better error handling
 * P1: More debug output from optimizers.
 * P1: Support profiling information from frontends.
 * P1: Ability to merge AXI channels.
-* P1: Implement deeper FIFO.
 * P1: Connect FIFO to a dataflow table.
 * P2: Export optimizer API so that users can add own phase
 * P2: FPGA style register initialization
@@ -57,7 +50,6 @@ Please read src/iroha/iroha.h, src/iroha/iroha_main.cpp examples/ for more detai
 * P2: Set reset polarity to embedded module.
 * P2: Allow multiple embedded module instances.
 * P2: Carry bit of adder as input/output.
-* P2: Use profiling information to estimate IPC.
 * Q: Do we need instance/module separation?
 * AXI: Allow or fail to attach both master/slave to an array.
 

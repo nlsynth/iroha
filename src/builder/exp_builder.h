@@ -33,9 +33,7 @@ private:
   IRegister *BuildRegister(Exp *e, ITable *table);
   void BuildResources(Exp *e, ITable *table);
   void BuildArray(Exp *e, IResource *res);
-  void BuildChannel(Exp *e, IDesign *design);
   void BuildArrayImage(Exp *e, IDesign *design);
-  void BuildChannelReaderWriter(Exp *e, bool is_r, IChannel *ch);
   IResource *BuildResource(Exp *e, ITable *table);
   void BuildResourceParams(Exp *e, ResourceParams *params);
   void BuildParamTypes(Exp *e, vector<IValueType> *types);
