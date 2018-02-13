@@ -156,7 +156,6 @@ void SharedReg::BuildMailbox() {
       if (!SharedRegAccessor::UseMailbox(reader)) {
 	continue;
       }
-      rs << "  wire " << RegMailboxGetAckName(*reader) << ";\n";
       rs << "  assign " << RegMailboxGetAckName(*reader) << " = "
 	 << "(" << RegMailboxName(res_) << ") && ";
       if (get_reqs.size() > 0) {
@@ -298,8 +297,8 @@ void SharedReg::BuildAccessorWire() {
       wire.AddWire(*reader, RegNotifierName(res_), 0, true, true);
     }
     if (SharedRegAccessor::UseMailbox(reader)) {
-      wire.AddWire(*reader, RegMailboxPutReqName(*reader), 0, false, true);
-      wire.AddWire(*reader, RegMailboxPutAckName(*reader), 0, true, true);
+      wire.AddWire(*reader, RegMailboxGetReqName(*reader), 0, false, false);
+      wire.AddWire(*reader, RegMailboxGetAckName(*reader), 0, true, false);
     }
   }
 }
