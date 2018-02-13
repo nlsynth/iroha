@@ -262,12 +262,6 @@ void SharedReg::AddChildWire(const IResource *accessor, bool is_write,
   const IResource *reg = accessor->GetParentResource();
   vector<string> names;
   string name;
-  if (is_write) {
-    names.push_back(WriterName(*accessor));
-  }
-  if (is_write) {
-    names.push_back(WriterEnName(*accessor));
-  }
   if (use_notify) {
     if (is_write) {
       names.push_back(WriterNotifierName(*accessor));
@@ -287,10 +281,10 @@ void SharedReg::AddChildWire(const IResource *accessor, bool is_write,
 }
 
 void SharedReg::BuildAccessorWire() {
-  // TODO: Move all writer wiring logic to here too.
   InterModuleWire wire(*this);
   int dw = res_.GetParams()->GetWidth();
-  auto &readers = tab_.GetModule()->GetConnection().GetSharedRegReaders(&res_);
+  auto &conn = tab_.GetModule()->GetConnection();
+  auto &readers = conn.GetSharedRegReaders(&res_);
   for (auto *reader : readers) {
     wire.AddWire(*reader, RegName(res_), dw, true, true);
     if (SharedRegAccessor::UseNotify(reader)) {
@@ -300,6 +294,12 @@ void SharedReg::BuildAccessorWire() {
       wire.AddWire(*reader, RegMailboxGetReqName(*reader), 0, false, false);
       wire.AddWire(*reader, RegMailboxGetAckName(*reader), 0, true, false);
     }
+  }
+  // TODO: Move all writer wiring logic to here too.
+  auto &writers = conn.GetSharedRegWriters(&res_);
+  for (auto *writer : writers) {
+    wire.AddWire(*writer, WriterName(*writer), dw, false, false);
+    wire.AddWire(*writer, WriterEnName(*writer), 0, false, false);
   }
 }
 
@@ -324,16 +324,6 @@ void SharedReg::AddAccessorSignals(const IModule *imod, const Table *tab,
     } else {
       drive_by_reader = "reg";
     }
-  }
-  if (is_writer || !same_module) {
-    if (is_writer) {
-      rs << "  wire "
-	 << Table::WidthSpec(width);
-      rs << WriterName(*accessor) << ";\n";
-    }
-  }
-  if (is_writer) {
-    rs << "  wire " << WriterEnName(*accessor) << ";\n";
   }
   bool notify = SharedRegAccessor::UseNotify(accessor);
   if (notify) {
