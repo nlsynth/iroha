@@ -140,16 +140,10 @@ void SharedRegAccessor::AddWritePort(const IModule *imod,
   bool notify = UseNotify(writer);
   bool mb = UseMailbox(writer);
   if (upward) {
-    if (notify) {
-      ports->AddPort(SharedReg::WriterNotifierName(*writer), Port::OUTPUT_WIRE, 0);
-    }
     if (mb) {
       ports->AddPort(SharedReg::RegMailboxGetReqName(*writer), Port::OUTPUT_WIRE, 0);
     }
   } else {
-    if (notify) {
-      ports->AddPort(SharedReg::WriterNotifierName(*writer), Port::INPUT, 0);
-    }
     if (mb) {
       ports->AddPort(SharedReg::RegMailboxGetReqName(*writer), Port::INPUT, 0);
     }

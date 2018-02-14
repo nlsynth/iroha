@@ -262,11 +262,6 @@ void SharedReg::AddChildWire(const IResource *accessor, bool is_write,
   const IResource *reg = accessor->GetParentResource();
   vector<string> names;
   string name;
-  if (use_notify) {
-    if (is_write) {
-      names.push_back(WriterNotifierName(*accessor));
-    }
-  }
   if (use_mailbox) {
     if (is_write) {
       names.push_back(RegMailboxPutReqName(*accessor));
@@ -300,6 +295,9 @@ void SharedReg::BuildAccessorWire() {
   for (auto *writer : writers) {
     wire.AddWire(*writer, WriterName(*writer), dw, false, false);
     wire.AddWire(*writer, WriterEnName(*writer), 0, false, false);
+    if (SharedRegAccessor::UseNotify(writer)) {
+      wire.AddWire(*writer, WriterNotifierName(*writer), 0, false, false);
+    }
   }
 }
 
@@ -323,14 +321,6 @@ void SharedReg::AddAccessorSignals(const IModule *imod, const Table *tab,
       drive_by_writer = "reg";
     } else {
       drive_by_reader = "reg";
-    }
-  }
-  bool notify = SharedRegAccessor::UseNotify(accessor);
-  if (notify) {
-    if (is_writer) {
-      rs << "  wire "
-	 << WriterNotifierName(*accessor) << ";\n";
-    } else {
     }
   }
   bool mb = SharedRegAccessor::UseMailbox(accessor);
