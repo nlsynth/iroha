@@ -55,7 +55,6 @@ void SharedRegAccessor::BuildInsn(IInsn *insn, State *st) {
 void SharedRegAccessor::BuildSharedRegReaderResource() {
   ostream &rs = tab_.ResourceSectionStream();
   rs << "  // shared-reg-reader\n";
-  SharedReg::AddAccessorSignals(res_.GetTable()->GetModule(), &tab_, &res_, false);
   const IResource *reg = res_.GetParentResource();
   if (UseMailbox(&res_)) {
     map<IState *, IInsn *> getters;
@@ -73,8 +72,6 @@ void SharedRegAccessor::BuildSharedRegReaderResource() {
 void SharedRegAccessor::BuildSharedRegWriterResource() {
   ostream &rs = tab_.ResourceSectionStream();
   rs << "  // shared-reg-writer\n";
-  SharedReg::AddAccessorSignals(res_.GetTable()->GetModule(),
-				&tab_, &res_, false);
   // Write en signal.
   map<IState *, IInsn *> callers;
   CollectResourceCallers("*", &callers);
@@ -106,51 +103,6 @@ void SharedRegAccessor::BuildSharedRegWriterResource() {
     rs << "  assign " << SharedReg::RegMailboxPutReqName(res_) << " = "
        << JoinStatesWithSubState(putters, 0) << ";\n";
   }
-
-  BuildWriteWire(&res_);
-}
-
-void SharedRegAccessor::BuildWriteWire(const IResource *writer) {
-  IResource *reg = writer->GetParentResource();
-  IModule *reg_module = reg->GetTable()->GetModule();
-  IModule *writer_module = writer->GetTable()->GetModule();
-  const IModule *common_root = Connection::GetCommonRoot(reg_module,
-							 writer_module);
-  if (writer_module != common_root) {
-    SharedReg::AddAccessorSignals(common_root, &tab_, writer, true);
-  }
-  // downward
-  for (IModule *imod = reg_module; imod != common_root;
-       imod = imod->GetParentModule()) {
-    AddWritePort(imod, writer, false);
-  }
-  // upward
-  for (IModule *imod = writer_module; imod != common_root;
-       imod = imod->GetParentModule()) {
-    AddWritePort(imod, writer, true);
-  }
-}
-
-void SharedRegAccessor::AddWritePort(const IModule *imod,
-				     const IResource *writer,
-				     bool upward) {
-  Module *mod = tab_.GetModule()->GetByIModule(imod);
-  Ports *ports = mod->GetPorts();
-  int width = writer->GetParentResource()->GetParams()->GetWidth();
-  bool notify = UseNotify(writer);
-  bool mb = UseMailbox(writer);
-  if (upward) {
-    if (mb) {
-      ports->AddPort(SharedReg::RegMailboxGetReqName(*writer), Port::OUTPUT_WIRE, 0);
-    }
-  } else {
-    if (mb) {
-      ports->AddPort(SharedReg::RegMailboxGetReqName(*writer), Port::INPUT, 0);
-    }
-  }
-  Module *parent_mod = mod->GetParentModule();
-  ostream &os = parent_mod->ChildModuleInstSectionStream(mod);
-  SharedReg::AddChildWire(writer, true, notify, mb, os);
 }
 
 void SharedRegAccessor::GetAccessorFeatures(const IResource *accessor,
