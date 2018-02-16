@@ -6,7 +6,7 @@
 namespace iroha {
 namespace opt {
 
-Phase::Phase() : annotation_(nullptr) {
+Phase::Phase() : optimizer_(nullptr), annotation_(nullptr) {
 }
 
 Phase::~Phase() {
@@ -14,6 +14,10 @@ Phase::~Phase() {
 
 void Phase::SetName(const string &name) {
   name_ = name;
+}
+
+void Phase::SetOptimizer(Optimizer *opt) {
+  optimizer_ = opt;
 }
 
 void Phase::SetAnnotation(DebugAnnotation *annotation) {

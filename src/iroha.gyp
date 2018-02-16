@@ -109,6 +109,8 @@
         'opt/clean/unused_resource.cpp',
         'opt/clean/unused_resource.h',
         'opt/common.h',
+        'opt/compound.cpp',
+        'opt/compound.h',
         'opt/data_flow_collector.cpp',
         'opt/data_flow_collector.h',
         'opt/data_flow.cpp',

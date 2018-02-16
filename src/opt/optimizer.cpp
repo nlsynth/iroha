@@ -8,6 +8,7 @@
 #include "opt/clean/unreachable_state.h"
 #include "opt/clean/pseudo_resource.h"
 #include "opt/clean/unused_resource.h"
+#include "opt/compound.h"
 #include "opt/debug_annotation.h"
 #include "opt/phase.h"
 #include "opt/ssa/ssa.h"
@@ -36,6 +37,7 @@ void Optimizer::Init() {
   RegisterPhase("ssa_convert", &ssa::SSAConverterPhase::Create);
   RegisterPhase("phi_cleaner", &ssa::PhiCleanerPhase::Create);
   RegisterPhase("wire_insn", &wire::WireInsnPhase::Create);
+  CompoundPhase::Init();
 }
 
 void Optimizer::RegisterPhase(const string &name,
@@ -52,6 +54,7 @@ bool Optimizer::ApplyPhase(const string &name) {
   auto factory = it->second;
   unique_ptr<Phase> phase(factory());
   phase->SetName(name);
+  phase->SetOptimizer(this);
   auto *annotation = design_->GetDebugAnnotation();
   phase->SetAnnotation(annotation);
   if (annotation != nullptr) {

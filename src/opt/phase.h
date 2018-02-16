@@ -13,6 +13,8 @@ public:
   virtual ~Phase();
 
   void SetName(const string &name);
+  void SetOptimizer(Optimizer *opt);
+  // Optional. Set when debug output is enabled.
   void SetAnnotation(DebugAnnotation *annotation);
   bool Apply(IDesign *design);
 
@@ -27,6 +29,7 @@ protected:
   bool ApplyForAllModules(const string &key, IDesign *design);
   void OutputPhaseHeader(const string &msg);
 
+  Optimizer *optimizer_;
   DebugAnnotation *annotation_;
   string name_;
 };
