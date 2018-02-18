@@ -132,6 +132,7 @@ class IInsn(object):
         self.inputs = []
         self.outputs = []
         self.target_states = []
+        self.depending_insns = []
         self.resource = resource
         self.operand = ""
 
@@ -145,6 +146,8 @@ class IInsn(object):
         self.writeIds(writer, self.inputs)
         writer.ofh.write(" ")
         self.writeIds(writer, self.outputs)
+        writer.ofh.write(" ")
+        self.writeIds(writer, self.depending_insns)
         writer.ofh.write(")\n")
 
     def writeIds(self, writer, objs):
