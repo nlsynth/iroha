@@ -28,6 +28,7 @@ private:
   void WriteValue(const Numeric &value);
   void WriteValueType(const IValueType &type);
   void WriteInsnParams(const vector<IRegister *> &regs);
+  void WriteDependingInsns(const vector<IInsn *> &insns);
   void WriteResourceTypes(const vector<IValueType> &types);
   void WriteResourceParams(const ResourceParams &params, const char *indent);
   void WriteArrayImage(const IArrayImage &im);

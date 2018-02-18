@@ -79,7 +79,7 @@ value-type      := "(" "INT"  width:number ")" |
 
 state           := "(" "STATE" state-id:number instruction* ")"
 
-instruction     := "(" "INSN" insn-id:number res-class:resource-class res-id:number operand:number-list target-state-ids:number-list input-reg-ids:number-list output-reg-ids:number-list ")"
+instruction     := "(" "INSN" insn-id:number res-class:resource-class res-id:number operand:number-list target-state-ids:number-list input-reg-ids:number-list output-reg-ids:number-list depending-instruction-ids:number-list ")"
 
 params          := "(" "PARAMS" param* ")"
 
@@ -191,12 +191,9 @@ e.g.
  () ; target states
  (11) ; input registers
  (22) ; output registers
+ ())  ; depending instructions
 
 -- Params (design)
-
--- (Channel)
-
-Deprecated. Related code will be removed.
 
 ## format this document
 

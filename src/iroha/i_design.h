@@ -150,6 +150,7 @@ public:
   vector<IRegister *> inputs_;
   vector<IRegister *> outputs_;
   vector<IState *> target_states_;
+  vector<IInsn *> depending_insns_;
 
 private:
   IResource *resource_;

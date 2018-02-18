@@ -47,15 +47,24 @@ void FsmBuilder::ResolveInsns() {
       continue;
     }
 
+    map<Exp *, IInsn *> exp_to_insn;
     for (int i = 2; i < e->vec.size(); ++i) {
       const string &tag = e->vec[i]->vec[0]->atom.str;
       if (tag == "INSN") {
 	IInsn *insn = BuildInsn(e->vec[i]);
+	exp_to_insn[e->vec[i]] = insn;
 	if (insn != nullptr) {
 	  st->insns_.push_back(insn);
 	}
       } else {
 	builder_->SetError() << "Only INSN is allowed in a state";
+      }
+    }
+    // Post process to resolve depending insns.
+    for (int i = 2; i < e->vec.size(); ++i) {
+      const string &tag = e->vec[i]->vec[0]->atom.str;
+      if (tag == "INSN") {
+	ResolveDependingInsns(e->vec[i], exp_to_insn[e->vec[i]]);
       }
     }
   }
@@ -71,12 +80,31 @@ void FsmBuilder::ResolveInsns() {
   }
 }
 
+void FsmBuilder::ResolveDependingInsns(Exp *e, IInsn *insn) {
+  if (e->vec.size() < 9) {
+    return;
+  }
+  for (auto *dep : e->vec[8]->vec) {
+    int insn_id = Util::Atoi(dep->atom.str);
+    insn->depending_insns_.push_back(insns_[insn_id]);
+  }
+}
+
 void FsmBuilder::SetInitialState(Exp *e) {
   initial_state_id_ = Util::Atoi(e->vec[1]->atom.str);
 }
 
 IInsn *FsmBuilder::BuildInsn(Exp *e) {
-  if (e->vec.size() != 8) {
+  // 0: INSN
+  // 1: id
+  // 2: resource name
+  // 3: resource id
+  // 4: operand
+  // 5: transition targets
+  // 6: inputs
+  // 7: outputs
+  // 8: depending insns (optional)
+  if (e->vec.size() < 8) {
     builder_->SetError() << "Malformed INSN";
     return nullptr;
   }
@@ -87,7 +115,9 @@ IInsn *FsmBuilder::BuildInsn(Exp *e) {
     return nullptr;
   }
   IInsn *insn = new IInsn(res);
-  insn->SetId(Util::Atoi(e->vec[1]->atom.str));
+  int id = Util::Atoi(e->vec[1]->atom.str);
+  insn->SetId(id);
+  insns_[id] = insn;
   if (e->vec[4]->vec.size() > 0) {
     insn->SetOperand(e->vec[4]->vec[0]->atom.str);
   }

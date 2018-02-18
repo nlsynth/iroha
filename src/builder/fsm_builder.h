@@ -24,12 +24,14 @@ private:
   void Init();
   IInsn *BuildInsn(Exp *e);
   void BuildInsnParams(Exp *e, vector<IRegister *> *regs);
+  void ResolveDependingInsns(Exp *e, IInsn *insn);
 
   ITable *table_;
   ExpBuilder *builder_;
   int initial_state_id_;
 
   map<int, IResource *> resources_;
+  map<int, IInsn *> insns_;
   map<int, IRegister *> registers_;
   map<int, IState *> states_;
   map<int, Exp *> exps_;

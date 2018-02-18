@@ -244,20 +244,25 @@ void ExpWriter::WriteInsn(const IInsn &insn) {
   WriteInsnParams(insn.inputs_);
   // Outputs.
   WriteInsnParams(insn.outputs_);
+  // Depending insns.
+  WriteDependingInsns(insn.depending_insns_);
   os_ << ")\n";
 }
 
 void ExpWriter::WriteInsnParams(const vector<IRegister *> &regs) {
-  os_ << " (";
-  bool is_first = true;
+  vector<string> ids;
   for (auto &reg : regs) {
-    if (!is_first) {
-      os_ << " ";
-    }
-    os_ << reg->GetId();
-    is_first = false;
+    ids.push_back(Util::Itoa(reg->GetId()));
   }
-  os_ << ")";
+  os_ << " (" << Util::Join(ids, " ") << ")";
+}
+
+void ExpWriter::WriteDependingInsns(const vector<IInsn *> &insns) {
+  vector<string> ids;
+  for (auto &insn : insns) {
+    ids.push_back(Util::Itoa(insn->GetId()));
+  }
+  os_ << " (" << Util::Join(ids, " ") << ")";
 }
 
 void ExpWriter::WriteResourceTypes(const vector<IValueType> &types) {
