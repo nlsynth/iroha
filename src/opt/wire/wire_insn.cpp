@@ -212,7 +212,6 @@ void WireInsn::ScanBBToMoveInsn(BB *bb) {
     }
     IState *target_st = bb->states_[target_pos];
     bool seen_ext_access = false;
-    bool seen_multi_cycle = false;
     for (int src_pos = target_pos + 1;
 	 src_pos < bb->states_.size(); ++src_pos) {
       vector<IInsn *> movable_insns;
@@ -226,23 +225,11 @@ void WireInsn::ScanBBToMoveInsn(BB *bb) {
 	  }
 	  seen_ext_access = true;
 	}
-	if (ResourceAttr::IsMultiCycleInsn(insn)) {
-	  // Ditto for multi cycle insns.
-	  // TODO: Remove this once insn dependency is implemented.
-	  if (seen_multi_cycle) {
-	    continue;
-	  }
-	  seen_multi_cycle = true;
-	}
 	if (CanMoveInsn(insn, bb, target_pos)) {
 	  movable_insns.push_back(insn);
 	}
       }
       for (IInsn *insn : movable_insns) {
-	if (ResourceAttr::NumMultiCycleInsn(target_st) > 0) {
-	  // TODO: Ditto.
-	  break;
-	}
 	MoveInsn(insn, bb, target_pos);
       }
     }
@@ -317,22 +304,30 @@ bool WireInsn::CanMoveInsn(IInsn *insn, BB *bb, int target_pos) {
   }
   PerInsn *pi = GetPerInsn(insn);
   int max_pos = 0;
-  // Check input dependency
+  // Checks input dependency by the position of insns.
   for (auto it : pi->depending_insn_) {
     PerInsn *src_pi = GetPerInsn(it.second);
     if (src_pi->nth_state > max_pos) {
       max_pos = src_pi->nth_state;
     }
   }
-  if (max_pos <= target_pos) {
-    return true;
+  if (max_pos > target_pos) {
+    return false;
   }
-  return false;
+  // Checks specified insn
+  for (IInsn *dep : insn->depending_insns_) {
+    PerInsn *dep_pi = GetPerInsn(dep);
+    if (dep_pi->nth_state >= target_pos) {
+      return false;
+    }
+  }
+  return true;
 }
 
 void WireInsn::MoveInsn(IInsn *insn, BB *bb, int target_pos) {
   PerInsn *pi = GetPerInsn(insn);
   IState *src_st = bb->states_[pi->nth_state];
+  pi->nth_state = target_pos;
   IState *dst_st = bb->states_[target_pos];
   DesignTool::MoveInsn(insn, src_st, dst_st);
   pi->nth_state = target_pos;

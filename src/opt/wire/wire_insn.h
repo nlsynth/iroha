@@ -40,6 +40,7 @@ private:
     map<IRegister *, IInsn *> depending_insn_;
     // users of each output.
     map<IRegister *, set<IInsn *> > using_insns_;
+    // state index in its bb.
     int nth_state;
     set<IRegister *> output_reach_to_other_bb_;
   };
