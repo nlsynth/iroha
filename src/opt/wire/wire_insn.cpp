@@ -193,23 +193,8 @@ void WireInsn::AddWireToRegMapping(IInsn *insn, IRegister *wire,
 }
 
 void WireInsn::ScanBBToMoveInsn(BB *bb) {
-  bool is_task = false;
-  for (IInsn *insn : bb->states_[0]->insns_) {
-    if (resource::IsTask(*(insn->GetResource()->GetClass()))) {
-      is_task = true;
-    }
-  }
   // Moves insns from src-th state to target-th state.
   for (int target_pos = 0; target_pos < bb->states_.size() - 1; ++target_pos) {
-    if (is_task && target_pos == 0) {
-      // Kludge to avoid to move insns to the same state of task entry.
-      // This is to avoid a neon light specific bug that it fails to catch
-      // to early notification of a return value.
-      // TODO: Remove this when (a) instruction dependency is implemented
-      // or (b) neon light changes its method call protocol not to use
-      // a notifier.
-      continue;
-    }
     IState *target_st = bb->states_[target_pos];
     bool seen_ext_access = false;
     for (int src_pos = target_pos + 1;
