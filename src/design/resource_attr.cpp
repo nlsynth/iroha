@@ -23,7 +23,6 @@ bool ResourceAttr::IsMultiCycleInsn(IInsn *insn) {
       resource::IsSharedMemory(rc) ||
       resource::IsSharedMemoryReader(rc) ||
       resource::IsSharedMemoryWriter(rc) ||
-      resource::IsEmbedded(rc) ||
       resource::IsExtTaskDone(rc) ||
       resource::IsExtTaskCall(rc) ||
       resource::IsExtTaskWait(rc)) {

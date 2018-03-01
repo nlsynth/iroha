@@ -29,9 +29,9 @@ public:
 					int data_width,
 					bool is_external,
 					bool is_ram);
-  static IResource *CreateEmbedResource(ITable *table,
-					const string &mod_name,
-					const string &fn);
+  static IResource *CreateExtTaskCallResource(ITable *table,
+					      const string &mod_name,
+					      const string &fn);
   static IResource *CreateTaskResource(ITable *table);
   static IResource *CreateTaskCallResource(ITable *caller,
 					   ITable *callee);

@@ -117,10 +117,10 @@ IResource *DesignTool::CreateShifterResource(ITable *table) {
   return DesignUtil::CreateResource(table, resource::kShift);
 }
 
-IResource *DesignTool::CreateEmbedResource(ITable *table,
-					   const string &mod_name,
-					   const string &fn) {
-  IResource *res = DesignUtil::CreateResource(table, resource::kEmbedded);
+IResource *DesignTool::CreateExtTaskCallResource(ITable *table,
+						 const string &mod_name,
+						 const string &fn) {
+  IResource *res = DesignUtil::CreateResource(table, resource::kExtTaskCall);
   res->GetParams()->SetEmbeddedModuleName(mod_name, fn);
   return res;
 }

@@ -1,0 +1,2 @@
+2018/03/01
+ Remove "embedded" resource. (Use "ext-task-call" instead)

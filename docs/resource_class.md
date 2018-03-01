@@ -182,10 +182,6 @@ Reads from input pin connected to outside of the design.
 
 Writes to output pin connected to outside of the design.
 
-#### embedded
-
-Embed a Verilog module. Insn pass values to the module, if it accepts them.
-
 ### Communication
 
 #### FIFO

@@ -51,7 +51,7 @@ resource        := "(" "RESOURCE" res-id:number res-class:resource-class input-t
 resource-class  := "tr" | "set" | "print" | "phi" | "select" | "assert" | "mapped" |
                    "sibling-task" | "sibling-task-call" | "sub-module-task" | "sub-module-task-call" |
                    "ext-input" | "ext-output" |
-                   "array" | "embedded" | "foreign-reg" |
+                   "array" | "foreign-reg" |
                    "add" | "sub" | "mul" |
                    "bit-and" | "bit-or" | "bit-xor" | "bit-inv" |
                    "bit-sel" | "bit-concat" |

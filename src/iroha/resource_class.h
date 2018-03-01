@@ -25,8 +25,6 @@ const char kSharedMemory[] = "shared-memory";
 const char kSharedMemoryReader[] = "shared-memory-reader";
 const char kSharedMemoryWriter[] = "shared-memory-writer";
 const char kArray[] = "array";
-// use ext-task-call instead.
-const char kEmbedded[] = "embedded";
 const char kForeignReg[] = "foreign-reg";
 const char kAdd[] = "add";
 const char kSub[] = "sub";
@@ -77,7 +75,6 @@ bool IsSharedMemory(const IResourceClass &rc);
 bool IsSharedMemoryReader(const IResourceClass &rc);
 bool IsSharedMemoryWriter(const IResourceClass &rc);
 bool IsMapped(const IResourceClass &rc);
-bool IsEmbedded(const IResourceClass &rc);
 bool IsTask(const IResourceClass &rc);
 bool IsTaskCall(const IResourceClass &rc);
 bool IsForeignRegister(const IResourceClass &rc);

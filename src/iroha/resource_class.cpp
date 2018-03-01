@@ -99,10 +99,6 @@ bool IsMapped(const IResourceClass &rc) {
   return (rc.GetName() == kMapped);
 }
 
-bool IsEmbedded(const IResourceClass &rc) {
-  return (rc.GetName() == kEmbedded);
-}
-
 bool IsTask(const IResourceClass &rc) {
   return (rc.GetName() == kTask);
 }
@@ -186,7 +182,6 @@ void InstallResourceClasses(IDesign *design) {
   InstallResource(design, resource::kTask, true);
   InstallResource(design, resource::kTaskCall, true);
   InstallResource(design, resource::kTransition, true);
-  InstallResource(design, resource::kEmbedded, true);
   InstallResource(design, resource::kForeignReg, true);
   InstallResource(design, resource::kExtInput, true);
   InstallResource(design, resource::kExtOutput, true);

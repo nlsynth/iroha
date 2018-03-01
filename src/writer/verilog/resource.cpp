@@ -87,8 +87,7 @@ Resource *Resource::Create(const IResource &res, const Table &table) {
       resource::IsFifoWriter(*klass)) {
     return new FifoAccessor(res, table);
   }
-  if (resource::IsEmbedded(*klass) ||
-      resource::IsExtTaskCall(*klass) ||
+  if (resource::IsExtTaskCall(*klass) ||
       resource::IsExtTaskWait(*klass) ||
       resource::IsExtFlowCall(*klass) ||
       resource::IsExtFlowResult(*klass)) {

@@ -23,8 +23,7 @@ ExtTaskCall::ExtTaskCall(const IResource &res, const Table &table)
 void ExtTaskCall::BuildResource() {
   auto *klass = res_.GetClass();
   // Embedded resource is also allowed for compatibility.
-  if (resource::IsExtTaskCall(*klass) || resource::IsExtFlowCall(*klass) ||
-      resource::IsEmbedded(*klass)) {
+  if (resource::IsExtTaskCall(*klass) || resource::IsExtFlowCall(*klass)) {
     BuildExtTaskCallResource();
   }
   // does nothing for resource::IsExtTaskWait().
@@ -105,7 +104,7 @@ void ExtTaskCall::BuildEmbeddedModule(const string &connection) {
 
 void ExtTaskCall::BuildInsn(IInsn *insn, State *st) {
   auto *klass = res_.GetClass();
-  if (resource::IsExtTaskCall(*klass) || resource::IsEmbedded(*klass)) {
+  if (resource::IsExtTaskCall(*klass)) {
     BuildTaskCallInsn(insn, st);
   }
   if (resource::IsExtTaskWait(*klass)) {
