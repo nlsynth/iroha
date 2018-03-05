@@ -116,6 +116,11 @@ def CreateExtOutput(table, name, width):
     res.resource_params.AddValue("WIDTH", str(width))
     return res
 
+def CreateExtCombinational(table, name):
+    res = createResource(table, "ext-combinational")
+    res.resource_params.AddValue("EMBEDDED-MODULE", name)
+    return res
+
 def CreateSharedReg(table, name, width):
     res = createResource(table, "shared-reg")
     res.resource_params.AddValue("OUTPUT", name)

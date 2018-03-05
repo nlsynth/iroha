@@ -8,6 +8,7 @@
 #include "writer/verilog/axi/master_port.h"
 #include "writer/verilog/axi/slave_port.h"
 #include "writer/verilog/dataflow_in.h"
+#include "writer/verilog/ext_combinational.h"
 #include "writer/verilog/ext_io.h"
 #include "writer/verilog/ext_task.h"
 #include "writer/verilog/ext_task_call.h"
@@ -75,6 +76,9 @@ Resource *Resource::Create(const IResource &res, const Table &table) {
   }
   if (resource::IsAxiSlavePort(*klass)) {
     return new axi::SlavePort(res, table);
+  }
+  if (resource::IsExtCombinational(*klass)) {
+    return new ExtCombinational(res, table);
   }
   if (resource::IsExtTask(*klass) ||
       resource::IsExtTaskDone(*klass)) {

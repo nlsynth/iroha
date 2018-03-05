@@ -71,6 +71,10 @@ bool IsExtOutput(const IResourceClass &rc) {
   return (rc.GetName() == kExtOutput);
 }
 
+bool IsExtCombinational(const IResourceClass &rc) {
+  return (rc.GetName() == kExtCombinational);
+}
+
 bool IsSharedReg(const IResourceClass &rc) {
   return (rc.GetName() == kSharedReg);
 }
@@ -185,6 +189,7 @@ void InstallResourceClasses(IDesign *design) {
   InstallResource(design, resource::kForeignReg, true);
   InstallResource(design, resource::kExtInput, true);
   InstallResource(design, resource::kExtOutput, true);
+  InstallResource(design, resource::kExtCombinational, true);
   InstallResource(design, resource::kSharedReg, true);
   InstallResource(design, resource::kSharedRegReader, true);
   InstallResource(design, resource::kSharedRegWriter, true);
