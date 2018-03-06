@@ -17,7 +17,7 @@ tab.states.append(st1)
 tab.states.append(st2)
 design_tool.AddNextState(st1, st2)
 
-ext_comb = design_tool.CreateExtCombinational(tab, "ez")
+ext_comb = design_tool.CreateEmbeddedExtCombinational(tab, "mod_comb", "mod_comb.v", "clk", "rst_n")
 ext_comb.input_types.append(IValueType(False, 32))
 ext_comb.output_types.append(IValueType(False, 32))
 

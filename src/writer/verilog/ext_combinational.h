@@ -15,6 +15,16 @@ public:
   virtual void BuildResource() override;
   virtual void BuildInsn(IInsn *insn, State *st) override;
   virtual void CollectNames(Names *names) override;
+
+private:
+  void BuildEmbeddedModule(const string &connection);
+  void AddPort(const string &name, const string &wire_name,
+	       bool is_output, int width,
+	       string *connection);
+
+  static string ArgPin(const IResource *res, int nth);
+  static string RetPin(const IResource *res, int nth);
+  static string PinName(const IResource *res, const string &name);
 };
 
 }  // namespace verilog
