@@ -8,6 +8,7 @@
 #include "writer/verilog/axi/master_port.h"
 #include "writer/verilog/axi/slave_port.h"
 #include "writer/verilog/dataflow_in.h"
+#include "writer/verilog/embed.h"
 #include "writer/verilog/ext_combinational.h"
 #include "writer/verilog/ext_io.h"
 #include "writer/verilog/ext_task.h"
@@ -299,6 +300,22 @@ const Table &Resource::GetTable() const {
 
 const IResource &Resource::GetIResource() const {
   return res_;
+}
+
+void Resource::BuildEmbeddedModule(const string &connection) {
+  auto *params = res_.GetParams();
+  tab_.GetEmbeddedModules()->RequestModule(*params);
+
+  auto *ports = tab_.GetPorts();
+  ostream &is = tmpl_->GetStream(kEmbeddedInstanceSection);
+  string name = params->GetEmbeddedModuleName();
+  is << "  // " << name << "\n"
+     << "  "  << name << " inst_" << tab_.GetITable()->GetId() << "_" << name
+     << "(";
+  is << "." << params->GetEmbeddedModuleClk() << "(" << ports->GetClk() << "), "
+     << "." << params->GetEmbeddedModuleReset() << "(" << ports->GetReset() << ")";
+  is << connection;
+  is << ");\n";
 }
 
 }  // namespace verilog

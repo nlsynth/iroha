@@ -1,6 +1,6 @@
-// WIP.
-// TODO: Unify a bunch of code copied from ext_task_call.
-// TODO: Support external module.
+// ext-combinational resource wraps an external combinational logic.
+// This assigns a set of input values and gets the outputs from the circuit
+// within the cycle.
 #include "writer/verilog/ext_combinational.h"
 
 #include "iroha/i_design.h"
@@ -63,22 +63,6 @@ void ExtCombinational::BuildInsn(IInsn *insn, State *st) {
 void ExtCombinational::CollectNames(Names *names) {
 }
 
-void ExtCombinational::BuildEmbeddedModule(const string &connection) {
-  auto *params = res_.GetParams();
-  tab_.GetEmbeddedModules()->RequestModule(*params);
-
-  auto *ports = tab_.GetPorts();
-  ostream &is = tmpl_->GetStream(kEmbeddedInstanceSection);
-  string name = params->GetEmbeddedModuleName();
-  is << "  // " << name << "\n"
-     << "  "  << name << " inst_" << tab_.GetITable()->GetId() << "_" << name
-     << "(";
-  is << "." << params->GetEmbeddedModuleClk() << "(" << ports->GetClk() << "), "
-     << "." << params->GetEmbeddedModuleReset() << "(" << ports->GetReset() << ")";
-  is << connection;
-  is << ");\n";
-}
-
 void ExtCombinational::AddPort(const string &name, const string &wire_name,
 			       int width,
 			       string *connection) {
@@ -88,6 +72,7 @@ void ExtCombinational::AddPort(const string &name, const string &wire_name,
 }
 
 string ExtCombinational::ArgPin(const IResource *res, int nth) {
+  // TODO: Embed table/resource id.
   return PinName(res, "arg_" + Util::Itoa(nth));
 }
 

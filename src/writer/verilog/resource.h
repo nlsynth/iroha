@@ -41,6 +41,7 @@ protected:
   string SelectValueByState(const string &default_value);
   void AddPortToTop(const string &port, bool is_output, bool from_embedded,
 		    int width);
+  void BuildEmbeddedModule(const string &connection);
 
   const IResource &res_;
   const Table &tab_;

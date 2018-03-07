@@ -17,7 +17,6 @@ public:
 
 private:
   void BuildExtTaskCallResource();
-  void BuildEmbeddedModule(const string &connection);
   void BuildTaskCallInsn(IInsn *insn, State *st);
   void BuildTaskWaitInsn(IInsn *insn, State *st);
   void BuildFlowCallInsn(IInsn *insn, State *st);

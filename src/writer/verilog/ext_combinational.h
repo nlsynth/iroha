@@ -17,7 +17,6 @@ public:
   virtual void CollectNames(Names *names) override;
 
 private:
-  void BuildEmbeddedModule(const string &connection);
   void AddPort(const string &name, const string &wire_name,
 	       int width, string *connection);
 

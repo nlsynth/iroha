@@ -86,22 +86,6 @@ void ExtTaskCall::AddPort(const string &name, const string &wire_name,
   }
 }
 
-void ExtTaskCall::BuildEmbeddedModule(const string &connection) {
-  auto *params = res_.GetParams();
-  tab_.GetEmbeddedModules()->RequestModule(*params);
-
-  auto *ports = tab_.GetPorts();
-  ostream &is = tmpl_->GetStream(kEmbeddedInstanceSection);
-  string name = params->GetEmbeddedModuleName();
-  is << "  // " << name << "\n"
-     << "  "  << name << " inst_" << tab_.GetITable()->GetId() << "_" << name
-     << "(";
-  is << "." << params->GetEmbeddedModuleClk() << "(" << ports->GetClk() << "), "
-     << "." << params->GetEmbeddedModuleReset() << "(" << ports->GetReset() << ")";
-  is << connection;
-  is << ");\n";
-}
-
 void ExtTaskCall::BuildInsn(IInsn *insn, State *st) {
   auto *klass = res_.GetClass();
   if (resource::IsExtTaskCall(*klass)) {
