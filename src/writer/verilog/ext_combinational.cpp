@@ -7,6 +7,7 @@
 #include "iroha/resource_params.h"
 #include "writer/module_template.h"
 #include "writer/verilog/embed.h"
+#include "writer/verilog/insn_writer.h"
 #include "writer/verilog/module.h"
 #include "writer/verilog/ports.h"
 #include "writer/verilog/table.h"
@@ -22,17 +23,41 @@ ExtCombinational::ExtCombinational(const IResource &res, const Table &table)
 void ExtCombinational::BuildResource() {
   string connection;
   for (int i = 0; i < res_.input_types_.size(); ++i) {
-    AddPort(RetPin(&res_, i), RetPin(nullptr, i), false,
+    AddPort(RetPin(&res_, i), RetPin(nullptr, i),
 	    res_.input_types_[i].GetWidth(), &connection);
   }
   for (int i = 0; i < res_.output_types_.size(); ++i) {
-    AddPort(ArgPin(&res_, i), ArgPin(nullptr, i), true,
+    AddPort(ArgPin(&res_, i), ArgPin(nullptr, i),
 	    res_.output_types_[i].GetWidth(), &connection);
   }
   BuildEmbeddedModule(connection);
+
+  map<IState *, IInsn *> callers;
+  CollectResourceCallers("", &callers);
+  if (callers.size() == 0) {
+    return;
+  }
+  ostream &rs = tab_.ResourceSectionStream();
+  string name = InsnWriter::CustomResourceName("ext_combinational", res_);
+  for (int i = 0; i < res_.input_types_.size(); ++i) {
+    string s = name + "_s" + Util::Itoa(i);
+    WriteInputSel(s, callers, i, rs);
+    rs << "  assign " << ArgPin(&res_, i) << " = " << s << ";\n";
+  }
+  for (int i = 0; i < res_.output_types_.size(); ++i) {
+    string d = name + "_d" + Util::Itoa(i);
+    WriteWire(d, res_.output_types_[i], rs);
+    rs << "  assign " << d << " = " << RetPin(&res_, i) << ";\n";
+  }
 }
 
 void ExtCombinational::BuildInsn(IInsn *insn, State *st) {
+  ostream &ws = tmpl_->GetStream(kInsnWireValueSection);
+  for (int i = 0; i < res_.output_types_.size(); ++i) {
+    ws << "  assign " << InsnWriter::InsnOutputWireName(*insn, 0)
+       << " = " << InsnWriter::CustomResourceName("ext_combinational", res_)
+       << "_d" << i << ";\n";
+  }
 }
 
 void ExtCombinational::CollectNames(Names *names) {
@@ -55,15 +80,10 @@ void ExtCombinational::BuildEmbeddedModule(const string &connection) {
 }
 
 void ExtCombinational::AddPort(const string &name, const string &wire_name,
-			       bool is_output, int width,
+			       int width,
 			       string *connection) {
   ostream &rs = tab_.ResourceSectionStream();
-  if (is_output) {
-    rs << "  reg";
-  } else {
-    rs << "  wire";
-  }
-  rs << " " << Table::WidthSpec(width) << name << ";\n";
+  rs << "  wire " << Table::WidthSpec(width) << name << ";\n";
   *connection += ", ." + wire_name + "(" + name + ")";
 }
 

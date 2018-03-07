@@ -36,9 +36,14 @@ string InsnWriter::ConstValue(const IRegister &reg) {
   return Util::Itoa(reg.GetInitialValue().GetValue0());
 }
 
-string InsnWriter::ResourceName(const IResource &res) {
-  return res.GetClass()->GetName() + "_" + Util::Itoa(res.GetTable()->GetId()) +
+string InsnWriter::CustomResourceName(const string &name,
+				      const IResource &res) {
+  return name + "_" + Util::Itoa(res.GetTable()->GetId()) +
     "_" + Util::Itoa(res.GetId());
+}
+
+string InsnWriter::ResourceName(const IResource &res) {
+  return CustomResourceName(res.GetClass()->GetName(), res);
 }
 
 void InsnWriter::Print() {
