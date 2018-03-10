@@ -125,6 +125,15 @@ IResource *DesignTool::CreateExtTaskCallResource(ITable *table,
   return res;
 }
 
+IResource *DesignTool::CreateExtCombinationalResource(ITable *table,
+						      const string &mod_name,
+						      const string &fn) {
+  IResource *res = DesignUtil::CreateResource(table,
+					      resource::kExtCombinational);
+  res->GetParams()->SetEmbeddedModuleName(mod_name, fn);
+  return res;
+}
+
 IResource *DesignTool::CreateTaskResource(ITable *table) {
   return DesignUtil::CreateResource(table, resource::kTask);
 }
