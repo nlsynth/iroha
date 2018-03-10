@@ -72,22 +72,25 @@ void ExtCombinational::AddPort(const string &name, const string &wire_name,
 }
 
 string ExtCombinational::ArgPin(const IResource *res, int nth) {
-  // TODO: Embed table/resource id.
-  return PinName(res, "arg_" + Util::Itoa(nth));
+  return PinName(res, "arg", nth);
 }
 
 string ExtCombinational::RetPin(const IResource *res, int nth) {
-  return PinName(res, "ret_" + Util::Itoa(nth));
+  return PinName(res, "ret", nth);
 }
 
-string ExtCombinational::PinName(const IResource *res, const string &name) {
+string ExtCombinational::PinName(const IResource *res, const string &name, int nth) {
+  string n = name;
   if (res != nullptr) {
     const string &prefix = res->GetParams()->GetExtTaskName();
     if (!prefix.empty()) {
-      return res->GetParams()->GetExtTaskName() + "_" + name;
+      n = prefix + "_" + n;
     }
+    n += "_" + Util::Itoa(res->GetTable()->GetId()) + "_" + Util::Itoa(nth);
+    n += "_" + Util::Itoa(res->GetId());
   }
-  return name;
+  n += "_" + Util::Itoa(nth);
+  return n;
 }
 
 }  // namespace verilog

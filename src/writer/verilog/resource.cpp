@@ -310,8 +310,8 @@ void Resource::BuildEmbeddedModule(const string &connection) {
   ostream &is = tmpl_->GetStream(kEmbeddedInstanceSection);
   string name = params->GetEmbeddedModuleName();
   is << "  // " << name << "\n"
-     << "  "  << name << " inst_" << tab_.GetITable()->GetId() << "_" << name
-     << "(";
+     << "  "  << name << " inst_" << tab_.GetITable()->GetId()
+     << "_" << res_.GetId() << "_" << name << "(";
   is << "." << params->GetEmbeddedModuleClk() << "(" << ports->GetClk() << "), "
      << "." << params->GetEmbeddedModuleReset() << "(" << ports->GetReset() << ")";
   is << connection;

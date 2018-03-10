@@ -33,7 +33,6 @@ Please read src/iroha/iroha.h, src/iroha/iroha_main.cpp examples/ for more detai
 -- TODOs
 
 * WIP: Document
-* P1: Insn dependency.
 * P1: Test and debug SSA conversion and PHI removal
 * P1: Better error handling
 * P1: More debug output from optimizers.

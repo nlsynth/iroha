@@ -22,7 +22,7 @@ private:
 
   static string ArgPin(const IResource *res, int nth);
   static string RetPin(const IResource *res, int nth);
-  static string PinName(const IResource *res, const string &name);
+  static string PinName(const IResource *res, const string &name, int nth);
 };
 
 }  // namespace verilog
