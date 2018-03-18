@@ -15,7 +15,7 @@ void printVersion() {
 	    << "  -vcd Output vcd (-s or -S should be specified)\n"
 	    << "  -c Output C++\n"
 	    << "  -v Output Verilog\n"
-	    << "  -I Set import paths (comma separated)\n"
+	    << "  -I Set import paths (comma separated. can have multiple -I options)\n"
 	    << "  -h Output HTML\n"
 	    << "  -o [fn] output to the file name\n"
 	    << "  -d Debug dump\n"
@@ -51,7 +51,7 @@ int main(int argc, char **argv) {
   string output_marker;
   string root_dir;
   vector<string> opts;
-  vector<string> paths;
+  vector<string> inc_paths;
 
   for (int i = 1; i < argc; ++i) {
     const string arg(argv[i]);
@@ -105,7 +105,11 @@ int main(int argc, char **argv) {
     }
     if (arg == "-I") {
       string inc = getFlagValue(argc, argv, &i);
+      vector<string> paths;
       iroha::Util::SplitStringUsing(inc, ",", &paths);
+      for (auto &p : paths) {
+	inc_paths.push_back(p);
+      }
       continue;
     }
     if (arg == "-opt") {
@@ -171,8 +175,8 @@ int main(int argc, char **argv) {
 	writer->OutputShellModule(true, selfShell, vcd);
       }
     }
-    if (paths.size() > 0) {
-      Iroha::SetImportPaths(paths);
+    if (inc_paths.size() > 0) {
+      Iroha::SetImportPaths(inc_paths);
     }
     if (verilog) {
       writer->SetLanguage("verilog");
