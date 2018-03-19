@@ -23,11 +23,11 @@ ExtCombinational::ExtCombinational(const IResource &res, const Table &table)
 void ExtCombinational::BuildResource() {
   string connection;
   for (int i = 0; i < res_.input_types_.size(); ++i) {
-    AddPort(RetPin(&res_, i), RetPin(nullptr, i),
+    AddPort(ArgPin(&res_, i), ArgPin(nullptr, i),
 	    res_.input_types_[i].GetWidth(), &connection);
   }
   for (int i = 0; i < res_.output_types_.size(); ++i) {
-    AddPort(ArgPin(&res_, i), ArgPin(nullptr, i),
+    AddPort(RetPin(&res_, i), RetPin(nullptr, i),
 	    res_.output_types_[i].GetWidth(), &connection);
   }
   BuildEmbeddedModule(connection);
