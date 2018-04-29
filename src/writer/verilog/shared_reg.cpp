@@ -132,6 +132,8 @@ void SharedReg::BuildResource() {
 void SharedReg::BuildMailbox() {
   ostream &rs = tab_.ResourceSectionStream();
   rs << "  reg " << RegMailboxName(res_) << ";\n";
+  ostream &is = tab_.InitialValueSectionStream();
+  is << "      " << RegMailboxName(res_) << " <= 0;\n";
   vector<string> put_reqs;
   if (writers_.size() > 0) {
     for (auto *writer : writers_) {
