@@ -121,6 +121,8 @@
         'opt/dominator_tree_builder.h',
         'opt/dominator_tree.cpp',
         'opt/dominator_tree.h',
+	'opt/latency_info.cpp',
+	'opt/latency_info.h',
         'opt/optimizer.cpp',
         'opt/optimizer.h',
         'opt/opt_util.cpp',

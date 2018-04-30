@@ -9,6 +9,7 @@
 #include "opt/bb_set.h"
 #include "opt/data_flow.h"
 #include "opt/debug_annotation.h"
+#include "opt/latency_info.h"
 
 namespace iroha {
 namespace opt {
@@ -305,6 +306,29 @@ bool WireInsn::CanMoveInsn(IInsn *insn, BB *bb, int target_pos) {
     if (dep_pi->nth_state >= target_pos) {
       return false;
     }
+  }
+  // Checks the latency.
+  if (!CheckLatency(insn, target_st)) {
+    return false;
+  }
+  return true;
+}
+
+bool WireInsn::CheckLatency(IInsn *insn, IState *target_st) {
+  int min_slack = -1;
+  LatencyInfo lat_info;
+  for (IRegister *ireg : insn->inputs_) {
+    int s = lat_info.GetRegisterSlack(target_st, ireg);
+    if (min_slack < 0 || s < min_slack) {
+      min_slack = s;
+    }
+  }
+  if (min_slack < 0) {
+    return true;
+  }
+  int lat = lat_info.GetInsnLatency(insn);
+  if (min_slack - lat < 0) {
+    return false;
   }
   return true;
 }

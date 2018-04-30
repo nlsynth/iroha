@@ -7,8 +7,6 @@
 namespace iroha {
 namespace opt {
 
-class DebugAnnotation;
-
 class BB {
 public:
   BB();

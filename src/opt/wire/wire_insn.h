@@ -59,6 +59,7 @@ private:
   void ScanBBToMoveInsn(BB *bb);
   void MoveLastTransitionInsn(BB *bb);
   bool CanMoveInsn(IInsn *insn, BB *bb, int target_pos);
+  bool CheckLatency(IInsn *insn, IState *target_st);
   void MoveInsn(IInsn *insn, BB *bb, int target_pos);
   bool CanUseResourceInState(IState *st, IResource *resource);
   void AddWireToRegisterAssignments();
