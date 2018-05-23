@@ -20,7 +20,8 @@ bool CompoundPhase::ApplyForDesign(IDesign *design) {
   if (name_ == "clean") {
     return optimizer_->ApplyPhase("clean_unused_resource") &&
       optimizer_->ApplyPhase("clean_empty_state") &&
-      optimizer_->ApplyPhase("clean_unreachable_state");
+      optimizer_->ApplyPhase("clean_unreachable_state") &&
+      optimizer_->ApplyPhase("clean_empty_table");
   }
   return false;
 }

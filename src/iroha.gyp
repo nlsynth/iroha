@@ -102,6 +102,8 @@
         'opt/bb_set.h',
         'opt/clean/empty_state.cpp',
         'opt/clean/empty_state.h',
+        'opt/clean/empty_table.cpp',
+        'opt/clean/empty_table.h',
         'opt/clean/pseudo_resource.cpp',
         'opt/clean/pseudo_resource.h',
         'opt/clean/unreachable_state.cpp',

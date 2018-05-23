@@ -5,6 +5,7 @@
 #include "iroha/logging.h"
 #include "opt/array_to_mem.h"
 #include "opt/clean/empty_state.h"
+#include "opt/clean/empty_table.h"
 #include "opt/clean/unreachable_state.h"
 #include "opt/clean/pseudo_resource.h"
 #include "opt/clean/unused_resource.h"
@@ -28,6 +29,7 @@ Optimizer::Optimizer(IDesign *design) : design_(design) {
 void Optimizer::Init() {
   RegisterPhase("array_to_mem", &ArrayToMem::Create);
   RegisterPhase("clean_empty_state", &clean::CleanEmptyStatePhase::Create);
+  RegisterPhase("clean_empty_table", &clean::CleanEmptyTablePhase::Create);
   RegisterPhase("clean_unreachable_state",
 		&clean::CleanUnreachableStatePhase::Create);
   RegisterPhase("clean_unused_resource",
