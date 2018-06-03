@@ -47,7 +47,7 @@ void MappedResource::BuildMemInsn(IInsn *insn, State *st) {
   }
   const string &opr = insn->GetOperand();
   if (opr == operand::kSramReadData) {
-    ostream &ws = tmpl_->GetStream(kInsnWireValueSection);
+    ostream &ws = tab_.InsnWireValueSectionStream();
     ws << "  assign " << InsnWriter::InsnOutputWireName(*insn, 0)
        << " = sram_rdata" << res_id << ";\n";
   }

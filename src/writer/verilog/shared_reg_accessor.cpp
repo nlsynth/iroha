@@ -133,7 +133,7 @@ void SharedRegAccessor::GetAccessorFeatures(const IResource *accessor,
 
 void SharedRegAccessor::BuildReadInsn(IInsn *insn, State *st) {
   IResource *source = res_.GetParentResource();
-  ostream &ws = tmpl_->GetStream(kInsnWireValueSection);
+  ostream &ws = tab_.InsnWireValueSectionStream();
   int s = 0;
   for (int i = 0; i < insn->outputs_.size(); ++i) {
     ws << "  assign "
@@ -182,7 +182,7 @@ void SharedRegAccessor::BuildReadInsn(IInsn *insn, State *st) {
 }
 
 void SharedRegAccessor::BuildWriteInsn(IInsn *insn, State *st) {
-  ostream &ws = tmpl_->GetStream(kInsnWireValueSection);
+  ostream &ws = tab_.InsnWireValueSectionStream();
   int width = res_.GetParentResource()->GetParams()->GetWidth();
   ws << "  wire " << Table::WidthSpec(width)
      << InsnWriter::InsnSpecificWireName(*insn) << ";\n";

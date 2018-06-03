@@ -23,7 +23,7 @@ void ForeignReg::BuildInsn(IInsn *insn, State *st) {
   if (insn->outputs_.size() == 0) {
     return;
   }
-  ostream &ws = tmpl_->GetStream(kInsnWireValueSection);
+  ostream &ws = tab_.InsnWireValueSectionStream();
   ws << "  assign " << InsnWriter::InsnOutputWireName(*insn, 0)
      << " = "
      << InsnWriter::RegisterValue(*(res_.GetForeignRegister()), tab_.GetNames())
@@ -58,6 +58,7 @@ void ForeignReg::AddChildWire(IRegister *reg, Names *names, ostream &os) {
 
 void ForeignReg::BuildRegWire(const RegConnectionInfo &ri, Module *module) {
   ModuleTemplate *tmpl = module->GetModuleTemplate();
+  // TODO: Move this to per table section.
   ostream &ws = tmpl->GetStream(kInsnWireValueSection);
   for (IRegister *reg : ri.is_source) {
     ws << "  wire " << Table::ValueWidthSpec(reg->value_type_)

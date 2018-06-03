@@ -52,7 +52,7 @@ void ExtCombinational::BuildResource() {
 }
 
 void ExtCombinational::BuildInsn(IInsn *insn, State *st) {
-  ostream &ws = tmpl_->GetStream(kInsnWireValueSection);
+  ostream &ws = tab_.InsnWireValueSectionStream();
   for (int i = 0; i < res_.output_types_.size(); ++i) {
     ws << "  assign " << InsnWriter::InsnOutputWireName(*insn, i)
        << " = " << InsnWriter::CustomResourceName("ext_combinational", res_)

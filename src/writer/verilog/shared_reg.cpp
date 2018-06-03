@@ -190,7 +190,7 @@ void SharedReg::BuildInsn(IInsn *insn, State *st) {
     }
     if (insn->outputs_.size() == 1) {
       // Read from self.
-      ostream &ws = tmpl_->GetStream(kInsnWireValueSection);
+      ostream &ws = tab_.InsnWireValueSectionStream();
       ws << "  assign "
 	 << InsnWriter::InsnOutputWireName(*insn, 0)
 	 << " = "

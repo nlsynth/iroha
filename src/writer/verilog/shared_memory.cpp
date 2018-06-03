@@ -313,7 +313,7 @@ void SharedMemory::BuildInsn(IInsn *insn, State *st) {
        << MemoryRdataBuf(*mem, &res_)
        << " <= " << MemoryRdataPin(*mem, 0)
        << ";\n";
-    ostream &ws = tmpl_->GetStream(kInsnWireValueSection);
+    ostream &ws = tab_.InsnWireValueSectionStream();
     ws << "  assign " << InsnWriter::InsnOutputWireName(*insn, 0)
        << " = " << MemoryRdataBuf(*mem, &res_) << ";\n";
   }

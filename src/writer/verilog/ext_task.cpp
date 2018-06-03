@@ -129,7 +129,7 @@ void ExtTask::BuildExtTask() {
   ITable *i_table = tab_.GetITable();
   IInsn *task_entry_insn = DesignUtil::FindTaskEntryInsn(i_table);
   ostream &rs = tab_.ResourceSectionStream();
-  ostream &ws = tmpl_->GetStream(kInsnWireValueSection);
+  ostream &ws = tab_.InsnWireValueSectionStream();
   ostream &ts = tab_.TaskEntrySectionStream();
   for (int i = 0; i < res_.output_types_.size(); ++i) {
     rs << "  reg "

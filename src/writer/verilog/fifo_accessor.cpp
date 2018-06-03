@@ -90,7 +90,7 @@ void FifoAccessor::BuildReadInsn(IInsn *insn, State *st) {
      << I << "    " << st_name << " <= 3;\n"
      << I << "  end\n";
   os << I << "end\n";
-  ostream &ws = tmpl_->GetStream(kInsnWireValueSection);
+  ostream &ws = tab_.InsnWireValueSectionStream();
       ws << "  assign " << InsnWriter::InsnOutputWireName(*insn, 0)
 	 << " = " << Fifo::RDataBuf(res_) << ";\n";
 }

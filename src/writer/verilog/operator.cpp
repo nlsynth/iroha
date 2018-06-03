@@ -84,7 +84,7 @@ void Operator::BuildExclusiveBinOpInsn(IInsn *insn) {
 }
 
 void Operator::BuildLightUniOpInsn(IInsn *insn) {
-  ostream &ws = tmpl_->GetStream(kInsnWireValueSection);
+  ostream &ws = tab_.InsnWireValueSectionStream();
   ws << "  assign " << InsnWriter::InsnOutputWireName(*insn, 0)
      << " = ";
   const string &rc = insn->GetResource()->GetClass()->GetName();
@@ -97,7 +97,7 @@ void Operator::BuildLightUniOpInsn(IInsn *insn) {
 }
 
 void Operator::BuildLightBinOpInsn(IInsn *insn) {
-  ostream &ws = tmpl_->GetStream(kInsnWireValueSection);
+  ostream &ws = tab_.InsnWireValueSectionStream();
   ws << "  assign " << InsnWriter::InsnOutputWireName(*insn, 0)
      << " = " << InsnWriter::RegisterValue(*insn->inputs_[0], tab_.GetNames())
      << " ";
@@ -115,7 +115,7 @@ void Operator::BuildLightBinOpInsn(IInsn *insn) {
 }
 
 void Operator::BuildBitShiftOpInsn(IInsn *insn) {
-  ostream &ws = tmpl_->GetStream(kInsnWireValueSection);
+  ostream &ws = tab_.InsnWireValueSectionStream();
   const string &rc = insn->GetResource()->GetClass()->GetName();
   if (rc != resource::kShift) {
     return;
@@ -135,7 +135,7 @@ void Operator::BuildBitShiftOpInsn(IInsn *insn) {
 }
 
 void Operator::BuildBitSelInsn(IInsn *insn) {
-  ostream &ws = tmpl_->GetStream(kInsnWireValueSection);
+  ostream &ws = tab_.InsnWireValueSectionStream();
   IRegister *reg = insn->inputs_[0];
   string r;
   if (reg->IsConst()) {
@@ -156,7 +156,7 @@ void Operator::BuildBitSelInsn(IInsn *insn) {
 }
 
 void Operator::BuildBitConcatInsn(IInsn *insn) {
-  ostream &ws = tmpl_->GetStream(kInsnWireValueSection);
+  ostream &ws = tab_.InsnWireValueSectionStream();
   vector<string> regs;
   for (IRegister *reg : insn->inputs_) {
     regs.push_back(InsnWriter::RegisterValue(*reg, tab_.GetNames()));
@@ -166,7 +166,7 @@ void Operator::BuildBitConcatInsn(IInsn *insn) {
 }
 
 void Operator::BuildSelectInsn(IInsn *insn) {
-  ostream &ws = tmpl_->GetStream(kInsnWireValueSection);
+  ostream &ws = tab_.InsnWireValueSectionStream();
   Names *names = tab_.GetNames();
   ws << "  assign " << InsnWriter::InsnOutputWireName(*insn, 0)
      << " = "

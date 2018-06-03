@@ -44,7 +44,7 @@ void DataFlowIn::BuildInsn(IInsn *insn, State *st) {
        resource::IsFifo(rc))) {
     int s = 0;
     for (int i = 0; i < insn->outputs_.size(); ++i) {
-      ostream &ws = tmpl_->GetStream(kInsnWireValueSection);
+      ostream &ws = tab_.InsnWireValueSectionStream();
       ws << "  assign " << InsnWriter::InsnOutputWireName(*insn, i)
 	 << " = ";
       if (resource::IsFifo(rc)) {

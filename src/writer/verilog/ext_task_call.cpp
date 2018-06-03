@@ -113,7 +113,7 @@ void ExtTaskCall::BuildFlowCallInsn(IInsn *insn, State *st) {
 }
 
 void ExtTaskCall::BuildFlowResultInsn(IInsn *insn, State *st) {
-  ostream &ws = tmpl_->GetStream(kInsnWireValueSection);
+  ostream &ws = tab_.InsnWireValueSectionStream();
   for (int i = 0; i < insn->outputs_.size(); ++i) {
     ws << "  assign " << InsnWriter::InsnOutputWireName(*insn, i)
        << " = " << ExtTask::DataPin(&res_, i) << ";\n";
@@ -144,7 +144,7 @@ void ExtTaskCall::BuildTaskCallInsn(IInsn *insn, State *st) {
 }
 
 void ExtTaskCall::BuildTaskWaitInsn(IInsn *insn, State *st) {
-  ostream &ws = tmpl_->GetStream(kInsnWireValueSection);
+  ostream &ws = tab_.InsnWireValueSectionStream();
   for (int i = 0; i < insn->outputs_.size(); ++i) {
     ws << "  assign " << InsnWriter::InsnOutputWireName(*insn, i)
        << " = " << ResCaptureReg(i) << ";\n";
