@@ -55,12 +55,13 @@ void SharedRegAccessor::BuildInsn(IInsn *insn, State *st) {
 void SharedRegAccessor::BuildSharedRegReaderResource() {
   ostream &rs = tab_.ResourceSectionStream();
   rs << "  // shared-reg-reader\n";
+  ostream &rvs = tab_.ResourceValueSectionStream();
   const IResource *reg = res_.GetParentResource();
   if (UseMailbox(&res_)) {
     map<IState *, IInsn *> getters;
     CollectResourceCallers(operand::kGetMailbox, &getters);
-    rs << "  assign " << SharedReg::RegMailboxGetReqName(res_) << " = "
-       << JoinStatesWithSubState(getters, 0) << ";\n";
+    rvs << "  assign " << SharedReg::RegMailboxGetReqName(res_) << " = "
+	<< JoinStatesWithSubState(getters, 0) << ";\n";
   }
   if (UseMailbox(&res_) || UseNotify(&res_)) {
     int width = res_.GetParentResource()->GetParams()->GetWidth();
@@ -72,13 +73,14 @@ void SharedRegAccessor::BuildSharedRegReaderResource() {
 void SharedRegAccessor::BuildSharedRegWriterResource() {
   ostream &rs = tab_.ResourceSectionStream();
   rs << "  // shared-reg-writer\n";
+  ostream &rvs = tab_.ResourceValueSectionStream();
   // Write en signal.
   map<IState *, IInsn *> callers;
   CollectResourceCallers("*", &callers);
-  rs << "  assign " << SharedReg::WriterEnName(res_) << " = ";
-  WriteStateUnion(callers, rs);
-  rs << ";\n";
-  rs << "  assign " << SharedReg::WriterName(res_) << " = ";
+  rvs << "  assign " << SharedReg::WriterEnName(res_) << " = ";
+  WriteStateUnion(callers, rvs);
+  rvs << ";\n";
+  rvs << "  assign " << SharedReg::WriterName(res_) << " = ";
   string v;
   for (auto &p : callers) {
     if (v.empty()) {
@@ -88,20 +90,20 @@ void SharedRegAccessor::BuildSharedRegWriterResource() {
 	InsnWriter::InsnSpecificWireName(*(p.second)) + " : (" + v + ")";
     }
   }
-  rs << v << ";\n";
+  rvs << v << ";\n";
   // write notify signal.
   if (UseNotify(&res_)) {
     map<IState *, IInsn *> notifiers;
     CollectResourceCallers(operand::kNotify, &notifiers);
-    rs << "  assign " << SharedReg::WriterNotifierName(res_) << " = ";
-    WriteStateUnion(notifiers, rs);
-    rs << ";\n";
+    rvs << "  assign " << SharedReg::WriterNotifierName(res_) << " = ";
+    WriteStateUnion(notifiers, rvs);
+    rvs << ";\n";
   }
   if (UseMailbox(&res_)) {
     map<IState *, IInsn *> putters;
     CollectResourceCallers(operand::kPutMailbox, &putters);
-    rs << "  assign " << SharedReg::RegMailboxPutReqName(res_) << " = "
-       << JoinStatesWithSubState(putters, 0) << ";\n";
+    rvs << "  assign " << SharedReg::RegMailboxPutReqName(res_) << " = "
+	<< JoinStatesWithSubState(putters, 0) << ";\n";
   }
 }
 

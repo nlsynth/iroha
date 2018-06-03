@@ -274,6 +274,14 @@ string Table::ResourceSectionContents() const {
   return tmpl_->GetContents(kResourceSection + Util::Itoa(table_id_));
 }
 
+ostream &Table::ResourceValueSectionStream() const {
+  return tmpl_->GetStream(kResourceValueSection + Util::Itoa(table_id_));
+}
+
+string Table::ResourceValueSectionContents() const {
+  return tmpl_->GetContents(kResourceValueSection + Util::Itoa(table_id_));
+}
+
 ostream &Table::RegisterSectionStream() const {
   return tmpl_->GetStream(kRegisterSection + Util::Itoa(table_id_));
 }

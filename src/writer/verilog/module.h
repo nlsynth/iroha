@@ -16,6 +16,7 @@ static const char kSubModuleSection[] = "sub_modules";
 // For each table (with table id).
 static const char kRegisterSection[] = "register";
 static const char kResourceSection[] = "resource";
+static const char kResourceValueSection[] = "resource_value";
 static const char kInsnWireDeclSection[] = "insn_wire_decl";
 static const char kInsnWireValueSection[] = "insn_wire_value";
 static const char kInitialValueSection[] = "initial_value";

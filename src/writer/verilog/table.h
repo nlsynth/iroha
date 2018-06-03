@@ -46,6 +46,8 @@ public:
   string TaskEntrySectionContents() const;
   ostream &ResourceSectionStream() const;
   string ResourceSectionContents() const;
+  ostream &ResourceValueSectionStream() const;
+  string ResourceValueSectionContents() const;
   ostream &RegisterSectionStream() const;
   string RegisterSectionContents() const;
   ostream &InsnWireDeclSectionStream() const;

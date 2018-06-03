@@ -155,7 +155,7 @@ void Fifo::BuildMemoryInstance() {
      << ", .addr_0_i(" << ReadPtrBuf() << "[" << (aw - 1) << ":0])"
      << ", .rdata_0_o(" << RData(res_) << ")"
      << ", .wdata_0_i(/*not connected*/)"
-     << ", .write_en_0_i(0)"
+     << ", .write_en_0_i(1'b0)"
     // Write.
      << ", .addr_1_i(" << WritePtr() << "[" << (aw - 1) << ":0])"
      << ", .rdata_1_o(/*not connected*/)"

@@ -132,6 +132,7 @@ void SharedReg::BuildResource() {
 void SharedReg::BuildMailbox() {
   ostream &rs = tab_.ResourceSectionStream();
   rs << "  reg " << RegMailboxName(res_) << ";\n";
+  ostream &rvs = tab_.ResourceValueSectionStream();
   ostream &is = tab_.InitialValueSectionStream();
   is << "      " << RegMailboxName(res_) << " <= 0;\n";
   vector<string> put_reqs;
@@ -140,12 +141,12 @@ void SharedReg::BuildMailbox() {
       if (!SharedRegAccessor::UseMailbox(writer)) {
 	continue;
       }
-      rs << "  assign " << RegMailboxPutAckName(*writer) << " = "
-	 << "(!" << RegMailboxName(res_) << ") && ";
+      rvs << "  assign " << RegMailboxPutAckName(*writer) << " = "
+	  << "(!" << RegMailboxName(res_) << ") && ";
       if (put_reqs.size() > 0) {
-	rs << "(!(" << Util::Join(put_reqs, " | ") << ")) && ";
+	rvs << "(!(" << Util::Join(put_reqs, " | ") << ")) && ";
       }
-      rs << RegMailboxPutReqName(*writer) << ";\n";
+      rvs << RegMailboxPutReqName(*writer) << ";\n";
       put_reqs.push_back(RegMailboxPutReqName(*writer));
     }
   } else {
@@ -157,12 +158,12 @@ void SharedReg::BuildMailbox() {
       if (!SharedRegAccessor::UseMailbox(reader)) {
 	continue;
       }
-      rs << "  assign " << RegMailboxGetAckName(*reader) << " = "
+      rvs << "  assign " << RegMailboxGetAckName(*reader) << " = "
 	 << "(" << RegMailboxName(res_) << ") && ";
       if (get_reqs.size() > 0) {
-	rs << "(!(" << Util::Join(get_reqs, " | ") << ")) && ";
+	rvs << "(!(" << Util::Join(get_reqs, " | ") << ")) && ";
       }
-      rs << RegMailboxGetReqName(*reader) << ";\n";
+      rvs << RegMailboxGetReqName(*reader) << ";\n";
       get_reqs.push_back(RegMailboxGetReqName(*reader));
     }
   } else {

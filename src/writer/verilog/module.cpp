@@ -71,6 +71,11 @@ void Module::Write(ostream &os) {
       os << "  // Resources for table " << tab->GetITable()->GetId() << "\n";
       os << s << "\n";
     }
+    s = tab->ResourceValueSectionContents();
+    if (!s.empty()) {
+      os << "  // Resources value for table " << tab->GetITable()->GetId() << "\n";
+      os << s << "\n";
+    }
   }
 
   for (auto *tab : tables_) {
