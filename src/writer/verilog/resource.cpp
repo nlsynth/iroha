@@ -120,7 +120,7 @@ void Resource::BuildInsn(IInsn *insn, State *st) {
   auto *rc = res_.GetClass();
   if (resource::IsSet(*rc)) {
     if (insn->outputs_[0]->IsStateLocal()) {
-      ostream &ws = tmpl_->GetStream(kInsnWireValueSection);
+      ostream &ws = tab_.InsnWireValueSectionStream();
       ws << "  assign " << insn->outputs_[0]->GetName() << " = "
 	 << InsnWriter::RegisterValue(*insn->inputs_[0], st->GetNames())
 	 << ";\n";

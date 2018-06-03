@@ -48,6 +48,10 @@ public:
   string ResourceSectionContents() const;
   ostream &RegisterSectionStream() const;
   string RegisterSectionContents() const;
+  ostream &InsnWireDeclSectionStream() const;
+  string InsnWireDeclSectionContents() const;
+  ostream &InsnWireValueSectionStream() const;
+  string InsnWireValueSectionContents() const;
 
   static string ValueWidthSpec(const IValueType &type);
   static string WidthSpec(int w);

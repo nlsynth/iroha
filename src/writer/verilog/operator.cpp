@@ -78,7 +78,7 @@ void Operator::BuildExclusiveBinOp() {
 }
 
 void Operator::BuildExclusiveBinOpInsn(IInsn *insn) {
-  ostream &ws = tmpl_->GetStream(kInsnWireValueSection);
+  ostream &ws = tab_.InsnWireValueSectionStream();
   ws << "  assign " << InsnWriter::InsnOutputWireName(*insn, 0)
      << " = " << InsnWriter::ResourceName(res_) << "_d0;\n";
 }

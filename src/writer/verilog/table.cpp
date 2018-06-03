@@ -120,7 +120,7 @@ void Table::BuildRegister() {
 }
 
 void Table::BuildInsnOutputWire() {
-  ostream &rs = tmpl_->GetStream(kInsnWireDeclSection);
+  ostream &rs = InsnWireDeclSectionStream();
   for (IState *st : i_table_->states_) {
     for (IInsn *insn : st->insns_) {
       int nth = 0;
@@ -280,6 +280,22 @@ ostream &Table::RegisterSectionStream() const {
 
 string Table::RegisterSectionContents() const {
   return tmpl_->GetContents(kRegisterSection + Util::Itoa(table_id_));
+}
+
+ostream &Table::InsnWireDeclSectionStream() const {
+  return tmpl_->GetStream(kInsnWireDeclSection + Util::Itoa(table_id_));
+}
+
+string Table::InsnWireDeclSectionContents() const {
+  return tmpl_->GetContents(kInsnWireDeclSection + Util::Itoa(table_id_));
+}
+
+ostream &Table::InsnWireValueSectionStream() const {
+  return tmpl_->GetStream(kInsnWireValueSection + Util::Itoa(table_id_));
+}
+
+string Table::InsnWireValueSectionContents() const {
+  return tmpl_->GetContents(kInsnWireValueSection + Util::Itoa(table_id_));
 }
   
 string Table::InitialStateName() {

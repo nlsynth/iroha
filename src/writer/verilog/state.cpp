@@ -30,8 +30,7 @@ State::~State() {
 }
 
 void State::Build() {
-  ModuleTemplate *tmpl_ = table_->GetModuleTemplate();
-  ostream &ws = tmpl_->GetStream(kInsnWireValueSection);
+  ostream &ws = table_->InsnWireValueSectionStream();
   for (auto *insn : i_state_->insns_) {
     auto *res = insn->GetResource();
     unique_ptr<Resource> builder(Resource::Create(*res, *table_));

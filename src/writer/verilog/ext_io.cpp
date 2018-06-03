@@ -71,7 +71,7 @@ void ExtIO::BuildExtInputInsn(IInsn *insn) {
   string input_port;
   int width;
   params->GetExtInputPort(&input_port, &width);
-  ostream &ws = tmpl_->GetStream(kInsnWireValueSection);
+  ostream &ws = tab_.InsnWireValueSectionStream();
   ws << "  assign " << InsnWriter::InsnOutputWireName(*insn, 0)
      << " = "
      << input_port << ";\n";

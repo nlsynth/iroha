@@ -42,9 +42,11 @@ void Module::Write(ostream &os) {
 
   os << "  // State decls\n"
      << tmpl_->GetContents(kStateDeclSection)
-     << "  // Insn wires\n"
+     << "  // Shared wires\n"
+     << tmpl_->GetContents(kSharedWireSection)
+     << "  // Shared insn wires\n"
      << tmpl_->GetContents(kInsnWireDeclSection)
-     << "  // Insn assigns\n"
+     << "  // Shared insn assigns\n"
      << tmpl_->GetContents(kInsnWireValueSection);
   os << "\n";
 
@@ -52,6 +54,16 @@ void Module::Write(ostream &os) {
     string s = tab->RegisterSectionContents();
     if (!s.empty()) {
       os << "  // Registers for table " << tab->GetITable()->GetId() << "\n";
+      os << s << "\n";
+    }
+    s = tab->InsnWireDeclSectionContents();
+    if (!s.empty()) {
+      os << "  // Insn wires for table " << tab->GetITable()->GetId() << "\n";
+      os << s << "\n";
+    }
+    s = tab->InsnWireValueSectionContents();
+    if (!s.empty()) {
+      os << "  // Insn values for table " << tab->GetITable()->GetId() << "\n";
       os << s << "\n";
     }
     s = tab->ResourceSectionContents();
