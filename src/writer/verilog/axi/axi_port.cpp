@@ -41,9 +41,9 @@ void AxiPort::OutputSRAMConnection(ostream &os) {
      << "), "
      << ".sram_rdata(" << SharedMemory::MemoryRdataPin(*mem, idx) << "), "
      << ".sram_wen(" << SharedMemory::MemoryWenPin(*mem, idx, accessor) << "), "
-     << ".sram_EXCLUSIVE(" << excl << ")";
+     << ".sram_EXCLUSIVE(1'b" << excl << ")";
   if (excl) {
-    os << ", .sram_req(/*not connected*/), .sram_ack(1)";
+    os << ", .sram_req(/*not connected*/), .sram_ack(1'b1)";
   } else {
     os << ", .sram_req(" << SharedMemory::MemoryReqPin(*mem, accessor)
        << "), .sram_ack(" << SharedMemory::MemoryAckPin(*mem, accessor)
