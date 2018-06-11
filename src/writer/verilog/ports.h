@@ -46,6 +46,8 @@ public:
     PORT_DIRECTION,
     // Pin connection from internal module ".name(name)"
     PORT_CONNECTION,
+    // Pin connection template for outer module ".name()"
+    PORT_CONNECTION_TEMPLATE,
     // Clears the value at reset state.
     REGISTER_RESET,
   };

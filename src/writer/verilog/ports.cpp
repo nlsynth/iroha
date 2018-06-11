@@ -68,11 +68,15 @@ void Ports::OutputPort(Port *p, enum OutputType type, bool is_first,
     }
     os << " " << p->GetName() << ";\n";
   }
-  if (type == PORT_CONNECTION) {
+  if (type == PORT_CONNECTION || type == PORT_CONNECTION_TEMPLATE) {
     if (!is_first) {
       os << ", ";
     }
-    os << "." << p->GetName() << "(" << p->GetName() << ")";
+    os << "." << p->GetName() << "(";
+    if (type == PORT_CONNECTION) {
+      os << p->GetName();
+    }
+    os << ")";
   }
   if (type == PORT_NAME) {
     if (!is_first) {

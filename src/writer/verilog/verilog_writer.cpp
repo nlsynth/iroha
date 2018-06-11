@@ -153,6 +153,11 @@ void VerilogWriter::WriteShellModule(const Module *mod) {
 	<< "  end\n";
   }
   os_ << "endmodule\n";
+
+  os_ << "\n// NOTE: Please copy the follwoing line to \n"
+      << "// " << shell_module_name_ << " " << shell_module_name_ << "_inst(";
+  ports->Output(Ports::PORT_CONNECTION_TEMPLATE, os_);
+  os_ << ");\n";
 }
 
 void VerilogWriter::WriteSelfClockGenerator(const Module *mod) {
