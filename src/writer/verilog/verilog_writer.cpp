@@ -154,7 +154,7 @@ void VerilogWriter::WriteShellModule(const Module *mod) {
   }
   os_ << "endmodule\n";
 
-  os_ << "\n// NOTE: Please copy the follwoing line to \n"
+  os_ << "\n// NOTE: Please copy the follwoing line to your design.\n"
       << "// " << shell_module_name_ << " " << shell_module_name_ << "_inst(";
   ports->Output(Ports::PORT_CONNECTION_TEMPLATE, os_);
   os_ << ");\n";

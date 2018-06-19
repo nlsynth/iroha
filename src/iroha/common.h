@@ -34,6 +34,7 @@ public:
   static int Atoi(const string &a);
   static uint64_t AtoULL(const string &a);
   static string ULLtoA(uint64_t u);
+  static int Log2(uint64_t u);
   static bool IsInteger(const string &a);
   static void SetImportPaths(const vector<string> &paths);
   static void SplitStringUsing(const string &str, const char *delim,

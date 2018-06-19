@@ -72,6 +72,7 @@ void SlaveController::AddPorts(const PortConfig &cfg, Module *mod, string *s) {
 }
 
 void SlaveController::OutputFSM(ostream &os) {
+  int data_shift = Util::Log2(cfg_.data_width / 8);
   os << "      sram_wen <= (st == `S_WRITE && WVALID);\n"
      << "      case (st)\n"
      << "        `S_IDLE: begin\n"
@@ -81,7 +82,7 @@ void SlaveController::OutputFSM(ostream &os) {
      << "          if (ARVALID) begin\n"
      << "            if (ARREADY) begin\n"
      << "              ARREADY <= 0;\n"
-     << "              sram_addr <= ARADDR[" << (sram_addr_width_ - 1) << ":0];\n"
+     << "              sram_addr <= ARADDR[" << (sram_addr_width_ - 1 + data_shift) << ":" << data_shift << "];\n"
      << "              rlen <= ARLEN;\n"
      << "              if (sram_EXCLUSIVE) begin\n"
      << "                st <= `S_READ;\n"
@@ -96,7 +97,7 @@ void SlaveController::OutputFSM(ostream &os) {
      << "            if (AWREADY) begin\n"
      << "              AWREADY <= 0;\n"
      << "              first_addr <= 1;\n"
-     << "              sram_addr <= AWADDR[" << (sram_addr_width_ - 1) << ":0];\n"
+     << "              sram_addr <= AWADDR[" << (sram_addr_width_ - 1 + data_shift) << ":" << data_shift << "];\n"
      << "              if (sram_EXCLUSIVE) begin\n"
      << "                st <= `S_WRITE;\n"
      << "              end else begin\n"

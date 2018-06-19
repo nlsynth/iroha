@@ -37,6 +37,15 @@ string Util::ULLtoA(uint64_t u) {
   return ss.str();
 }
 
+int Util::Log2(uint64_t u) {
+  int r = 0;
+  while (u > 1) {
+    u >>= 1;
+    ++r;
+  }
+  return r;
+}
+
 bool Util::IsInteger(const string &a) {
   return Atoi(a) != 0 || a == "0";
 }
