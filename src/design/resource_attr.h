@@ -12,6 +12,7 @@ public:
   static int NumMultiCycleInsn(const IState *st);
   static bool IsExtAccessResource(IResource *res);
   static bool IsExtAccessInsn(IInsn *insn);
+  static bool IsExtWaitInsn(IInsn *insn);
   static int NumExtAccessInsn(const IState *st);
 };
 

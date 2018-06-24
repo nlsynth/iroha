@@ -69,6 +69,10 @@ bool ResourceAttr::IsExtAccessResource(IResource *res) {
   return false;
 }
 
+bool ResourceAttr::IsExtWaitInsn(IInsn *insn) {
+  return resource::IsAxiSlavePort(*(insn->GetResource()->GetClass()));
+}
+
 bool ResourceAttr::IsExtAccessInsn(IInsn *insn) {
   return IsExtAccessResource(insn->GetResource());
 }

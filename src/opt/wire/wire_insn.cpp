@@ -194,32 +194,62 @@ void WireInsn::AddWireToRegMapping(IInsn *insn, IRegister *wire,
 }
 
 void WireInsn::ScanBBToMoveInsn(BB *bb) {
+  int target_pos = 0;
+  do {
+    target_pos = TryToMoveInsnsToTarget(bb, target_pos);
+  } while (target_pos < bb->states_.size() - 1);
+}
+
+int WireInsn::TryToMoveInsnsToTarget(BB *bb, int target_pos) {
+  int next_target = target_pos + 1;
+  IState *target_st = bb->states_[target_pos];
+  bool seen_ext_access = false;
+  bool seen_ext_wait = false;
   // Moves insns from src-th state to target-th state.
-  for (int target_pos = 0; target_pos < bb->states_.size() - 1; ++target_pos) {
-    IState *target_st = bb->states_[target_pos];
-    bool seen_ext_access = false;
-    for (int src_pos = target_pos + 1;
-	 src_pos < bb->states_.size(); ++src_pos) {
-      vector<IInsn *> movable_insns;
-      IState *src_st = bb->states_[src_pos];
-      for (IInsn *insn : src_st->insns_) {
-	if (ResourceAttr::IsExtAccessInsn(insn)) {
-	  // Skip to move the insns if there are ext access insns between
-	  // target_pos & src_pos.
-	  if (seen_ext_access) {
-	    continue;
-	  }
-	  seen_ext_access = true;
+  for (int src_pos = target_pos + 1;
+       src_pos < bb->states_.size(); ++src_pos) {
+    vector<IInsn *> movable_insns;
+    IState *src_st = bb->states_[src_pos];
+    for (IInsn *insn : src_st->insns_) {
+      if (ResourceAttr::IsExtAccessInsn(insn)) {
+	// Skip to move the insns if there are other ext access insns between
+	// target_pos & src_pos.
+	if (seen_ext_access) {
+	  continue;
 	}
-	if (CanMoveInsn(insn, bb, target_pos)) {
-	  movable_insns.push_back(insn);
-	}
+	seen_ext_access = true;
       }
-      for (IInsn *insn : movable_insns) {
-	MoveInsn(insn, bb, target_pos);
+      if (ResourceAttr::IsExtWaitInsn(insn)) {
+	seen_ext_wait = true;
+      }
+      if (CanMoveInsn(insn, bb, target_pos)) {
+	movable_insns.push_back(insn);
+      } else {
+	if (ResourceAttr::IsExtWaitInsn(insn)) {
+	  next_target = src_pos + 1;
+	}
       }
     }
+    // Filters out non ext wait insns if there are ext wait insns.
+    if (seen_ext_wait) {
+      vector<IInsn *> tmp;
+      for (IInsn *insn : movable_insns) {
+	if (ResourceAttr::IsExtWaitInsn(insn)) {
+	  tmp.push_back(insn);
+	}
+      }
+      movable_insns = tmp;
+    }
+    // Does move.
+    for (IInsn *insn : movable_insns) {
+      MoveInsn(insn, bb, target_pos);
+    }
+    if (seen_ext_wait) {
+      // Stops to move further.
+      break;
+    }
   }
+  return next_target;
 }
 
 void WireInsn::MoveLastTransitionInsn(BB *bb) {
@@ -368,8 +398,9 @@ void WireInsn::MoveInsn(IInsn *insn, BB *bb, int target_pos) {
 
 bool WireInsn::CanUseResourceInState(IState *st, IResource *resource) {
   for (IInsn *target_insn : st->insns_) {
+    IResource *insn_resource = target_insn->GetResource();
     if (resource->GetClass()->IsExclusive() &&
-	resource == target_insn->GetResource()) {
+	resource == insn_resource) {
       return false;
     }
   }

@@ -57,6 +57,7 @@ private:
   bool IsSimpleAssign(IInsn *insn);
   void AddWireToRegMapping(IInsn *insn, IRegister *wire, IRegister *reg);
   void ScanBBToMoveInsn(BB *bb);
+  int TryToMoveInsnsToTarget(BB *bb, int target_pos);
   void MoveLastTransitionInsn(BB *bb);
   bool CanMoveInsn(IInsn *insn, BB *bb, int target_pos);
   bool CheckLatency(IInsn *insn, IState *target_st);
