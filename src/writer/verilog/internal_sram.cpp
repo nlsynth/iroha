@@ -50,26 +50,28 @@ void InternalSRAM::WriteInternal(ostream &os) {
   int array_size = 1 << array_->GetAddressWidth();
   os << "  reg " << DataWidthSpec()
      << "data [0:" << (array_size - 1) << "];\n\n";
-  os << "  always @(posedge clk) begin\n"
-     << "    if (";
-  if (!reset_polarity_) {
-    os << "!";
-  }
-  os << GetResetPinName() << ") begin\n";
-  IArrayImage *im = array_->GetArrayImage();
-  if (im != nullptr) {
-    for (int i = 0; i < im->values_.size(); ++i) {
-      os << "      data[" << i << "] <= " << im->values_[i] << ";\n";
-    }
-  }
-  os << "    end else begin\n";
   for (int p = 0; p < num_ports_; ++p) {
+    os << "  always @(posedge clk) begin\n"
+       << "    if (";
+    if (!reset_polarity_) {
+      os << "!";
+    }
+    os << GetResetPinName() << ") begin\n";
+    if (p == 0) {
+      IArrayImage *im = array_->GetArrayImage();
+      if (im != nullptr) {
+	for (int i = 0; i < im->values_.size(); ++i) {
+	  os << "      data[" << i << "] <= " << im->values_[i] << ";\n";
+	}
+      }
+    }
+    os << "    end else begin\n";
     os << "      if (" << GetWenPin(p) << ") begin\n"
        << "        data[" << GetAddrPin(p) << "] <= " << GetWdataPin(p) << ";\n"
        << "      end\n";
+    os << "    end\n"
+       << "  end\n";
   }
-  os << "    end\n"
-     << "  end\n";
   os << "  // Read\n";
   for (int p = 0; p < num_ports_; ++p) {
     os << "  always @(" << GetAddrPin(p) << " or clk) begin\n"
