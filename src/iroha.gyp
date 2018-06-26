@@ -141,6 +141,8 @@
         'opt/ssa/ssa_converter.h',
         'opt/ssa/ssa.cpp',
         'opt/ssa/ssa.h',
+        'opt/wire/alloc_resource.cpp',
+        'opt/wire/alloc_resource.h',
         'opt/wire/wire_insn.cpp',
         'opt/wire/wire_insn.h',
         'writer/connection.cpp',

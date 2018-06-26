@@ -21,7 +21,7 @@ private:
 class WireInsn {
 public:
   WireInsn(ITable *table, DebugAnnotation *annotation);
-  ~WireInsn();
+  virtual ~WireInsn();
   bool Perform();
 
 private:
