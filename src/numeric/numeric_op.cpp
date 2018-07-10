@@ -59,6 +59,9 @@ void Op::CalcBinOp(BinOp op, const Numeric &x, const Numeric &y,
 	WideOp::BinBitOp(op, x, y, res);
       }
       break;
+    case BINOP_MUL:
+      return;
+      break;
     }
     return;
   }

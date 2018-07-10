@@ -125,6 +125,7 @@ string DataFlowState::StartCondition(IInsn *insn) {
       return Fifo::RAck(*p, res);
     }
     CHECK(false);
+    return "";
   } else {
     return InsnWriter::RegisterValue(*insn->inputs_[0], names_);
   }
