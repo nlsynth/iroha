@@ -38,6 +38,7 @@ void Module::Write(ostream &os) {
   ports_->Output(Ports::PORT_NAME, os);
   os << ");\n";
   ports_->Output(Ports::PORT_TYPE, os);
+  ports_->Output(Ports::FIXED_VALUE_ASSIGN, os);
   os << "\n";
 
   os << "  // State decls\n"

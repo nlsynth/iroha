@@ -27,12 +27,16 @@ public:
   const string &GetName();
   enum PortType GetType();
   int GetWidth();
+  void SetFixedValue(int default_value);
+  int GetFixedValue() const;
 
 private:
   string name_;
   enum PortType type_;
   int width_;
   string comment_;
+  // valid if non negative.
+  int fixed_value_;
 };
 
 class Ports {
@@ -48,8 +52,8 @@ public:
     PORT_CONNECTION,
     // Pin connection template for outer module ".name()"
     PORT_CONNECTION_TEMPLATE,
-    // Clears the value at reset state.
-    REGISTER_RESET,
+    // Assigns a fixed value if specified "assign name = v;".
+    FIXED_VALUE_ASSIGN,
   };
 
   ~Ports();
@@ -62,6 +66,7 @@ public:
 private:
   void OutputPort(Port *p, enum OutputType type, bool is_first,
 		  bool reg_phase, ostream &os) const;
+  void OutputFixedValueAssign(Port *port, ostream &os) const;
   static const string &DirectionPort(Port::PortType type);
 
   vector<Port *> ports_;

@@ -24,6 +24,8 @@ protected:
   static void AddPort(const PortConfig &cfg, const string &name, int width,
 		      bool dir_s2m,
 		      bool is_master,
+		      // valid if non negative.
+		      int fixed_value,
 		      Module *module, Ports *ports, string *s);
   static void GenReadChannel(const PortConfig &cfg,
 			     bool is_master, Module *module, Ports *ports,

@@ -50,6 +50,10 @@ void Ports::Output(enum OutputType type, ostream &os) const {
 
 void Ports::OutputPort(Port *p, enum OutputType type, bool is_first,
 		       bool reg_phase, ostream &os) const {
+  if (type == FIXED_VALUE_ASSIGN) {
+    OutputFixedValueAssign(p, os);
+    return;
+  }
   if (type == PORT_TYPE || type == PORT_DIRECTION) {
     Port::PortType port_type = p->GetType();
     string t;
@@ -86,6 +90,14 @@ void Ports::OutputPort(Port *p, enum OutputType type, bool is_first,
   }
 }
 
+void Ports::OutputFixedValueAssign(Port *p, ostream &os) const {
+  int v = p->GetFixedValue();
+  if (v < 0) {
+    return;
+  }
+  os << "  assign " << p->GetName() << " = " << v << ";\n";
+}
+
 const string &Ports::DirectionPort(Port::PortType type) {
   if (type == Port::INPUT || type == Port::INPUT_CLK ||
       type == Port::INPUT_RESET) {
@@ -96,7 +108,7 @@ const string &Ports::DirectionPort(Port::PortType type) {
 }
 
 Port::Port(const string &name, enum PortType type, int width)
-  : name_(name), type_(type), width_(width) {
+  : name_(name), type_(type), width_(width), fixed_value_(-1) {
 }
 
 Port::~Port() {
@@ -116,6 +128,14 @@ enum Port::PortType Port::GetType() {
 
 int Port::GetWidth() {
   return width_;
+}
+
+void Port::SetFixedValue(int fixed_value) {
+  fixed_value_ = fixed_value;
+}
+
+int Port::GetFixedValue() const {
+  return fixed_value_;
 }
 
 }  // namespace verilog

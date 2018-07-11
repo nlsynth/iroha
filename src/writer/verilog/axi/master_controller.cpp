@@ -35,6 +35,7 @@ void MasterController::Write(ostream &os) {
   ports_->Output(Ports::PORT_NAME, os);
   os << ");\n";
   ports_->Output(Ports::PORT_TYPE, os);
+  ports_->Output(Ports::FIXED_VALUE_ASSIGN, os);
   os << "\n"
      << "  `define S_IDLE 0\n"
      << "  `define S_ADDR_WAIT 1\n";

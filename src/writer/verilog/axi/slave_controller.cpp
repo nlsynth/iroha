@@ -31,6 +31,7 @@ void SlaveController::Write(ostream &os) {
   ports_->Output(Ports::PORT_NAME, os);
   os << ");\n";
   ports_->Output(Ports::PORT_TYPE, os);
+  ports_->Output(Ports::FIXED_VALUE_ASSIGN, os);
 
   os << "  `define S_IDLE 0\n"
      << "  `define S_WRITE_DONE 7\n"
