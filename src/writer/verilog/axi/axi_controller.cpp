@@ -35,18 +35,25 @@ void AxiController::GenReadChannel(const PortConfig &cfg,
 				   bool is_master, Module *module,
 				   Ports *ports,
 				   string *s) {
-  // TODO: More ports.
   AddPort(cfg, "ARADDR", cfg.axi_addr_width, false, is_master, -1, module, ports, s);
   AddPort(cfg, "ARVALID", 0, false, is_master, -1, module, ports, s);
   AddPort(cfg, "ARREADY", 0, true, is_master, -1, module, ports, s);
   AddPort(cfg, "ARLEN", 8, false, is_master, -1, module, ports, s);
   AddPort(cfg, "ARSIZE", 3, false, is_master, -1, module, ports, s);
+  AddPort(cfg, "ARID", 1, false, is_master, 0, module, ports, s);
+  AddPort(cfg, "ARBURST", 2, false, is_master, 1, module, ports, s);  // INCR
+  AddPort(cfg, "ARLOCK", 0, false, is_master, 0, module, ports, s);
+  AddPort(cfg, "ARCACHE", 4, false, is_master, 3, module, ports, s); // non cacheable. bufferable.
+  AddPort(cfg, "ARPROT", 3, false, is_master, 1, module, ports, s); // unpriviledged, non secure.
+  AddPort(cfg, "ARQOS", 4, false, is_master, 0, module, ports, s);
+  AddPort(cfg, "ARUSER", 1, false, is_master, 0, module, ports, s);
 
   AddPort(cfg, "RVALID", 0, true, is_master, -1, module, ports, s);
   AddPort(cfg, "RDATA", cfg.data_width, true, is_master, -1, module, ports, s);
   AddPort(cfg, "RREADY", 0, false, is_master, -1, module, ports, s);
   AddPort(cfg, "RLAST", 0, true, is_master, -1, module, ports, s);
   AddPort(cfg, "RRESP", 2, true, is_master, 0, module, ports, s);
+  AddPort(cfg, "RUSER", 1, true, is_master, 0, module, ports, s);
 }
 
 void AxiController::GenWriteChannel(const PortConfig &cfg,
@@ -58,11 +65,21 @@ void AxiController::GenWriteChannel(const PortConfig &cfg,
   AddPort(cfg, "AWREADY", 0, true, is_master, -1, module, ports, s);
   AddPort(cfg, "AWLEN", 8, false, is_master, -1, module, ports, s);
   AddPort(cfg, "AWSIZE", 3, false, is_master, -1, module, ports, s);
+  AddPort(cfg, "AWID", 1, false, is_master, 0, module, ports, s);
+  AddPort(cfg, "AWBURST", 2, false, is_master, 1, module, ports, s);  // INCR
+  AddPort(cfg, "AWLOCK", 0, false, is_master, 0, module, ports, s);
+  AddPort(cfg, "AWCACHE", 4, false, is_master, 3, module, ports, s); // non cacheable. bufferable.
+  AddPort(cfg, "AWPROT", 3, false, is_master, 1, module, ports, s); // unpriviledged, non secure.
+  AddPort(cfg, "AWQOS", 4, false, is_master, 0, module, ports, s);
+  AddPort(cfg, "AWUSER", 1, false, is_master, 0, module, ports, s);
 
   AddPort(cfg, "WVALID", 0, false, is_master, -1, module, ports, s);
   AddPort(cfg, "WREADY", 0, true, is_master, -1, module, ports, s);
   AddPort(cfg, "WDATA", cfg.data_width, false, is_master, -1, module, ports, s);
   AddPort(cfg, "WLAST", 0, false, is_master, -1, module, ports, s);
+  // TODO: This doesn't work if data_width >= 256, since positive int can be less than 2^31.
+  AddPort(cfg, "WSTRB", cfg.data_width / 8, false, is_master, GetStrb(cfg.data_width), module, ports, s);
+  AddPort(cfg, "WUSER", 1, false, is_master, -1, module, ports, s);
 
   AddPort(cfg, "BVALID", 0, true, is_master, -1, module, ports, s);
   AddPort(cfg, "BREADY", 0, false, is_master, -1, module, ports, s);
@@ -137,6 +154,16 @@ void AxiController::AddSramPorts() {
   ports_->AddPort("sram_EXCLUSIVE", Port::INPUT, 0);
   ports_->AddPort("sram_req", Port::OUTPUT, 0);
   ports_->AddPort("sram_ack", Port::INPUT, 0);
+}
+
+int AxiController::GetStrb(int data_width) {
+  int strb = 0;
+  int bytes = data_width / 8;
+  for (int i = 0; i < bytes; i++) {
+    strb <<= 1;
+    strb |= 1;
+  }
+  return strb;
 }
 
 }  // namespace axi
