@@ -33,7 +33,6 @@ protected:
   static void GenWriteChannel(const PortConfig &cfg,
 			      bool is_master, Module *module, Ports *ports,
 			      string *s);
-  static int GetStrb(int data_width);
   void AddSramPorts();
 
   const IResource &res_;

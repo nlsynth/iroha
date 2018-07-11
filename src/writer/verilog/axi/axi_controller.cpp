@@ -5,6 +5,10 @@
 #include "writer/verilog/module.h"
 #include "writer/verilog/ports.h"
 
+namespace {
+  const int kStrbMagic = -7;
+}  // namespace
+
 namespace iroha {
 namespace writer {
 namespace verilog {
@@ -77,8 +81,7 @@ void AxiController::GenWriteChannel(const PortConfig &cfg,
   AddPort(cfg, "WREADY", 0, true, is_master, -1, module, ports, s);
   AddPort(cfg, "WDATA", cfg.data_width, false, is_master, -1, module, ports, s);
   AddPort(cfg, "WLAST", 0, false, is_master, -1, module, ports, s);
-  // TODO: This doesn't work if data_width >= 256, since positive int can be less than 2^31.
-  AddPort(cfg, "WSTRB", cfg.data_width / 8, false, is_master, GetStrb(cfg.data_width), module, ports, s);
+  AddPort(cfg, "WSTRB", cfg.data_width / 8, false, is_master, kStrbMagic, module, ports, s);
   AddPort(cfg, "WUSER", 1, false, is_master, -1, module, ports, s);
 
   AddPort(cfg, "BVALID", 0, true, is_master, -1, module, ports, s);
@@ -135,11 +138,20 @@ void AxiController::AddPort(const PortConfig &cfg,
     }
   }
   // Controller.
-  if (is_controller) {
-    if (!is_input) {
-      if (!is_fixed_output) {
-	*s += "      " + name + " <= 0;\n";
+  if (is_controller && !is_input) {
+    if (!is_fixed_output) {
+      *s += "      " + name + " <= ";
+      if (fixed_value == kStrbMagic) {
+	// NOTE: Kludge to handle 1024 bit data bus width. WSTRB can be up to 128 bits,
+	// but I don't want to exapnd fixed_value width for now...
+	*s += Util::Itoa(width) + "'b";
+	for (int i = 0; i < width; ++i) {
+	  *s += "1";
+	}
+      } else {
+	*s += "0";
       }
+      *s += ";\n";
     }
   }
 }
@@ -154,16 +166,6 @@ void AxiController::AddSramPorts() {
   ports_->AddPort("sram_EXCLUSIVE", Port::INPUT, 0);
   ports_->AddPort("sram_req", Port::OUTPUT, 0);
   ports_->AddPort("sram_ack", Port::INPUT, 0);
-}
-
-int AxiController::GetStrb(int data_width) {
-  int strb = 0;
-  int bytes = data_width / 8;
-  for (int i = 0; i < bytes; i++) {
-    strb <<= 1;
-    strb |= 1;
-  }
-  return strb;
 }
 
 }  // namespace axi
