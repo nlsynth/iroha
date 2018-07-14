@@ -52,12 +52,17 @@ private:
   void BuildRWDependencyPair(IInsn *insn, IRegister *source_reg,
                              map<IRegister *, IInsn *> &dep_map);
   // Mutate.
+  //  Rewrites from
+  //    oreg_0, 1,, n <- insn()
+  //  to
+  //    owire_0, 1,, n <- insn()
   void ReplaceInsnOutputWithWireBB(BB *bb);
   void ReplaceInsnOutputWithWire(IInsn *insn);
   bool IsSimpleAssign(IInsn *insn);
   void AddWireToRegMapping(IInsn *insn, IRegister *wire, IRegister *reg);
   void ScanBBToMoveInsn(BB *bb);
   int TryToMoveInsnsToTarget(BB *bb, int target_pos);
+  bool IsSimpleState(IState *st);
   void MoveLastTransitionInsn(BB *bb);
   bool CanMoveInsn(IInsn *insn, BB *bb, int target_pos);
   bool CheckLatency(IInsn *insn, IState *target_st);

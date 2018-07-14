@@ -103,7 +103,7 @@ void WireInsn::CollectUsedRegsPerBB() {
 }
 
 void WireInsn::BuildDependency(BB *bb) {
-  map<IRegister *, IInsn *> last_def_insn;
+  map<IRegister *, IInsn *> last_write_insn;
   map<IRegister *, IInsn *> last_read_insn;
   int nth_state = 0;
   for (IState *st : bb->states_) {
@@ -112,7 +112,7 @@ void WireInsn::BuildDependency(BB *bb) {
       pi->nth_state = nth_state;
       // WRITE -> READ dependency
       for (IRegister *reg : insn->inputs_) {
-        BuildRWDependencyPair(insn, reg, last_def_insn);
+        BuildRWDependencyPair(insn, reg, last_write_insn);
       }
       // READ -> WRITE dependency
       for (IRegister *reg : insn->outputs_) {
@@ -120,7 +120,7 @@ void WireInsn::BuildDependency(BB *bb) {
       }
       // Update last write
       for (IRegister *reg : insn->outputs_) {
-	last_def_insn[reg] = insn;
+	last_write_insn[reg] = insn;
       }
       // Update last read
       for (IRegister *reg : insn->inputs_) {
@@ -203,53 +203,38 @@ void WireInsn::ScanBBToMoveInsn(BB *bb) {
 int WireInsn::TryToMoveInsnsToTarget(BB *bb, int target_pos) {
   int next_target = target_pos + 1;
   IState *target_st = bb->states_[target_pos];
-  bool seen_ext_access = false;
-  bool seen_ext_wait = false;
-  // Moves insns from src-th state to target-th state.
+  if (!IsSimpleState(target_st)) {
+    return next_target;
+  }
   for (int src_pos = target_pos + 1;
        src_pos < bb->states_.size(); ++src_pos) {
-    vector<IInsn *> movable_insns;
     IState *src_st = bb->states_[src_pos];
+    if (!IsSimpleState(src_st)) {
+      return src_pos + 1;
+    }
+    vector<IInsn *> movable_insns;
     for (IInsn *insn : src_st->insns_) {
-      if (ResourceAttr::IsExtAccessInsn(insn)) {
-	// Skip to move the insns if there are other ext access insns between
-	// target_pos & src_pos.
-	if (seen_ext_access) {
-	  continue;
-	}
-	seen_ext_access = true;
-      }
-      if (ResourceAttr::IsExtWaitInsn(insn)) {
-	seen_ext_wait = true;
-      }
       if (CanMoveInsn(insn, bb, target_pos)) {
 	movable_insns.push_back(insn);
-      } else {
-	if (ResourceAttr::IsExtWaitInsn(insn)) {
-	  next_target = src_pos + 1;
-	}
       }
     }
-    // Filters out non ext wait insns if there are ext wait insns.
-    if (seen_ext_wait) {
-      vector<IInsn *> tmp;
-      for (IInsn *insn : movable_insns) {
-	if (ResourceAttr::IsExtWaitInsn(insn)) {
-	  tmp.push_back(insn);
-	}
-      }
-      movable_insns = tmp;
-    }
-    // Does move.
     for (IInsn *insn : movable_insns) {
       MoveInsn(insn, bb, target_pos);
     }
-    if (seen_ext_wait) {
-      // Stops to move further.
-      break;
-    }
   }
   return next_target;
+}
+
+bool WireInsn::IsSimpleState(IState *st) {
+  for (IInsn *insn : st->insns_) {
+    if (ResourceAttr::IsExtAccessInsn(insn)) {
+      return false;
+    }
+    if (ResourceAttr::IsExtWaitInsn(insn)) {
+      return false;
+    }
+  }
+  return true;
 }
 
 void WireInsn::MoveLastTransitionInsn(BB *bb) {
@@ -257,7 +242,7 @@ void WireInsn::MoveLastTransitionInsn(BB *bb) {
   IInsn *last_tr_insn = DesignUtil::FindInsnByResource(last_st, transition_);
   if (last_tr_insn == nullptr ||
       last_tr_insn->target_states_.size() < 2) {
-    // last transition is not a conditional.
+    // last transition is not conditional.
     return;
   }
   int last_non_tr_insn_idx = 0;
