@@ -1,11 +1,12 @@
 #include "opt/wire/wire_insn.h"
 
-#include "iroha/logging.h"
 #include "design/design_util.h"
 #include "design/design_tool.h"
 #include "design/resource_attr.h"
 #include "iroha/i_design.h"
+#include "iroha/logging.h"
 #include "iroha/resource_class.h"
+#include "iroha/stl_util.h"
 #include "opt/bb_set.h"
 #include "opt/data_flow.h"
 #include "opt/debug_annotation.h"
@@ -35,6 +36,7 @@ WireInsn::WireInsn(ITable *table, DebugAnnotation *annotation)
 WireInsn::~WireInsn() {
   delete bset_;
   delete data_flow_;
+  STLDeleteSecondElements(&per_insn_map_);
 }
 
 bool WireInsn::Perform() {
@@ -353,7 +355,14 @@ void WireInsn::MoveInsn(IInsn *insn, BB *bb, int target_pos) {
   IState *src_st = bb->states_[pi->nth_state];
   pi->nth_state = target_pos;
   IState *dst_st = bb->states_[target_pos];
-  DesignTool::MoveInsn(insn, src_st, dst_st);
+  IInsn *tmp_insn = MayCopyInsnForState(dst_st, insn);
+  if (tmp_insn == insn) {
+    DesignTool::MoveInsn(insn, src_st, dst_st);
+  } else {
+    // new insn was allocated to use a different resource.
+    DesignTool::EraseInsn(src_st, insn);
+    insn = tmp_insn;
+  }
   pi->nth_state = target_pos;
   for (auto it = insn->inputs_.begin(); it != insn->inputs_.end(); ++it) {
     IRegister *ireg = *it;
@@ -390,6 +399,10 @@ bool WireInsn::CanUseResourceInState(IState *st, IResource *resource) {
     }
   }
   return true;
+}
+
+IInsn *WireInsn::MayCopyInsnForState(IState *st, IInsn *insn) {
+  return insn;
 }
 
 void WireInsn::AddWireToRegisterAssignments() {

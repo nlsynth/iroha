@@ -22,6 +22,10 @@ class AllocResource : public WireInsn {
 public:
   AllocResource(ITable *table, DebugAnnotation *annotation);
   virtual ~AllocResource();
+
+private:
+  virtual bool CanUseResourceInState(IState *st, IResource *resource);
+  virtual IInsn *MayCopyInsnForState(IState *st, IInsn *insn);
 };
 
 

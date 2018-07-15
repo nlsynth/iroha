@@ -14,6 +14,7 @@ public:
   static bool IsExtAccessInsn(IInsn *insn);
   static bool IsExtWaitInsn(IInsn *insn);
   static int NumExtAccessInsn(const IState *st);
+  static bool IsDuplicatableResource(IResource *res);
 };
 
 }  // namespace iroha

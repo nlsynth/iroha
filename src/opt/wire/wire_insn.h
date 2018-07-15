@@ -67,9 +67,13 @@ private:
   bool CanMoveInsn(IInsn *insn, BB *bb, int target_pos);
   bool CheckLatency(IInsn *insn, IState *target_st);
   void MoveInsn(IInsn *insn, BB *bb, int target_pos);
-  bool CanUseResourceInState(IState *st, IResource *resource);
   void AddWireToRegisterAssignments();
   bool IsUsedLaterInThisBB(IInsn *insn, IRegister *output);
+  // virtual methods to allow different strategies in child classes.
+protected:
+  virtual bool CanUseResourceInState(IState *st, IResource *resource);
+private:
+  virtual IInsn *MayCopyInsnForState(IState *st, IInsn *insn);
 
   ITable *table_;
   IResource *assign_;

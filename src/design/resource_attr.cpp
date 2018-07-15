@@ -87,4 +87,14 @@ int ResourceAttr::NumExtAccessInsn(const IState *st) {
   return n;
 }
 
+bool ResourceAttr::IsDuplicatableResource(IResource *res) {
+  IResourceClass &rc = *(res->GetClass());
+  const string &name = rc.GetName();
+  // Add, Sub, Mul, Gt, Gte for now.
+  if (name == resource::kEq) {
+    return false;
+  }
+  return resource::IsExclusiveBinOp(rc);
+}
+
 }  // namespace iroha
