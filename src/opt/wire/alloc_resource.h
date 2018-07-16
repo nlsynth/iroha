@@ -24,8 +24,12 @@ public:
   virtual ~AllocResource();
 
 private:
-  virtual bool CanUseResourceInState(IState *st, IResource *resource);
-  virtual IInsn *MayCopyInsnForState(IState *st, IInsn *insn);
+  virtual bool CanUseResourceInState(IState *st, IResource *resource,
+				     MoveStrategy *ms);
+  virtual IInsn *MayCopyInsnForState(IState *st, IInsn *insn,
+				     MoveStrategy *ms);
+  IResource *CopyResource(IResource *src);
+  IResource *FindCompatibleResource(IState *st, IResource *res);
 };
 
 

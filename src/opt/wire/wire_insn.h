@@ -45,6 +45,12 @@ private:
     set<IRegister *> output_reach_to_other_bb_;
   };
   PerInsn *GetPerInsn(IInsn *insn);
+protected:
+  struct MoveStrategy {
+    IInsn *insn;
+    bool use_same_resource;
+  };
+private:
   // Build info.
   void CollectReachingRegisters();
   void CollectUsedRegsPerBB();
@@ -62,18 +68,22 @@ private:
   void AddWireToRegMapping(IInsn *insn, IRegister *wire, IRegister *reg);
   void ScanBBToMoveInsn(BB *bb);
   int TryToMoveInsnsToTarget(BB *bb, int target_pos);
+  void TryMoveInsns(vector<MoveStrategy> &movable_insns, BB *bb,
+		    int target_pos, bool use_same_resource);
   bool IsSimpleState(IState *st);
   void MoveLastTransitionInsn(BB *bb);
-  bool CanMoveInsn(IInsn *insn, BB *bb, int target_pos);
+  bool CanMoveInsn(IInsn *insn, BB *bb, int target_pos, MoveStrategy *ms);
   bool CheckLatency(IInsn *insn, IState *target_st);
-  void MoveInsn(IInsn *insn, BB *bb, int target_pos);
+  void MoveInsn(MoveStrategy *ms, BB *bb, int target_pos);
   void AddWireToRegisterAssignments();
   bool IsUsedLaterInThisBB(IInsn *insn, IRegister *output);
   // virtual methods to allow different strategies in child classes.
 protected:
-  virtual bool CanUseResourceInState(IState *st, IResource *resource);
+  virtual bool CanUseResourceInState(IState *st, IResource *resource,
+				     MoveStrategy *ms);
 private:
-  virtual IInsn *MayCopyInsnForState(IState *st, IInsn *insn);
+  virtual IInsn *MayCopyInsnForState(IState *st, IInsn *insn,
+				     MoveStrategy *ms);
 
   ITable *table_;
   IResource *assign_;

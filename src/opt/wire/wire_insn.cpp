@@ -214,17 +214,26 @@ int WireInsn::TryToMoveInsnsToTarget(BB *bb, int target_pos) {
     if (!IsSimpleState(src_st)) {
       return src_pos + 1;
     }
-    vector<IInsn *> movable_insns;
+    vector<MoveStrategy> movable_insns;
     for (IInsn *insn : src_st->insns_) {
-      if (CanMoveInsn(insn, bb, target_pos)) {
-	movable_insns.push_back(insn);
+      MoveStrategy ms;
+      if (CanMoveInsn(insn, bb, target_pos, &ms)) {
+	movable_insns.push_back(ms);
       }
     }
-    for (IInsn *insn : movable_insns) {
-      MoveInsn(insn, bb, target_pos);
-    }
+    TryMoveInsns(movable_insns, bb, target_pos, true);
+    TryMoveInsns(movable_insns, bb, target_pos, false);
   }
   return next_target;
+}
+
+void WireInsn::TryMoveInsns(vector<MoveStrategy> &movable_insns, BB *bb,
+			    int target_pos, bool use_same_resource) {
+  for (MoveStrategy &ms : movable_insns) {
+    if (ms.use_same_resource == use_same_resource) {
+      MoveInsn(&ms, bb, target_pos);
+    }
+  }
 }
 
 bool WireInsn::IsSimpleState(IState *st) {
@@ -293,7 +302,9 @@ void WireInsn::MoveLastTransitionInsn(BB *bb) {
   }
 }
 
-bool WireInsn::CanMoveInsn(IInsn *insn, BB *bb, int target_pos) {
+bool WireInsn::CanMoveInsn(IInsn *insn, BB *bb, int target_pos,
+			   MoveStrategy *ms) {
+  ms->insn = insn;
   if (insn->GetResource() == transition_) {
     return false;
   }
@@ -302,7 +313,7 @@ bool WireInsn::CanMoveInsn(IInsn *insn, BB *bb, int target_pos) {
       ResourceAttr::NumExtAccessInsn(target_st) > 0) {
     return false;
   }
-  if (!CanUseResourceInState(target_st, insn->GetResource())) {
+  if (!CanUseResourceInState(target_st, insn->GetResource(), ms)) {
     return false;
   }
   PerInsn *pi = GetPerInsn(insn);
@@ -350,12 +361,17 @@ bool WireInsn::CheckLatency(IInsn *insn, IState *target_st) {
   return true;
 }
 
-void WireInsn::MoveInsn(IInsn *insn, BB *bb, int target_pos) {
+void WireInsn::MoveInsn(MoveStrategy *ms, BB *bb, int target_pos) {
+  IInsn *insn = ms->insn;
   PerInsn *pi = GetPerInsn(insn);
   IState *src_st = bb->states_[pi->nth_state];
   pi->nth_state = target_pos;
   IState *dst_st = bb->states_[target_pos];
-  IInsn *tmp_insn = MayCopyInsnForState(dst_st, insn);
+  IInsn *tmp_insn = MayCopyInsnForState(dst_st, insn, ms);
+  if (tmp_insn == nullptr) {
+    // overbooked.
+    return;
+  }
   if (tmp_insn == insn) {
     DesignTool::MoveInsn(insn, src_st, dst_st);
   } else {
@@ -390,7 +406,8 @@ void WireInsn::MoveInsn(IInsn *insn, BB *bb, int target_pos) {
   }
 }
 
-bool WireInsn::CanUseResourceInState(IState *st, IResource *resource) {
+bool WireInsn::CanUseResourceInState(IState *st, IResource *resource,
+				     MoveStrategy *ms) {
   for (IInsn *target_insn : st->insns_) {
     IResource *insn_resource = target_insn->GetResource();
     if (resource->GetClass()->IsExclusive() &&
@@ -398,10 +415,12 @@ bool WireInsn::CanUseResourceInState(IState *st, IResource *resource) {
       return false;
     }
   }
+  ms->use_same_resource = true;
   return true;
 }
 
-IInsn *WireInsn::MayCopyInsnForState(IState *st, IInsn *insn) {
+IInsn *WireInsn::MayCopyInsnForState(IState *st, IInsn *insn,
+				     MoveStrategy *ms) {
   return insn;
 }
 
