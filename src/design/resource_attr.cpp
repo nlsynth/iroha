@@ -90,9 +90,12 @@ int ResourceAttr::NumExtAccessInsn(const IState *st) {
 bool ResourceAttr::IsDuplicatableResource(IResource *res) {
   IResourceClass &rc = *(res->GetClass());
   const string &name = rc.GetName();
-  // Add, Sub, Mul, Gt, Gte for now.
+  // add, sub, mul, gt, gte and ext-combinational for now.
   if (name == resource::kEq) {
     return false;
+  }
+  if (resource::IsExtCombinational(rc)) {
+    return true;
   }
   return resource::IsExclusiveBinOp(rc);
 }

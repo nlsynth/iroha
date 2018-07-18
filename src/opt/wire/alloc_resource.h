@@ -30,8 +30,8 @@ private:
 				     MoveStrategy *ms);
   IResource *CopyResource(IResource *src);
   IResource *FindCompatibleResource(IState *st, IResource *res);
+  bool IsCompatibleResource(IResource *orig, IResource *res);
 };
-
 
 }  // namespace wire
 }  // namespace opt

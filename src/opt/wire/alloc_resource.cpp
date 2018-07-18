@@ -3,6 +3,8 @@
 
 #include "design/resource_attr.h"
 #include "iroha/i_design.h"
+#include "iroha/resource_class.h"
+#include "iroha/resource_params.h"
 
 namespace iroha {
 namespace opt {
@@ -80,8 +82,39 @@ IResource *AllocResource::CopyResource(IResource *src) {
 }
 
 IResource *AllocResource::FindCompatibleResource(IState *st, IResource *res) {
-  // TODO: Implement this.
+  set<IResource *> used_res;
+  for (IInsn *ii : st->insns_) {
+    used_res.insert(ii->GetResource());
+  }
+  for (IResource *r : st->GetTable()->resources_) {
+    if (used_res.find(r) != used_res.end()) {
+      continue;
+    }
+    if (IsCompatibleResource(res, r)) {
+      return r;
+    }
+  }
   return nullptr;
+}
+
+bool AllocResource::IsCompatibleResource(IResource *orig, IResource *res) {
+  IResourceClass &orc = *(orig->GetClass());
+  IResourceClass &rc = *(res->GetClass());
+  if (orc.GetName() != rc.GetName()) {
+    return false;
+  }
+  if (resource::IsExtCombinational(rc)) {
+    auto *op = orig->GetParams();
+    auto *rp = res->GetParams();
+    if (op->GetEmbeddedModuleFileName() ==
+	rp->GetEmbeddedModuleFileName() &&
+	op->GetEmbeddedModuleName() ==
+	rp->GetEmbeddedModuleName()) {
+      return true;
+    }
+  }
+  // TODO: Implementation for add, sub, mul and so on.
+  return false;
 }
 
 }  // namespace wire
