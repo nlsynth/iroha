@@ -6,7 +6,6 @@
 #include "iroha/i_design.h"
 #include "iroha/logging.h"
 #include "iroha/resource_class.h"
-#include "iroha/stl_util.h"
 #include "opt/bb_set.h"
 #include "opt/data_flow.h"
 #include "opt/debug_annotation.h"
@@ -29,24 +28,14 @@ bool WireInsnPhase::ApplyForTable(const string &key, ITable *table) {
 }
 
 WireInsn::WireInsn(ITable *table, DebugAnnotation *annotation)
-  : table_(table), annotation_(annotation), bset_(nullptr),
-    data_flow_(nullptr) {
+  : Scaffold(table, annotation) {
 }
 
 WireInsn::~WireInsn() {
-  delete bset_;
-  delete data_flow_;
-  STLDeleteSecondElements(&per_insn_map_);
 }
 
 bool WireInsn::Perform() {
-  assign_ = DesignTool::GetOneResource(table_, resource::kSet);
-  transition_ = DesignUtil::FindTransitionResource(table_);
-  bset_ = BBSet::Create(table_, annotation_);
-  data_flow_ = DataFlow::Create(bset_, annotation_);
-  if (annotation_ != nullptr) {
-    annotation_->DumpIntermediateTable(table_);
-  }
+  SetUp();
   CollectReachingRegisters();
   for (BB *bb : bset_->bbs_) {
     BuildDependency(bb);
@@ -73,7 +62,7 @@ void WireInsn::CollectReachingRegisters() {
   for (BB *bb : bset_->bbs_) {
     vector<RegDef *> reach_defs;
     data_flow_->GetReachDefs(bb, &reach_defs);
-    auto bb_regs = used_regs_[bb];
+    auto &bb_regs = used_regs_[bb];
     for (RegDef *reg_def : reach_defs) {
       if (bb_regs.find(reg_def->reg) != bb_regs.end()) {
 	active_defs.insert(reg_def);
@@ -465,15 +454,6 @@ bool WireInsn::IsUsedLaterInThisBB(IInsn *insn, IRegister *output) {
     }
   }
   return false;
-}
-
-WireInsn::PerInsn *WireInsn::GetPerInsn(IInsn *insn) {
-  PerInsn *pi = per_insn_map_[insn];
-  if (pi == nullptr) {
-    pi = new PerInsn;
-    per_insn_map_[insn] = pi;
-  }
-  return pi;
 }
 
 }  // namespace wire

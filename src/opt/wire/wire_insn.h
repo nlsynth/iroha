@@ -2,7 +2,7 @@
 #ifndef _opt_wire_wire_insn_h_
 #define _opt_wire_wire_insn_h_
 
-#include "opt/phase.h"
+#include "opt/wire/scaffold.h"
 
 namespace iroha {
 namespace opt {
@@ -18,33 +18,13 @@ private:
   virtual bool ApplyForTable(const string &key, ITable *table);
 };
 
-class WireInsn {
+class WireInsn : public Scaffold {
 public:
   WireInsn(ITable *table, DebugAnnotation *annotation);
   virtual ~WireInsn();
   bool Perform();
 
 private:
-  class PerInsn {
-  public:
-    PerInsn() : is_simple_assign(false) {
-    }
-    bool is_simple_assign;
-    // Adds assignment instruction (normal <- wire), if the result is
-    // used later or in other BBs.
-    // {insn, wire register} -> normal register.
-    map<IRegister *, IRegister *> wire_to_register_;
-    // reverse mapping of above to rewrite inputs.
-    map<IRegister *, IRegister *> register_to_wire_;
-    // source of each input. non existent, if it comes from other bb.
-    map<IRegister *, IInsn *> depending_insn_;
-    // users of each output.
-    map<IRegister *, set<IInsn *> > using_insns_;
-    // state index in its bb.
-    int nth_state;
-    set<IRegister *> output_reach_to_other_bb_;
-  };
-  PerInsn *GetPerInsn(IInsn *insn);
 protected:
   struct MoveStrategy {
     IInsn *insn;
@@ -85,14 +65,6 @@ private:
   virtual IInsn *MayCopyInsnForState(IState *st, IInsn *insn,
 				     MoveStrategy *ms);
 
-  ITable *table_;
-  IResource *assign_;
-  IResource *transition_;
-  DebugAnnotation *annotation_;
-  BBSet *bset_;
-  DataFlow *data_flow_;
-  map<BB *, set<IRegister *> > used_regs_;
-  map<IInsn *, PerInsn *> per_insn_map_;
 };
   
 }  // namespace wire
