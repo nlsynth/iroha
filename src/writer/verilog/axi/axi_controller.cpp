@@ -89,6 +89,19 @@ void AxiController::GenWriteChannel(const PortConfig &cfg,
   AddPort(cfg, "BRESP", 2, true, is_master, -1, module, ports, s);
 }
 
+void AxiController::WriteModuleHeader(const string &name, ostream &os) {
+  string guard = name + "_defined";
+  os << "`ifndef " << guard << "\n"
+     << " `define " << guard << "\n";
+  os << "module " << name << "(";
+}
+
+void AxiController::WriteModuleFooter(const string &name, ostream &os) {
+  string guard = name + "_defined";
+  os << "endmodule\n"
+     << "`endif  // " << guard << "\n";
+}
+
 void AxiController::AddPort(const PortConfig &cfg,
 			    const string &name, int width, bool dir_s2m,
 			    bool is_master,

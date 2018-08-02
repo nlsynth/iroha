@@ -51,7 +51,8 @@ bool VerilogWriter::Write() {
     mod->Write(os_);
   }
   if (!shell_module_name_.empty()) {
-    WriteShellModule(modules_[root]);
+    Module *root_mod = modules_[root];
+    WriteShellModule(root_mod);
   }
   STLDeleteSecondElements(&modules_);
   return true;

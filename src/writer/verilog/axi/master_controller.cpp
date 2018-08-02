@@ -31,7 +31,7 @@ void MasterController::Write(ostream &os) {
   GenReadChannel(cfg_, true, nullptr, ports_.get(), &initials);
   GenWriteChannel(cfg_, true, nullptr, ports_.get(), &initials);
   string name = MasterPort::ControllerName(res_);
-  os << "module " << name << "(";
+  WriteModuleHeader(name, os);
   ports_->Output(Ports::PORT_NAME, os);
   os << ");\n";
   ports_->Output(Ports::PORT_TYPE, os);
@@ -81,8 +81,8 @@ void MasterController::Write(ostream &os) {
     OutputWriterFsm(os);
   }
   os << "    end\n"
-     << "  end\n"
-     << "endmodule\n";
+     << "  end\n";
+  WriteModuleFooter(name, os);
 }
 
 void MasterController::AddPorts(const PortConfig &cfg,

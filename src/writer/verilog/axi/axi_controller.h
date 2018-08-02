@@ -33,6 +33,8 @@ protected:
   static void GenWriteChannel(const PortConfig &cfg,
 			      bool is_master, Module *module, Ports *ports,
 			      string *s);
+  static void WriteModuleHeader(const string &name, ostream &os);
+  static void WriteModuleFooter(const string &name, ostream &os);
   void AddSramPorts();
 
   const IResource &res_;

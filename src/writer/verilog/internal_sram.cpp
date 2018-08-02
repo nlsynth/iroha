@@ -21,8 +21,13 @@ InternalSRAM::~InternalSRAM() {
 }
 
 void InternalSRAM::Write(ostream &os) {
-  os << "\n// SRAM("<< num_ports_ << " port(s))\n"
-     << "module " << GetModuleName() << "(clk, " << GetResetPinName() << ", ";
+  string name = GetModuleName();
+  string guard = name + "_defined";
+  os << "\n"
+     << "// SRAM("<< num_ports_ << " port(s))\n"
+     << "`ifndef " << guard << "\n"
+     << " `define " << guard << "\n"
+     << "module " << name << "(clk, " << GetResetPinName() << ", ";
   for (int p = 0; p < num_ports_; ++p) {
     if (p > 0) {
       os << ", ";
@@ -43,7 +48,9 @@ void InternalSRAM::Write(ostream &os) {
        << "  reg " << DataWidthSpec() << GetRdataPin(p) << ";\n\n";
   }
   WriteInternal(os);
-  os << "endmodule\n\n";
+  os << "endmodule\n"
+     << "`endif  // " + guard + "\n"
+     << "\n";
 }
 
 void InternalSRAM::WriteInternal(ostream &os) {

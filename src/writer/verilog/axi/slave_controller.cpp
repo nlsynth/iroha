@@ -27,7 +27,7 @@ void SlaveController::Write(ostream &os) {
   string initials;
   GenReadChannel(cfg_, false, nullptr, ports_.get(), &initials);
   GenWriteChannel(cfg_, false, nullptr, ports_.get(), &initials);
-  os << "module " << name << "(";
+  WriteModuleHeader(name, os);
   ports_->Output(Ports::PORT_NAME, os);
   os << ");\n";
   ports_->Output(Ports::PORT_TYPE, os);
@@ -62,8 +62,8 @@ void SlaveController::Write(ostream &os) {
      << "    end else begin\n";
   OutputFSM(os);
   os << "    end\n"
-     << "  end\n"
-     << "endmodule\n";
+     << "  end\n";
+  WriteModuleFooter(name, os);
 }
 
 void SlaveController::AddPorts(const PortConfig &cfg, Module *mod, string *s) {
