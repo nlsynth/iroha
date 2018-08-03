@@ -47,8 +47,16 @@ bool VerilogWriter::Write() {
     LOG(ERROR) << "Failed to write embedded modules.";
     return false;
   }
+  // * MODULE-NAME-PREFIX is specified.
+  //  prefix_rawName
+  // * Not specifed.
+  //  shellModuleName_rawName
+  string prefix = design_->GetParams()->GetModuleNamePrefix();
+  if (prefix.empty()) {
+    prefix = shell_module_name_ + "_";
+  }
   for (auto *mod : ordered_modules_) {
-    mod->Write(os_);
+    mod->Write(prefix, os_);
   }
   if (!shell_module_name_.empty()) {
     Module *root_mod = modules_[root];
@@ -58,7 +66,8 @@ bool VerilogWriter::Write() {
   return true;
 }
 
-void VerilogWriter::SetShellModuleName(const string &n, bool with_self_clock, bool output_vcd) {
+void VerilogWriter::SetShellModuleName(const string &n, bool with_self_clock,
+				       bool output_vcd) {
   shell_module_name_ = n;
   with_self_clock_ = with_self_clock;
   output_vcd_ = output_vcd;
@@ -140,6 +149,11 @@ void VerilogWriter::WriteShellModule(const Module *mod) {
     ports->Output(Ports::PORT_DIRECTION, os_);
   }
   string name = mod->GetName();
+  if (design_->GetParams()->GetModuleNamePrefix().empty()) {
+    name = shell_module_name_ + "_" + name;
+  } else {
+    name = design_->GetParams()->GetModuleNamePrefix() + name;
+  }
   os_ << "  " << name << " " << name << "_inst(";
   if (with_self_clock_) {
     WriteSelfClockConnection(mod);

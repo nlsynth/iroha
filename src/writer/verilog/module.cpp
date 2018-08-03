@@ -24,17 +24,16 @@ Module::Module(const IModule *i_mod, const VerilogWriter *writer,
   tmpl_.reset(new ModuleTemplate);
   ports_.reset(new Ports);
   reset_name_ = i_mod->GetParams()->GetResetName();
-  name_ = i_mod_->GetDesign()->GetParams()->GetModuleNamePrefix()
-    + i_mod->GetName();
+  name_ = i_mod->GetName();
 }
 
 Module::~Module() {
   STLDeleteValues(&tables_);
 }
 
-void Module::Write(ostream &os) {
+void Module::Write(const string &prefix, ostream &os) {
   os << "\n// Module " << i_mod_->GetId() << ";\n"
-     << "module " << GetName() << "(";
+     << "module " << prefix << GetName() << "(";
   ports_->Output(Ports::PORT_NAME, os);
   os << ");\n";
   ports_->Output(Ports::PORT_TYPE, os);
@@ -86,7 +85,6 @@ void Module::Write(ostream &os) {
   for (Module *child : child_modules_) {
     // mod inst_mod(...);
     const IModule *child_imod = child->GetIModule();
-    string prefix = i_mod_->GetDesign()->GetParams()->GetModuleNamePrefix();
     os << "  " << prefix << child_imod->GetName() << " "
        << "inst_" << child_imod->GetName() << "(";
     os << ChildModuleInstSectionContents(child, false);

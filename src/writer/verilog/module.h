@@ -35,7 +35,7 @@ public:
 
   void Build();
   void PrepareTables();
-  void Write(ostream &os);
+  void Write(const string &prefix, ostream &os);
   bool GetResetPolarity() const;
   Module *GetParentModule() const;
   void SetParentModule(Module *parent);
