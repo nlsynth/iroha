@@ -54,6 +54,13 @@ void Ports::OutputPort(Port *p, enum OutputType type, bool is_first,
     OutputFixedValueAssign(p, os);
     return;
   }
+  if (type == PORT_CONNECTION_DATA) {
+    if (!is_first) {
+      os << ",";
+    }
+    os << DirectionPort(p->GetType()) << ":" << p->GetWidth() << ":" << p->GetName();
+    return;
+  }
   if (type == PORT_TYPE || type == PORT_DIRECTION) {
     Port::PortType port_type = p->GetType();
     string t;

@@ -52,6 +52,8 @@ public:
     PORT_CONNECTION,
     // Pin connection template for outer module ".name()"
     PORT_CONNECTION_TEMPLATE,
+    // Pin connection info in machine readable format.
+    PORT_CONNECTION_DATA,
     // Assigns a fixed value if specified "assign name = v;".
     FIXED_VALUE_ASSIGN,
   };

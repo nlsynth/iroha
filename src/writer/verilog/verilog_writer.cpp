@@ -173,6 +173,10 @@ void VerilogWriter::WriteShellModule(const Module *mod) {
       << "// " << shell_module_name_ << " " << shell_module_name_ << "_inst(";
   ports->Output(Ports::PORT_CONNECTION_TEMPLATE, os_);
   os_ << ");\n";
+  os_ << "// NOTE: This can be used by your script to auto generate the instantiation and connections.\n"
+      << "// " << shell_module_name_ << ":" << shell_module_name_ << "_inst ";
+  ports->Output(Ports::PORT_CONNECTION_DATA, os_);
+  os_ << "\n";
 }
 
 void VerilogWriter::WriteSelfClockGenerator(const Module *mod) {
