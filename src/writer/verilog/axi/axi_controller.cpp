@@ -128,11 +128,11 @@ void AxiController::AddPort(const PortConfig &cfg,
       t = Port::OUTPUT_WIRE;
     }
   }
-  string ext_port_name = name;
+  string prefix;
   if (!is_controller) {
-    ext_port_name = cfg.prefix + name;
+    prefix = cfg.prefix;
   }
-  Port *port = ports->AddPort(ext_port_name, t, width);
+  Port *port = ports->AddPrefixedPort(prefix, name, t, width);
   if (t == Port::OUTPUT_WIRE && is_controller && is_fixed_output) {
     port->SetFixedValue(fixed_value);
   }

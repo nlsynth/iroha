@@ -15,7 +15,12 @@ Ports::~Ports() {
 
 Port *Ports::AddPort(const string &name, enum Port::PortType type,
 		     int width) {
-  Port *p = new Port(name, type, width);
+  return AddPrefixedPort("", name, type, width);
+}
+
+Port *Ports::AddPrefixedPort(const string &prefix, const string &name,
+			     enum Port::PortType type, int width) {
+  Port *p = new Port(prefix, name, type, width);
   ports_.push_back(p);
   if (type == Port::INPUT_CLK) {
     clk_ = name;
@@ -58,7 +63,7 @@ void Ports::OutputPort(Port *p, enum OutputType type, bool is_first,
     if (!is_first) {
       os << ",";
     }
-    os << DirectionPort(p->GetType()) << ":" << p->GetWidth() << ":" << p->GetName();
+    os << DirectionPort(p->GetType()) << ":" << p->GetWidth() << ":" << p->GetPrefix() << ":" << p->GetSuffix();
     return;
   }
   if (type == PORT_TYPE || type == PORT_DIRECTION) {
@@ -114,8 +119,8 @@ const string &Ports::DirectionPort(Port::PortType type) {
   }
 }
 
-Port::Port(const string &name, enum PortType type, int width)
-  : name_(name), type_(type), width_(width), fixed_value_(-1) {
+Port::Port(const string &prefix, const string &name, enum PortType type, int width)
+  : prefix_(prefix), name_(prefix + name), suffix_(name), type_(type), width_(width), fixed_value_(-1) {
 }
 
 Port::~Port() {
@@ -125,8 +130,16 @@ void Port::SetComment(const string &comment) {
   comment_ = comment;
 }
 
+const string &Port::GetPrefix() {
+  return prefix_;
+}
+
 const string &Port::GetName() {
   return name_;
+}
+
+const string &Port::GetSuffix() {
+  return suffix_;
 }
 
 enum Port::PortType Port::GetType() {

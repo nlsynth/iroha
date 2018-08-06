@@ -20,18 +20,22 @@ public:
     OUTPUT_WIRE,
   };
 
-  Port(const string &name, enum PortType type, int width);
+  Port(const string &prefix, const string &name, enum PortType type, int width);
   ~Port();
 
   void SetComment(const string &comment);
+  const string &GetPrefix();
   const string &GetName();
+  const string &GetSuffix();
   enum PortType GetType();
   int GetWidth();
   void SetFixedValue(int default_value);
   int GetFixedValue() const;
 
 private:
+  string prefix_;
   string name_;
+  string suffix_;
   enum PortType type_;
   int width_;
   string comment_;
@@ -61,6 +65,8 @@ public:
   ~Ports();
 
   Port *AddPort(const string &name, enum Port::PortType type, int width);
+  Port *AddPrefixedPort(const string &prefix, const string &name,
+			enum Port::PortType type, int width);
   void Output(enum OutputType type, ostream &os) const;
   const string &GetClk() const;
   const string &GetReset() const;
