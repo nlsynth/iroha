@@ -32,8 +32,6 @@ protected:
   };
 private:
   // Build info.
-  void CollectReachingRegisters();
-  void CollectUsedRegsPerBB();
   void BuildDependency(BB *bb);
   void BuildRWDependencyPair(IInsn *insn, IRegister *source_reg,
                              map<IRegister *, IInsn *> &dep_map);

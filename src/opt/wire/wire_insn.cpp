@@ -36,7 +36,6 @@ WireInsn::~WireInsn() {
 
 bool WireInsn::Perform() {
   SetUp();
-  CollectReachingRegisters();
   for (BB *bb : bset_->bbs_) {
     BuildDependency(bb);
   }
@@ -53,44 +52,6 @@ bool WireInsn::Perform() {
     annotation_->DumpIntermediateTable(table_);
   }
   return true;
-}
-
-void WireInsn::CollectReachingRegisters() {
-  CollectUsedRegsPerBB();
-  // Collect defs used somewhere in this table.
-  set<RegDef *> active_defs;
-  for (BB *bb : bset_->bbs_) {
-    vector<RegDef *> reach_defs;
-    data_flow_->GetReachDefs(bb, &reach_defs);
-    auto &bb_regs = used_regs_[bb];
-    for (RegDef *reg_def : reach_defs) {
-      if (bb_regs.find(reg_def->reg) != bb_regs.end()) {
-	active_defs.insert(reg_def);
-      }
-    }
-  }
-
-  for (RegDef *reg_def : active_defs) {
-    PerInsn *pi = GetPerInsn(reg_def->insn);
-    for (IRegister *oreg : reg_def->insn->outputs_) {
-      if (oreg == reg_def->reg) {
-	// TODO(yt76): should be reach && used.
-	// now this just checks only the reachability.
-	pi->output_reach_to_other_bb_.insert(oreg);
-      }
-    }
-  }
-}
-
-void WireInsn::CollectUsedRegsPerBB() {
-  for (IState *st : table_->states_) {
-    BB *bb = bset_->state_to_bb_[st];
-    for (IInsn *insn : st->insns_) {
-      for (IRegister *ireg : insn->inputs_) {
-	used_regs_[bb].insert(ireg);
-      }
-    }
-  }
 }
 
 void WireInsn::BuildDependency(BB *bb) {

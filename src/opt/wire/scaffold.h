@@ -8,7 +8,7 @@ namespace iroha {
 namespace opt {
 namespace wire {
 
-// Holds data structures to perform optimization.
+// Holds data structures to perform the optimization.
 // Actual optimization and the strategy will be implemented in child classes.
 // TODO: Move more code from WireInsn.
 class Scaffold {
@@ -49,6 +49,9 @@ protected:
   DebugAnnotation *annotation_;
   map<IInsn *, PerInsn *> per_insn_map_;
   map<BB *, set<IRegister *> > used_regs_;
+
+  void CollectReachingRegisters();
+  void CollectUsedRegsPerBB();
 };
 
 }  // namespace wire
