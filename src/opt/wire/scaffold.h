@@ -30,9 +30,10 @@ protected:
     map<IRegister *, IRegister *> wire_to_register_;
     // reverse mapping of above to rewrite inputs.
     map<IRegister *, IRegister *> register_to_wire_;
-    // source of each input. non existent, if it comes from other bb.
+    // insn dependency for each input to keep ordering.
+    // non existent if the register comes from other bb.
     map<IRegister *, IInsn *> depending_insn_;
-    // users of each output.
+    // users of each output (reverse mapping of depending_insn_).
     map<IRegister *, set<IInsn *> > using_insns_;
     // state index in its bb.
     int nth_state;
@@ -52,6 +53,9 @@ protected:
 
   void CollectReachingRegisters();
   void CollectUsedRegsPerBB();
+  void BuildDependency(BB *bb);
+  void BuildRWDependencyPair(IInsn *insn, IRegister *source_reg,
+                             map<IRegister *, IInsn *> &last_rw_insn_for_reg);
 };
 
 }  // namespace wire

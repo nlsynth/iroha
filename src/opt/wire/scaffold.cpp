@@ -29,6 +29,9 @@ void Scaffold::SetUp() {
     annotation_->DumpIntermediateTable(table_);
   }
   CollectReachingRegisters();
+  for (BB *bb : bset_->bbs_) {
+    BuildDependency(bb);
+  }
 }
 
 void Scaffold::CollectReachingRegisters() {
@@ -67,6 +70,53 @@ void Scaffold::CollectUsedRegsPerBB() {
       }
     }
   }
+}
+
+void Scaffold::BuildDependency(BB *bb) {
+  map<IRegister *, IInsn *> last_write_insn_for_reg;
+  map<IRegister *, IInsn *> last_read_insn_for_reg;
+  int nth_state = 0;
+  for (IState *st : bb->states_) {
+    for (IInsn *insn : st->insns_) {
+      PerInsn *pi = GetPerInsn(insn);
+      pi->nth_state = nth_state;
+      // WRITE -> READ dependency
+      for (IRegister *reg : insn->inputs_) {
+        BuildRWDependencyPair(insn, reg, last_write_insn_for_reg);
+      }
+      // READ -> WRITE dependency
+      for (IRegister *reg : insn->outputs_) {
+        BuildRWDependencyPair(insn, reg, last_read_insn_for_reg);
+      }
+      // WRITE -> WRITE dependency
+      for (IRegister *reg : insn->outputs_) {
+        BuildRWDependencyPair(insn, reg, last_write_insn_for_reg);
+      }
+      // Update last write
+      for (IRegister *reg : insn->outputs_) {
+	last_write_insn_for_reg[reg] = insn;
+      }
+      // Update last read
+      for (IRegister *reg : insn->inputs_) {
+	last_read_insn_for_reg[reg] = insn;
+      }
+    }
+    ++nth_state;
+  }
+}
+
+void Scaffold::BuildRWDependencyPair(IInsn *insn, IRegister *source_reg,
+				     map<IRegister *, IInsn *> &last_rw_insn_for_reg) {
+  IInsn *rw_insn = last_rw_insn_for_reg[source_reg];
+  if (rw_insn == nullptr) {
+    // not written/read in this block.
+    return;
+  }
+  PerInsn *pi = GetPerInsn(insn);
+  pi->depending_insn_[source_reg] = rw_insn;
+  // adds reverse mapping too.
+  PerInsn *rw_insn_pi = GetPerInsn(rw_insn);
+  rw_insn_pi->using_insns_[source_reg].insert(insn);
 }
 
 Scaffold::PerInsn *Scaffold::GetPerInsn(IInsn *insn) {

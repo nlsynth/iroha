@@ -31,11 +31,6 @@ protected:
     bool use_same_resource;
   };
 private:
-  // Build info.
-  void BuildDependency(BB *bb);
-  void BuildRWDependencyPair(IInsn *insn, IRegister *source_reg,
-                             map<IRegister *, IInsn *> &dep_map);
-  // Mutate.
   //  Rewrites from
   //    oreg_0, 1,, n <- insn()
   //  to

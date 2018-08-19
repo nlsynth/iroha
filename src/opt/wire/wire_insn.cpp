@@ -36,9 +36,6 @@ WireInsn::~WireInsn() {
 
 bool WireInsn::Perform() {
   SetUp();
-  for (BB *bb : bset_->bbs_) {
-    BuildDependency(bb);
-  }
 
   for (BB *bb : bset_->bbs_) {
     ReplaceInsnOutputWithWireBB(bb);
@@ -52,49 +49,6 @@ bool WireInsn::Perform() {
     annotation_->DumpIntermediateTable(table_);
   }
   return true;
-}
-
-void WireInsn::BuildDependency(BB *bb) {
-  map<IRegister *, IInsn *> last_write_insn;
-  map<IRegister *, IInsn *> last_read_insn;
-  int nth_state = 0;
-  for (IState *st : bb->states_) {
-    for (IInsn *insn : st->insns_) {
-      PerInsn *pi = GetPerInsn(insn);
-      pi->nth_state = nth_state;
-      // WRITE -> READ dependency
-      for (IRegister *reg : insn->inputs_) {
-        BuildRWDependencyPair(insn, reg, last_write_insn);
-      }
-      // READ -> WRITE dependency
-      for (IRegister *reg : insn->outputs_) {
-        BuildRWDependencyPair(insn, reg, last_read_insn);
-      }
-      // Update last write
-      for (IRegister *reg : insn->outputs_) {
-	last_write_insn[reg] = insn;
-      }
-      // Update last read
-      for (IRegister *reg : insn->inputs_) {
-	last_read_insn[reg] = insn;
-      }
-    }
-    ++nth_state;
-  }
-}
-
-void WireInsn::BuildRWDependencyPair(IInsn *insn, IRegister *source_reg,
-				     map<IRegister *, IInsn *> &dep_map) {
-  IInsn *def_insn = dep_map[source_reg];
-  if (!def_insn) {
-    // not written/read in this block.
-    return;
-  }
-  PerInsn *pi = GetPerInsn(insn);
-  pi->depending_insn_[source_reg] = def_insn;
-  // adds reverse mapping too.
-  PerInsn *def_insn_pi = GetPerInsn(def_insn);
-  def_insn_pi->using_insns_[source_reg].insert(insn);
 }
 
 void WireInsn::ReplaceInsnOutputWithWireBB(BB *bb) {
