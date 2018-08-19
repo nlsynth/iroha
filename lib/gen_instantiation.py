@@ -10,6 +10,7 @@ e.g.
 
 Usage: [OPTIONS] [Verilog file] [interface mapping]
   -w Generates wires
+  -vcd [vcd file]
 
   [interface mapping] is a comma separated list of mappings from interface name
   prefix to a name for output.
@@ -53,6 +54,12 @@ def genConnection(modinfo, pins, prefixes):
     o += ");\n"
     print(o)
 
+def genVcd(inst_name, vcd_name):
+    print("  initial begin")
+    print("    $dumpfile(\"" + vcd_name + "\");")
+    print("    $dumpvars(0, " + inst_name + ");")
+    print("  end")
+
 def procFile(fn):
     for line in open(fn):
         line = line[:-1]
@@ -75,12 +82,19 @@ def parsePrefixMap(prefixMap):
 ifn = ""
 prefixMap = ""
 flagGenWire = False
+vcdOutput = False
+vcdFile = ""
 
 
 args = sys.argv[1:]
 while len(args) > 0:
     a = args[0]
     if a.startswith("-"):
+        if a == "-vcd":
+            vcdOutput = True
+            if len(args) >= 2 and not args[1].startswith("-"):
+                vcdFile = args[1]
+                args = args[1:]
         if a == "-w":
             flagGenWire = True
         args = args[1:]
@@ -106,3 +120,9 @@ if flagGenWire:
     genWires(pins, prefixes)
 
 genConnection(modinfo, pins, prefixes)
+
+if vcdOutput and vcdFile == "":
+    vcdFile = modinfo[0] + ".vcd"
+
+if vcdOutput:
+    genVcd(modinfo[1], vcdFile)
