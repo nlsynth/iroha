@@ -2,7 +2,7 @@
 #ifndef _opt_wire_alloc_resource_h_
 #define _opt_wire_alloc_resource_h_
 
-#include "opt/wire/wire_insn.h"
+#include "opt/wire/scaffold.h"
 
 namespace iroha {
 namespace opt {
@@ -18,19 +18,13 @@ private:
   virtual bool ApplyForTable(const string &key, ITable *table);
 };
 
-class AllocResource : public WireInsn {
+class AllocResource : public Scaffold {
 public:
   AllocResource(ITable *table, DebugAnnotation *annotation);
   virtual ~AllocResource();
+  bool Perform();
 
 private:
-  virtual bool CanUseResourceInState(IState *st, IResource *resource,
-				     MoveStrategy *ms);
-  virtual IInsn *MayCopyInsnForState(IState *st, IInsn *insn,
-				     MoveStrategy *ms);
-  IResource *CopyResource(IResource *src);
-  IResource *FindCompatibleResource(IState *st, IResource *res);
-  bool IsCompatibleResource(IResource *orig, IResource *res);
 };
 
 }  // namespace wire
