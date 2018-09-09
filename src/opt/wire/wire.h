@@ -1,6 +1,6 @@
 // -*- C++ -*-
-#ifndef _opt_wire_alloc_resource_h_
-#define _opt_wire_alloc_resource_h_
+#ifndef _opt_wire_wire_h_
+#define _opt_wire_wire_h_
 
 #include "opt/wire/scaffold.h"
 
@@ -8,9 +8,9 @@ namespace iroha {
 namespace opt {
 namespace wire {
 
-class AllocResourcePhase : public Phase {
+class WirePhase : public Phase {
 public:
-  virtual ~AllocResourcePhase();
+  virtual ~WirePhase();
 
   static Phase *Create();
 
@@ -18,10 +18,10 @@ private:
   virtual bool ApplyForTable(const string &key, ITable *table);
 };
 
-class AllocResource : public Scaffold {
+class Wire : public Scaffold {
 public:
-  AllocResource(ITable *table, DebugAnnotation *annotation);
-  virtual ~AllocResource();
+  Wire(ITable *table, DebugAnnotation *annotation);
+  virtual ~Wire();
   bool Perform();
 
 private:
@@ -31,5 +31,4 @@ private:
 }  // namespace opt
 }  // namespace iroha
 
-#endif  // _opt_wire_alloc_resource_h_
-
+#endif  // _opt_wire_wire_h_
