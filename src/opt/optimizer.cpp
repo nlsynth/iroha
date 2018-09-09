@@ -14,7 +14,7 @@
 #include "opt/phase.h"
 #include "opt/ssa/ssa.h"
 #include "opt/wire/alloc_resource.h"
-#include "opt/wire/wire_insn.h"
+#include "opt/wire/simple_shrink.h"
 #include "writer/writer.h"
 
 #include <fstream>
@@ -40,7 +40,8 @@ void Optimizer::Init() {
   RegisterPhase("ssa_convert", &ssa::SSAConverterPhase::Create);
   RegisterPhase("phi_cleaner", &ssa::PhiCleanerPhase::Create);
   RegisterPhase("alloc_resource", &wire::AllocResourcePhase::Create);
-  RegisterPhase("wire_insn", &wire::WireInsnPhase::Create);
+  RegisterPhase("simple_shrink", &wire::SimpleShrinkPhase::Create);
+  RegisterPhase("wire_insn", &wire::SimpleShrinkPhase::Create);
   CompoundPhase::Init();
 }
 

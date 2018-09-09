@@ -1,6 +1,6 @@
 // -*- C++ -*-
-#ifndef _opt_wire_wire_insn_h_
-#define _opt_wire_wire_insn_h_
+#ifndef _opt_wire_simple_shrink_h_
+#define _opt_wire_simple_shrink_h_
 
 #include "opt/wire/scaffold.h"
 
@@ -8,9 +8,9 @@ namespace iroha {
 namespace opt {
 namespace wire {
 
-class WireInsnPhase : public Phase {
+class SimpleShrinkPhase : public Phase {
 public:
-  virtual ~WireInsnPhase();
+  virtual ~SimpleShrinkPhase();
 
   static Phase *Create();
 
@@ -18,10 +18,10 @@ private:
   virtual bool ApplyForTable(const string &key, ITable *table);
 };
 
-class WireInsn : public Scaffold {
+class SimpleShrink : public Scaffold {
 public:
-  WireInsn(ITable *table, DebugAnnotation *annotation);
-  virtual ~WireInsn();
+  SimpleShrink(ITable *table, DebugAnnotation *annotation);
+  virtual ~SimpleShrink();
   bool Perform();
 
 private:
@@ -64,4 +64,4 @@ private:
 }  // namespace opt
 }  // namespace iroha
 
-#endif  // _opt_wire_wire_insn_h_
+#endif  // _opt_wire_simple_shrink_h_

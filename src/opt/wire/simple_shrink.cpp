@@ -1,4 +1,4 @@
-#include "opt/wire/wire_insn.h"
+#include "opt/wire/simple_shrink.h"
 
 #include "design/design_util.h"
 #include "design/design_tool.h"
@@ -15,26 +15,26 @@ namespace iroha {
 namespace opt {
 namespace wire {
 
-WireInsnPhase::~WireInsnPhase() {
+SimpleShrinkPhase::~SimpleShrinkPhase() {
 }
 
-Phase *WireInsnPhase::Create() {
-  return new WireInsnPhase();
+Phase *SimpleShrinkPhase::Create() {
+  return new SimpleShrinkPhase();
 }
 
-bool WireInsnPhase::ApplyForTable(const string &key, ITable *table) {
-  WireInsn wire_insn(table, annotation_);
-  return wire_insn.Perform();
+bool SimpleShrinkPhase::ApplyForTable(const string &key, ITable *table) {
+  SimpleShrink simple_shrink(table, annotation_);
+  return simple_shrink.Perform();
 }
 
-WireInsn::WireInsn(ITable *table, DebugAnnotation *annotation)
+SimpleShrink::SimpleShrink(ITable *table, DebugAnnotation *annotation)
   : Scaffold(table, annotation) {
 }
 
-WireInsn::~WireInsn() {
+SimpleShrink::~SimpleShrink() {
 }
 
-bool WireInsn::Perform() {
+bool SimpleShrink::Perform() {
   SetUp();
 
   for (BB *bb : bset_->bbs_) {
@@ -51,7 +51,7 @@ bool WireInsn::Perform() {
   return true;
 }
 
-void WireInsn::ReplaceInsnOutputWithWireBB(BB *bb) {
+void SimpleShrink::ReplaceInsnOutputWithWireBB(BB *bb) {
   for (IState *st : bb->states_) {
     for (IInsn *insn : st->insns_) {
       // TODO(yt76): Don't touch multi cycles insns like memory ops.
@@ -65,7 +65,7 @@ void WireInsn::ReplaceInsnOutputWithWireBB(BB *bb) {
   }
 }
 
-bool WireInsn::IsSimpleAssign(IInsn *insn) {
+bool SimpleShrink::IsSimpleAssign(IInsn *insn) {
   if (insn->GetResource() != assign_) {
     return false;
   }
@@ -76,7 +76,7 @@ bool WireInsn::IsSimpleAssign(IInsn *insn) {
   return true;
 }
 
-void WireInsn::ReplaceInsnOutputWithWire(IInsn *insn) {
+void SimpleShrink::ReplaceInsnOutputWithWire(IInsn *insn) {
   for (auto it = insn->outputs_.begin(); it != insn->outputs_.end(); ++it) {
     IRegister *reg = *it;
     if (reg->IsConst() || reg->IsStateLocal()) {
@@ -92,21 +92,21 @@ void WireInsn::ReplaceInsnOutputWithWire(IInsn *insn) {
   }
 }
 
-void WireInsn::AddWireToRegMapping(IInsn *insn, IRegister *wire,
+void SimpleShrink::AddWireToRegMapping(IInsn *insn, IRegister *wire,
 				   IRegister *reg) {
   PerInsn *pi = GetPerInsn(insn);
   pi->wire_to_register_[wire] = reg;
   pi->register_to_wire_[reg] = wire;
 }
 
-void WireInsn::ScanBBToMoveInsn(BB *bb) {
+void SimpleShrink::ScanBBToMoveInsn(BB *bb) {
   int target_pos = 0;
   do {
     target_pos = TryToMoveInsnsToTarget(bb, target_pos);
   } while (target_pos < bb->states_.size() - 1);
 }
 
-int WireInsn::TryToMoveInsnsToTarget(BB *bb, int target_pos) {
+int SimpleShrink::TryToMoveInsnsToTarget(BB *bb, int target_pos) {
   int next_target = target_pos + 1;
   IState *target_st = bb->states_[target_pos];
   if (!IsSimpleState(target_st)) {
@@ -131,8 +131,8 @@ int WireInsn::TryToMoveInsnsToTarget(BB *bb, int target_pos) {
   return next_target;
 }
 
-void WireInsn::TryMoveInsns(vector<MoveStrategy> &movable_insns, BB *bb,
-			    int target_pos, bool use_same_resource) {
+void SimpleShrink::TryMoveInsns(vector<MoveStrategy> &movable_insns, BB *bb,
+				int target_pos, bool use_same_resource) {
   for (MoveStrategy &ms : movable_insns) {
     if (ms.use_same_resource == use_same_resource) {
       MoveInsn(&ms, bb, target_pos);
@@ -140,7 +140,7 @@ void WireInsn::TryMoveInsns(vector<MoveStrategy> &movable_insns, BB *bb,
   }
 }
 
-bool WireInsn::IsSimpleState(IState *st) {
+bool SimpleShrink::IsSimpleState(IState *st) {
   for (IInsn *insn : st->insns_) {
     if (ResourceAttr::IsExtAccessInsn(insn)) {
       return false;
@@ -152,7 +152,7 @@ bool WireInsn::IsSimpleState(IState *st) {
   return true;
 }
 
-void WireInsn::MoveLastTransitionInsn(BB *bb) {
+void SimpleShrink::MoveLastTransitionInsn(BB *bb) {
   IState *last_st = bb->states_[bb->states_.size() - 1];
   IInsn *last_tr_insn = DesignUtil::FindInsnByResource(last_st, transition_);
   if (last_tr_insn == nullptr ||
@@ -206,8 +206,8 @@ void WireInsn::MoveLastTransitionInsn(BB *bb) {
   }
 }
 
-bool WireInsn::CanMoveInsn(IInsn *insn, BB *bb, int target_pos,
-			   MoveStrategy *ms) {
+bool SimpleShrink::CanMoveInsn(IInsn *insn, BB *bb, int target_pos,
+			       MoveStrategy *ms) {
   ms->insn = insn;
   if (insn->GetResource() == transition_) {
     return false;
@@ -246,7 +246,7 @@ bool WireInsn::CanMoveInsn(IInsn *insn, BB *bb, int target_pos,
   return true;
 }
 
-bool WireInsn::CheckLatency(IInsn *insn, IState *target_st) {
+bool SimpleShrink::CheckLatency(IInsn *insn, IState *target_st) {
   int min_slack = -1;
   LatencyInfo lat_info;
   for (IRegister *ireg : insn->inputs_) {
@@ -265,7 +265,7 @@ bool WireInsn::CheckLatency(IInsn *insn, IState *target_st) {
   return true;
 }
 
-void WireInsn::MoveInsn(MoveStrategy *ms, BB *bb, int target_pos) {
+void SimpleShrink::MoveInsn(MoveStrategy *ms, BB *bb, int target_pos) {
   IInsn *insn = ms->insn;
   PerInsn *pi = GetPerInsn(insn);
   IState *src_st = bb->states_[pi->nth_state];
@@ -310,8 +310,8 @@ void WireInsn::MoveInsn(MoveStrategy *ms, BB *bb, int target_pos) {
   }
 }
 
-bool WireInsn::CanUseResourceInState(IState *st, IResource *resource,
-				     MoveStrategy *ms) {
+bool SimpleShrink::CanUseResourceInState(IState *st, IResource *resource,
+					 MoveStrategy *ms) {
   for (IInsn *target_insn : st->insns_) {
     IResource *insn_resource = target_insn->GetResource();
     if (resource->GetClass()->IsExclusive() &&
@@ -323,12 +323,12 @@ bool WireInsn::CanUseResourceInState(IState *st, IResource *resource,
   return true;
 }
 
-IInsn *WireInsn::MayCopyInsnForState(IState *st, IInsn *insn,
-				     MoveStrategy *ms) {
+IInsn *SimpleShrink::MayCopyInsnForState(IState *st, IInsn *insn,
+					 MoveStrategy *ms) {
   return insn;
 }
 
-void WireInsn::AddWireToRegisterAssignments() {
+void SimpleShrink::AddWireToRegisterAssignments() {
   for (IState *st : table_->states_) {
     vector<IInsn *> new_assign_insn;
     for (IInsn *insn : st->insns_) {
@@ -355,7 +355,7 @@ void WireInsn::AddWireToRegisterAssignments() {
   }
 }
 
-bool WireInsn::IsUsedLaterInThisBB(IInsn *insn, IRegister *output) {
+bool SimpleShrink::IsUsedLaterInThisBB(IInsn *insn, IRegister *output) {
   PerInsn *pi = GetPerInsn(insn);
   map<IRegister *, set<IInsn *> >::iterator it = pi->using_insns_.find(output);
   if (it == pi->using_insns_.end()) {
