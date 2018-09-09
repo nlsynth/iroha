@@ -8,16 +8,6 @@ namespace iroha {
 namespace opt {
 namespace wire {
 
-class WirePhase : public Phase {
-public:
-  virtual ~WirePhase();
-
-  static Phase *Create();
-
-private:
-  virtual bool ApplyForTable(const string &key, ITable *table);
-};
-
 class Wire : public Scaffold {
 public:
   Wire(ITable *table, DebugAnnotation *annotation);

@@ -13,8 +13,7 @@
 #include "opt/debug_annotation.h"
 #include "opt/phase.h"
 #include "opt/ssa/ssa.h"
-#include "opt/wire/wire.h"
-#include "opt/wire/simple_shrink.h"
+#include "opt/wire/wire_phase.h"
 #include "writer/writer.h"
 
 #include <fstream>

@@ -8,16 +8,6 @@ namespace iroha {
 namespace opt {
 namespace wire {
 
-class SimpleShrinkPhase : public Phase {
-public:
-  virtual ~SimpleShrinkPhase();
-
-  static Phase *Create();
-
-private:
-  virtual bool ApplyForTable(const string &key, ITable *table);
-};
-
 class SimpleShrink : public Scaffold {
 public:
   SimpleShrink(ITable *table, DebugAnnotation *annotation);

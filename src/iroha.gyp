@@ -150,6 +150,8 @@
         'opt/wire/simple_shrink.h',
         'opt/wire/wire.cpp',
         'opt/wire/wire.h',
+        'opt/wire/wire_phase.cpp',
+        'opt/wire/wire_phase.h',
         'writer/connection.cpp',
         'writer/connection.h',
         'writer/cxx/class_writer.cpp',

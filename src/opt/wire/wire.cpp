@@ -11,18 +11,6 @@ namespace iroha {
 namespace opt {
 namespace wire {
 
-WirePhase::~WirePhase() {
-}
-
-Phase *WirePhase::Create() {
-  return new WirePhase();
-}
-
-bool WirePhase::ApplyForTable(const string &key, ITable *table) {
-  Wire wire(table, annotation_);
-  return wire.Perform();
-}
-
 Wire::Wire(ITable *table, DebugAnnotation *annotation)
   : Scaffold(table, annotation) {
   resource_share_.reset(new ResourceShare(table));

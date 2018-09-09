@@ -15,18 +15,6 @@ namespace iroha {
 namespace opt {
 namespace wire {
 
-SimpleShrinkPhase::~SimpleShrinkPhase() {
-}
-
-Phase *SimpleShrinkPhase::Create() {
-  return new SimpleShrinkPhase();
-}
-
-bool SimpleShrinkPhase::ApplyForTable(const string &key, ITable *table) {
-  SimpleShrink simple_shrink(table, annotation_);
-  return simple_shrink.Perform();
-}
-
 SimpleShrink::SimpleShrink(ITable *table, DebugAnnotation *annotation)
   : Scaffold(table, annotation) {
 }
