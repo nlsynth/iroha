@@ -25,6 +25,7 @@ public:
   bool Perform();
 
 private:
+  unique_ptr<ResourceShare> resource_share_;
 };
 
 }  // namespace wire
