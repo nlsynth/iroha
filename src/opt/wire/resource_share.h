@@ -8,15 +8,20 @@ namespace iroha {
 namespace opt {
 namespace wire {
 
+class ResourceEntry;
+
 // Manages resource usages in a table.
 class ResourceShare {
 public:
   ResourceShare(ITable *tab);
+  ~ResourceShare();
 
   void Scan();
 
 private:
   ITable *tab_;
+
+  map<IResource *, ResourceEntry *> entries_;
 };
 
 }  // namespace wire
