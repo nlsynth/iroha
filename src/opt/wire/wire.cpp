@@ -20,7 +20,9 @@ Wire::~Wire() {
 }
 
 bool Wire::Perform() {
-  resource_share_->Scan();
+  SetUp();
+  resource_share_->Scan(bset_.get());
+  resource_share_->Allocate();
   return true;
 }
 

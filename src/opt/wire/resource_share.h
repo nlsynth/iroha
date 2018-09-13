@@ -9,6 +9,7 @@ namespace opt {
 namespace wire {
 
 class ResourceEntry;
+class BBEntry;
 
 // Manages resource usages in a table.
 class ResourceShare {
@@ -16,12 +17,16 @@ public:
   ResourceShare(ITable *tab);
   ~ResourceShare();
 
-  void Scan();
+  void Scan(BBSet *bbs);
+  void Allocate();
 
 private:
   ITable *tab_;
 
   map<IResource *, ResourceEntry *> entries_;
+  map<BB *, BBEntry *> bb_entries_;
+
+  void CollectCongestedResource();
 };
 
 }  // namespace wire
