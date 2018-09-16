@@ -48,6 +48,7 @@ public:
   static IResource *CreateFifoResource(ITable *table, int width);
   static IResource *CreateFifoReaderResource(ITable *table, IResource *fifo);
   static IResource *CreateFifoWriterResource(ITable *table, IResource *fifo);
+  static IResource *CopySimpleResource(IResource *res);
   static IRegister *AllocRegister(ITable *table, const string &name,
 				  int width);
   static IRegister *AllocConstNum(ITable *table,

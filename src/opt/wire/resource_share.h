@@ -19,14 +19,18 @@ public:
 
   void Scan(BBSet *bbs);
   void Allocate();
+  void ReBind();
 
 private:
   ITable *tab_;
 
   map<IResource *, ResourceEntry *> entries_;
   map<BB *, BBEntry *> bb_entries_;
+  map<IInsn *, int> rebind_index_;
 
   void CollectCongestedResource();
+  void AssignResourceForOneInsn(IInsn *insn, ResourceEntry *re);
+  IInsn *RewriteInsnWithNewResource(IInsn *insn, IResource *res);
 };
 
 }  // namespace wire

@@ -23,6 +23,7 @@ bool Wire::Perform() {
   SetUp();
   resource_share_->Scan(bset_.get());
   resource_share_->Allocate();
+  resource_share_->ReBind();
   return true;
 }
 

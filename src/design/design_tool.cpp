@@ -192,6 +192,15 @@ IResource *DesignTool::CreateFifoWriterResource(ITable *table, IResource *fifo) 
   return res;
 }
 
+IResource *DesignTool::CopySimpleResource(IResource *res) {
+  ITable *tab = res->GetTable();
+  IResource *new_res = new IResource(tab, res->GetClass());
+  new_res->input_types_ = res->input_types_;
+  new_res->output_types_ = res->output_types_;
+  tab->resources_.push_back(new_res);
+  return new_res;
+}
+
 IRegister *DesignTool::AllocRegister(ITable *table, const string &name,
 				     int width) {
   IRegister *reg = new IRegister(table, name);

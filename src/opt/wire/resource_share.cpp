@@ -1,5 +1,6 @@
 #include "opt/wire/resource_share.h"
 
+#include "design/design_tool.h"
 #include "design/resource_attr.h"
 #include "iroha/i_design.h"
 #include "iroha/stl_util.h"
@@ -17,11 +18,15 @@ public:
   set<IInsn *> using_insns_;
   bool duplicatable_;
   bool is_congested_;
+  // [0] is the original. Others are copies of it.
+  vector<IResource *> all_res_;
+  vector<int> usage_count_;
+  int allocation_index_;
 };
 
 class BBEntry {
 public:
-  map<IResource *, int> use_count_;
+  map<IResource *, int> usage_count_;
 };
 
 ResourceShare::ResourceShare(ITable *tab) : tab_(tab) {
@@ -37,6 +42,7 @@ void ResourceShare::Scan(BBSet *bbs) {
   for (IResource *res : tab_->resources_) {
     ResourceEntry *re = new ResourceEntry();
     re->ires_ = res;
+    re->all_res_.push_back(res);
     re->duplicatable_ = ResourceAttr::IsDuplicatableResource(res);
     entries_[res] = re;
   }
@@ -54,15 +60,12 @@ void ResourceShare::Scan(BBSet *bbs) {
     for (IState *st : bb->states_) {
       for (IInsn *insn : st->insns_) {
 	IResource *res = insn->GetResource();
-	bbe->use_count_[res] += 1;
+	bbe->usage_count_[res] += 1;
       }
     }
   }
   // Aggregate.
   CollectCongestedResource();
-}
-
-void ResourceShare::Allocate() {
 }
 
 void ResourceShare::CollectCongestedResource() {
@@ -71,7 +74,7 @@ void ResourceShare::CollectCongestedResource() {
   for (auto &p : bb_entries_) {
     BB *bb = p.first;
     BBEntry *bbe = p.second;
-    for (auto &q : bbe->use_count_) {
+    for (auto &q : bbe->usage_count_) {
       if (q.second >= 2) {
 	congested.insert(q.first);
       }
@@ -92,6 +95,84 @@ void ResourceShare::CollectCongestedResource() {
     }
     re->is_congested_ = true;
   }
+}
+
+void ResourceShare::Allocate() {
+  for (auto &p : entries_) {
+    ResourceEntry *re = p.second;
+    if (!re->is_congested_) {
+      continue;
+    }
+    // Allocates only 1 more resource for now.
+    IResource *new_res = DesignTool::CopySimpleResource(re->ires_);
+    re->all_res_.push_back(new_res);
+  }
+  for (auto &p : entries_) {
+    ResourceEntry *re = p.second;
+    if (re->all_res_.size() > 1) {
+      int s = re->all_res_.size();
+      re->usage_count_.resize(s);
+      re->allocation_index_ = 0;
+    }
+  }
+}
+
+void ResourceShare::ReBind() {
+  // Assign ids.
+  for (auto &p : bb_entries_) {
+    BB *bb = p.first;
+    for (IState *st : bb->states_) {
+      for (IInsn *insn : st->insns_) {
+	IResource *res = insn->GetResource();
+	ResourceEntry *re = entries_[res];
+	if (re->usage_count_.size() > 0) {
+	  AssignResourceForOneInsn(insn, re);
+	}
+      }
+    }
+  }
+  for (auto &p : bb_entries_) {
+    BB *bb = p.first;
+    for (IState *st : bb->states_) {
+      vector<IInsn *> insns;
+      for (IInsn *insn : st->insns_) {
+	auto q = rebind_index_.find(insn);
+	if (q == rebind_index_.end() ||
+	    q->second == 0) {
+	  insns.push_back(insn);
+	} else {
+	  IResource *res = insn->GetResource();
+	  ResourceEntry *re = entries_[res];
+	  int idx = rebind_index_[insn];
+	  IResource *new_res = re->all_res_[idx];
+	  insns.push_back(RewriteInsnWithNewResource(insn, new_res));
+	}
+      }
+      // Update with the new insn list.
+      st->insns_ = insns;
+    }
+  }
+}
+
+IInsn *ResourceShare::RewriteInsnWithNewResource(IInsn *insn, IResource *res) {
+  // This works only for simple insns.
+  IInsn *new_insn = new IInsn(res);
+  new_insn->inputs_ = insn->inputs_;
+  new_insn->outputs_ = insn->outputs_;
+  return new_insn;
+}
+
+void ResourceShare::AssignResourceForOneInsn(IInsn *insn, ResourceEntry *re) {
+  int least_used_count = 10000;
+  int least_used_index = -1;
+  for (int i = 0; i < re->usage_count_.size(); ++i) {
+    if (re->usage_count_[i] < least_used_count) {
+      least_used_count = re->usage_count_[i];
+      least_used_index = i;
+    }
+  }
+  rebind_index_[insn] = least_used_index;
+  re->usage_count_[least_used_index]++;
 }
 
 }  // namespace wire
