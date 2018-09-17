@@ -1,4 +1,7 @@
 // -*- C++ -*-
+//
+// BB stands for Basic Block.
+//
 #ifndef _opt_bb_set_h_
 #define _opt_bb_set_h_
 

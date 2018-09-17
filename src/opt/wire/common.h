@@ -8,6 +8,8 @@ namespace iroha {
 namespace opt {
 namespace wire {
 
+class DataPath;
+class DataPathSet;
 class ResourceShare;
 
 }  // namespace wire

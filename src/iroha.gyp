@@ -142,6 +142,8 @@
         'opt/ssa/ssa.cpp',
         'opt/ssa/ssa.h',
 	'opt/wire/common.h',
+	'opt/wire/data_path.cpp',
+	'opt/wire/data_path.h',
 	'opt/wire/resource_share.cpp',
 	'opt/wire/resource_share.h',
         'opt/wire/scaffold.cpp',

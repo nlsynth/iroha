@@ -16,6 +16,7 @@ public:
 
 private:
   unique_ptr<ResourceShare> resource_share_;
+  unique_ptr<DataPathSet> data_path_set_;
 };
 
 }  // namespace wire

@@ -2,7 +2,6 @@
 #ifndef _opt_wire_scaffold_h_
 #define _opt_wire_scaffold_h_
 
-#include "opt/phase.h"
 #include "opt/wire/common.h"
 
 namespace iroha {

@@ -5,6 +5,7 @@
 #include "iroha/i_design.h"
 #include "iroha/resource_class.h"
 #include "iroha/resource_params.h"
+#include "opt/wire/data_path.h"
 #include "opt/wire/resource_share.h"
 
 namespace iroha {
@@ -14,6 +15,7 @@ namespace wire {
 Wire::Wire(ITable *table, DebugAnnotation *annotation)
   : Scaffold(table, annotation) {
   resource_share_.reset(new ResourceShare(table));
+  data_path_set_.reset(new DataPathSet());
 }
 
 Wire::~Wire() {
@@ -24,6 +26,9 @@ bool Wire::Perform() {
   resource_share_->Scan(bset_.get());
   resource_share_->Allocate();
   resource_share_->ReBind();
+
+  data_path_set_->Build(bset_.get());
+
   return true;
 }
 
