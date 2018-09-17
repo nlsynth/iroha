@@ -33,7 +33,7 @@ bool SimpleShrink::Perform() {
   for (BB *bb : bset_->bbs_) {
     MoveLastTransitionInsn(bb);
   }
-  if (annotation_ != nullptr) {
+  if (annotation_->IsEnabled()) {
     annotation_->DumpIntermediateTable(table_);
   }
   return true;

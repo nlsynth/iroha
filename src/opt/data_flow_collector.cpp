@@ -27,7 +27,7 @@ DataFlow *DataFlowCollector::Create() {
   }
   CollectReaches();
   CopyReaches();
-  if (annotation_) {
+  if (annotation_->IsEnabled()) {
     Annotate(annotation_->Table(bbs_->GetTable()));
   }
   return df_;

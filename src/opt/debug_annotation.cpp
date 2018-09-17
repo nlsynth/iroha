@@ -6,7 +6,18 @@
 namespace iroha {
 namespace opt {
 
+DebugAnnotation::DebugAnnotation() : enabled_(false) {
+}
+
 DebugAnnotation::~DebugAnnotation() {
+}
+
+void DebugAnnotation::Enable() {
+  enabled_ = true;
+}
+
+bool DebugAnnotation::IsEnabled() {
+  return enabled_;
 }
 
 void DebugAnnotation::DumpIntermediateTable(const ITable *tab) {

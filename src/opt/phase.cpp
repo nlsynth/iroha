@@ -54,7 +54,7 @@ bool Phase::ApplyForTable(const string &key, ITable *table) {
 }
 
 void Phase::OutputPhaseHeader(const string &msg) {
-  if (annotation_ == nullptr) {
+  if (!annotation_->IsEnabled()) {
     return;
   }
   ostream &os = annotation_->GetDumpStream();

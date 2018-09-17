@@ -25,7 +25,7 @@ void Scaffold::SetUp() {
   transition_ = DesignUtil::FindTransitionResource(table_);
   bset_.reset(BBSet::Create(table_, annotation_));
   data_flow_.reset(DataFlow::Create(bset_.get(), annotation_));
-  if (annotation_ != nullptr) {
+  if (annotation_->IsEnabled()) {
     annotation_->DumpIntermediateTable(table_);
   }
   CollectReachingRegisters();

@@ -13,9 +13,12 @@ namespace opt {
 // Per design object to store debug strings.
 class DebugAnnotation {
 public:
+  DebugAnnotation();
   ~DebugAnnotation();
 
+  void Enable();
   // Called by optimizers.
+  bool IsEnabled();
   void DumpIntermediateTable(const ITable *tab);
   void GetDumpedContent(ostream &os);
   ostream &GetDumpStream();
@@ -30,6 +33,7 @@ public:
 
 private:
   ostringstream dump_;
+  bool enabled_;
 
   map<const ITable *, ostringstream> table_;
   map<const IState *, ostringstream> state_;

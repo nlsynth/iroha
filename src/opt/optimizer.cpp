@@ -24,6 +24,7 @@ namespace opt {
 map<string, function<Phase *()> > Optimizer::phases_;
 
 Optimizer::Optimizer(IDesign *design) : design_(design) {
+  design_->SetDebugAnnotation(new DebugAnnotation);
 }
 
 void Optimizer::Init() {
@@ -61,9 +62,7 @@ bool Optimizer::ApplyPhase(const string &name) {
   phase->SetOptimizer(this);
   auto *annotation = design_->GetDebugAnnotation();
   phase->SetAnnotation(annotation);
-  if (annotation != nullptr) {
-    annotation->Clear();
-  }
+  annotation->Clear();
   bool isOk = phase->Apply(design_);
   if (isOk) {
     Validator::Validate(design_);
@@ -72,10 +71,14 @@ bool Optimizer::ApplyPhase(const string &name) {
 }
 
 void Optimizer::EnableDebugAnnotation() {
-  design_->SetDebugAnnotation(new DebugAnnotation);
+  DebugAnnotation *an = design_->GetDebugAnnotation();
+  an->Enable();
 }
 
 void Optimizer::DumpIntermediate(const string &fn) {
+  if (fn.empty()) {
+    return;
+  }
   auto *an = design_->GetDebugAnnotation();
   ofstream os(fn);
   writer::Writer::WriteDumpHeader(os);

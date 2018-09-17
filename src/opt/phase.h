@@ -30,6 +30,7 @@ protected:
   void OutputPhaseHeader(const string &msg);
 
   Optimizer *optimizer_;
+  // Optimizers can assume this is not null.
   DebugAnnotation *annotation_;
   string name_;
 };

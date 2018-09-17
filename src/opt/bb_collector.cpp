@@ -3,6 +3,7 @@
 #include "design/design_util.h"
 #include "iroha/i_design.h"
 #include "opt/bb_set.h"
+#include "opt/debug_annotation.h"
 #include "opt/opt_util.h"
 
 namespace iroha {
@@ -25,7 +26,7 @@ BBSet *BBCollector::Create() {
   if (initial_st != nullptr) {
     bset_->initial_bb_ = bset_->state_to_bb_[initial_st];
   }
-  if (annotation_ != nullptr) {
+  if (annotation_->IsEnabled()) {
     Annotate();
   }
   return bset_;
