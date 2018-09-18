@@ -8,13 +8,25 @@ namespace iroha {
 namespace opt {
 namespace wire {
 
+class PathEdge {
+public:
+  PathEdge(IInsn *insn);
+
+  int GetId();
+
+  IInsn *insn_;
+  map<int, PathEdge *> sources_;
+};
+
 class DataPath {
 public:
   DataPath(BB *bb);
+  ~DataPath();
 
   void Build();
 private:
   BB *bb_;
+  map<int, PathEdge *> edges_;
 };
 
 class DataPathSet {

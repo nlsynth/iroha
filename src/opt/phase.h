@@ -12,10 +12,11 @@ public:
   Phase();
   virtual ~Phase();
 
+  // Following 3 methods must be called after the construction.
   void SetName(const string &name);
   void SetOptimizer(Optimizer *opt);
-  // Optional. Set when debug output is enabled.
   void SetAnnotation(DebugAnnotation *annotation);
+
   bool Apply(IDesign *design);
 
 protected:
