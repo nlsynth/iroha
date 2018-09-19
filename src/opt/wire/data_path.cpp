@@ -3,6 +3,7 @@
 #include "iroha/i_design.h"
 #include "iroha/stl_util.h"
 #include "opt/bb_set.h"
+#include "opt/debug_annotation.h"
 
 namespace iroha {
 namespace opt {
@@ -13,6 +14,10 @@ PathEdge::PathEdge(IInsn *insn) : insn_(insn) {
 
 int PathEdge::GetId() {
   return insn_->GetId();
+}
+
+void PathEdge::Dump(ostream &os) {
+  os << "Edge: " << GetId() << "\n";
 }
 
 DataPath::DataPath(BB *bb) : bb_(bb) {
@@ -63,6 +68,13 @@ void DataPath::Build() {
   }
 }
 
+void DataPath::Dump(ostream &os) {
+  os << "DataPath BB: " << bb_->bb_id_ << "\n";
+  for (auto &p : edges_) {
+    p.second->Dump(os);
+  }
+}
+
 DataPathSet::DataPathSet() {
 }
 
@@ -74,8 +86,16 @@ void DataPathSet::Build(BBSet *bset) {
   bbs_ = bset;
   for (BB *bb : bbs_->bbs_) {
     DataPath *dp = new DataPath(bb);
-    data_pathes_[bb] = dp;
+    data_pathes_[bb->bb_id_] = dp;
     dp->Build();
+  }
+}
+
+void DataPathSet::Dump(DebugAnnotation *an) {
+  ostream &os = an->GetDumpStream();
+  os << "DataPathSet table: " << bbs_->GetTable()->GetId() << "\n";
+  for (auto &p : data_pathes_) {
+    p.second->Dump(os);
   }
 }
 

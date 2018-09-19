@@ -13,6 +13,7 @@ public:
   PathEdge(IInsn *insn);
 
   int GetId();
+  void Dump(ostream &os);
 
   IInsn *insn_;
   map<int, PathEdge *> sources_;
@@ -24,6 +25,8 @@ public:
   ~DataPath();
 
   void Build();
+  void Dump(ostream &os);
+
 private:
   BB *bb_;
   map<int, PathEdge *> edges_;
@@ -35,10 +38,11 @@ public:
   ~DataPathSet();
 
   void Build(BBSet *bbs);
+  void Dump(DebugAnnotation *an);
 
 private:
   BBSet *bbs_;
-  map<BB *, DataPath *> data_pathes_;
+  map<int, DataPath *> data_pathes_;
 };
 
 }  // namespace wire

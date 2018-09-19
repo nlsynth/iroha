@@ -2,9 +2,11 @@
 #include "opt/wire/wire.h"
 
 #include "design/resource_attr.h"
+#include "design/validator.h"
 #include "iroha/i_design.h"
 #include "iroha/resource_class.h"
 #include "iroha/resource_params.h"
+#include "opt/debug_annotation.h"
 #include "opt/wire/data_path.h"
 #include "opt/wire/resource_share.h"
 
@@ -27,7 +29,13 @@ bool Wire::Perform() {
   resource_share_->Allocate();
   resource_share_->ReBind();
 
+  // Assign ids to newly allocated insns.
+  Validator::ValidateTable(table_);
+
   data_path_set_->Build(bset_.get());
+  if (annotation_->IsEnabled()) {
+    data_path_set_->Dump(annotation_);
+  }
 
   return true;
 }
