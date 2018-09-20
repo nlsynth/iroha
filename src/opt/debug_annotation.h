@@ -34,8 +34,9 @@ public:
   string GetStateAnnotation(const IState *st) const;
 
 private:
-  ostringstream dump_;
   bool enabled_;
+  string phase_name_;
+  map<string, ostringstream> dump_;
 
   map<const ITable *, ostringstream> table_;
   map<const IState *, ostringstream> state_;

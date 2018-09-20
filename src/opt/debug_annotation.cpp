@@ -23,18 +23,29 @@ bool DebugAnnotation::IsEnabled() {
 }
 
 void DebugAnnotation::WriteToFiles(const string &fn) {
+  for (auto &p : dump_) {
+    ofstream os(fn + "." + p.first);
+    writer::Writer::WriteDumpHeader(os);
+    os << p.second.str();
+    writer::Writer::WriteDumpFooter(os);
+  }
+  // Index of generated dump files.
   ofstream os(fn);
   writer::Writer::WriteDumpHeader(os);
-  os << dump_.str();
+  for (auto &p : dump_) {
+    // TODO: Use basename.
+    string f = fn + "." + p.first;
+    os << "<a href=\"" << f << "\">" << f << "</a>\n";
+  }
   writer::Writer::WriteDumpFooter(os);
 }
 
 void DebugAnnotation::DumpIntermediateTable(const ITable *tab) {
-  writer::Writer::DumpTable(tab, dump_);
+  writer::Writer::DumpTable(tab, dump_[phase_name_]);
 }
 
 ostream &DebugAnnotation::GetDumpStream() {
-  return dump_;
+  return dump_[phase_name_];
 }
 
 ostream &DebugAnnotation::Table(const ITable *tab) {
@@ -62,6 +73,7 @@ string DebugAnnotation::GetStateAnnotation(const IState *st) const {
 }
 
 void DebugAnnotation::StartPhase(const string &name) {
+  phase_name_ = name;
   table_.clear();
   state_.clear();
 }
