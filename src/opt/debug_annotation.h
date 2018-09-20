@@ -16,16 +16,18 @@ public:
   DebugAnnotation();
   ~DebugAnnotation();
 
+  // Called once at the start.
   void Enable();
+  // Called at the end.
+  void WriteToFiles(const string &fn);
+  // Called at beginning of each phase.
+  void StartPhase(const string &name);
   // Called by optimizers.
   bool IsEnabled();
   void DumpIntermediateTable(const ITable *tab);
-  void GetDumpedContent(ostream &os);
   ostream &GetDumpStream();
   ostream &Table(const ITable *tab);
   ostream &State(const IState *st);
-  void Clear();
-  void ClearForTable(const ITable *tab);
 
   // Called by HTML dumper.
   string GetTableAnnotation(const ITable *tab) const;

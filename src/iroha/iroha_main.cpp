@@ -195,7 +195,7 @@ int main(int argc, char **argv) {
     }
     writer->Write(output);
     if (!debug_dump.empty()) {
-      optimizer->DumpIntermediate(debug_dump);
+      optimizer->DumpIntermediateToFiles(debug_dump);
     }
   }
   return 0;

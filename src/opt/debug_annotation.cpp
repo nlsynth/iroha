@@ -3,6 +3,8 @@
 #include "iroha/i_design.h"
 #include "writer/writer.h"
 
+#include <fstream>
+
 namespace iroha {
 namespace opt {
 
@@ -20,12 +22,15 @@ bool DebugAnnotation::IsEnabled() {
   return enabled_;
 }
 
-void DebugAnnotation::DumpIntermediateTable(const ITable *tab) {
-  writer::Writer::DumpTable(tab, dump_);
+void DebugAnnotation::WriteToFiles(const string &fn) {
+  ofstream os(fn);
+  writer::Writer::WriteDumpHeader(os);
+  os << dump_.str();
+  writer::Writer::WriteDumpFooter(os);
 }
 
-void DebugAnnotation::GetDumpedContent(ostream &os) {
-  os << dump_.str();
+void DebugAnnotation::DumpIntermediateTable(const ITable *tab) {
+  writer::Writer::DumpTable(tab, dump_);
 }
 
 ostream &DebugAnnotation::GetDumpStream() {
@@ -56,19 +61,7 @@ string DebugAnnotation::GetStateAnnotation(const IState *st) const {
   return it->second.str();
 }
 
-void DebugAnnotation::ClearForTable(const ITable *tab) {
-  table_.erase(tab);
-  for (auto it = state_.begin(); it != state_.end(); ) {
-    const auto *st = it->first;
-    if (st->GetTable() == tab) {
-      it = state_.erase(it);
-    } else {
-      ++it;
-    }
-  }
-}
-
-void DebugAnnotation::Clear() {
+void DebugAnnotation::StartPhase(const string &name) {
   table_.clear();
   state_.clear();
 }

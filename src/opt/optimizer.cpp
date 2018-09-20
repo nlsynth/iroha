@@ -14,9 +14,6 @@
 #include "opt/phase.h"
 #include "opt/ssa/ssa.h"
 #include "opt/wire/wire_phase.h"
-#include "writer/writer.h"
-
-#include <fstream>
 
 namespace iroha {
 namespace opt {
@@ -62,7 +59,7 @@ bool Optimizer::ApplyPhase(const string &name) {
   phase->SetOptimizer(this);
   auto *annotation = design_->GetDebugAnnotation();
   phase->SetAnnotation(annotation);
-  annotation->Clear();
+  annotation->StartPhase(name);
   bool isOk = phase->Apply(design_);
   if (isOk) {
     Validator::Validate(design_);
@@ -75,15 +72,12 @@ void Optimizer::EnableDebugAnnotation() {
   an->Enable();
 }
 
-void Optimizer::DumpIntermediate(const string &fn) {
+void Optimizer::DumpIntermediateToFiles(const string &fn) {
   if (fn.empty()) {
     return;
   }
   auto *an = design_->GetDebugAnnotation();
-  ofstream os(fn);
-  writer::Writer::WriteDumpHeader(os);
-  an->GetDumpedContent(os);
-  writer::Writer::WriteDumpFooter(os);
+  an->WriteToFiles(fn);
 }
 
 }  // namespace opt
