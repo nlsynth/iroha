@@ -41,11 +41,11 @@ void DebugAnnotation::WriteToFiles(const string &fn) {
 }
 
 void DebugAnnotation::DumpIntermediateTable(const ITable *tab) {
-  writer::Writer::DumpTable(tab, dump_[phase_name_]);
+  writer::Writer::DumpTable(tab, dump_[file_name_]);
 }
 
 ostream &DebugAnnotation::GetDumpStream() {
-  return dump_[phase_name_];
+  return dump_[file_name_];
 }
 
 ostream &DebugAnnotation::Table(const ITable *tab) {
@@ -74,8 +74,27 @@ string DebugAnnotation::GetStateAnnotation(const IState *st) const {
 
 void DebugAnnotation::StartPhase(const string &name) {
   phase_name_ = name;
+  section_name_ = "";
+  UpdateFileName();
   table_.clear();
   state_.clear();
+}
+
+void DebugAnnotation::StartSubSection(const string &section) {
+  section_name_ = section;
+  UpdateFileName();
+}
+
+void DebugAnnotation::ClearSubSection() {
+  section_name_.clear();
+  UpdateFileName();
+}
+
+void DebugAnnotation::UpdateFileName() {
+  file_name_ = phase_name_;
+  if (!section_name_.empty()) {
+    file_name_ += "." + section_name_;
+  }
 }
 
 }  // namespace opt

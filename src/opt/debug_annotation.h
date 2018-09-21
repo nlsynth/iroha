@@ -22,6 +22,9 @@ public:
   void WriteToFiles(const string &fn);
   // Called at beginning of each phase.
   void StartPhase(const string &name);
+  // Dump into a separate file from the main output from the phase.
+  void StartSubSection(const string &section);
+  void ClearSubSection();
   // Called by optimizers.
   bool IsEnabled();
   void DumpIntermediateTable(const ITable *tab);
@@ -34,8 +37,12 @@ public:
   string GetStateAnnotation(const IState *st) const;
 
 private:
+  void UpdateFileName();
+
   bool enabled_;
   string phase_name_;
+  string section_name_;
+  string file_name_;
   map<string, ostringstream> dump_;
 
   map<const ITable *, ostringstream> table_;
