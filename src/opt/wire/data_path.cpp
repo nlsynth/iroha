@@ -9,7 +9,7 @@ namespace iroha {
 namespace opt {
 namespace wire {
 
-PathEdge::PathEdge(IInsn *insn) : insn_(insn) {
+PathEdge::PathEdge(DataPath *path, int st_index, IInsn *insn) : path_(path), st_index_(st_index), insn_(insn) {
 }
 
 int PathEdge::GetId() {
@@ -17,7 +17,14 @@ int PathEdge::GetId() {
 }
 
 void PathEdge::Dump(ostream &os) {
-  os << "Edge: " << GetId() << "\n";
+  os << "Edge: " << GetId() << "@" << st_index_ << "\n";
+  if (sources_.size() > 0) {
+    for (auto &p : sources_) {
+      int source_edge_id = p.first;
+      os << " " << source_edge_id;
+    }
+    os << "\n";
+  }
 }
 
 DataPath::DataPath(BB *bb) : bb_(bb) {
@@ -29,12 +36,14 @@ DataPath::~DataPath() {
 
 void DataPath::Build() {
   map<IInsn *, PathEdge *> insn_to_edge;
+  int st_index = 0;
   for (IState *st : bb_->states_) {
     for (IInsn *insn : st->insns_) {
-      PathEdge *e = new PathEdge(insn);
+      PathEdge *e = new PathEdge(this, st_index, insn);
       edges_[e->GetId()] = e;
       insn_to_edge[insn] = e;
     }
+    ++st_index;
   }
   map<IRegister *, IInsn *> output_to_insn;
   for (IState *st : bb_->states_) {

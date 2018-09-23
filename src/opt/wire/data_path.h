@@ -10,11 +10,13 @@ namespace wire {
 
 class PathEdge {
 public:
-  PathEdge(IInsn *insn);
+  PathEdge(DataPath *path, int st_index, IInsn *insn);
 
   int GetId();
   void Dump(ostream &os);
 
+  DataPath *path_;
+  int st_index_;
   IInsn *insn_;
   map<int, PathEdge *> sources_;
 };

@@ -244,10 +244,10 @@ bool SimpleShrink::CheckLatency(IInsn *insn, IState *target_st) {
     }
   }
   if (min_slack < 0) {
-    return true;
+    return false;
   }
   int lat = lat_info.GetInsnLatency(insn);
-  if (min_slack - lat < 0) {
+  if (min_slack < lat) {
     return false;
   }
   return true;
