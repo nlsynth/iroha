@@ -22,20 +22,36 @@ bool DebugAnnotation::IsEnabled() {
   return enabled_;
 }
 
-void DebugAnnotation::WriteToFiles(const string &fn) {
+void DebugAnnotation::WriteToFiles(const string &baseFn) {
   for (auto &p : dump_) {
-    ofstream os(fn + "." + p.first);
-    writer::Writer::WriteDumpHeader(os);
+    const string &suffix = p.first;
+    string fn = baseFn + "." + suffix;
+    bool isHtml = (html_sections_.find(suffix) != html_sections_.end());
+    if (isHtml) {
+      fn += ".html";
+    }
+    ofstream os(fn);
+    if (isHtml) {
+      writer::Writer::WriteDumpHeader(os);
+    }
     os << p.second.str();
-    writer::Writer::WriteDumpFooter(os);
+    if (isHtml) {
+      writer::Writer::WriteDumpFooter(os);
+    }
   }
   // Index of generated dump files.
-  ofstream os(fn);
+  ofstream os(baseFn + ".html");
   writer::Writer::WriteDumpHeader(os);
   for (auto &p : dump_) {
     // TODO: Use basename.
-    string f = fn + "." + p.first;
-    os << "<a href=\"" << f << "\">" << f << "</a>\n";
+    const string &suffix = p.first;
+    string linkFn = baseFn + "." + suffix;
+    bool isHtml = (html_sections_.find(suffix) != html_sections_.end());
+    if (isHtml) {
+      linkFn += ".html";
+    }
+    linkFn = Util::BaseName(linkFn);
+    os << "<a href=\"" << linkFn << "\">" << linkFn << "</a>\n";
   }
   writer::Writer::WriteDumpFooter(os);
 }
@@ -75,25 +91,28 @@ string DebugAnnotation::GetStateAnnotation(const IState *st) const {
 void DebugAnnotation::StartPhase(const string &name) {
   phase_name_ = name;
   section_name_ = "";
-  UpdateFileName();
+  UpdateFileName(true);
   table_.clear();
   state_.clear();
 }
 
-void DebugAnnotation::StartSubSection(const string &section) {
+void DebugAnnotation::StartSubSection(const string &section, bool isHtml) {
   section_name_ = section;
-  UpdateFileName();
+  UpdateFileName(isHtml);
 }
 
 void DebugAnnotation::ClearSubSection() {
   section_name_.clear();
-  UpdateFileName();
+  UpdateFileName(false);
 }
 
-void DebugAnnotation::UpdateFileName() {
+void DebugAnnotation::UpdateFileName(bool isHtml) {
   file_name_ = phase_name_;
   if (!section_name_.empty()) {
     file_name_ += "." + section_name_;
+  }
+  if (isHtml) {
+    html_sections_.insert(file_name_);
   }
 }
 

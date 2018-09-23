@@ -109,4 +109,13 @@ istream *Util::OpenFile(const string &s) {
   return nullptr;
 }
 
+string Util::BaseName(const string &fn) {
+  const char *p = strrchr(fn.c_str(), '/');
+  if (!p) {
+    return fn;
+  }
+  ++p;
+  return string(p);
+}
+
 }  // namespace iroha

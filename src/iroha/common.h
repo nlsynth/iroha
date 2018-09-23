@@ -42,6 +42,7 @@ public:
   static string ToLower(const string &s);
   static string Join(const vector<string> &v, const string &sep);
   static istream *OpenFile(const string &s);
+  static string BaseName(const string &fn);
 
   static vector<string> import_paths_;
 };

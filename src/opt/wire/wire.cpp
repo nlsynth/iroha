@@ -34,7 +34,7 @@ bool Wire::Perform() {
 
   data_path_set_->Build(bset_.get());
   if (annotation_->IsEnabled()) {
-    annotation_->StartSubSection("data_path");
+    annotation_->StartSubSection("data_path", false);
     data_path_set_->Dump(annotation_);
     annotation_->ClearSubSection();
   }

@@ -6,6 +6,7 @@
 
 #include <sstream>
 #include <map>
+#include <set>
 
 namespace iroha {
 namespace opt {
@@ -19,11 +20,11 @@ public:
   // Called once at the start.
   void Enable();
   // Called at the end.
-  void WriteToFiles(const string &fn);
+  void WriteToFiles(const string &baseFn);
   // Called at beginning of each phase.
   void StartPhase(const string &name);
   // Dump into a separate file from the main output from the phase.
-  void StartSubSection(const string &section);
+  void StartSubSection(const string &section, bool isHtml);
   void ClearSubSection();
   // Called by optimizers.
   bool IsEnabled();
@@ -37,13 +38,14 @@ public:
   string GetStateAnnotation(const IState *st) const;
 
 private:
-  void UpdateFileName();
+  void UpdateFileName(bool isHtml);
 
   bool enabled_;
   string phase_name_;
   string section_name_;
   string file_name_;
   map<string, ostringstream> dump_;
+  set<string> html_sections_;
 
   map<const ITable *, ostringstream> table_;
   map<const IState *, ostringstream> state_;
