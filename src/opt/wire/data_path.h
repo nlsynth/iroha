@@ -17,6 +17,8 @@ public:
 
   DataPath *path_;
   int st_index_;
+  int edge_delay_;
+  int accumlated_delay_;
   IInsn *insn_;
   map<int, PathEdge *> sources_;
 };
@@ -40,6 +42,7 @@ public:
   ~DataPathSet();
 
   void Build(BBSet *bbs);
+  void SetLatency(LatencyInfo *lat);
   void Dump(DebugAnnotation *an);
 
 private:

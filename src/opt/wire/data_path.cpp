@@ -9,7 +9,8 @@ namespace iroha {
 namespace opt {
 namespace wire {
 
-PathEdge::PathEdge(DataPath *path, int st_index, IInsn *insn) : path_(path), st_index_(st_index), insn_(insn) {
+PathEdge::PathEdge(DataPath *path, int st_index, IInsn *insn)
+  : path_(path), edge_delay_(0), accumlated_delay_(0), st_index_(st_index), insn_(insn) {
 }
 
 int PathEdge::GetId() {
@@ -17,7 +18,7 @@ int PathEdge::GetId() {
 }
 
 void PathEdge::Dump(ostream &os) {
-  os << "Edge: " << GetId() << "@" << st_index_ << "\n";
+  os << "Edge: " << GetId() << "@" << st_index_ << " " << edge_delay_ << " " << accumlated_delay_ << "\n";
   if (sources_.size() > 0) {
     for (auto &p : sources_) {
       int source_edge_id = p.first;
@@ -98,6 +99,9 @@ void DataPathSet::Build(BBSet *bset) {
     data_pathes_[bb->bb_id_] = dp;
     dp->Build();
   }
+}
+
+void DataPathSet::SetLatency(LatencyInfo *lat) {
 }
 
 void DataPathSet::Dump(DebugAnnotation *an) {

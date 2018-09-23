@@ -7,6 +7,7 @@
 #include "iroha/resource_class.h"
 #include "iroha/resource_params.h"
 #include "opt/debug_annotation.h"
+#include "opt/latency_info.h"
 #include "opt/wire/data_path.h"
 #include "opt/wire/resource_share.h"
 
@@ -33,6 +34,8 @@ bool Wire::Perform() {
   Validator::ValidateTable(table_);
 
   data_path_set_->Build(bset_.get());
+  LatencyInfo lat;
+  data_path_set_->SetLatency(&lat);
   if (annotation_->IsEnabled()) {
     annotation_->StartSubSection("data_path", false);
     data_path_set_->Dump(annotation_);
