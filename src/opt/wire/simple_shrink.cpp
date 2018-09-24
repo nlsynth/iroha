@@ -9,7 +9,7 @@
 #include "opt/bb_set.h"
 #include "opt/data_flow.h"
 #include "opt/debug_annotation.h"
-#include "opt/latency_info.h"
+#include "opt/delay_info.h"
 
 namespace iroha {
 namespace opt {
@@ -227,16 +227,16 @@ bool SimpleShrink::CanMoveInsn(IInsn *insn, BB *bb, int target_pos,
       return false;
     }
   }
-  // Checks the latency.
-  if (!CheckLatency(insn, target_st)) {
+  // Checks the delay.
+  if (!CheckDelay(insn, target_st)) {
     return false;
   }
   return true;
 }
 
-bool SimpleShrink::CheckLatency(IInsn *insn, IState *target_st) {
+bool SimpleShrink::CheckDelay(IInsn *insn, IState *target_st) {
   int min_slack = -1;
-  LatencyInfo lat_info;
+  DelayInfo lat_info;
   for (IRegister *ireg : insn->inputs_) {
     int s = lat_info.GetRegisterSlack(target_st, ireg);
     if (min_slack < 0 || s < min_slack) {

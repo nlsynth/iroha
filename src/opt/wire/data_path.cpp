@@ -101,7 +101,7 @@ void DataPathSet::Build(BBSet *bset) {
   }
 }
 
-void DataPathSet::SetLatency(LatencyInfo *lat) {
+void DataPathSet::SetDelay(DelayInfo *lat) {
 }
 
 void DataPathSet::Dump(DebugAnnotation *an) {

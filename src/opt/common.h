@@ -15,7 +15,7 @@ class BBSet;
 class DataFlow;
 class DebugAnnotation;
 class DominatorTree;
-class LatencyInfo;
+class DelayInfo;
 class Optimizer;
 class RegDef;
 

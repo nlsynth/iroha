@@ -42,7 +42,7 @@ public:
   ~DataPathSet();
 
   void Build(BBSet *bbs);
-  void SetLatency(LatencyInfo *lat);
+  void SetDelay(DelayInfo *lat);
   void Dump(DebugAnnotation *an);
 
 private:

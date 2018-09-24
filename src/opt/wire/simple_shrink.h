@@ -36,7 +36,7 @@ private:
   bool IsSimpleState(IState *st);
   void MoveLastTransitionInsn(BB *bb);
   bool CanMoveInsn(IInsn *insn, BB *bb, int target_pos, MoveStrategy *ms);
-  bool CheckLatency(IInsn *insn, IState *target_st);
+  bool CheckDelay(IInsn *insn, IState *target_st);
   void MoveInsn(MoveStrategy *ms, BB *bb, int target_pos);
   void AddWireToRegisterAssignments();
   bool IsUsedLaterInThisBB(IInsn *insn, IRegister *output);
