@@ -141,7 +141,9 @@ private:
 class IInsn {
 public:
   IInsn(IResource *resource);
+
   IResource *GetResource() const;
+  void SetResource(IResource *resource);
   int GetId() const;
   void SetId(int id);
   const string &GetOperand() const;

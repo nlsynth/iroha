@@ -238,6 +238,10 @@ IResource *IInsn::GetResource() const {
   return resource_;
 }
 
+void IInsn::SetResource(IResource *resource) {
+  resource_ = resource;
+}
+
 int IInsn::GetId() const {
   return id_;
 }
