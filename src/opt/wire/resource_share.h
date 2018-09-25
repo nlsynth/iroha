@@ -30,7 +30,6 @@ private:
 
   void CollectCongestedResource();
   void AssignResourceForOneInsn(IInsn *insn, ResourceEntry *re);
-  IInsn *RewriteInsnWithNewResource(IInsn *insn, IResource *res);
 };
 
 }  // namespace wire

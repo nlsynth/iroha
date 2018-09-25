@@ -134,32 +134,19 @@ void ResourceShare::ReBind() {
   for (auto &p : bb_entries_) {
     BB *bb = p.first;
     for (IState *st : bb->states_) {
-      vector<IInsn *> insns;
       for (IInsn *insn : st->insns_) {
 	auto q = rebind_index_.find(insn);
-	if (q == rebind_index_.end() ||
-	    q->second == 0) {
-	  insns.push_back(insn);
-	} else {
+	if (q != rebind_index_.end() &&
+	    q->second > 0) {
 	  IResource *res = insn->GetResource();
 	  ResourceEntry *re = entries_[res];
 	  int idx = rebind_index_[insn];
 	  IResource *new_res = re->all_res_[idx];
-	  insns.push_back(RewriteInsnWithNewResource(insn, new_res));
+	  insn->SetResource(new_res);
 	}
       }
-      // Update with the new insn list.
-      st->insns_ = insns;
     }
   }
-}
-
-IInsn *ResourceShare::RewriteInsnWithNewResource(IInsn *insn, IResource *res) {
-  // This works only for simple insns.
-  IInsn *new_insn = new IInsn(res);
-  new_insn->inputs_ = insn->inputs_;
-  new_insn->outputs_ = insn->outputs_;
-  return new_insn;
 }
 
 void ResourceShare::AssignResourceForOneInsn(IInsn *insn, ResourceEntry *re) {
