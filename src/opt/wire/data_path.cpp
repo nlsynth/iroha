@@ -4,6 +4,7 @@
 #include "iroha/stl_util.h"
 #include "opt/bb_set.h"
 #include "opt/debug_annotation.h"
+#include "opt/delay_info.h"
 
 namespace iroha {
 namespace opt {
@@ -78,6 +79,36 @@ void DataPath::Build() {
   }
 }
 
+void DataPath::SetDelay(DelayInfo *dinfo) {
+  for (auto &p : edges_) {
+    PathEdge *e = p.second;
+    e->accumlated_delay_ = -1;
+    e->edge_delay_ = dinfo->GetInsnDelay(e->insn_);
+  }
+  for (auto &p : edges_) {
+    PathEdge *e = p.second;
+    SetAccumlatedDelay(dinfo, e);
+  }
+}
+
+void DataPath::SetAccumlatedDelay(DelayInfo *dinfo, PathEdge *edge) {
+  if (edge->accumlated_delay_ >= 0) {
+    return;
+  }
+  for (auto &p : edge->sources_) {
+    PathEdge *sourceEdge = p.second;
+    SetAccumlatedDelay(dinfo, sourceEdge);
+  }
+  int maxSourceDelay = 0;
+  for (auto &p : edge->sources_) {
+    PathEdge *sourceEdge = p.second;
+    if (maxSourceDelay < sourceEdge->accumlated_delay_) {
+      maxSourceDelay = sourceEdge->accumlated_delay_;
+    }
+  }
+  edge->accumlated_delay_ = maxSourceDelay + edge->edge_delay_;
+}
+
 void DataPath::Dump(ostream &os) {
   os << "DataPath BB: " << bb_->bb_id_ << "\n";
   for (auto &p : edges_) {
@@ -101,7 +132,11 @@ void DataPathSet::Build(BBSet *bset) {
   }
 }
 
-void DataPathSet::SetDelay(DelayInfo *lat) {
+void DataPathSet::SetDelay(DelayInfo *dinfo) {
+  for (auto &p : data_pathes_) {
+    DataPath *dp = p.second;
+    dp->SetDelay(dinfo);
+  }
 }
 
 void DataPathSet::Dump(DebugAnnotation *an) {

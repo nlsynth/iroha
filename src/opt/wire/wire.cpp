@@ -34,8 +34,8 @@ bool Wire::Perform() {
   Validator::ValidateTable(table_);
 
   data_path_set_->Build(bset_.get());
-  DelayInfo lat;
-  data_path_set_->SetDelay(&lat);
+  std::unique_ptr<DelayInfo> lat(DelayInfo::Create(10000));
+  data_path_set_->SetDelay(lat.get());
   if (annotation_->IsEnabled()) {
     annotation_->StartSubSection("data_path", false);
     data_path_set_->Dump(annotation_);

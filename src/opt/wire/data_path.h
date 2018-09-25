@@ -29,9 +29,12 @@ public:
   ~DataPath();
 
   void Build();
+  void SetDelay(DelayInfo *dinfo);
   void Dump(ostream &os);
 
 private:
+  void SetAccumlatedDelay(DelayInfo *dinfo, PathEdge *edge);
+
   BB *bb_;
   map<int, PathEdge *> edges_;
 };
@@ -42,7 +45,7 @@ public:
   ~DataPathSet();
 
   void Build(BBSet *bbs);
-  void SetDelay(DelayInfo *lat);
+  void SetDelay(DelayInfo *dinfo);
   void Dump(DebugAnnotation *an);
 
 private:

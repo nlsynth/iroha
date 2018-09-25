@@ -236,7 +236,7 @@ bool SimpleShrink::CanMoveInsn(IInsn *insn, BB *bb, int target_pos,
 
 bool SimpleShrink::CheckDelay(IInsn *insn, IState *target_st) {
   int min_slack = -1;
-  DelayInfo lat_info;
+  DelayInfo lat_info(0);
   for (IRegister *ireg : insn->inputs_) {
     int s = lat_info.GetRegisterSlack(target_st, ireg);
     if (min_slack < 0 || s < min_slack) {

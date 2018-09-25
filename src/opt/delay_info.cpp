@@ -6,6 +6,23 @@
 namespace iroha {
 namespace opt {
 
+DelayInfo::DelayInfo(int maxDelay) : maxDelay_(maxDelay) {
+}
+
+DelayInfo::~DelayInfo() {
+}
+
+DelayInfo *DelayInfo::Create(int maxDelay) {
+  return new DelayInfo(maxDelay);
+}
+
+int DelayInfo::GetInsnDelay(IInsn *insn) {
+  if (resource::IsExtCombinational(*(insn->GetResource()->GetClass()))) {
+    return maxDelay_;
+  }
+  return 1;
+}
+
 int DelayInfo::GetInsnLatency(IInsn *insn) {
   if (resource::IsExtCombinational(*(insn->GetResource()->GetClass()))) {
     return 10;
