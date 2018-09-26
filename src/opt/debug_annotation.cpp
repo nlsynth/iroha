@@ -80,12 +80,24 @@ ostream &DebugAnnotation::State(const IState *st) {
   return state_[st];
 }
 
+void DebugAnnotation::SetStateColorIndex(const IState *st, int idx) {
+  state_color_[st] = idx;
+}
+
 string DebugAnnotation::GetStateAnnotation(const IState *st) const {
   auto it = state_.find(st);
   if (it == state_.end()) {
     return string();
   }
   return it->second.str();
+}
+
+int DebugAnnotation::GetStateColorIndex(const IState *st) const {
+  auto p = state_color_.find(st);
+  if (p == state_color_.end()) {
+    return 0;
+  }
+  return p->second;
 }
 
 void DebugAnnotation::StartPhase(const string &name) {

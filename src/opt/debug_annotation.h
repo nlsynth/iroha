@@ -32,10 +32,12 @@ public:
   ostream &GetDumpStream();
   ostream &Table(const ITable *tab);
   ostream &State(const IState *st);
+  void SetStateColorIndex(const IState *st, int idx);
 
   // Called by HTML dumper.
   string GetTableAnnotation(const ITable *tab) const;
   string GetStateAnnotation(const IState *st) const;
+  int GetStateColorIndex(const IState *st) const;
 
 private:
   void UpdateFileName(bool isHtml);
@@ -49,6 +51,7 @@ private:
 
   map<const ITable *, ostringstream> table_;
   map<const IState *, ostringstream> state_;
+  map<const IState *, int> state_color_;
 };
 
 }  // namespace opt

@@ -46,6 +46,7 @@ void BBSet::Annotate(DebugAnnotation *annotation) {
     int idx = 0;
     for (IState *st : bbs_[i]->states_) {
       annotation->State(st) << "bb:" << id << ":" << idx;
+      annotation->SetStateColorIndex(st, i);
       ++idx;
     }
   }

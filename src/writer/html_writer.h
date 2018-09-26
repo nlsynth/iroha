@@ -29,6 +29,7 @@ private:
   void WriteResources(const ITable &tab);
   void WriteResource(const IResource &res);
   void WriteValue(const Numeric &val);
+  string StateRowStyle(int block_index, int in_block_index);
 
   const IDesign *design_;
   ostream &os_;

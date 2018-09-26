@@ -60,8 +60,21 @@ void HtmlWriter::WriteTableStates(const ITable &tab) {
     os_ << "     </td>\n";
   }
   os_ << "   </thead>\n";
+
+  int color_index = 0;
+  int block_index = 0;
+  int in_block_index = 0;
   for (auto *st : tab.states_) {
-    os_ << "    <tr>\n";
+    in_block_index++;
+    if (annotation_) {
+      int tmp_block_index = annotation_->GetStateColorIndex(st);
+      if (tmp_block_index != block_index) {
+	in_block_index = 0;
+	++color_index;
+      }
+      block_index = tmp_block_index;
+    }
+    os_ << "    <tr" << StateRowStyle(color_index, in_block_index) << ">\n";
     os_ << "    <td>\n"
 	<< "     " << st->GetId() << "\n";
     if (annotation_) {
@@ -144,6 +157,24 @@ void HtmlWriter::WriteResources(const ITable &tab) {
 
 void HtmlWriter::WriteResource(const IResource &res) {
   os_ << "    <li>" << res.GetId() << ":" << res.GetClass()->GetName() << "\n";
+}
+
+string HtmlWriter::StateRowStyle(int block_index, int in_block_index) {
+  string color = "#";
+  if (block_index % 2) {
+    if (in_block_index % 2) {
+      color += "88ffff";
+    } else {
+      color += "ccffff";
+    }
+  } else {
+    if (in_block_index % 2) {
+      color += "ff88ff";
+    } else {
+      color += "ffccff";
+    }
+  }
+  return " style=\"background-color: " + color + "\"";
 }
 
 }  // namespace iroha
