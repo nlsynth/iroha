@@ -10,6 +10,7 @@
 #include "opt/delay_info.h"
 #include "opt/wire/data_path.h"
 #include "opt/wire/resource_share.h"
+#include "opt/wire/scheduler.h"
 
 namespace iroha {
 namespace opt {
@@ -41,6 +42,9 @@ bool Wire::Perform() {
     data_path_set_->Dump(annotation_);
     annotation_->ClearSubSection();
   }
+
+  Scheduler sch(data_path_set_.get());
+  sch.Schedule();
 
   return true;
 }

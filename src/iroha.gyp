@@ -148,6 +148,8 @@
 	'opt/wire/resource_share.h',
         'opt/wire/scaffold.cpp',
         'opt/wire/scaffold.h',
+	'opt/wire/scheduler.cpp',
+	'opt/wire/scheduler.h',
         'opt/wire/simple_shrink.cpp',
         'opt/wire/simple_shrink.h',
         'opt/wire/wire.cpp',
