@@ -10,12 +10,12 @@ namespace wire {
 
 class Scheduler {
 public:
-  Scheduler(DataPathSet *dataPathSet);
+  Scheduler(DataPathSet *data_path_set);
 
   void Schedule();
 
 private:
-  DataPathSet *dataPathSet_;
+  DataPathSet *data_path_set_;
 };
 
 }  // namespace wire

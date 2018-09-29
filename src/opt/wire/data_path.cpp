@@ -11,7 +11,9 @@ namespace opt {
 namespace wire {
 
 PathEdge::PathEdge(DataPath *path, int st_index, IInsn *insn)
-  : path_(path), edge_delay_(0), accumlated_delay_(0), st_index_(st_index), insn_(insn) {
+  : path_(path), edge_delay_(0), accumlated_delay_(0),
+    initial_st_index_(st_index), final_st_index_(st_index),
+    insn_(insn) {
 }
 
 int PathEdge::GetId() {
@@ -19,7 +21,8 @@ int PathEdge::GetId() {
 }
 
 void PathEdge::Dump(ostream &os) {
-  os << "Edge: " << GetId() << "@" << st_index_ << " " << edge_delay_ << " " << accumlated_delay_ << "\n";
+  os << "Edge: " << GetId() << "@" << initial_st_index_ << " "
+     << edge_delay_ << " " << accumlated_delay_ << "\n";
   if (sources_.size() > 0) {
     for (auto &p : sources_) {
       int source_edge_id = p.first;
@@ -116,6 +119,14 @@ void DataPath::Dump(ostream &os) {
   }
 }
 
+BB *DataPath::GetBB() {
+  return bb_;
+}
+
+map<int, PathEdge *> &DataPath::GetEdges() {
+  return edges_;
+}
+
 DataPathSet::DataPathSet() {
 }
 
@@ -145,6 +156,10 @@ void DataPathSet::Dump(DebugAnnotation *an) {
   for (auto &p : data_pathes_) {
     p.second->Dump(os);
   }
+}
+
+map<int, DataPath *> &DataPathSet::GetPathes() {
+  return data_pathes_;
 }
 
 }  // namespace wire

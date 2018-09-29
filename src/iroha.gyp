@@ -146,6 +146,8 @@
 	'opt/wire/data_path.h',
 	'opt/wire/resource_share.cpp',
 	'opt/wire/resource_share.h',
+	'opt/wire/relocator.cpp',
+	'opt/wire/relocator.h',
         'opt/wire/scaffold.cpp',
         'opt/wire/scaffold.h',
 	'opt/wire/scheduler.cpp',

@@ -9,6 +9,7 @@
 #include "opt/debug_annotation.h"
 #include "opt/delay_info.h"
 #include "opt/wire/data_path.h"
+#include "opt/wire/relocator.h"
 #include "opt/wire/resource_share.h"
 #include "opt/wire/scheduler.h"
 
@@ -45,6 +46,9 @@ bool Wire::Perform() {
 
   Scheduler sch(data_path_set_.get());
   sch.Schedule();
+
+  Relocator rel(data_path_set_.get());
+  rel.Relocate();
 
   return true;
 }

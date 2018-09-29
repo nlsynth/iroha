@@ -16,7 +16,8 @@ public:
   void Dump(ostream &os);
 
   DataPath *path_;
-  int st_index_;
+  int initial_st_index_;
+  int final_st_index_;
   int edge_delay_;
   int accumlated_delay_;
   IInsn *insn_;
@@ -31,11 +32,14 @@ public:
   void Build();
   void SetDelay(DelayInfo *dinfo);
   void Dump(ostream &os);
+  BB *GetBB();
+  map<int, PathEdge *> &GetEdges();
 
 private:
   void SetAccumlatedDelay(DelayInfo *dinfo, PathEdge *edge);
 
   BB *bb_;
+  // edge id (insn id) to PathEdge.
   map<int, PathEdge *> edges_;
 };
 
@@ -47,9 +51,11 @@ public:
   void Build(BBSet *bbs);
   void SetDelay(DelayInfo *dinfo);
   void Dump(DebugAnnotation *an);
+  map<int, DataPath *> &GetPathes();
 
 private:
   BBSet *bbs_;
+  // bb_id to DataPath.
   map<int, DataPath *> data_pathes_;
 };
 
