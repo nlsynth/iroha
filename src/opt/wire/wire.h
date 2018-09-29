@@ -2,19 +2,23 @@
 #ifndef _opt_wire_wire_h_
 #define _opt_wire_wire_h_
 
-#include "opt/wire/scaffold.h"
+#include "opt/wire/common.h"
 
 namespace iroha {
 namespace opt {
 namespace wire {
 
-class Wire : public Scaffold {
+class Wire {
 public:
   Wire(ITable *table, DebugAnnotation *annotation);
   virtual ~Wire();
   bool Perform();
 
 private:
+  ITable *table_;
+  DebugAnnotation *annotation_;
+  unique_ptr<BBSet> bset_;
+
   unique_ptr<ResourceShare> resource_share_;
   unique_ptr<DataPathSet> data_path_set_;
 };

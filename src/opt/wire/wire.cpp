@@ -6,6 +6,7 @@
 #include "iroha/i_design.h"
 #include "iroha/resource_class.h"
 #include "iroha/resource_params.h"
+#include "opt/bb_set.h"
 #include "opt/debug_annotation.h"
 #include "opt/delay_info.h"
 #include "opt/wire/data_path.h"
@@ -18,7 +19,7 @@ namespace opt {
 namespace wire {
 
 Wire::Wire(ITable *table, DebugAnnotation *annotation)
-  : Scaffold(table, annotation) {
+  : table_(table), annotation_(annotation) {
   resource_share_.reset(new ResourceShare(table));
   data_path_set_.reset(new DataPathSet());
 }
@@ -27,7 +28,11 @@ Wire::~Wire() {
 }
 
 bool Wire::Perform() {
-  SetUp();
+  bset_.reset(BBSet::Create(table_, annotation_));
+  if (annotation_->IsEnabled()) {
+    annotation_->DumpIntermediateTable(table_);
+  }
+
   resource_share_->Scan(bset_.get());
   resource_share_->Allocate();
   resource_share_->ReBind();
