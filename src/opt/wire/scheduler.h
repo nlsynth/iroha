@@ -15,6 +15,8 @@ public:
   void Schedule();
 
 private:
+  void ScheduleForDataPath(DataPath *dp);
+
   DataPathSet *data_path_set_;
 };
 

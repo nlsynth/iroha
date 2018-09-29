@@ -13,8 +13,8 @@ Relocator::Relocator(DataPathSet *data_path_set)
 }
 
 void Relocator::Relocate() {
-  auto &pathes = data_path_set_->GetPathes();
-  for (auto &p : pathes) {
+  auto &paths = data_path_set_->GetPaths();
+  for (auto &p : paths) {
     RelocateInsnsForDataPath(p.second);
   }
 }

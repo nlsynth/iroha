@@ -51,12 +51,12 @@ public:
   void Build(BBSet *bbs);
   void SetDelay(DelayInfo *dinfo);
   void Dump(DebugAnnotation *an);
-  map<int, DataPath *> &GetPathes();
+  map<int, DataPath *> &GetPaths();
 
 private:
   BBSet *bbs_;
   // bb_id to DataPath.
-  map<int, DataPath *> data_pathes_;
+  map<int, DataPath *> data_paths_;
 };
 
 }  // namespace wire

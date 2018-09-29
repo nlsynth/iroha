@@ -11,6 +11,13 @@ Scheduler::Scheduler(DataPathSet *data_path_set)
 }
 
 void Scheduler::Schedule() {
+  auto &paths = data_path_set_->GetPaths();
+  for (auto &p : paths) {
+    ScheduleForDataPath(p.second);
+  }
+}
+
+void Scheduler::ScheduleForDataPath(DataPath *dp) {
 }
 
 }  // namespace wire

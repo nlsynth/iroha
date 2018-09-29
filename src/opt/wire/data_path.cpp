@@ -131,20 +131,20 @@ DataPathSet::DataPathSet() {
 }
 
 DataPathSet::~DataPathSet() {
-  STLDeleteSecondElements(&data_pathes_);
+  STLDeleteSecondElements(&data_paths_);
 }
 
 void DataPathSet::Build(BBSet *bset) {
   bbs_ = bset;
   for (BB *bb : bbs_->bbs_) {
     DataPath *dp = new DataPath(bb);
-    data_pathes_[bb->bb_id_] = dp;
+    data_paths_[bb->bb_id_] = dp;
     dp->Build();
   }
 }
 
 void DataPathSet::SetDelay(DelayInfo *dinfo) {
-  for (auto &p : data_pathes_) {
+  for (auto &p : data_paths_) {
     DataPath *dp = p.second;
     dp->SetDelay(dinfo);
   }
@@ -153,13 +153,13 @@ void DataPathSet::SetDelay(DelayInfo *dinfo) {
 void DataPathSet::Dump(DebugAnnotation *an) {
   ostream &os = an->GetDumpStream();
   os << "DataPathSet table: " << bbs_->GetTable()->GetId() << "\n";
-  for (auto &p : data_pathes_) {
+  for (auto &p : data_paths_) {
     p.second->Dump(os);
   }
 }
 
-map<int, DataPath *> &DataPathSet::GetPathes() {
-  return data_pathes_;
+map<int, DataPath *> &DataPathSet::GetPaths() {
+  return data_paths_;
 }
 
 }  // namespace wire
