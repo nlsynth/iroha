@@ -49,7 +49,7 @@ bool Wire::Perform() {
     annotation_->ClearSubSection();
   }
 
-  Scheduler sch(data_path_set_.get());
+  SchedulerCore sch(data_path_set_.get());
   sch.Schedule();
 
   Relocator rel(data_path_set_.get());

@@ -10,6 +10,7 @@ namespace wire {
 
 class DataPath;
 class DataPathSet;
+class PathEdge;
 class ResourceShare;
 
 }  // namespace wire

@@ -8,16 +8,28 @@ namespace iroha {
 namespace opt {
 namespace wire {
 
-class Scheduler {
+class SchedulerCore {
 public:
-  Scheduler(DataPathSet *data_path_set);
+  SchedulerCore(DataPathSet *data_path_set);
 
   void Schedule();
 
 private:
-  void ScheduleForDataPath(DataPath *dp);
-
   DataPathSet *data_path_set_;
+};
+
+class Scheduler {
+public:
+  Scheduler(DataPath *data_path);
+
+  void Schedule();
+
+private:
+  void ScheduleEdge(PathEdge *e);
+
+  DataPath *data_path_;
+  // latency to edges.
+  map<int, vector<PathEdge *> > sorted_edges_;
 };
 
 }  // namespace wire
