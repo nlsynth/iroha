@@ -11,7 +11,7 @@ namespace opt {
 namespace wire {
 
 PathEdge::PathEdge(DataPath *path, int st_index, IInsn *insn)
-  : path_(path), edge_delay_(0), accumlated_delay_(0),
+  : path_(path), edge_delay_(0), state_local_delay_(0), accumlated_delay_(0),
     initial_st_index_(st_index), final_st_index_(st_index),
     insn_(insn) {
 }

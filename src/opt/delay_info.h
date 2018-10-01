@@ -15,13 +15,14 @@ public:
   // Each caller has to delete it.
   static DelayInfo *Create(int maxDelay);
 
+  int GetMaxDelay();
   int GetInsnDelay(IInsn *insn);
   // For wire/simple_shrink.cpp. This will be deleted.
   int GetInsnLatency(IInsn *insn);
   int GetRegisterSlack(IState *st, IRegister *reg);
 
 private:
-  int maxDelay_;
+  int max_delay_;
 };
 
 }  // namespace opt

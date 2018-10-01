@@ -19,6 +19,7 @@ public:
   int initial_st_index_;
   int final_st_index_;
   int edge_delay_;
+  int state_local_delay_;
   int accumlated_delay_;
   IInsn *insn_;
   map<int, PathEdge *> sources_;
