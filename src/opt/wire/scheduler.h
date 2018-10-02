@@ -4,6 +4,8 @@
 
 #include "opt/wire/common.h"
 
+#include <tuple>
+
 namespace iroha {
 namespace opt {
 namespace wire {
@@ -28,13 +30,14 @@ public:
 private:
   bool ScheduleEdge(PathEdge *e);
   void ClearSchedule();
-  void ScheduleExclusive(PathEdge *e, int min_index);
-  void ScheduleNonExclusive(PathEdge *e, int min_index);
+  void ScheduleExclusive(PathEdge *e, int min_index, int source_local_delay);
+  void ScheduleNonExclusive(PathEdge *e, int min_index, int source_local_delay);
 
   DataPath *data_path_;
   DelayInfo *delay_info_;
   // latency to edges.
   map<int, vector<PathEdge *> > sorted_edges_;
+  set<std::tuple<IResource *, int> > resource_slots_;
 };
 
 }  // namespace wire

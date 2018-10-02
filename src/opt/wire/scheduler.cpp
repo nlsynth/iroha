@@ -52,22 +52,41 @@ bool Scheduler::ScheduleEdge(PathEdge *e) {
     // already scheduled.
     return true;
   }
-  int max_index = 0;
+  int min_st_index = 0;
+  // Determines the location.
   for (auto &s : e->sources_) {
     PathEdge *source_edge = s.second;
     if (source_edge->final_st_index_ < 0) {
+      // not yet scheduled. fail and try later again.
       return false;
     }
-    if (max_index < source_edge->final_st_index_) {
-      max_index = source_edge->final_st_index_;
+    if (min_st_index < source_edge->final_st_index_) {
+      min_st_index = source_edge->final_st_index_;
+      int tmp_local_delay =
+	source_edge->state_local_delay_ + e->edge_delay_;
+      if (tmp_local_delay > delay_info_->GetMaxDelay()) {
+	// Go to next state.
+	++min_st_index;
+      }
     }
   }
-  if (!e->insn_->GetResource()->GetClass()->IsExclusive()) {
-    ScheduleNonExclusive(e, max_index);
-    return true;
+  // Calculates local delay.
+  int source_local_delay = 0;
+  for (auto &s : e->sources_) {
+    PathEdge *source_edge = s.second;
+    if (source_edge->final_st_index_ < min_st_index) {
+      continue;
+    }
+    if (source_local_delay < source_edge->state_local_delay_) {
+      source_local_delay = source_edge->state_local_delay_;
+    }
+  }
+  if (e->insn_->GetResource()->GetClass()->IsExclusive()) {
+    ScheduleExclusive(e, min_st_index, source_local_delay);
+  } else {
+    ScheduleNonExclusive(e, min_st_index, source_local_delay);
   }
 
-  ScheduleExclusive(e, max_index);
   return true;
 }
 
@@ -80,30 +99,29 @@ void Scheduler::ClearSchedule() {
   }
 }
 
-void Scheduler::ScheduleExclusive(PathEdge *e, int min_index) {
-  // TODO: Implement this.
-  e->final_st_index_ = e->initial_st_index_;
+void Scheduler::ScheduleExclusive(PathEdge *e, int min_index,
+				  int source_local_delay) {
+  int loc = min_index;
+  while (true) {
+    auto key = std::make_tuple(e->insn_->GetResource(), loc);
+    auto it = resource_slots_.find(key);
+    if (it == resource_slots_.end()) {
+      resource_slots_.insert(key);
+      break;
+    }
+    ++loc;
+  }
+  e->state_local_delay_ = e->edge_delay_;
+  if (loc == min_index) {
+    e->state_local_delay_ += source_local_delay;
+  }
+  e->final_st_index_ = loc;
 }
 
-void Scheduler::ScheduleNonExclusive(PathEdge *e, int min_index) {
-  int max_delay = 0;
-  for (auto &s : e->sources_) {
-    PathEdge *source_edge = s.second;
-    if (source_edge->final_st_index_ < min_index) {
-      continue;
-    }
-    if (max_delay < source_edge->state_local_delay_) {
-      max_delay = source_edge->state_local_delay_;
-    }
-  }
-  max_delay += e->edge_delay_;
-  if (max_delay < delay_info_->GetMaxDelay()) {
-    e->final_st_index_ = min_index;
-    e->state_local_delay_ = max_delay;
-  } else {
-    e->final_st_index_ = min_index + 1;
-    e->state_local_delay_ = e->edge_delay_;
-  }
+void Scheduler::ScheduleNonExclusive(PathEdge *e, int min_index,
+				     int source_local_delay) {
+  e->final_st_index_ = min_index;
+  e->state_local_delay_ = source_local_delay + e->edge_delay_;
 }
 
 }  // namespace wire
