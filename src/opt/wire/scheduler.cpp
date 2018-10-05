@@ -55,7 +55,7 @@ bool Scheduler::ScheduleNode(PathNode *n) {
   int min_st_index = 0;
   // Determines the location.
   for (auto &s : n->sources_) {
-    PathNode *source_node = s.second;
+    PathNode *source_node = s.second->source_node_;
     if (source_node->final_st_index_ < 0) {
       // not yet scheduled. fail and try later again.
       return false;
@@ -73,7 +73,7 @@ bool Scheduler::ScheduleNode(PathNode *n) {
   // Calculates local delay.
   int source_local_delay = 0;
   for (auto &s : n->sources_) {
-    PathNode *source_node = s.second;
+    PathNode *source_node = s.second->source_node_;
     if (source_node->final_st_index_ < min_st_index) {
       continue;
     }

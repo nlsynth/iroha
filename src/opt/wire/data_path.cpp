@@ -10,6 +10,14 @@ namespace iroha {
 namespace opt {
 namespace wire {
 
+PathEdge::PathEdge(PathNode *source_node, int source_reg_index)
+  : source_node_(source_node), source_reg_index_(source_reg_index) {
+}
+
+IRegister *PathEdge::GetSourceReg() {
+  return source_node_->insn_->outputs_[source_reg_index_];
+}
+
 PathNode::PathNode(DataPath *path, int st_index, IInsn *insn)
   : path_(path), node_delay_(0), state_local_delay_(0), accumlated_delay_(0),
     initial_st_index_(st_index), final_st_index_(st_index),
@@ -37,6 +45,7 @@ DataPath::DataPath(BB *bb) : bb_(bb) {
 
 DataPath::~DataPath() {
   STLDeleteSecondElements(&nodes_);
+  STLDeleteValues(&edges_);
 }
 
 void DataPath::Build() {
@@ -50,33 +59,42 @@ void DataPath::Build() {
     }
     ++st_index;
   }
-  map<IRegister *, IInsn *> output_to_insn;
+  // insn and the index in outputs_[].
+  map<IRegister *, pair<IInsn *, int> > output_to_insn;
   for (IState *st : bb_->states_) {
     // State local.
     for (IInsn *insn : st->insns_) {
+      int oindex = 0;
       for (IRegister *oreg : insn->outputs_) {
 	if (oreg->IsStateLocal()) {
-	  output_to_insn[oreg] = insn;
+	  output_to_insn[oreg] = make_pair(insn, oindex);
 	}
+	++oindex;
       }
     }
     // Process inputs.
     for (IInsn *insn : st->insns_) {
       for (IRegister *ireg : insn->inputs_) {
-	IInsn *src_insn = output_to_insn[ireg];
+	auto p = output_to_insn[ireg];
+	IInsn *src_insn = p.first;
+	int oindex = p.second;
 	if (src_insn != nullptr) {
 	  PathNode *src_node = insn_to_node[src_insn];
 	  PathNode *this_node = insn_to_node[insn];
-	  this_node->sources_[src_node->GetId()] = src_node;
+	  PathEdge *edge = new PathEdge(src_node, oindex);
+	  edges_.insert(edge);
+	  this_node->sources_[src_node->GetId()] = edge;
 	}
       }
     }
     // Not state local.
     for (IInsn *insn : st->insns_) {
+      int oindex = 0;
       for (IRegister *oreg : insn->outputs_) {
 	if (!oreg->IsStateLocal()) {
-	  output_to_insn[oreg] = insn;
+	  output_to_insn[oreg] = make_pair(insn, oindex);
 	}
+	++oindex;
       }
     }
   }
@@ -99,14 +117,14 @@ void DataPath::SetAccumlatedDelay(DelayInfo *dinfo, PathNode *node) {
     return;
   }
   for (auto &p : node->sources_) {
-    PathNode *sourceNode = p.second;
-    SetAccumlatedDelay(dinfo, sourceNode);
+    PathNode *source_node = p.second->source_node_;
+    SetAccumlatedDelay(dinfo, source_node);
   }
   int maxSourceDelay = 0;
   for (auto &p : node->sources_) {
-    PathNode *sourceNode = p.second;
-    if (maxSourceDelay < sourceNode->accumlated_delay_) {
-      maxSourceDelay = sourceNode->accumlated_delay_;
+    PathNode *source_node = p.second->source_node_;
+    if (maxSourceDelay < source_node->accumlated_delay_) {
+      maxSourceDelay = source_node->accumlated_delay_;
     }
   }
   node->accumlated_delay_ = maxSourceDelay + node->node_delay_;
