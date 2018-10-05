@@ -21,14 +21,14 @@ void Relocator::Relocate() {
 
 void Relocator::RelocateInsnsForDataPath(DataPath *dp) {
   BB *bb = dp->GetBB();
-  auto &edges = dp->GetEdges();
+  auto &nodes = dp->GetNodes();
   // TODO: Handle transition insn.
   for (IState *st : bb->states_) {
     st->insns_.clear();
   }
-  for (auto &p : edges) {
-    PathEdge *e = p.second;
-    bb->states_[e->final_st_index_]->insns_.push_back(e->insn_);
+  for (auto &p : nodes) {
+    PathNode *n = p.second;
+    bb->states_[n->final_st_index_]->insns_.push_back(n->insn_);
   }
 }
 

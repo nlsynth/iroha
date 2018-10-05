@@ -55,6 +55,10 @@ bool Wire::Perform() {
   Relocator rel(data_path_set_.get());
   rel.Relocate();
 
+  if (annotation_->IsEnabled()) {
+    annotation_->DumpIntermediateTable(table_);
+  }
+
   return true;
 }
 

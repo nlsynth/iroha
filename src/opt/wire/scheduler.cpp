@@ -27,19 +27,19 @@ Scheduler::Scheduler(DataPath *data_path, DelayInfo *delay_info)
 void Scheduler::Schedule() {
   ClearSchedule();
   // Sorted by latency.
-  auto &edges = data_path_->GetEdges();
-  for (auto &p : edges) {
-    PathEdge *e = p.second;
-    sorted_edges_[e->accumlated_delay_].push_back(e);
+  auto &nodes = data_path_->GetNodes();
+  for (auto &p : nodes) {
+    PathNode *n = p.second;
+    sorted_nodes_[n->accumlated_delay_].push_back(n);
   }
   // Iterate from leaf.
   bool has_unscheduled;
   do {
     has_unscheduled = false;
-    for (auto &lt : sorted_edges_) {
+    for (auto &lt : sorted_nodes_) {
       auto &ev = lt.second;
-      for (auto *e : ev) {
-	if (!ScheduleEdge(e)) {
+      for (auto *n : ev) {
+	if (!ScheduleNode(n)) {
 	  has_unscheduled = true;
 	}
       }
@@ -47,23 +47,23 @@ void Scheduler::Schedule() {
   } while (has_unscheduled);
 }
 
-bool Scheduler::ScheduleEdge(PathEdge *e) {
-  if (e->final_st_index_ > -1) {
+bool Scheduler::ScheduleNode(PathNode *n) {
+  if (n->final_st_index_ > -1) {
     // already scheduled.
     return true;
   }
   int min_st_index = 0;
   // Determines the location.
-  for (auto &s : e->sources_) {
-    PathEdge *source_edge = s.second;
-    if (source_edge->final_st_index_ < 0) {
+  for (auto &s : n->sources_) {
+    PathNode *source_node = s.second;
+    if (source_node->final_st_index_ < 0) {
       // not yet scheduled. fail and try later again.
       return false;
     }
-    if (min_st_index < source_edge->final_st_index_) {
-      min_st_index = source_edge->final_st_index_;
+    if (min_st_index < source_node->final_st_index_) {
+      min_st_index = source_node->final_st_index_;
       int tmp_local_delay =
-	source_edge->state_local_delay_ + e->edge_delay_;
+	source_node->state_local_delay_ + n->node_delay_;
       if (tmp_local_delay > delay_info_->GetMaxDelay()) {
 	// Go to next state.
 	++min_st_index;
@@ -72,38 +72,38 @@ bool Scheduler::ScheduleEdge(PathEdge *e) {
   }
   // Calculates local delay.
   int source_local_delay = 0;
-  for (auto &s : e->sources_) {
-    PathEdge *source_edge = s.second;
-    if (source_edge->final_st_index_ < min_st_index) {
+  for (auto &s : n->sources_) {
+    PathNode *source_node = s.second;
+    if (source_node->final_st_index_ < min_st_index) {
       continue;
     }
-    if (source_local_delay < source_edge->state_local_delay_) {
-      source_local_delay = source_edge->state_local_delay_;
+    if (source_local_delay < source_node->state_local_delay_) {
+      source_local_delay = source_node->state_local_delay_;
     }
   }
-  if (e->insn_->GetResource()->GetClass()->IsExclusive()) {
-    ScheduleExclusive(e, min_st_index, source_local_delay);
+  if (n->insn_->GetResource()->GetClass()->IsExclusive()) {
+    ScheduleExclusive(n, min_st_index, source_local_delay);
   } else {
-    ScheduleNonExclusive(e, min_st_index, source_local_delay);
+    ScheduleNonExclusive(n, min_st_index, source_local_delay);
   }
 
   return true;
 }
 
 void Scheduler::ClearSchedule() {
-  auto &edges = data_path_->GetEdges();
-  for (auto &p : edges) {
-    PathEdge *e = p.second;
-    e->final_st_index_ = -1;
-    e->state_local_delay_ = 0;
+  auto &nodes = data_path_->GetNodes();
+  for (auto &p : nodes) {
+    PathNode *n = p.second;
+    n->final_st_index_ = -1;
+    n->state_local_delay_ = 0;
   }
 }
 
-void Scheduler::ScheduleExclusive(PathEdge *e, int min_index,
+void Scheduler::ScheduleExclusive(PathNode *n, int min_index,
 				  int source_local_delay) {
   int loc = min_index;
   while (true) {
-    auto key = std::make_tuple(e->insn_->GetResource(), loc);
+    auto key = std::make_tuple(n->insn_->GetResource(), loc);
     auto it = resource_slots_.find(key);
     if (it == resource_slots_.end()) {
       resource_slots_.insert(key);
@@ -111,17 +111,17 @@ void Scheduler::ScheduleExclusive(PathEdge *e, int min_index,
     }
     ++loc;
   }
-  e->state_local_delay_ = e->edge_delay_;
+  n->state_local_delay_ = n->node_delay_;
   if (loc == min_index) {
-    e->state_local_delay_ += source_local_delay;
+    n->state_local_delay_ += source_local_delay;
   }
-  e->final_st_index_ = loc;
+  n->final_st_index_ = loc;
 }
 
-void Scheduler::ScheduleNonExclusive(PathEdge *e, int min_index,
+void Scheduler::ScheduleNonExclusive(PathNode *n, int min_index,
 				     int source_local_delay) {
-  e->final_st_index_ = min_index;
-  e->state_local_delay_ = source_local_delay + e->edge_delay_;
+  n->final_st_index_ = min_index;
+  n->state_local_delay_ = source_local_delay + n->node_delay_;
 }
 
 }  // namespace wire

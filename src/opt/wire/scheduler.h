@@ -28,15 +28,15 @@ public:
   void Schedule();
 
 private:
-  bool ScheduleEdge(PathEdge *e);
+  bool ScheduleNode(PathNode *n);
   void ClearSchedule();
-  void ScheduleExclusive(PathEdge *e, int min_index, int source_local_delay);
-  void ScheduleNonExclusive(PathEdge *e, int min_index, int source_local_delay);
+  void ScheduleExclusive(PathNode *n, int min_index, int source_local_delay);
+  void ScheduleNonExclusive(PathNode *n, int min_index, int source_local_delay);
 
   DataPath *data_path_;
   DelayInfo *delay_info_;
-  // latency to edges.
-  map<int, vector<PathEdge *> > sorted_edges_;
+  // latency to nodes.
+  map<int, vector<PathNode *> > sorted_nodes_;
   set<std::tuple<IResource *, int> > resource_slots_;
 };
 

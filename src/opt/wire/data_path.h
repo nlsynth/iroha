@@ -8,9 +8,9 @@ namespace iroha {
 namespace opt {
 namespace wire {
 
-class PathEdge {
+class PathNode {
 public:
-  PathEdge(DataPath *path, int st_index, IInsn *insn);
+  PathNode(DataPath *path, int st_index, IInsn *insn);
 
   int GetId();
   void Dump(ostream &os);
@@ -18,11 +18,11 @@ public:
   DataPath *path_;
   int initial_st_index_;
   int final_st_index_;
-  int edge_delay_;
+  int node_delay_;
   int state_local_delay_;
   int accumlated_delay_;
   IInsn *insn_;
-  map<int, PathEdge *> sources_;
+  map<int, PathNode *> sources_;
 };
 
 class DataPath {
@@ -34,14 +34,14 @@ public:
   void SetDelay(DelayInfo *dinfo);
   void Dump(ostream &os);
   BB *GetBB();
-  map<int, PathEdge *> &GetEdges();
+  map<int, PathNode *> &GetNodes();
 
 private:
-  void SetAccumlatedDelay(DelayInfo *dinfo, PathEdge *edge);
+  void SetAccumlatedDelay(DelayInfo *dinfo, PathNode *node);
 
   BB *bb_;
-  // edge id (insn id) to PathEdge.
-  map<int, PathEdge *> edges_;
+  // node id (insn id) to PathNode.
+  map<int, PathNode *> nodes_;
 };
 
 class DataPathSet {

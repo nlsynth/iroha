@@ -10,23 +10,23 @@ namespace iroha {
 namespace opt {
 namespace wire {
 
-PathEdge::PathEdge(DataPath *path, int st_index, IInsn *insn)
-  : path_(path), edge_delay_(0), state_local_delay_(0), accumlated_delay_(0),
+PathNode::PathNode(DataPath *path, int st_index, IInsn *insn)
+  : path_(path), node_delay_(0), state_local_delay_(0), accumlated_delay_(0),
     initial_st_index_(st_index), final_st_index_(st_index),
     insn_(insn) {
 }
 
-int PathEdge::GetId() {
+int PathNode::GetId() {
   return insn_->GetId();
 }
 
-void PathEdge::Dump(ostream &os) {
-  os << "Edge: " << GetId() << "@" << initial_st_index_ << " "
-     << edge_delay_ << " " << accumlated_delay_ << "\n";
+void PathNode::Dump(ostream &os) {
+  os << "Node: " << GetId() << "@" << initial_st_index_ << " "
+     << node_delay_ << " " << accumlated_delay_ << "\n";
   if (sources_.size() > 0) {
     for (auto &p : sources_) {
-      int source_edge_id = p.first;
-      os << " " << source_edge_id;
+      int source_node_id = p.first;
+      os << " " << source_node_id;
     }
     os << "\n";
   }
@@ -36,17 +36,17 @@ DataPath::DataPath(BB *bb) : bb_(bb) {
 }
 
 DataPath::~DataPath() {
-  STLDeleteSecondElements(&edges_);
+  STLDeleteSecondElements(&nodes_);
 }
 
 void DataPath::Build() {
-  map<IInsn *, PathEdge *> insn_to_edge;
+  map<IInsn *, PathNode *> insn_to_node;
   int st_index = 0;
   for (IState *st : bb_->states_) {
     for (IInsn *insn : st->insns_) {
-      PathEdge *e = new PathEdge(this, st_index, insn);
-      edges_[e->GetId()] = e;
-      insn_to_edge[insn] = e;
+      PathNode *n = new PathNode(this, st_index, insn);
+      nodes_[n->GetId()] = n;
+      insn_to_node[insn] = n;
     }
     ++st_index;
   }
@@ -65,9 +65,9 @@ void DataPath::Build() {
       for (IRegister *ireg : insn->inputs_) {
 	IInsn *src_insn = output_to_insn[ireg];
 	if (src_insn != nullptr) {
-	  PathEdge *src_edge = insn_to_edge[src_insn];
-	  PathEdge *this_edge = insn_to_edge[insn];
-	  this_edge->sources_[src_edge->GetId()] = src_edge;
+	  PathNode *src_node = insn_to_node[src_insn];
+	  PathNode *this_node = insn_to_node[insn];
+	  this_node->sources_[src_node->GetId()] = src_node;
 	}
       }
     }
@@ -83,38 +83,38 @@ void DataPath::Build() {
 }
 
 void DataPath::SetDelay(DelayInfo *dinfo) {
-  for (auto &p : edges_) {
-    PathEdge *e = p.second;
-    e->accumlated_delay_ = -1;
-    e->edge_delay_ = dinfo->GetInsnDelay(e->insn_);
+  for (auto &p : nodes_) {
+    PathNode *n = p.second;
+    n->accumlated_delay_ = -1;
+    n->node_delay_ = dinfo->GetInsnDelay(n->insn_);
   }
-  for (auto &p : edges_) {
-    PathEdge *e = p.second;
-    SetAccumlatedDelay(dinfo, e);
+  for (auto &p : nodes_) {
+    PathNode *n = p.second;
+    SetAccumlatedDelay(dinfo, n);
   }
 }
 
-void DataPath::SetAccumlatedDelay(DelayInfo *dinfo, PathEdge *edge) {
-  if (edge->accumlated_delay_ >= 0) {
+void DataPath::SetAccumlatedDelay(DelayInfo *dinfo, PathNode *node) {
+  if (node->accumlated_delay_ >= 0) {
     return;
   }
-  for (auto &p : edge->sources_) {
-    PathEdge *sourceEdge = p.second;
-    SetAccumlatedDelay(dinfo, sourceEdge);
+  for (auto &p : node->sources_) {
+    PathNode *sourceNode = p.second;
+    SetAccumlatedDelay(dinfo, sourceNode);
   }
   int maxSourceDelay = 0;
-  for (auto &p : edge->sources_) {
-    PathEdge *sourceEdge = p.second;
-    if (maxSourceDelay < sourceEdge->accumlated_delay_) {
-      maxSourceDelay = sourceEdge->accumlated_delay_;
+  for (auto &p : node->sources_) {
+    PathNode *sourceNode = p.second;
+    if (maxSourceDelay < sourceNode->accumlated_delay_) {
+      maxSourceDelay = sourceNode->accumlated_delay_;
     }
   }
-  edge->accumlated_delay_ = maxSourceDelay + edge->edge_delay_;
+  node->accumlated_delay_ = maxSourceDelay + node->node_delay_;
 }
 
 void DataPath::Dump(ostream &os) {
   os << "DataPath BB: " << bb_->bb_id_ << "\n";
-  for (auto &p : edges_) {
+  for (auto &p : nodes_) {
     p.second->Dump(os);
   }
 }
@@ -123,8 +123,8 @@ BB *DataPath::GetBB() {
   return bb_;
 }
 
-map<int, PathEdge *> &DataPath::GetEdges() {
-  return edges_;
+map<int, PathNode *> &DataPath::GetNodes() {
+  return nodes_;
 }
 
 DataPathSet::DataPathSet() {
