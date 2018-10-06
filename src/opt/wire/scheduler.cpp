@@ -1,6 +1,8 @@
 #include "opt/wire/scheduler.h"
 
+#include "design/resource_attr.h"
 #include "iroha/i_design.h"
+#include "opt/bb_set.h"
 #include "opt/delay_info.h"
 #include "opt/wire/data_path.h"
 
@@ -24,7 +26,25 @@ Scheduler::Scheduler(DataPath *data_path, DelayInfo *delay_info)
   : data_path_(data_path), delay_info_(delay_info) {
 }
 
+bool Scheduler::IsSchedulable() {
+  // TODO: We might split a basic block before/after special insns, because
+  // this is too awkward.
+  BB *bb = data_path_->GetBB();
+  for (IState *st : bb->states_) {
+    for (IInsn *insn : st->insns_) {
+      if (ResourceAttr::IsExtAccessInsn(insn) ||
+	  ResourceAttr::IsExtWaitInsn(insn)) {
+	return false;
+      }
+    }
+  }
+  return true;
+}
+
 void Scheduler::Schedule() {
+  if (!IsSchedulable()) {
+    return;
+  }
   ClearSchedule();
   // Sorted by latency.
   auto &nodes = data_path_->GetNodes();

@@ -32,6 +32,7 @@ private:
   void ClearSchedule();
   void ScheduleExclusive(PathNode *n, int min_index, int source_local_delay);
   void ScheduleNonExclusive(PathNode *n, int min_index, int source_local_delay);
+  bool IsSchedulable();
 
   DataPath *data_path_;
   DelayInfo *delay_info_;
