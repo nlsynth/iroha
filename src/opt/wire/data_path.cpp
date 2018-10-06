@@ -187,6 +187,10 @@ map<int, DataPath *> &DataPathSet::GetPaths() {
   return data_paths_;
 }
 
+BBSet *DataPathSet::GetBBSet() {
+  return bbs_;
+}
+
 }  // namespace wire
 }  // namespace opt
 }  // namespace iroha

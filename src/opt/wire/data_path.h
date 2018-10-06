@@ -74,6 +74,7 @@ public:
   void SetDelay(DelayInfo *dinfo);
   void Dump(DebugAnnotation *an);
   map<int, DataPath *> &GetPaths();
+  BBSet *GetBBSet();
 
 private:
   BBSet *bbs_;

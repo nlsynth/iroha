@@ -55,6 +55,9 @@ bool Wire::Perform() {
   Relocator rel(data_path_set_.get());
   rel.Relocate();
 
+  // Assign ids to newly allocated insns.
+  Validator::ValidateTable(table_);
+
   if (annotation_->IsEnabled()) {
     annotation_->DumpIntermediateTable(table_);
   }

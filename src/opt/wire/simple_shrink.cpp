@@ -1,3 +1,4 @@
+// to be replaced by "wire" pass.
 #include "opt/wire/simple_shrink.h"
 
 #include "design/design_util.h"
