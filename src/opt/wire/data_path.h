@@ -8,15 +8,23 @@ namespace iroha {
 namespace opt {
 namespace wire {
 
+// Represents an IRegister flows from its source insn to sink.
 class PathEdge {
 public:
-  PathEdge(PathNode *source_node, int source_reg_index);
+  PathEdge(int id, PathNode *source_node, PathNode *sink_node, int source_reg_index);
+
+  int GetId();
+  IRegister *GetSourceReg();
 
   PathNode *source_node_;
+  PathNode *sink_node_;
   int source_reg_index_;
-  IRegister *GetSourceReg();
+
+private:
+  int id_;
 };
 
+// Represents an IInsn and connected to other insns via PathEdge-s.
 class PathNode {
 public:
   PathNode(DataPath *path, int st_index, IInsn *insn);
@@ -32,7 +40,9 @@ public:
   int accumlated_delay_;
   IInsn *insn_;
   // key-ed by source node id.
-  map<int, PathEdge *> sources_;
+  map<int, PathEdge *> source_edges_;
+  // key-ed by node id.
+  map<int, PathEdge *> sink_edges_;
 };
 
 class DataPath {

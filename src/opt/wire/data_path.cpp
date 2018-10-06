@@ -10,8 +10,12 @@ namespace iroha {
 namespace opt {
 namespace wire {
 
-PathEdge::PathEdge(PathNode *source_node, int source_reg_index)
-  : source_node_(source_node), source_reg_index_(source_reg_index) {
+PathEdge::PathEdge(int id, PathNode *source_node, PathNode *sink_node, int source_reg_index)
+  : source_node_(source_node), sink_node_(sink_node), source_reg_index_(source_reg_index), id_(id) {
+}
+
+int PathEdge::GetId() {
+  return id_;
 }
 
 IRegister *PathEdge::GetSourceReg() {
@@ -31,8 +35,8 @@ int PathNode::GetId() {
 void PathNode::Dump(ostream &os) {
   os << "Node: " << GetId() << "@" << initial_st_index_ << " "
      << node_delay_ << " " << accumlated_delay_ << "\n";
-  if (sources_.size() > 0) {
-    for (auto &p : sources_) {
+  if (source_edges_.size() > 0) {
+    for (auto &p : source_edges_) {
       int source_node_id = p.first;
       os << " " << source_node_id;
     }
@@ -81,9 +85,12 @@ void DataPath::Build() {
 	if (src_insn != nullptr) {
 	  PathNode *src_node = insn_to_node[src_insn];
 	  PathNode *this_node = insn_to_node[insn];
-	  PathEdge *edge = new PathEdge(src_node, oindex);
+	  // Use current number of edge as the edge id.
+	  int edge_id = edges_.size() + 1;
+	  PathEdge *edge = new PathEdge(edge_id, src_node, this_node, oindex);
 	  edges_.insert(edge);
-	  this_node->sources_[src_node->GetId()] = edge;
+	  this_node->source_edges_[src_node->GetId()] = edge;
+	  src_node->sink_edges_[edge->GetId()] = edge;
 	}
       }
     }
@@ -116,12 +123,12 @@ void DataPath::SetAccumlatedDelay(DelayInfo *dinfo, PathNode *node) {
   if (node->accumlated_delay_ >= 0) {
     return;
   }
-  for (auto &p : node->sources_) {
+  for (auto &p : node->source_edges_) {
     PathNode *source_node = p.second->source_node_;
     SetAccumlatedDelay(dinfo, source_node);
   }
   int maxSourceDelay = 0;
-  for (auto &p : node->sources_) {
+  for (auto &p : node->source_edges_) {
     PathNode *source_node = p.second->source_node_;
     if (maxSourceDelay < source_node->accumlated_delay_) {
       maxSourceDelay = source_node->accumlated_delay_;
