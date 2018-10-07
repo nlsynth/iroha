@@ -38,6 +38,8 @@ public:
   ResourceParams();
   ~ResourceParams();
 
+  void Merge(ResourceParams *src_params);
+
   vector<string> GetParamKeys() const;
   vector<string> GetValues(const string &key) const;
   void SetValues(const string &key, const vector<string> &values);

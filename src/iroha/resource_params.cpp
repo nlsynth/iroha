@@ -3,6 +3,8 @@
 #include "iroha/logging.h"
 #include "iroha/stl_util.h"
 
+#include <set>
+
 static const string boolToStr(bool b) {
   if (b) {
     return "true";
@@ -13,6 +15,7 @@ static const string boolToStr(bool b) {
 
 namespace iroha {
 namespace resource {
+
 class ResourceParamValue {
 public:
   string key_;
@@ -24,6 +27,7 @@ public:
   ~ResourceParamValueSet() {
     STLDeleteValues(&params_);
   }
+  void Merge(ResourceParamValueSet *src_param_values);
   ResourceParamValue *GetParam(const string &key,
 			       bool cr,
 			       const string &dflt);
@@ -42,6 +46,26 @@ public:
 
   vector<ResourceParamValue *> params_;
 };
+
+void ResourceParamValueSet::Merge(ResourceParamValueSet *src_param_values) {
+  vector<ResourceParamValue *> new_params;
+  std::set<string> keys;
+  for (auto *v : src_param_values->params_) {
+    ResourceParamValue *nv = new ResourceParamValue();
+    *nv = *v;
+    new_params.push_back(nv);
+    keys.insert(v->key_);
+  }
+  for (auto *v : params_) {
+    if (keys.find(v->key_) == keys.end()) {
+      new_params.push_back(v);
+    } else {
+      // overwritten.
+      delete v;
+    }
+  }
+  params_ = new_params;
+}
 
 ResourceParamValue *ResourceParamValueSet::GetParam(const string &key,
 						    bool cr,
@@ -163,6 +187,10 @@ ResourceParams::ResourceParams()
 
 ResourceParams::~ResourceParams() {
   delete values_;
+}
+
+void ResourceParams::Merge(ResourceParams *src_params) {
+  values_->Merge(src_params->values_);
 }
 
 vector<string> ResourceParams::GetParamKeys() const {

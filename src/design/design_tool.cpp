@@ -197,6 +197,8 @@ IResource *DesignTool::CopySimpleResource(IResource *res) {
   IResource *new_res = new IResource(tab, res->GetClass());
   new_res->input_types_ = res->input_types_;
   new_res->output_types_ = res->output_types_;
+  ResourceParams *params = res->GetParams();
+  new_res->GetParams()->Merge(params);
   tab->resources_.push_back(new_res);
   return new_res;
 }
