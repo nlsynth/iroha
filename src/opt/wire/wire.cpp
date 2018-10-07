@@ -1,4 +1,3 @@
-// WIP.
 #include "opt/wire/wire.h"
 
 #include "design/resource_attr.h"

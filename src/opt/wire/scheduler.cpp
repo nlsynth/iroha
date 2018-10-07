@@ -46,13 +46,13 @@ void Scheduler::Schedule() {
     return;
   }
   ClearSchedule();
-  // Sorted by latency.
+  // Sort by accumlated latency from leafs.
   auto &nodes = data_path_->GetNodes();
   for (auto &p : nodes) {
     PathNode *n = p.second;
     sorted_nodes_[n->accumlated_delay_].push_back(n);
   }
-  // Iterate from leaf.
+  // Iterate from leafs.
   bool has_unscheduled;
   do {
     has_unscheduled = false;
@@ -82,6 +82,8 @@ bool Scheduler::ScheduleNode(PathNode *n) {
     }
     if (min_st_index < source_node->final_st_index_) {
       min_st_index = source_node->final_st_index_;
+    }
+    if (min_st_index == source_node->final_st_index_) {
       int tmp_local_delay =
 	source_node->state_local_delay_ + n->node_delay_;
       if (tmp_local_delay > delay_info_->GetMaxDelay()) {

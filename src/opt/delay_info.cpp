@@ -22,7 +22,7 @@ int DelayInfo::GetMaxDelay() {
 
 int DelayInfo::GetInsnDelay(IInsn *insn) {
   if (resource::IsExtCombinational(*(insn->GetResource()->GetClass()))) {
-    return max_delay_;
+    return max_delay_ - 2;
   }
   return 1;
 }

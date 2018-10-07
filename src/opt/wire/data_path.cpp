@@ -127,14 +127,14 @@ void DataPath::SetAccumlatedDelay(DelayInfo *dinfo, PathNode *node) {
     PathNode *source_node = p.second->source_node_;
     SetAccumlatedDelay(dinfo, source_node);
   }
-  int maxSourceDelay = 0;
+  int max_source_delay = 0;
   for (auto &p : node->source_edges_) {
     PathNode *source_node = p.second->source_node_;
-    if (maxSourceDelay < source_node->accumlated_delay_) {
-      maxSourceDelay = source_node->accumlated_delay_;
+    if (max_source_delay < source_node->accumlated_delay_) {
+      max_source_delay = source_node->accumlated_delay_;
     }
   }
-  node->accumlated_delay_ = maxSourceDelay + node->node_delay_;
+  node->accumlated_delay_ = max_source_delay + node->node_delay_;
 }
 
 void DataPath::Dump(ostream &os) {
