@@ -94,16 +94,6 @@ def AddEmbeddedModuleIO(res, inputs, outputs):
     for o in outputs:
         res.resource_params.AddValue("EMBEDDED-MODULE-OUTPUTS", o)
 
-def CreateIsolatedRegister(module, tab=None):
-    if not tab:
-        tab = ITable(module)
-    return IRegister(tab, "r_%d" % len(tab.registers))
-
-def CreateForeignRegister(table, foreign_reg):
-    res = createResource(table, "foreign-reg")
-    res.foreign_reg = foreign_reg
-    return res
-
 def CreateExtInput(table, name, width):
     res = createResource(table, "ext-input")
     res.resource_params.AddValue("INPUT", name)

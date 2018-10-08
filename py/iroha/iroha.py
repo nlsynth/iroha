@@ -32,7 +32,6 @@ class IDesign(object):
         self.resource_classes.append(IResourceClass("shared-memory"))
         self.resource_classes.append(IResourceClass("shared-memory-reader"))
         self.resource_classes.append(IResourceClass("shared-memory-writer"))
-        self.resource_classes.append(IResourceClass("foreign-reg"))
         self.resource_classes.append(IResourceClass("task"))
         self.resource_classes.append(IResourceClass("task-call"))
         self.resource_classes.append(IResourceClass("dataflow-in"))
@@ -206,7 +205,6 @@ class IResource(object):
         self.input_types = []
         self.output_types = []
         self.resource_params = ResourceParams()
-        self.foreign_reg = None
         self.callee_table = None
         self.parent_resource = None
 
@@ -223,12 +221,6 @@ class IResource(object):
         self.resource_params.Write(writer)
         if self.array:
             self.array.Write(writer)
-        if self.foreign_reg:
-            writer.ofh.write("    (FOREIGN-REG ")
-            writer.ofh.write(str(self.foreign_reg.table.module.id) + " ")
-            writer.ofh.write(str(self.foreign_reg.table.id) + " ")
-            writer.ofh.write(str(self.foreign_reg.id))
-            writer.ofh.write(")\n")
         if self.callee_table:
             tab = self.callee_table
             writer.ofh.write("    (CALLEE-TABLE " + str(tab.module.id) + " ")
