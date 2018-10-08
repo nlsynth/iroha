@@ -22,7 +22,6 @@ private:
   void ProcessTable(ITable *tab);
   void ProcessResource(IResource *res);
   void SetCalleeTable(ITable *callee_table, IResource *res);
-  void SetForeignRegister(IRegister *foreign_register, IResource *res);
   void SetParentResource(IResource *shared_reg, IResource *res);
 
   IModule *new_root_mod_;

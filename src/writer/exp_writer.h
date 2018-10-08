@@ -22,7 +22,6 @@ private:
   void WriteResources(const ITable &tab);
   void WriteResource(const IResource &res);
   void WriteArrayDesc(const IResource &res);
-  void WriteForeignRegDesc(const IResource &res);
   void WriteCalleeTaskDesc(const IResource &res);
   void WriteParentResourceDesc(const IResource &res);
   void WriteValue(const Numeric &value);

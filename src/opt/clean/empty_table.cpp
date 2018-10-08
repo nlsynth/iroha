@@ -28,12 +28,7 @@ bool CleanEmptyTablePhase::ApplyForModule(const string &key, IModule *module) {
   }
   vector<ITable *> tables;
   for (auto *table : module->tables_) {
-    bool has_ref = false;
-    if (has_foreign_reg_.find(table) !=
-	has_foreign_reg_.end()) {
-      has_ref = true;
-    }
-    if (!IsEmpty(table) || has_ref) {
+    if (!IsEmpty(table)) {
       tables.push_back(table);
     }
   }
@@ -42,12 +37,6 @@ bool CleanEmptyTablePhase::ApplyForModule(const string &key, IModule *module) {
 }
 
 bool CleanEmptyTablePhase::ApplyForTable(const string &key, ITable *table) {
-  for (IResource *res : table->resources_) {
-    if (resource::IsForeignRegister(*(res->GetClass()))) {
-      IRegister *reg = res->GetForeignRegister();
-      has_foreign_reg_.insert(reg->GetTable());
-    }
-  }
   return true;
 }
 

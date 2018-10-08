@@ -198,10 +198,6 @@ A fifo can have multiple multiple readers and writers as its children.
 
 Kicks the specified state machine in a task table.
 
-#### foreign-reg
-
-Reads a register in another table. The register can be accessed from multiple tables.
-
 #### Shared register
 
 TODO: Describe notification and mailbox.

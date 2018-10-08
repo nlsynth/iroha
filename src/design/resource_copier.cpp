@@ -43,10 +43,6 @@ void ResourceCopier::ProcessResource(IResource *res) {
   if (callee_table != nullptr) {
     SetCalleeTable(callee_table, res);
   }
-  IRegister *foreign_register = src_res->GetForeignRegister();
-  if (foreign_register != nullptr) {
-    SetForeignRegister(foreign_register, res);
-  }
   IResource *shared_reg = src_res->GetParentResource();
   if (shared_reg != nullptr) {
     SetParentResource(shared_reg, res);
@@ -59,18 +55,6 @@ void ResourceCopier::SetCalleeTable(ITable *callee_table, IResource *res) {
   ITable *new_tab =
     DesignUtil::FindTableById(new_mod, callee_table->GetId());
   res->SetCalleeTable(new_tab);
-}
-
-void ResourceCopier::SetForeignRegister(IRegister *foreign_register,
-					IResource *res) {
-  IModule *mod = foreign_register->GetTable()->GetModule();
-  IModule *new_mod = module_map_[mod];
-  ITable *new_tab =
-    DesignUtil::FindTableById(new_mod,
-			      foreign_register->GetTable()->GetId());
-  IRegister *new_reg = DesignUtil::FindRegisterById(new_tab,
-						    foreign_register->GetId());
-  res->SetForeignRegister(new_reg);
 }
 
 void ResourceCopier::SetParentResource(IResource *shared_reg,

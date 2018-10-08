@@ -111,10 +111,6 @@ bool IsTaskCall(const IResourceClass &rc) {
   return (rc.GetName() == kTaskCall);
 }
 
-bool IsForeignRegister(const IResourceClass &rc) {
-  return (rc.GetName() == kForeignReg);
-}
-
 bool IsDataFlowIn(const IResourceClass &rc) {
   return (rc.GetName() == kDataFlowIn);
 }
@@ -186,7 +182,6 @@ void InstallResourceClasses(IDesign *design) {
   InstallResource(design, resource::kTask, true);
   InstallResource(design, resource::kTaskCall, true);
   InstallResource(design, resource::kTransition, true);
-  InstallResource(design, resource::kForeignReg, true);
   InstallResource(design, resource::kExtInput, true);
   InstallResource(design, resource::kExtOutput, true);
   InstallResource(design, resource::kExtCombinational, true);

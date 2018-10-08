@@ -51,13 +51,13 @@ resource        := "(" "RESOURCE" res-id:number res-class:resource-class input-t
 resource-class  := "tr" | "set" | "print" | "phi" | "select" | "assert" | "mapped" |
                    "sibling-task" | "sibling-task-call" | "sub-module-task" | "sub-module-task-call" |
                    "ext-input" | "ext-output" |
-                   "array" | "foreign-reg" |
+                   "array" |
                    "add" | "sub" | "mul" |
                    "bit-and" | "bit-or" | "bit-xor" | "bit-inv" |
                    "bit-sel" | "bit-concat" |
                    "gt" | "gte" | "eq" | "shift"
 
-resource-option := array-desc | foreign-reg-desc | callee-task-desc
+resource-option := array-desc | callee-task-desc
 
 array-desc      := "(" "ARRAY" addr-width:number data-type:value-type array-ownership array-mem-type array-image-id:number ")"
 
@@ -68,8 +68,6 @@ array-mem-type  := "RAM" | "ROM"
 array-image     := "(" "ARRAY-IMAGE" array-image-id:number array-image-name:label "(" value:number* ")" ")"
 
 callee-task-desc:= "(" "CALLEE-TABLE" module-id:number table-id:number ")"
-
-foreign-reg-desc:= "(" "FOREIGN-REG" module-id:number table-id:number reg-id:number ")"
 
 value-types     := "(" value-type* ")"
 

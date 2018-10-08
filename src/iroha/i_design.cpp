@@ -96,8 +96,7 @@ IArrayImage *IArray::GetArrayImage() const {
 IResource::IResource(ITable *table, IResourceClass *resource_class)
   : table_(table), resource_class_(resource_class),
     params_(new ResourceParams), id_(-1), array_(nullptr),
-    callee_table_(nullptr), foreign_register_(nullptr),
-    parent_resource_(nullptr) {
+    callee_table_(nullptr), parent_resource_(nullptr) {
   ObjectPool *pool =
     table->GetModule()->GetDesign()->GetObjectPool();
   pool->resources_.Add(this);
@@ -141,14 +140,6 @@ ITable *IResource::GetCalleeTable() const {
 
 void IResource::SetCalleeTable(ITable *table) {
   callee_table_ = table;
-}
-
-void IResource::SetForeignRegister(IRegister *reg) {
-  foreign_register_ = reg;
-}
-
-IRegister *IResource::GetForeignRegister() const{
-  return foreign_register_;
 }
 
 IResource *IResource::GetParentResource() const {

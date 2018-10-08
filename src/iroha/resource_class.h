@@ -26,7 +26,6 @@ const char kSharedMemory[] = "shared-memory";
 const char kSharedMemoryReader[] = "shared-memory-reader";
 const char kSharedMemoryWriter[] = "shared-memory-writer";
 const char kArray[] = "array";
-const char kForeignReg[] = "foreign-reg";
 const char kAdd[] = "add";
 const char kSub[] = "sub";
 const char kMul[] = "mul";

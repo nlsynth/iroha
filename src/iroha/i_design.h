@@ -88,8 +88,6 @@ public:
   void SetArray(IArray *array);
   ITable *GetCalleeTable() const;
   void SetCalleeTable(ITable *table);
-  void SetForeignRegister(IRegister *reg);
-  IRegister *GetForeignRegister() const;
   IResource *GetParentResource() const;
   void SetParentResource(IResource *res);
 
@@ -103,7 +101,6 @@ private:
   int id_;
   IArray *array_;
   ITable *callee_table_;
-  IRegister *foreign_register_;
   IResource *parent_resource_;
 };
 

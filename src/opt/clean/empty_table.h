@@ -22,7 +22,6 @@ private:
   virtual bool ApplyForTable(const string &key, ITable *table);
 
   bool IsEmpty(ITable *tab);
-  set<ITable *> has_foreign_reg_;
 };
 
 }  // namespace clean

@@ -98,9 +98,6 @@ void ExpWriter::WriteResource(const IResource &res) {
   if (resource::IsArray(rc) || res.GetArray() != nullptr) {
     WriteArrayDesc(res);
   }
-  if (resource::IsForeignRegister(rc)) {
-    WriteForeignRegDesc(res);
-  }
   if (resource::IsTaskCall(rc)) {
     WriteCalleeTaskDesc(res);
   }
@@ -130,17 +127,6 @@ void ExpWriter::WriteArrayDesc(const IResource &res) {
   if (im != nullptr) {
     os_ << " " << im->GetId();
   }
-  os_ << ")\n";
-}
-
-void ExpWriter::WriteForeignRegDesc(const IResource &res) {
-  os_ << "        (FOREIGN-REG ";
-  IRegister *foreign_reg = res.GetForeignRegister();
-  IModule *foreign_mod = foreign_reg->GetTable()->GetModule();
-  os_ << " " << foreign_mod->GetId();
-  os_ << res.GetTable()->GetId();
-  os_ << " ";
-  os_ << foreign_reg->GetId();
   os_ << ")\n";
 }
 

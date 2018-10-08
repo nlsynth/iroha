@@ -19,15 +19,6 @@ void TreeBuilder::AddCalleeTable(int mod_id, int table_id,
   table_ids_[res] = table_id;
 }
 
-void TreeBuilder::AddForeignReg(int module_id, int table_id, int reg_id,
-				IResource *res) {
-  ForeignRegister reg;
-  reg.table_id = table_id;
-  reg.reg_id = reg_id;
-  reg.mod_id = module_id;
-  foreign_registers_[res] = reg;
-}
-
 void TreeBuilder::AddParentModule(int parent_mod_id, IModule *mod) {
   parent_module_ids_[mod] = parent_mod_id;
 }
@@ -90,15 +81,6 @@ bool TreeBuilder::Resolve() {
     IModule *cmod = p.first;
     cmod->SetParentModule(mod);
   }
-  for (auto f : foreign_registers_) {
-    int mod_id = f.second.mod_id;
-    int table_id = f.second.table_id;
-    int register_id = f.second.reg_id;
-    IResource *res = f.first;
-    IModule *mod = module_ids[mod_id];
-    IRegister *foreign_reg = FindForeignRegister(mod, table_id, register_id);
-    res->SetForeignRegister(foreign_reg);
-  }
   for (auto &pr : parent_resources_) {
     IModule *mod = module_ids[pr.mod_id];
     if (mod == nullptr) {
@@ -128,20 +110,6 @@ bool TreeBuilder::Resolve() {
     t.tap->resource = FindResource(mod, t.tab_id, t.res_id);
   }
   return true;
-}
-
-IRegister *TreeBuilder::FindForeignRegister(IModule *mod,
-					    int table_id, int register_id) {
-  for (ITable *tab : mod->tables_) {
-    if (tab->GetId() == table_id) {
-      for (IRegister *reg : tab->registers_) {
-	if (reg->GetId() == register_id) {
-	  return reg;
-	}
-      }
-    }
-  }
-  return nullptr;
 }
 
 IResource *TreeBuilder::FindResource(IModule *mod,

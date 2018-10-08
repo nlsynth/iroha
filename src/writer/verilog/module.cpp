@@ -7,7 +7,6 @@
 #include "writer/connection.h"
 #include "writer/module_template.h"
 #include "writer/verilog/dataflow_table.h"
-#include "writer/verilog/foreign_reg.h"
 #include "writer/verilog/ports.h"
 #include "writer/verilog/table.h"
 #include "writer/verilog/verilog_writer.h"
@@ -146,12 +145,6 @@ void Module::Build() {
   for (Table *tab : tables_) {
     tab->Build();
   }
-
-  const RegConnectionInfo *ri = conn_.GetRegConnectionInfo(i_mod_);
-  if (ri != nullptr) {
-    ForeignReg::BuildPorts(*ri, ports_.get(), names_);
-    ForeignReg::BuildRegWire(*ri, this);
-  }
 }
 
 void Module::BuildChildModuleInstSection(vector<Module *> &child_mods) {
@@ -166,12 +159,6 @@ void Module::BuildChildModuleInstSection(vector<Module *> &child_mods) {
     is << ", ." << child_mod->GetPorts()->GetReset()
        << "(" << GetPorts()->GetReset() << ")";
     is << current_content;
-    // Registers
-    const IModule *child_imod = child_mod->GetIModule();
-    const RegConnectionInfo *ri = conn_.GetRegConnectionInfo(child_imod);
-    if (ri != nullptr) {
-      ForeignReg::BuildChildWire(*ri, child_mod->GetNames(), is);
-    }
   }
 }
 

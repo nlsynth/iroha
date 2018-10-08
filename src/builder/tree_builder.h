@@ -17,8 +17,6 @@ public:
   TreeBuilder(IDesign *design, ExpBuilder *builder);
 
   void AddCalleeTable(int mod_id, int table_id, IResource *res);
-  void AddForeignReg(int mod_id, int table_id, int reg_id,
-		     IResource *res);
   void AddParentModule(int parent_mod_id, IModule *mod);
   void AddParentResource(int module_id, int table_id, int res_id,
 			 IResource *res);
@@ -29,8 +27,6 @@ public:
   bool Resolve();
 
 private:
-  IRegister *FindForeignRegister(IModule *mod,
-				 int table_id, int register_id);
   IResource *FindResource(IModule *mod,
 			  int table_id, int resource_id);
 
@@ -39,12 +35,6 @@ private:
   map<IResource *, int> callee_module_ids_;
   map<IResource *, int> table_ids_;
   map<IModule *, int> parent_module_ids_;
-  struct ForeignRegister {
-    int mod_id;
-    int table_id;
-    int reg_id;
-  };
-  map<IResource *, ForeignRegister> foreign_registers_;
   struct ParentResource {
     IResource *reader;
     int mod_id;

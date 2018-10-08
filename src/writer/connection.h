@@ -10,15 +10,6 @@
 namespace iroha {
 namespace writer {
 
-// Per module foreign register access connections.
-class RegConnectionInfo {
-public:
-  set<IRegister *> has_upward_port;
-  set<IRegister *> has_downward_port;
-  set<IRegister *> has_wire;
-  set<IRegister *> is_source;
-};
-
 // Keyed by owner (parent) resource.
 class AccessorInfo {
 public:
@@ -41,7 +32,6 @@ public:
 
   void Build();
 
-  const RegConnectionInfo *GetRegConnectionInfo(const IModule *mod) const;
   const AccessorInfo *GetAccessorInfo(const IResource *res) const;
   const vector<IResource *> &GetTaskCallers(const IResource *res) const;
   const vector<IResource *> &GetSharedRegWriters(const IResource *res) const;
@@ -55,18 +45,15 @@ public:
   static const IModule *GetCommonRoot(const IModule *m1, const IModule *m2);
 
 private:
-  void ProcessForeignReg(IResource *freg);
   const vector<IResource *> *GetResourceVector(const map<const IResource *,
 					       vector<IResource *>> &m, const IResource *res) const;
   void ProcessTable(ITable *tab);
   void ProcessSharedRegAccessors(ITable *tab);
   void ProcessSharedMemoryAccessors(ITable *tab);
   void ProcessFifoAccessors(ITable *tab);
-  RegConnectionInfo *FindRegConnectionInfo(const IModule *mod);
   AccessorInfo *FindAccessorInfo(const IResource *res);
 
   const IDesign *design_;
-  map<const IModule *, RegConnectionInfo *> reg_connection_;
   map<const IResource *, AccessorInfo *> accessors_;
   AccessorInfo empty_accessors_;
 };

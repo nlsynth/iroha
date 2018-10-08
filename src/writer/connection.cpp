@@ -16,7 +16,6 @@ Connection::Connection(const IDesign *design) : design_(design) {
 }
 
 Connection::~Connection() {
-  STLDeleteSecondElements(&reg_connection_);
   STLDeleteSecondElements(&accessors_);
 }
 
@@ -29,13 +28,6 @@ void Connection::Build() {
 }
 
 void Connection::ProcessTable(ITable *tab) {
-  // foreign-reg
-  vector<IResource*> foreign_regs;
-  DesignUtil::FindResourceByClassName(tab, resource::kForeignReg,
-				      &foreign_regs);
-  for (IResource *freg : foreign_regs) {
-    ProcessForeignReg(freg);
-  }
   // task
   vector<IResource *> task_callers;
   DesignUtil::FindResourceByClassName(tab, resource::kTaskCall,
@@ -121,14 +113,6 @@ void Connection::ProcessFifoAccessors(ITable *tab) {
   }
 }
 
-const RegConnectionInfo *Connection::GetRegConnectionInfo(const IModule *mod) const {
-  auto it = reg_connection_.find(mod);
-  if (it == reg_connection_.end()) {
-    return nullptr;
-  }
-  return it->second;
-}
-
 const AccessorInfo *Connection::GetAccessorInfo(const IResource *res) const {
   auto it = accessors_.find(res);
   if (it == accessors_.end()) {
@@ -197,57 +181,6 @@ const vector<IResource *> *Connection::GetResourceVector(const map<const IResour
     return &(it->second);
   }
   return nullptr;
-}
-
-void Connection::ProcessForeignReg(IResource *freg) {
-  IRegister *reg = freg->GetForeignRegister();
-  IModule *reg_module = reg->GetTable()->GetModule();
-  IModule *reader_module = freg->GetTable()->GetModule();
-  if (reg_module == reader_module) {
-    return;
-  }
-  RegConnectionInfo *sc = FindRegConnectionInfo(reg_module);
-  sc->is_source.insert(reg);
-  const IModule *common_root = GetCommonRoot(reg_module, reader_module);
-  if (common_root == reg_module) {
-    // reg is uppper and the accessor is below.
-    for (IModule *mod = reader_module; mod != common_root;
-	 mod = mod->GetParentModule()) {
-      RegConnectionInfo *rc = FindRegConnectionInfo(mod);
-      rc->has_downward_port.insert(reg);
-    }
-  } else if (common_root == reader_module) {
-    for (IModule *mod = reg_module; mod != common_root;
-	 mod = mod->GetParentModule()) {
-      RegConnectionInfo *rc = FindRegConnectionInfo(mod);
-      rc->has_upward_port.insert(reg);
-    }
-    RegConnectionInfo *rc = FindRegConnectionInfo(common_root);
-    rc->has_wire.insert(reg);
-  } else {
-    RegConnectionInfo *cc = FindRegConnectionInfo(common_root);
-    cc->has_wire.insert(reg);
-    for (IModule *mod = reader_module; mod != common_root;
-	 mod = mod->GetParentModule()) {
-      RegConnectionInfo *rc = FindRegConnectionInfo(mod);
-      rc->has_upward_port.insert(reg);
-    }
-    for (IModule *mod = reg_module; mod != common_root;
-	 mod = mod->GetParentModule()) {
-      RegConnectionInfo *rc = FindRegConnectionInfo(mod);
-      rc->has_downward_port.insert(reg);
-    }
-  }
-}
-
-RegConnectionInfo *Connection::FindRegConnectionInfo(const IModule *mod) {
-  auto it = reg_connection_.find(mod);
-  if (it == reg_connection_.end()) {
-    RegConnectionInfo *ri = new RegConnectionInfo();
-    reg_connection_[mod] = ri;
-    return ri;
-  }
-  return it->second;
 }
 
 AccessorInfo *Connection::FindAccessorInfo(const IResource *res) {

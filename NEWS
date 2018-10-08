@@ -1,2 +1,4 @@
+2018/10/08
+ Remove "foreign-reg" resource. (Use "shared-reg" and its accessors instead)
 2018/03/01
  Remove "embedded" resource. (Use "ext-task-call" instead)

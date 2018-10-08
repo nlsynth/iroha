@@ -246,8 +246,6 @@
         'writer/verilog/fifo.h',
         'writer/verilog/fifo_accessor.cpp',
         'writer/verilog/fifo_accessor.h',
-        'writer/verilog/foreign_reg.cpp',
-        'writer/verilog/foreign_reg.h',
         'writer/verilog/insn_writer.cpp',
         'writer/verilog/insn_writer.h',
         'writer/verilog/internal_sram.cpp',

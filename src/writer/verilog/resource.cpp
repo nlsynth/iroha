@@ -15,7 +15,6 @@
 #include "writer/verilog/ext_task_call.h"
 #include "writer/verilog/fifo.h"
 #include "writer/verilog/fifo_accessor.h"
-#include "writer/verilog/foreign_reg.h"
 #include "writer/verilog/insn_writer.h"
 #include "writer/verilog/mapped.h"
 #include "writer/verilog/module.h"
@@ -49,9 +48,6 @@ Resource *Resource::Create(const IResource &res, const Table &table) {
       resource::IsBitConcat(*klass) ||
       resource::IsSelect(*klass)) {
     return new Operator(res, table);
-  }
-  if (resource::IsForeignRegister(*klass)) {
-    return new ForeignReg(res, table);
   }
   if (resource::IsExtInput(*klass) ||
       resource::IsExtOutput(*klass)) {
