@@ -31,6 +31,7 @@ const char kEmbeddedModuleInputs[] = "EMBEDDED-MODULE-INPUTS";
 const char kEmbeddedModuleOutputs[] = "EMBEDDED-MODULE-OUTPUTS";
 const char kSramPortIndex[] = "SRAM-PORT-INDEX";
 const char kExtTaskName[] = "EXT-TASK";
+const char kDistance[] = "DISTANCE";
 }  // namespace resource
 
 class ResourceParams {
@@ -88,6 +89,9 @@ public:
 
   string GetExtTaskName() const;
   void SetExtTaskName(const string &name);
+
+  int GetDistance() const;
+  void SetDistance(int distance);
 
 private:
   resource::ResourceParamValueSet *values_;

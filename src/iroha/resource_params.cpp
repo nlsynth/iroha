@@ -354,4 +354,12 @@ void ResourceParams::SetExtTaskName(const string &name) {
   values_->SetStringParam(resource::kExtTaskName, name);
 }
 
+int ResourceParams::GetDistance() const {
+  return values_->GetIntParam(resource::kDistance, 0);
+}
+
+void ResourceParams::SetDistance(int distance) {
+  return values_->SetIntParam(resource::kDistance, distance);
+}
+
 }  // namespace iroha
