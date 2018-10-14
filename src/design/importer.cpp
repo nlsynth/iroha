@@ -21,6 +21,9 @@ void Importer::Import(IDesign *design) {
 
 void Importer::Resolve() {
   IModule *root = DesignUtil::GetRootModule(design_);
+  if (root == nullptr) {
+    return;
+  }
   TraverseModule(root);
   ProcessTapAll();
   ClearModuleImport();
