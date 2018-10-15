@@ -77,6 +77,8 @@
         'iroha/common.h',
         'iroha/i_design.cpp',
         'iroha/i_design.h',
+        'iroha/i_platform.cpp',
+        'iroha/i_platform.h',
         'iroha/insn_operands.h',
         'iroha/iroha.cpp',
         'iroha/iroha.h',

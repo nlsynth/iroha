@@ -16,6 +16,7 @@ class IArrayImage;
 class IDesign;
 class IInsn;
 class IModule;
+class IPlatform;
 class IRegister;
 class IResource;
 class IResourceClass;
@@ -27,6 +28,12 @@ class ModuleImport;
 class ModuleImportTap;
 class ObjectPool;
 class ResourceParams;
+
+namespace platform {
+class Condition;
+class Definition;
+class Values;
+}  // namespace platform
 
 class Util {
 public:

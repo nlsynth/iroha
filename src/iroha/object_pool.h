@@ -32,6 +32,10 @@ public:
   Pool<ResourceParams> resource_params_;
   Pool<IArray> arrays_;
   Pool<IArrayImage> array_images_;
+  Pool<IPlatform> platforms_;
+  Pool<platform::Condition> conditions_;
+  Pool<platform::Definition> definitions_;
+  Pool<platform::Values> values_;
 };
 
 }  // namespace iroha

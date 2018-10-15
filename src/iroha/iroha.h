@@ -34,6 +34,7 @@
 #include "design/design_util.h"
 #include "iroha/common.h"
 #include "iroha/i_design.h"
+#include "iroha/i_platform.h"
 #include "iroha/insn_operands.h"
 #include "iroha/opt_api.h"
 #include "iroha/resource_class.h"

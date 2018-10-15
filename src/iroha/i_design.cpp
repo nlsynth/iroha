@@ -1,6 +1,7 @@
 #include "iroha/i_design.h"
 
 #include "design/design_util.h"
+#include "iroha/i_platform.h"
 #include "iroha/opt_api.h"
 #include "iroha/logging.h"
 #include "iroha/module_import.h"
