@@ -1,6 +1,6 @@
 #include "builder/tree_builder.h"
 
-#include "builder/exp_builder.h"
+#include "builder/design_builder.h"
 #include "builder/reader.h"
 #include "iroha/i_design.h"
 #include "iroha/logging.h"
@@ -9,7 +9,7 @@
 namespace iroha {
 namespace builder {
 
-TreeBuilder::TreeBuilder(IDesign *design, ExpBuilder *builder)
+TreeBuilder::TreeBuilder(IDesign *design, DesignBuilder *builder)
   : design_(design), builder_(builder) {
 }
 

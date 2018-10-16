@@ -10,11 +10,11 @@ namespace iroha {
 namespace builder {
 
 class Exp;
-class ExpBuilder;
+class DesignBuilder;
 
 class TreeBuilder {
 public:
-  TreeBuilder(IDesign *design, ExpBuilder *builder);
+  TreeBuilder(IDesign *design, DesignBuilder *builder);
 
   void AddCalleeTable(int mod_id, int table_id, IResource *res);
   void AddParentModule(int parent_mod_id, IModule *mod);
@@ -31,7 +31,7 @@ private:
 			  int table_id, int resource_id);
 
   IDesign *design_;
-  ExpBuilder *builder_;
+  DesignBuilder *builder_;
   map<IResource *, int> callee_module_ids_;
   map<IResource *, int> table_ids_;
   map<IModule *, int> parent_module_ids_;

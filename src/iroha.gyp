@@ -49,8 +49,8 @@
         './',
       ],
       'sources': [
-        'builder/exp_builder.cpp',
-        'builder/exp_builder.h',
+        'builder/design_builder.cpp',
+        'builder/design_builder.h',
         'builder/fsm_builder.cpp',
         'builder/fsm_builder.h',
         'builder/reader.cpp',

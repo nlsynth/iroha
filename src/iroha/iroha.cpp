@@ -25,7 +25,7 @@
 
 #include "iroha/iroha.h"
 
-#include "builder/exp_builder.h"
+#include "builder/design_builder.h"
 #include "design/design_tool.h"
 #include "opt/optimizer.h"
 #include "writer/writer.h"
@@ -47,7 +47,7 @@ void Iroha::SetImportPaths(const vector<string> &paths) {
 }
 
 IDesign *Iroha::ReadDesignFromFile(const string &fn) {
-  return builder::ExpBuilder::ReadDesign(fn);
+  return builder::DesignBuilder::ReadDesign(fn);
 }
 
 WriterAPI *Iroha::CreateWriter(IDesign *design) {

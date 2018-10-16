@@ -10,11 +10,11 @@ namespace iroha {
 namespace builder {
 
 class Exp;
-class ExpBuilder;
+class DesignBuilder;
 
 class FsmBuilder {
 public:
-  FsmBuilder(ITable *table, ExpBuilder *builder);
+  FsmBuilder(ITable *table, DesignBuilder *builder);
 
   void AddState(Exp *e);
   void SetInitialState(Exp *e);
@@ -27,7 +27,7 @@ private:
   void ResolveDependingInsns(Exp *e, IInsn *insn);
 
   ITable *table_;
-  ExpBuilder *builder_;
+  DesignBuilder *builder_;
   int initial_state_id_;
 
   map<int, IResource *> resources_;

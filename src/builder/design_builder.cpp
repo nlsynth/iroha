@@ -1,4 +1,4 @@
-#include "builder/exp_builder.h"
+#include "builder/design_builder.h"
 
 #include "builder/reader.h"
 #include "builder/fsm_builder.h"
@@ -13,26 +13,26 @@
 namespace iroha {
 namespace builder {
 
-IDesign *ExpBuilder::ReadDesign(const string &fn) {
+IDesign *DesignBuilder::ReadDesign(const string &fn) {
   File *f = Reader::ReadFile(fn);
   if (!f) {
     return nullptr;
   }
   std::unique_ptr<File> deleter(f);
   if (f->exps.size()) {
-    ExpBuilder builder;
+    DesignBuilder builder;
     return builder.Build(f->exps);
   }
   return nullptr;
 }
 
-ExpBuilder::ExpBuilder() : has_error_(false) {
+DesignBuilder::DesignBuilder() : has_error_(false) {
 }
 
-ExpBuilder::~ExpBuilder() {
+DesignBuilder::~DesignBuilder() {
 }
 
-IDesign *ExpBuilder::Build(vector<Exp *> &exps) {
+IDesign *DesignBuilder::Build(vector<Exp *> &exps) {
   IDesign *design = new IDesign;
   tree_builder_.reset(new TreeBuilder(design, this));
   for (Exp *root : exps) {
@@ -70,7 +70,7 @@ IDesign *ExpBuilder::Build(vector<Exp *> &exps) {
   return design;
 }
 
-IModule *ExpBuilder::BuildModule(Exp *e, IDesign *design) {
+IModule *DesignBuilder::BuildModule(Exp *e, IDesign *design) {
   if (e->Size() < 2) {
     SetError() << "Module requires its name";
     return nullptr;
@@ -119,7 +119,7 @@ IModule *ExpBuilder::BuildModule(Exp *e, IDesign *design) {
   return module;
 }
 
-ITable *ExpBuilder::BuildTable(Exp *e, IModule *module) {
+ITable *DesignBuilder::BuildTable(Exp *e, IModule *module) {
   if (e->Size() < 2) {
     SetError() << "Insufficient elements for a table";
     return nullptr;
@@ -172,7 +172,7 @@ ITable *ExpBuilder::BuildTable(Exp *e, IModule *module) {
   return table;
 }
 
-void ExpBuilder::BuildRegisters(Exp *e, ITable *table) {
+void DesignBuilder::BuildRegisters(Exp *e, ITable *table) {
   for (int i = 1; i < e->Size(); ++i) {
     Exp *element = e->vec[i];
     if (element->Size() == 0) {
@@ -186,7 +186,7 @@ void ExpBuilder::BuildRegisters(Exp *e, ITable *table) {
   }
 }
 
-IRegister *ExpBuilder::BuildRegister(Exp *e, ITable *table) {
+IRegister *DesignBuilder::BuildRegister(Exp *e, ITable *table) {
   if (e->GetHead() != "REGISTER") {
     SetError() << "Only REGISTER can be allowed";
     return nullptr;
@@ -220,7 +220,7 @@ IRegister *ExpBuilder::BuildRegister(Exp *e, ITable *table) {
   return reg;
 }
 
-void ExpBuilder::BuildResources(Exp *e, ITable *table) {
+void DesignBuilder::BuildResources(Exp *e, ITable *table) {
   for (int i = 1; i < e->Size(); ++i) {
     Exp *element = e->vec[i];
     if (element->Size() == 0) {
@@ -235,7 +235,7 @@ void ExpBuilder::BuildResources(Exp *e, ITable *table) {
   }
 }
 
-IResource *ExpBuilder::BuildResource(Exp *e, ITable *table) {
+IResource *DesignBuilder::BuildResource(Exp *e, ITable *table) {
   if (e->GetHead() != "RESOURCE") {
     SetError() << "Only RESOURCE can be allowed";
     return nullptr;
@@ -309,7 +309,7 @@ IResource *ExpBuilder::BuildResource(Exp *e, ITable *table) {
   return res;
 }
 
-void ExpBuilder::BuildArray(Exp *e, IResource *res) {
+void DesignBuilder::BuildArray(Exp *e, IResource *res) {
   int sz = e->Size();
   if (sz != 5 && sz != 6) {
     SetError() << "Malformed array description";
@@ -347,7 +347,7 @@ void ExpBuilder::BuildArray(Exp *e, IResource *res) {
   }
 }
 
-void ExpBuilder::BuildResourceParams(Exp *e, ResourceParams *params) {
+void DesignBuilder::BuildResourceParams(Exp *e, ResourceParams *params) {
   for (int i = 1; i < e->Size(); ++i) {
     Exp *t = e->vec[i];
     vector<string> s;
@@ -358,7 +358,7 @@ void ExpBuilder::BuildResourceParams(Exp *e, ResourceParams *params) {
   }
 }
 
-void ExpBuilder::BuildParamTypes(Exp *e, vector<IValueType> *types) {
+void DesignBuilder::BuildParamTypes(Exp *e, vector<IValueType> *types) {
   for (int i = 0; i < e->Size(); ++i) {
     IValueType type;
     BuildValueType(e->vec[i], &type);
@@ -366,7 +366,7 @@ void ExpBuilder::BuildParamTypes(Exp *e, vector<IValueType> *types) {
   }
 }
 
-void ExpBuilder::BuildValueType(Exp *e, IValueType *vt) {
+void DesignBuilder::BuildValueType(Exp *e, IValueType *vt) {
   if (e->Size() != 2) {
     SetError() << "value type shoule be like (UINT 32)";
     return;
@@ -383,7 +383,7 @@ void ExpBuilder::BuildValueType(Exp *e, IValueType *vt) {
   }
 }
 
-ostream &ExpBuilder::SetError() {
+ostream &DesignBuilder::SetError() {
   has_error_ = true;
   const string &s = errors_.str();
   if (!s.empty() && s.c_str()[s.size() - 1] != '\n') {
@@ -392,7 +392,7 @@ ostream &ExpBuilder::SetError() {
   return errors_;
 }
 
-void ExpBuilder::BuildArrayImage(Exp *e, IDesign *design) {
+void DesignBuilder::BuildArrayImage(Exp *e, IDesign *design) {
   if (e->Size() != 4) {
     SetError() << "Invalid array image";
     return;
@@ -407,7 +407,7 @@ void ExpBuilder::BuildArrayImage(Exp *e, IDesign *design) {
   design->array_images_.push_back(array_image);
 }
 
-void ExpBuilder::BuildModuleImport(Exp *e, IModule *mod) {
+void DesignBuilder::BuildModuleImport(Exp *e, IModule *mod) {
   if (e->Size() < 2) {
     SetError() << "Malformed module import";
     return;
@@ -424,7 +424,7 @@ void ExpBuilder::BuildModuleImport(Exp *e, IModule *mod) {
   mod->SetModuleImport(mi);
 }
 
-void ExpBuilder::BuildModuleImportTap(Exp *e, ModuleImport *mi) {
+void DesignBuilder::BuildModuleImportTap(Exp *e, ModuleImport *mi) {
   if (e->Size() < 4) {
     SetError() << "Malformed module import tap";
     return;
@@ -436,7 +436,7 @@ void ExpBuilder::BuildModuleImportTap(Exp *e, ModuleImport *mi) {
   mi->taps_.push_back(tap);
 }
 
-void ExpBuilder::BuildModuleImportTapDesc(Exp *e, ModuleImportTap *tap) {
+void DesignBuilder::BuildModuleImportTapDesc(Exp *e, ModuleImportTap *tap) {
   tap->resource_class = e->Str(0);
   if (e->Size() == 4) {
     tree_builder_->AddModuleImportTap(Util::Atoi(e->Str(1)),
@@ -445,12 +445,12 @@ void ExpBuilder::BuildModuleImportTapDesc(Exp *e, ModuleImportTap *tap) {
   }
 }
 
-void ExpBuilder::BuildPlatform(Exp *e, IDesign *design) {
+void DesignBuilder::BuildPlatform(Exp *e, IDesign *design) {
   IPlatform *platform = new IPlatform(design);
   design->platforms_.push_back(platform);
 }
 
-bool ExpBuilder::HasError() {
+bool DesignBuilder::HasError() {
   return has_error_;
 }
 

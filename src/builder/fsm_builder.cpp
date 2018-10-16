@@ -1,13 +1,13 @@
 #include "builder/fsm_builder.h"
 
-#include "builder/exp_builder.h"
+#include "builder/design_builder.h"
 #include "builder/reader.h"
 #include "iroha/i_design.h"
 
 namespace iroha {
 namespace builder {
 
-FsmBuilder::FsmBuilder(ITable *table, ExpBuilder *builder)
+FsmBuilder::FsmBuilder(ITable *table, DesignBuilder *builder)
   : table_(table), builder_(builder), initial_state_id_(-1) {
   Init();
 }

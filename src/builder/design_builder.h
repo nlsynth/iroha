@@ -2,8 +2,8 @@
 //
 // Build Iroha design *from* S-Expression.
 //
-#ifndef _builder_exp_builder_h_
-#define _builder_exp_builder_h_
+#ifndef _builder_design_builder_h_
+#define _builder_design_builder_h_
 
 #include "iroha/common.h"
 
@@ -15,10 +15,10 @@ namespace builder {
 class Exp;
 class TreeBuilder;
 
-class ExpBuilder {
+class DesignBuilder {
 public:
-  ExpBuilder();
-  ~ExpBuilder();
+  DesignBuilder();
+  ~DesignBuilder();
 
   IDesign *Build(vector<Exp *> &exps);
   ostream &SetError();
@@ -52,4 +52,4 @@ private:
 }  // namespace builder
 }  // namespace iroha
 
-#endif  // _builder_exp_builder_h_
+#endif  // _builder_design_builder_h_
