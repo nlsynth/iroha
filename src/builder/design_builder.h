@@ -41,7 +41,6 @@ private:
   void BuildModuleImport(Exp *e, IModule *mod);
   void BuildModuleImportTap(Exp *e, ModuleImport *mi);
   void BuildModuleImportTapDesc(Exp *e, ModuleImportTap *tap);
-  void BuildPlatform(Exp *e, IDesign *design);
   bool HasError();
 
   bool has_error_;

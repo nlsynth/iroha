@@ -55,6 +55,8 @@
         'builder/fsm_builder.h',
         'builder/reader.cpp',
         'builder/reader.h',
+        'builder/platform_builder.cpp',
+        'builder/platform_builder.h',
         'builder/tree_builder.cpp',
         'builder/tree_builder.h',
         'design/design_tool.cpp',
