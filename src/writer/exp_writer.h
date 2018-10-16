@@ -33,6 +33,7 @@ private:
   void WriteArrayImage(const IArrayImage &im);
   void WriteResourceDesc(const IResource &res);
   void WriteStr(const string &str);
+  void WritePlatform(const IPlatform &platform);
 
   const IDesign *design_;
   ostream &os_;

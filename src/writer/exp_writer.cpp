@@ -21,6 +21,9 @@ void ExpWriter::Write() {
   for (auto *mod : design_->modules_) {
     WriteModule(*mod);
   }
+  for (auto *platform : design_->platforms_) {
+    WritePlatform(*platform);
+  }
 }
 
 void ExpWriter::WriteModule(const IModule &mod) {
@@ -327,6 +330,10 @@ void ExpWriter::WriteStr(const string &str) {
   if (need_quote) {
     os_ << "\"";
   }
+}
+
+void ExpWriter::WritePlatform(const IPlatform &platform) {
+  os_ << "(PLATFORM)\n";
 }
 
 }  // namespace iroha

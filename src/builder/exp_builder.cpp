@@ -4,6 +4,7 @@
 #include "builder/fsm_builder.h"
 #include "builder/tree_builder.h"
 #include "iroha/i_design.h"
+#include "iroha/i_platform.h"
 #include "iroha/logging.h"
 #include "iroha/module_import.h"
 #include "iroha/resource_class.h"
@@ -51,8 +52,11 @@ IDesign *ExpBuilder::Build(vector<Exp *> &exps) {
       BuildResourceParams(root, design->GetParams());
     } else if (element_name == "ARRAY-IMAGE") {
       BuildArrayImage(root, design);
+    } else if (element_name == "PLATFORM") {
+      BuildPlatform(root, design);
     } else {
-      SetError() << "Unsupported toplevel expression";
+      SetError() << "Unsupported toplevel expression: "
+		 << element_name;
     }
   }
   if (!HasError()) {
@@ -439,6 +443,11 @@ void ExpBuilder::BuildModuleImportTapDesc(Exp *e, ModuleImportTap *tap) {
 				      Util::Atoi(e->Str(2)),
 				      Util::Atoi(e->Str(3)), tap);
   }
+}
+
+void ExpBuilder::BuildPlatform(Exp *e, IDesign *design) {
+  IPlatform *platform = new IPlatform(design);
+  design->platforms_.push_back(platform);
 }
 
 bool ExpBuilder::HasError() {

@@ -243,6 +243,7 @@ public:
   vector<IModule *> modules_;
   vector<IResourceClass *> resource_classes_;
   vector<IArrayImage *> array_images_;
+  vector<IPlatform *> platforms_;
 
 private:
   ObjectPool *objects_;
