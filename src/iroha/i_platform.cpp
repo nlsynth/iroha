@@ -2,10 +2,12 @@
 
 #include "iroha/i_design.h"
 #include "iroha/object_pool.h"
+#include "iroha/resource_params.h"
+#include "iroha/module_import.h"
 
 namespace iroha {
 
-IPlatform::IPlatform(IDesign *design) : design_(design) {
+IPlatform::IPlatform(IDesign *design) : design_(design), objects_(new ObjectPool) {
   if (design != nullptr) {
     design->GetObjectPool()->platforms_.Add(this);
   }
@@ -31,18 +33,19 @@ Definition *Condition::GetDefinition() {
   return definition_;
 }
 
-Values::Values(Definition *definition) : definition_(definition) {
+Value::Value(Definition *definition) : definition_(definition) {
   definition->GetPlatform()->GetObjectPool()->values_.Add(this);
 }
 
-Values::~Values() {
+Value::~Value() {
 }
 
-Definition *Values::GetDefinition() {
+Definition *Value::GetDefinition() {
   return definition_;
 }
 
-Definition::Definition(IPlatform *platform) : platform_(platform) {
+Definition::Definition(IPlatform *platform)
+  : platform_(platform), condition_(nullptr), value_(nullptr) {
 }
 
 Definition::~Definition() {

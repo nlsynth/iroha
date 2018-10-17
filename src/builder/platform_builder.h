@@ -16,6 +16,11 @@ public:
   void BuildPlatform(Exp *e, IDesign *design);
 
 private:
+  void BuildDefinition(Exp *e, IPlatform *platform);
+  void BuildCondition(Exp *e, platform::Definition *def);
+  void BuildValue(Exp *e, platform::Definition *def);
+  platform::Condition *BuildConditionTerm(Exp *e, platform::Definition *def);
+
   DesignBuilder &design_builder_;
 };
 

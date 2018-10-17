@@ -1,6 +1,7 @@
 #include "writer/exp_writer.h"
 
 #include "iroha/i_design.h"
+#include "iroha/i_platform.h"
 #include "iroha/logging.h"
 #include "iroha/module_import.h"
 #include "iroha/resource_class.h"
@@ -333,7 +334,30 @@ void ExpWriter::WriteStr(const string &str) {
 }
 
 void ExpWriter::WritePlatform(const IPlatform &platform) {
-  os_ << "(PLATFORM)\n";
+  os_ << "(PLATFORM";
+  for (auto *def : platform.defs_) {
+    WritePlatformDef(*def);
+  }
+  os_ << ")\n";
+}
+
+void ExpWriter::WritePlatformDef(const platform::Definition &def) {
+  os_ << "\n  (DEF";
+  if (def.condition_ != nullptr) {
+    WritePlatformCondition(*(def.condition_));
+  }
+  if (def.condition_ != nullptr) {
+    WritePlatformValue(*(def.value_));
+  }
+  os_ << ")";
+}
+
+void ExpWriter::WritePlatformCondition(const platform::Condition &cond) {
+  os_ << "\n    (COND)";
+}
+
+void ExpWriter::WritePlatformValue(const platform::Value &value) {
+  os_ << "\n    (VALUE)";
 }
 
 }  // namespace iroha

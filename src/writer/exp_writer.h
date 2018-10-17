@@ -34,6 +34,9 @@ private:
   void WriteResourceDesc(const IResource &res);
   void WriteStr(const string &str);
   void WritePlatform(const IPlatform &platform);
+  void WritePlatformDef(const platform::Definition &def);
+  void WritePlatformCondition(const platform::Condition &cond);
+  void WritePlatformValue(const platform::Value &value);
 
   const IDesign *design_;
   ostream &os_;

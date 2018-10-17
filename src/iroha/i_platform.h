@@ -19,10 +19,10 @@ private:
   Definition *definition_;
 };
 
-class Values {
+class Value {
 public:
-  Values(Definition *definition);
-  ~Values();
+  Value(Definition *definition);
+  ~Value();
 
   Definition *GetDefinition();
 
@@ -38,7 +38,7 @@ public:
   IPlatform *GetPlatform();
 
   Condition *condition_;
-  Values *values_;
+  Value *value_;
 
 private:
   IPlatform *platform_;

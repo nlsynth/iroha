@@ -32,7 +32,7 @@ class ResourceParams;
 namespace platform {
 class Condition;
 class Definition;
-class Values;
+class Value;
 }  // namespace platform
 
 class Util {

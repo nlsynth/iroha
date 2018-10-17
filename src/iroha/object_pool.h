@@ -35,7 +35,7 @@ public:
   Pool<IPlatform> platforms_;
   Pool<platform::Condition> conditions_;
   Pool<platform::Definition> definitions_;
-  Pool<platform::Values> values_;
+  Pool<platform::Value> values_;
 };
 
 }  // namespace iroha
