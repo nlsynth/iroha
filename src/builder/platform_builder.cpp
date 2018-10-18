@@ -37,9 +37,9 @@ void PlatformBuilder::BuildCondition(Exp *e, platform::Definition *def) {
     return;
   }
   if (e->Size() == 2) {
-    def->condition_ = BuildConditionTerm(e->vec[1], def);
+    def->condition_ = BuildNode(e->vec[1], def);
   } else {
-    // TODO: Build AND term.
+    def->condition_ = BuildConjunctionFrom2nd(e, def);
   }
 }
 
@@ -48,11 +48,33 @@ void PlatformBuilder::BuildValue(Exp *e, platform::Definition *def) {
     design_builder_.SetError() << "VALUE should come first of DEF";
     return;
   }
+  if (e->Size() == 2) {
+    def->value_ = BuildNode(e->vec[1], def);
+  } else {
+    def->value_ = BuildConjunctionFrom2nd(e, def);
+  }
 }
 
-platform::Condition *PlatformBuilder::BuildConditionTerm(Exp *e, platform::Definition *def) {
-  platform::Condition *cond = new platform::Condition(def);
-  return cond;
+platform::DefNode *PlatformBuilder::BuildNode(Exp *e, platform::Definition *def) {
+  platform::DefNode *node = new platform::DefNode(def);
+  if (e->atom.str.empty()) {
+    for (Exp *child : e->vec) {
+      node->nodes_.push_back(BuildNode(child, def));
+    }
+  } else {
+    node->is_atom_ = true;
+    node->str_ = e->atom.str;
+  }
+  return node;
+}
+
+platform::DefNode *PlatformBuilder::BuildConjunctionFrom2nd(Exp *e,
+							    platform::Definition *def) {
+  platform::DefNode *node = BuildNode(e, def);
+  // This is a bit hacky to allow implicit AND.
+  // build for (COND-OR-VALUE c1 c2 .. cn) and sets AND later.
+  node->nodes_[0]->str_ = "AND";
+  return node;
 }
 
 }  // namespace builder

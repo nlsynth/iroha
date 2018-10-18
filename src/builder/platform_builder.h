@@ -19,7 +19,8 @@ private:
   void BuildDefinition(Exp *e, IPlatform *platform);
   void BuildCondition(Exp *e, platform::Definition *def);
   void BuildValue(Exp *e, platform::Definition *def);
-  platform::Condition *BuildConditionTerm(Exp *e, platform::Definition *def);
+  platform::DefNode *BuildNode(Exp *e, platform::Definition *def);
+  platform::DefNode *BuildConjunctionFrom2nd(Exp *e, platform::Definition *def);
 
   DesignBuilder &design_builder_;
 };

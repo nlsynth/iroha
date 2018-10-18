@@ -8,23 +8,18 @@ namespace iroha {
 
 namespace platform {
 
-class Condition {
+class DefNode {
 public:
-  Condition(Definition *definition);
-  ~Condition();
+  DefNode(Definition *definition);
+  ~DefNode();
 
   Definition *GetDefinition();
+  const string &GetHead();
 
-private:
-  Definition *definition_;
-};
-
-class Value {
-public:
-  Value(Definition *definition);
-  ~Value();
-
-  Definition *GetDefinition();
+  bool is_atom_;
+  int num_;
+  string str_;
+  vector<DefNode *> nodes_;
 
 private:
   Definition *definition_;
@@ -37,8 +32,8 @@ public:
 
   IPlatform *GetPlatform();
 
-  Condition *condition_;
-  Value *value_;
+  DefNode *condition_;
+  DefNode *value_;
 
 private:
   IPlatform *platform_;

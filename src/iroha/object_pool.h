@@ -33,9 +33,8 @@ public:
   Pool<IArray> arrays_;
   Pool<IArrayImage> array_images_;
   Pool<IPlatform> platforms_;
-  Pool<platform::Condition> conditions_;
+  Pool<platform::DefNode> def_nodes_;
   Pool<platform::Definition> definitions_;
-  Pool<platform::Value> values_;
 };
 
 }  // namespace iroha

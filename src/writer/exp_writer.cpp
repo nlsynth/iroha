@@ -346,18 +346,43 @@ void ExpWriter::WritePlatformDef(const platform::Definition &def) {
   if (def.condition_ != nullptr) {
     WritePlatformCondition(*(def.condition_));
   }
-  if (def.condition_ != nullptr) {
+  if (def.value_ != nullptr) {
     WritePlatformValue(*(def.value_));
   }
   os_ << ")";
 }
 
-void ExpWriter::WritePlatformCondition(const platform::Condition &cond) {
-  os_ << "\n    (COND)";
+void ExpWriter::WritePlatformCondition(const platform::DefNode &cond) {
+  os_ << "\n    (COND ";
+  WriteNodeDef(cond);
+  os_ << ")";
 }
 
-void ExpWriter::WritePlatformValue(const platform::Value &value) {
-  os_ << "\n    (VALUE)";
+void ExpWriter::WritePlatformValue(const platform::DefNode &value) {
+  os_ << "\n    (VALUE ";
+  WriteNodeDef(value);
+  os_ << ")";
+}
+
+void ExpWriter::WriteNodeDef(const platform::DefNode &node) {
+  if (node.is_atom_) {
+    if (node.str_.empty()) {
+      os_ << node.num_;
+    } else {
+      os_ << node.str_;
+    }
+  } else {
+    os_ << "(";
+    bool is_first = true;
+    for (platform::DefNode *child : node.nodes_) {
+      if (!is_first) {
+	os_ << " ";
+      }
+      is_first = false;
+      WriteNodeDef(*child);
+    }
+    os_ << ")";
+  }
 }
 
 }  // namespace iroha

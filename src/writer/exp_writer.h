@@ -35,8 +35,9 @@ private:
   void WriteStr(const string &str);
   void WritePlatform(const IPlatform &platform);
   void WritePlatformDef(const platform::Definition &def);
-  void WritePlatformCondition(const platform::Condition &cond);
-  void WritePlatformValue(const platform::Value &value);
+  void WritePlatformCondition(const platform::DefNode &cond);
+  void WritePlatformValue(const platform::DefNode &value);
+  void WriteNodeDef(const platform::DefNode &node);
 
   const IDesign *design_;
   ostream &os_;

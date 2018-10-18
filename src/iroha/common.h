@@ -30,9 +30,8 @@ class ObjectPool;
 class ResourceParams;
 
 namespace platform {
-class Condition;
+class DefNode;
 class Definition;
-class Value;
 }  // namespace platform
 
 class Util {

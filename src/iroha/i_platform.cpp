@@ -22,26 +22,23 @@ ObjectPool *IPlatform::GetObjectPool() {
 
 namespace platform {
 
-Condition::Condition(Definition *definition) : definition_(definition) {
-  definition->GetPlatform()->GetObjectPool()->conditions_.Add(this);
+DefNode::DefNode(Definition *definition) : is_atom_(false), definition_(definition) {
+  definition->GetPlatform()->GetObjectPool()->def_nodes_.Add(this);
 }
 
-Condition::~Condition() {
+DefNode::~DefNode() {
 }
 
-Definition *Condition::GetDefinition() {
+Definition *DefNode::GetDefinition() {
   return definition_;
 }
 
-Value::Value(Definition *definition) : definition_(definition) {
-  definition->GetPlatform()->GetObjectPool()->values_.Add(this);
-}
-
-Value::~Value() {
-}
-
-Definition *Value::GetDefinition() {
-  return definition_;
+const string &DefNode::GetHead() {
+  static string empty_string;
+  if (nodes_.size() == 0) {
+    return empty_string;
+  }
+  return nodes_[0]->str_;
 }
 
 Definition::Definition(IPlatform *platform)
