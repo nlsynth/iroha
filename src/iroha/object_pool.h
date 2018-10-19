@@ -17,6 +17,15 @@ public:
   void Add(T *p) {
     ptrs_.push_back(p);
   }
+  void Release(T *p) {
+    std::vector<T *> tmp_ptrs_;
+    for (auto *t : ptrs_) {
+      if (t != p) {
+	tmp_ptrs_.push_back(t);
+      }
+    }
+    ptrs_ = tmp_ptrs_;
+  }
   std::vector<T *> ptrs_;
 };
 

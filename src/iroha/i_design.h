@@ -239,6 +239,10 @@ public:
   void SetOptAPI(OptAPI *opt_api);
   WriterAPI *GetWriterAPI() const;
   void SetWriterAPI(WriterAPI *writer_api);
+  // Make the platform independent (or orphan).
+  void ReleasePlatform(IPlatform *platform);
+  // Take over the ownership from the previous owner (might be null).
+  void ManagePlatform(IPlatform *platform);
 
   vector<IModule *> modules_;
   vector<IResourceClass *> resource_classes_;

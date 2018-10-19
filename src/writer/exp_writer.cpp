@@ -16,14 +16,14 @@ ExpWriter::ExpWriter(const IDesign *design, ostream &os)
 
 void ExpWriter::Write() {
   WriteResourceParams(*design_->GetParams(), "");
+  for (auto *platform : design_->platforms_) {
+    WritePlatform(*platform);
+  }
   for (auto *im : design_->array_images_) {
     WriteArrayImage(*im);
   }
   for (auto *mod : design_->modules_) {
     WriteModule(*mod);
-  }
-  for (auto *platform : design_->platforms_) {
-    WritePlatform(*platform);
   }
 }
 

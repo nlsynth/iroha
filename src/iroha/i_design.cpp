@@ -395,4 +395,12 @@ void IDesign::SetWriterAPI(WriterAPI *writer_api) {
   writer_api_.reset(writer_api);
 }
 
+void IDesign::ReleasePlatform(IPlatform *platform) {
+  platform->SetDesign(nullptr);
+}
+
+void IDesign::ManagePlatform(IPlatform *platform) {
+  platform->SetDesign(this);
+}
+
 }  // namespace iroha

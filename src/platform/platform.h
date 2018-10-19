@@ -10,6 +10,9 @@ namespace platform {
 class Platform {
 public:
   static void ResolvePlatform(IDesign *design);
+
+private:
+  static IPlatform *ReadPlatform(IDesign *design);
 };
 
 }  // namespace platform

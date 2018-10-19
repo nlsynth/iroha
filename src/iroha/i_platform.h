@@ -47,6 +47,8 @@ public:
   ~IPlatform();
 
   ObjectPool *GetObjectPool();
+  IDesign *GetDesign();
+  void SetDesign(IDesign *design);
 
   vector<platform::Definition *> defs_;
 

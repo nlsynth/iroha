@@ -14,10 +14,28 @@ IPlatform::IPlatform(IDesign *design) : design_(design), objects_(new ObjectPool
 }
 
 IPlatform::~IPlatform() {
+  delete objects_;
 }
 
 ObjectPool *IPlatform::GetObjectPool() {
   return objects_;
+}
+
+IDesign *IPlatform::GetDesign() {
+  return design_;
+}
+
+void IPlatform::SetDesign(IDesign *design) {
+  if (design_ == design) {
+    return;
+  }
+  if (design_ != nullptr) {
+    design_->GetObjectPool()->platforms_.Release(this);
+  }
+  design_ = design;
+  if (design_ != nullptr) {
+    design_->GetObjectPool()->platforms_.Add(this);
+  }
 }
 
 namespace platform {
