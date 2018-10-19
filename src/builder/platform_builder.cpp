@@ -25,6 +25,10 @@ void PlatformBuilder::BuildDefinition(Exp *e, IPlatform *platform) {
     design_builder_.SetError() << "Only DEF is allowed in PLATFORM";
     return;
   }
+  if (e->vec.size() < 3) {
+    design_builder_.SetError() << "DEF requires a pair of condition and value";
+    return;
+  }
   platform::Definition *def = new platform::Definition(platform);
   BuildCondition(e->vec[1], def);
   BuildValue(e->vec[2], def);
