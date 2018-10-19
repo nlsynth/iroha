@@ -40,6 +40,7 @@
 #include "iroha/resource_class.h"
 #include "iroha/resource_params.h"
 #include "iroha/writer_api.h"
+#include "platform/platform.h"
 
 namespace iroha {
 

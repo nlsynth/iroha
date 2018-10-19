@@ -193,6 +193,7 @@ int main(int argc, char **argv) {
     if (!skipValidation) {
       DesignTool::Validate(design);
     }
+    platform::Platform::ResolvePlatform(design);
     writer->Write(output);
     if (!debug_dump.empty()) {
       optimizer->DumpIntermediateToFiles(debug_dump);
