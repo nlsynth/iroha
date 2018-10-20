@@ -247,6 +247,15 @@ void ResourceParams::SetResetPolarity(bool p) {
   values_->SetBoolParam(resource::kResetPolarity, p);
 }
 
+int ResourceParams::GetMaxDelayPs() const {
+  // default to 100MHz.
+  return values_->GetIntParam(resource::kMaxDelayPs, 10000);
+}
+
+void ResourceParams::SetMaxDelayPs(int ps) {
+  values_->SetIntParam(resource::kMaxDelayPs, ps);
+}
+
 bool ResourceParams::HasResetPolarity() const {
   return (values_->LookupParam(resource::kResetPolarity) != nullptr);
 }

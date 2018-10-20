@@ -15,6 +15,7 @@ class ResourceParamValueSet;
 
 const char kMappedName[] = "MAPPED-NAME";
 const char kResetPolarity[] = "RESET-POLARITY";
+const char kMaxDelayPs[] = "MAX-DELAY-PS";
 const char kModuleNamePrefix[] = "MODULE-NAME-PREFIX";
 const char kPortNamePrefix[] = "PORT-NAME-PREFIX";
 const char kResetName[] = "RESET-NAME";
@@ -62,6 +63,9 @@ public:
   bool GetResetPolarity() const;
   void SetResetPolarity(bool p);
   bool HasResetPolarity() const;
+
+  int GetMaxDelayPs() const;
+  void SetMaxDelayPs(int ps);
 
   string GetResetName() const;
   void SetResetName(const string &name);
