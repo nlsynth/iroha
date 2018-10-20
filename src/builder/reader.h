@@ -35,7 +35,7 @@ public:
 
   File *Read();
 
-  static File *ReadFile(const string &fn);
+  static File *ReadFile(const string &fn, bool search);
   static void DumpFile(File *s);
   static void DumpExp(Exp *e);
 

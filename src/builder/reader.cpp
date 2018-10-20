@@ -40,16 +40,20 @@ File::~File() {
   }
 }
 
-File *Reader::ReadFile(const string &fn) {
+File *Reader::ReadFile(const string &fn, bool search) {
   std::istream *ifs;
   unique_ptr<istream> ifs_deleter;
   if (fn.empty() || fn == "-") {
     ifs = &cin;
   } else {
-    ifs = new std::ifstream(fn);
+    if (search) {
+      ifs = Util::OpenFile(fn);
+    } else {
+      ifs = new std::ifstream(fn);
+    }
     ifs_deleter.reset(ifs);
   }
-  if (ifs->fail()) {
+  if (ifs == nullptr || ifs->fail()) {
     return nullptr;
   }
   std::unique_ptr<Reader> reader(new Reader(*ifs));

@@ -1,5 +1,6 @@
 #include "platform/platform.h"
 
+#include "builder/design_builder.h"
 #include "iroha/i_design.h"
 #include "iroha/i_platform.h"
 
@@ -19,7 +20,17 @@ void Platform::ResolvePlatform(IDesign *design) {
 }
 
 IPlatform *Platform::ReadPlatform(IDesign *design) {
-  return new IPlatform(nullptr);
+  std::unique_ptr<IDesign>
+    w(builder::DesignBuilder::ReadDesign("generic-platform.iroha", true));
+  IPlatform *p = nullptr;
+  if (w.get() != nullptr && w->platforms_.size() > 0) {
+    p = w->platforms_[0];
+    w->ReleasePlatform(p);
+  }
+  if (p == nullptr) {
+    p = new IPlatform(nullptr);
+  }
+  return p;
 }
 
 }  // namespace platform

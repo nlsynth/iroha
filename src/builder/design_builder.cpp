@@ -13,8 +13,8 @@
 namespace iroha {
 namespace builder {
 
-IDesign *DesignBuilder::ReadDesign(const string &fn) {
-  File *f = Reader::ReadFile(fn);
+IDesign *DesignBuilder::ReadDesign(const string &fn, bool search) {
+  File *f = Reader::ReadFile(fn, search);
   if (!f) {
     return nullptr;
   }

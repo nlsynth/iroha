@@ -91,6 +91,7 @@ string Util::Join(const vector<string> &v, const string &sep) {
 }
 
 istream *Util::OpenFile(const string &s) {
+  // TODO: Search import_paths_ first.
   ifstream *ifs = new ifstream(s);
   if (!ifs->fail()) {
     return ifs;

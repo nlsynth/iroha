@@ -23,7 +23,7 @@ public:
   IDesign *Build(vector<Exp *> &exps);
   ostream &SetError();
 
-  static IDesign *ReadDesign(const string &fn);
+  static IDesign *ReadDesign(const string &fn, bool search);
 
 private:
   IModule *BuildModule(Exp *e, IDesign *design);

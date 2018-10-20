@@ -47,7 +47,7 @@ void Iroha::SetImportPaths(const vector<string> &paths) {
 }
 
 IDesign *Iroha::ReadDesignFromFile(const string &fn) {
-  return builder::DesignBuilder::ReadDesign(fn);
+  return builder::DesignBuilder::ReadDesign(fn, false);
 }
 
 WriterAPI *Iroha::CreateWriter(IDesign *design) {
