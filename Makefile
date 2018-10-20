@@ -19,7 +19,10 @@ clean:
 	rm -rf src/out/
 	rm -f iroha
 
-install:
+install: install-data
 	install -D iroha $(prefix)/bin/iroha
 
-.PHONY: build clean install
+install-data:
+	install -D lib/generic-platform.iroha $(prefix)/share/iroha/generic-platform.iroha
+
+.PHONY: build clean install install-data
