@@ -247,6 +247,15 @@ void ResourceParams::SetResetPolarity(bool p) {
   values_->SetBoolParam(resource::kResetPolarity, p);
 }
 
+string ResourceParams::GetPlatformFamily() const {
+  return values_->GetStringParam(resource::kPlatformFamily,
+				 "generic-platform");
+}
+
+void ResourceParams::SetPlatformFamily(const string &name) {
+  values_->SetStringParam(resource::kPlatformFamily, name);
+}
+
 int ResourceParams::GetMaxDelayPs() const {
   // default to 100MHz.
   return values_->GetIntParam(resource::kMaxDelayPs, 10000);

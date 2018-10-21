@@ -3,6 +3,7 @@
 #include "builder/design_builder.h"
 #include "iroha/i_design.h"
 #include "iroha/i_platform.h"
+#include "iroha/resource_params.h"
 
 namespace iroha {
 namespace platform {
@@ -20,8 +21,9 @@ void Platform::ResolvePlatform(IDesign *design) {
 }
 
 IPlatform *Platform::ReadPlatform(IDesign *design) {
+  string platform_name = design->GetParams()->GetPlatformFamily();
   std::unique_ptr<IDesign>
-    w(builder::DesignBuilder::ReadDesign("generic-platform.iroha", true));
+    w(builder::DesignBuilder::ReadDesign(platform_name + ".iroha", true));
   IPlatform *p = nullptr;
   if (w.get() != nullptr && w->platforms_.size() > 0) {
     p = w->platforms_[0];
