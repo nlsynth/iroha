@@ -32,6 +32,7 @@ class ResourceParams;
 namespace platform {
 class DefNode;
 class Definition;
+class PlatformDB;
 }  // namespace platform
 
 class Util {

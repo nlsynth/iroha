@@ -49,12 +49,15 @@ public:
   ObjectPool *GetObjectPool();
   IDesign *GetDesign();
   void SetDesign(IDesign *design);
+  const string &GetName() const;
+  void SetName(const string &name);
 
   vector<platform::Definition *> defs_;
 
 private:
   ObjectPool *objects_;
   IDesign *design_;
+  string name_;
 };
 
 }  // namespace iroha

@@ -17,6 +17,7 @@ const char kMappedName[] = "MAPPED-NAME";
 const char kResetPolarity[] = "RESET-POLARITY";
 const char kMaxDelayPs[] = "MAX-DELAY-PS";
 const char kPlatformFamily[] = "PLATFORM-FAMILY";
+const char kPlatformName[] = "PLATFORM-NAME";
 const char kModuleNamePrefix[] = "MODULE-NAME-PREFIX";
 const char kPortNamePrefix[] = "PORT-NAME-PREFIX";
 const char kResetName[] = "RESET-NAME";
@@ -67,6 +68,9 @@ public:
 
   string GetPlatformFamily() const;
   void SetPlatformFamily(const string &name);
+
+  string GetPlatformName() const;
+  void SetPlatformName(const string &name);
 
   int GetMaxDelayPs() const;
   void SetMaxDelayPs(int ps);

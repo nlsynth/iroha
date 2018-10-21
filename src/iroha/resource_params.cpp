@@ -256,6 +256,14 @@ void ResourceParams::SetPlatformFamily(const string &name) {
   values_->SetStringParam(resource::kPlatformFamily, name);
 }
 
+string ResourceParams::GetPlatformName() const {
+  return values_->GetStringParam(resource::kPlatformName, "");
+}
+
+void ResourceParams::SetPlatformName(const string &name) {
+  values_->SetStringParam(resource::kPlatformName, name);
+}
+
 int ResourceParams::GetMaxDelayPs() const {
   // default to 100MHz.
   return values_->GetIntParam(resource::kMaxDelayPs, 10000);

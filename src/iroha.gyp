@@ -164,6 +164,8 @@
         'opt/wire/wire_phase.h',
         'platform/platform.cpp',
         'platform/platform.h',
+        'platform/platform_db.cpp',
+        'platform/platform_db.h',
         'writer/connection.cpp',
         'writer/connection.h',
         'writer/cxx/class_writer.cpp',

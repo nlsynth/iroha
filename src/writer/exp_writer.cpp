@@ -334,7 +334,11 @@ void ExpWriter::WriteStr(const string &str) {
 }
 
 void ExpWriter::WritePlatform(const IPlatform &platform) {
-  os_ << "(PLATFORM";
+  string name = platform.GetName();
+  if (name.empty()) {
+    name = "\"\"";
+  }
+  os_ << "(PLATFORM " << name;
   for (auto *def : platform.defs_) {
     WritePlatformDef(*def);
   }

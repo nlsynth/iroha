@@ -15,7 +15,8 @@ PlatformBuilder::PlatformBuilder(DesignBuilder &design_builder)
 void PlatformBuilder::BuildPlatform(Exp *e, IDesign *design) {
   IPlatform *platform = new IPlatform(design);
   design->platforms_.push_back(platform);
-  for (int i = 1; i < e->Size(); ++i) {
+  platform->SetName(e->Str(1));
+  for (int i = 2; i < e->Size(); ++i) {
     BuildDefinition(e->vec[i], platform);
   }
 }

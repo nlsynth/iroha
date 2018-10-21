@@ -38,6 +38,14 @@ void IPlatform::SetDesign(IDesign *design) {
   }
 }
 
+const string &IPlatform::GetName() const {
+  return name_;
+}
+
+void IPlatform::SetName(const string &name) {
+  name_ = name;
+}
+
 namespace platform {
 
 DefNode::DefNode(Definition *definition) : is_atom_(false), definition_(definition) {
