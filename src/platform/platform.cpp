@@ -21,18 +21,28 @@ void Platform::ResolvePlatform(IDesign *design) {
 }
 
 IPlatform *Platform::ReadPlatform(IDesign *design) {
-  string platform_name = design->GetParams()->GetPlatformFamily();
+  string platform_family = design->GetParams()->GetPlatformFamily();
   std::unique_ptr<IDesign>
-    w(builder::DesignBuilder::ReadDesign(platform_name + ".iroha", true));
-  IPlatform *p = nullptr;
-  if (w.get() != nullptr && w->platforms_.size() > 0) {
-    p = w->platforms_[0];
-    w->ReleasePlatform(p);
+    tmp_design(builder::DesignBuilder::ReadDesign(platform_family + ".iroha", true));
+  IPlatform *selected_pl = nullptr;
+  if (tmp_design.get() != nullptr && tmp_design->platforms_.size() > 0) {
+    string platform_name = design->GetParams()->GetPlatformName();
+    for (IPlatform *pl : tmp_design->platforms_) {
+      if (pl->GetName() == platform_name) {
+	selected_pl = pl;
+      }
+    }
+    // Selects first one for now.
+    if (selected_pl == nullptr) {
+      selected_pl = tmp_design->platforms_[0];
+    }
+    tmp_design->ReleasePlatform(selected_pl);
   }
-  if (p == nullptr) {
-    p = new IPlatform(nullptr);
+  if (selected_pl == nullptr) {
+    selected_pl = new IPlatform(nullptr);
+    selected_pl->SetName("empty");
   }
-  return p;
+  return selected_pl;
 }
 
 }  // namespace platform

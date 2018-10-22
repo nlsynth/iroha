@@ -1,3 +1,5 @@
 ;; Generic platform
 (PLATFORM generic (DEF (COND) (VALUE (DELAY 1))))
 
+(PLATFORM test
+ (DEF (COND) (VALUE (DELAY 1))))
