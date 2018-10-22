@@ -40,7 +40,8 @@ bool Wire::Perform() {
   Validator::ValidateTable(table_);
 
   data_path_set_->Build(bset_.get());
-  std::unique_ptr<DelayInfo> lat(DelayInfo::Create(10000));
+  int max_delay = table_->GetModule()->GetDesign()->GetParams()->GetMaxDelayPs();
+  std::unique_ptr<DelayInfo> lat(DelayInfo::Create(max_delay));
   data_path_set_->SetDelay(lat.get());
   if (annotation_->IsEnabled()) {
     annotation_->StartSubSection("data_path", false);
