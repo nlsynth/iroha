@@ -152,7 +152,6 @@ int main(int argc, char **argv) {
       cerr << "Failed to read design from: " << fn << "\n";
       continue;
     }
-    platform::Platform::ResolvePlatform(design);
     std::unique_ptr<IDesign> deleter(design);
     OptAPI *optimizer = Iroha::CreateOptimizer(design);
     if (!debug_dump.empty()) {

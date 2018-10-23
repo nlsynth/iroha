@@ -60,6 +60,7 @@ WriterAPI *Iroha::CreateWriter(IDesign *design) {
 }
 
 OptAPI *Iroha::CreateOptimizer(IDesign *design) {
+  platform::Platform::ResolvePlatform(design);
   OptAPI *opt = design->GetOptAPI();
   if (opt == nullptr) {
     opt = new opt::Optimizer(design);
