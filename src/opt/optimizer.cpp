@@ -43,8 +43,7 @@ void Optimizer::Init() {
   RegisterPhase("ssa_convert", &ssa::SSAConverterPhase::Create);
   RegisterPhase("phi_cleaner", &ssa::PhiCleanerPhase::Create);
   RegisterPhase("alloc_resource", &wire::WirePhase::Create);
-  RegisterPhase("simple_shrink", &wire::SimpleShrinkPhase::Create);
-  RegisterPhase("wire_insn", &wire::SimpleShrinkPhase::Create);
+  RegisterPhase("wire_insn", &wire::WirePhase::Create);
   CompoundPhase::Init();
 }
 

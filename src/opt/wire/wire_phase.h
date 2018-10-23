@@ -22,16 +22,6 @@ private:
   std::unique_ptr<DelayInfo> delay_info_;
 };
 
-class SimpleShrinkPhase : public Phase {
-public:
-  virtual ~SimpleShrinkPhase();
-
-  static Phase *Create();
-
-private:
-  virtual bool ApplyForTable(const string &key, ITable *table);
-};
-
 }  // namespace wire
 }  // namespace opt
 }  // namespace iroha
