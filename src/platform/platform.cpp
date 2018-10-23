@@ -4,6 +4,7 @@
 #include "iroha/i_design.h"
 #include "iroha/i_platform.h"
 #include "iroha/resource_params.h"
+#include "platform/platform_db.h"
 
 namespace iroha {
 namespace platform {
@@ -44,6 +45,12 @@ IPlatform *Platform::ReadPlatform(IDesign *design) {
   }
   return selected_pl;
 }
+
+PlatformDB *Platform::CreatePlatformDB(IDesign *design) {
+  IPlatform *platform = design->platforms_[0];
+  return new PlatformDB(platform);
+}
+
 
 }  // namespace platform
 }  // namespace iroha

@@ -14,6 +14,7 @@ namespace opt {
 class Optimizer : public OptAPI {
 public:
   Optimizer(IDesign *design);
+  ~Optimizer();
 
   static void Init();
   static void RegisterPhase(const string &name,
@@ -23,8 +24,11 @@ public:
   virtual void EnableDebugAnnotation() override;
   virtual void DumpIntermediateToFiles(const string &fn) override;
 
+  platform::PlatformDB *GetPlatformDB();
+
 protected:
   IDesign *design_;
+  std::unique_ptr<platform::PlatformDB> platform_db_;
 
   static map<string, function<Phase *()> > phases_;
 };

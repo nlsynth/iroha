@@ -16,7 +16,10 @@ public:
   static Phase *Create();
 
 private:
+  virtual bool ApplyForDesign(IDesign *design);
   virtual bool ApplyForTable(const string &key, ITable *table);
+
+  std::unique_ptr<DelayInfo> delay_info_;
 };
 
 class SimpleShrinkPhase : public Phase {

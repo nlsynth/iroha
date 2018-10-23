@@ -237,9 +237,10 @@ bool SimpleShrink::CanMoveInsn(IInsn *insn, BB *bb, int target_pos,
 
 bool SimpleShrink::CheckDelay(IInsn *insn, IState *target_st) {
   int min_slack = -1;
-  DelayInfo lat_info(0);
+  std::unique_ptr<DelayInfo>
+    delay_info(DelayInfo::Create(nullptr, 0));
   for (IRegister *ireg : insn->inputs_) {
-    int s = lat_info.GetRegisterSlack(target_st, ireg);
+    int s = delay_info->GetRegisterSlack(target_st, ireg);
     if (min_slack < 0 || s < min_slack) {
       min_slack = s;
     }
@@ -247,7 +248,7 @@ bool SimpleShrink::CheckDelay(IInsn *insn, IState *target_st) {
   if (min_slack < 0) {
     return true;
   }
-  int lat = lat_info.GetInsnLatency(insn);
+  int lat = delay_info->GetInsnLatency(insn);
   if (min_slack < lat) {
     return false;
   }

@@ -6,14 +6,15 @@
 namespace iroha {
 namespace opt {
 
-DelayInfo::DelayInfo(int maxDelay) : max_delay_(maxDelay) {
+DelayInfo::DelayInfo(platform::PlatformDB *platform_db, int max_delay)
+  : platform_db_(platform_db), max_delay_(max_delay) {
 }
 
 DelayInfo::~DelayInfo() {
 }
 
-DelayInfo *DelayInfo::Create(int maxDelay) {
-  return new DelayInfo(maxDelay);
+DelayInfo *DelayInfo::Create(platform::PlatformDB *platform_db, int max_delay) {
+  return new DelayInfo(platform_db, max_delay);
 }
 
 int DelayInfo::GetMaxDelay() {

@@ -14,6 +14,8 @@
 #include "opt/phase.h"
 #include "opt/ssa/ssa.h"
 #include "opt/wire/wire_phase.h"
+#include "platform/platform.h"
+#include "platform/platform_db.h"
 
 namespace iroha {
 namespace opt {
@@ -22,6 +24,10 @@ map<string, function<Phase *()> > Optimizer::phases_;
 
 Optimizer::Optimizer(IDesign *design) : design_(design) {
   design_->SetDebugAnnotation(new DebugAnnotation);
+  platform_db_.reset(platform::Platform::CreatePlatformDB(design));
+}
+
+Optimizer::~Optimizer() {
 }
 
 void Optimizer::Init() {
@@ -70,6 +76,10 @@ bool Optimizer::ApplyPhase(const string &name) {
 void Optimizer::EnableDebugAnnotation() {
   DebugAnnotation *an = design_->GetDebugAnnotation();
   an->Enable();
+}
+
+platform::PlatformDB *Optimizer::GetPlatformDB() {
+  return platform_db_.get();
 }
 
 void Optimizer::DumpIntermediateToFiles(const string &fn) {

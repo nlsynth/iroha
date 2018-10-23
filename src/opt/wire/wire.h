@@ -10,12 +10,13 @@ namespace wire {
 
 class Wire {
 public:
-  Wire(ITable *table, DebugAnnotation *annotation);
+  Wire(ITable *table, DelayInfo *delay_info, DebugAnnotation *annotation);
   virtual ~Wire();
   bool Perform();
 
 private:
   ITable *table_;
+  DelayInfo *delay_info_;
   DebugAnnotation *annotation_;
   unique_ptr<BBSet> bset_;
 

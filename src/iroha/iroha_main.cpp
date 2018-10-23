@@ -152,6 +152,7 @@ int main(int argc, char **argv) {
       cerr << "Failed to read design from: " << fn << "\n";
       continue;
     }
+    platform::Platform::ResolvePlatform(design);
     std::unique_ptr<IDesign> deleter(design);
     OptAPI *optimizer = Iroha::CreateOptimizer(design);
     if (!debug_dump.empty()) {
@@ -193,7 +194,6 @@ int main(int argc, char **argv) {
     if (!skipValidation) {
       DesignTool::Validate(design);
     }
-    platform::Platform::ResolvePlatform(design);
     writer->Write(output);
     if (!debug_dump.empty()) {
       optimizer->DumpIntermediateToFiles(debug_dump);

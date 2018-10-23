@@ -17,8 +17,8 @@ namespace iroha {
 namespace opt {
 namespace wire {
 
-Wire::Wire(ITable *table, DebugAnnotation *annotation)
-  : table_(table), annotation_(annotation) {
+Wire::Wire(ITable *table, DelayInfo *delay_info, DebugAnnotation *annotation)
+  : table_(table), delay_info_(delay_info), annotation_(annotation) {
   resource_share_.reset(new ResourceShare(table));
   data_path_set_.reset(new DataPathSet());
 }
@@ -40,16 +40,14 @@ bool Wire::Perform() {
   Validator::ValidateTable(table_);
 
   data_path_set_->Build(bset_.get());
-  int max_delay = table_->GetModule()->GetDesign()->GetParams()->GetMaxDelayPs();
-  std::unique_ptr<DelayInfo> lat(DelayInfo::Create(max_delay));
-  data_path_set_->SetDelay(lat.get());
+  data_path_set_->SetDelay(delay_info_);
   if (annotation_->IsEnabled()) {
     annotation_->StartSubSection("data_path", false);
     data_path_set_->Dump(annotation_);
     annotation_->ClearSubSection();
   }
 
-  SchedulerCore sch(data_path_set_.get(), lat.get());
+  SchedulerCore sch(data_path_set_.get(), delay_info_);
   sch.Schedule();
 
   Relocator rel(data_path_set_.get());

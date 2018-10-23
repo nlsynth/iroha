@@ -9,11 +9,11 @@ namespace opt {
 
 class DelayInfo {
 public:
-  DelayInfo(int maxDelay);
+  DelayInfo(platform::PlatformDB *platform_db, int max_delay);
   ~DelayInfo();
 
   // Each caller has to delete it.
-  static DelayInfo *Create(int maxDelay);
+  static DelayInfo *Create(platform::PlatformDB *platform_db, int max_delay);
 
   int GetMaxDelay();
   int GetInsnDelay(IInsn *insn);
@@ -22,6 +22,7 @@ public:
   int GetRegisterSlack(IState *st, IRegister *reg);
 
 private:
+  platform::PlatformDB *platform_db_;
   int max_delay_;
 };
 

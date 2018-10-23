@@ -1,5 +1,9 @@
 #include "opt/wire/wire_phase.h"
 
+#include "iroha/i_design.h"
+#include "iroha/resource_params.h"
+#include "opt/delay_info.h"
+#include "opt/optimizer.h"
 #include "opt/wire/simple_shrink.h"
 #include "opt/wire/wire.h"
 
@@ -26,8 +30,14 @@ Phase *WirePhase::Create() {
   return new WirePhase();
 }
 
+bool WirePhase::ApplyForDesign(IDesign *design) {
+  int max_delay = design->GetParams()->GetMaxDelayPs();
+  delay_info_.reset(DelayInfo::Create(optimizer_->GetPlatformDB(), max_delay));
+  return Phase::ApplyForDesign(design);
+}
+
 bool WirePhase::ApplyForTable(const string &key, ITable *table) {
-  Wire wire(table, annotation_);
+  Wire wire(table, delay_info_.get(), annotation_);
   return wire.Perform();
 }
 
