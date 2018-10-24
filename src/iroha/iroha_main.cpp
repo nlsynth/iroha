@@ -146,6 +146,10 @@ int main(int argc, char **argv) {
 
   Iroha::Init();
 
+  if (inc_paths.size() > 0) {
+    Iroha::SetImportPaths(inc_paths);
+  }
+
   for (string &fn : files) {
     IDesign *design = Iroha::ReadDesignFromFile(fn);
     if (design == nullptr) {
@@ -174,9 +178,6 @@ int main(int argc, char **argv) {
       if (!output.empty()) {
 	writer->OutputShellModule(true, selfShell, vcd);
       }
-    }
-    if (inc_paths.size() > 0) {
-      Iroha::SetImportPaths(inc_paths);
     }
     if (verilog) {
       writer->SetLanguage("verilog");
