@@ -28,16 +28,5 @@ int DelayInfo::GetInsnDelay(IInsn *insn) {
   return 1;
 }
 
-int DelayInfo::GetInsnLatency(IInsn *insn) {
-  if (resource::IsExtCombinational(*(insn->GetResource()->GetClass()))) {
-    return 10;
-  }
-  return 0;
-}
-
-int DelayInfo::GetRegisterSlack(IState *st, IRegister *reg) {
-  return 1;
-}
-
 }  // namespace opt
 }  // namespace iroha

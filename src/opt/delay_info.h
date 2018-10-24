@@ -17,9 +17,6 @@ public:
 
   int GetMaxDelay();
   int GetInsnDelay(IInsn *insn);
-  // For wire/simple_shrink.cpp. This will be deleted.
-  int GetInsnLatency(IInsn *insn);
-  int GetRegisterSlack(IState *st, IRegister *reg);
 
 private:
   platform::PlatformDB *platform_db_;
