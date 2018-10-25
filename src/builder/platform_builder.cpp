@@ -53,10 +53,9 @@ void PlatformBuilder::BuildValue(Exp *e, platform::Definition *def) {
     design_builder_.SetError() << "VALUE should come first of DEF";
     return;
   }
-  if (e->Size() == 2) {
-    def->value_ = BuildNode(e->vec[1], def);
-  } else {
-    def->value_ = BuildConjunctionFrom2nd(e, def);
+  def->value_ = new platform::DefNode(def);
+  for (int i = 1; i < e->vec.size(); ++i) {
+    def->value_->nodes_.push_back(BuildNode(e->vec[i], def));
   }
 }
 
@@ -68,7 +67,12 @@ platform::DefNode *PlatformBuilder::BuildNode(Exp *e, platform::Definition *def)
     }
   } else {
     node->is_atom_ = true;
-    node->str_ = e->atom.str;
+    int n = Util::Atoi(e->atom.str);
+    if (n != 0 || e->atom.str == "0") {
+      node->num_ = n;
+    } else {
+      node->str_ = e->atom.str;
+    }
   }
   return node;
 }

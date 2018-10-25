@@ -364,7 +364,9 @@ void ExpWriter::WritePlatformCondition(const platform::DefNode &cond) {
 
 void ExpWriter::WritePlatformValue(const platform::DefNode &value) {
   os_ << "\n    (VALUE ";
-  WriteNodeDef(value);
+  for (platform::DefNode *node : value.nodes_) {
+    WriteNodeDef(*node);
+  }
   os_ << ")";
 }
 

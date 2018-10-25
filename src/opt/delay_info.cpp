@@ -2,6 +2,7 @@
 
 #include "iroha/i_design.h"
 #include "iroha/resource_class.h"
+#include "platform/platform_db.h"
 
 namespace iroha {
 namespace opt {
@@ -22,8 +23,13 @@ int DelayInfo::GetMaxDelay() {
 }
 
 int DelayInfo::GetInsnDelay(IInsn *insn) {
-  if (resource::IsExtCombinational(*(insn->GetResource()->GetClass()))) {
+  IResource *res = insn->GetResource();
+  if (resource::IsExtCombinational(*(res->GetClass()))) {
     return max_delay_ - 2;
+  }
+  int d = platform_db_->GetResourceDelay(res);
+  if (d > 0) {
+    return d;
   }
   return 1;
 }

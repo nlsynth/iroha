@@ -11,7 +11,12 @@ class PlatformDB {
 public:
   PlatformDB(IPlatform *platform);
 
+  int GetResourceDelay(IResource *res);
+
 private:
+  DefNode *FindValue(const string &key, const string &value);
+  int GetInt(DefNode *node, const string &key, int dflt);
+
   IPlatform *platform_;
 };
 
