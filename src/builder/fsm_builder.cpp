@@ -56,8 +56,10 @@ void FsmBuilder::ResolveInsns() {
 	if (insn != nullptr) {
 	  st->insns_.push_back(insn);
 	}
+      } else if (tag == "PROFILE") {
+	BuildProfile(e->vec[i], st);
       } else {
-	builder_->SetError() << "Only INSN is allowed in a state";
+	builder_->SetError() << "Only INSN or PROFILE is allowed in a state";
       }
     }
     // Post process to resolve depending insns.
@@ -137,6 +139,17 @@ IInsn *FsmBuilder::BuildInsn(Exp *e) {
     BuildInsnParams(output, &insn->outputs_);
   }
   return insn;
+}
+
+void FsmBuilder::BuildProfile(Exp *e, IState *st) {
+  IProfile *profile = st->GetMutableProfile();
+  profile->valid_ = true;
+  if (e->vec.size() >= 2) {
+    profile->raw_count_ = Util::Atoi(e->vec[1]->atom.str);
+  }
+  if (e->vec.size() >= 3) {
+    profile->normalized_count_ = Util::Atoi(e->vec[2]->atom.str);
+  }
 }
 
 void FsmBuilder::BuildInsnParams(Exp *e, vector<IRegister *> *regs) {

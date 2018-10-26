@@ -157,6 +157,17 @@ private:
   string operand_;
 };
 
+// Profiling information for an IState. This object is embedded in
+// the owner IState.
+class IProfile {
+public:
+  IProfile();
+
+  bool valid_;
+  int raw_count_;
+  int normalized_count_;
+};
+
 // This can be a state in an FSM or a pipeline stage.
 class IState {
 public:
@@ -164,12 +175,15 @@ public:
   ITable *GetTable() const;
   int GetId() const;
   void SetId(int id);
+  IProfile *GetMutableProfile();
+  const IProfile &GetProfile() const;
 
   vector<IInsn *> insns_;
 
 private:
   ITable *table_;
   int id_;
+  IProfile profile_;
 };
 
 // Table is a matrix of resource columns and state rows to define

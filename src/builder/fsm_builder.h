@@ -25,6 +25,7 @@ private:
   IInsn *BuildInsn(Exp *e);
   void BuildInsnParams(Exp *e, vector<IRegister *> *regs);
   void ResolveDependingInsns(Exp *e, IInsn *insn);
+  void BuildProfile(Exp *e, IState *st);
 
   ITable *table_;
   DesignBuilder *builder_;

@@ -17,6 +17,7 @@ class IDesign;
 class IInsn;
 class IModule;
 class IPlatform;
+class IProfile;
 class IRegister;
 class IResource;
 class IResourceClass;

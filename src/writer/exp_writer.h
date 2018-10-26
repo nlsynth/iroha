@@ -18,6 +18,7 @@ private:
   void WriteInitialState(const ITable &tab);
   void WriteState(const IState &st);
   void WriteInsn(const IInsn &insn);
+  void WriteProfile(const IProfile &profile);
   void WriteRegisters(const ITable &tab);
   void WriteResources(const ITable &tab);
   void WriteResource(const IResource &res);

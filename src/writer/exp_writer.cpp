@@ -207,6 +207,10 @@ void ExpWriter::WriteValue(const Numeric &value) {
 
 void ExpWriter::WriteState(const IState &st) {
   os_ << "    (STATE " << st.GetId() << "\n";
+  const IProfile &profile = st.GetProfile();
+  if (profile.valid_ && (profile.raw_count_ > 0 || profile.normalized_count_ > 0)) {
+    WriteProfile(profile);
+  }
   for (auto *insn : st.insns_) {
     WriteInsn(*insn);
   }
@@ -237,6 +241,11 @@ void ExpWriter::WriteInsn(const IInsn &insn) {
   // Depending insns.
   WriteDependingInsns(insn.depending_insns_);
   os_ << ")\n";
+}
+
+void ExpWriter::WriteProfile(const IProfile &profile) {
+  os_ << "      (PROFILE " << profile.raw_count_ << " "
+      << profile.normalized_count_ << ")\n";
 }
 
 void ExpWriter::WriteInsnParams(const vector<IRegister *> &regs) {

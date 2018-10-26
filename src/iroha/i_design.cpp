@@ -250,6 +250,9 @@ void IInsn::SetOperand(const string &opr) {
   operand_ = opr;
 }
 
+IProfile::IProfile() : valid_(false), raw_count_(0), normalized_count_(0) {
+}
+
 IState::IState(ITable *table) : table_(table), id_(-1) {
   table->GetModule()->GetDesign()->GetObjectPool()->states_.Add(this);
 }
@@ -264,6 +267,14 @@ int IState::GetId() const {
 
 void IState::SetId(int id) {
   id_ = id;
+}
+
+IProfile *IState::GetMutableProfile() {
+  return &profile_;
+}
+
+const IProfile &IState::GetProfile() const {
+  return profile_;
 }
 
 ITable::ITable(IModule *module)
