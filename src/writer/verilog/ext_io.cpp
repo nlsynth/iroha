@@ -19,11 +19,12 @@ ExtIO::ExtIO(const IResource &res, const Table &table)
   : Resource(res, table), has_default_output_value_(false),
     default_output_value_(0) {
   auto *klass = res.GetClass();
+  auto *params = res.GetParams();
   if (resource::IsExtOutput(*klass)) {
-    auto *params = res.GetParams();
     has_default_output_value_ =
       params->GetDefaultValue(&default_output_value_);
   }
+  distance_ = params->GetDistance();
 }
 
 void ExtIO::BuildResource() {
@@ -39,12 +40,35 @@ void ExtIO::BuildResource() {
     string output_port;
     int width;
     params->GetExtOutputPort(&output_port, &width);
+    ostream &ss = tab_.StateOutputSectionStream();
     if (has_default_output_value_) {
-      ostream &os = tab_.StateOutputSectionStream();
-      os << "      " << output_port << " <= "
+      ss << "      ";
+      if (distance_ == 0) {
+	ss << output_port;
+      } else {
+	ss << BufRegName(output_port, distance_ - 1);
+      }
+      ss << " <= "
 	 << SelectValueByState(Util::Itoa(default_output_value_)) << ";\n";
     }
     AddPortToTop(output_port, true, false, width);
+    ostream &rs = tab_.ResourceSectionStream();
+    ostream &is = tab_.InitialValueSectionStream();
+    for (int i = 0; i < distance_; ++i) {
+      rs << "  reg " << Table::WidthSpec(width)
+	 << BufRegName(output_port, i) << ";\n";
+      is << "      " << BufRegName(output_port, i) << " <= 0;\n";
+    }
+    if (distance_ > 0) {
+      ss << "      " << output_port << " <= "
+	 << BufRegName(output_port, 0);
+      ss << ";\n";
+      for (int i = 1; i < distance_; ++i) {
+	ss << "      " << BufRegName(output_port, i - 1) << " <= "
+	   << BufRegName(output_port, i);
+	ss << ";\n";
+      }
+    }
   }
 }
 
@@ -60,7 +84,12 @@ void ExtIO::BuildInsn(IInsn *insn, State *st) {
     int width;
     params->GetExtOutputPort(&output_port, &width);
     ostream &os = st->StateTransitionSectionStream();
-    os << "          " << output_port << " <= "
+    if (distance_ == 0) {
+      os << "      " << output_port;
+    } else {
+      os << "          " << BufRegName(output_port, distance_ - 1);
+    }
+    os << " <= "
        << InsnWriter::RegisterValue(*insn->inputs_[0], tab_.GetNames());
     os << ";\n";
   }
@@ -88,6 +117,10 @@ void ExtIO::CollectNames(Names *names) {
     params->GetExtOutputPort(&port, &width);
   }
   names->ReserveGlobalName(port);
+}
+
+string ExtIO::BufRegName(const string &output_port, int stage) {
+  return output_port + "_buf" + Util::Itoa(stage) + "of" + Util::Itoa(distance_);
 }
 
 }  // namespace verilog

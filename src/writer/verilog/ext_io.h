@@ -18,9 +18,11 @@ public:
 
 private:
   void BuildExtInputInsn(IInsn *insn);
+  string BufRegName(const string &output_port, int stage);
 
   bool has_default_output_value_;
   int default_output_value_;
+  int distance_;
 };
 
 }  // namespace verilog
