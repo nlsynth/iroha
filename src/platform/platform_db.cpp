@@ -39,6 +39,14 @@ bool PlatformDB::MatchCond(const LookupCondition &lookup_cond, DefNode *cond_nod
       return true;
     }
   }
+  if (head == "AND") {
+    for (int i = 1; i < cond_node->nodes_.size(); ++i) {
+      if (!MatchCond(lookup_cond, cond_node->nodes_[i])) {
+	return false;
+      }
+    }
+    return true;
+  }
   return false;
 }
 
