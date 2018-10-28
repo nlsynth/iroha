@@ -29,46 +29,72 @@ ExtIO::ExtIO(const IResource &res, const Table &table)
 
 void ExtIO::BuildResource() {
   auto *klass = res_.GetClass();
-  auto *params = res_.GetParams();
   if (resource::IsExtInput(*klass)) {
-    string input_port;
-    int width;
-    params->GetExtInputPort(&input_port, &width);
-    AddPortToTop(input_port, false, false, width);
+    BuildExtInputResource();
   }
   if (resource::IsExtOutput(*klass)) {
-    string output_port;
-    int width;
-    params->GetExtOutputPort(&output_port, &width);
+    BuildExtOutputResource();
+  }
+}
+
+void ExtIO::BuildExtInputResource() {
+  auto *params = res_.GetParams();
+  string input_port;
+  int width;
+  params->GetExtInputPort(&input_port, &width);
+  AddPortToTop(input_port, false, false, width);
+  BuildBufRegChain(input_port, width);
+  if (distance_ > 0) {
     ostream &ss = tab_.StateOutputSectionStream();
-    if (has_default_output_value_) {
-      ss << "      ";
-      if (distance_ == 0) {
-	ss << output_port;
-      } else {
-	ss << BufRegName(output_port, distance_ - 1);
-      }
-      ss << " <= "
-	 << SelectValueByState(Util::Itoa(default_output_value_)) << ";\n";
+    ss << "      " << BufRegName(input_port, distance_ - 1)
+       << " <= "
+       << input_port << ";\n";
+  }
+}
+
+void ExtIO::BuildExtOutputResource() {
+  auto *params = res_.GetParams();
+  string output_port;
+  int width;
+  params->GetExtOutputPort(&output_port, &width);
+  ostream &ss = tab_.StateOutputSectionStream();
+  if (has_default_output_value_) {
+    ss << "      ";
+    if (distance_ == 0) {
+      ss << output_port;
+    } else {
+      ss << BufRegName(output_port, distance_ - 1);
     }
-    AddPortToTop(output_port, true, false, width);
-    ostream &rs = tab_.ResourceSectionStream();
-    ostream &is = tab_.InitialValueSectionStream();
-    for (int i = 0; i < distance_; ++i) {
-      rs << "  reg " << Table::WidthSpec(width)
-	 << BufRegName(output_port, i) << ";\n";
-      is << "      " << BufRegName(output_port, i) << " <= 0;\n";
-    }
-    if (distance_ > 0) {
-      ss << "      " << output_port << " <= "
-	 << BufRegName(output_port, 0);
-      ss << ";\n";
-      for (int i = 1; i < distance_; ++i) {
-	ss << "      " << BufRegName(output_port, i - 1) << " <= "
-	   << BufRegName(output_port, i);
-	ss << ";\n";
-      }
-    }
+    ss << " <= "
+       << SelectValueByState(Util::Itoa(default_output_value_)) << ";\n";
+  }
+  AddPortToTop(output_port, true, false, width);
+  BuildBufRegChain(output_port, width);
+  if (distance_ > 0) {
+    ss << "      " << output_port << " <= "
+       << BufRegName(output_port, 0);
+    ss << ";\n";
+  }
+}
+
+void ExtIO::BuildBufRegChain(const string &port, int width) {
+  // The data flows as follows.
+  //   port0ofN <= port1ofN
+  //   port1ofN <= port2ofN
+  //   ..
+  //   portN-2ofN <= portN-2ofN
+  ostream &rs = tab_.ResourceSectionStream();
+  ostream &is = tab_.InitialValueSectionStream();
+  for (int i = 0; i < distance_; ++i) {
+    rs << "  reg " << Table::WidthSpec(width)
+       << BufRegName(port, i) << ";\n";
+    is << "      " << BufRegName(port, i) << " <= 0;\n";
+  }
+  ostream &ss = tab_.StateOutputSectionStream();
+  for (int i = 1; i < distance_; ++i) {
+    ss << "      " << BufRegName(port, i - 1) << " <= "
+       << BufRegName(port, i);
+    ss << ";\n";
   }
 }
 
@@ -77,21 +103,8 @@ void ExtIO::BuildInsn(IInsn *insn, State *st) {
   if (resource::IsExtInput(*klass)) {
     BuildExtInputInsn(insn);
   }
-  if (resource::IsExtOutput(*klass) &&
-      !has_default_output_value_) {
-    auto *params = res_.GetParams();
-    string output_port;
-    int width;
-    params->GetExtOutputPort(&output_port, &width);
-    ostream &os = st->StateTransitionSectionStream();
-    if (distance_ == 0) {
-      os << "      " << output_port;
-    } else {
-      os << "          " << BufRegName(output_port, distance_ - 1);
-    }
-    os << " <= "
-       << InsnWriter::RegisterValue(*insn->inputs_[0], tab_.GetNames());
-    os << ";\n";
+  if (resource::IsExtOutput(*klass)) {
+    BuildExtOutputInsn(insn, st);
   }
 }
 
@@ -102,8 +115,32 @@ void ExtIO::BuildExtInputInsn(IInsn *insn) {
   params->GetExtInputPort(&input_port, &width);
   ostream &ws = tab_.InsnWireValueSectionStream();
   ws << "  assign " << InsnWriter::InsnOutputWireName(*insn, 0)
-     << " = "
-     << input_port << ";\n";
+     << " = ";
+  if (distance_ > 0) {
+    ws << BufRegName(input_port, 0) << ";\n";
+  } else {
+    ws << input_port << ";\n";
+  }
+}
+
+void ExtIO::BuildExtOutputInsn(IInsn *insn, State *st) {
+  if (has_default_output_value_) {
+    // The code is generated in BuildResource()
+    return;
+  }
+  auto *params = res_.GetParams();
+  string output_port;
+  int width;
+  params->GetExtOutputPort(&output_port, &width);
+  ostream &os = st->StateTransitionSectionStream();
+  if (distance_ == 0) {
+    os << "      " << output_port;
+  } else {
+    os << "          " << BufRegName(output_port, distance_ - 1);
+  }
+  os << " <= "
+     << InsnWriter::RegisterValue(*insn->inputs_[0], tab_.GetNames());
+  os << ";\n";
 }
 
 void ExtIO::CollectNames(Names *names) {

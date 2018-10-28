@@ -18,6 +18,10 @@ public:
 
 private:
   void BuildExtInputInsn(IInsn *insn);
+  void BuildExtOutputInsn(IInsn *insn, State *st);
+  void BuildExtInputResource();
+  void BuildExtOutputResource();
+  void BuildBufRegChain(const string &port, int width);
   string BufRegName(const string &output_port, int stage);
 
   bool has_default_output_value_;
