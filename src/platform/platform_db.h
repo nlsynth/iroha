@@ -7,6 +7,8 @@
 namespace iroha {
 namespace platform {
 
+class LookupCondition;
+
 class PlatformDB {
 public:
   PlatformDB(IPlatform *platform);
@@ -14,7 +16,8 @@ public:
   int GetResourceDelay(IResource *res);
 
 private:
-  DefNode *FindValue(const string &key, const string &value);
+  DefNode *FindValue(const LookupCondition &lookup_cond);
+  bool MatchCond(const LookupCondition &lookup_cond, DefNode *cond_node);
   int GetInt(DefNode *node, const string &key, int dflt);
 
   IPlatform *platform_;

@@ -6,25 +6,40 @@
 namespace iroha {
 namespace platform {
 
+class LookupCondition {
+public:
+  string klass;
+};
+
 PlatformDB::PlatformDB(IPlatform *platform) : platform_(platform) {
 }
 
 int PlatformDB::GetResourceDelay(IResource *res) {
   const string &klass = res->GetClass()->GetName();
-  DefNode *value = FindValue("CLASS", klass);
+  LookupCondition cond;
+  cond.klass = klass;
+  DefNode *value = FindValue(cond);
   return GetInt(value, "DELAY", 0);
 }
 
-DefNode *PlatformDB::FindValue(const string &key, const string &value) {
+DefNode *PlatformDB::FindValue(const LookupCondition &lookup_cond) {
   for (auto *def : platform_->defs_) {
     DefNode *cond = def->condition_;
-    if (cond->GetHead() == key && cond->nodes_.size() == 2) {
-      if (cond->nodes_[1]->str_ == value) {
-	return def->value_;
-      }
+    if (MatchCond(lookup_cond, cond)) {
+      return def->value_;
     }
   }
   return nullptr;
+}
+
+bool PlatformDB::MatchCond(const LookupCondition &lookup_cond, DefNode *cond_node) {
+  const string &head = cond_node->GetHead();
+  if (head == "CLASS" && cond_node->nodes_.size() == 2) {
+    if (cond_node->nodes_[1]->str_ == lookup_cond.klass) {
+      return true;
+    }
+  }
+  return false;
 }
 
 int PlatformDB::GetInt(DefNode *node, const string &key, int dflt) {
