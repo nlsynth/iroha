@@ -11,6 +11,24 @@ public:
   string klass;
 };
 
+NodeResult::NodeResult(bool b) : is_bool_(true), bv_(b), iv_(0) {
+}
+
+NodeResult::NodeResult(int iv) : is_bool_(false), bv_(false), iv_(iv) {
+}
+
+bool NodeResult::IsBool() const {
+  return is_bool_;
+}
+
+bool NodeResult::BoolVal() const {
+  return bv_;
+}
+
+int NodeResult::IntVal() const {
+  return iv_;
+}
+
 PlatformDB::PlatformDB(IPlatform *platform) : platform_(platform) {
 }
 
@@ -25,29 +43,31 @@ int PlatformDB::GetResourceDelay(IResource *res) {
 DefNode *PlatformDB::FindValue(const LookupCondition &lookup_cond) {
   for (auto *def : platform_->defs_) {
     DefNode *cond = def->condition_;
-    if (MatchCond(lookup_cond, cond)) {
+    NodeResult nr = MatchCond(lookup_cond, cond);
+    if (nr.BoolVal()) {
       return def->value_;
     }
   }
   return nullptr;
 }
 
-bool PlatformDB::MatchCond(const LookupCondition &lookup_cond, DefNode *cond_node) {
+NodeResult PlatformDB::MatchCond(const LookupCondition &lookup_cond, DefNode *cond_node) {
   const string &head = cond_node->GetHead();
   if (head == "CLASS" && cond_node->nodes_.size() == 2) {
     if (cond_node->nodes_[1]->str_ == lookup_cond.klass) {
-      return true;
+      return NodeResult(true);
     }
   }
   if (head == "AND") {
     for (int i = 1; i < cond_node->nodes_.size(); ++i) {
-      if (!MatchCond(lookup_cond, cond_node->nodes_[i])) {
-	return false;
+      NodeResult nr = MatchCond(lookup_cond, cond_node->nodes_[i]);
+      if (!nr.BoolVal()) {
+	return NodeResult(false);
       }
     }
-    return true;
+    return NodeResult(true);
   }
-  return false;
+  return NodeResult(false);
 }
 
 int PlatformDB::GetInt(DefNode *node, const string &key, int dflt) {

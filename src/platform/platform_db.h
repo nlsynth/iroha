@@ -9,6 +9,22 @@ namespace platform {
 
 class LookupCondition;
 
+// This holds a result value of node evaluation.
+class NodeResult {
+public:
+  NodeResult(bool b);
+  NodeResult(int v);
+
+  bool IsBool() const;
+  bool BoolVal() const;
+  int IntVal() const;
+
+private:
+  bool is_bool_;
+  bool bv_;
+  bool iv_;
+};
+
 class PlatformDB {
 public:
   PlatformDB(IPlatform *platform);
@@ -17,7 +33,7 @@ public:
 
 private:
   DefNode *FindValue(const LookupCondition &lookup_cond);
-  bool MatchCond(const LookupCondition &lookup_cond, DefNode *cond_node);
+  NodeResult MatchCond(const LookupCondition &lookup_cond, DefNode *cond_node);
   int GetInt(DefNode *node, const string &key, int dflt);
 
   IPlatform *platform_;
