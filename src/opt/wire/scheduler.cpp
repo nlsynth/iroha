@@ -36,6 +36,10 @@ bool Scheduler::IsSchedulable() {
 	  ResourceAttr::IsExtWaitInsn(insn)) {
 	return false;
       }
+      // This is really awkward...
+      if (insn->depending_insns_.size() > 0) {
+	return false;
+      }
     }
   }
   return true;
