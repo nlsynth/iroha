@@ -7,6 +7,9 @@ A circuit design in Iroha contains following elements.
 * Design
     * Everything in an HDL design.
     * consists of a tree of modules.
+* Platform
+    * Chip dependent parameters for the design.
+    * Mainly delay information of each operation is stored.
 * Module
     * An HDL module.
     * consists of sub modules and tables.
@@ -19,14 +22,14 @@ A circuit design in Iroha contains following elements.
     * A state in a state machine.
     * consists of instructions.
 * Insn (instruction)
-    * An operation performed in a state
+    * An operation performed in a state.
 
 
 ## Grammar
 
 Structure of a design in Iroha is described in following BNF.
 
-design          := params? (array-image | module)*
+design          := params? (platform | array-image | module)*
 
 module          := "(" "MODULE" module-id:number module-name:label params parent-module table* ")"
 
@@ -55,7 +58,7 @@ resource-class  := "tr" | "set" | "print" | "phi" | "select" | "assert" | "mappe
                    "add" | "sub" | "mul" |
                    "bit-and" | "bit-or" | "bit-xor" | "bit-inv" |
                    "bit-sel" | "bit-concat" |
-                   "gt" | "gte" | "eq" | "shift"
+                   "gt" | "gte" | "eq" | "shift" | ...
 
 resource-option := array-desc | callee-task-desc
 
@@ -86,6 +89,16 @@ param           := "(" param-key param-value ")"
 param-key       := label
 
 param-value     := label | number
+
+platform        := "(" "PLATFORM" label platform-def* ")"
+
+platform-def    := "(" "DEF" platform-cond platform-value ")"
+
+platform-cond   := "(" "COND" platform-node ")"
+
+platform-value  := "(" "VALUE" platform-node ")"
+
+platform-node   := "(" label ( platform-node | label | number )* ")"
 
 number-list     := "(" number* ")"
 
@@ -190,6 +203,17 @@ e.g.
  (11) ; input registers
  (22) ; output registers
  ())  ; depending instructions
+
+-- Platform
+
+Platform describles characteristics (mainly deley of operators) of a chip.
+Each definition has a condition and evaluated on each look up.
+
+
+e.g.
+
+(PLATFORM generic
+ (DEF (COND (CLASS add)) (VALUE (DELAY 2000))))
 
 -- Params (design)
 
