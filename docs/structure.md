@@ -78,7 +78,7 @@ value-type      := "(" "INT"  width:number ")" |
                    "(" "UINT" width:number ")"
 
 
-state           := "(" "STATE" state-id:number instruction* ")"
+state           := "(" "STATE" state-id:number profile? instruction* ")"
 
 instruction     := "(" "INSN" insn-id:number res-class:resource-class res-id:number operand:number-list target-state-ids:number-list input-reg-ids:number-list output-reg-ids:number-list depending-instruction-ids:number-list ")"
 
@@ -99,6 +99,8 @@ platform-cond   := "(" "COND" platform-node ")"
 platform-value  := "(" "VALUE" platform-node ")"
 
 platform-node   := "(" label ( platform-node | label | number )* ")"
+
+profile         := "(" "PROFILE" ")" | "(" "PROFILE" number number? ")"
 
 number-list     := "(" number* ")"
 
@@ -181,6 +183,16 @@ e.g.
 (STATE 1
  (INSN ...)
  (INSN ...))
+
+-- Profile
+
+Profile represents the number of times the corresponding state is executed.
+This can take a raw count and a normalized count (optional).
+
+e.g.
+
+(PROFILE 123 10)
+
 
 -- Insn
 
