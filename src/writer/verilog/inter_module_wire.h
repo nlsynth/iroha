@@ -11,6 +11,9 @@ namespace iroha {
 namespace writer {
 namespace verilog {
 
+// InterModuleWire w(*this_resource);
+// w.AddWire(....);
+//
 class InterModuleWire {
 public:
   InterModuleWire(Resource &res);

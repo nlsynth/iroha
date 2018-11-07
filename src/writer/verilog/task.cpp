@@ -7,6 +7,7 @@
 #include "writer/connection.h"
 #include "writer/module_template.h"
 #include "writer/verilog/insn_writer.h"
+#include "writer/verilog/inter_module_wire.h"
 #include "writer/verilog/module.h"
 #include "writer/verilog/ports.h"
 #include "writer/verilog/state.h"
@@ -83,8 +84,17 @@ void Task::BuildTaskResource() {
     return;
   }
   // Inter module wires.
+  InterModuleWire wire(*this);
   for (IResource *caller : callers) {
-    BuildCallWire(caller);
+    string en = TaskEnablePin(*(tab_.GetITable()), caller->GetTable());
+    wire.AddWire(*caller, en, 0, false, true);
+    string ack = TaskAckPin(*(tab_.GetITable()), caller->GetTable());
+    wire.AddWire(*caller, ack, 0, true, false);
+    for (int i = 0; i < res_.output_types_.size(); ++i) {
+      auto &type = res_.output_types_[i];
+      string a = TaskArgPin(*(tab_.GetITable()), i, false, caller->GetTable());
+      wire.AddWire(*caller, a, type.GetWidth(), false, true);
+    }
   }
   // EN
   vector<string> task_en;
@@ -160,97 +170,15 @@ void Task::BuildTaskResource() {
   }
 }
 
-void Task::BuildCallWire(IResource *caller) {
-  IModule *callee_module = res_.GetTable()->GetModule();
-  IModule *caller_module = caller->GetTable()->GetModule();
-  const IModule *common_root = Connection::GetCommonRoot(callee_module,
-							 caller_module);
-  if (caller_module != common_root) {
-    AddWire(common_root, caller);
-  }
-  // downward
-  for (IModule *imod = callee_module; imod != common_root;
-       imod = imod->GetParentModule()) {
-    AddPort(imod, caller, false);
-  }
-  // upward
-  for (IModule *imod = caller_module; imod != common_root;
-       imod = imod->GetParentModule()) {
-    AddPort(imod, caller, true);
-  }
-}
-
-void Task::AddWire(const IModule *imod, IResource *caller) {
-  Module *mod = tab_.GetModule()->GetByIModule(imod);
-  string en = TaskEnablePin(*(tab_.GetITable()), caller->GetTable());
-  string ack = TaskAckPin(*(tab_.GetITable()), caller->GetTable());
-  auto *tmpl = mod->GetModuleTemplate();
-  ostream &rs = tab_.ResourceSectionStream();
-  rs << "  wire " << en << ";\n";
-  rs << "  wire " << ack << ";\n";
-  for (int i = 0; i < res_.output_types_.size(); ++i) {
-    auto &type = res_.output_types_[i];
-    rs << "  wire " << Table::ValueWidthSpec(type) << " "
-       << TaskArgPin(*(tab_.GetITable()), i, false, caller->GetTable())
-       << ";\n";
-  }
-}
-
-void Task::AddPort(const IModule *imod, IResource *caller, bool upward) {
-  Module *mod = tab_.GetModule()->GetByIModule(imod);
-  Ports *ports = mod->GetPorts();
-  // EN
-  string en = TaskEnablePin(*(tab_.GetITable()), caller->GetTable());
-  if (upward) {
-    ports->AddPort(en, Port::OUTPUT_WIRE, 0);
-  } else {
-    ports->AddPort(en, Port::INPUT, 0);
-  }
-  Module *parent_mod = mod->GetParentModule();
-  ostream &os = parent_mod->ChildModuleInstSectionStream(mod);
-  os << ", ." << en << "(" << en << ")";
-  // ACK
-  string ack = TaskAckPin(*(tab_.GetITable()), caller->GetTable());
-  if (upward) {
-    ports->AddPort(ack, Port::INPUT, 0);
-  } else {
-    ports->AddPort(ack, Port::OUTPUT_WIRE, 0);
-  }
-  os << ", ." << ack << "(" << ack << ")";
-  // Args
-  for (int i = 0; i < res_.output_types_.size(); ++i) {
-    auto &type = res_.output_types_[i];
-    string a = TaskArgPin(*(tab_.GetITable()), i, false, caller->GetTable());
-    int w = type.GetWidth();
-    if (upward) {
-      ports->AddPort(a, Port::OUTPUT_WIRE, w);
-    } else {
-      ports->AddPort(a, Port::INPUT, w);
-    }
-    os << ", ." << a << "(" << a << ")";
-  }
-}
-
 void Task::BuildTaskCallResource() {
-  ostream &rs = tab_.ResourceSectionStream();
-  string en = TaskEnablePin(*(res_.GetCalleeTable()), tab_.GetITable());
-  rs << "  reg " << en << ";\n";
   map<IState *, IInsn *> callers;
   CollectResourceCallers("", &callers);
   ostream &ss = tab_.StateOutputSectionStream();
+  string en = TaskEnablePin(*(res_.GetCalleeTable()), tab_.GetITable());
   ss << "      " << en << " <= " << JoinStatesWithSubState(callers, 0)
      << ";\n";
   ostream &is = tab_.InitialValueSectionStream();
   is << "      " << en << " <= 0;\n";
-
-  ITable *callee = res_.GetCalleeTable();
-  string ack = TaskAckPin(*callee, tab_.GetITable());
-  rs << "  wire " << ack << ";\n";
-  for (int i = 0; i < res_.input_types_.size(); ++i) {
-    auto &type = res_.input_types_[i];
-    rs << "  reg " << Table::ValueWidthSpec(type) << " "
-       << TaskArgPin(*callee, i, false, res_.GetTable()) << ";\n";
-  }
 }
 
 void Task::BuildTaskInsn(IInsn *insn, State *st) {
