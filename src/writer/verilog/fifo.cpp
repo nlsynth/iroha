@@ -171,6 +171,8 @@ void Fifo::BuildAccessConnectionsAll() {
   InterModuleWire wire(*this);
   int dw = res_.GetParams()->GetWidth();
   auto &readers = tab_.GetModule()->GetConnection().GetFifoReaders(&res_);
+  // This is a kludge. We might change the method above..
+  vector<const IResource *> readers_const;
   for (auto *reader : readers) {
     bool drive_req_by_reg = true;
     if (resource::IsDataFlowIn(*(reader->GetClass()))) {
@@ -178,9 +180,10 @@ void Fifo::BuildAccessConnectionsAll() {
     }
     wire.AddWire(*reader, RReq(res_, reader), 0, false, drive_req_by_reg);
     wire.AddWire(*reader, RAck(res_, reader), 0, true, true);
+    readers_const.push_back(reader);
   }
   // Driven from sram module.
-  wire.AddSharedWires(readers, RData(res_), dw, true, false);
+  wire.AddSharedWires(readers_const, RData(res_), dw, true, false);
   auto &writers = tab_.GetModule()->GetConnection().GetFifoWriters(&res_);
   for (auto *writer : writers) {
     wire.AddWire(*writer, WReq(res_, writer), 0, false, true);

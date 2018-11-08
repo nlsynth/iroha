@@ -8,6 +8,7 @@
 #include "writer/verilog/embed.h"
 #include "writer/verilog/insn_writer.h"
 #include "writer/verilog/internal_sram.h"
+#include "writer/verilog/inter_module_wire.h"
 #include "writer/verilog/module.h"
 #include "writer/verilog/ports.h"
 #include "writer/verilog/state.h"
@@ -171,7 +172,6 @@ void SharedMemory::BuildMemoryInstance() {
   es <<");\n";
   ostream &rs = tab_.ResourceSectionStream();
   rs << "  wire " << sram->AddressWidthSpec() << " " << addr_wire << ";\n";
-  rs << "  wire " << sram->DataWidthSpec() << " " << rdata_wire << ";\n";
   rs << "  wire " << sram->DataWidthSpec() << " " << wdata_wire << ";\n";
   rs << "  wire " << wen_wire << ";\n";
   if (num_ports == 2) {
@@ -187,6 +187,21 @@ void SharedMemory::BuildMemoryInstance() {
 
 void SharedMemory::BuildAccessWireAll(vector<const IResource *> &accessors) {
   IModule *mem_module = res_.GetTable()->GetModule();
+  InterModuleWire wire(*this);
+  vector<const IResource *> readers;
+  for (auto *accessor : accessors) {
+    auto *klass = accessor->GetClass();
+    bool is_reader = resource::IsSharedMemoryReader(*klass);
+    if (is_reader) {
+      readers.push_back(accessor);
+    }
+  }
+  string rdata = MemoryRdataPin(res_, 0);
+  IArray *array = res_.GetArray();
+  int data_width = array->GetDataType().GetWidth();
+  // NOTE: This can't be shared if there's a distance to the accessor.
+  wire.AddSharedWires(readers, rdata, data_width, true, false);
+  // TODO: Convert to use InterModuleWire (rdata is already done).
   for (auto *accessor : accessors) {
     IModule *accessor_module = accessor->GetTable()->GetModule();
     const IModule *common_root = Connection::GetCommonRoot(mem_module,
@@ -195,25 +210,16 @@ void SharedMemory::BuildAccessWireAll(vector<const IResource *> &accessors) {
     bool is_reader = resource::IsSharedMemoryReader(*klass);
     if (accessor_module != common_root) {
       AddWire(common_root, accessor);
-      if (is_reader && mem_module != common_root) {
-	AddRdataWire(common_root, accessor);
-      }
     }
     // upward
     for (IModule *imod = accessor_module; imod != common_root;
 	 imod = imod->GetParentModule()) {
       AddAccessPort(imod, accessor, true);
-      if (is_reader) {
-	AddRdataPort(imod, accessor, true);
-      }
     }
     // downward
     for (IModule *imod = mem_module; imod != common_root;
 	 imod = imod->GetParentModule()) {
       AddAccessPort(imod, accessor, false);
-      if (is_reader) {
-	AddRdataPort(imod, accessor, false);
-      }
     }
   }
 }
@@ -358,24 +364,6 @@ void SharedMemory::AddAccessPort(const IModule *imod,
   if (resource::IsSharedMemoryWriter(*klass)) {
     os << ", ." << MemoryWdataPin(res_, 0, accessor) << "("
        << MemoryWdataPin(res_, 0, accessor) << ")";
-  } else {
-    os << ", ." << MemoryRdataPin(res_, 0) << "("
-       << MemoryRdataPin(res_, 0) << ")";
-  }
-}
-
-void SharedMemory::AddRdataPort(const IModule *imod, const IResource *accessor,
-				bool upward) {
-  Module *mod = tab_.GetModule()->GetByIModule(imod);
-  Ports *ports = mod->GetPorts();
-  IArray *array = res_.GetArray();
-  int data_width = array->GetDataType().GetWidth();
-  if (upward) {
-    ports->AddPort(MemoryRdataPin(res_, 0), Port::INPUT,
-		   data_width);
-  } else {
-    ports->AddPort(MemoryRdataPin(res_, 0), Port::OUTPUT_WIRE,
-		   data_width);
   }
 }
 
@@ -394,16 +382,6 @@ void SharedMemory::AddWire(const IModule *imod, const IResource *accessor) {
     rs << "  wire " << Table::WidthSpec(data_width);
     rs << MemoryWdataPin(res_, 0, accessor) << ";\n";
   }
-}
-
-void SharedMemory::AddRdataWire(const IModule *imod, const IResource *accessor) {
-  Module *mod = tab_.GetModule()->GetByIModule(imod);
-  auto *tmpl = mod->GetModuleTemplate();
-  ostream &rs = tab_.ResourceSectionStream();
-  IArray *array = res_.GetArray();
-  int data_width = array->GetDataType().GetWidth();
-  rs << "  wire " << Table::WidthSpec(data_width);
-  rs << MemoryRdataPin(res_, 0) << ";\n";
 }
 
 string SharedMemory::MemoryPinPrefix(const IResource &mem,

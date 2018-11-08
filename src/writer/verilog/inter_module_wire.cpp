@@ -21,7 +21,7 @@ void InterModuleWire::AddWire(IResource &accessor, const string &name,
   AddWireEdge(accessor, name, width, from_parent, drive_by_reg);
 }
 
-void InterModuleWire::AddWireEdge(IResource &accessor, const string &name,
+void InterModuleWire::AddWireEdge(const IResource &accessor, const string &name,
 				  int width, bool from_parent,
 				  bool drive_by_reg) {
   Module *parent_mod = res_.GetTable().GetModule();
@@ -55,7 +55,7 @@ void InterModuleWire::AddWireEdge(IResource &accessor, const string &name,
   }
 }
 
-void InterModuleWire::AddWireConnection(IResource &accessor, const string &name,
+void InterModuleWire::AddWireConnection(const IResource &accessor, const string &name,
 					int width, bool from_parent,
 					bool drive_by_reg) {
   string drive = "wire";
@@ -142,7 +142,7 @@ void InterModuleWire::AddPort(Module *mod, const string &name, int width,
   os << ", ." << name << "(" << name << ")";
 }
 
-void InterModuleWire::AddSharedWires(const vector<IResource *> &accessors,
+void InterModuleWire::AddSharedWires(const vector<const IResource *> &accessors,
 				     const string &name, int width,
 				     bool from_parent, bool drive_by_reg) {
   for (auto *a : accessors) {
