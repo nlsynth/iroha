@@ -23,7 +23,7 @@ private:
 
 class Scheduler {
 public:
-  Scheduler(DataPath *data_path, DelayInfo *delay_info);
+  Scheduler(BBDataPath *data_path, DelayInfo *delay_info);
 
   void Schedule();
 
@@ -34,7 +34,7 @@ private:
   void ScheduleNonExclusive(PathNode *n, int min_index, int source_local_delay);
   bool IsSchedulable();
 
-  DataPath *data_path_;
+  BBDataPath *data_path_;
   DelayInfo *delay_info_;
   // latency to nodes.
   map<int, vector<PathNode *> > sorted_nodes_;

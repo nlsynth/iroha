@@ -23,7 +23,7 @@ void Relocator::Relocate() {
   }
 }
 
-void Relocator::RelocateInsnsForDataPath(DataPath *dp) {
+void Relocator::RelocateInsnsForDataPath(BBDataPath *dp) {
   BB *bb = dp->GetBB();
   auto &nodes = dp->GetNodes();
   // Clears and places insns.
@@ -33,7 +33,7 @@ void Relocator::RelocateInsnsForDataPath(DataPath *dp) {
   }
   for (auto &p : nodes) {
     PathNode *n = p.second;
-    bb->states_[n->final_st_index_]->insns_.push_back(n->insn_);
+    bb->states_[n->final_st_index_]->insns_.push_back(n->GetInsn());
   }
   for (auto &p : nodes) {
     PathNode *src_node = p.second;
@@ -65,7 +65,8 @@ void Relocator::RelocateInsnsForDataPath(DataPath *dp) {
   }
 }
 
-IRegister* Relocator::AllocIntermediateReg(IInsn *insn, bool state_local, int oindex) {
+IRegister* Relocator::AllocIntermediateReg(IInsn *insn, bool state_local,
+					   int oindex) {
   ITable *table = insn->GetResource()->GetTable();
   IRegister *orig_reg = insn->outputs_[oindex];
   string name = orig_reg->GetName();
@@ -84,8 +85,9 @@ IRegister* Relocator::AllocIntermediateReg(IInsn *insn, bool state_local, int oi
 
 void Relocator::AddIntermediateWireAndInsn(PathEdge *edge, IState *st) {
   IRegister *orig_out = edge->GetSourceReg();
-  IRegister *wire = AllocIntermediateReg(edge->source_node_->insn_, true, edge->source_reg_index_);
-  edge->source_node_->insn_->outputs_[edge->source_reg_index_] = wire;
+  IRegister *wire = AllocIntermediateReg(edge->source_node_->GetInsn(),
+					 true, edge->source_reg_index_);
+  edge->source_node_->GetInsn()->outputs_[edge->source_reg_index_] = wire;
   IInsn *assign_insn = new IInsn(assign_);
   assign_insn->inputs_.push_back(wire);
   assign_insn->outputs_.push_back(orig_out);
@@ -94,7 +96,8 @@ void Relocator::AddIntermediateWireAndInsn(PathEdge *edge, IState *st) {
 
 void Relocator::AddIntermediateRegAndInsn(PathEdge *edge, IState *st) {
   IRegister *orig_out = edge->GetSourceReg();
-  IRegister *reg = AllocIntermediateReg(edge->source_node_->insn_, false, edge->source_reg_index_);
+  IRegister *reg = AllocIntermediateReg(edge->source_node_->GetInsn(),
+					false, edge->source_reg_index_);
   IInsn *assign_insn = new IInsn(assign_);
   assign_insn->inputs_.push_back(reg);
   assign_insn->outputs_.push_back(orig_out);

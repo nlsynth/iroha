@@ -11,7 +11,8 @@ namespace wire {
 // Represents an IRegister flows from its source insn to sink.
 class PathEdge {
 public:
-  PathEdge(int id, PathNode *source_node, PathNode *sink_node, int source_reg_index);
+  PathEdge(int id, PathNode *source_node, PathNode *sink_node,
+	   int source_reg_index);
 
   int GetId();
   IRegister *GetSourceReg();
@@ -27,28 +28,32 @@ private:
 // Represents an IInsn and connected to other insns via PathEdge-s.
 class PathNode {
 public:
-  PathNode(DataPath *path, int st_index, IInsn *insn);
+  PathNode(BBDataPath *path, int st_index, IInsn *insn);
 
   int GetId();
   void Dump(ostream &os);
+  IInsn *GetInsn();
 
-  DataPath *path_;
-  int initial_st_index_;
   int final_st_index_;
   int node_delay_;
   int state_local_delay_;
   int accumlated_delay_;
-  IInsn *insn_;
   // key-ed by source node id.
   map<int, PathEdge *> source_edges_;
   // key-ed by node id.
   map<int, PathEdge *> sink_edges_;
+
+private:
+  BBDataPath *path_;
+  int initial_st_index_;
+  IInsn *insn_;
 };
 
-class DataPath {
+// Data path graph for a BB.
+class BBDataPath {
 public:
-  DataPath(BB *bb);
-  ~DataPath();
+  BBDataPath(BB *bb, VirtualResourceSet *vrset);
+  ~BBDataPath();
 
   void Build();
   void SetDelay(DelayInfo *dinfo);
@@ -60,6 +65,7 @@ private:
   void SetAccumlatedDelay(DelayInfo *dinfo, PathNode *node);
 
   BB *bb_;
+  VirtualResourceSet *vrset_;
   // node id (insn id) to PathNode.
   map<int, PathNode *> nodes_;
   set<PathEdge *> edges_;
@@ -73,13 +79,14 @@ public:
   void Build(BBSet *bbs);
   void SetDelay(DelayInfo *dinfo);
   void Dump(DebugAnnotation *an);
-  map<int, DataPath *> &GetPaths();
+  map<int, BBDataPath *> &GetPaths();
   BBSet *GetBBSet();
 
 private:
   BBSet *bbs_;
-  // bb_id to DataPath.
-  map<int, DataPath *> data_paths_;
+  // bb_id to BBDataPath.
+  map<int, BBDataPath *> data_paths_;
+  std::unique_ptr<VirtualResourceSet> vres_set_;
 };
 
 }  // namespace wire

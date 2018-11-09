@@ -5,13 +5,16 @@
 #include "opt/bb_set.h"
 #include "opt/debug_annotation.h"
 #include "opt/delay_info.h"
+#include "opt/wire/virtual_resource.h"
 
 namespace iroha {
 namespace opt {
 namespace wire {
 
-PathEdge::PathEdge(int id, PathNode *source_node, PathNode *sink_node, int source_reg_index)
-  : source_node_(source_node), sink_node_(sink_node), source_reg_index_(source_reg_index), id_(id) {
+PathEdge::PathEdge(int id, PathNode *source_node, PathNode *sink_node,
+		   int source_reg_index)
+  : source_node_(source_node), sink_node_(sink_node),
+    source_reg_index_(source_reg_index), id_(id) {
 }
 
 int PathEdge::GetId() {
@@ -19,13 +22,13 @@ int PathEdge::GetId() {
 }
 
 IRegister *PathEdge::GetSourceReg() {
-  return source_node_->insn_->outputs_[source_reg_index_];
+  return source_node_->GetInsn()->outputs_[source_reg_index_];
 }
 
-PathNode::PathNode(DataPath *path, int st_index, IInsn *insn)
-  : path_(path), node_delay_(0), state_local_delay_(0), accumlated_delay_(0),
-    initial_st_index_(st_index), final_st_index_(st_index),
-    insn_(insn) {
+PathNode::PathNode(BBDataPath *path, int st_index, IInsn *insn)
+  : node_delay_(0), state_local_delay_(0), accumlated_delay_(0),
+    final_st_index_(st_index),
+    path_(path),initial_st_index_(st_index), insn_(insn) {
 }
 
 int PathNode::GetId() {
@@ -44,15 +47,20 @@ void PathNode::Dump(ostream &os) {
   }
 }
 
-DataPath::DataPath(BB *bb) : bb_(bb) {
+IInsn *PathNode::GetInsn() {
+  return insn_;
 }
 
-DataPath::~DataPath() {
+BBDataPath::BBDataPath(BB *bb, VirtualResourceSet *vrset)
+  : bb_(bb), vrset_(vrset) {
+}
+
+BBDataPath::~BBDataPath() {
   STLDeleteSecondElements(&nodes_);
   STLDeleteValues(&edges_);
 }
 
-void DataPath::Build() {
+void BBDataPath::Build() {
   map<IInsn *, PathNode *> insn_to_node;
   int st_index = 0;
   for (IState *st : bb_->states_) {
@@ -107,11 +115,11 @@ void DataPath::Build() {
   }
 }
 
-void DataPath::SetDelay(DelayInfo *dinfo) {
+void BBDataPath::SetDelay(DelayInfo *dinfo) {
   for (auto &p : nodes_) {
     PathNode *n = p.second;
     n->accumlated_delay_ = -1;
-    n->node_delay_ = dinfo->GetInsnDelay(n->insn_);
+    n->node_delay_ = dinfo->GetInsnDelay(n->GetInsn());
   }
   for (auto &p : nodes_) {
     PathNode *n = p.second;
@@ -119,7 +127,7 @@ void DataPath::SetDelay(DelayInfo *dinfo) {
   }
 }
 
-void DataPath::SetAccumlatedDelay(DelayInfo *dinfo, PathNode *node) {
+void BBDataPath::SetAccumlatedDelay(DelayInfo *dinfo, PathNode *node) {
   if (node->accumlated_delay_ >= 0) {
     return;
   }
@@ -137,18 +145,18 @@ void DataPath::SetAccumlatedDelay(DelayInfo *dinfo, PathNode *node) {
   node->accumlated_delay_ = max_source_delay + node->node_delay_;
 }
 
-void DataPath::Dump(ostream &os) {
+void BBDataPath::Dump(ostream &os) {
   os << "DataPath BB: " << bb_->bb_id_ << "\n";
   for (auto &p : nodes_) {
     p.second->Dump(os);
   }
 }
 
-BB *DataPath::GetBB() {
+BB *BBDataPath::GetBB() {
   return bb_;
 }
 
-map<int, PathNode *> &DataPath::GetNodes() {
+map<int, PathNode *> &BBDataPath::GetNodes() {
   return nodes_;
 }
 
@@ -160,9 +168,10 @@ DataPathSet::~DataPathSet() {
 }
 
 void DataPathSet::Build(BBSet *bset) {
+  vres_set_.reset(new VirtualResourceSet(bset->GetTable()));
   bbs_ = bset;
   for (BB *bb : bbs_->bbs_) {
-    DataPath *dp = new DataPath(bb);
+    BBDataPath *dp = new BBDataPath(bb, nullptr);
     data_paths_[bb->bb_id_] = dp;
     dp->Build();
   }
@@ -170,7 +179,7 @@ void DataPathSet::Build(BBSet *bset) {
 
 void DataPathSet::SetDelay(DelayInfo *dinfo) {
   for (auto &p : data_paths_) {
-    DataPath *dp = p.second;
+    BBDataPath *dp = p.second;
     dp->SetDelay(dinfo);
   }
 }
@@ -183,7 +192,7 @@ void DataPathSet::Dump(DebugAnnotation *an) {
   }
 }
 
-map<int, DataPath *> &DataPathSet::GetPaths() {
+map<int, BBDataPath *> &DataPathSet::GetPaths() {
   return data_paths_;
 }
 

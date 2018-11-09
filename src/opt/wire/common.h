@@ -8,11 +8,13 @@ namespace iroha {
 namespace opt {
 namespace wire {
 
-class DataPath;
+class BBDataPath;
 class DataPathSet;
 class PathEdge;
 class PathNode;
 class ResourceShare;
+class VirtualResource;
+class VirtualResourceSet;
 
 }  // namespace wire
 }  // namespace opt

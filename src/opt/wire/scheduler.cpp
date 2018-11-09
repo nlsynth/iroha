@@ -22,7 +22,7 @@ void SchedulerCore::Schedule() {
   }
 }
 
-Scheduler::Scheduler(DataPath *data_path, DelayInfo *delay_info)
+Scheduler::Scheduler(BBDataPath *data_path, DelayInfo *delay_info)
   : data_path_(data_path), delay_info_(delay_info) {
 }
 
@@ -107,7 +107,7 @@ bool Scheduler::ScheduleNode(PathNode *n) {
       source_local_delay = source_node->state_local_delay_;
     }
   }
-  if (n->insn_->GetResource()->GetClass()->IsExclusive()) {
+  if (n->GetInsn()->GetResource()->GetClass()->IsExclusive()) {
     ScheduleExclusive(n, min_st_index, source_local_delay);
   } else {
     ScheduleNonExclusive(n, min_st_index, source_local_delay);
@@ -129,7 +129,7 @@ void Scheduler::ScheduleExclusive(PathNode *n, int min_index,
 				  int source_local_delay) {
   int loc = min_index;
   while (true) {
-    auto key = std::make_tuple(n->insn_->GetResource(), loc);
+    auto key = std::make_tuple(n->GetInsn()->GetResource(), loc);
     auto it = resource_slots_.find(key);
     if (it == resource_slots_.end()) {
       resource_slots_.insert(key);

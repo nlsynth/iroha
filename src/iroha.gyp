@@ -154,6 +154,8 @@
 	'opt/wire/relocator.h',
 	'opt/wire/scheduler.cpp',
 	'opt/wire/scheduler.h',
+        'opt/wire/virtual_resource.cpp',
+        'opt/wire/virtual_resource.h',
         'opt/wire/wire.cpp',
         'opt/wire/wire.h',
         'opt/wire/wire_phase.cpp',
