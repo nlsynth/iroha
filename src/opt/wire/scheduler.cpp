@@ -32,6 +32,9 @@ bool Scheduler::IsSchedulable() {
   BB *bb = data_path_->GetBB();
   for (IState *st : bb->states_) {
     for (IInsn *insn : st->insns_) {
+      if (ResourceAttr::IsMultiCycleInsn(insn)) {
+	return false;
+      }
       if (ResourceAttr::IsExtAccessInsn(insn) ||
 	  ResourceAttr::IsExtWaitInsn(insn)) {
 	return false;
