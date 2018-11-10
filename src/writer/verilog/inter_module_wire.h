@@ -18,7 +18,7 @@ class InterModuleWire {
 public:
   InterModuleWire(Resource &res);
 
-  void AddWire(IResource &accessor, const string &name,
+  void AddWire(const IResource &accessor, const string &name,
 	       int width, bool from_parent, bool drive_by_reg);
   // Connects one shared value to many accessors in the module hierarchy.
   void AddSharedWires(const vector<const IResource *> &accessors,

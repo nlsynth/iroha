@@ -15,7 +15,7 @@ namespace verilog {
 InterModuleWire::InterModuleWire(Resource &res) : res_(res) {
 }
 
-void InterModuleWire::AddWire(IResource &accessor, const string &name,
+void InterModuleWire::AddWire(const IResource &accessor, const string &name,
 			      int width, bool from_parent, bool drive_by_reg) {
   AddWireConnection(accessor, name, width, from_parent, drive_by_reg);
   AddWireEdge(accessor, name, width, from_parent, drive_by_reg);
