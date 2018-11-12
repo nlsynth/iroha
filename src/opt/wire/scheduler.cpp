@@ -5,6 +5,7 @@
 #include "opt/bb_set.h"
 #include "opt/delay_info.h"
 #include "opt/wire/data_path.h"
+#include "opt/wire/path_node.h"
 
 namespace iroha {
 namespace opt {
