@@ -23,7 +23,12 @@ public:
 			     const IResource *accessor);
   static string MemoryReqPin(const IResource &res, const IResource *accessor);
   static string MemoryAckPin(const IResource &res, const IResource *accessor);
+  // Buffer to capture the rdata by readers.
+  // (the data may change if other readers start reading).
   static string MemoryRdataBuf(const IResource &res, const IResource *accessor);
+  // Wire just to connect to the SRAM instance.
+  // (this simplifies the code if there's no readers).
+  static string MemoryRdataRawPin(const IResource &res);
 
   // gen_reg determines if addr/wdata/req/wen are driven from this module.
   // generates wires and let them driven by dmac.

@@ -148,14 +148,14 @@ void SharedMemory::BuildMemoryInstance() {
   string inst = name + "_inst_" + Util::Itoa(tab_.GetITable()->GetId()) +
     "_" + Util::Itoa(res_.GetId());
   string addr_wire = MemoryAddrPin(res_, 0, nullptr);
-  string rdata_wire = MemoryRdataPin(res_, 0);
+  string rdata_raw_wire = MemoryRdataRawPin(res_);
   string wdata_wire = MemoryWdataPin(res_, 0, nullptr);
   string wen_wire = MemoryWenPin(res_, 0, nullptr);
   es << "  " << name << " " << inst << "("
      << ".clk(" << ports->GetClk() << ")"
      << ", ." << sram->GetResetPinName() << "(" << ports->GetReset() << ")"
      << ", ." << sram->GetAddrPin(0) << "(" << addr_wire << ")"
-     << ", ." << sram->GetRdataPin(0) <<"(" << rdata_wire << ")"
+     << ", ." << sram->GetRdataPin(0) <<"(" << rdata_raw_wire << ")"
      << ", ." << sram->GetWdataPin(0) <<"(" << wdata_wire << ")"
      << ", ." << sram->GetWenPin(0) <<"(" << wen_wire << ")";
   if (num_ports == 2) {
@@ -171,6 +171,7 @@ void SharedMemory::BuildMemoryInstance() {
   es <<");\n";
   ostream &rs = tab_.ResourceSectionStream();
   rs << "  wire " << sram->AddressWidthSpec() << " " << addr_wire << ";\n";
+  rs << "  wire " << sram->DataWidthSpec() << " " << rdata_raw_wire << ";\n";
   rs << "  wire " << sram->DataWidthSpec() << " " << wdata_wire << ";\n";
   rs << "  wire " << wen_wire << ";\n";
   if (num_ports == 2) {
@@ -200,6 +201,9 @@ void SharedMemory::BuildAccessWireAll(vector<const IResource *> &accessors) {
   int data_width = array->GetDataType().GetWidth();
   // NOTE: rdata can't be shared if there's a distance to the accessor.
   wire.AddSharedWires(readers, rdata, data_width, true, false);
+  string rdata_raw = MemoryRdataRawPin(res_);
+  ostream &rs = tab_.ResourceSectionStream();
+  rs << "  assign " << rdata << " = " << rdata_raw << ";\n";
   for (auto *accessor : accessors) {
     string addr = MemoryAddrPin(res_, 0, accessor);
     int addr_width = array->GetAddressWidth();
@@ -360,6 +364,10 @@ string SharedMemory::MemoryAckPin(const IResource &res,
 string SharedMemory::MemoryRdataPin(const IResource &res, int nth_port) {
   return MemoryPinPrefix(res, nullptr) +
     "_p" + Util::Itoa(nth_port) + "_rdata";
+}
+
+string SharedMemory::MemoryRdataRawPin(const IResource &res) {
+  return MemoryRdataPin(res, 0) + "_raw";
 }
 
 string SharedMemory::MemoryWdataPin(const IResource &res,
