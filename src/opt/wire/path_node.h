@@ -8,6 +8,12 @@ namespace iroha {
 namespace opt {
 namespace wire {
 
+// Data path (BBDataPath) is a graph comprised of nodes and edges.
+//
+// ------------                    ------
+// |Node(Insn)|-->Edge(Register)-->|Node|
+// ------------                    ------
+
 // Represents an IRegister flows from its source insn to sink.
 class PathEdge {
 public:
@@ -16,13 +22,16 @@ public:
 
   int GetId();
   IRegister *GetSourceReg();
-
-  PathNode *source_node_;
-  PathNode *sink_node_;
-  int source_reg_index_;
+  void SetSourceReg(IRegister *reg);
+  int GetSourceRegIndex();
+  PathNode *GetSourceNode();
+  PathNode *GetSinkNode();
 
 private:
   int id_;
+  PathNode *source_node_;
+  int source_reg_index_;
+  PathNode *sink_node_;
 };
 
 // Represents an IInsn and connected to other insns via PathEdge-s.

@@ -93,12 +93,12 @@ void BBDataPath::SetAccumlatedDelay(DelayInfo *dinfo, PathNode *node) {
     return;
   }
   for (auto &p : node->source_edges_) {
-    PathNode *source_node = p.second->source_node_;
+    PathNode *source_node = p.second->GetSourceNode();
     SetAccumlatedDelay(dinfo, source_node);
   }
   int max_source_delay = 0;
   for (auto &p : node->source_edges_) {
-    PathNode *source_node = p.second->source_node_;
+    PathNode *source_node = p.second->GetSourceNode();
     if (max_source_delay < source_node->accumlated_delay_) {
       max_source_delay = source_node->accumlated_delay_;
     }

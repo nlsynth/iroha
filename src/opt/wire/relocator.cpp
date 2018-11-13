@@ -42,8 +42,7 @@ void Relocator::RelocateInsnsForDataPath(BBDataPath *dp) {
     for (auto &q : src_node->sink_edges_) {
       PathEdge *edge = q.second;
       IRegister *reg = edge->GetSourceReg();
-      int oindex = edge->source_reg_index_;
-      if (src_node->final_st_index_ == edge->sink_node_->final_st_index_) {
+      if (src_node->final_st_index_ == edge->GetSinkNode()->final_st_index_) {
 	// Source and Sink are in same state.
 	if (reg->IsStateLocal()) {
 	  // Does nothing. Just use the wire.
@@ -86,9 +85,9 @@ IRegister* Relocator::AllocIntermediateReg(IInsn *insn, bool state_local,
 
 void Relocator::AddIntermediateWireAndInsn(PathEdge *edge, IState *st) {
   IRegister *orig_out = edge->GetSourceReg();
-  IRegister *wire = AllocIntermediateReg(edge->source_node_->GetInsn(),
-					 true, edge->source_reg_index_);
-  edge->source_node_->GetInsn()->outputs_[edge->source_reg_index_] = wire;
+  IRegister *wire = AllocIntermediateReg(edge->GetSourceNode()->GetInsn(),
+					 true, edge->GetSourceRegIndex());
+  edge->SetSourceReg(wire);
   IInsn *assign_insn = new IInsn(assign_);
   assign_insn->inputs_.push_back(wire);
   assign_insn->outputs_.push_back(orig_out);
@@ -97,8 +96,8 @@ void Relocator::AddIntermediateWireAndInsn(PathEdge *edge, IState *st) {
 
 void Relocator::AddIntermediateRegAndInsn(PathEdge *edge, IState *st) {
   IRegister *orig_out = edge->GetSourceReg();
-  IRegister *reg = AllocIntermediateReg(edge->source_node_->GetInsn(),
-					false, edge->source_reg_index_);
+  IRegister *reg = AllocIntermediateReg(edge->GetSourceNode()->GetInsn(),
+					false, edge->GetSourceRegIndex());
   IInsn *assign_insn = new IInsn(assign_);
   assign_insn->inputs_.push_back(reg);
   assign_insn->outputs_.push_back(orig_out);

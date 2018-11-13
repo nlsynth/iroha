@@ -8,8 +8,8 @@ namespace wire {
 
 PathEdge::PathEdge(int id, PathNode *source_node, PathNode *sink_node,
 		   int source_reg_index)
-  : source_node_(source_node), sink_node_(sink_node),
-    source_reg_index_(source_reg_index), id_(id) {
+  : id_(id), source_node_(source_node), source_reg_index_(source_reg_index),
+    sink_node_(sink_node) {
 }
 
 int PathEdge::GetId() {
@@ -18,6 +18,22 @@ int PathEdge::GetId() {
 
 IRegister *PathEdge::GetSourceReg() {
   return source_node_->GetInsn()->outputs_[source_reg_index_];
+}
+
+void PathEdge::SetSourceReg(IRegister *reg) {
+  source_node_->GetInsn()->outputs_[source_reg_index_] = reg;
+}
+
+PathNode *PathEdge::GetSourceNode() {
+  return source_node_;
+}
+
+int PathEdge::GetSourceRegIndex() {
+  return source_reg_index_;
+}
+
+PathNode *PathEdge::GetSinkNode() {
+  return sink_node_;
 }
 
 PathNode::PathNode(BBDataPath *path, int st_index, IInsn *insn)
