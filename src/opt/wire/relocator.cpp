@@ -34,15 +34,15 @@ void Relocator::RelocateInsnsForDataPath(BBDataPath *dp) {
   }
   for (auto &p : nodes) {
     PathNode *n = p.second;
-    bb->states_[n->final_st_index_]->insns_.push_back(n->GetInsn());
+    bb->states_[n->GetFinalStIndex()]->insns_.push_back(n->GetInsn());
   }
   for (auto &p : nodes) {
     PathNode *src_node = p.second;
-    IState *src_st = bb->states_[src_node->final_st_index_];
+    IState *src_st = bb->states_[src_node->GetFinalStIndex()];
     for (auto &q : src_node->sink_edges_) {
       PathEdge *edge = q.second;
       IRegister *reg = edge->GetSourceReg();
-      if (src_node->final_st_index_ == edge->GetSinkNode()->final_st_index_) {
+      if (src_node->GetFinalStIndex() == edge->GetSinkNode()->GetFinalStIndex()) {
 	// Source and Sink are in same state.
 	if (reg->IsStateLocal()) {
 	  // Does nothing. Just use the wire.

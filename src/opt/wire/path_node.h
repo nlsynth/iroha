@@ -42,10 +42,14 @@ public:
   int GetId();
   void Dump(ostream &os);
   IInsn *GetInsn();
+  int GetFinalStIndex();
+  void SetFinalStIndex(int final_st_index);
 
-  int final_st_index_;
+  // Latency of this node (=insn).
   int node_delay_;
+  // Scratch variable for Scheduler.
   int state_local_delay_;
+  // Accumlated delay in the current state.
   int accumlated_delay_;
   // key-ed by source node id.
   map<int, PathEdge *> source_edges_;
@@ -55,6 +59,7 @@ public:
 private:
   BBDataPath *path_;
   int initial_st_index_;
+  int final_st_index_;
   IInsn *insn_;
 };
 

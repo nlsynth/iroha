@@ -38,12 +38,20 @@ PathNode *PathEdge::GetSinkNode() {
 
 PathNode::PathNode(BBDataPath *path, int st_index, IInsn *insn)
   : node_delay_(0), state_local_delay_(0), accumlated_delay_(0),
-    final_st_index_(st_index),
-    path_(path),initial_st_index_(st_index), insn_(insn) {
+    path_(path), initial_st_index_(st_index), final_st_index_(st_index),
+    insn_(insn) {
 }
 
 int PathNode::GetId() {
   return insn_->GetId();
+}
+
+int PathNode::GetFinalStIndex() {
+  return final_st_index_;
+}
+
+void PathNode::SetFinalStIndex(int final_st_index) {
+  final_st_index_ = final_st_index;
 }
 
 void PathNode::Dump(ostream &os) {

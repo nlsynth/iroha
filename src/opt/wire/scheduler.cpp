@@ -76,7 +76,7 @@ void Scheduler::Schedule() {
 }
 
 bool Scheduler::ScheduleNode(PathNode *n) {
-  if (n->final_st_index_ > -1) {
+  if (n->GetFinalStIndex() > -1) {
     // already scheduled.
     return true;
   }
@@ -84,14 +84,14 @@ bool Scheduler::ScheduleNode(PathNode *n) {
   // Determines the location.
   for (auto &s : n->source_edges_) {
     PathNode *source_node = s.second->GetSourceNode();
-    if (source_node->final_st_index_ < 0) {
+    if (source_node->GetFinalStIndex() < 0) {
       // not yet scheduled. fail and try later again.
       return false;
     }
-    if (min_st_index < source_node->final_st_index_) {
-      min_st_index = source_node->final_st_index_;
+    if (min_st_index < source_node->GetFinalStIndex()) {
+      min_st_index = source_node->GetFinalStIndex();
     }
-    if (min_st_index == source_node->final_st_index_) {
+    if (min_st_index == source_node->GetFinalStIndex()) {
       int tmp_local_delay =
 	source_node->state_local_delay_ + n->node_delay_;
       if (tmp_local_delay > delay_info_->GetMaxDelay()) {
@@ -104,7 +104,7 @@ bool Scheduler::ScheduleNode(PathNode *n) {
   int source_local_delay = 0;
   for (auto &s : n->source_edges_) {
     PathNode *source_node = s.second->GetSourceNode();
-    if (source_node->final_st_index_ < min_st_index) {
+    if (source_node->GetFinalStIndex() < min_st_index) {
       continue;
     }
     if (source_local_delay < source_node->state_local_delay_) {
@@ -124,7 +124,7 @@ void Scheduler::ClearSchedule() {
   auto &nodes = data_path_->GetNodes();
   for (auto &p : nodes) {
     PathNode *n = p.second;
-    n->final_st_index_ = -1;
+    n->SetFinalStIndex(-1);
     n->state_local_delay_ = 0;
   }
 }
@@ -145,12 +145,12 @@ void Scheduler::ScheduleExclusive(PathNode *n, int min_index,
   if (loc == min_index) {
     n->state_local_delay_ += source_local_delay;
   }
-  n->final_st_index_ = loc;
+  n->SetFinalStIndex(loc);
 }
 
 void Scheduler::ScheduleNonExclusive(PathNode *n, int min_index,
 				     int source_local_delay) {
-  n->final_st_index_ = min_index;
+  n->SetFinalStIndex(min_index);
   n->state_local_delay_ = source_local_delay + n->node_delay_;
 }
 
