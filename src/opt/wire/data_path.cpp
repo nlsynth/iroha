@@ -26,7 +26,7 @@ void BBDataPath::Build() {
   int st_index = 0;
   for (IState *st : bb_->states_) {
     for (IInsn *insn : st->insns_) {
-      PathNode *n = new PathNode(this, st_index, insn);
+      PathNode *n = new PathNode(this, st_index, insn, vrset_->GetFromInsn(insn));
       nodes_[n->GetId()] = n;
       insn_to_node[insn] = n;
     }
@@ -132,7 +132,7 @@ void DataPathSet::Build(BBSet *bset) {
   vres_set_.reset(new VirtualResourceSet(bset->GetTable()));
   bbs_ = bset;
   for (BB *bb : bbs_->bbs_) {
-    BBDataPath *dp = new BBDataPath(bb, nullptr);
+    BBDataPath *dp = new BBDataPath(bb, vres_set_.get());
     data_paths_[bb->bb_id_] = dp;
     dp->Build();
   }

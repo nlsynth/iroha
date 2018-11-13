@@ -37,13 +37,14 @@ private:
 // Represents an IInsn and connected to other insns via PathEdge-s.
 class PathNode {
 public:
-  PathNode(BBDataPath *path, int st_index, IInsn *insn);
+  PathNode(BBDataPath *path, int st_index, IInsn *insn, VirtualResource *vres);
 
   int GetId();
   void Dump(ostream &os);
   IInsn *GetInsn();
   int GetFinalStIndex();
   void SetFinalStIndex(int final_st_index);
+  VirtualResource *GetVirtualResource();
 
   // Latency of this node (=insn).
   int node_delay_;
@@ -61,6 +62,7 @@ private:
   int initial_st_index_;
   int final_st_index_;
   IInsn *insn_;
+  VirtualResource *vres_;
 };
 
 }  // namespace wire

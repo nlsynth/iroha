@@ -36,7 +36,7 @@ PathNode *PathEdge::GetSinkNode() {
   return sink_node_;
 }
 
-PathNode::PathNode(BBDataPath *path, int st_index, IInsn *insn)
+PathNode::PathNode(BBDataPath *path, int st_index, IInsn *insn, VirtualResource *vres)
   : node_delay_(0), state_local_delay_(0), accumlated_delay_(0),
     path_(path), initial_st_index_(st_index), final_st_index_(st_index),
     insn_(insn) {
@@ -52,6 +52,10 @@ int PathNode::GetFinalStIndex() {
 
 void PathNode::SetFinalStIndex(int final_st_index) {
   final_st_index_ = final_st_index;
+}
+
+VirtualResource *PathNode::GetVirtualResource() {
+  return vres_;
 }
 
 void PathNode::Dump(ostream &os) {

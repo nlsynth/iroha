@@ -8,27 +8,28 @@ namespace iroha {
 namespace opt {
 namespace wire {
 
+// This takes an insn and uses the information of its original resource until
+// everything will be done.
 class VirtualResource {
 public:
-  VirtualResource(VirtualResourceSet *vrset, IResource *res);
+  VirtualResource(VirtualResourceSet *vrset, IInsn *insn);
 
 private:
   VirtualResourceSet *vrset_;
-  IResource *res_;
+  IInsn *insn_;
 };
 
-// WIP.
 // Per table. Managed by DataPathSet.
 class VirtualResourceSet {
 public:
   VirtualResourceSet(ITable *tab);
   ~VirtualResourceSet();
 
-  VirtualResource *GetOriginalResource(IResource *res);
+  VirtualResource *GetFromInsn(IInsn *insn);
 
 private:
   ITable *tab_;
-  map<IResource *, VirtualResource *> raw_resources_;
+  map<IInsn *, VirtualResource *> raw_resources_;
 };
 
 }  // namespace wire

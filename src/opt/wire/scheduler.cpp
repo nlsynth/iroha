@@ -18,16 +18,16 @@ SchedulerCore::SchedulerCore(DataPathSet *data_path_set, DelayInfo *delay_info)
 void SchedulerCore::Schedule() {
   auto &paths = data_path_set_->GetPaths();
   for (auto &p : paths) {
-    Scheduler sch(p.second, delay_info_);
+    BBScheduler sch(p.second, delay_info_);
     sch.Schedule();
   }
 }
 
-Scheduler::Scheduler(BBDataPath *data_path, DelayInfo *delay_info)
+BBScheduler::BBScheduler(BBDataPath *data_path, DelayInfo *delay_info)
   : data_path_(data_path), delay_info_(delay_info) {
 }
 
-bool Scheduler::IsSchedulable() {
+bool BBScheduler::IsSchedulable() {
   // TODO: We might split a basic block before/after special insns, because
   // this is too awkward.
   BB *bb = data_path_->GetBB();
@@ -49,7 +49,7 @@ bool Scheduler::IsSchedulable() {
   return true;
 }
 
-void Scheduler::Schedule() {
+void BBScheduler::Schedule() {
   if (!IsSchedulable()) {
     return;
   }
@@ -75,7 +75,7 @@ void Scheduler::Schedule() {
   } while (has_unscheduled);
 }
 
-bool Scheduler::ScheduleNode(PathNode *n) {
+bool BBScheduler::ScheduleNode(PathNode *n) {
   if (n->GetFinalStIndex() > -1) {
     // already scheduled.
     return true;
@@ -120,7 +120,7 @@ bool Scheduler::ScheduleNode(PathNode *n) {
   return true;
 }
 
-void Scheduler::ClearSchedule() {
+void BBScheduler::ClearSchedule() {
   auto &nodes = data_path_->GetNodes();
   for (auto &p : nodes) {
     PathNode *n = p.second;
@@ -129,8 +129,8 @@ void Scheduler::ClearSchedule() {
   }
 }
 
-void Scheduler::ScheduleExclusive(PathNode *n, int min_index,
-				  int source_local_delay) {
+void BBScheduler::ScheduleExclusive(PathNode *n, int min_index,
+				    int source_local_delay) {
   int loc = min_index;
   while (true) {
     auto key = std::make_tuple(n->GetInsn()->GetResource(), loc);
@@ -148,8 +148,8 @@ void Scheduler::ScheduleExclusive(PathNode *n, int min_index,
   n->SetFinalStIndex(loc);
 }
 
-void Scheduler::ScheduleNonExclusive(PathNode *n, int min_index,
-				     int source_local_delay) {
+void BBScheduler::ScheduleNonExclusive(PathNode *n, int min_index,
+				       int source_local_delay) {
   n->SetFinalStIndex(min_index);
   n->state_local_delay_ = source_local_delay + n->node_delay_;
 }

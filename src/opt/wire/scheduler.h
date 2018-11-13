@@ -21,9 +21,9 @@ private:
   DelayInfo *delay_info_;
 };
 
-class Scheduler {
+class BBScheduler {
 public:
-  Scheduler(BBDataPath *data_path, DelayInfo *delay_info);
+  BBScheduler(BBDataPath *data_path, DelayInfo *delay_info);
 
   void Schedule();
 
