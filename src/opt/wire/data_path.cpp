@@ -136,6 +136,7 @@ void DataPathSet::Build(BBSet *bset) {
     data_paths_[bb->bb_id_] = dp;
     dp->Build();
   }
+  vres_set_->BuildDefaultBinding();
 }
 
 void DataPathSet::SetDelay(DelayInfo *dinfo) {

@@ -8,10 +8,11 @@ namespace iroha {
 namespace opt {
 namespace wire {
 
-class ResourceEntry;
+class ResourceUsageEntry;
 class BBEntry;
 
-// Manages resource usages in a table.
+// Manages resource usages in a table and reallocate congested resources.
+// (We might migrate to VirtualResource based implementation)
 class ResourceShare {
 public:
   ResourceShare(ITable *tab);
@@ -24,12 +25,12 @@ public:
 private:
   ITable *tab_;
 
-  map<IResource *, ResourceEntry *> entries_;
+  map<IResource *, ResourceUsageEntry *> entries_;
   map<BB *, BBEntry *> bb_entries_;
   map<IInsn *, int> rebind_index_;
 
   void CollectCongestedResource();
-  void AssignResourceForOneInsn(IInsn *insn, ResourceEntry *re);
+  void AssignResourceForOneInsn(IInsn *insn, ResourceUsageEntry *re);
 };
 
 }  // namespace wire

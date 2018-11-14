@@ -14,9 +14,14 @@ class VirtualResource {
 public:
   VirtualResource(VirtualResourceSet *vrset, IInsn *insn);
 
+  ResourceEntry *GetResourceEntry();
+  void SetResourceEntry(ResourceEntry *re);
+  IInsn *GetInsn();
+
 private:
   VirtualResourceSet *vrset_;
   IInsn *insn_;
+  ResourceEntry *res_;
 };
 
 // Per table. Managed by DataPathSet.
@@ -26,14 +31,16 @@ public:
   ~VirtualResourceSet();
 
   VirtualResource *GetFromInsn(IInsn *insn);
+  void BuildDefaultBinding();
 
 private:
   ITable *tab_;
   map<IInsn *, VirtualResource *> raw_resources_;
+  map<IResource *, ResourceEntry *> default_resource_entries_;
 };
 
 }  // namespace wire
 }  // namespace opt
 }  // namespace iroha
 
-#endif  // _opt_wire_virtual_resource_h
+#endif  // _opt_wire_virtual_resource_h_

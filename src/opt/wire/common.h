@@ -12,6 +12,7 @@ class BBDataPath;
 class DataPathSet;
 class PathEdge;
 class PathNode;
+class ResourceEntry;
 class ResourceShare;
 class VirtualResource;
 class VirtualResourceSet;

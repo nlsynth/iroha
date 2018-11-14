@@ -10,9 +10,9 @@ namespace iroha {
 namespace opt {
 namespace wire {
 
-class ResourceEntry {
+class ResourceUsageEntry {
 public:
-  ResourceEntry() : ires_(nullptr), duplicatable_(false), is_congested_(false) {
+  ResourceUsageEntry() : ires_(nullptr), duplicatable_(false), is_congested_(false) {
   }
   IResource *ires_;
   set<IInsn *> using_insns_;
@@ -40,7 +40,7 @@ ResourceShare::~ResourceShare() {
 void ResourceShare::Scan(BBSet *bbs) {
   // Populates resource entries_.
   for (IResource *res : tab_->resources_) {
-    ResourceEntry *re = new ResourceEntry();
+    ResourceUsageEntry *re = new ResourceUsageEntry();
     re->ires_ = res;
     re->all_res_.push_back(res);
     re->duplicatable_ = ResourceAttr::IsDuplicatableResource(res);
@@ -49,7 +49,7 @@ void ResourceShare::Scan(BBSet *bbs) {
   // Count the number of insns for each resource.
   for (IState *st : tab_->states_) {
     for (IInsn *insn : st->insns_) {
-      ResourceEntry *re = entries_[insn->GetResource()];
+      ResourceUsageEntry *re = entries_[insn->GetResource()];
       re->using_insns_.insert(insn);
     }
   }
@@ -83,13 +83,13 @@ void ResourceShare::CollectCongestedResource() {
   // Globally congested.
   for (auto &p : entries_) {
     IResource *res = p.first;
-    ResourceEntry *re = p.second;
+    ResourceUsageEntry *re = p.second;
     if (re->using_insns_.size() >= 3) {
       congested.insert(res);
     }
   }
   for (auto *ires : congested) {
-    ResourceEntry *re = entries_[ires];
+    ResourceUsageEntry *re = entries_[ires];
     if (!re->duplicatable_) {
       continue;
     }
@@ -99,7 +99,7 @@ void ResourceShare::CollectCongestedResource() {
 
 void ResourceShare::Allocate() {
   for (auto &p : entries_) {
-    ResourceEntry *re = p.second;
+    ResourceUsageEntry *re = p.second;
     if (!re->is_congested_) {
       continue;
     }
@@ -108,7 +108,7 @@ void ResourceShare::Allocate() {
     re->all_res_.push_back(new_res);
   }
   for (auto &p : entries_) {
-    ResourceEntry *re = p.second;
+    ResourceUsageEntry *re = p.second;
     if (re->all_res_.size() > 1) {
       int s = re->all_res_.size();
       re->usage_count_.resize(s);
@@ -124,7 +124,7 @@ void ResourceShare::ReBind() {
     for (IState *st : bb->states_) {
       for (IInsn *insn : st->insns_) {
 	IResource *res = insn->GetResource();
-	ResourceEntry *re = entries_[res];
+	ResourceUsageEntry *re = entries_[res];
 	if (re->usage_count_.size() > 0) {
 	  AssignResourceForOneInsn(insn, re);
 	}
@@ -139,7 +139,7 @@ void ResourceShare::ReBind() {
 	if (q != rebind_index_.end() &&
 	    q->second > 0) {
 	  IResource *res = insn->GetResource();
-	  ResourceEntry *re = entries_[res];
+	  ResourceUsageEntry *re = entries_[res];
 	  int idx = rebind_index_[insn];
 	  IResource *new_res = re->all_res_[idx];
 	  insn->SetResource(new_res);
@@ -149,7 +149,7 @@ void ResourceShare::ReBind() {
   }
 }
 
-void ResourceShare::AssignResourceForOneInsn(IInsn *insn, ResourceEntry *re) {
+void ResourceShare::AssignResourceForOneInsn(IInsn *insn, ResourceUsageEntry *re) {
   int least_used_count = 10000;
   int least_used_index = -1;
   for (int i = 0; i < re->usage_count_.size(); ++i) {

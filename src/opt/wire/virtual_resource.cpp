@@ -1,13 +1,28 @@
 #include "opt/wire/virtual_resource.h"
 
+#include "iroha/i_design.h"
 #include "iroha/stl_util.h"
+#include "opt/wire/resource_entry.h"
 
 namespace iroha {
 namespace opt {
 namespace wire {
 
 VirtualResource::VirtualResource(VirtualResourceSet *vrset, IInsn *insn)
-  : vrset_(vrset), insn_(insn) {
+  : vrset_(vrset), insn_(insn), res_(nullptr) {
+}
+
+
+ResourceEntry *VirtualResource::GetResourceEntry() {
+  return res_;
+}
+
+void VirtualResource::SetResourceEntry(ResourceEntry *re) {
+  res_ = re;
+}
+
+IInsn *VirtualResource::GetInsn() {
+  return insn_;
 }
 
 VirtualResourceSet::VirtualResourceSet(ITable *tab) : tab_(tab) {
@@ -25,6 +40,22 @@ VirtualResource *VirtualResourceSet::GetFromInsn(IInsn *insn) {
   VirtualResource *vres = new VirtualResource(this, insn);
   raw_resources_[insn] = vres;
   return vres;
+}
+
+void VirtualResourceSet::BuildDefaultBinding() {
+  for (auto &p : raw_resources_) {
+    VirtualResource *vr = p.second;
+    IResource *res = vr->GetInsn()->GetResource();
+    auto it = default_resource_entries_.find(res);
+    ResourceEntry *re = nullptr;
+    if (it == default_resource_entries_.end()) {
+      re = new ResourceEntry(res);
+      default_resource_entries_[res] = re;
+    } else {
+      re = it->second;
+    }
+    vr->SetResourceEntry(re);
+  }
 }
 
 }  // namespace wire
