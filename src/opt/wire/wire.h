@@ -15,6 +15,8 @@ public:
   bool Perform();
 
 private:
+  void IterateScheduling();
+
   ITable *table_;
   DelayInfo *delay_info_;
   DebugAnnotation *annotation_;

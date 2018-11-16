@@ -164,6 +164,8 @@
         'opt/wire/wire.h',
         'opt/wire/wire_phase.cpp',
         'opt/wire/wire_phase.h',
+        'opt/wire/wire_plan.cpp',
+        'opt/wire/wire_plan.h',
         'platform/platform.cpp',
         'platform/platform.h',
         'platform/platform_db.cpp',

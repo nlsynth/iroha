@@ -16,6 +16,7 @@ class ResourceEntry;
 class ResourceShare;
 class VirtualResource;
 class VirtualResourceSet;
+class WirePlan;
 
 }  // namespace wire
 }  // namespace opt

@@ -12,6 +12,7 @@
 #include "opt/wire/relocator.h"
 #include "opt/wire/resource_share.h"
 #include "opt/wire/scheduler.h"
+#include "opt/wire/wire_plan.h"
 
 namespace iroha {
 namespace opt {
@@ -47,8 +48,7 @@ bool Wire::Perform() {
     annotation_->ClearSubSection();
   }
 
-  SchedulerCore sch(data_path_set_.get(), delay_info_);
-  sch.Schedule();
+  IterateScheduling();
 
   Relocator rel(data_path_set_.get());
   rel.Relocate();
@@ -61,6 +61,17 @@ bool Wire::Perform() {
   }
 
   return true;
+}
+
+void Wire::IterateScheduling() {
+  WirePlanSet wps(data_path_set_.get());
+
+  // Tries once for now.
+  SchedulerCore sch(data_path_set_.get(), delay_info_);
+  sch.Schedule();
+  wps.Save();
+
+  wps.ApplyBest();
 }
 
 }  // namespace wire
