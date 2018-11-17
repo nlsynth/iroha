@@ -15,10 +15,13 @@ public:
   ResourceEntry(IResource *res);
 
   IResource *GetResource();
+  int GetNumReplicas();
+  void SetNumReplicas(int num_replicas);
 
 private:
   // Template resource.
   IResource *res_;
+  int num_replicas_;
 };
 
 }  // namespace wire

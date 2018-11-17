@@ -79,8 +79,8 @@ void BBDataPath::Build() {
 void BBDataPath::SetDelay(DelayInfo *dinfo) {
   for (auto &p : nodes_) {
     PathNode *n = p.second;
-    n->accumlated_delay_ = -1;
-    n->node_delay_ = dinfo->GetInsnDelay(n->GetInsn());
+    n->SetAccumlatedDelayFromLeaf(-1);
+    n->SetNodeDelay(dinfo->GetInsnDelay(n->GetInsn()));
   }
   for (auto &p : nodes_) {
     PathNode *n = p.second;
@@ -89,7 +89,7 @@ void BBDataPath::SetDelay(DelayInfo *dinfo) {
 }
 
 void BBDataPath::SetAccumlatedDelay(DelayInfo *dinfo, PathNode *node) {
-  if (node->accumlated_delay_ >= 0) {
+  if (node->GetAccumlatedDelayFromLeaf() >= 0) {
     return;
   }
   for (auto &p : node->source_edges_) {
@@ -99,11 +99,11 @@ void BBDataPath::SetAccumlatedDelay(DelayInfo *dinfo, PathNode *node) {
   int max_source_delay = 0;
   for (auto &p : node->source_edges_) {
     PathNode *source_node = p.second->GetSourceNode();
-    if (max_source_delay < source_node->accumlated_delay_) {
-      max_source_delay = source_node->accumlated_delay_;
+    if (max_source_delay < source_node->GetAccumlatedDelayFromLeaf()) {
+      max_source_delay = source_node->GetAccumlatedDelayFromLeaf();
     }
   }
-  node->accumlated_delay_ = max_source_delay + node->node_delay_;
+  node->SetAccumlatedDelayFromLeaf(max_source_delay + node->GetNodeDelay());
 }
 
 void BBDataPath::Dump(ostream &os) {

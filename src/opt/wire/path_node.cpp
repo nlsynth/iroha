@@ -37,9 +37,9 @@ PathNode *PathEdge::GetSinkNode() {
 }
 
 PathNode::PathNode(BBDataPath *path, int st_index, IInsn *insn, VirtualResource *vres)
-  : node_delay_(0), state_local_delay_(0), accumlated_delay_(0),
-    path_(path), initial_st_index_(st_index), final_st_index_(st_index),
-    insn_(insn) {
+  : state_local_delay_(0), path_(path),
+    initial_st_index_(st_index), final_st_index_(st_index),
+    insn_(insn), vres_(vres), node_delay_(0), accumlated_delay_from_leaf_(0) {
 }
 
 int PathNode::GetId() {
@@ -58,9 +58,25 @@ VirtualResource *PathNode::GetVirtualResource() {
   return vres_;
 }
 
+int PathNode::GetNodeDelay() {
+  return node_delay_;
+}
+
+void PathNode::SetNodeDelay(int node_delay) {
+  node_delay_ = node_delay;
+}
+
+int PathNode::GetAccumlatedDelayFromLeaf() {
+  return accumlated_delay_from_leaf_;
+}
+
+void PathNode::SetAccumlatedDelayFromLeaf(int accumlated_delay_from_leaf) {
+  accumlated_delay_from_leaf_ = accumlated_delay_from_leaf;
+}
+
 void PathNode::Dump(ostream &os) {
   os << "Node: " << GetId() << "@" << initial_st_index_ << " "
-     << node_delay_ << " " << accumlated_delay_ << "\n";
+     << node_delay_ << " " << accumlated_delay_from_leaf_ << "\n";
   if (source_edges_.size() > 0) {
     for (auto &p : source_edges_) {
       int source_node_id = p.first;

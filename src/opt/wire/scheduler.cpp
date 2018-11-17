@@ -58,7 +58,7 @@ void BBScheduler::Schedule() {
   auto &nodes = data_path_->GetNodes();
   for (auto &p : nodes) {
     PathNode *n = p.second;
-    sorted_nodes_[n->accumlated_delay_].push_back(n);
+    sorted_nodes_[n->GetAccumlatedDelayFromLeaf()].push_back(n);
   }
   // Iterate from leafs.
   bool has_unscheduled;
@@ -93,7 +93,7 @@ bool BBScheduler::ScheduleNode(PathNode *n) {
     }
     if (min_st_index == source_node->GetFinalStIndex()) {
       int tmp_local_delay =
-	source_node->state_local_delay_ + n->node_delay_;
+	source_node->state_local_delay_ + n->GetNodeDelay();
       if (tmp_local_delay > delay_info_->GetMaxDelay()) {
 	// Go to next state.
 	++min_st_index;
@@ -141,7 +141,7 @@ void BBScheduler::ScheduleExclusive(PathNode *n, int min_index,
     }
     ++loc;
   }
-  n->state_local_delay_ = n->node_delay_;
+  n->state_local_delay_ = n->GetNodeDelay();
   if (loc == min_index) {
     n->state_local_delay_ += source_local_delay;
   }
@@ -151,7 +151,7 @@ void BBScheduler::ScheduleExclusive(PathNode *n, int min_index,
 void BBScheduler::ScheduleNonExclusive(PathNode *n, int min_index,
 				       int source_local_delay) {
   n->SetFinalStIndex(min_index);
-  n->state_local_delay_ = source_local_delay + n->node_delay_;
+  n->state_local_delay_ = source_local_delay + n->GetNodeDelay();
 }
 
 }  // namespace wire

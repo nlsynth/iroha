@@ -45,13 +45,13 @@ public:
   int GetFinalStIndex();
   void SetFinalStIndex(int final_st_index);
   VirtualResource *GetVirtualResource();
+  int GetNodeDelay();
+  void SetNodeDelay(int node_delay);
+  int GetAccumlatedDelayFromLeaf();
+  void SetAccumlatedDelayFromLeaf(int accumlated_delay_from_leaf);
 
-  // Latency of this node (=insn).
-  int node_delay_;
   // Scratch variable for Scheduler.
   int state_local_delay_;
-  // Accumlated delay in the current state.
-  int accumlated_delay_;
   // key-ed by source node id.
   map<int, PathEdge *> source_edges_;
   // key-ed by node id.
@@ -63,6 +63,10 @@ private:
   int final_st_index_;
   IInsn *insn_;
   VirtualResource *vres_;
+  // Latency of just this node (=insn) (Schedule independent).
+  int node_delay_;
+  // Maximum accumlated delay from leafs (Schedule independent).
+  int accumlated_delay_from_leaf_;
 };
 
 }  // namespace wire
