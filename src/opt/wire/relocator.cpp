@@ -2,6 +2,7 @@
 
 #include "design/design_tool.h"
 #include "iroha/i_design.h"
+#include "iroha/logging.h"
 #include "iroha/resource_class.h"
 #include "opt/bb_set.h"
 #include "opt/wire/data_path.h"
@@ -34,8 +35,18 @@ void Relocator::RelocateInsnsForDataPath(BBDataPath *dp) {
   }
   for (auto &p : nodes) {
     PathNode *n = p.second;
-    bb->states_[n->GetFinalStIndex()]->insns_.push_back(n->GetInsn());
+    int st_index = n->GetFinalStIndex();
+    // TODO: Don't fail if bb gets bigger.
+    CHECK(st_index < bb->states_.size());
+    bb->states_[st_index]->insns_.push_back(n->GetInsn());
   }
+
+  RewirePaths(dp);
+}
+
+void Relocator::RewirePaths(BBDataPath *dp) {
+  BB *bb = dp->GetBB();
+  auto &nodes = dp->GetNodes();
   for (auto &p : nodes) {
     PathNode *src_node = p.second;
     IState *src_st = bb->states_[src_node->GetFinalStIndex()];

@@ -16,6 +16,7 @@ public:
 
 private:
   void RelocateInsnsForDataPath(BBDataPath *dp);
+  void RewirePaths(BBDataPath *dp);
   IRegister *AllocIntermediateReg(IInsn *insn, bool state_local, int oindex);
   void AddIntermediateWireAndInsn(PathEdge *edge, IState *st);
   void AddIntermediateRegAndInsn(PathEdge *edge, IState *st);
