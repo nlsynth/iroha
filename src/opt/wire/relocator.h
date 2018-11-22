@@ -16,10 +16,12 @@ public:
 
 private:
   void RelocateInsnsForDataPath(BBDataPath *dp);
-  void RewirePaths(BBDataPath *dp);
+  void RewirePaths(BBDataPath *dp, vector<IState *> *states);
+  void RelocateTransitionInsns(BBDataPath *dp, vector<IState *> *states);
   IRegister *AllocIntermediateReg(IInsn *insn, bool state_local, int oindex);
   void AddIntermediateWireAndInsn(PathEdge *edge, IState *st);
   void AddIntermediateRegAndInsn(PathEdge *edge, IState *st);
+  bool IsTransitionNode(PathNode *node);
 
   DataPathSet *data_path_set_;
   IResource *assign_;
