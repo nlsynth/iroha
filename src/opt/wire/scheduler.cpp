@@ -80,12 +80,25 @@ bool BBScheduler::ScheduleNode(PathNode *n) {
     // already scheduled.
     return true;
   }
+  // Minimum state index by src register position.
+  int min_st_index = GetMinStIndex(n);
+  // Calculates local delay.
+  if (n->GetInsn()->GetResource()->GetClass()->IsExclusive()) {
+    ScheduleExclusive(n, min_st_index);
+  } else {
+    ScheduleNonExclusive(n, min_st_index);
+  }
+
+  return true;
+}
+
+int BBScheduler::GetMinStIndex(PathNode *n) {
   int min_st_index = 0;
   // Determines the location.
   for (auto &s : n->source_edges_) {
     PathNode *source_node = s.second->GetSourceNode();
     if (source_node->GetFinalStIndex() < 0) {
-      // not yet scheduled. fail and try later again.
+      // Not yet scheduled. Fail and try later again.
       return false;
     }
     if (min_st_index < source_node->GetFinalStIndex()) {
@@ -95,29 +108,26 @@ bool BBScheduler::ScheduleNode(PathNode *n) {
       int tmp_local_delay =
 	source_node->state_local_delay_ + n->GetNodeDelay();
       if (tmp_local_delay > delay_info_->GetMaxDelay()) {
-	// Go to next state.
+	// Local margin is not sufficient. Go to the next state.
 	++min_st_index;
       }
     }
   }
-  // Calculates local delay.
+  return min_st_index;
+}
+
+int BBScheduler::GetLocalDelayBeforeNode(PathNode *n, int st_index) {
   int source_local_delay = 0;
   for (auto &s : n->source_edges_) {
     PathNode *source_node = s.second->GetSourceNode();
-    if (source_node->GetFinalStIndex() < min_st_index) {
+    if (source_node->GetFinalStIndex() < st_index) {
       continue;
     }
     if (source_local_delay < source_node->state_local_delay_) {
       source_local_delay = source_node->state_local_delay_;
     }
   }
-  if (n->GetInsn()->GetResource()->GetClass()->IsExclusive()) {
-    ScheduleExclusive(n, min_st_index, source_local_delay);
-  } else {
-    ScheduleNonExclusive(n, min_st_index, source_local_delay);
-  }
-
-  return true;
+  return source_local_delay;
 }
 
 void BBScheduler::ClearSchedule() {
@@ -129,9 +139,9 @@ void BBScheduler::ClearSchedule() {
   }
 }
 
-void BBScheduler::ScheduleExclusive(PathNode *n, int min_index,
-				    int source_local_delay) {
-  int loc = min_index;
+void BBScheduler::ScheduleExclusive(PathNode *n, int min_st_index) {
+  int loc = min_st_index;
+  // Tries to find a state index where this node can use the resource.
   while (true) {
     auto key = std::make_tuple(n->GetInsn()->GetResource(), loc);
     auto it = resource_slots_.find(key);
@@ -142,15 +152,16 @@ void BBScheduler::ScheduleExclusive(PathNode *n, int min_index,
     ++loc;
   }
   n->state_local_delay_ = n->GetNodeDelay();
-  if (loc == min_index) {
-    n->state_local_delay_ += source_local_delay;
+  if (loc == min_st_index) {
+    n->state_local_delay_ += GetLocalDelayBeforeNode(n, min_st_index);
   }
   n->SetFinalStIndex(loc);
 }
 
-void BBScheduler::ScheduleNonExclusive(PathNode *n, int min_index,
-				       int source_local_delay) {
-  n->SetFinalStIndex(min_index);
+void BBScheduler::ScheduleNonExclusive(PathNode *n, int st_index) {
+  // Just place the insn at st_index.
+  n->SetFinalStIndex(st_index);
+  int source_local_delay = GetLocalDelayBeforeNode(n, st_index);
   n->state_local_delay_ = source_local_delay + n->GetNodeDelay();
 }
 

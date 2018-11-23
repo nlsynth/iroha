@@ -30,9 +30,11 @@ public:
 private:
   bool ScheduleNode(PathNode *n);
   void ClearSchedule();
-  void ScheduleExclusive(PathNode *n, int min_index, int source_local_delay);
-  void ScheduleNonExclusive(PathNode *n, int min_index, int source_local_delay);
+  void ScheduleExclusive(PathNode *n, int min_st_index);
+  void ScheduleNonExclusive(PathNode *n, int st_index);
   bool IsSchedulable();
+  int GetMinStIndex(PathNode *n);
+  int GetLocalDelayBeforeNode(PathNode *n, int st_index);
 
   BBDataPath *data_path_;
   DelayInfo *delay_info_;
