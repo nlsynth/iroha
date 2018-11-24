@@ -154,6 +154,8 @@
 	'opt/wire/resource_entry.h',
 	'opt/wire/resource_share.cpp',
 	'opt/wire/resource_share.h',
+	'opt/wire/resource_tracker.cpp',
+	'opt/wire/resource_tracker.h',
 	'opt/wire/relocator.cpp',
 	'opt/wire/relocator.h',
 	'opt/wire/scheduler.cpp',

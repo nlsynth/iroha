@@ -22,16 +22,6 @@ private:
   DelayInfo *delay_info_;
 };
 
-class BBResourceTracker {
-public:
-  ~BBResourceTracker();
-  bool CanUseResource(PathNode *node, int st_index);
-  void AllocateResource(PathNode *node, int st_index);
-
-private:
-  set<std::tuple<IResource *, int> > resource_slots_;
-};
-
 // Schedules a BB.
 class BBScheduler {
 public:

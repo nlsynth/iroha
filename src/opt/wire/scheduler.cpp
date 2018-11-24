@@ -6,27 +6,11 @@
 #include "opt/delay_info.h"
 #include "opt/wire/data_path.h"
 #include "opt/wire/path_node.h"
+#include "opt/wire/resource_tracker.h"
 
 namespace iroha {
 namespace opt {
 namespace wire {
-
-BBResourceTracker::~BBResourceTracker() {
-}
-
-bool BBResourceTracker::CanUseResource(PathNode *node, int st_index) {
-  auto key = std::make_tuple(node->GetInsn()->GetResource(), st_index);
-  auto it = resource_slots_.find(key);
-  if (it == resource_slots_.end()) {
-    return true;
-  }
-  return false;
-}
-
-void BBResourceTracker::AllocateResource(PathNode *node, int st_index) {
-  auto key = std::make_tuple(node->GetInsn()->GetResource(), st_index);
-  resource_slots_.insert(key);
-}
 
 SchedulerCore::SchedulerCore(DataPathSet *data_path_set, DelayInfo *delay_info)
   : data_path_set_(data_path_set), delay_info_(delay_info) {
@@ -41,7 +25,8 @@ void SchedulerCore::Schedule() {
 }
 
 BBScheduler::BBScheduler(BBDataPath *data_path, DelayInfo *delay_info)
-  : data_path_(data_path), delay_info_(delay_info) {
+  : data_path_(data_path), delay_info_(delay_info),
+    resource_tracker_(new BBResourceTracker()) {
 }
 
 BBScheduler::~BBScheduler() {

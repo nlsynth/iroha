@@ -9,6 +9,7 @@ namespace opt {
 namespace wire {
 
 class BBDataPath;
+class BBResourceTracker;
 class DataPathSet;
 class PathEdge;
 class PathNode;
