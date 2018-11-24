@@ -10,6 +10,7 @@ namespace iroha {
 namespace opt {
 namespace wire {
 
+// Schedules a DataPathSet (=ITable).
 class SchedulerCore {
 public:
   SchedulerCore(DataPathSet *data_path_set, DelayInfo *delay_info);
@@ -21,9 +22,21 @@ private:
   DelayInfo *delay_info_;
 };
 
+class BBResourceTracker {
+public:
+  ~BBResourceTracker();
+  bool CanUseResource(PathNode *node, int st_index);
+  void AllocateResource(PathNode *node, int st_index);
+
+private:
+  set<std::tuple<IResource *, int> > resource_slots_;
+};
+
+// Schedules a BB.
 class BBScheduler {
 public:
   BBScheduler(BBDataPath *data_path, DelayInfo *delay_info);
+  ~BBScheduler();
 
   void Schedule();
 
@@ -40,7 +53,7 @@ private:
   DelayInfo *delay_info_;
   // latency to nodes.
   map<int, vector<PathNode *> > sorted_nodes_;
-  set<std::tuple<IResource *, int> > resource_slots_;
+  std::unique_ptr<BBResourceTracker> resource_tracker_;
 };
 
 }  // namespace wire

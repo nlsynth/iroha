@@ -11,6 +11,23 @@ namespace iroha {
 namespace opt {
 namespace wire {
 
+BBResourceTracker::~BBResourceTracker() {
+}
+
+bool BBResourceTracker::CanUseResource(PathNode *node, int st_index) {
+  auto key = std::make_tuple(node->GetInsn()->GetResource(), st_index);
+  auto it = resource_slots_.find(key);
+  if (it == resource_slots_.end()) {
+    return true;
+  }
+  return false;
+}
+
+void BBResourceTracker::AllocateResource(PathNode *node, int st_index) {
+  auto key = std::make_tuple(node->GetInsn()->GetResource(), st_index);
+  resource_slots_.insert(key);
+}
+
 SchedulerCore::SchedulerCore(DataPathSet *data_path_set, DelayInfo *delay_info)
   : data_path_set_(data_path_set), delay_info_(delay_info) {
 }
@@ -25,6 +42,9 @@ void SchedulerCore::Schedule() {
 
 BBScheduler::BBScheduler(BBDataPath *data_path, DelayInfo *delay_info)
   : data_path_(data_path), delay_info_(delay_info) {
+}
+
+BBScheduler::~BBScheduler() {
 }
 
 bool BBScheduler::IsSchedulable() {
@@ -143,10 +163,8 @@ void BBScheduler::ScheduleExclusive(PathNode *n, int min_st_index) {
   int loc = min_st_index;
   // Tries to find a state index where this node can use the resource.
   while (true) {
-    auto key = std::make_tuple(n->GetInsn()->GetResource(), loc);
-    auto it = resource_slots_.find(key);
-    if (it == resource_slots_.end()) {
-      resource_slots_.insert(key);
+    if (resource_tracker_->CanUseResource(n, loc)) {
+      resource_tracker_->AllocateResource(n, loc);
       break;
     }
     ++loc;
