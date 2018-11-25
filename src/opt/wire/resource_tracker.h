@@ -8,6 +8,8 @@ namespace iroha {
 namespace opt {
 namespace wire {
 
+class BBStateResourceUsage;
+
 class BBResourceTracker {
 public:
   ~BBResourceTracker();
@@ -15,7 +17,10 @@ public:
   void AllocateResource(PathNode *node, int st_index);
 
 private:
+  BBStateResourceUsage *GetResourceUsage(int st_index);
+
   set<std::tuple<IResource *, int> > resource_slots_;
+  map<int, BBStateResourceUsage *> resource_usage_map_;
 };
 
 }  // namespace wire
