@@ -14,18 +14,23 @@ namespace wire {
 class SchedulerCore {
 public:
   SchedulerCore(DataPathSet *data_path_set, DelayInfo *delay_info);
+  ~SchedulerCore();
 
   void Schedule();
+  // Takes the ownership of the object.
+  ResourceConflictTracker *AcquireConflictTracker();
 
 private:
   DataPathSet *data_path_set_;
   DelayInfo *delay_info_;
+  std::unique_ptr<ResourceConflictTracker> conflict_tracker_;
 };
 
 // Schedules a BB.
 class BBScheduler {
 public:
-  BBScheduler(BBDataPath *data_path, DelayInfo *delay_info);
+  BBScheduler(BBDataPath *data_path, DelayInfo *delay_info,
+	      ResourceConflictTracker *conflict_tracker);
   ~BBScheduler();
 
   void Schedule();
@@ -43,6 +48,7 @@ private:
   DelayInfo *delay_info_;
   // latency to nodes.
   map<int, vector<PathNode *> > sorted_nodes_;
+  ResourceConflictTracker *conflict_tracker_;
   std::unique_ptr<BBResourceTracker> resource_tracker_;
 };
 

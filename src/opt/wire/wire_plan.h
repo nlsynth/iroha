@@ -11,13 +11,15 @@ namespace wire {
 // A snapshot of scheduling and allocation result.
 class WirePlan {
 public:
-  WirePlan(DataPathSet *dps);
+  WirePlan(DataPathSet *dps, ResourceConflictTracker *conflict_tracker);
+  ~WirePlan();
 
   void Save();
   void Restore();
 
 private:
   DataPathSet *dps_;
+  std::unique_ptr<ResourceConflictTracker> conflict_tracker_;
 };
 
 class WirePlanSet {
@@ -25,7 +27,7 @@ public:
   WirePlanSet(DataPathSet *dps);
   ~WirePlanSet();
 
-  void Save();
+  void Save(ResourceConflictTracker *conflicts);
   void ApplyBest();
 
 private:

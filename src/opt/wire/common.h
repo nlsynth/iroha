@@ -13,6 +13,7 @@ class BBResourceTracker;
 class DataPathSet;
 class PathEdge;
 class PathNode;
+class ResourceConflictTracker;
 class ResourceEntry;
 class ResourceShare;
 class VirtualResource;

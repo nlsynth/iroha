@@ -1,13 +1,18 @@
 #include "opt/wire/wire_plan.h"
 
 #include "iroha/stl_util.h"
+#include "opt/wire/resource_conflict_tracker.h"
 
 namespace iroha {
 namespace opt {
 namespace wire {
 
 
-WirePlan::WirePlan(DataPathSet *dps) : dps_(dps) {
+WirePlan::WirePlan(DataPathSet *dps, ResourceConflictTracker *conflict_tracker)
+  : dps_(dps), conflict_tracker_(conflict_tracker) {
+}
+
+WirePlan::~WirePlan() {
 }
 
 void WirePlan::Save() {
@@ -23,8 +28,8 @@ WirePlanSet::~WirePlanSet() {
   STLDeleteValues(&plans_);
 }
 
-void WirePlanSet::Save() {
-  WirePlan *wp = new WirePlan(dps_);
+void WirePlanSet::Save(ResourceConflictTracker *conflicts) {
+  WirePlan *wp = new WirePlan(dps_, conflicts);
   wp->Save();
   plans_.push_back(wp);
 }

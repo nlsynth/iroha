@@ -10,6 +10,7 @@ namespace wire {
 
 class BBStateResourceUsage;
 
+// Per BB object used by Scheduler to track resource usage.
 class BBResourceTracker {
 public:
   ~BBResourceTracker();

@@ -69,7 +69,7 @@ void Wire::IterateScheduling() {
   // Tries once for now.
   SchedulerCore sch(data_path_set_.get(), delay_info_);
   sch.Schedule();
-  wps.Save();
+  wps.Save(sch.AcquireConflictTracker());
 
   wps.ApplyBest();
 }

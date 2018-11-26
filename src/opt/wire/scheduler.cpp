@@ -6,6 +6,7 @@
 #include "opt/delay_info.h"
 #include "opt/wire/data_path.h"
 #include "opt/wire/path_node.h"
+#include "opt/wire/resource_conflict_tracker.h"
 #include "opt/wire/resource_tracker.h"
 
 namespace iroha {
@@ -14,18 +15,28 @@ namespace wire {
 
 SchedulerCore::SchedulerCore(DataPathSet *data_path_set, DelayInfo *delay_info)
   : data_path_set_(data_path_set), delay_info_(delay_info) {
+  conflict_tracker_.reset(new ResourceConflictTracker);
+}
+
+SchedulerCore::~SchedulerCore() {
 }
 
 void SchedulerCore::Schedule() {
   auto &paths = data_path_set_->GetPaths();
   for (auto &p : paths) {
-    BBScheduler sch(p.second, delay_info_);
+    BBScheduler sch(p.second, delay_info_, conflict_tracker_.get());
     sch.Schedule();
   }
 }
 
-BBScheduler::BBScheduler(BBDataPath *data_path, DelayInfo *delay_info)
+ResourceConflictTracker *SchedulerCore::AcquireConflictTracker() {
+  return conflict_tracker_.release();
+}
+
+BBScheduler::BBScheduler(BBDataPath *data_path, DelayInfo *delay_info,
+			 ResourceConflictTracker *conflict_tracker)
   : data_path_(data_path), delay_info_(delay_info),
+    conflict_tracker_(conflict_tracker),
     resource_tracker_(new BBResourceTracker()) {
 }
 
@@ -155,9 +166,12 @@ void BBScheduler::ScheduleExclusive(PathNode *n, int min_st_index) {
     ++loc;
   }
   n->state_local_delay_ = n->GetNodeDelay();
+  bool has_conflict = true;
   if (loc == min_st_index) {
+    has_conflict = false;
     n->state_local_delay_ += GetLocalDelayBeforeNode(n, min_st_index);
   }
+  conflict_tracker_->AddUsage(n, has_conflict);
   n->SetFinalStIndex(loc);
 }
 
