@@ -42,6 +42,7 @@ public:
   int GetId();
   void Dump(ostream &os);
   IInsn *GetInsn();
+  int GetInitialStIndex();
   int GetFinalStIndex();
   void SetFinalStIndex(int final_st_index);
   VirtualResource *GetVirtualResource();
@@ -49,6 +50,7 @@ public:
   void SetNodeDelay(int node_delay);
   int GetAccumlatedDelayFromLeaf();
   void SetAccumlatedDelayFromLeaf(int accumlated_delay_from_leaf);
+  bool IsTransition();
 
   // Scratch variable for Scheduler.
   int state_local_delay_;
@@ -65,7 +67,8 @@ private:
   VirtualResource *vres_;
   // Latency of just this node (=insn) (Schedule independent).
   int node_delay_;
-  // Maximum accumlated delay from leafs (Schedule independent).
+  // Maximum accumlated delay from leafs including the delay of this node
+  // (Schedule independent).
   int accumlated_delay_from_leaf_;
 };
 

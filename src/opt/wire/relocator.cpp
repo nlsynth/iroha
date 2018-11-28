@@ -39,7 +39,7 @@ void Relocator::RelocateInsnsForDataPath(BBDataPath *dp) {
   // Non transition insns.
   for (auto &p : nodes) {
     PathNode *n = p.second;
-    if (IsTransitionNode(n)) {
+    if (n->IsTransition()) {
       continue;
     }
     int st_index = n->GetFinalStIndex();
@@ -69,7 +69,7 @@ void Relocator::RelocateTransitionInsns(BBDataPath *dp, vector<IState *> *states
   // Copies the original transition insns.
   for (auto &p : nodes) {
     PathNode *n = p.second;
-    if (IsTransitionNode(n)) {
+    if (n->IsTransition()) {
       int st_index = n->GetFinalStIndex();
       states->at(st_index)->insns_.push_back(n->GetInsn());
     }
@@ -171,10 +171,6 @@ void Relocator::AddIntermediateRegAndInsn(PathEdge *edge, IState *st) {
   assign_insn->inputs_.push_back(reg);
   assign_insn->outputs_.push_back(orig_out);
   st->insns_.push_back(assign_insn);
-}
-
-bool Relocator::IsTransitionNode(PathNode *node) {
-  return resource::IsTransition(*(node->GetInsn()->GetResource()->GetClass()));
 }
 
 }  // namespace wire

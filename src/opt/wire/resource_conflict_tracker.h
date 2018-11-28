@@ -15,6 +15,12 @@ public:
   ~ResourceConflictTracker();
 
   void AddUsage(PathNode *node, bool had_conflict);
+
+  void Dump(DebugAnnotation *an);
+
+private:
+  map<ResourceEntry *, int> usage_count_;
+  map<ResourceEntry *, int> conflict_count_;
 };
 
 }  // namespace wire

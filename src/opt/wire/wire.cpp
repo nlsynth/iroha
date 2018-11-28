@@ -10,6 +10,7 @@
 #include "opt/delay_info.h"
 #include "opt/wire/data_path.h"
 #include "opt/wire/relocator.h"
+#include "opt/wire/resource_conflict_tracker.h"
 #include "opt/wire/resource_share.h"
 #include "opt/wire/scheduler.h"
 #include "opt/wire/wire_plan.h"
@@ -69,7 +70,13 @@ void Wire::IterateScheduling() {
   // Tries once for now.
   SchedulerCore sch(data_path_set_.get(), delay_info_);
   sch.Schedule();
-  wps.Save(sch.AcquireConflictTracker());
+  auto *conflict_tracker = sch.AcquireConflictTracker();
+  wps.Save(conflict_tracker);
+  if (annotation_->IsEnabled()) {
+    annotation_->StartSubSection("sched", false);
+    conflict_tracker->Dump(annotation_);
+    annotation_->ClearSubSection();
+  }
 
   wps.ApplyBest();
 }

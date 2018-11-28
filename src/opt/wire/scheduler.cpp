@@ -71,10 +71,19 @@ void BBScheduler::Schedule() {
   }
   ClearSchedule();
   // Sort by accumlated latency from leafs.
+  int num_states = data_path_->GetBB()->states_.size();
   auto &nodes = data_path_->GetNodes();
   for (auto &p : nodes) {
     PathNode *n = p.second;
-    sorted_nodes_[n->GetAccumlatedDelayFromLeaf()].push_back(n);
+    if (n->IsTransition()) {
+      // Schedule transition insns in the original order.
+      // (optional: schedule them earlier than other insns by using
+      // negative sort key)
+      int idx = n->GetInitialStIndex() - num_states;
+      sorted_nodes_[idx].push_back(n);
+    } else {
+      sorted_nodes_[n->GetAccumlatedDelayFromLeaf()].push_back(n);
+    }
   }
   // Iterate from leafs.
   bool has_unscheduled;

@@ -1,6 +1,7 @@
 #include "opt/wire/path_node.h"
 
 #include "iroha/i_design.h"
+#include "iroha/resource_class.h"
 
 namespace iroha {
 namespace opt {
@@ -46,6 +47,10 @@ int PathNode::GetId() {
   return insn_->GetId();
 }
 
+int PathNode::GetInitialStIndex() {
+  return initial_st_index_;
+}
+
 int PathNode::GetFinalStIndex() {
   return final_st_index_;
 }
@@ -88,6 +93,10 @@ void PathNode::Dump(ostream &os) {
 
 IInsn *PathNode::GetInsn() {
   return insn_;
+}
+
+bool PathNode::IsTransition() {
+  resource::IsTransition(*(insn_->GetResource()->GetClass()));
 }
 
 }  // namespace wire
