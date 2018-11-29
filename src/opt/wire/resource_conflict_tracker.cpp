@@ -28,7 +28,8 @@ void ResourceConflictTracker::AddUsage(PathNode *node, bool had_conflict) {
 
 void ResourceConflictTracker::Dump(DebugAnnotation *an) {
   ostream &os = an->GetDumpStream();
-  os << "Resource conflicts\n";
+  os << "Resource conflicts\n"
+     << "# class id replica count conflict\n";
   for (auto p : usage_count_) {
     ResourceEntry *rent = p.first;
     int count = p.second;
@@ -36,6 +37,7 @@ void ResourceConflictTracker::Dump(DebugAnnotation *an) {
     IResource *ires = rent->GetResource();
     os << ires->GetClass()->GetName() << " "
        << ires->GetId() << " "
+       << rent->GetNumReplicas() << " "
        << count << " "
        << conflict
        << "\n";

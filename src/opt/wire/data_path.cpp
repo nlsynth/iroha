@@ -162,6 +162,10 @@ BBSet *DataPathSet::GetBBSet() {
   return bbs_;
 }
 
+VirtualResourceSet *DataPathSet::GetVirtualResourceSet() {
+  return vres_set_.get();
+}
+
 }  // namespace wire
 }  // namespace opt
 }  // namespace iroha

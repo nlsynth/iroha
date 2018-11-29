@@ -40,6 +40,7 @@ public:
   void Dump(DebugAnnotation *an);
   map<int, BBDataPath *> &GetPaths();
   BBSet *GetBBSet();
+  VirtualResourceSet *GetVirtualResourceSet();
 
 private:
   BBSet *bbs_;

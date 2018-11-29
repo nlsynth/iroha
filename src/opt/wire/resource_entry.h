@@ -10,6 +10,7 @@ namespace wire {
 
 // Represents a resource type during this phase.
 // Multiple VirtualResource can points to this.
+// Owned by VirtualResourceSet.
 class ResourceEntry {
 public:
   ResourceEntry(IResource *res);
@@ -17,10 +18,13 @@ public:
   IResource *GetResource();
   int GetNumReplicas();
   void SetNumReplicas(int num_replicas);
+  void PrepareReplicas();
+  IResource *GetNthReplica(int nth);
 
 private:
   // Template resource.
   IResource *res_;
+  vector<IResource *> replicas_;
   int num_replicas_;
 };
 

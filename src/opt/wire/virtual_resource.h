@@ -34,6 +34,7 @@ public:
 
   VirtualResource *GetFromInsn(IInsn *insn);
   void BuildDefaultBinding();
+  void PrepareReplicas();
 
 private:
   ITable *tab_;

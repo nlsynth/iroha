@@ -8,6 +8,8 @@
 #include "opt/bb_set.h"
 #include "opt/wire/data_path.h"
 #include "opt/wire/path_node.h"
+#include "opt/wire/resource_entry.h"
+#include "opt/wire/virtual_resource.h"
 
 namespace iroha {
 namespace opt {
@@ -20,6 +22,7 @@ Relocator::Relocator(DataPathSet *data_path_set)
 }
 
 void Relocator::Relocate() {
+  data_path_set_->GetVirtualResourceSet()->PrepareReplicas();
   auto &paths = data_path_set_->GetPaths();
   for (auto &p : paths) {
     RelocateInsnsForDataPath(p.second);
@@ -42,11 +45,22 @@ void Relocator::RelocateInsnsForDataPath(BBDataPath *dp) {
     if (n->IsTransition()) {
       continue;
     }
-    int st_index = n->GetFinalStIndex();
-    states[st_index]->insns_.push_back(n->GetInsn());
+    RelocateInsn(n, &states);
   }
   // Wires.
   RewirePaths(dp, &states);
+}
+
+void Relocator::RelocateInsn(PathNode *node, vector<IState *> *states) {
+  int st_index = node->GetFinalStIndex();
+  IInsn *insn = node->GetInsn();
+  states->at(st_index)->insns_.push_back(insn);
+  VirtualResource *vres = node->GetVirtualResource();
+  int ridx = vres->GetReplicaIndex();
+  if (ridx > 0) {
+    ResourceEntry *rent = vres->GetResourceEntry();
+    insn->SetResource(rent->GetNthReplica(ridx));
+  }
 }
 
 void Relocator::RelocateTransitionInsns(BBDataPath *dp, vector<IState *> *states) {

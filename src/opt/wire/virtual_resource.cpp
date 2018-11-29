@@ -52,6 +52,8 @@ VirtualResource *VirtualResourceSet::GetFromInsn(IInsn *insn) {
 }
 
 void VirtualResourceSet::BuildDefaultBinding() {
+  // Binds existing each IResource to a new ResourceEntry.
+  // We might consider to merge similar or compatible resources.
   for (auto &p : raw_resources_) {
     VirtualResource *vr = p.second;
     IResource *res = vr->GetInsn()->GetResource();
@@ -64,6 +66,13 @@ void VirtualResourceSet::BuildDefaultBinding() {
       re = it->second;
     }
     vr->SetResourceEntry(re);
+  }
+}
+
+void VirtualResourceSet::PrepareReplicas() {
+  for (auto &p : default_resource_entries_) {
+    auto *rent = p.second;
+    rent->PrepareReplicas();
   }
 }
 
