@@ -145,6 +145,8 @@
         'opt/ssa/ssa_converter.h',
         'opt/ssa/ssa.cpp',
         'opt/ssa/ssa.h',
+        'opt/wire/bb_wire_plan.cpp',
+        'opt/wire/bb_wire_plan.h',
 	'opt/wire/common.h',
 	'opt/wire/data_path.cpp',
 	'opt/wire/data_path.h',

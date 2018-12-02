@@ -10,6 +10,7 @@ namespace wire {
 
 class BBDataPath;
 class BBResourceTracker;
+class BBWirePlan;
 class DataPathSet;
 class PathEdge;
 class PathNode;
@@ -19,6 +20,7 @@ class ResourceShare;
 class VirtualResource;
 class VirtualResourceSet;
 class WirePlan;
+class WirePlanSet;
 
 }  // namespace wire
 }  // namespace opt

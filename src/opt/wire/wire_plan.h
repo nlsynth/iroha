@@ -20,6 +20,7 @@ public:
 private:
   DataPathSet *dps_;
   std::unique_ptr<ResourceConflictTracker> conflict_tracker_;
+  map<int, BBWirePlan *> bb_plans_;
 };
 
 class WirePlanSet {
