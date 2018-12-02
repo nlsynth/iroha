@@ -18,9 +18,14 @@ public:
   void Restore();
 
 private:
+  void SaveResources();
+  void RestoreResources();
+
   DataPathSet *dps_;
   std::unique_ptr<ResourceConflictTracker> conflict_tracker_;
   map<int, BBWirePlan *> bb_plans_;
+  map<ResourceEntry *, int> num_replicas_;
+  map<VirtualResource *, int> replica_indexes_;
 };
 
 class WirePlanSet {

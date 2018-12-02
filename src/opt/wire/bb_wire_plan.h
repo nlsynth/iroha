@@ -18,6 +18,7 @@ public:
 
 private:
   BBDataPath *dp_;
+  map<PathNode *, int> st_indexes_;
 };
 
 }  // namespace wire

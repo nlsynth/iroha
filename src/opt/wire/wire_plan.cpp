@@ -4,6 +4,8 @@
 #include "opt/wire/bb_wire_plan.h"
 #include "opt/wire/data_path.h"
 #include "opt/wire/resource_conflict_tracker.h"
+#include "opt/wire/resource_entry.h"
+#include "opt/wire/virtual_resource.h"
 
 namespace iroha {
 namespace opt {
@@ -29,12 +31,41 @@ void WirePlan::Save() {
     BBWirePlan *plan = p.second;
     plan->Save();
   }
+  SaveResources();
 }
 
 void WirePlan::Restore() {
   for (auto p : bb_plans_) {
     BBWirePlan *plan = p.second;
     plan->Restore();
+  }
+  RestoreResources();
+}
+
+void WirePlan::SaveResources() {
+  VirtualResourceSet *vrs = dps_->GetVirtualResourceSet();
+  auto &entries = vrs->GetResourceEntries();
+  for (auto &p : entries) {
+    ResourceEntry *rent = p.second;
+    num_replicas_[rent] = rent->GetNumReplicas();
+  }
+  auto &resources = vrs->GetVirtualResources();
+  for (auto &p : resources) {
+    VirtualResource *vres = p.second;
+  }
+}
+
+void WirePlan::RestoreResources() {
+  VirtualResourceSet *vrs = dps_->GetVirtualResourceSet();
+  auto &entries = vrs->GetResourceEntries();
+  for (auto &p : entries) {
+    ResourceEntry *rent = p.second;
+    rent->SetNumReplicas(num_replicas_[rent]);
+  }
+  auto &resources = vrs->GetVirtualResources();
+  for (auto &p : resources) {
+    VirtualResource *vres = p.second;
+    vres->SetReplicaIndex(replica_indexes_[vres]);
   }
 }
 

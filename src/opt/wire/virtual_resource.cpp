@@ -76,6 +76,14 @@ void VirtualResourceSet::PrepareReplicas() {
   }
 }
 
+map<IResource *, ResourceEntry *> &VirtualResourceSet::GetResourceEntries() {
+  return default_resource_entries_;
+}
+
+map<IInsn *, VirtualResource *> &VirtualResourceSet::GetVirtualResources() {
+  return raw_resources_;
+}
+
 }  // namespace wire
 }  // namespace opt
 }  // namespace iroha
