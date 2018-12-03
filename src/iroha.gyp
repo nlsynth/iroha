@@ -156,6 +156,8 @@
 	'opt/wire/resource_conflict_tracker.h',
 	'opt/wire/resource_entry.cpp',
 	'opt/wire/resource_entry.h',
+	'opt/wire/resource_replica_assigner.cpp',
+	'opt/wire/resource_replica_assigner.h',
 	'opt/wire/resource_share.cpp',
 	'opt/wire/resource_share.h',
 	'opt/wire/resource_tracker.cpp',

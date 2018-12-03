@@ -9,6 +9,7 @@
 #include "opt/wire/data_path.h"
 #include "opt/wire/path_node.h"
 #include "opt/wire/resource_entry.h"
+#include "opt/wire/resource_replica_assigner.h"
 #include "opt/wire/virtual_resource.h"
 
 namespace iroha {
@@ -22,7 +23,12 @@ Relocator::Relocator(DataPathSet *data_path_set)
 }
 
 void Relocator::Relocate() {
+  // Actually allocates replica resources.
   data_path_set_->GetVirtualResourceSet()->PrepareReplicas();
+  // Assigns replica indexes.
+  ResourceReplicaAssigner assigner(data_path_set_);
+  assigner.Perform();
+  // Move insns and may update IResource.
   auto &paths = data_path_set_->GetPaths();
   for (auto &p : paths) {
     RelocateInsnsForDataPath(p.second);
