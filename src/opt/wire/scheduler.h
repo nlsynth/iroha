@@ -4,8 +4,6 @@
 
 #include "opt/wire/common.h"
 
-#include <tuple>
-
 namespace iroha {
 namespace opt {
 namespace wire {

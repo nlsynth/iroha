@@ -19,6 +19,7 @@ private:
   void PerformNode(PathNode *node);
 
   DataPathSet *dps_;
+  map<ResourceEntry *, vector<int> > usage_count_;
 };
 
 }  // namespace wire
