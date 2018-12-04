@@ -12,7 +12,6 @@
 #include "opt/wire/explorer.h"
 #include "opt/wire/relocator.h"
 #include "opt/wire/resource_conflict_tracker.h"
-#include "opt/wire/resource_share.h"
 #include "opt/wire/scheduler.h"
 #include "opt/wire/wire_plan.h"
 
@@ -22,7 +21,6 @@ namespace wire {
 
 Wire::Wire(ITable *table, DelayInfo *delay_info, DebugAnnotation *annotation)
   : table_(table), delay_info_(delay_info), annotation_(annotation) {
-  resource_share_.reset(new ResourceShare(table));
   data_path_set_.reset(new DataPathSet());
 }
 
@@ -34,10 +32,6 @@ bool Wire::Perform() {
   if (annotation_->IsEnabled()) {
     annotation_->DumpIntermediateTable(table_);
   }
-
-  resource_share_->Scan(bset_.get());
-  resource_share_->Allocate();
-  resource_share_->ReBind();
 
   // Assign ids to newly allocated insns.
   Validator::ValidateTable(table_);

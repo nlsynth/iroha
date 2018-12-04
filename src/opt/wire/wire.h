@@ -22,7 +22,6 @@ private:
   DebugAnnotation *annotation_;
   unique_ptr<BBSet> bset_;
 
-  unique_ptr<ResourceShare> resource_share_;
   unique_ptr<DataPathSet> data_path_set_;
 };
 

@@ -160,8 +160,6 @@
 	'opt/wire/resource_entry.h',
 	'opt/wire/resource_replica_assigner.cpp',
 	'opt/wire/resource_replica_assigner.h',
-	'opt/wire/resource_share.cpp',
-	'opt/wire/resource_share.h',
 	'opt/wire/resource_tracker.cpp',
 	'opt/wire/resource_tracker.h',
 	'opt/wire/relocator.cpp',
