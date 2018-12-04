@@ -150,6 +150,8 @@
 	'opt/wire/common.h',
 	'opt/wire/data_path.cpp',
 	'opt/wire/data_path.h',
+	'opt/wire/explorer.cpp',
+	'opt/wire/explorer.h',
 	'opt/wire/path_node.cpp',
 	'opt/wire/path_node.h',
 	'opt/wire/resource_conflict_tracker.cpp',

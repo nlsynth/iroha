@@ -9,6 +9,7 @@
 #include "opt/debug_annotation.h"
 #include "opt/delay_info.h"
 #include "opt/wire/data_path.h"
+#include "opt/wire/explorer.h"
 #include "opt/wire/relocator.h"
 #include "opt/wire/resource_conflict_tracker.h"
 #include "opt/wire/resource_share.h"
@@ -66,17 +67,21 @@ bool Wire::Perform() {
 
 void Wire::IterateScheduling() {
   WirePlanSet wps(data_path_set_.get());
+  Explorer explorer(&wps);
+  explorer.SetInitialAllocation();
 
-  // Tries once for now.
-  SchedulerCore sch(data_path_set_.get(), delay_info_);
-  sch.Schedule();
-  auto *conflict_tracker = sch.AcquireConflictTracker();
-  wps.Save(conflict_tracker);
-  if (annotation_->IsEnabled()) {
-    annotation_->StartSubSection("sched", false);
-    conflict_tracker->Dump(annotation_);
-    annotation_->ClearSubSection();
-  }
+  do {
+    SchedulerCore sch(data_path_set_.get(), delay_info_);
+    sch.Schedule();
+    auto *conflict_tracker = sch.AcquireConflictTracker();
+    wps.Save(conflict_tracker);
+
+    if (annotation_->IsEnabled()) {
+      annotation_->StartSubSection("sched", false);
+      conflict_tracker->Dump(annotation_);
+      annotation_->ClearSubSection();
+    }
+  } while (explorer.MaySetNextAllocationPlan());
 
   wps.ApplyBest();
 }
