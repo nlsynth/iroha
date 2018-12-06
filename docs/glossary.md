@@ -86,29 +86,3 @@ e.g.
       end else st_2 <= 0;
       ...
     end
-
-## Module import
-
-Imported modules can be connected to its outer module using TAP.
-
-(MODULE 1 mod1
-  (MODULE-IMPORT /tmp/a.iroha
-    (TAP a_in () (shared-reg-reader 3 4 5)) ; mod, table, res
-    (TAP b_out tag_123 (shared-reg))
-  )
-)
-(MODULE 2 mod2
-  (MODULE-IMPORT /tmp/b.iroha
-    (TAP x_in tag_123 (shared-reg-reader))
-    (TAP y_out () (shared-reg 3 4 6))
-  )
-)
-tag based connection:
- ext-output will be mapped to shared-reg
- ext-input will be mapped to shared-reg-reader
-resource based connection:
- ext-output will be mapped to shared-reg-writer and writes to shared-reg
- ext-input will be mapped to shared-reg-reader and reads from shared-reg
-
-
-MEMO(yt76): May also support shared-reg-writer.

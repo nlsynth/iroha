@@ -3,9 +3,27 @@ Author: Yusuke TABATA (tabata.yusuke@gmail.com) and the team (TBD)
 
 TL;DR: Aiming to be LLVM for HLS
 
--- Build and use
+## What's this?
+
+Iroha is a text representation of a network off state machines and tools to process it. The representation uses S-expression to describe a network of state machines.
+It looks like as follows:
+
+    (MODULE ...
+      (TABLE
+        (REGISTERS (REGISTER ...) (REGISTER ...) ...)
+        (RESOURCES (RESOURCE ...) (RESOURCE ...) ...)
+        (STATE (INSN ...) (INSN ...) ...))
+      (TABLE ...))
+
+A TABLE denotes a state machine. It can have its behavior including calculation , communication to other TABLEs and so on.
+
+## Build and use
 
 (0) First of all, build the binary.
+
+    Requirements:
+    C++11 capable compiler: g++ or clang++.
+    Build tools: make and gyp.
 
     > $ ./configure ; make
 
@@ -30,7 +48,7 @@ TL;DR: Aiming to be LLVM for HLS
 
 Please read src/iroha/iroha.h, src/iroha/iroha_main.cpp examples/ for more details.
 
--- TODOs
+## TODOs
 
 * WIP: Document
 * P1: Test and debug SSA conversion and PHI removal
@@ -43,7 +61,6 @@ Please read src/iroha/iroha.h, src/iroha/iroha_main.cpp examples/ for more detai
 * P2: FPGA style register initialization
 * P2: I/O for embedded verilog module
 * P2: Modularize mapped resource
-* P2: Values wider than 64bits
 * P2: Set constraint not to split related insns
 * P2: Simplify wait cycle if there's 1 multi cycle insn in a state
 * P2: Set reset polarity to embedded module.
@@ -52,7 +69,7 @@ Please read src/iroha/iroha.h, src/iroha/iroha_main.cpp examples/ for more detai
 * Q: Do we need instance/module separation?
 * AXI: Allow or fail to attach both master/slave to an array.
 
--- Source tree
+## Source tree
 
 * src/
     * Libraries and commands.
@@ -70,7 +87,7 @@ Please read src/iroha/iroha.h, src/iroha/iroha_main.cpp examples/ for more detai
 * tests/
     * Test input.
 
--- Authors and friends
+## Authors and friends
 
 * Takefumi Miyoshi (miyo)
 * Shinya Takamaeda-Yamazaki (shtaxxx)
