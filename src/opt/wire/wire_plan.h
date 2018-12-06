@@ -16,6 +16,8 @@ public:
 
   void Save();
   void Restore();
+  void SetScore(long score);
+  long GetScore();
 
   ResourceConflictTracker *GetConflictTracker();
 
@@ -25,6 +27,8 @@ private:
 
   DataPathSet *dps_;
   std::unique_ptr<ResourceConflictTracker> conflict_tracker_;
+  // Larger is better. 0 indicates a problem like congestion.
+  long score_;
   map<int, BBWirePlan *> bb_plans_;
   map<ResourceEntry *, int> num_replicas_;
   map<VirtualResource *, int> replica_indexes_;
@@ -32,7 +36,7 @@ private:
 
 class WirePlanSet {
 public:
-  WirePlanSet(DataPathSet *dps);
+  WirePlanSet(DataPathSet *dps, PlanEvaluator *ev);
   ~WirePlanSet();
 
   void Save(ResourceConflictTracker *conflicts);
@@ -42,6 +46,7 @@ public:
 
 private:
   DataPathSet *dps_;
+  PlanEvaluator *ev_;
   vector<WirePlan *> plans_;
 };
 

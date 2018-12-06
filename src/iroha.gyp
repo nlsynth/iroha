@@ -150,6 +150,8 @@
 	'opt/wire/explorer.h',
 	'opt/wire/path_node.cpp',
 	'opt/wire/path_node.h',
+	'opt/wire/plan_evaluator.cpp',
+	'opt/wire/plan_evaluator.h',
 	'opt/wire/resource_conflict_tracker.cpp',
 	'opt/wire/resource_conflict_tracker.h',
 	'opt/wire/resource_entry.cpp',

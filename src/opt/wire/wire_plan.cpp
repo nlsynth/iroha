@@ -3,6 +3,7 @@
 #include "iroha/stl_util.h"
 #include "opt/wire/bb_wire_plan.h"
 #include "opt/wire/data_path.h"
+#include "opt/wire/plan_evaluator.h"
 #include "opt/wire/resource_conflict_tracker.h"
 #include "opt/wire/resource_entry.h"
 #include "opt/wire/virtual_resource.h"
@@ -13,7 +14,7 @@ namespace wire {
 
 
 WirePlan::WirePlan(DataPathSet *dps, ResourceConflictTracker *conflict_tracker)
-  : dps_(dps), conflict_tracker_(conflict_tracker) {
+  : dps_(dps), conflict_tracker_(conflict_tracker), score_(0) {
   auto &paths = dps->GetPaths();
   for (auto p : paths) {
     int bb_id = p.first;
@@ -73,7 +74,16 @@ void WirePlan::RestoreResources() {
   }
 }
 
-WirePlanSet::WirePlanSet(DataPathSet *dps) : dps_(dps) {
+void WirePlan::SetScore(long score) {
+  score_ = score;
+}
+
+long WirePlan::GetScore() {
+  return score_;
+}
+
+WirePlanSet::WirePlanSet(DataPathSet *dps, PlanEvaluator *ev)
+  : dps_(dps), ev_(ev) {
 }
 
 WirePlanSet::~WirePlanSet() {
@@ -83,10 +93,23 @@ WirePlanSet::~WirePlanSet() {
 void WirePlanSet::Save(ResourceConflictTracker *conflicts) {
   WirePlan *wp = new WirePlan(dps_, conflicts);
   wp->Save();
+  wp->SetScore(ev_->Evaluate(wp));
   plans_.push_back(wp);
 }
 
 void WirePlanSet::ApplyBest() {
+  WirePlan *best_plan = nullptr;
+  long best_score = -1;
+  for (auto *plan : plans_) {
+    long score = plan->GetScore();
+    if (score > best_score) {
+      best_score = score;
+      best_plan = plan;
+    }
+  }
+  if (best_plan != nullptr) {
+    best_plan->Restore();
+  }
 }
 
 WirePlan *WirePlanSet::GetLatestPlan() {

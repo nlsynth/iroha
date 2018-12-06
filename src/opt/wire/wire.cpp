@@ -10,6 +10,7 @@
 #include "opt/delay_info.h"
 #include "opt/wire/data_path.h"
 #include "opt/wire/explorer.h"
+#include "opt/wire/plan_evaluator.h"
 #include "opt/wire/relocator.h"
 #include "opt/wire/resource_conflict_tracker.h"
 #include "opt/wire/scheduler.h"
@@ -60,7 +61,8 @@ bool Wire::Perform() {
 }
 
 void Wire::IterateScheduling() {
-  WirePlanSet wps(data_path_set_.get());
+  PlanEvaluator ev(data_path_set_.get());
+  WirePlanSet wps(data_path_set_.get(), &ev);
   Explorer explorer(&wps);
   explorer.SetInitialAllocation();
 

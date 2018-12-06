@@ -17,7 +17,12 @@ void Explorer::SetInitialAllocation() {
 }
 
 bool Explorer::MaySetNextAllocationPlan() {
-  return MayResolveCongestion();
+  bool congested = MayResolveCongestion();
+  if (congested) {
+    WirePlan *wp = wps_->GetLatestPlan();
+    wp->SetScore(0);
+  }
+  return congested;
 }
 
 bool Explorer::MayResolveCongestion() {
