@@ -4,7 +4,6 @@
 #include "builder/reader.h"
 #include "iroha/i_design.h"
 #include "iroha/logging.h"
-#include "iroha/module_import.h"
 
 namespace iroha {
 namespace builder {
@@ -38,16 +37,6 @@ void TreeBuilder::AddArrayImage(IArray *array, int imageid) {
   im.array = array;
   im.imageid = imageid;
   array_images_.push_back(im);
-}
-
-void TreeBuilder::AddModuleImportTap(int module_id, int table_id, int res_id,
-				     ModuleImportTap *tap) {
-  Tap t;
-  t.tap = tap;
-  t.mod_id = module_id;
-  t.tab_id = table_id;
-  t.res_id = res_id;
-  taps_.push_back(t);
 }
 
 bool TreeBuilder::Resolve() {
@@ -100,14 +89,6 @@ bool TreeBuilder::Resolve() {
       builder_->SetError() << "failed to find array image: " << im.imageid;
     }
     im.array->SetArrayImage(it->second);
-  }
-  for (auto &t : taps_) {
-    IModule *mod = module_ids[t.mod_id];
-    if (mod == nullptr) {
-      builder_->SetError() << "no tap to connect module id: " << t.mod_id;
-      return false;
-    }
-    t.tap->resource = FindResource(mod, t.tab_id, t.res_id);
   }
   return true;
 }

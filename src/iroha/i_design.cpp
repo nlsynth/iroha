@@ -4,7 +4,6 @@
 #include "iroha/i_platform.h"
 #include "iroha/opt_api.h"
 #include "iroha/logging.h"
-#include "iroha/module_import.h"
 #include "iroha/object_pool.h"
 #include "iroha/resource_class.h"
 #include "iroha/resource_params.h"
@@ -352,14 +351,6 @@ IModule *IModule::GetParentModule() const {
 
 ResourceParams *IModule::GetParams() const{
   return params_.get();
-}
-
-void IModule::SetModuleImport(ModuleImport *mi) {
-  import_.reset(mi);
-}
-
-ModuleImport *IModule::GetModuleImport() const {
-  return import_.get();
 }
 
 IDesign::IDesign()

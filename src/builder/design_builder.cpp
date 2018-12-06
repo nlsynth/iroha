@@ -6,7 +6,6 @@
 #include "builder/tree_builder.h"
 #include "iroha/i_design.h"
 #include "iroha/logging.h"
-#include "iroha/module_import.h"
 #include "iroha/resource_class.h"
 #include "iroha/resource_params.h"
 
@@ -111,8 +110,6 @@ IModule *DesignBuilder::BuildModule(Exp *e, IDesign *design) {
       } else {
 	tree_builder_->AddParentModule(Util::Atoi(element->Str(1)), module);
       }
-    } else if (element_name == "MODULE-IMPORT") {
-      BuildModuleImport(element, module);
     } else {
       SetError() << "Unknown element in MODULE: " << element_name;
     }
@@ -406,44 +403,6 @@ void DesignBuilder::BuildArrayImage(Exp *e, IDesign *design) {
     array_image->values_.push_back(Util::AtoULL(array->Str(i)));
   }
   design->array_images_.push_back(array_image);
-}
-
-void DesignBuilder::BuildModuleImport(Exp *e, IModule *mod) {
-  if (e->Size() < 2) {
-    SetError() << "Malformed module import";
-    return;
-  }
-  ModuleImport *mi = new ModuleImport(mod, e->Str(1));
-  for (int i = 2; i < e->Size(); ++i) {
-    Exp *t = e->vec[i];
-    if (t->Str(0) == "TAP") {
-      BuildModuleImportTap(t, mi);
-    } else {
-      SetError() << "Unknown item in module-import:" << t->Str(0);
-    }
-  }
-  mod->SetModuleImport(mi);
-}
-
-void DesignBuilder::BuildModuleImportTap(Exp *e, ModuleImport *mi) {
-  if (e->Size() < 4) {
-    SetError() << "Malformed module import tap";
-    return;
-  }
-  ModuleImportTap *tap = new ModuleImportTap();
-  tap->source = e->Str(1);
-  tap->tag = e->Str(2);
-  BuildModuleImportTapDesc(e->vec[3], tap);
-  mi->taps_.push_back(tap);
-}
-
-void DesignBuilder::BuildModuleImportTapDesc(Exp *e, ModuleImportTap *tap) {
-  tap->resource_class = e->Str(0);
-  if (e->Size() == 4) {
-    tree_builder_->AddModuleImportTap(Util::Atoi(e->Str(1)),
-				      Util::Atoi(e->Str(2)),
-				      Util::Atoi(e->Str(3)), tap);
-  }
 }
 
 bool DesignBuilder::HasError() {

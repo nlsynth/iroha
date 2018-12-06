@@ -3,7 +3,6 @@
 #include "iroha/i_design.h"
 #include "iroha/object_pool.h"
 #include "iroha/resource_params.h"
-#include "iroha/module_import.h"
 
 namespace iroha {
 

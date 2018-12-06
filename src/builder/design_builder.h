@@ -38,9 +38,6 @@ private:
   void BuildResourceParams(Exp *e, ResourceParams *params);
   void BuildParamTypes(Exp *e, vector<IValueType> *types);
   void BuildValueType(Exp *t, IValueType *vt);
-  void BuildModuleImport(Exp *e, IModule *mod);
-  void BuildModuleImportTap(Exp *e, ModuleImport *mi);
-  void BuildModuleImportTapDesc(Exp *e, ModuleImportTap *tap);
   bool HasError();
 
   bool has_error_;

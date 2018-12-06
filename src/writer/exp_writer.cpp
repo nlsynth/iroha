@@ -3,7 +3,6 @@
 #include "iroha/i_design.h"
 #include "iroha/i_platform.h"
 #include "iroha/logging.h"
-#include "iroha/module_import.h"
 #include "iroha/resource_class.h"
 #include "iroha/resource_params.h"
 #include "numeric/numeric_type.h"
@@ -32,28 +31,6 @@ void ExpWriter::WriteModule(const IModule &mod) {
   IModule *parent = mod.GetParentModule();
   if (parent != nullptr) {
     os_ << "  (PARENT " << parent->GetId() << ")\n";
-  }
-  ModuleImport *mi = mod.GetModuleImport();
-  if (mi != nullptr) {
-    os_ << "  (MODULE-IMPORT " << mi->GetFileName() << "\n";
-    for (auto *t : mi->taps_) {
-      os_ << "   (TAP " << t->source << " ";
-      if (t->tag.empty()) {
-	os_ << "()";
-      } else {
-	os_ << t->tag;
-      }
-      os_ << " (" << t->resource_class;
-      if (t->resource != nullptr) {
-	ITable *tab = t->resource->GetTable();
-	IModule *mod = tab->GetModule();
-	os_ << " " << mod->GetId() << " " << tab->GetId() << " "
-	    << t->resource->GetId();
-      }
-      os_ << ")";
-      os_ << ")\n";
-    }
-    os_ << "  )\n";
   }
   WriteResourceParams(*mod.GetParams(), "  ");
   for (auto *tab : mod.tables_) {

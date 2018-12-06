@@ -21,8 +21,6 @@ public:
   void AddParentResource(int module_id, int table_id, int res_id,
 			 IResource *res);
   void AddArrayImage(IArray *array, int imageid);
-  void AddModuleImportTap(int module_id, int table_id, int res_id,
-			  ModuleImportTap *tap);
 
   bool Resolve();
 
@@ -47,13 +45,6 @@ private:
     int imageid;
   };
   vector<ArrayImage> array_images_;
-  struct Tap {
-    ModuleImportTap *tap;
-    int mod_id;
-    int tab_id;
-    int res_id;
-  };
-  vector<Tap> taps_;
 };
 
 }  // namespace builder

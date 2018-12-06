@@ -19,7 +19,6 @@ void printVersion() {
 	    << "  -h Output HTML\n"
 	    << "  -o [fn] output to the file name\n"
 	    << "  -d Debug dump\n"
-	    << "  -j Don't process module-import\n"
 	    << "  -k Don't validate ids and names\n"
 	    << "  --output_marker=[marker]\n"
 	    << "  --root=[root dir]\n"
@@ -43,7 +42,6 @@ int main(int argc, char **argv) {
   bool shell = false;
   bool selfShell = false;
   bool vcd = false;
-  bool skipImport = false;
   bool skipValidation = false;
 
   string output;
@@ -81,10 +79,6 @@ int main(int argc, char **argv) {
     }
     if (arg == "-h") {
       html = true;
-      continue;
-    }
-    if (arg == "-j") {
-      skipImport = true;
       continue;
     }
     if (arg == "-k") {
@@ -187,9 +181,6 @@ int main(int argc, char **argv) {
     }
     if (html) {
       writer->SetLanguage("html");
-    }
-    if (!skipImport) {
-      DesignTool::ResolveImport(design);
     }
     if (!skipValidation) {
       DesignTool::Validate(design);

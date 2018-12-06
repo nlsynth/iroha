@@ -25,8 +25,6 @@ class IState;
 class ITable;
 class IValueType;
 class Numeric;
-class ModuleImport;
-class ModuleImportTap;
 class ObjectPool;
 class ResourceParams;
 
