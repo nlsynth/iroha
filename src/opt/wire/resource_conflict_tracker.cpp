@@ -44,6 +44,14 @@ void ResourceConflictTracker::Dump(DebugAnnotation *an) {
   }
 }
 
+map<ResourceEntry *, int> &ResourceConflictTracker::GetUsageCount() {
+  return usage_count_;
+}
+
+map<ResourceEntry *, int> &ResourceConflictTracker::GetConflictCount() {
+  return conflict_count_;
+}
+
 }  // namespace wire
 }  // namespace opt
 }  // namespace iroha

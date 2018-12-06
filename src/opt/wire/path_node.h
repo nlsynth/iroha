@@ -51,6 +51,7 @@ public:
   int GetAccumlatedDelayFromLeaf();
   void SetAccumlatedDelayFromLeaf(int accumlated_delay_from_leaf);
   bool IsTransition();
+  BBDataPath *GetBBDataPath();
 
   // Scratch variable for Scheduler.
   int state_local_delay_;

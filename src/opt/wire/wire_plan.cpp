@@ -42,6 +42,10 @@ void WirePlan::Restore() {
   RestoreResources();
 }
 
+ResourceConflictTracker *WirePlan::GetConflictTracker() {
+  return conflict_tracker_.get();
+}
+
 void WirePlan::SaveResources() {
   VirtualResourceSet *vrs = dps_->GetVirtualResourceSet();
   auto &entries = vrs->GetResourceEntries();
@@ -83,6 +87,13 @@ void WirePlanSet::Save(ResourceConflictTracker *conflicts) {
 }
 
 void WirePlanSet::ApplyBest() {
+}
+
+WirePlan *WirePlanSet::GetLatestPlan() {
+  if (plans_.size() == 0) {
+    return nullptr;
+  }
+  return plans_[plans_.size() - 1];
 }
 
 }  // namespace wire

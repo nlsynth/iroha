@@ -17,6 +17,8 @@ public:
   void Save();
   void Restore();
 
+  ResourceConflictTracker *GetConflictTracker();
+
 private:
   void SaveResources();
   void RestoreResources();
@@ -35,6 +37,8 @@ public:
 
   void Save(ResourceConflictTracker *conflicts);
   void ApplyBest();
+
+  WirePlan *GetLatestPlan();
 
 private:
   DataPathSet *dps_;

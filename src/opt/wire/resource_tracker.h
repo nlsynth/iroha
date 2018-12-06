@@ -20,7 +20,6 @@ public:
 private:
   BBStateResourceUsage *GetResourceUsage(int st_index);
 
-  set<std::tuple<IResource *, int> > resource_slots_;
   map<int, BBStateResourceUsage *> resource_usage_map_;
 };
 

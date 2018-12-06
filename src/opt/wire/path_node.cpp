@@ -99,6 +99,10 @@ bool PathNode::IsTransition() {
   resource::IsTransition(*(insn_->GetResource()->GetClass()));
 }
 
+BBDataPath *PathNode::GetBBDataPath() {
+  return path_;
+}
+
 }  // namespace wire
 }  // namespace opt
 }  // namespace iroha

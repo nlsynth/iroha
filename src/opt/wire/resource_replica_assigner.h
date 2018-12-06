@@ -20,6 +20,7 @@ private:
 
   DataPathSet *dps_;
   map<ResourceEntry *, vector<int> > usage_count_;
+  map<tuple<BBDataPath *, int>, vector<bool> > per_state_;
 };
 
 }  // namespace wire

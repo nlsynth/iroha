@@ -16,6 +16,8 @@ public:
   bool MaySetNextAllocationPlan();
 
 private:
+  bool MayResolveCongestion();
+
   WirePlanSet *wps_;
 };
 

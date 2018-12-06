@@ -35,16 +35,26 @@ void ResourceReplicaAssigner::PerformNode(PathNode *node) {
   if (usage.size() == 0) {
     usage.resize(rent->GetNumReplicas());
   }
-  // Finds the least used replica.
+  auto &ps = per_state_[make_tuple(node->GetBBDataPath(), node->GetFinalStIndex())];
+  if (ps.size() == 0) {
+    ps.resize(rent->GetNumReplicas());
+  }
+  // Finds the globally least used and replica (and unused in this state).
+  // TODO: Aren't there possibilities of assigning same replica too many times?
+  // Maybe I should sort states before this.
   int min_index = 0;
   int min_usage = 1000;
   for (int i = 0; i < usage.size(); ++i) {
+    if (ps[i]) {
+      continue;
+    }
     if (usage[i] < min_usage) {
       min_usage = usage[i];
       min_index = i;
     }
   }
   usage[min_index]++;
+  ps[min_index] = true;
   vres->SetReplicaIndex(min_index);
 }
 

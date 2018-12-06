@@ -15,6 +15,8 @@ public:
   ~ResourceConflictTracker();
 
   void AddUsage(PathNode *node, bool had_conflict);
+  map<ResourceEntry *, int> &GetUsageCount();
+  map<ResourceEntry *, int> &GetConflictCount();
 
   void Dump(DebugAnnotation *an);
 
