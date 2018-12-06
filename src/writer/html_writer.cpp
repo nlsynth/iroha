@@ -98,7 +98,7 @@ void HtmlWriter::WriteTableStates(const ITable &tab) {
 }
 
 void HtmlWriter::WriteInsn(const IInsn &insn){
-  os_ << "    " << insn.GetId() << ":";
+  os_ << "    " << insn.GetId() << ":" << insn.GetOperand();
   if (insn.target_states_.size()) {
     for (auto *st : insn.target_states_) {
       os_ << " " << st->GetId();
