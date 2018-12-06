@@ -135,6 +135,8 @@
         'opt/opt_util.h',
         'opt/phase.cpp',
         'opt/phase.h',
+	'opt/profile/profile.cpp',
+	'opt/profile/profile.h',
         'opt/ssa/phi_builder.cpp',
         'opt/ssa/phi_builder.h',
         'opt/ssa/phi_cleaner.cpp',

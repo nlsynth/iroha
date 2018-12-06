@@ -164,8 +164,10 @@ public:
   IProfile();
 
   bool valid_;
-  int raw_count_;
-  int normalized_count_;
+  // Raw execution count from the front end.
+  long raw_count_;
+  // log2 of normalized count.
+  long normalized_count_;
 };
 
 // This can be a state in an FSM or a pipeline stage.
