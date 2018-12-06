@@ -29,6 +29,14 @@ void BBWirePlan::Restore() {
   }
 }
 
+BBDataPath *BBWirePlan::GetBBDataPath() {
+  return dp_;
+}
+
+map<PathNode *, int> &BBWirePlan::GetStIndexes() {
+  return st_indexes_;
+}
+
 }  // namespace wire
 }  // namespace opt
 }  // namespace iroha

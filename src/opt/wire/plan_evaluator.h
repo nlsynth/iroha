@@ -15,6 +15,8 @@ public:
   long Evaluate(WirePlan *plan);
 
 private:
+  int GetBBSize(BBWirePlan *bb_plan);
+
   DataPathSet *dps_;
 };
 

@@ -15,6 +15,8 @@ public:
 
   void Save();
   void Restore();
+  BBDataPath *GetBBDataPath();
+  map<PathNode *, int> &GetStIndexes();
 
 private:
   BBDataPath *dp_;

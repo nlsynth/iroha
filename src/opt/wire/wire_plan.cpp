@@ -82,6 +82,10 @@ long WirePlan::GetScore() {
   return score_;
 }
 
+map<int, BBWirePlan *> &WirePlan::GetBBWirePlans() {
+  return bb_plans_;
+}
+
 WirePlanSet::WirePlanSet(DataPathSet *dps, PlanEvaluator *ev)
   : dps_(dps), ev_(ev) {
 }
@@ -99,10 +103,10 @@ void WirePlanSet::Save(ResourceConflictTracker *conflicts) {
 
 void WirePlanSet::ApplyBest() {
   WirePlan *best_plan = nullptr;
-  long best_score = -1;
+  long best_score = 0;
   for (auto *plan : plans_) {
     long score = plan->GetScore();
-    if (score > best_score) {
+    if (score < best_score || (best_score == 0)) {
       best_score = score;
       best_plan = plan;
     }

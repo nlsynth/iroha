@@ -20,6 +20,7 @@ public:
   long GetScore();
 
   ResourceConflictTracker *GetConflictTracker();
+  map<int, BBWirePlan *> &GetBBWirePlans();
 
 private:
   void SaveResources();
@@ -27,7 +28,7 @@ private:
 
   DataPathSet *dps_;
   std::unique_ptr<ResourceConflictTracker> conflict_tracker_;
-  // Larger is better. 0 indicates a problem like congestion.
+  // Smaller is better, but 0 indicates a problem like congestion.
   long score_;
   map<int, BBWirePlan *> bb_plans_;
   map<ResourceEntry *, int> num_replicas_;
