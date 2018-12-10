@@ -92,7 +92,9 @@ void BBScheduler::Schedule() {
     for (auto &lt : sorted_nodes_) {
       auto &ev = lt.second;
       for (auto *n : ev) {
-	if (!ScheduleNode(n)) {
+	if (ScheduleNode(n)) {
+	  UpdateLastWrite(n);
+	} else {
 	  has_unscheduled = true;
 	}
       }
@@ -107,6 +109,9 @@ bool BBScheduler::ScheduleNode(PathNode *n) {
   }
   // Minimum state index by src register position.
   int min_st_index = GetMinStIndex(n);
+  if (min_st_index < 0) {
+    return false;
+  }
   // Calculates local delay.
   if (n->GetInsn()->GetResource()->GetClass()->IsExclusive()) {
     ScheduleExclusive(n, min_st_index);
@@ -124,7 +129,7 @@ int BBScheduler::GetMinStIndex(PathNode *n) {
     PathNode *source_node = s.second->GetSourceNode();
     if (source_node->GetFinalStIndex() < 0) {
       // Not yet scheduled. Fail and try later again.
-      return false;
+      return -1;
     }
     if (min_st_index < source_node->GetFinalStIndex()) {
       min_st_index = source_node->GetFinalStIndex();
@@ -136,6 +141,12 @@ int BBScheduler::GetMinStIndex(PathNode *n) {
 	// Local margin is not sufficient. Go to the next state.
 	++min_st_index;
       }
+    }
+  }
+  int s = GetMinStByLastWrite(n);
+  if (s >= 0) {
+    if (s > min_st_index) {
+      min_st_index = s;
     }
   }
   return min_st_index;
@@ -189,6 +200,36 @@ void BBScheduler::ScheduleNonExclusive(PathNode *n, int st_index) {
   n->SetFinalStIndex(st_index);
   int source_local_delay = GetLocalDelayBeforeNode(n, st_index);
   n->state_local_delay_ = source_local_delay + n->GetNodeDelay();
+}
+
+void BBScheduler::UpdateLastWrite(PathNode *n) {
+  int st_index = n->GetFinalStIndex();
+  IInsn *insn = n->GetInsn();
+  for (IRegister *reg : insn->outputs_) {
+    int idx = last_write_index_[reg];
+    if (idx < st_index) {
+      last_write_index_[reg] = st_index;
+    }
+  }
+}
+
+int BBScheduler::GetMinStByLastWrite(PathNode *n) {
+  int min = -1;
+  IInsn *insn = n->GetInsn();
+  for (IRegister *reg : insn->outputs_) {
+    auto it = last_write_index_.find(reg);
+    if (it == last_write_index_.end()) {
+      continue;
+    }
+    int st = it->second;
+    if (st > min) {
+      min = st;
+    }
+  }
+  if (min > -1) {
+    return min + 1;
+  }
+  return -1;
 }
 
 }  // namespace wire

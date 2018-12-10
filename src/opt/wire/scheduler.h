@@ -41,6 +41,8 @@ private:
   bool IsSchedulable();
   int GetMinStIndex(PathNode *n);
   int GetLocalDelayBeforeNode(PathNode *n, int st_index);
+  void UpdateLastWrite(PathNode *n);
+  int GetMinStByLastWrite(PathNode *n);
 
   BBDataPath *data_path_;
   DelayInfo *delay_info_;
@@ -48,6 +50,10 @@ private:
   map<int, vector<PathNode *> > sorted_nodes_;
   ResourceConflictTracker *conflict_tracker_;
   std::unique_ptr<BBResourceTracker> resource_tracker_;
+  // This is to avoid to write same registers mutiple times.
+  // NOTE: We might just remove preceding writes instead to be more
+  // aggressive.
+  map<IRegister *, int> last_write_index_;
 };
 
 }  // namespace wire

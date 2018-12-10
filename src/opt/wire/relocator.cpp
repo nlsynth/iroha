@@ -123,33 +123,66 @@ void Relocator::RelocateTransitionInsns(BBDataPath *dp, vector<IState *> *states
 }
 
 void Relocator::RewirePaths(BBDataPath *dp, vector<IState *> *states) {
-  BB *bb = dp->GetBB();
   auto &nodes = dp->GetNodes();
   for (auto &p : nodes) {
     PathNode *src_node = p.second;
-    IState *src_st = states->at(src_node->GetFinalStIndex());
-    for (auto &q : src_node->sink_edges_) {
-      PathEdge *edge = q.second;
-      IRegister *reg = edge->GetSourceReg();
-      if (src_node->GetFinalStIndex() == edge->GetSinkNode()->GetFinalStIndex()) {
-	// Source and Sink are in same state.
-	if (reg->IsStateLocal()) {
-	  // Does nothing. Just use the wire.
-	} else {
-	  // Replace the output to a wire.
-	  // orig-insn: wire <- 
-	  // new-assign-insn: orig-output <- wire
-	  AddIntermediateWireAndInsn(edge, src_st);
-	}
+    RewirePathsNode(src_node, states);
+  }
+}
+
+void Relocator::RewirePathsNode(PathNode *src_node, vector<IState *> *states) {
+  IState *src_st = states->at(src_node->GetFinalStIndex());
+  IInsn *src_insn = src_node->GetInsn();
+  vector<IRegister *> output_wires(src_insn->outputs_.size());
+  vector<IRegister *> output_regs(src_insn->outputs_.size());
+  for (auto &q : src_node->sink_edges_) {
+    PathEdge *edge = q.second;
+    int idx = edge->GetSourceRegIndex();
+    IRegister *reg = edge->GetSourceReg();
+    if (src_node->GetFinalStIndex() == edge->GetSinkNode()->GetFinalStIndex()) {
+      // Source and Sink are in same state.
+      if (reg->IsStateLocal()) {
+	// Does nothing. Just use the wire.
       } else {
-	// Sink uses the value in a state later.
-	if (reg->IsStateLocal()) {
-	  // Add assign insn 
-	  AddIntermediateRegAndInsn(edge, src_st);
-	} else {
-	  // Does nothing.
+	// Replace the output reg to a wire.
+	// orig-insn: wire <-
+	// new-assign-insn: orig-output <- wire
+	IRegister *wire = output_wires[idx];
+	if (wire == nullptr) {
+	  wire = AddIntermediateWireAndInsn(edge, src_st);
+	  output_wires[idx] = wire;
 	}
+	RewriteSinkInput(edge, reg, wire);
       }
+    } else {
+      // Sink uses the value in a state later.
+      if (reg->IsStateLocal()) {
+	// Add assign insn
+	IRegister *new_reg = output_regs[idx];
+	if (new_reg == nullptr) {
+	  new_reg = AddIntermediateRegAndInsn(edge, src_st);
+	  output_regs[idx] = new_reg;
+	}
+	RewriteSinkInput(edge, reg, new_reg);
+      } else {
+	// Does nothing.
+      }
+    }
+  }
+  for (int i = 0; i < output_wires.size(); ++i) {
+    IRegister *w = output_wires[i];
+    if (w != nullptr) {
+      src_insn->outputs_[i] = w;
+    }
+  }
+}
+
+void Relocator::RewriteSinkInput(PathEdge *edge, IRegister *src, IRegister *dst) {
+  PathNode *sink_node = edge->GetSinkNode();
+  IInsn *sink_insn = sink_node->GetInsn();
+  for (int i = 0; i < sink_insn->inputs_.size(); ++i) {
+    if (sink_insn->inputs_[i] == src) {
+      sink_insn->inputs_[i] = dst;
     }
   }
 }
@@ -165,6 +198,10 @@ IRegister* Relocator::AllocIntermediateReg(IInsn *insn, bool state_local,
     name += "_r";
   }
   name += Util::Itoa(oindex);
+  int iid = insn->GetId();
+  if (iid > -1) {
+    name += "i" + Util::Itoa(iid);
+  }
   IRegister *reg = new IRegister(table, name);
   reg->SetStateLocal(state_local);
   reg->value_type_ = orig_reg->value_type_;
@@ -172,18 +209,18 @@ IRegister* Relocator::AllocIntermediateReg(IInsn *insn, bool state_local,
   return reg;
 }
 
-void Relocator::AddIntermediateWireAndInsn(PathEdge *edge, IState *st) {
+IRegister *Relocator::AddIntermediateWireAndInsn(PathEdge *edge, IState *st) {
   IRegister *orig_out = edge->GetSourceReg();
   IRegister *wire = AllocIntermediateReg(edge->GetSourceNode()->GetInsn(),
 					 true, edge->GetSourceRegIndex());
-  edge->SetSourceReg(wire);
   IInsn *assign_insn = new IInsn(assign_);
   assign_insn->inputs_.push_back(wire);
   assign_insn->outputs_.push_back(orig_out);
   st->insns_.push_back(assign_insn);
+  return wire;
 }
 
-void Relocator::AddIntermediateRegAndInsn(PathEdge *edge, IState *st) {
+IRegister *Relocator::AddIntermediateRegAndInsn(PathEdge *edge, IState *st) {
   IRegister *orig_out = edge->GetSourceReg();
   IRegister *reg = AllocIntermediateReg(edge->GetSourceNode()->GetInsn(),
 					false, edge->GetSourceRegIndex());
@@ -191,6 +228,7 @@ void Relocator::AddIntermediateRegAndInsn(PathEdge *edge, IState *st) {
   assign_insn->inputs_.push_back(reg);
   assign_insn->outputs_.push_back(orig_out);
   st->insns_.push_back(assign_insn);
+  return reg;
 }
 
 }  // namespace wire
