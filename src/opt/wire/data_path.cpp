@@ -29,6 +29,8 @@ void BBDataPath::Build() {
       PathNode *n = new PathNode(this, st_index, insn, vrset_->GetFromInsn(insn));
       nodes_[n->GetId()] = n;
       insn_to_node[insn] = n;
+      auto &m = resource_node_map_[insn->GetResource()];
+      m[st_index] = n;
     }
     ++st_index;
   }
@@ -119,6 +121,10 @@ BB *BBDataPath::GetBB() {
 
 map<int, PathNode *> &BBDataPath::GetNodes() {
   return nodes_;
+}
+
+map<int, PathNode *> &BBDataPath::GetResourceNodeMap(IResource *res) {
+  return resource_node_map_[res];
 }
 
 DataPathSet::DataPathSet() {

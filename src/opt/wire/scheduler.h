@@ -43,6 +43,8 @@ private:
   int GetLocalDelayBeforeNode(PathNode *n, int st_index);
   void UpdateLastWrite(PathNode *n);
   int GetMinStByLastWrite(PathNode *n);
+  bool CheckPrecedingNodes(PathNode *n);
+  int GetMinStByPrecedingNode(PathNode *n);
 
   BBDataPath *data_path_;
   DelayInfo *delay_info_;

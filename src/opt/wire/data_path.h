@@ -19,6 +19,7 @@ public:
   void Dump(ostream &os);
   BB *GetBB();
   map<int, PathNode *> &GetNodes();
+  map<int, PathNode *> &GetResourceNodeMap(IResource *res);
 
 private:
   void SetAccumlatedDelay(DelayInfo *dinfo, PathNode *node);
@@ -28,6 +29,8 @@ private:
   // node id (insn id) to PathNode.
   map<int, PathNode *> nodes_;
   set<PathEdge *> edges_;
+  // Per resource map from st_index to node.
+  map<IResource *, map<int, PathNode *> > resource_node_map_;
 };
 
 class DataPathSet {

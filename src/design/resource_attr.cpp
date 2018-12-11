@@ -100,4 +100,12 @@ bool ResourceAttr::IsDuplicatableResource(IResource *res) {
   return resource::IsExclusiveBinOp(rc);
 }
 
+bool ResourceAttr::IsOrderedResource(IResource *res) {
+  IResourceClass &rc = *(res->GetClass());
+  if (resource::IsMapped(rc)) {
+    return true;
+  }
+  return false;
+}
+
 }  // namespace iroha

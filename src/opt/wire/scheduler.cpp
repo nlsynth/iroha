@@ -2,6 +2,7 @@
 
 #include "design/resource_attr.h"
 #include "iroha/i_design.h"
+#include "iroha/resource_class.h"
 #include "opt/bb_set.h"
 #include "opt/delay_info.h"
 #include "opt/wire/data_path.h"
@@ -54,6 +55,12 @@ bool BBScheduler::IsSchedulable() {
       }
       if (ResourceAttr::IsExtAccessInsn(insn) ||
 	  ResourceAttr::IsExtWaitInsn(insn)) {
+	return false;
+      }
+      if (ResourceAttr::IsOrderedResource(insn->GetResource())) {
+	return false;
+      }
+      if (resource::IsExtCombinational(*(insn->GetResource()->GetClass()))) {
 	return false;
       }
       // This is really awkward...
@@ -112,6 +119,10 @@ bool BBScheduler::ScheduleNode(PathNode *n) {
   if (min_st_index < 0) {
     return false;
   }
+  // Ordering of memory access.
+  if (!CheckPrecedingNodes(n)) {
+    return false;
+  }
   // Calculates local delay.
   if (n->GetInsn()->GetResource()->GetClass()->IsExclusive()) {
     ScheduleExclusive(n, min_st_index);
@@ -147,6 +158,12 @@ int BBScheduler::GetMinStIndex(PathNode *n) {
   if (s >= 0) {
     if (s > min_st_index) {
       min_st_index = s;
+    }
+  }
+  int t = GetMinStByPrecedingNode(n);
+  if (t >= 0) {
+    if (t > min_st_index) {
+      min_st_index = t;
     }
   }
   return min_st_index;
@@ -228,6 +245,38 @@ int BBScheduler::GetMinStByLastWrite(PathNode *n) {
   }
   if (min > -1) {
     return min + 1;
+  }
+  return -1;
+}
+
+bool BBScheduler::CheckPrecedingNodes(PathNode *n) {
+  IResource *res = n->GetInsn()->GetResource();
+  if (!ResourceAttr::IsOrderedResource(res)) {
+    return true;
+  }
+  int idx = GetMinStByPrecedingNode(n);
+  if (idx < 0) {
+    // Preceding node is not scheduled.
+    return false;
+  }
+  return true;
+}
+
+int BBScheduler::GetMinStByPrecedingNode(PathNode *n) {
+  IResource *res = n->GetInsn()->GetResource();
+  if (!ResourceAttr::IsOrderedResource(res)) {
+    return -1;
+  }
+  auto &m = data_path_->GetResourceNodeMap(res);
+  auto it = m.find(n->GetInitialStIndex());
+  if (it == m.begin()) {
+    return 0;
+  }
+  it--;
+  PathNode *prev = it->second;
+  int st_index = prev->GetFinalStIndex();
+  if (st_index > -1) {
+    return st_index + 1;
   }
   return -1;
 }
