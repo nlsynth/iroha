@@ -116,11 +116,12 @@ void WirePlanSet::ApplyBest() {
   }
 }
 
-WirePlan *WirePlanSet::GetLatestPlan() {
-  if (plans_.size() == 0) {
+WirePlan *WirePlanSet::GetLatestPlan(int nth) {
+  int index = plans_.size() - 1 - nth;
+  if (index < 0) {
     return nullptr;
   }
-  return plans_[plans_.size() - 1];
+  return plans_[index];
 }
 
 }  // namespace wire

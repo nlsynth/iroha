@@ -17,6 +17,8 @@ public:
 
 private:
   bool MayResolveCongestion();
+  bool ExploreNewPlan();
+  bool SetNewPlan(WirePlan *wp);
 
   WirePlanSet *wps_;
 };

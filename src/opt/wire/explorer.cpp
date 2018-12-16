@@ -19,14 +19,15 @@ void Explorer::SetInitialAllocation() {
 bool Explorer::MaySetNextAllocationPlan() {
   bool congested = MayResolveCongestion();
   if (congested) {
-    WirePlan *wp = wps_->GetLatestPlan();
+    WirePlan *wp = wps_->GetLatestPlan(0);
     wp->SetScore(0);
+    return true;
   }
-  return congested;
+  return ExploreNewPlan();
 }
 
 bool Explorer::MayResolveCongestion() {
-  WirePlan *wp = wps_->GetLatestPlan();
+  WirePlan *wp = wps_->GetLatestPlan(0);
   if (wp == nullptr) {
     return false;
   }
@@ -48,6 +49,24 @@ bool Explorer::MayResolveCongestion() {
     }
   }
   return has_update;
+}
+
+bool Explorer::ExploreNewPlan() {
+  WirePlan *last = wps_->GetLatestPlan(0);
+  WirePlan *second_last = wps_->GetLatestPlan(1);
+  if (second_last != nullptr) {
+    long last_score = last->GetScore();
+    long second_last_score = second_last->GetScore();
+    if (last_score * 4 < second_last_score * 5) {
+      // Improvement is less than 25%.
+      return false;
+    }
+  }
+  return SetNewPlan(last);
+}
+
+bool Explorer::SetNewPlan(WirePlan *wp) {
+  return false;
 }
 
 }  // namespace wire

@@ -43,7 +43,7 @@ public:
   void Save(ResourceConflictTracker *conflicts);
   void ApplyBest();
 
-  WirePlan *GetLatestPlan();
+  WirePlan *GetLatestPlan(int nth);
 
 private:
   DataPathSet *dps_;
