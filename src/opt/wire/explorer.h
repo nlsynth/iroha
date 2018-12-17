@@ -19,6 +19,8 @@ private:
   bool MayResolveCongestion();
   bool ExploreNewPlan();
   bool SetNewPlan(WirePlan *wp);
+  int GetRate(ResourceEntry *re, int num_replicas,
+	      const map<ResourceEntry *, int> &usage);
 
   WirePlanSet *wps_;
 };

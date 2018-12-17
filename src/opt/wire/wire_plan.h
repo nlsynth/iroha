@@ -8,6 +8,13 @@ namespace iroha {
 namespace opt {
 namespace wire {
 
+class AllocationPlan {
+public:
+  void Restore();
+
+  map<ResourceEntry *, int> num_replicas_;
+};
+
 // A snapshot of scheduling and allocation result.
 class WirePlan {
 public:
@@ -21,6 +28,7 @@ public:
 
   ResourceConflictTracker *GetConflictTracker();
   map<int, BBWirePlan *> &GetBBWirePlans();
+  AllocationPlan &GetAllocationPlan();
 
 private:
   void SaveResources();
@@ -31,7 +39,7 @@ private:
   // Smaller is better, but 0 indicates a problem like congestion.
   long score_;
   map<int, BBWirePlan *> bb_plans_;
-  map<ResourceEntry *, int> num_replicas_;
+  AllocationPlan allocation_plan_;
   map<VirtualResource *, int> replica_indexes_;
 };
 

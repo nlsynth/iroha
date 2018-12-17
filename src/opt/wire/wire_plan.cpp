@@ -12,6 +12,13 @@ namespace iroha {
 namespace opt {
 namespace wire {
 
+void AllocationPlan::Restore() {
+  for (auto &p : num_replicas_) {
+    ResourceEntry *rent = p.first;
+    int num = p.second;
+    rent->SetNumReplicas(num);
+  }
+}
 
 WirePlan::WirePlan(DataPathSet *dps, ResourceConflictTracker *conflict_tracker)
   : dps_(dps), conflict_tracker_(conflict_tracker), score_(0) {
@@ -52,7 +59,7 @@ void WirePlan::SaveResources() {
   auto &entries = vrs->GetResourceEntries();
   for (auto &p : entries) {
     ResourceEntry *rent = p.second;
-    num_replicas_[rent] = rent->GetNumReplicas();
+    allocation_plan_.num_replicas_[rent] = rent->GetNumReplicas();
   }
   auto &resources = vrs->GetVirtualResources();
   for (auto &p : resources) {
@@ -65,7 +72,7 @@ void WirePlan::RestoreResources() {
   auto &entries = vrs->GetResourceEntries();
   for (auto &p : entries) {
     ResourceEntry *rent = p.second;
-    rent->SetNumReplicas(num_replicas_[rent]);
+    rent->SetNumReplicas(allocation_plan_.num_replicas_[rent]);
   }
   auto &resources = vrs->GetVirtualResources();
   for (auto &p : resources) {
@@ -84,6 +91,10 @@ long WirePlan::GetScore() {
 
 map<int, BBWirePlan *> &WirePlan::GetBBWirePlans() {
   return bb_plans_;
+}
+
+AllocationPlan &WirePlan::GetAllocationPlan() {
+  return allocation_plan_;
 }
 
 WirePlanSet::WirePlanSet(DataPathSet *dps, PlanEvaluator *ev)

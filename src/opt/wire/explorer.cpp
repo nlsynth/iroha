@@ -66,7 +66,44 @@ bool Explorer::ExploreNewPlan() {
 }
 
 bool Explorer::SetNewPlan(WirePlan *wp) {
-  return false;
+  AllocationPlan alloc_plan = wp->GetAllocationPlan();
+  ResourceConflictTracker *conflict_tracker = wp->GetConflictTracker();
+  auto &usage = conflict_tracker->GetUsageCount();
+  int max_rate = 0;
+  for (auto p : alloc_plan.num_replicas_) {
+    ResourceEntry *re = p.first;
+    int num_replicas = p.second;
+    int rate = GetRate(re, num_replicas, usage);
+    if (rate > max_rate) {
+      max_rate = rate;
+    }
+  }
+  if (max_rate <= 1) {
+    return false;
+  }
+  for (auto p : alloc_plan.num_replicas_) {
+    ResourceEntry *re = p.first;
+    int num_replicas = p.second;
+    int rate = GetRate(re, num_replicas, usage);
+    if (rate == max_rate) {
+      p.second++;
+    }
+  }
+  alloc_plan.Restore();
+  return true;
+}
+
+int Explorer::GetRate(ResourceEntry *re, int num_replicas,
+		      const map<ResourceEntry *, int> &usage) {
+  if (num_replicas == 0) {
+    return 0;
+  }
+  int u = 0;
+  auto it = usage.find(re);
+  if (it != usage.end()) {
+    u = it->second;
+  }
+  return u / num_replicas;
 }
 
 }  // namespace wire
