@@ -47,8 +47,8 @@ void BBDataPath::Build() {
 	++oindex;
       }
     }
-    // Process inputs.
     for (IInsn *insn : st->insns_) {
+      // Process inputs (W->R).
       for (IRegister *ireg : insn->inputs_) {
 	auto p = output_to_insn[ireg];
 	IInsn *src_insn = p.first;
@@ -56,12 +56,7 @@ void BBDataPath::Build() {
 	if (src_insn != nullptr) {
 	  PathNode *src_node = insn_to_node[src_insn];
 	  PathNode *this_node = insn_to_node[insn];
-	  // Use current number of edge as the edge id.
-	  int edge_id = edges_.size() + 1;
-	  PathEdge *edge = new PathEdge(edge_id, src_node, this_node, oindex);
-	  edges_.insert(edge);
-	  this_node->source_edges_[src_node->GetId()] = edge;
-	  src_node->sink_edges_[edge->GetId()] = edge;
+	  BuildEdge(PathEdgeType::WRITE_READ, src_node, oindex, this_node);
 	}
       }
     }
@@ -78,6 +73,17 @@ void BBDataPath::Build() {
   }
 }
 
+void BBDataPath::BuildEdge(PathEdgeType type, PathNode *src_node, int oindex,
+			   PathNode *this_node) {
+  // Use current number of edge as the edge id.
+  int edge_id = edges_.size() + 1;
+  PathEdge *edge = new PathEdge(edge_id, type,
+				src_node, this_node, oindex);
+  edges_.insert(edge);
+  this_node->source_edges_[edge->GetId()] = edge;
+  src_node->sink_edges_[edge->GetId()] = edge;
+}
+
 void BBDataPath::SetDelay(DelayInfo *dinfo) {
   for (auto &p : nodes_) {
     PathNode *n = p.second;
@@ -92,17 +98,26 @@ void BBDataPath::SetDelay(DelayInfo *dinfo) {
 
 void BBDataPath::SetAccumlatedDelay(DelayInfo *dinfo, PathNode *node) {
   if (node->GetAccumlatedDelayFromLeaf() >= 0) {
+    // Already computed.
     return;
   }
+  // Compute delayes of preceding nodes.
   for (auto &p : node->source_edges_) {
-    PathNode *source_node = p.second->GetSourceNode();
-    SetAccumlatedDelay(dinfo, source_node);
+    PathEdge *edge = p.second;
+    if (edge->IsWtoR()) {
+      PathNode *source_node = edge->GetSourceNode();
+      SetAccumlatedDelay(dinfo, source_node);
+    }
   }
+  // Get the max value.
   int max_source_delay = 0;
   for (auto &p : node->source_edges_) {
-    PathNode *source_node = p.second->GetSourceNode();
-    if (max_source_delay < source_node->GetAccumlatedDelayFromLeaf()) {
-      max_source_delay = source_node->GetAccumlatedDelayFromLeaf();
+    PathEdge *edge = p.second;
+    if (edge->IsWtoR()) {
+      PathNode *source_node = edge->GetSourceNode();
+      if (max_source_delay < source_node->GetAccumlatedDelayFromLeaf()) {
+	max_source_delay = source_node->GetAccumlatedDelayFromLeaf();
+      }
     }
   }
   node->SetAccumlatedDelayFromLeaf(max_source_delay + node->GetNodeDelay());

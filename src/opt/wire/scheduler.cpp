@@ -137,7 +137,11 @@ int BBScheduler::GetMinStIndex(PathNode *n) {
   int min_st_index = 0;
   // Determines the location.
   for (auto &s : n->source_edges_) {
-    PathNode *source_node = s.second->GetSourceNode();
+    PathEdge *edge = s.second;
+    if (!edge->IsWtoR()) {
+      continue;
+    }
+    PathNode *source_node = edge->GetSourceNode();
     if (source_node->GetFinalStIndex() < 0) {
       // Not yet scheduled. Fail and try later again.
       return -1;
@@ -172,7 +176,11 @@ int BBScheduler::GetMinStIndex(PathNode *n) {
 int BBScheduler::GetLocalDelayBeforeNode(PathNode *n, int st_index) {
   int source_local_delay = 0;
   for (auto &s : n->source_edges_) {
-    PathNode *source_node = s.second->GetSourceNode();
+    PathEdge *edge = s.second;
+    if (!edge->IsWtoR()) {
+      continue;
+    }
+    PathNode *source_node = edge->GetSourceNode();
     if (source_node->GetFinalStIndex() < st_index) {
       continue;
     }

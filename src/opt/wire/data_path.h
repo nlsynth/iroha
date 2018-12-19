@@ -23,6 +23,8 @@ public:
 
 private:
   void SetAccumlatedDelay(DelayInfo *dinfo, PathNode *node);
+  void BuildEdge(PathEdgeType type, PathNode *src_node, int oindex,
+		 PathNode *this_node);
 
   BB *bb_;
   VirtualResourceSet *vrset_;

@@ -7,14 +7,22 @@ namespace iroha {
 namespace opt {
 namespace wire {
 
-PathEdge::PathEdge(int id, PathNode *source_node, PathNode *sink_node,
+PathEdge::PathEdge(int id, PathEdgeType type, PathNode *source_node, PathNode *sink_node,
 		   int source_reg_index)
-  : id_(id), source_node_(source_node), source_reg_index_(source_reg_index),
+  : id_(id), type_(type), source_node_(source_node), source_reg_index_(source_reg_index),
     sink_node_(sink_node) {
 }
 
 int PathEdge::GetId() {
   return id_;
+}
+
+PathEdgeType PathEdge::GetType() {
+  return type_;
+}
+
+bool PathEdge::IsWtoR() {
+  return (type_ == WRITE_READ);
 }
 
 IRegister *PathEdge::GetSourceReg() {
@@ -35,6 +43,16 @@ int PathEdge::GetSourceRegIndex() {
 
 PathNode *PathEdge::GetSinkNode() {
   return sink_node_;
+}
+
+const char *PathEdge::TypeName(PathEdgeType type) {
+  switch (type) {
+  case PathEdgeType::WRITE_READ: return "W_R";
+  case PathEdgeType::WRITE_WRITE: return "W_W";
+  case PathEdgeType::READ_WRITE: return "R_W";
+  default:;
+  }
+  return "INVALID";
 }
 
 PathNode::PathNode(BBDataPath *path, int st_index, IInsn *insn, VirtualResource *vres)
@@ -84,8 +102,9 @@ void PathNode::Dump(ostream &os) {
      << node_delay_ << " " << accumlated_delay_from_leaf_ << "\n";
   if (source_edges_.size() > 0) {
     for (auto &p : source_edges_) {
-      int source_node_id = p.first;
-      os << " " << source_node_id;
+      PathEdge *edge = p.second;
+      int source_node_id = edge->GetSourceNode()->GetId();
+      os << " " << source_node_id << " " << PathEdge::TypeName(edge->GetType());
     }
     os << "\n";
   }

@@ -14,6 +14,7 @@ class BBWirePlan;
 class DataPathSet;
 class Explorer;
 class PathEdge;
+enum PathEdgeType : int;
 class PathNode;
 class PlanEvaluator;
 class ResourceConflictTracker;
