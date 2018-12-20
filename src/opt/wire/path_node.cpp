@@ -25,6 +25,10 @@ bool PathEdge::IsWtoR() {
   return (type_ == WRITE_READ);
 }
 
+bool PathEdge::IsWtoW() {
+  return (type_ == WRITE_WRITE);
+}
+
 IRegister *PathEdge::GetSourceReg() {
   return source_node_->GetInsn()->outputs_[source_reg_index_];
 }

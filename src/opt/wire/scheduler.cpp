@@ -99,9 +99,7 @@ void BBScheduler::Schedule() {
     for (auto &lt : sorted_nodes_) {
       auto &ev = lt.second;
       for (auto *n : ev) {
-	if (ScheduleNode(n)) {
-	  UpdateLastWrite(n);
-	} else {
+	if (!ScheduleNode(n)) {
 	  has_unscheduled = true;
 	}
       }
@@ -120,7 +118,7 @@ bool BBScheduler::ScheduleNode(PathNode *n) {
     return false;
   }
   // Ordering of memory access.
-  if (!CheckPrecedingNodes(n)) {
+  if (!CheckPrecedingNodesOfSameResource(n)) {
     return false;
   }
   // Calculates local delay.
@@ -134,18 +132,23 @@ bool BBScheduler::ScheduleNode(PathNode *n) {
 }
 
 int BBScheduler::GetMinStIndex(PathNode *n) {
-  int min_st_index = 0;
+  // Checks if all preceding nodes (W->W, W->R, R->W) are scheduled.
+  for (auto &s : n->source_edges_) {
+    PathEdge *edge = s.second;
+    PathNode *source_node = edge->GetSourceNode();
+    if (source_node->GetFinalStIndex() < 0) {
+      // Not yet scheduled. Fail and try later again.
+      return -1;
+    }
+  }
   // Determines the location.
+  int min_st_index = 0;
   for (auto &s : n->source_edges_) {
     PathEdge *edge = s.second;
     if (!edge->IsWtoR()) {
       continue;
     }
     PathNode *source_node = edge->GetSourceNode();
-    if (source_node->GetFinalStIndex() < 0) {
-      // Not yet scheduled. Fail and try later again.
-      return -1;
-    }
     if (min_st_index < source_node->GetFinalStIndex()) {
       min_st_index = source_node->GetFinalStIndex();
     }
@@ -158,16 +161,16 @@ int BBScheduler::GetMinStIndex(PathNode *n) {
       }
     }
   }
-  int s = GetMinStByLastWrite(n);
-  if (s >= 0) {
-    if (s > min_st_index) {
-      min_st_index = s;
-    }
-  }
-  int t = GetMinStByPrecedingNode(n);
+  int t = GetMinStByPrecedingNodeOfSameResource(n);
   if (t >= 0) {
     if (t > min_st_index) {
       min_st_index = t;
+    }
+  }
+  int u = GetMinStByWtoW(n);
+  if (u >= 0) {
+    if (u >= min_st_index) {
+      min_st_index = u;
     }
   }
   return min_st_index;
@@ -227,42 +230,31 @@ void BBScheduler::ScheduleNonExclusive(PathNode *n, int st_index) {
   n->state_local_delay_ = source_local_delay + n->GetNodeDelay();
 }
 
-void BBScheduler::UpdateLastWrite(PathNode *n) {
-  int st_index = n->GetFinalStIndex();
-  IInsn *insn = n->GetInsn();
-  for (IRegister *reg : insn->outputs_) {
-    int idx = last_write_index_[reg];
-    if (idx < st_index) {
-      last_write_index_[reg] = st_index;
-    }
-  }
-}
-
-int BBScheduler::GetMinStByLastWrite(PathNode *n) {
+int BBScheduler::GetMinStByWtoW(PathNode *n) {
   int min = -1;
-  IInsn *insn = n->GetInsn();
-  for (IRegister *reg : insn->outputs_) {
-    auto it = last_write_index_.find(reg);
-    if (it == last_write_index_.end()) {
+  for (auto &s : n->source_edges_) {
+    PathEdge *edge = s.second;
+    if (!edge->IsWtoW()) {
       continue;
     }
-    int st = it->second;
-    if (st > min) {
-      min = st;
+    PathNode *source_node = edge->GetSourceNode();
+    if (source_node->GetFinalStIndex() > min) {
+      min = source_node->GetFinalStIndex();
     }
   }
-  if (min > -1) {
+  if (min >= 0) {
     return min + 1;
   }
   return -1;
 }
 
-bool BBScheduler::CheckPrecedingNodes(PathNode *n) {
+bool BBScheduler::CheckPrecedingNodesOfSameResource(PathNode *n) {
   IResource *res = n->GetInsn()->GetResource();
   if (!ResourceAttr::IsOrderedResource(res)) {
+    // Skips normal resources (other than array access or so on).
     return true;
   }
-  int idx = GetMinStByPrecedingNode(n);
+  int idx = GetMinStByPrecedingNodeOfSameResource(n);
   if (idx < 0) {
     // Preceding node is not scheduled.
     return false;
@@ -270,7 +262,7 @@ bool BBScheduler::CheckPrecedingNodes(PathNode *n) {
   return true;
 }
 
-int BBScheduler::GetMinStByPrecedingNode(PathNode *n) {
+int BBScheduler::GetMinStByPrecedingNodeOfSameResource(PathNode *n) {
   IResource *res = n->GetInsn()->GetResource();
   if (!ResourceAttr::IsOrderedResource(res)) {
     return -1;

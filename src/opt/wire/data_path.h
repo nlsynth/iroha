@@ -25,6 +25,9 @@ private:
   void SetAccumlatedDelay(DelayInfo *dinfo, PathNode *node);
   void BuildEdge(PathEdgeType type, PathNode *src_node, int oindex,
 		 PathNode *this_node);
+  void BuildEdgeForReg(map<IInsn *, PathNode *> &insn_to_node,
+		       map<IRegister *, pair<IInsn *, int> > &output_to_insn,
+		       PathEdgeType type, IInsn *insn, IRegister *reg);
 
   BB *bb_;
   VirtualResourceSet *vrset_;

@@ -50,14 +50,13 @@ void BBDataPath::Build() {
     for (IInsn *insn : st->insns_) {
       // Process inputs (W->R).
       for (IRegister *ireg : insn->inputs_) {
-	auto p = output_to_insn[ireg];
-	IInsn *src_insn = p.first;
-	int oindex = p.second;
-	if (src_insn != nullptr) {
-	  PathNode *src_node = insn_to_node[src_insn];
-	  PathNode *this_node = insn_to_node[insn];
-	  BuildEdge(PathEdgeType::WRITE_READ, src_node, oindex, this_node);
-	}
+	BuildEdgeForReg(insn_to_node, output_to_insn,
+			PathEdgeType::WRITE_READ, insn, ireg);
+      }
+      // Process outputs (W->W).
+      for (IRegister *oreg : insn->outputs_) {
+	BuildEdgeForReg(insn_to_node, output_to_insn,
+			PathEdgeType::WRITE_WRITE, insn, oreg);
       }
     }
     // Not state local.
@@ -70,6 +69,19 @@ void BBDataPath::Build() {
 	++oindex;
       }
     }
+  }
+}
+
+void BBDataPath::BuildEdgeForReg(map<IInsn *, PathNode *> &insn_to_node,
+				 map<IRegister *, pair<IInsn *, int> > &output_to_insn,
+				 PathEdgeType type, IInsn *insn, IRegister *reg) {
+  auto p = output_to_insn[reg];
+  IInsn *src_insn = p.first;
+  int oindex = p.second;
+  if (src_insn != nullptr) {
+    PathNode *src_node = insn_to_node[src_insn];
+    PathNode *this_node = insn_to_node[insn];
+    BuildEdge(type, src_node, oindex, this_node);
   }
 }
 

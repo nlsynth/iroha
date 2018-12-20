@@ -35,6 +35,7 @@ public:
   int GetId();
   PathEdgeType GetType();
   bool IsWtoR();
+  bool IsWtoW();
   IRegister *GetSourceReg();
   void SetSourceReg(IRegister *reg);
   int GetSourceRegIndex();
