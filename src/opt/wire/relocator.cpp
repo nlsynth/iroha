@@ -137,6 +137,9 @@ void Relocator::RewirePathsNode(PathNode *src_node, vector<IState *> *states) {
   vector<IRegister *> output_regs(src_insn->outputs_.size());
   for (auto &q : src_node->sink_edges_) {
     PathEdge *edge = q.second;
+    if (!edge->IsWtoR()) {
+      continue;
+    }
     int idx = edge->GetSourceRegIndex();
     IRegister *reg = edge->GetSourceReg();
     if (src_node->GetFinalStIndex() == edge->GetSinkNode()->GetFinalStIndex()) {

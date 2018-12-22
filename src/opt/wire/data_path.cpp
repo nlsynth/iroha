@@ -34,6 +34,11 @@ void BBDataPath::Build() {
     }
     ++st_index;
   }
+  BuildFromWrite(insn_to_node);
+  BuildFromRead(insn_to_node);
+}
+
+void BBDataPath::BuildFromWrite(map<IInsn *, PathNode *> &insn_to_node) {
   // insn and the index in outputs_[].
   map<IRegister *, pair<IInsn *, int> > output_to_insn;
   for (IState *st : bb_->states_) {
@@ -72,25 +77,47 @@ void BBDataPath::Build() {
   }
 }
 
-void BBDataPath::BuildEdgeForReg(map<IInsn *, PathNode *> &insn_to_node,
-				 map<IRegister *, pair<IInsn *, int> > &output_to_insn,
-				 PathEdgeType type, IInsn *insn, IRegister *reg) {
-  auto p = output_to_insn[reg];
-  IInsn *src_insn = p.first;
-  int oindex = p.second;
-  if (src_insn != nullptr) {
-    PathNode *src_node = insn_to_node[src_insn];
-    PathNode *this_node = insn_to_node[insn];
-    BuildEdge(type, src_node, oindex, this_node);
+void BBDataPath::BuildFromRead(map<IInsn *, PathNode *> &insn_to_node) {
+  map<IRegister *, pair<IInsn *, int> > input_to_insn;
+  for (IState *st : bb_->states_) {
+    for (IInsn *insn : st->insns_) {
+      // Process insn (R->W)
+      for (IRegister *ireg : insn->outputs_) {
+	BuildEdgeForReg(insn_to_node, input_to_insn, PathEdgeType::READ_WRITE, insn, ireg);
+      }
+    }
+    // Not state local.
+    for (IInsn *insn : st->insns_) {
+      int iindex = 0;
+      for (IRegister *ireg : insn->inputs_) {
+	if (!ireg->IsStateLocal()) {
+	  input_to_insn[ireg] = make_pair(insn, iindex);
+	}
+	++iindex;
+      }
+    }
   }
 }
 
-void BBDataPath::BuildEdge(PathEdgeType type, PathNode *src_node, int oindex,
+void BBDataPath::BuildEdgeForReg(map<IInsn *, PathNode *> &insn_to_node,
+				 map<IRegister *, pair<IInsn *, int> > &reg_to_insn,
+				 PathEdgeType type, IInsn *insn, IRegister *reg) {
+  auto p = reg_to_insn[reg];
+  IInsn *src_insn = p.first;
+  int reg_index = p.second;
+  if (src_insn != nullptr) {
+    PathNode *src_node = insn_to_node[src_insn];
+    PathNode *this_node = insn_to_node[insn];
+    BuildEdge(type, src_node, reg_index, this_node);
+  }
+}
+
+void BBDataPath::BuildEdge(PathEdgeType type, PathNode *src_node, int reg_index,
 			   PathNode *this_node) {
   // Use current number of edge as the edge id.
   int edge_id = edges_.size() + 1;
   PathEdge *edge = new PathEdge(edge_id, type,
-				src_node, this_node, oindex);
+				src_node, this_node, reg_index);
   edges_.insert(edge);
   this_node->source_edges_[edge->GetId()] = edge;
   src_node->sink_edges_[edge->GetId()] = edge;

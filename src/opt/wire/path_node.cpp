@@ -1,6 +1,7 @@
 #include "opt/wire/path_node.h"
 
 #include "iroha/i_design.h"
+#include "iroha/logging.h"
 #include "iroha/resource_class.h"
 
 namespace iroha {
@@ -30,10 +31,12 @@ bool PathEdge::IsWtoW() {
 }
 
 IRegister *PathEdge::GetSourceReg() {
+  CHECK(IsWtoR() || IsWtoW());
   return source_node_->GetInsn()->outputs_[source_reg_index_];
 }
 
 void PathEdge::SetSourceReg(IRegister *reg) {
+  CHECK(IsWtoR() || IsWtoW());
   source_node_->GetInsn()->outputs_[source_reg_index_] = reg;
 }
 

@@ -23,10 +23,14 @@ public:
 
 private:
   void SetAccumlatedDelay(DelayInfo *dinfo, PathNode *node);
-  void BuildEdge(PathEdgeType type, PathNode *src_node, int oindex,
+  // W->W, W->R
+  void BuildFromWrite(map<IInsn *, PathNode *> &insn_to_node);
+  // R->W
+  void BuildFromRead(map<IInsn *, PathNode *> &insn_to_node);
+  void BuildEdge(PathEdgeType type, PathNode *src_node, int reg_index,
 		 PathNode *this_node);
   void BuildEdgeForReg(map<IInsn *, PathNode *> &insn_to_node,
-		       map<IRegister *, pair<IInsn *, int> > &output_to_insn,
+		       map<IRegister *, pair<IInsn *, int> > &reg_to_insn,
 		       PathEdgeType type, IInsn *insn, IRegister *reg);
 
   BB *bb_;
