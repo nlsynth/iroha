@@ -41,7 +41,7 @@ private:
   bool IsSchedulable();
   int GetMinStIndex(PathNode *n);
   int GetLocalDelayBeforeNode(PathNode *n, int st_index);
-  int GetMinStByWtoW(PathNode *n);
+  int GetMinStByEdgeDependency(PathNode *n);
   bool CheckPrecedingNodesOfSameResource(PathNode *n);
   int GetMinStByPrecedingNodeOfSameResource(PathNode *n);
 

@@ -57,9 +57,6 @@ bool BBScheduler::IsSchedulable() {
 	  ResourceAttr::IsExtWaitInsn(insn)) {
 	return false;
       }
-      if (ResourceAttr::IsOrderedResource(insn->GetResource())) {
-	return false;
-      }
       if (resource::IsExtCombinational(*(insn->GetResource()->GetClass()))) {
 	return false;
       }
@@ -167,7 +164,7 @@ int BBScheduler::GetMinStIndex(PathNode *n) {
       min_st_index = t;
     }
   }
-  int u = GetMinStByWtoW(n);
+  int u = GetMinStByEdgeDependency(n);
   if (u >= 0) {
     if (u >= min_st_index) {
       min_st_index = u;
@@ -230,11 +227,12 @@ void BBScheduler::ScheduleNonExclusive(PathNode *n, int st_index) {
   n->state_local_delay_ = source_local_delay + n->GetNodeDelay();
 }
 
-int BBScheduler::GetMinStByWtoW(PathNode *n) {
+int BBScheduler::GetMinStByEdgeDependency(PathNode *n) {
   int min = -1;
   for (auto &s : n->source_edges_) {
     PathEdge *edge = s.second;
-    if (!edge->IsWtoW()) {
+    // This takes care of W->W or R->W.
+    if (edge->IsWtoR()) {
       continue;
     }
     PathNode *source_node = edge->GetSourceNode();
