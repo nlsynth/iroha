@@ -163,6 +163,18 @@ bool IsTicker(const IResourceClass &rc) {
   return (rc.GetName() == kTicker);
 }
 
+bool IsStudy(const IResourceClass &rc) {
+  return (rc.GetName() == kStudy);
+}
+
+bool IsStudyReader(const IResourceClass &rc) {
+  return (rc.GetName() == kStudyReader);
+}
+
+bool IsStudyWriter(const IResourceClass &rc) {
+  return (rc.GetName() == kStudyWriter);
+}
+
 static void InstallResource(IDesign *design, const string &name,
 			    bool is_exclusive) {
   IResourceClass *klass = new IResourceClass(name, is_exclusive, design);
@@ -218,6 +230,9 @@ void InstallResourceClasses(IDesign *design) {
   InstallResource(design, resource::kFifoReader, true);
   InstallResource(design, resource::kFifoWriter, true);
   InstallResource(design, resource::kTicker, true);
+  InstallResource(design, resource::kStudy, true);
+  InstallResource(design, resource::kStudyReader, true);
+  InstallResource(design, resource::kStudyWriter, true);
 }
 
 }  // namespace resource

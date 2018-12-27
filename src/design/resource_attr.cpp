@@ -28,6 +28,11 @@ bool ResourceAttr::IsMultiCycleInsn(IInsn *insn) {
       resource::IsExtTaskWait(rc)) {
     return true;
   }
+  if (resource::IsStudy(rc) ||
+      resource::IsStudyReader(rc) ||
+      resource::IsStudyWriter(rc)) {
+    return true;
+  }
   if (resource::IsAxiMasterPort(rc) ||
       resource::IsAxiSlavePort(rc)) {
     return true;

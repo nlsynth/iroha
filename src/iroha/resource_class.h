@@ -52,6 +52,9 @@ const char kFifo[] = "fifo";
 const char kFifoReader[] = "fifo-reader";
 const char kFifoWriter[] = "fifo-writer";
 const char kTicker[] = "ticker";
+const char kStudy[] = "study";
+const char kStudyReader[] = "study-reader";
+const char kStudyWriter[] = "study-writer";
 
 bool IsTransition(const IResourceClass &rc);
 bool IsSelect(const IResourceClass &rc);
@@ -92,6 +95,9 @@ bool IsFifo(const IResourceClass &rc);
 bool IsFifoReader(const IResourceClass &rc);
 bool IsFifoWriter(const IResourceClass &rc);
 bool IsTicker(const IResourceClass &rc);
+bool IsStudy(const IResourceClass &rc);
+bool IsStudyReader(const IResourceClass &rc);
+bool IsStudyWriter(const IResourceClass &rc);
 
 void InstallResourceClasses(IDesign *design);
 

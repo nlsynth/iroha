@@ -24,6 +24,8 @@
 #include "writer/verilog/shared_reg_accessor.h"
 #include "writer/verilog/ports.h"
 #include "writer/verilog/state.h"
+#include "writer/verilog/study.h"
+#include "writer/verilog/study_accessor.h"
 #include "writer/verilog/table.h"
 #include "writer/verilog/task.h"
 #include "writer/verilog/ticker.h"
@@ -99,6 +101,13 @@ Resource *Resource::Create(const IResource &res, const Table &table) {
   }
   if (resource::IsDataFlowIn(*klass)) {
     return new DataFlowIn(res, table);
+  }
+  if (resource::IsStudy(*klass)) {
+    return new Study(res, table);
+  }
+  if (resource::IsStudyReader(*klass) ||
+      resource::IsStudyWriter(*klass)) {
+    return new StudyAccessor(res, table);
   }
   return new Resource(res, table);
 }

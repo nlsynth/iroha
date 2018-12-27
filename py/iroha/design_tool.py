@@ -228,3 +228,17 @@ def CreateFifoWriter(table, fifo):
     res = createResource(table, "fifo-writer")
     res.parent_resource = fifo
     return res
+
+def CreateStudy(table):
+    res = createResource(table, "study")
+    return res
+
+def CreateStudyReader(table, study):
+    res = createResource(table, "study-reader")
+    res.parent_resource = study
+    return res
+
+def CreateStudyWriter(table, study):
+    res = createResource(table, "study-writer")
+    res.parent_resource = study
+    return res

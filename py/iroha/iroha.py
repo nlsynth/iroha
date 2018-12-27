@@ -51,6 +51,10 @@ class IDesign(object):
         self.resource_classes.append(IResourceClass("fifo"))
         self.resource_classes.append(IResourceClass("fifo-reader"))
         self.resource_classes.append(IResourceClass("fifo-writer"))
+        # Study
+        self.resource_classes.append(IResourceClass("study"))
+        self.resource_classes.append(IResourceClass("study-reader"))
+        self.resource_classes.append(IResourceClass("study-writer"))
 
     def findResourceClassByName(self, name):
         for rc in self.resource_classes:
