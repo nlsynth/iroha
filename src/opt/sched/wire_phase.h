@@ -1,0 +1,29 @@
+// -*- C++ -*-
+#ifndef _opt_sched_wire_phase_h_
+#define _opt_sched_wire_phase_h_
+
+#include "opt/common.h"
+#include "opt/phase.h"
+
+namespace iroha {
+namespace opt {
+namespace sched {
+
+class WirePhase : public Phase {
+public:
+  virtual ~WirePhase();
+
+  static Phase *Create();
+
+private:
+  virtual bool ApplyForDesign(IDesign *design);
+  virtual bool ApplyForTable(const string &key, ITable *table);
+
+  std::unique_ptr<DelayInfo> delay_info_;
+};
+
+}  // namespace sched
+}  // namespace opt
+}  // namespace iroha
+
+#endif  // _opt_sched_wire_phase_h_

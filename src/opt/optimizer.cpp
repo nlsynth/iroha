@@ -13,7 +13,7 @@
 #include "opt/debug_annotation.h"
 #include "opt/phase.h"
 #include "opt/ssa/ssa.h"
-#include "opt/wire/wire_phase.h"
+#include "opt/sched/wire_phase.h"
 #include "platform/platform.h"
 #include "platform/platform_db.h"
 
@@ -42,8 +42,8 @@ void Optimizer::Init() {
 		&clean::CleanPseudoResourcePhase::Create);
   RegisterPhase("ssa_convert", &ssa::SSAConverterPhase::Create);
   RegisterPhase("phi_cleaner", &ssa::PhiCleanerPhase::Create);
-  RegisterPhase("alloc_resource", &wire::WirePhase::Create);
-  RegisterPhase("wire_insn", &wire::WirePhase::Create);
+  RegisterPhase("alloc_resource", &sched::WirePhase::Create);
+  RegisterPhase("wire_insn", &sched::WirePhase::Create);
   CompoundPhase::Init();
 }
 
