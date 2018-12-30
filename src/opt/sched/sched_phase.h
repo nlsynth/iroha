@@ -1,6 +1,6 @@
 // -*- C++ -*-
-#ifndef _opt_sched_wire_phase_h_
-#define _opt_sched_wire_phase_h_
+#ifndef _opt_sched_sched_phase_h_
+#define _opt_sched_sched_phase_h_
 
 #include "opt/common.h"
 #include "opt/phase.h"
@@ -9,9 +9,9 @@ namespace iroha {
 namespace opt {
 namespace sched {
 
-class WirePhase : public Phase {
+class SchedPhase : public Phase {
 public:
-  virtual ~WirePhase();
+  virtual ~SchedPhase();
 
   static Phase *Create();
 
@@ -26,4 +26,4 @@ private:
 }  // namespace opt
 }  // namespace iroha
 
-#endif  // _opt_sched_wire_phase_h_
+#endif  // _opt_sched_sched_phase_h_

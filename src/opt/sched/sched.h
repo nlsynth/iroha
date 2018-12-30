@@ -1,6 +1,6 @@
 // -*- C++ -*-
-#ifndef _opt_sched_wire_h_
-#define _opt_sched_wire_h_
+#ifndef _opt_sched_sched_h_
+#define _opt_sched_sched_h_
 
 #include "opt/sched/common.h"
 
@@ -8,10 +8,10 @@ namespace iroha {
 namespace opt {
 namespace sched {
 
-class Wire {
+class Sched {
 public:
-  Wire(ITable *table, DelayInfo *delay_info, DebugAnnotation *annotation);
-  virtual ~Wire();
+  Sched(ITable *table, DelayInfo *delay_info, DebugAnnotation *annotation);
+  virtual ~Sched();
   bool Perform();
 
 private:
@@ -29,4 +29,4 @@ private:
 }  // namespace opt
 }  // namespace iroha
 
-#endif  // _opt_sched_wire_h_
+#endif  // _opt_sched_sched_h_

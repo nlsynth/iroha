@@ -1,4 +1,4 @@
-#include "opt/sched/scheduler.h"
+#include "opt/sched/bb_scheduler.h"
 
 #include "design/resource_attr.h"
 #include "iroha/i_design.h"

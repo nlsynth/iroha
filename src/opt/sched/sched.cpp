@@ -1,4 +1,4 @@
-#include "opt/sched/wire.h"
+#include "opt/sched/sched.h"
 
 #include "design/resource_attr.h"
 #include "design/validator.h"
@@ -8,27 +8,27 @@
 #include "opt/bb_set.h"
 #include "opt/debug_annotation.h"
 #include "opt/delay_info.h"
+#include "opt/sched/bb_scheduler.h"
 #include "opt/sched/data_path.h"
 #include "opt/sched/explorer.h"
 #include "opt/sched/plan_evaluator.h"
 #include "opt/sched/relocator.h"
 #include "opt/sched/resource_conflict_tracker.h"
-#include "opt/sched/scheduler.h"
 #include "opt/sched/wire_plan.h"
 
 namespace iroha {
 namespace opt {
 namespace sched {
 
-Wire::Wire(ITable *table, DelayInfo *delay_info, DebugAnnotation *annotation)
+Sched::Sched(ITable *table, DelayInfo *delay_info, DebugAnnotation *annotation)
   : table_(table), delay_info_(delay_info), annotation_(annotation) {
   data_path_set_.reset(new DataPathSet());
 }
 
-Wire::~Wire() {
+Sched::~Sched() {
 }
 
-bool Wire::Perform() {
+bool Sched::Perform() {
   bset_.reset(BBSet::Create(table_, annotation_));
   if (annotation_->IsEnabled()) {
     annotation_->DumpIntermediateTable(table_);
@@ -60,7 +60,7 @@ bool Wire::Perform() {
   return true;
 }
 
-void Wire::IterateScheduling() {
+void Sched::IterateScheduling() {
   PlanEvaluator ev(data_path_set_.get());
   WirePlanSet wps(data_path_set_.get(), &ev);
   Explorer explorer(&wps);

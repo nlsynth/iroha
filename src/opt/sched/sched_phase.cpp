@@ -1,24 +1,24 @@
-#include "opt/sched/wire_phase.h"
+#include "opt/sched/sched_phase.h"
 
 #include "iroha/i_design.h"
 #include "iroha/resource_params.h"
 #include "opt/delay_info.h"
 #include "opt/optimizer.h"
 #include "opt/profile/profile.h"
-#include "opt/sched/wire.h"
+#include "opt/sched/sched.h"
 
 namespace iroha {
 namespace opt {
 namespace sched {
 
-WirePhase::~WirePhase() {
+SchedPhase::~SchedPhase() {
 }
 
-Phase *WirePhase::Create() {
-  return new WirePhase();
+Phase *SchedPhase::Create() {
+  return new SchedPhase();
 }
 
-bool WirePhase::ApplyForDesign(IDesign *design) {
+bool SchedPhase::ApplyForDesign(IDesign *design) {
   if (!profile::Profile::HasProfile(design)) {
     profile::Profile::FillFakeProfile(design);
   }
@@ -28,9 +28,9 @@ bool WirePhase::ApplyForDesign(IDesign *design) {
   return Phase::ApplyForDesign(design);
 }
 
-bool WirePhase::ApplyForTable(const string &key, ITable *table) {
-  Wire wire(table, delay_info_.get(), annotation_);
-  return wire.Perform();
+bool SchedPhase::ApplyForTable(const string &key, ITable *table) {
+  Sched sched(table, delay_info_.get(), annotation_);
+  return sched.Perform();
 }
 
 }  // namespace sched

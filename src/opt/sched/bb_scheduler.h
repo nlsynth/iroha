@@ -1,6 +1,6 @@
 // -*- C++ -*-
-#ifndef _opt_sched_scheduler_h_
-#define _opt_sched_scheduler_h_
+#ifndef _opt_sched_bb_scheduler_h_
+#define _opt_sched_bb_scheduler_h_
 
 #include "opt/sched/common.h"
 
@@ -57,4 +57,4 @@ private:
 }  // namespace opt
 }  // namespace iroha
 
-#endif  // _opt_sched_scheduler_h_
+#endif  // _opt_sched_bb_scheduler_h_
