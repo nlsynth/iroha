@@ -47,6 +47,8 @@ void Connection::ProcessTable(ITable *tab) {
   ProcessSharedMemoryAccessors(tab);
   // fifo
   ProcessFifoAccessors(tab);
+  // study
+  ProcessStudyAccessors(tab);
 }
 
 void Connection::ProcessSharedRegAccessors(ITable *tab) {
@@ -113,6 +115,18 @@ void Connection::ProcessFifoAccessors(ITable *tab) {
   }
 }
 
+void Connection::ProcessStudyAccessors(ITable *tab) {
+  for (IResource *res : tab->resources_) {
+    IResource *p = res->GetParentResource();
+    if (p == nullptr ||
+	!resource::IsStudy(*(p->GetClass()))) {
+      continue;
+    }
+    auto *ai = FindAccessorInfo(p);
+    ai->study_accessors_.push_back(res);
+  }
+}
+
 const AccessorInfo *Connection::GetAccessorInfo(const IResource *res) const {
   auto it = accessors_.find(res);
   if (it == accessors_.end()) {
@@ -168,6 +182,11 @@ const vector<IResource *> &Connection::GetFifoWriters(const IResource *res) cons
 const vector<IResource *> &Connection::GetFifoReaders(const IResource *res) const {
   const auto *ai = GetAccessorInfo(res);
   return ai->fifo_readers_;
+}
+
+const vector<IResource *> &Connection::GetStudyAccessors(const IResource *res) const {
+  const auto *ai = GetAccessorInfo(res);
+  return ai->study_accessors_;
 }
 
 const vector<IResource *> &Connection::GetTaskCallers(const IResource *res) const {

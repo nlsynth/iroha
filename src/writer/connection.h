@@ -23,6 +23,7 @@ public:
   vector<IResource *> shared_reg_children_;
   vector<IResource *> fifo_readers_;
   vector<IResource *> fifo_writers_;
+  vector<IResource *> study_accessors_;
 };
 
 class Connection {
@@ -41,6 +42,7 @@ public:
   const vector<IResource *> &GetSharedMemoryPort1Accessors(const IResource *res) const;
   const vector<IResource *> &GetFifoWriters(const IResource *res) const;
   const vector<IResource *> &GetFifoReaders(const IResource *res) const;
+  const vector<IResource *> &GetStudyAccessors(const IResource *res) const;
 
   static const IModule *GetCommonRoot(const IModule *m1, const IModule *m2);
 
@@ -51,6 +53,7 @@ private:
   void ProcessSharedRegAccessors(ITable *tab);
   void ProcessSharedMemoryAccessors(ITable *tab);
   void ProcessFifoAccessors(ITable *tab);
+  void ProcessStudyAccessors(ITable *tab);
   AccessorInfo *FindAccessorInfo(const IResource *res);
 
   const IDesign *design_;
