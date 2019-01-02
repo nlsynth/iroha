@@ -296,6 +296,8 @@
         'writer/verilog/ticker.h',
         'writer/verilog/verilog_writer.cpp',
         'writer/verilog/verilog_writer.h',
+        'writer/verilog/wire_set.cpp',
+        'writer/verilog/wire_set.h',
       ],
       'dependencies': [
       ],
