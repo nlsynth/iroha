@@ -1,7 +1,12 @@
 #include "writer/verilog/wire_set.h"
 
 #include "iroha/stl_util.h"
+#include "iroha/logging.h"
+#include "writer/module_template.h"
 #include "writer/verilog/inter_module_wire.h"
+#include "writer/verilog/module.h"
+#include "writer/verilog/resource.h"
+#include "writer/verilog/table.h"
 
 // WIP: Unified interconnect wiring system for
 // shared_memory, shared_reg, fifo, task (and study)
@@ -24,9 +29,6 @@
 // * study
 //   -
 //
-// Types:
-//  Req, Ack, RData, WData, WEn
-//
 // Usage:
 // WireSet ws(parent, "name");
 // AccessorInfo *ac = ws.AddAccessor(writer, "name_parent_accessor");
@@ -38,10 +40,14 @@
 // * (each) Source module.
 // {prefix}_{parent}_{accessor}_{name}
 // * wire.
-// {prefix}_{parent}_{accessor}_{name}_wire
+// wire: {prefix}_{parent}_{accessor}_{name}_wire
 // -- distance, arbiter
 // * Sink module.
-// {prefix}_{parent}_{name}
+// parent: {prefix}_{parent}_{name}
+//
+// accessor resource -> accessor wire -> delay registers
+//  -> arbitration/handshake logic
+//  -> resource wire -> parent resource
 
 
 namespace iroha {
@@ -86,6 +92,7 @@ AccessorInfo *WireSet::AddAccessor(IResource *accessor, const string &name) {
 
 void WireSet::Build() {
   set<string> sig_names;
+  // Pick one for each of the name_ (e.g. ack, req, wdata).
   vector<AccessorSignal> uniq_signals;
   for (AccessorInfo *accessor : accessors_) {
     auto &signals = accessor->GetSignals();
@@ -96,12 +103,26 @@ void WireSet::Build() {
       }
     }
   }
+  AccessorSignal *req = nullptr;
+  AccessorSignal *ack = nullptr;
   for (auto &sig : uniq_signals) {
-    BuildSignal(sig);
+    if (sig.type_ == AccessorSignalType::ACCESSOR_REQ) {
+      req = &sig;
+    }
+    if (sig.type_ == AccessorSignalType::ACCESSOR_ACK) {
+      ack = &sig;
+    }
   }
+  for (auto &sig : uniq_signals) {
+    BuildAccessorWire(sig);
+  }
+  BuildResourceWire(uniq_signals);
+  CHECK(req != nullptr);
+  CHECK(ack != nullptr);
+  BuildArbitration(*req, *ack);
 }
 
-void WireSet::BuildSignal(const AccessorSignal &primary_sig) {
+void WireSet::BuildAccessorWire(const AccessorSignal &primary_sig) {
   vector<AccessorSignal> accessors_sigs;
   for (AccessorInfo *accessor : accessors_) {
     auto &signals = accessor->GetSignals();
@@ -116,15 +137,33 @@ void WireSet::BuildSignal(const AccessorSignal &primary_sig) {
   bool driven_by_reg = false;
   auto type = primary_sig.type_;
   if (type == AccessorSignalType::ACCESSOR_REQ ||
-      type == AccessorSignalType::ACCESSOR_WDATA ||
-      type == AccessorSignalType::ACCESSOR_WEN) {
+      type == AccessorSignalType::ACCESSOR_WRITE_ARG) {
     from_parent = false;
   }
   for (auto &ac : accessors_sigs) {
-    string name = ac.info_->GetName() + "_" + ac.name_;
+    string name = ac.info_->GetName() + "_" + ac.name_ + "_wire";
     wire.AddWire(*ac.accessor_res_, name, ac.width_,
 		 from_parent, driven_by_reg);
   }
+}
+
+void WireSet::BuildResourceWire(const vector<AccessorSignal> &uniq_signals) {
+  Module *mod = res_.GetTable().GetModule();
+  auto *tmpl = mod->GetModuleTemplate();
+  ostream &os = tmpl->GetStream(kInsnWireDeclSection);
+  os << "  // Resource wires - " << name_ << "\n";
+  for (auto &sig : uniq_signals) {
+    os << "  wire " << Table::WidthSpec(sig.width_) << ResourceWireName(sig) << ";\n";
+  }
+}
+
+string WireSet::ResourceWireName(const AccessorSignal &sig) {
+  return name_ + "_" + sig.name_;
+}
+
+void WireSet::BuildArbitration(const AccessorSignal &req, const AccessorSignal &ack) {
+  ostream &rs = res_.GetTable().ResourceSectionStream();
+  rs << "  // Arbitration and handshake - " << name_ << "\n";
 }
 
 }  // namespace verilog

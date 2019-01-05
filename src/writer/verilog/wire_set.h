@@ -11,9 +11,10 @@ namespace verilog {
 enum AccessorSignalType : int {
   ACCESSOR_REQ,
   ACCESSOR_ACK,
-  ACCESSOR_RDATA,
-  ACCESSOR_WDATA,
-  ACCESSOR_WEN,
+  ACCESSOR_READ_ARG,
+  ACCESSOR_WRITE_ARG,
+  ACCESSOR_NOTIFY_PARENT,
+  ACCESSOR_NOTIFY_ACCESSOR,
 };
 
 class AccessorInfo;
@@ -53,7 +54,10 @@ public:
   void Build();
 
 private:
-  void BuildSignal(const AccessorSignal &primary_sig);
+  void BuildAccessorWire(const AccessorSignal &primary_sig);
+  void BuildResourceWire(const vector<AccessorSignal> &uniq_signals);
+  void BuildArbitration(const AccessorSignal &req, const AccessorSignal &ack);
+  string ResourceWireName(const AccessorSignal &sig);
 
   Resource &res_;
   string name_;
