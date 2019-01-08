@@ -172,18 +172,30 @@ string Table::WidthSpec(int w) {
 }
 
 void Table::Write(ostream &os) {
-  os << "  // Table " << table_id_ << "\n"
-     << "  always @(posedge " << ports_->GetClk() << ") begin\n"
+  os << "  // Table " << table_id_ << "\n";
+  WriteAlwaysBlockHead(os);
+  WriteReset(os);
+  WriteAlwaysBlockMiddle(os);
+  WriteBody(os);
+  WriteAlwaysBlockTail(os);
+}
+
+void Table::WriteAlwaysBlockHead(ostream &os) const {
+  os << "  always @(posedge " << ports_->GetClk() << ") begin\n"
      << "    if (";
   if (!mod_->GetResetPolarity()) {
     os << "!";
   }
   os << ports_->GetReset() << ") begin\n";
-  WriteReset(os);
+}
+
+void Table::WriteAlwaysBlockMiddle(ostream &os) const {
   os << "    end else begin\n";
-  WriteBody(os);
-  os << "    end\n";
-  os << "  end\n";
+}
+
+void Table::WriteAlwaysBlockTail(ostream &os) const {
+  os << "    end\n"
+     << "  end\n";
 }
 
 void Table::WriteReset(ostream &os) {

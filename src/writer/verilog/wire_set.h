@@ -58,8 +58,11 @@ private:
   void BuildAccessorWire(const AccessorSignal &primary_sig);
   void BuildResourceWire(const vector<AccessorSignal> &uniq_signals);
   void BuildArbitration(const AccessorSignal &req, const AccessorSignal &ack);
+  void BuildRegisteredReq(const AccessorSignal &req,
+			  vector<AccessorInfo *> &handshake_accessors);
   string ResourceWireName(const AccessorSignal &sig);
   string AccessorWireName(const AccessorSignal &sig);
+  string AccessorWireNameWithReg(const AccessorSignal &sig);
 
   Resource &res_;
   string name_;

@@ -24,6 +24,10 @@ public:
   virtual string GetStateCondition(const IState *st) const;
   virtual const DataFlowTable *GetDataFlowTable() const;
 
+  void WriteAlwaysBlockHead(ostream &os) const;
+  void WriteAlwaysBlockMiddle(ostream &os) const;
+  void WriteAlwaysBlockTail(ostream &os) const;
+
   ITable *GetITable() const;
   const string &StateVariable() const;
   string StateName(int id) const;
