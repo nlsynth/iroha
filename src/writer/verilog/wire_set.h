@@ -37,6 +37,7 @@ public:
   void AddSignal(const string &name, AccessorSignalType type, int width);
   const vector<AccessorSignal> &GetSignals();
   const string &GetName();
+  AccessorSignal *FindSignal(const string &name);
 
 private:
   IResource *accessor_;
@@ -58,6 +59,7 @@ private:
   void BuildResourceWire(const vector<AccessorSignal> &uniq_signals);
   void BuildArbitration(const AccessorSignal &req, const AccessorSignal &ack);
   string ResourceWireName(const AccessorSignal &sig);
+  string AccessorWireName(const AccessorSignal &sig);
 
   Resource &res_;
   string name_;

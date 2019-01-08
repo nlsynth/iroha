@@ -77,6 +77,15 @@ const string &AccessorInfo::GetName() {
   return name_;
 }
 
+AccessorSignal *AccessorInfo::FindSignal(const string &name) {
+  for (auto &sig : signals_) {
+    if (sig.name_ == name) {
+      return &sig;
+    }
+  }
+  return nullptr;
+}
+
 WireSet::WireSet(Resource &res, const string &name) : res_(res), name_(name) {
 }
 
@@ -161,9 +170,44 @@ string WireSet::ResourceWireName(const AccessorSignal &sig) {
   return name_ + "_" + sig.name_;
 }
 
+string WireSet::AccessorWireName(const AccessorSignal &sig) {
+  return sig.info_->GetName() + "_" + sig.name_ + "_wire";
+}
+
 void WireSet::BuildArbitration(const AccessorSignal &req, const AccessorSignal &ack) {
   ostream &rs = res_.GetTable().ResourceSectionStream();
+  vector<string> req_sigs;
+  for (auto *ac : accessors_) {
+    AccessorSignal *rsig = ac->FindSignal(req.name_);
+    if (rsig == nullptr) {
+      continue;
+    }
+    req_sigs.push_back(AccessorWireName(*rsig));
+  }
   rs << "  // Arbitration and handshake - " << name_ << "\n";
+  rs << "  assign " << ResourceWireName(req) << " = " << Util::Join(req_sigs, " | ") << ";\n";
+  string resource_ack = ResourceWireName(ack);
+  // WIP: This is driven by the resource.
+  rs << "  assign " << resource_ack << " = 0;\n";
+  vector<string> high_reqs;
+  for (auto *ac : accessors_) {
+    AccessorSignal *asig = ac->FindSignal(ack.name_);
+    if (asig == nullptr) {
+      continue;
+    }
+    AccessorSignal *rsig = ac->FindSignal(req.name_);
+    CHECK(rsig != nullptr);
+    string req = AccessorWireName(*rsig);
+    // TODO: WIP: Fix to add a reg to each req signal.
+    // ack = resource_ack & req & !(req from higher accessors).
+    rs << "  assign " << AccessorWireName(*asig) << " = "
+       << resource_ack << " & " << req;
+    if (high_reqs.size() > 0) {
+      rs << " & !(" <<  Util::Join(high_reqs, " | ") << ")";
+    }
+    rs << ";\n";
+    high_reqs.push_back(AccessorWireName(*rsig));
+  }
 }
 
 }  // namespace verilog
