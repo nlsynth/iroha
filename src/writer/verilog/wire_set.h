@@ -4,6 +4,8 @@
 
 #include "writer/verilog/common.h"
 
+#include <map>
+
 namespace iroha {
 namespace writer {
 namespace verilog {
@@ -17,32 +19,42 @@ enum AccessorSignalType : int {
   ACCESSOR_NOTIFY_ACCESSOR,
 };
 
-class AccessorInfo;
-
-class AccessorSignal {
+class SignalInfo {
 public:
   // e.g. ack, req...
   string name_;
   AccessorSignalType type_;
   int width_;
-  IResource *accessor_res_;
-  AccessorInfo *info_;
 };
+
+class AccessorInfo;
+
+// Per accessor and signal.
+class AccessorSignal {
+public:
+  SignalInfo *sig_info_;
+  IResource *accessor_res_;
+  AccessorInfo *accessor_info_;
+};
+
+class WireSet;
 
 class AccessorInfo {
 public:
-  AccessorInfo(IResource *accessor,
+  AccessorInfo(WireSet *wire_set,
+	       IResource *accessor,
 	       const string &name);
 
   void AddSignal(const string &name, AccessorSignalType type, int width);
   const vector<AccessorSignal> &GetSignals();
   const string &GetName();
-  AccessorSignal *FindSignal(const string &name);
+  AccessorSignal *FindSignal(const SignalInfo &sig);
 
 private:
+  WireSet *wire_set_;
   IResource *accessor_;
   string name_;
-  vector<AccessorSignal> signals_;
+  vector<AccessorSignal> accessor_signals_;
 };
 
 class WireSet {
@@ -51,22 +63,26 @@ public:
   ~WireSet();
 
   AccessorInfo *AddAccessor(IResource *accessor, const string &name);
+  SignalInfo *GetSignalInfo(const string &name, AccessorSignalType type, int width);
 
   void Build();
 
 private:
-  void BuildAccessorWire(const AccessorSignal &primary_sig);
-  void BuildResourceWire(const vector<AccessorSignal> &uniq_signals);
-  void BuildArbitration(const AccessorSignal &req, const AccessorSignal &ack);
-  void BuildRegisteredReq(const AccessorSignal &req,
+  void BuildAccessorWire(const SignalInfo &sig_info);
+  void BuildResourceWire();
+  void BuildArbitration(const SignalInfo &rsig_info, const SignalInfo &asig_info);
+  void BuildRegisteredReq(const SignalInfo &rsig_info,
 			  vector<AccessorInfo *> &handshake_accessors);
-  string ResourceWireName(const AccessorSignal &sig);
+  void BuildAccessorAck(const SignalInfo &rsig_info, const SignalInfo &asig_info,
+			vector<AccessorInfo *> &handshake_accessors);
+  string ResourceWireName(const SignalInfo &sig_info);
   string AccessorWireName(const AccessorSignal &sig);
   string AccessorWireNameWithReg(const AccessorSignal &sig);
 
   Resource &res_;
   string name_;
   vector<AccessorInfo *> accessors_;
+  map<string, SignalInfo *> signal_info_;
 };
 
 }  // namespace verilog
