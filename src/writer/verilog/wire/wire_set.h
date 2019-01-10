@@ -76,6 +76,7 @@ private:
 			  vector<AccessorInfo *> &handshake_accessors);
   void BuildAccessorAck(const SignalInfo &rsig_info, const SignalInfo &asig_info,
 			vector<AccessorInfo *> &handshake_accessors);
+  void BuildWriteArg(const SignalInfo &sig_info, const SignalInfo &rsig_info);
   string ResourceWireName(const SignalInfo &sig_info);
   string AccessorWireName(const AccessorSignal &sig);
   string AccessorWireNameWithReg(const AccessorSignal &sig);

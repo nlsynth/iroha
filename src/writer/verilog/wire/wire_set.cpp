@@ -117,6 +117,36 @@ void WireSet::Build() {
   }
   BuildResourceWire();
   BuildArbitration(*rsig_info, *asig_info);
+  for (auto it : signal_info_) {
+    SignalInfo *sig_info = it.second;
+    if (sig_info->type_ == AccessorSignalType::ACCESSOR_WRITE_ARG) {
+      BuildWriteArg(*sig_info, *rsig_info);
+    }
+  }
+}
+
+void WireSet::BuildWriteArg(const SignalInfo &sig_info, const SignalInfo &rsig_info) {
+  const Table &tab = res_.GetTable();
+  ostream &rs = tab.ResourceSectionStream();
+  rs << "  assign " << ResourceWireName(sig_info) << " = ";
+  vector<pair<string, string> > pins;
+  for (AccessorInfo *ac : accessors_) {
+    AccessorSignal *rsig = ac->FindSignal(rsig_info);
+    AccessorSignal *warg = ac->FindSignal(sig_info);
+    if (rsig == nullptr || warg == nullptr) {
+      continue;
+    }
+    pins.push_back(make_pair(AccessorWireName(*warg), AccessorWireName(*rsig)));
+  }
+  string s;
+  for (int i = pins.size() - 1; i > 0; --i) {
+    if (s.empty()) {
+      s = pins[i].first;
+    } else {
+      s = pins[i].second + " ? " + pins[i].first + " : (" + s + ")";
+    }
+  }
+  rs << s << ";\n";
 }
 
 void WireSet::BuildAccessorWire(const SignalInfo &sig_info) {
