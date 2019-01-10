@@ -4,7 +4,6 @@
 #include "writer/connection.h"
 #include "writer/exp_writer.h"
 #include "writer/html_writer.h"
-#include "writer/cxx/cxx_writer.h"
 #include "writer/verilog/verilog_writer.h"
 
 #include <fstream>
@@ -49,9 +48,6 @@ bool Writer::Write(const string &fn) {
       writer.SetShellModuleName(shell, output_self_clock_, output_vcd_);
     }
     res = writer.Write();
-  } else if (language_ == "cxx") {
-    cxx::CxxWriter writer(design_, *os);
-    writer.Write();
   } else if (language_ == "html") {
     HtmlWriter writer(design_, *os);
     writer.Write();

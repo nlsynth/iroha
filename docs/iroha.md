@@ -34,10 +34,6 @@ Outputs to specified file. If this option is not specified, standard output is u
 
 ## Output format
 
-        -c
-
-Outputs C++
-
         -v
 
 Outputs Verilog

@@ -7,7 +7,7 @@ VERSION="0.1.0"
 ARCHIVE=PACKAGE + "-" + VERSION
 
 EXTRA = ["NEWS",
-         "configure", "lib/cxx-rt.h", "lib/gen_instantiation.py", "Makefile",
+         "configure", "lib/gen_instantiation.py", "Makefile",
          "iroha_files.py", "src/iroha.gyp", "config.mk"]
 
 DOCS = ["docs/glossary.md", "docs/iroha.md", "docs/resource_class.md", "docs/structure.md"]
