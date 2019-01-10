@@ -20,7 +20,6 @@ class DataFlowState;
 class DataFlowTable;
 class EmbeddedModules;
 class InternalSRAM;
-class InterModuleWire;
 class Module;
 class Resource;
 class State;
@@ -33,6 +32,11 @@ namespace axi {
 class MasterPort;
 class SlavePort;
 }  // namespace axi
+
+namespace wire {
+class InterModuleWire;
+class WireSet;
+}  // namespace wire
 
 }  // namespace verilog
 }  // namespace writer

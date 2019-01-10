@@ -1,12 +1,12 @@
-#include "writer/verilog/wire_set.h"
+#include "writer/verilog/wire/wire_set.h"
 
 #include "iroha/stl_util.h"
 #include "iroha/logging.h"
 #include "writer/module_template.h"
-#include "writer/verilog/inter_module_wire.h"
 #include "writer/verilog/module.h"
 #include "writer/verilog/resource.h"
 #include "writer/verilog/table.h"
+#include "writer/verilog/wire/inter_module_wire.h"
 
 // WIP: Unified interconnect wiring system for
 // shared_memory, shared_reg, fifo, task (and study)
@@ -53,6 +53,7 @@
 namespace iroha {
 namespace writer {
 namespace verilog {
+namespace wire {
 
 AccessorInfo::AccessorInfo(WireSet *wire_set, IResource *accessor, const string &name)
   : wire_set_(wire_set), accessor_(accessor), name_(name) {
@@ -251,6 +252,7 @@ SignalInfo *WireSet::GetSignalInfo(const string &name, AccessorSignalType type, 
   return it->second;
 }
 
+}  // namespace wire
 }  // namespace verilog
 }  // namespace writer
 }  // namespace iroha

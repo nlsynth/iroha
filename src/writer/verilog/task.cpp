@@ -7,11 +7,11 @@
 #include "writer/connection.h"
 #include "writer/module_template.h"
 #include "writer/verilog/insn_writer.h"
-#include "writer/verilog/inter_module_wire.h"
 #include "writer/verilog/module.h"
 #include "writer/verilog/ports.h"
 #include "writer/verilog/state.h"
 #include "writer/verilog/table.h"
+#include "writer/verilog/wire/inter_module_wire.h"
 
 namespace iroha {
 namespace writer {
@@ -84,7 +84,7 @@ void Task::BuildTaskResource() {
     return;
   }
   // Inter module wires.
-  InterModuleWire wire(*this);
+  wire::InterModuleWire wire(*this);
   for (IResource *caller : callers) {
     string en = TaskEnablePin(*(tab_.GetITable()), caller->GetTable());
     wire.AddWire(*caller, en, 0, false, true);

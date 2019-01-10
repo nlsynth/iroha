@@ -1,6 +1,6 @@
 // -*- C++ -*-
-#ifndef _writer_verilog_inter_module_wire_h_
-#define _writer_verilog_inter_module_wire_h_
+#ifndef _writer_verilog_wire_inter_module_wire_h_
+#define _writer_verilog_wire_inter_module_wire_h_
 
 #include "writer/verilog/common.h"
 
@@ -10,6 +10,7 @@
 namespace iroha {
 namespace writer {
 namespace verilog {
+namespace wire {
 
 // InterModuleWire w(*this_resource);
 // w.AddWire(....);
@@ -44,8 +45,9 @@ private:
   map<const Module *, set<string> > has_wire_;
 };
 
+}  // namespace wire
 }  // namespace verilog
 }  // namespace writer
 }  // namespace iroha
 
-#endif  // _writer_verilog_inter_module_wire_h_
+#endif  // _writer_verilog_wire_inter_module_wire_h_

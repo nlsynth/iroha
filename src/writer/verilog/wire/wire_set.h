@@ -1,6 +1,6 @@
 // -*- C++ -*-
-#ifndef _writer_verilog_wire_set_h_
-#define _writer_verilog_wire_set_h_
+#ifndef _writer_verilog_wire_wire_set_h_
+#define _writer_verilog_wire_wire_set_h_
 
 #include "writer/verilog/common.h"
 
@@ -9,6 +9,7 @@
 namespace iroha {
 namespace writer {
 namespace verilog {
+namespace wire {
 
 enum AccessorSignalType : int {
   ACCESSOR_REQ,
@@ -85,8 +86,9 @@ private:
   map<string, SignalInfo *> signal_info_;
 };
 
+}  // namespace wire
 }  // namespace verilog
 }  // namespace writer
 }  // namespace iroha
 
-#endif  // _writer_verilog_wire_set_h_
+#endif  // _writer_verilog_wire_wire_set_h_

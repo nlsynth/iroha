@@ -14,12 +14,12 @@
 #include "writer/connection.h"
 #include "writer/module_template.h"
 #include "writer/verilog/insn_writer.h"
-#include "writer/verilog/inter_module_wire.h"
 #include "writer/verilog/module.h"
 #include "writer/verilog/ports.h"
+#include "writer/verilog/shared_reg_accessor.h"
 #include "writer/verilog/state.h"
 #include "writer/verilog/table.h"
-#include "writer/verilog/shared_reg_accessor.h"
+#include "writer/verilog/wire/inter_module_wire.h"
 
 namespace iroha {
 namespace writer {
@@ -259,7 +259,7 @@ string SharedReg::RegName(const IResource &reg) {
 }
 
 void SharedReg::BuildAccessorWire() {
-  InterModuleWire wire(*this);
+  wire::InterModuleWire wire(*this);
   int dw = res_.GetParams()->GetWidth();
   auto &conn = tab_.GetModule()->GetConnection();
   auto &readers = conn.GetSharedRegReaders(&res_);

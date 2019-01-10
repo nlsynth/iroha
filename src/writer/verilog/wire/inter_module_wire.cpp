@@ -1,4 +1,4 @@
-#include "writer/verilog/inter_module_wire.h"
+#include "writer/verilog/wire/inter_module_wire.h"
 
 #include "iroha/i_design.h"
 #include "writer/connection.h"
@@ -11,6 +11,7 @@
 namespace iroha {
 namespace writer {
 namespace verilog {
+namespace wire {
 
 InterModuleWire::InterModuleWire(Resource &res) : res_(res) {
 }
@@ -173,6 +174,7 @@ void InterModuleWire::AddWireName(const Module *mod, const string &name) {
   has_wire_[mod].insert(name);
 }
 
+}  // namespace wire
 }  // namespace verilog
 }  // namespace writer
 }  // namespace iroha

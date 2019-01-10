@@ -8,11 +8,11 @@
 #include "writer/verilog/embed.h"
 #include "writer/verilog/insn_writer.h"
 #include "writer/verilog/internal_sram.h"
-#include "writer/verilog/inter_module_wire.h"
 #include "writer/verilog/module.h"
 #include "writer/verilog/ports.h"
 #include "writer/verilog/state.h"
 #include "writer/verilog/table.h"
+#include "writer/verilog/wire/inter_module_wire.h"
 
 namespace iroha {
 namespace writer {
@@ -187,7 +187,7 @@ void SharedMemory::BuildMemoryInstance() {
 
 void SharedMemory::BuildAccessWireAll(vector<const IResource *> &accessors) {
   IModule *mem_module = res_.GetTable()->GetModule();
-  InterModuleWire wire(*this);
+  wire::InterModuleWire wire(*this);
   vector<const IResource *> readers;
   for (auto *accessor : accessors) {
     auto *klass = accessor->GetClass();

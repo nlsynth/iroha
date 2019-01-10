@@ -8,10 +8,10 @@
 #include "writer/verilog/embed.h"
 #include "writer/verilog/fifo_accessor.h"
 #include "writer/verilog/internal_sram.h"
-#include "writer/verilog/inter_module_wire.h"
 #include "writer/verilog/module.h"
 #include "writer/verilog/ports.h"
 #include "writer/verilog/table.h"
+#include "writer/verilog/wire/inter_module_wire.h"
 
 namespace iroha {
 namespace writer {
@@ -168,7 +168,7 @@ void Fifo::BuildInsn(IInsn *insn, State *st) {
 }
 
 void Fifo::BuildAccessConnectionsAll() {
-  InterModuleWire wire(*this);
+  wire::InterModuleWire wire(*this);
   int dw = res_.GetParams()->GetWidth();
   auto &readers = tab_.GetModule()->GetConnection().GetFifoReaders(&res_);
   // This is a kludge. We might change the method above..
