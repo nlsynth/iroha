@@ -20,7 +20,7 @@ enum AccessorSignalType : int {
   ACCESSOR_NOTIFY_ACCESSOR,
 };
 
-class SignalInfo {
+class SignalDescription {
 public:
   // e.g. ack, req...
   string name_;
@@ -33,7 +33,7 @@ class AccessorInfo;
 // Per accessor and signal.
 class AccessorSignal {
 public:
-  SignalInfo *sig_info_;
+  SignalDescription *sig_desc_;
   IResource *accessor_res_;
   AccessorInfo *accessor_info_;
 };
@@ -49,7 +49,7 @@ public:
   void AddSignal(const string &name, AccessorSignalType type, int width);
   const vector<AccessorSignal> &GetSignals();
   const string &GetName();
-  AccessorSignal *FindSignal(const SignalInfo &sig);
+  AccessorSignal *FindSignal(const SignalDescription &sig);
 
 private:
   WireSet *wire_set_;
@@ -64,27 +64,28 @@ public:
   ~WireSet();
 
   AccessorInfo *AddAccessor(IResource *accessor, const string &name);
-  SignalInfo *GetSignalInfo(const string &name, AccessorSignalType type, int width);
+  SignalDescription *GetSignalDescription(const string &name, AccessorSignalType type, int width);
 
   void Build();
 
 private:
-  void BuildAccessorWire(const SignalInfo &sig_info);
+  void BuildAccessorWire(const SignalDescription &sig_desc);
   void BuildResourceWire();
-  void BuildArbitration(const SignalInfo &rsig_info, const SignalInfo &asig_info);
-  void BuildRegisteredReq(const SignalInfo &rsig_info,
+  void BuildArbitration(const SignalDescription &rsig_desc, const SignalDescription &asig_desc);
+  void BuildRegisteredReq(const SignalDescription &rsig_desc,
 			  vector<AccessorInfo *> &handshake_accessors);
-  void BuildAccessorAck(const SignalInfo &rsig_info, const SignalInfo &asig_info,
+  void BuildAccessorAck(const SignalDescription &rsig_desc, const SignalDescription &asig_desc,
 			vector<AccessorInfo *> &handshake_accessors);
-  void BuildWriteArg(const SignalInfo &sig_info, const SignalInfo &rsig_info);
-  string ResourceWireName(const SignalInfo &sig_info);
+  void BuildWriteArg(const SignalDescription &sig_desc, const SignalDescription &req_sig_desc);
+  void BuildReadArg(const SignalDescription &sig_desc);
+  string ResourceWireName(const SignalDescription &sig_desc);
   string AccessorWireName(const AccessorSignal &sig);
   string AccessorWireNameWithReg(const AccessorSignal &sig);
 
   Resource &res_;
   string name_;
   vector<AccessorInfo *> accessors_;
-  map<string, SignalInfo *> signal_info_;
+  map<string, SignalDescription *> signal_desc_;
 };
 
 }  // namespace wire
