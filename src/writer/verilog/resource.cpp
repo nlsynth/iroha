@@ -28,6 +28,7 @@
 #include "writer/verilog/study_accessor.h"
 #include "writer/verilog/table.h"
 #include "writer/verilog/task.h"
+#include "writer/verilog/task_call.h"
 #include "writer/verilog/ticker.h"
 
 #include <set>
@@ -38,9 +39,11 @@ namespace verilog {
 
 Resource *Resource::Create(const IResource &res, const Table &table) {
   auto *klass = res.GetClass();
-  if (resource::IsTask(*klass) ||
-      resource::IsTaskCall(*klass)) {
+  if (resource::IsTask(*klass)) {
     return new Task(res, table);
+  }
+  if (resource::IsTaskCall(*klass)) {
+    return new TaskCall(res, table);
   }
   if (resource::IsExclusiveBinOp(*klass) ||
       resource::IsLightBinOp(*klass) ||

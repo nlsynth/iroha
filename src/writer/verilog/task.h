@@ -13,21 +13,17 @@ public:
   Task(const IResource &res, const Table &table);
   virtual void BuildResource();
   virtual void BuildInsn(IInsn *insn, State *st);
+
   static bool IsTask(const Table &table);
   static string TaskEnablePin(const ITable &tab, const ITable *caller);
+  static string TaskAckPin(const ITable &tab, const ITable *caller);
+  static string TaskArgPin(const ITable &tab, int nth, bool output,
+			   const ITable *caller);
 
   static const int kTaskEntryStateId;
 
 private:
-  void BuildTaskResource();
-  void BuildTaskCallResource();
-  void BuildTaskInsn(IInsn *insn, State *st);
-  void BuildTaskCallInsn(IInsn *insn, State *st);
-
   static string TaskPinPrefix(const ITable &tab, const ITable *caller);
-  static string TaskAckPin(const ITable &tab, const ITable *caller);
-  static string TaskArgPin(const ITable &tab, int nth, bool output,
-			   const ITable *caller);
 };
 
 }  // namespace verilog

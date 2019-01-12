@@ -12,6 +12,7 @@
 #include "writer/verilog/state.h"
 #include "writer/verilog/table.h"
 #include "writer/verilog/wire/inter_module_wire.h"
+#include "writer/verilog/wire/wire_set.h"
 
 namespace iroha {
 namespace writer {
@@ -59,25 +60,8 @@ string Task::TaskPinPrefix(const ITable &tab, const ITable *caller) {
 
 void Task::BuildResource() {
   auto *klass = res_.GetClass();
-  if (resource::IsTask(*klass)) {
-    BuildTaskResource();
-  }
-  if (resource::IsTaskCall(*klass)) {
-    BuildTaskCallResource();
-  }
-}
+  CHECK(resource::IsTask(*klass));
 
-void Task::BuildInsn(IInsn *insn, State *st) {
-  auto *klass = res_.GetClass();
-  if (resource::IsTaskCall(*klass)) {
-    BuildTaskCallInsn(insn, st);
-  }
-  if (resource::IsTaskCall(*klass)) {
-    BuildTaskInsn(insn, st);
-  }
-}
-
-void Task::BuildTaskResource() {
   auto &conn = tab_.GetModule()->GetConnection();
   const auto &callers = conn.GetTaskCallers(&res_);
   if (callers.size() == 0) {
@@ -170,39 +154,9 @@ void Task::BuildTaskResource() {
   }
 }
 
-void Task::BuildTaskCallResource() {
-  map<IState *, IInsn *> callers;
-  CollectResourceCallers("", &callers);
-  ostream &ss = tab_.StateOutputSectionStream();
-  string en = TaskEnablePin(*(res_.GetCalleeTable()), tab_.GetITable());
-  ss << "      " << en << " <= " << JoinStatesWithSubState(callers, 0)
-     << ";\n";
-  ostream &is = tab_.InitialValueSectionStream();
-  is << "      " << en << " <= 0;\n";
-}
-
-void Task::BuildTaskInsn(IInsn *insn, State *st) {
-}
-
-void Task::BuildTaskCallInsn(IInsn *insn, State *st) {
-  ostream &os = st->StateBodySectionStream();
-  static const char I[] = "          ";
-  string st_name = InsnWriter::MultiCycleStateName(*(insn->GetResource()));
-  string ack = TaskAckPin(*(res_.GetCalleeTable()), tab_.GetITable());
-  os << I << "if (" << st_name << " == 0) begin\n";
-  ITable *callee = res_.GetCalleeTable();
-  CHECK(res_.input_types_.size() == insn->inputs_.size());
-  for (int i = 0; i < res_.input_types_.size(); ++i) {
-    os << I << "  " << TaskArgPin(*callee, i, false, res_.GetTable())
-       << " <= " << InsnWriter::RegisterValue(*insn->inputs_[i],
-					      tab_.GetNames())
-       << ";\n";
-  }
-  os << I << "  if (" << ack << ") begin\n"
-     << I << "    " << st_name << " <= 3;\n"
-     << I << "  end else begin\n"
-     << I << "  end\n"
-     << I << "end\n";
+void Task::BuildInsn(IInsn *insn, State *st) {
+  auto *klass = res_.GetClass();
+  CHECK(resource::IsTask(*klass));
 }
 
 }  // namespace verilog

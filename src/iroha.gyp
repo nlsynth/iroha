@@ -277,6 +277,8 @@
         'writer/verilog/table.h',
         'writer/verilog/task.cpp',
         'writer/verilog/task.h',
+        'writer/verilog/task_call.cpp',
+        'writer/verilog/task_call.h',
         'writer/verilog/ticker.cpp',
         'writer/verilog/ticker.h',
         'writer/verilog/verilog_writer.cpp',
