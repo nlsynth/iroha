@@ -49,7 +49,7 @@ string Task::TaskArgPin(const ITable &tab, int nth, bool output,
 }
 
 string Task::TaskPinPrefix(const ITable &tab, const ITable *caller) {
-  string s = "task_" + Util::Itoa(tab.GetId());
+  string s = "task_" + Util::Itoa(tab.GetModule()->GetId()) + "_" + Util::Itoa(tab.GetId());
   if (caller != nullptr) {
     IModule *caller_mod = caller->GetModule();
     s += "_" + Util::Itoa(caller_mod->GetId()) +
