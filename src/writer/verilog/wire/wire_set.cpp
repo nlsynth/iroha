@@ -145,7 +145,7 @@ void WireSet::BuildWriteArg(const SignalDescription &sig_desc,
   }
   // reverse order.
   string s;
-  for (int i = pins.size() - 1; i > 0; --i) {
+  for (int i = pins.size() - 1; i >= 0; --i) {
     if (s.empty()) {
       s = pins[i].first;
     } else {
