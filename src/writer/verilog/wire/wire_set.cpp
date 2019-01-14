@@ -201,7 +201,7 @@ void WireSet::BuildResourceWire() {
 }
 
 string WireSet::ResourceWireName(const SignalDescription &sig_desc) {
-  return name_ + "_" + sig_desc.name_;
+  return name_ + "_" + sig_desc.name_ + "_wire";
 }
 
 string WireSet::AccessorWireName(const AccessorSignal &sig) {
