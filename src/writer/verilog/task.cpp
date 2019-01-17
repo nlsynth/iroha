@@ -11,7 +11,6 @@
 #include "writer/verilog/ports.h"
 #include "writer/verilog/state.h"
 #include "writer/verilog/table.h"
-#include "writer/verilog/wire/inter_module_wire.h"
 #include "writer/verilog/wire/wire_set.h"
 
 namespace iroha {
@@ -42,10 +41,9 @@ string Task::TaskAckPin(const ITable &tab, const ITable *caller) {
   return TaskPinPrefix(tab, caller) + "_ack";
 }
 
-string Task::TaskArgPin(const ITable &tab, int nth, bool output,
+string Task::TaskArgPin(const ITable &tab, int nth,
 			const ITable *caller) {
-  string dir = output ? "o" : "i";
-  return TaskPinPrefix(tab, caller) + "_arg_" + dir + Util::Itoa(nth);
+  return TaskPinPrefix(tab, caller) + "_arg_" + Util::Itoa(nth);
 }
 
 string Task::TaskPinPrefix(const ITable &tab, const ITable *caller) {
@@ -61,43 +59,24 @@ string Task::TaskPinPrefix(const ITable &tab, const ITable *caller) {
 void Task::BuildResource() {
   auto *klass = res_.GetClass();
   CHECK(resource::IsTask(*klass));
-
   auto &conn = tab_.GetModule()->GetConnection();
   const auto &callers = conn.GetTaskCallers(&res_);
   if (callers.size() == 0) {
     return;
   }
-  // Inter module wires.
-  wire::InterModuleWire wire(*this);
-  for (IResource *caller : callers) {
-    string en = TaskEnablePin(*(tab_.GetITable()), caller->GetTable());
-    wire.AddWire(*caller, en, 0, false, true);
-    string ack = TaskAckPin(*(tab_.GetITable()), caller->GetTable());
-    wire.AddWire(*caller, ack, 0, true, false);
-    for (int i = 0; i < res_.output_types_.size(); ++i) {
-      auto &type = res_.output_types_[i];
-      string a = TaskArgPin(*(tab_.GetITable()), i, false, caller->GetTable());
-      wire.AddWire(*caller, a, type.GetWidth(), false, true);
-    }
-  }
-  // EN
-  vector<string> task_en;
-  for (IResource *caller : callers) {
-    task_en.push_back(TaskEnablePin(*(tab_.GetITable()), caller->GetTable()));
-  }
-  string common_en = TaskEnablePin(*(tab_.GetITable()), nullptr);
+  BuildWireSet();
+
   ostream &rs = tab_.ResourceSectionStream();
-  rs << "  wire " << common_en << ";\n";
-  rs << "  assign " << common_en << " = " << Util::Join(task_en, " | ")
-     << ";\n";
   // ACK
-  string ack = TaskAckPin(*(tab_.GetITable()), nullptr);
+  string common_en = TaskEnablePin(*(tab_.GetITable()), nullptr) + "_wire";
+  string ack = TaskAckPin(*(tab_.GetITable()), nullptr) + "_src";
   string ack_cond = ack + "_cond";
   rs << "  wire " << ack_cond << ";\n"
      << "  assign " << ack_cond << " = ("
      << tab_.StateVariable() << " == `"
      << tab_.StateName(Task::kTaskEntryStateId) << ") && " << common_en
      << ";\n";
+  rs << "  assign " << TaskAckPin(*(tab_.GetITable()), nullptr) << "_wire" << " = " << ack << ";\n";
   ostream &fs = tab_.StateOutputSectionStream();
   fs << "      " << ack
      << " <= " << ack_cond
@@ -108,7 +87,7 @@ void Task::BuildResource() {
   // Args
   for (int i = 0; i < res_.output_types_.size(); ++i) {
     auto &type = res_.output_types_[i];
-    string a = TaskArgPin(*(tab_.GetITable()), i, false, nullptr);
+    string a = TaskArgPin(*(tab_.GetITable()), i, nullptr) + "_reg";
     rs << "  reg " << Table::ValueWidthSpec(type) << " " << a << ";\n";
     is << "      " << a << " <= 0;\n";
     IInsn *task_entry_insn = DesignUtil::FindTaskEntryInsn(tab_.GetITable());
@@ -123,35 +102,40 @@ void Task::BuildResource() {
       e = "else ";
     }
     string en = TaskEnablePin(*(tab_.GetITable()), caller->GetTable());
-    fs << "      " << e << "if (" << ack_cond << " && " << en << ") begin\n"
+    fs << "      " << e << "if (" << ack_cond << " && " << en << "_wire) begin\n"
        << "      // Capturing args\n";
     for (int i = 0; i < res_.output_types_.size(); ++i) {
-      string ad = TaskArgPin(*(tab_.GetITable()), i, false, nullptr);
-      string as = TaskArgPin(*(tab_.GetITable()), i, false, caller->GetTable());
-      fs << "        " << ad << " <= " << as << ";\n";
+      string ad = TaskArgPin(*(tab_.GetITable()), i, nullptr);
+      string as = TaskArgPin(*(tab_.GetITable()), i, caller->GetTable());
+      fs << "        " << ad << "_reg" << " <= " << as << "_wire;\n";
     }
     fs << "      end\n";
     is_first = false;
   }
+}
 
-  // Arbitration to EN
-  string high_en;
-  for (IResource *caller : callers) {
-    string a = TaskAckPin(*(tab_.GetITable()), caller->GetTable());
-    rs << "  assign " << a << " = ";
-    string en = TaskEnablePin(*(tab_.GetITable()), caller->GetTable());
-    rs << en << " && ";
-    if (!high_en.empty()) {
-      // Ack will be asserted only when higher caller is not requesting.
-      rs << "!(" << high_en << ") && ";
+void Task::BuildWireSet() {
+  auto &conn = tab_.GetModule()->GetConnection();
+  const auto &callers = conn.GetTaskCallers(&res_);
+  wire::WireSet ws(*this, TaskPinPrefix(*(tab_.GetITable()), nullptr));
+  for (auto *accessor : callers) {
+    wire::AccessorInfo *ainfo =
+      ws.AddAccessor(accessor, TaskPinPrefix(*(tab_.GetITable()),
+					     accessor->GetTable()));
+    ainfo->AddSignal("en", wire::AccessorSignalType::ACCESSOR_REQ, 0);
+    ainfo->AddSignal("ack", wire::AccessorSignalType::ACCESSOR_ACK, 0);
+    for (int i = 0; i < res_.output_types_.size(); ++i) {
+      auto &type = res_.output_types_[i];
+      ainfo->AddSignal(TaskArgName(i),
+		       wire::AccessorSignalType::ACCESSOR_WRITE_ARG,
+		       type.GetWidth());
     }
-    rs << ack << ";\n";
-    // Appends this caller.
-    if (!high_en.empty()) {
-      high_en = high_en + " | ";
-    }
-    high_en += en;
   }
+  ws.Build();
+}
+
+string Task::TaskArgName(int nth) {
+  return "arg_" + Util::Itoa(nth);
 }
 
 void Task::BuildInsn(IInsn *insn, State *st) {

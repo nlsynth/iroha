@@ -17,12 +17,14 @@ public:
   static bool IsTask(const Table &table);
   static string TaskEnablePin(const ITable &tab, const ITable *caller);
   static string TaskAckPin(const ITable &tab, const ITable *caller);
-  static string TaskArgPin(const ITable &tab, int nth, bool output,
+  static string TaskArgPin(const ITable &tab, int nth,
 			   const ITable *caller);
 
   static const int kTaskEntryStateId;
 
 private:
+  void BuildWireSet();
+  static string TaskArgName(int nth);
   static string TaskPinPrefix(const ITable &tab, const ITable *caller);
 };
 

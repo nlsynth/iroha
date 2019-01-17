@@ -20,6 +20,16 @@ void TaskCall::BuildResource() {
   CollectResourceCallers("", &callers);
   ostream &ss = tab_.StateOutputSectionStream();
   string en = Task::TaskEnablePin(*(res_.GetCalleeTable()), tab_.GetITable());
+  ostream &rs = tab_.ResourceSectionStream();
+  rs << "  reg " << en << ";\n";
+  rs << "  assign " << en << "_wire = " << en << ";\n";
+  for (int i = 0; i < res_.input_types_.size(); ++i) {
+    auto &type = res_.input_types_[i];
+    string a = Task::TaskArgPin(*(res_.GetCalleeTable()), i,
+				tab_.GetITable());
+    rs << "  reg " << Table::ValueWidthSpec(type) << " " << a << ";\n";
+    rs << "  assign " << a << "_wire = " << a << ";\n";
+  }
   ss << "      " << en << " <= " << JoinStatesWithSubState(callers, 0)
      << ";\n";
   ostream &is = tab_.InitialValueSectionStream();
@@ -30,12 +40,13 @@ void TaskCall::BuildInsn(IInsn *insn, State *st) {
   ostream &os = st->StateBodySectionStream();
   static const char I[] = "          ";
   string st_name = InsnWriter::MultiCycleStateName(*(insn->GetResource()));
-  string ack = Task::TaskAckPin(*(res_.GetCalleeTable()), tab_.GetITable());
+  string ack =
+    Task::TaskAckPin(*(res_.GetCalleeTable()), tab_.GetITable()) + "_wire";
   os << I << "if (" << st_name << " == 0) begin\n";
   ITable *callee = res_.GetCalleeTable();
   CHECK(res_.input_types_.size() == insn->inputs_.size());
   for (int i = 0; i < res_.input_types_.size(); ++i) {
-    os << I << "  " << Task::TaskArgPin(*callee, i, false, res_.GetTable())
+    os << I << "  " << Task::TaskArgPin(*callee, i, res_.GetTable())
        << " <= " << InsnWriter::RegisterValue(*insn->inputs_[i],
 					      tab_.GetNames())
        << ";\n";
