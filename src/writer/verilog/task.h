@@ -15,17 +15,20 @@ public:
   virtual void BuildInsn(IInsn *insn, State *st);
 
   static bool IsTask(const Table &table);
-  static string TaskEnablePin(const ITable &tab, const ITable *caller);
-  static string TaskAckPin(const ITable &tab, const ITable *caller);
+  // Wire to kick this task.
+  static string TaskEnableWire(const ITable &tab);
+
+  static string TaskEnablePin(const ITable &tab, const IResource *caller);
+  static string TaskAckPin(const ITable &tab, const IResource *caller);
   static string TaskArgPin(const ITable &tab, int nth,
-			   const ITable *caller);
+			   const IResource *caller);
 
   static const int kTaskEntryStateId;
 
 private:
   void BuildWireSet();
   static string TaskArgName(int nth);
-  static string TaskPinPrefix(const ITable &tab, const ITable *caller);
+  static string TaskPinPrefix(const ITable &tab, const IResource *caller);
 };
 
 }  // namespace verilog

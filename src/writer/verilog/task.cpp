@@ -33,25 +33,30 @@ bool Task::IsTask(const Table &table) {
   return false;
 }
 
-string Task::TaskEnablePin(const ITable &tab, const ITable *caller) {
+string Task::TaskEnableWire(const ITable &tab) {
+  return TaskEnablePin(tab, nullptr) + "_wire";
+}
+
+string Task::TaskEnablePin(const ITable &tab, const IResource *caller) {
   return TaskPinPrefix(tab, caller) + "_en";
 }
 
-string Task::TaskAckPin(const ITable &tab, const ITable *caller) {
+string Task::TaskAckPin(const ITable &tab, const IResource *caller) {
   return TaskPinPrefix(tab, caller) + "_ack";
 }
 
 string Task::TaskArgPin(const ITable &tab, int nth,
-			const ITable *caller) {
+			const IResource *caller) {
   return TaskPinPrefix(tab, caller) + "_arg_" + Util::Itoa(nth);
 }
 
-string Task::TaskPinPrefix(const ITable &tab, const ITable *caller) {
+string Task::TaskPinPrefix(const ITable &tab, const IResource *caller) {
   string s = "task_" + Util::Itoa(tab.GetModule()->GetId()) + "_" + Util::Itoa(tab.GetId());
   if (caller != nullptr) {
-    IModule *caller_mod = caller->GetModule();
+    ITable *caller_tab = caller->GetTable();
+    IModule *caller_mod = caller_tab->GetModule();
     s += "_" + Util::Itoa(caller_mod->GetId()) +
-      "_" + Util::Itoa(caller->GetId());
+      "_" + Util::Itoa(caller_tab->GetId());
   }
   return s;
 }
@@ -101,12 +106,12 @@ void Task::BuildResource() {
     if (!is_first) {
       e = "else ";
     }
-    string en = TaskEnablePin(*(tab_.GetITable()), caller->GetTable());
+    string en = TaskEnablePin(*(tab_.GetITable()), caller);
     fs << "      " << e << "if (" << ack_cond << " && " << en << "_wire) begin\n"
        << "      // Capturing args\n";
     for (int i = 0; i < res_.output_types_.size(); ++i) {
       string ad = TaskArgPin(*(tab_.GetITable()), i, nullptr);
-      string as = TaskArgPin(*(tab_.GetITable()), i, caller->GetTable());
+      string as = TaskArgPin(*(tab_.GetITable()), i, caller);
       fs << "        " << ad << "_reg" << " <= " << as << "_wire;\n";
     }
     fs << "      end\n";
@@ -121,7 +126,7 @@ void Task::BuildWireSet() {
   for (auto *accessor : callers) {
     wire::AccessorInfo *ainfo =
       ws.AddAccessor(accessor, TaskPinPrefix(*(tab_.GetITable()),
-					     accessor->GetTable()));
+					     accessor));
     ainfo->AddSignal("en", wire::AccessorSignalType::ACCESSOR_REQ, 0);
     ainfo->AddSignal("ack", wire::AccessorSignalType::ACCESSOR_ACK, 0);
     for (int i = 0; i < res_.output_types_.size(); ++i) {

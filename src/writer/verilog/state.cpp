@@ -168,7 +168,7 @@ void State::WriteTaskEntry(Table *tab, ostream &os) {
      << ": begin\n";
   string s;
   if (Task::IsTask(*tab)) {
-    s = Task::TaskEnablePin(*tab->GetITable(), nullptr) + "_wire";
+    s = Task::TaskEnableWire(*tab->GetITable());
   } else {
     s = ExtTask::TaskReadyPin(*tab);
   }
