@@ -1,5 +1,6 @@
 #include "writer/verilog/wire/wire_set.h"
 
+#include "iroha/i_design.h"
 #include "iroha/stl_util.h"
 #include "iroha/logging.h"
 #include "writer/module_template.h"
@@ -83,6 +84,15 @@ AccessorSignal *AccessorInfo::FindSignal(const SignalDescription &sig_desc) {
     }
   }
   return nullptr;
+}
+
+string AccessorInfo::AccessorName(const IResource *res) {
+  if (res == nullptr) {
+    return "";
+  }
+  ITable *tab = res->GetTable();
+  IModule *mod = tab->GetModule();
+  return Util::Itoa(mod->GetId()) + "_" + Util::Itoa(tab->GetId()) + "_" + Util::Itoa(res->GetId());
 }
 
 WireSet::WireSet(Resource &res, const string &name) : res_(res), name_(name) {

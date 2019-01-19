@@ -51,6 +51,8 @@ public:
   const string &GetName();
   AccessorSignal *FindSignal(const SignalDescription &sig);
 
+  static string AccessorName(const IResource *res);
+
 private:
   WireSet *wire_set_;
   IResource *accessor_;
