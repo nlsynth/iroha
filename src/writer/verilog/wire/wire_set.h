@@ -51,7 +51,9 @@ public:
   const string &GetName();
   AccessorSignal *FindSignal(const SignalDescription &sig);
 
-  static string AccessorName(const IResource *res);
+  static string AccessorName(const string &resource_name,
+			     const IResource *res);
+  static string AccessorResourceName(const IResource *res);
 
 private:
   WireSet *wire_set_;
@@ -62,10 +64,10 @@ private:
 
 class WireSet {
 public:
-  WireSet(Resource &res, const string &name);
+  WireSet(Resource &res, const string &resource_name);
   ~WireSet();
 
-  AccessorInfo *AddAccessor(IResource *accessor, const string &name);
+  AccessorInfo *AddAccessor(IResource *accessor);
   SignalDescription *GetSignalDescription(const string &name, AccessorSignalType type, int width);
 
   void Build();
@@ -85,7 +87,7 @@ private:
   string AccessorWireNameWithReg(const AccessorSignal &sig);
 
   Resource &res_;
-  string name_;
+  string resource_name_;
   vector<AccessorInfo *> accessors_;
   map<string, SignalDescription *> signal_desc_;
 };

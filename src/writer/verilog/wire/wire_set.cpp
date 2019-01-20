@@ -32,7 +32,7 @@
 //
 // Usage:
 // WireSet ws(parent, "name");
-// AccessorInfo *ac = ws.AddAccessor(writer, "name_parent_accessor");
+// AccessorInfo *ac = ws.AddAccessor(writer);
 // ac->AddSignal("req", ACCESSOR_REQ);
 // ac->AddSignal("ack", ACCESSOR_ACK);
 // ws.Build();
@@ -86,7 +86,11 @@ AccessorSignal *AccessorInfo::FindSignal(const SignalDescription &sig_desc) {
   return nullptr;
 }
 
-string AccessorInfo::AccessorName(const IResource *res) {
+string AccessorInfo::AccessorName(const string &resource_name, const IResource *res) {
+  return resource_name + "_" + AccessorResourceName(res);
+}
+
+string AccessorInfo::AccessorResourceName(const IResource *res) {
   if (res == nullptr) {
     return "";
   }
@@ -95,7 +99,8 @@ string AccessorInfo::AccessorName(const IResource *res) {
   return Util::Itoa(mod->GetId()) + "_" + Util::Itoa(tab->GetId()) + "_" + Util::Itoa(res->GetId());
 }
 
-WireSet::WireSet(Resource &res, const string &name) : res_(res), name_(name) {
+WireSet::WireSet(Resource &res, const string &resource_name)
+  : res_(res), resource_name_(resource_name) {
 }
 
 WireSet::~WireSet() {
@@ -103,7 +108,8 @@ WireSet::~WireSet() {
   STLDeleteSecondElements(&signal_desc_);
 }
 
-AccessorInfo *WireSet::AddAccessor(IResource *accessor, const string &name) {
+AccessorInfo *WireSet::AddAccessor(IResource *accessor) {
+  string name = AccessorInfo::AccessorName(resource_name_, accessor);
   AccessorInfo *info = new AccessorInfo(this, accessor, name);
   accessors_.push_back(info);
   return info;
@@ -203,7 +209,7 @@ void WireSet::BuildResourceWire() {
   Module *mod = res_.GetTable().GetModule();
   auto *tmpl = mod->GetModuleTemplate();
   ostream &os = tmpl->GetStream(kInsnWireDeclSection);
-  os << "  // Resource wires - " << name_ << "\n";
+  os << "  // Resource wires - " << resource_name_ << "\n";
   for (auto it : signal_desc_) {
     auto *sig_desc = it.second;
     os << "  wire " << Table::WidthSpec(sig_desc->width_) << ResourceWireName(*sig_desc) << ";\n";
@@ -211,7 +217,7 @@ void WireSet::BuildResourceWire() {
 }
 
 string WireSet::ResourceWireName(const SignalDescription &sig_desc) {
-  return name_ + "_" + sig_desc.name_ + "_wire";
+  return resource_name_ + "_" + sig_desc.name_ + "_wire";
 }
 
 string WireSet::AccessorWireName(const AccessorSignal &sig) {
@@ -222,7 +228,8 @@ string WireSet::AccessorWireNameWithReg(const AccessorSignal &sig) {
   return sig.accessor_info_->GetName() + "_" + sig.sig_desc_->name_ + "_reg";
 }
 
-void WireSet::BuildArbitration(const SignalDescription &rsig_desc, const SignalDescription &asig_desc) {
+void WireSet::BuildArbitration(const SignalDescription &rsig_desc,
+			       const SignalDescription &asig_desc) {
   const Table &tab = res_.GetTable();
   ostream &rs = tab.ResourceSectionStream();
   vector<AccessorInfo*> handshake_accessors;
@@ -235,7 +242,7 @@ void WireSet::BuildArbitration(const SignalDescription &rsig_desc, const SignalD
     CHECK(asig != nullptr);
     handshake_accessors.push_back(ac);
   }
-  rs << "  // Arbitration and handshake - " << name_ << "\n";
+  rs << "  // Arbitration and handshake - " << resource_name_ << "\n";
   // Registered req.
   BuildRegisteredReq(rsig_desc, handshake_accessors);
   // Req.

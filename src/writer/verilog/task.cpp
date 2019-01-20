@@ -52,10 +52,11 @@ string Task::TaskArgPin(const ITable &tab, int nth,
 
 string Task::TaskPinPrefix(const ITable &tab, const IResource *caller) {
   string s = "task_" + Util::Itoa(tab.GetModule()->GetId()) + "_" + Util::Itoa(tab.GetId());
-  if (caller != nullptr) {
-    s += "_" + wire::AccessorInfo::AccessorName(caller);
+  if (caller == nullptr) {
+    return s;
+  } else {
+    return wire::AccessorInfo::AccessorName(s, caller);
   }
-  return s;
 }
 
 void Task::BuildResource() {
@@ -121,9 +122,7 @@ void Task::BuildWireSet() {
   const auto &callers = conn.GetTaskCallers(&res_);
   wire::WireSet ws(*this, TaskPinPrefix(*(tab_.GetITable()), nullptr));
   for (auto *accessor : callers) {
-    wire::AccessorInfo *ainfo =
-      ws.AddAccessor(accessor, TaskPinPrefix(*(tab_.GetITable()),
-					     accessor));
+    wire::AccessorInfo *ainfo = ws.AddAccessor(accessor);
     ainfo->AddSignal("en", wire::AccessorSignalType::ACCESSOR_REQ, 0);
     ainfo->AddSignal("ack", wire::AccessorSignalType::ACCESSOR_ACK, 0);
     for (int i = 0; i < res_.output_types_.size(); ++i) {
