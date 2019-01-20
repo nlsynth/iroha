@@ -33,29 +33,34 @@ bool Task::IsTask(const Table &table) {
   return false;
 }
 
+string Task::GetName(const ITable &tab) {
+  return "task_" + Util::Itoa(tab.GetModule()->GetId()) + "_" + Util::Itoa(tab.GetId());
+}
+
 string Task::TaskEnableWire(const ITable &tab) {
-  return TaskEnablePin(tab, nullptr) + "_wire";
+  return wire::Names::ResourceWire(GetName(tab), "en");
 }
 
 string Task::TaskEnablePin(const ITable &tab, const IResource *caller) {
-  return TaskPinPrefix(tab, caller) + "_en";
+  return wire::Names::AccessorSignalBase(GetName(tab), caller, "en");
 }
 
 string Task::TaskAckPin(const ITable &tab, const IResource *caller) {
-  return TaskPinPrefix(tab, caller) + "_ack";
+  return wire::Names::AccessorSignalBase(GetName(tab), caller, "ack");
 }
 
 string Task::TaskArgPin(const ITable &tab, int nth,
 			const IResource *caller) {
-  return TaskPinPrefix(tab, caller) + "_arg_" + Util::Itoa(nth);
+  string n = TaskArgName(nth);
+  return wire::Names::AccessorSignalBase(GetName(tab), caller, n.c_str());
 }
 
 string Task::TaskPinPrefix(const ITable &tab, const IResource *caller) {
-  string s = "task_" + Util::Itoa(tab.GetModule()->GetId()) + "_" + Util::Itoa(tab.GetId());
+  string s = GetName(tab);
   if (caller == nullptr) {
     return s;
   } else {
-    return wire::AccessorInfo::AccessorName(s, caller);
+    return wire::Names::AccessorName(s, caller);
   }
 }
 

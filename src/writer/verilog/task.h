@@ -15,6 +15,7 @@ public:
   virtual void BuildInsn(IInsn *insn, State *st);
 
   static bool IsTask(const Table &table);
+  static string GetName(const ITable &tab);
   // Wire to kick this task.
   static string TaskEnableWire(const ITable &tab);
 

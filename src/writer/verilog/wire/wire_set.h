@@ -11,6 +11,18 @@ namespace writer {
 namespace verilog {
 namespace wire {
 
+class Names {
+public:
+  static string AccessorName(const string &resource_name,
+			     const IResource *res);
+  static string AccessorResourceName(const IResource *res);
+  static string AccessorSignalBase(const string &resource_name, const IResource *res, const char *name);
+  static string AccessorWire(const string &resource_name, const IResource *res, const char *name);
+
+  static string ResourceSignalBase(const string &resource_name, const char *name);
+  static string ResourceWire(const string &resource_name, const char *name);
+};
+
 enum AccessorSignalType : int {
   ACCESSOR_REQ,
   ACCESSOR_ACK,
@@ -42,23 +54,16 @@ class WireSet;
 
 class AccessorInfo {
 public:
-  AccessorInfo(WireSet *wire_set,
-	       IResource *accessor,
-	       const string &name);
+  AccessorInfo(WireSet *wire_set, IResource *accessor);
 
   void AddSignal(const string &name, AccessorSignalType type, int width);
   const vector<AccessorSignal> &GetSignals();
-  const string &GetName();
   AccessorSignal *FindSignal(const SignalDescription &sig);
-
-  static string AccessorName(const string &resource_name,
-			     const IResource *res);
-  static string AccessorResourceName(const IResource *res);
 
 private:
   WireSet *wire_set_;
   IResource *accessor_;
-  string name_;
+  string accessor_name_;
   vector<AccessorSignal> accessor_signals_;
 };
 
@@ -69,6 +74,7 @@ public:
 
   AccessorInfo *AddAccessor(IResource *accessor);
   SignalDescription *GetSignalDescription(const string &name, AccessorSignalType type, int width);
+  string GetResourceName() const;
 
   void Build();
 

@@ -56,8 +56,44 @@ namespace writer {
 namespace verilog {
 namespace wire {
 
-AccessorInfo::AccessorInfo(WireSet *wire_set, IResource *accessor, const string &name)
-  : wire_set_(wire_set), accessor_(accessor), name_(name) {
+string Names::AccessorName(const string &resource_name, const IResource *res) {
+  if (res == nullptr) {
+    return resource_name;
+  }
+  return resource_name + "_" + AccessorResourceName(res);
+}
+
+string Names::AccessorResourceName(const IResource *res) {
+  if (res == nullptr) {
+    return "";
+  }
+  ITable *tab = res->GetTable();
+  IModule *mod = tab->GetModule();
+  return Util::Itoa(mod->GetId()) + "_" + Util::Itoa(tab->GetId()) + "_" + Util::Itoa(res->GetId());
+}
+
+string Names::AccessorSignalBase(const string &resource_name, const IResource *res, const char *name) {
+  string s = AccessorName(resource_name, res);
+  if (name != nullptr) {
+    s += "_" + string(name);
+  }
+  return s;
+}
+
+string Names::AccessorWire(const string &resource_name, const IResource *res, const char *name) {
+  return AccessorSignalBase(resource_name, res, name) + "_wire";
+}
+
+string Names::ResourceSignalBase(const string &resource_name, const char *name) {
+  return AccessorSignalBase(resource_name, nullptr, name);
+}
+
+string Names::ResourceWire(const string &resource_name, const char *name) {
+  return ResourceSignalBase(resource_name, name) + "_wire";
+}
+
+AccessorInfo::AccessorInfo(WireSet *wire_set, IResource *accessor)
+  : wire_set_(wire_set), accessor_(accessor) {
 }
 
 void AccessorInfo::AddSignal(const string &name, AccessorSignalType type,
@@ -73,10 +109,6 @@ const vector<AccessorSignal> &AccessorInfo::GetSignals() {
   return accessor_signals_;
 }
 
-const string &AccessorInfo::GetName() {
-  return name_;
-}
-
 AccessorSignal *AccessorInfo::FindSignal(const SignalDescription &sig_desc) {
   for (auto &asig : accessor_signals_) {
     if (asig.sig_desc_ == &sig_desc) {
@@ -84,19 +116,6 @@ AccessorSignal *AccessorInfo::FindSignal(const SignalDescription &sig_desc) {
     }
   }
   return nullptr;
-}
-
-string AccessorInfo::AccessorName(const string &resource_name, const IResource *res) {
-  return resource_name + "_" + AccessorResourceName(res);
-}
-
-string AccessorInfo::AccessorResourceName(const IResource *res) {
-  if (res == nullptr) {
-    return "";
-  }
-  ITable *tab = res->GetTable();
-  IModule *mod = tab->GetModule();
-  return Util::Itoa(mod->GetId()) + "_" + Util::Itoa(tab->GetId()) + "_" + Util::Itoa(res->GetId());
 }
 
 WireSet::WireSet(Resource &res, const string &resource_name)
@@ -109,8 +128,7 @@ WireSet::~WireSet() {
 }
 
 AccessorInfo *WireSet::AddAccessor(IResource *accessor) {
-  string name = AccessorInfo::AccessorName(resource_name_, accessor);
-  AccessorInfo *info = new AccessorInfo(this, accessor, name);
+  AccessorInfo *info = new AccessorInfo(this, accessor);
   accessors_.push_back(info);
   return info;
 }
@@ -199,7 +217,7 @@ void WireSet::BuildAccessorWire(const SignalDescription &sig_desc) {
     from_parent = false;
   }
   for (auto &ac : accessors_sigs) {
-    string name = ac.accessor_info_->GetName() + "_" + ac.sig_desc_->name_ + "_wire";
+    string name = AccessorWireName(ac);
     wire.AddWire(*ac.accessor_res_, name, ac.sig_desc_->width_,
 		 from_parent, driven_by_reg);
   }
@@ -217,15 +235,15 @@ void WireSet::BuildResourceWire() {
 }
 
 string WireSet::ResourceWireName(const SignalDescription &sig_desc) {
-  return resource_name_ + "_" + sig_desc.name_ + "_wire";
+  return Names::ResourceWire(resource_name_, sig_desc.name_.c_str());
 }
 
 string WireSet::AccessorWireName(const AccessorSignal &sig) {
-  return sig.accessor_info_->GetName() + "_" + sig.sig_desc_->name_ + "_wire";
+  return Names::AccessorWire(resource_name_, sig.accessor_res_, sig.sig_desc_->name_.c_str());
 }
 
 string WireSet::AccessorWireNameWithReg(const AccessorSignal &sig) {
-  return sig.accessor_info_->GetName() + "_" + sig.sig_desc_->name_ + "_reg";
+  return Names::AccessorSignalBase(resource_name_, sig.accessor_res_, sig.sig_desc_->name_.c_str()) + "_reg";
 }
 
 void WireSet::BuildArbitration(const SignalDescription &rsig_desc,
@@ -309,6 +327,10 @@ SignalDescription *WireSet::GetSignalDescription(const string &name, AccessorSig
     return sd;
   }
   return it->second;
+}
+
+string WireSet::GetResourceName() const {
+  return resource_name_;
 }
 
 }  // namespace wire
