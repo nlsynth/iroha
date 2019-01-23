@@ -16,10 +16,13 @@ public:
   static string AccessorName(const string &resource_name,
 			     const IResource *res);
   static string AccessorResourceName(const IResource *res);
-  static string AccessorSignalBase(const string &resource_name, const IResource *res, const char *name);
-  static string AccessorWire(const string &resource_name, const IResource *res, const char *name);
+  static string AccessorSignalBase(const string &resource_name,
+				   const IResource *res, const char *name);
+  static string AccessorWire(const string &resource_name, const IResource *res,
+			     const char *name);
 
-  static string ResourceSignalBase(const string &resource_name, const char *name);
+  static string ResourceSignalBase(const string &resource_name,
+				   const char *name);
   static string ResourceWire(const string &resource_name, const char *name);
 };
 
@@ -58,7 +61,7 @@ public:
 
   void AddSignal(const string &name, AccessorSignalType type, int width);
   const vector<AccessorSignal> &GetSignals();
-  AccessorSignal *FindSignal(const SignalDescription &sig);
+  AccessorSignal *FindSignal(const SignalDescription &desc);
 
 private:
   WireSet *wire_set_;
@@ -73,22 +76,27 @@ public:
   ~WireSet();
 
   AccessorInfo *AddAccessor(IResource *accessor);
-  SignalDescription *GetSignalDescription(const string &name, AccessorSignalType type, int width);
+  SignalDescription *GetSignalDescription(const string &name,
+					  AccessorSignalType type, int width);
   string GetResourceName() const;
 
   void Build();
 
 private:
-  void BuildAccessorWire(const SignalDescription &sig_desc);
+  void BuildAccessorWire(const SignalDescription &desc);
   void BuildResourceWire();
-  void BuildArbitration(const SignalDescription &rsig_desc, const SignalDescription &asig_desc);
-  void BuildRegisteredReq(const SignalDescription &rsig_desc,
+  void BuildArbitration(const SignalDescription &req_desc,
+			const SignalDescription &ack_desc);
+  void BuildRegisteredReq(const SignalDescription &req_desc,
 			  vector<AccessorInfo *> &handshake_accessors);
-  void BuildAccessorAck(const SignalDescription &rsig_desc, const SignalDescription &asig_desc,
+  void BuildAccessorAck(const SignalDescription &rsig_desc,
+			const SignalDescription &asig_desc,
 			vector<AccessorInfo *> &handshake_accessors);
-  void BuildWriteArg(const SignalDescription &sig_desc, const SignalDescription &req_sig_desc);
-  void BuildReadArg(const SignalDescription &sig_desc);
-  string ResourceWireName(const SignalDescription &sig_desc);
+  void BuildWriteArg(const SignalDescription &arg_desc,
+		     const SignalDescription &req_desc);
+  void BuildReadArg(const SignalDescription &arg_desc);
+  void BuildNotifyParent(const SignalDescription &desc);
+  string ResourceWireName(const SignalDescription &desc);
   string AccessorWireName(const AccessorSignal &sig);
   string AccessorWireNameWithReg(const AccessorSignal &sig);
 
