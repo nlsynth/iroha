@@ -11,6 +11,7 @@
 #include "writer/verilog/module.h"
 #include "writer/verilog/state.h"
 #include "writer/verilog/table.h"
+#include "writer/verilog/wire/wire_set.h"
 
 namespace iroha {
 namespace writer {
@@ -42,14 +43,30 @@ void FifoAccessor::BuildInsn(IInsn *insn, State *st) {
 }
 
 void FifoAccessor::BuildReader() {
-  BuildReq(false);
   int dw = res_.GetParentResource()->GetParams()->GetWidth();
   ostream &rs = tab_.ResourceSectionStream();
+  string rreq = Fifo::RReq(*(res_.GetParentResource()), &res_);
+  rs << "  reg " << rreq << ";\n";
   rs << "  reg " << Table::WidthSpec(dw)
      << Fifo::RDataBuf(res_) << ";\n";
+  string rn = Fifo::GetNameRW(*(res_.GetParentResource()), false);
+  rs << "  assign " << wire::Names::AccessorWire(rn, &res_, "rreq") << " = "
+     << rreq << ";\n";
+  BuildReq(false);
 }
 
 void FifoAccessor::BuildWriter() {
+  ostream &rs = tab_.ResourceSectionStream();
+  string wreq = Fifo::WReq(*(res_.GetParentResource()), &res_);
+  rs << "  reg " << wreq << ";\n";
+  string wdata = Fifo::WData(*(res_.GetParentResource()), &res_);
+  int dw = res_.GetParentResource()->GetParams()->GetWidth();
+  rs << "  reg " << Table::WidthSpec(dw) << wdata << ";\n";
+  string rn = Fifo::GetNameRW(*(res_.GetParentResource()), true);
+  rs << "  assign " << wire::Names::AccessorWire(rn, &res_, "wdata") << " = "
+     << wdata << ";\n"
+     << "  assign " << wire::Names::AccessorWire(rn, &res_, "wreq") << " = "
+     << wreq << ";\n";
   BuildReq(true);
 }
 
@@ -61,12 +78,13 @@ void FifoAccessor::BuildReq(bool is_writer) {
   CollectResourceCallers(operand::kNoWait, &nw_callers);
   string sig;
   string ack;
+  string rn = Fifo::GetNameRW(*(res_.GetParentResource()), is_writer);
   if (is_writer) {
     sig = Fifo::WReq(*(res_.GetParentResource()), &res_);
-    ack = Fifo::WAck(*(res_.GetParentResource()), &res_);
+    ack = wire::Names::AccessorWire(rn, &res_, "wack");
   } else {
     sig = Fifo::RReq(*(res_.GetParentResource()), &res_);
-    ack = Fifo::RAck(*(res_.GetParentResource()), &res_);
+    ack = wire::Names::AccessorWire(rn, &res_, "rack");
   }
   string req = JoinStatesWithSubState(callers, 0);
   if (req.empty()) {
@@ -75,7 +93,13 @@ void FifoAccessor::BuildReq(bool is_writer) {
   ss << "      " << sig << " <= (" << req << ") && !" << ack << ";\n";
   string nw_req = JoinStates(nw_callers);
   if (!nw_req.empty()) {
-    ss << "      " << Fifo::WNoWait(*(res_.GetParentResource()), &res_)
+    string wnowait = Fifo::WNoWait(*(res_.GetParentResource()), &res_);
+    ostream &rs = tab_.ResourceSectionStream();
+    rs << "  reg " << wnowait << ";\n";
+    string wn = Fifo::GetNameRW(*(res_.GetParentResource()), true);
+    rs << "  assign " << wire::Names::AccessorWire(wn, &res_, "wno_wait")
+       << " = " << wnowait << ";\n";
+    ss << "      " << wnowait
        << " <= " << nw_req << ";\n";
   }
 }
@@ -83,10 +107,14 @@ void FifoAccessor::BuildReq(bool is_writer) {
 void FifoAccessor::BuildReadInsn(IInsn *insn, State *st) {
   ostream &os = st->StateBodySectionStream();
   static const char I[] = "          ";
+  string rn = Fifo::GetNameRW(*(res_.GetParentResource()), false);
+  string rack = Fifo::RAck(*(res_.GetParentResource()), &res_);
+  rack = wire::Names::AccessorWire(rn, &res_, "rack");
   string st_name = InsnWriter::MultiCycleStateName(*(insn->GetResource()));
+  string rdata = wire::Names::AccessorWire(rn, &res_, "rdata");
   os << I << "if (" << st_name << " == 0) begin\n"
-     << I << "  if (" << Fifo::RAck(*(res_.GetParentResource()), &res_) << ") begin\n"
-     << I << "    " << Fifo::RDataBuf(res_) << " <= " << Fifo::RData(*(res_.GetParentResource())) << ";\n"
+     << I << "  if (" << rack << ") begin\n"
+     << I << "    " << Fifo::RDataBuf(res_) << " <= " << rdata << ";\n"
      << I << "    " << st_name << " <= 3;\n"
      << I << "  end\n";
   os << I << "end\n";
@@ -103,10 +131,12 @@ void FifoAccessor::BuildWriteInsn(IInsn *insn, State *st) {
   ostream &os = st->StateBodySectionStream();
   static const char I[] = "          ";
   string st_name = InsnWriter::MultiCycleStateName(*(insn->GetResource()));
+  string rn = Fifo::GetNameRW(*(res_.GetParentResource()), true);
+  string wack = wire::Names::AccessorWire(rn, &res_, "wack");
   os << I << "if (" << st_name << " == 0) begin\n"
      << I << "  " << Fifo::WData(*(res_.GetParentResource()), &res_) << " <= "
      << InsnWriter::RegisterValue(*insn->inputs_[0], tab_.GetNames()) << ";\n"
-     << I << "  if (" << Fifo::WAck(*(res_.GetParentResource()), &res_)
+     << I << "  if (" << wack
      << ") begin\n"
      << I << "    " << st_name << " <= 3;\n"
      << I << "  end\n";
