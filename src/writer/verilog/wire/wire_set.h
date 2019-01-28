@@ -49,7 +49,7 @@ class AccessorInfo;
 class AccessorSignal {
 public:
   SignalDescription *sig_desc_;
-  IResource *accessor_res_;
+  const IResource *accessor_res_;
   AccessorInfo *accessor_info_;
 };
 
@@ -57,7 +57,7 @@ class WireSet;
 
 class AccessorInfo {
 public:
-  AccessorInfo(WireSet *wire_set, IResource *accessor);
+  AccessorInfo(WireSet *wire_set, const IResource *accessor);
 
   void AddSignal(const string &name, AccessorSignalType type, int width);
   const vector<AccessorSignal> &GetSignals();
@@ -65,7 +65,7 @@ public:
 
 private:
   WireSet *wire_set_;
-  IResource *accessor_;
+  const IResource *accessor_;
   string accessor_name_;
   vector<AccessorSignal> accessor_signals_;
 };
@@ -75,7 +75,7 @@ public:
   WireSet(Resource &res, const string &resource_name);
   ~WireSet();
 
-  AccessorInfo *AddAccessor(IResource *accessor);
+  AccessorInfo *AddAccessor(const IResource *accessor);
   SignalDescription *GetSignalDescription(const string &name,
 					  AccessorSignalType type, int width);
   string GetResourceName() const;

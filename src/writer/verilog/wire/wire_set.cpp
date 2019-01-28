@@ -83,7 +83,7 @@ string Names::ResourceWire(const string &resource_name, const char *name) {
   return ResourceSignalBase(resource_name, name) + "_wire";
 }
 
-AccessorInfo::AccessorInfo(WireSet *wire_set, IResource *accessor)
+AccessorInfo::AccessorInfo(WireSet *wire_set, const IResource *accessor)
   : wire_set_(wire_set), accessor_(accessor) {
 }
 
@@ -118,7 +118,7 @@ WireSet::~WireSet() {
   STLDeleteSecondElements(&signal_desc_);
 }
 
-AccessorInfo *WireSet::AddAccessor(IResource *accessor) {
+AccessorInfo *WireSet::AddAccessor(const IResource *accessor) {
   AccessorInfo *info = new AccessorInfo(this, accessor);
   accessors_.push_back(info);
   return info;
