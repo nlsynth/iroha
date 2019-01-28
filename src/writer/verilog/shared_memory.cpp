@@ -10,6 +10,7 @@
 #include "writer/verilog/internal_sram.h"
 #include "writer/verilog/module.h"
 #include "writer/verilog/ports.h"
+#include "writer/verilog/shared_memory_accessor.h"
 #include "writer/verilog/state.h"
 #include "writer/verilog/table.h"
 #include "writer/verilog/wire/inter_module_wire.h"
@@ -23,17 +24,8 @@ SharedMemory::SharedMemory(const IResource &res, const Table &table)
 }
 
 void SharedMemory::BuildResource() {
-  auto *klass = res_.GetClass();
-  if (resource::IsSharedMemory(*klass)) {
-    BuildMemoryResource();
-    BuildMemoryAccessorResource(*this, true, true, &res_);
-  }
-  if (resource::IsSharedMemoryReader(*klass)) {
-    BuildMemoryAccessorResource(*this, false, true, res_.GetParentResource());
-  }
-  if (resource::IsSharedMemoryWriter(*klass)) {
-    BuildMemoryAccessorResource(*this, true, true, res_.GetParentResource());
-  }
+  BuildMemoryResource();
+  SharedMemoryAccessor::BuildMemoryAccessorResource(*this, true, true, &res_);
 }
 
 void SharedMemory::BuildMemoryResource() {
@@ -44,9 +36,9 @@ void SharedMemory::BuildMemoryResource() {
   }
   vector<const IResource *> accessors;
   accessors.push_back(&res_);
-  auto &ext_accessors =
+  auto &non_self_accessors =
     tab_.GetModule()->GetConnection().GetSharedMemoryAccessors(&res_);
-  for (IResource *r : ext_accessors) {
+  for (IResource *r : non_self_accessors) {
     accessors.push_back(r);
   }
   BuildAccessWireAll(accessors);
@@ -119,7 +111,8 @@ void SharedMemory::BuildExternalMemoryConnection() {
   IArray *array = res_.GetArray();
   auto *ports = tab_.GetPorts();
   ports->AddPort("sram_addr", Port::OUTPUT_WIRE, array->GetAddressWidth());
-  ports->AddPort("sram_wdata", Port::OUTPUT_WIRE, array->GetDataType().GetWidth());
+  ports->AddPort("sram_wdata", Port::OUTPUT_WIRE,
+		 array->GetDataType().GetWidth());
   ports->AddPort("sram_wdata_en", Port::OUTPUT_WIRE, 0);
   ports->AddPort("sram_rdata", Port::INPUT, array->GetAddressWidth());
 
@@ -220,111 +213,8 @@ void SharedMemory::BuildAccessWireAll(vector<const IResource *> &accessors) {
   }
 }
 
-void SharedMemory::BuildMemoryAccessorResource(const Resource &accessor,
-					       bool do_write,
-					       bool gen_reg,
-					       const IResource *mem) {
-  bool is_self_mem = resource::IsSharedMemory(*(accessor.GetIResource().GetClass()));
-  IArray *array = mem->GetArray();
-  int addr_width = array->GetAddressWidth();
-  int data_width = array->GetDataType().GetWidth();
-  ModuleTemplate *tmpl = accessor.GetModuleTemplate();
-  ostream &rs = accessor.GetTable().ResourceSectionStream();
-  const IResource &res = accessor.GetIResource();
-  string storage;
-  if (gen_reg) {
-    storage = "reg";
-  } else {
-    storage = "wire";
-  }
-  if (!gen_reg) {
-    // For an AXI controller.
-    rs << "  " << storage << " " << Table::WidthSpec(addr_width)
-       << MemoryAddrPin(*mem, 0, &res) << ";\n";
-    rs << "  " << storage << " " << MemoryReqPin(*mem, &res) << ";\n";
-  }
-  const Table &tab = accessor.GetTable();
-  ostream &is = tab.InitialValueSectionStream();
-  if (gen_reg) {
-    is << "      " << MemoryReqPin(*mem, &res) << " <= 0;\n";
-  }
-  if (do_write && (!gen_reg || is_self_mem)) {
-    rs << "  " << storage << " " << Table::WidthSpec(data_width)
-       << MemoryWdataPin(*mem, 0, &res) << ";\n";
-    rs << "  " << storage << " "
-       << MemoryWenPin(*mem, 0, &res) << ";\n";
-  }
-  // TODO: Output this only for read.
-  rs << "  reg " << Table::WidthSpec(data_width) << MemoryRdataBuf(*mem, &res) << ";\n";
-  ostream &ss = tab.StateOutputSectionStream();
-  map<IState *, IInsn *> callers;
-  accessor.CollectResourceCallers("", &callers);
-  if (gen_reg) {
-    ss << "      " << MemoryReqPin(*mem, &res) << " <= (";
-    if (callers.size() > 0) {
-      ss << accessor.JoinStatesWithSubState(callers, 0)
-	 << ") && !" << MemoryAckPin(*mem, &res)
-	 << ";\n";
-    } else {
-      ss << "0);\n";
-    }
-  }
-  auto *klass = res.GetClass();
-  if (resource::IsSharedMemory(*klass)) {
-    is << "      " << MemoryWenPin(*mem, 0, &res) << " <= 0;\n";
-    map<IState *, IInsn *> writers;
-    for (auto it : callers) {
-      IInsn *insn = it.second;
-      if (insn->inputs_.size() == 2) {
-	writers[it.first] = it.second;
-      }
-    }
-    string wen = accessor.JoinStatesWithSubState(writers, 0);
-    if (wen.empty()) {
-      wen = "0";
-    }
-    ss << "      " << MemoryWenPin(*mem, 0, &res) << " <= "
-       << wen << " && !" << MemoryAckPin(*mem, &res) << ";\n";
-  }
-}
-
 void SharedMemory::BuildInsn(IInsn *insn, State *st) {
-  ostream &os = st->StateBodySectionStream();
-  static const char I[] = "          ";
-  string st_name = InsnWriter::MultiCycleStateName(*(insn->GetResource()));
-  const IResource *mem = nullptr;
-  auto *klass = res_.GetClass();
-  if (resource::IsSharedMemory(*klass)) {
-    mem = &res_;
-  } else {
-    mem = res_.GetParentResource();
-  }
-  os << I << "if (" << st_name << " == 0) begin\n";
-  os << I << "  " << MemoryAddrPin(*mem, 0, &res_) << " <= "
-     << InsnWriter::RegisterValue(*insn->inputs_[0], tab_.GetNames())
-     << ";\n";
-  if (resource::IsSharedMemoryWriter(*klass) ||
-      (resource::IsSharedMemory(*klass) &&
-       insn->inputs_.size() == 2)) {
-    os << I << "  " << MemoryWdataPin(*mem, 0, &res_) << " <= "
-       << InsnWriter::RegisterValue(*insn->inputs_[1], tab_.GetNames())
-       << ";\n";
-  }
-  os << I << "  if (" << MemoryAckPin(*mem, &res_) << ") begin\n"
-     << I << "    " << st_name << " <= 3;\n";
-  if (resource::IsSharedMemoryReader(*klass) ||
-      (resource::IsSharedMemory(*klass) &&
-       insn->outputs_.size() == 1)) {
-    os << I << "    "
-       << MemoryRdataBuf(*mem, &res_)
-       << " <= " << MemoryRdataPin(*mem, 0)
-       << ";\n";
-    ostream &ws = tab_.InsnWireValueSectionStream();
-    ws << "  assign " << InsnWriter::InsnOutputWireName(*insn, 0)
-       << " = " << MemoryRdataBuf(*mem, &res_) << ";\n";
-  }
-  os << I << "  end\n";
-  os << I << "end\n";
+  SharedMemoryAccessor::BuildAccessInsn(insn, st, res_, tab_);
 }
 
 string SharedMemory::MemoryPinPrefix(const IResource &mem,

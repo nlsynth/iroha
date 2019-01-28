@@ -15,7 +15,8 @@ public:
   virtual void BuildResource() override;
   virtual void BuildInsn(IInsn *insn, State *st) override;
 
-  static string MemoryAddrPin(const IResource &res, int nth_port, const IResource *accessor);
+  static string MemoryAddrPin(const IResource &res, int nth_port,
+			      const IResource *accessor);
   static string MemoryRdataPin(const IResource &res, int nth_port);
   static string MemoryWdataPin(const IResource &res, int nth_port,
 			       const IResource *accessor);
@@ -29,12 +30,6 @@ public:
   // Wire just to connect to the SRAM instance.
   // (this simplifies the code if there's no readers).
   static string MemoryRdataRawPin(const IResource &res);
-
-  // gen_reg determines if addr/wdata/req/wen are driven from this module.
-  // generates wires and let them driven by dmac.
-  static void BuildMemoryAccessorResource(const Resource &accessor,
-					  bool do_write, bool gen_reg,
-					  const IResource *mem);
 
 private:
   void BuildMemoryResource();

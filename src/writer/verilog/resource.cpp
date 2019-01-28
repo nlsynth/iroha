@@ -20,6 +20,7 @@
 #include "writer/verilog/module.h"
 #include "writer/verilog/operator.h"
 #include "writer/verilog/shared_memory.h"
+#include "writer/verilog/shared_memory_accessor.h"
 #include "writer/verilog/shared_reg.h"
 #include "writer/verilog/shared_reg_accessor.h"
 #include "writer/verilog/ports.h"
@@ -65,10 +66,12 @@ Resource *Resource::Create(const IResource &res, const Table &table) {
       resource::IsSharedRegWriter(*klass)) {
     return new SharedRegAccessor(res, table);
   }
-  if (resource::IsSharedMemory(*klass) ||
-      resource::IsSharedMemoryReader(*klass) ||
-      resource::IsSharedMemoryWriter(*klass)) {
+  if (resource::IsSharedMemory(*klass)) {
     return new SharedMemory(res, table);
+  }
+  if (resource::IsSharedMemoryReader(*klass) ||
+      resource::IsSharedMemoryWriter(*klass)) {
+    return new SharedMemoryAccessor(res, table);
   }
   if (resource::IsMapped(*klass)) {
     return new MappedResource(res, table);
