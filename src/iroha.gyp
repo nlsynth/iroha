@@ -233,6 +233,8 @@
         'writer/verilog/dataflow_state.h',
         'writer/verilog/dataflow_table.cpp',
         'writer/verilog/dataflow_table.h',
+        'writer/verilog/debug_marker.cpp',
+        'writer/verilog/debug_marker.h',
         'writer/verilog/embed.cpp',
         'writer/verilog/embed.h',
         'writer/verilog/ext_combinational.cpp',

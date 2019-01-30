@@ -16,8 +16,8 @@ namespace writer {
 namespace verilog {
 
 VerilogWriter::VerilogWriter(const IDesign *design, const Connection &conn,
-			     ostream &os)
-  : design_(design), conn_(conn), os_(os),
+			     bool debug, ostream &os)
+  : design_(design), conn_(conn), os_(os), debug_(debug),
     embedded_modules_(new EmbeddedModules), with_self_clock_(false),
     output_vcd_(false), names_(new Names(nullptr)), reset_polarity_(false) {
 }
@@ -32,6 +32,8 @@ bool VerilogWriter::Write() {
   names_->ReservePrefix("st");
   names_->ReservePrefix("task");
   names_->ReservePrefix("S");
+
+  DebugMarker::SetEnable(debug_);
 
   os_ << "// Generated from " << PACKAGE << "-" << VERSION << ".\n";
 

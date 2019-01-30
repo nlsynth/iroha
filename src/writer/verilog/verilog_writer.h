@@ -12,7 +12,8 @@ namespace verilog {
 
 class VerilogWriter {
 public:
-  VerilogWriter(const IDesign *design, const Connection &conn, ostream &os);
+  VerilogWriter(const IDesign *design, const Connection &conn, bool debug,
+		ostream &os);
   ~VerilogWriter();
 
   bool Write();
@@ -32,6 +33,7 @@ private:
   const IDesign *design_;
   const Connection &conn_;
   ostream &os_;
+  bool debug_;
   vector<Module *> ordered_modules_;
   map<const IModule *, Module *> modules_;
   unique_ptr<EmbeddedModules> embedded_modules_;

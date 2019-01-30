@@ -15,7 +15,8 @@ public:
   virtual bool SetLanguage(const string &lang) override;
   virtual void OutputShellModule(bool b, bool self_clock, bool vcd) override;
   virtual void SetOutputConfig(const string &root,
-			       const string &marker) override;
+			       const string &marker,
+			       bool debug) override;
 
   // For debug dump.
   static void WriteDumpHeader(ostream &os);
@@ -31,6 +32,7 @@ private:
   bool output_self_clock_;
   bool output_vcd_;
   string output_marker_;
+  bool debug_;
   string root_dir_;
 };
 

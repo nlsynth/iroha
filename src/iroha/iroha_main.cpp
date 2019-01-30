@@ -41,6 +41,7 @@ int main(int argc, char **argv) {
   bool selfShell = false;
   bool vcd = false;
   bool skipValidation = false;
+  bool debugWriter = false;
 
   string output;
   string debug_dump;
@@ -89,6 +90,10 @@ int main(int argc, char **argv) {
     }
     if (arg == "-d") {
       debug_dump = getFlagValue(argc, argv, &i);
+      continue;
+    }
+    if (arg == "-dw") {
+      debugWriter = true;
       continue;
     }
     if (arg == "-I") {
@@ -159,8 +164,8 @@ int main(int argc, char **argv) {
       cerr << "Failed to optimize the design: " << fn << "\n";
     }
     WriterAPI *writer = Iroha::CreateWriter(design);
-    if (!output_marker.empty() || !root_dir.empty()) {
-      writer->SetOutputConfig(root_dir, output_marker);
+    if (!output_marker.empty() || !root_dir.empty() || debugWriter) {
+      writer->SetOutputConfig(root_dir, output_marker, debugWriter);
     }
     if (shell || selfShell) {
       if (!output.empty()) {
