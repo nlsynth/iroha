@@ -58,16 +58,17 @@ class WireSet;
 class AccessorInfo {
 public:
   AccessorInfo(WireSet *wire_set, const IResource *accessor);
+  ~AccessorInfo();
 
   void AddSignal(const string &name, AccessorSignalType type, int width);
-  const vector<AccessorSignal> &GetSignals();
+  const vector<AccessorSignal *> &GetSignals();
   AccessorSignal *FindSignal(const SignalDescription &desc);
 
 private:
   WireSet *wire_set_;
   const IResource *accessor_;
   string accessor_name_;
-  vector<AccessorSignal> accessor_signals_;
+  vector<AccessorSignal *> accessor_signals_;
 };
 
 class WireSet {

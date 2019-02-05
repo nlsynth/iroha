@@ -87,23 +87,27 @@ AccessorInfo::AccessorInfo(WireSet *wire_set, const IResource *accessor)
   : wire_set_(wire_set), accessor_(accessor) {
 }
 
+AccessorInfo::~AccessorInfo() {
+  STLDeleteValues(&accessor_signals_);
+}
+
 void AccessorInfo::AddSignal(const string &name, AccessorSignalType type,
 			     int width) {
-  AccessorSignal asig;
-  asig.sig_desc_ = wire_set_->GetSignalDescription(name, type, width);
-  asig.accessor_res_ = accessor_;
-  asig.accessor_info_ = this;
+  AccessorSignal *asig = new AccessorSignal();
+  asig->sig_desc_ = wire_set_->GetSignalDescription(name, type, width);
+  asig->accessor_res_ = accessor_;
+  asig->accessor_info_ = this;
   accessor_signals_.push_back(asig);
 }
 
-const vector<AccessorSignal> &AccessorInfo::GetSignals() {
+const vector<AccessorSignal *> &AccessorInfo::GetSignals() {
   return accessor_signals_;
 }
 
 AccessorSignal *AccessorInfo::FindSignal(const SignalDescription &desc) {
-  for (auto &asig : accessor_signals_) {
-    if (asig.sig_desc_ == &desc) {
-      return &asig;
+  for (auto *asig : accessor_signals_) {
+    if (asig->sig_desc_ == &desc) {
+      return asig;
     }
   }
   return nullptr;
@@ -136,6 +140,10 @@ void WireSet::Build() {
       ack_desc = desc;
     }
   }
+  const Table &tab = res_.GetTable();
+  ostream &rs = tab.ResourceSectionStream();
+  string dbg = "  // WireSet: " + resource_name_ + " begin";
+  rs << DEBUG_MESSAGE(dbg.c_str());
   for (auto it : signal_desc_) {
     SignalDescription *desc = it.second;
     BuildAccessorWire(*desc);
@@ -158,6 +166,7 @@ void WireSet::Build() {
       break;
     }
   }
+  rs << DEBUG_MESSAGE("  // WireSet end");
 }
 
 void WireSet::BuildWriteArg(const SignalDescription &arg_desc,
@@ -221,11 +230,11 @@ void WireSet::BuildNotifyParent(const SignalDescription &desc) {
 }
 
 void WireSet::BuildAccessorWire(const SignalDescription &desc) {
-  vector<AccessorSignal> accessors_sigs;
+  vector<AccessorSignal *> accessors_sigs;
   for (AccessorInfo *accessor : accessors_) {
     auto &signals = accessor->GetSignals();
-    for (auto &sig : signals) {
-      if (sig.sig_desc_ == &desc) {
+    for (auto *sig : signals) {
+      if (sig->sig_desc_ == &desc) {
 	accessors_sigs.push_back(sig);
       }
     }
@@ -238,9 +247,9 @@ void WireSet::BuildAccessorWire(const SignalDescription &desc) {
       type == AccessorSignalType::ACCESSOR_WRITE_ARG) {
     from_parent = false;
   }
-  for (auto &ac : accessors_sigs) {
-    string name = AccessorWireName(ac);
-    wire.AddWire(*ac.accessor_res_, name, ac.sig_desc_->width_,
+  for (auto *ac : accessors_sigs) {
+    string name = AccessorWireName(*ac);
+    wire.AddWire(*ac->accessor_res_, name, ac->sig_desc_->width_,
 		 from_parent, driven_by_reg);
   }
 }
