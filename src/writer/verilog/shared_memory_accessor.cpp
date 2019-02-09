@@ -6,6 +6,7 @@
 #include "writer/verilog/shared_memory.h"
 #include "writer/verilog/state.h"
 #include "writer/verilog/table.h"
+#include "writer/verilog/wire/wire_set.h"
 
 namespace iroha {
 namespace writer {
@@ -46,58 +47,78 @@ void SharedMemoryAccessor::BuildMemoryAccessorResource(const Resource &accessor,
   if (gen_reg) {
     storage = "reg";
   } else {
+    // driven from axi controller.
     storage = "wire";
   }
-  if (!gen_reg) {
-    // For an AXI controller.
-    rs << "  " << storage << " " << Table::WidthSpec(addr_width)
-       << SharedMemory::MemoryAddrPin(*mem, 0, &res) << ";\n";
-    rs << "  " << storage << " " << SharedMemory::MemoryReqPin(*mem, &res)
-       << ";\n";
-  }
+  string rn = SharedMemory::GetName(*mem);
+  // Addr.
+  rs << "  " << storage << " " << Table::WidthSpec(addr_width)
+     << AddrSrc(res) << ";\n";
+  rs << "  assign " << wire::Names::AccessorWire(rn, &res, "addr")
+     << " = " << AddrSrc(res) << ";\n";
+  // Req.
+  string req = ReqSrc(res);
+  rs << "  " << storage << " " << req << ";\n";
+  rs << "  assign " << wire::Names::AccessorWire(rn, &res, "req")
+     << " = " << req << ";\n";
   const Table &tab = accessor.GetTable();
   ostream &is = tab.InitialValueSectionStream();
   if (gen_reg) {
-    is << "      " << SharedMemory::MemoryReqPin(*mem, &res) << " <= 0;\n";
+    is << "      " << req << " <= 0;\n";
   }
-  if (do_write && (!gen_reg || is_self_mem)) {
+  // WData and WEn.
+  if (do_write) {
+    string wdata = WDataSrc(res);
     rs << "  " << storage << " " << Table::WidthSpec(data_width)
-       << SharedMemory::MemoryWdataPin(*mem, 0, &res) << ";\n";
-    rs << "  " << storage << " "
-       << SharedMemory::MemoryWenPin(*mem, 0, &res) << ";\n";
+       << wdata << ";\n";
+    rs << "  assign " << wire::Names::AccessorWire(rn, &res, "wdata")
+       << " = " << wdata << ";\n";
+    string wen = WEnSrc(res);
+    rs << "  " << storage << " " << wen << ";\n";
+    rs << "  assign " << wire::Names::AccessorWire(rn, &res, "wen")
+       << " = " << wen << ";\n";
   }
-  // TODO: Output this only for read.
-  rs << "  reg " << Table::WidthSpec(data_width)
-     << SharedMemory::MemoryRdataBuf(*mem, &res) << ";\n";
+
+  auto *klass = res.GetClass();
+  if (!resource::IsSharedMemoryWriter(*klass)) {
+    rs << "  reg " << Table::WidthSpec(data_width)
+       << SharedMemory::MemoryRdataBuf(*mem, &res) << ";\n";
+  }
   ostream &ss = tab.StateOutputSectionStream();
   map<IState *, IInsn *> callers;
   accessor.CollectResourceCallers("", &callers);
+  string ack = wire::Names::AccessorWire(rn, &res, "ack");
   if (gen_reg) {
-    ss << "      " << SharedMemory::MemoryReqPin(*mem, &res) << " <= (";
+    ss << "      " << ReqSrc(res) << " <= (";
     if (callers.size() > 0) {
       ss << accessor.JoinStatesWithSubState(callers, 0)
-	 << ") && !" << SharedMemory::MemoryAckPin(*mem, &res)
+	 << ") && !" << ack
 	 << ";\n";
     } else {
       ss << "0);\n";
     }
   }
-  auto *klass = res.GetClass();
-  if (resource::IsSharedMemory(*klass)) {
-    is << "      " << SharedMemory::MemoryWenPin(*mem, 0, &res) << " <= 0;\n";
+
+  if (resource::IsSharedMemory(*klass) ||
+      resource::IsSharedMemoryWriter(*klass)) {
+    is << "      " << WEnSrc(res) << " <= 0;\n";
     map<IState *, IInsn *> writers;
-    for (auto it : callers) {
-      IInsn *insn = it.second;
-      if (insn->inputs_.size() == 2) {
-	writers[it.first] = it.second;
+    if (resource::IsSharedMemory(*klass)) {
+      for (auto it : callers) {
+	IInsn *insn = it.second;
+	if (insn->inputs_.size() == 2) {
+	  writers[it.first] = it.second;
+	}
       }
+    } else {
+      writers = callers;
     }
     string wen = accessor.JoinStatesWithSubState(writers, 0);
     if (wen.empty()) {
       wen = "0";
     }
-    ss << "      " << SharedMemory::MemoryWenPin(*mem, 0, &res) << " <= "
-       << wen << " && !" << SharedMemory::MemoryAckPin(*mem, &res) << ";\n";
+    ss << "      " << WEnSrc(res) << " <= "
+       << wen << " && !" << ack << ";\n";
   }
 }
 
@@ -115,24 +136,27 @@ void SharedMemoryAccessor::BuildAccessInsn(IInsn *insn, State *st,
     mem = res.GetParentResource();
   }
   os << I << "if (" << st_name << " == 0) begin\n";
-  os << I << "  " << SharedMemory::MemoryAddrPin(*mem, 0, &res) << " <= "
+  os << I << "  " << AddrSrc(res) << " <= "
      << InsnWriter::RegisterValue(*insn->inputs_[0], tab.GetNames())
      << ";\n";
   if (resource::IsSharedMemoryWriter(*klass) ||
       (resource::IsSharedMemory(*klass) &&
        insn->inputs_.size() == 2)) {
-    os << I << "  " << SharedMemory::MemoryWdataPin(*mem, 0, &res) << " <= "
+    os << I << "  " << WDataSrc(res) << " <= "
        << InsnWriter::RegisterValue(*insn->inputs_[1], tab.GetNames())
        << ";\n";
   }
-  os << I << "  if (" << SharedMemory::MemoryAckPin(*mem, &res) << ") begin\n"
+  string rn = SharedMemory::GetName(*mem);
+  string ack = wire::Names::AccessorWire(rn, &res, "ack");
+  string rdata = wire::Names::AccessorWire(rn, &res, "rdata");
+  os << I << "  if (" << ack << ") begin\n"
      << I << "    " << st_name << " <= 3;\n";
   if (resource::IsSharedMemoryReader(*klass) ||
       (resource::IsSharedMemory(*klass) &&
        insn->outputs_.size() == 1)) {
     os << I << "    "
        << SharedMemory::MemoryRdataBuf(*mem, &res)
-       << " <= " << SharedMemory::MemoryRdataPin(*mem, 0)
+       << " <= " << rdata
        << ";\n";
     ostream &ws = tab.InsnWireValueSectionStream();
     ws << "  assign " << InsnWriter::InsnOutputWireName(*insn, 0)
@@ -140,6 +164,37 @@ void SharedMemoryAccessor::BuildAccessInsn(IInsn *insn, State *st,
   }
   os << I << "  end\n";
   os << I << "end\n";
+}
+
+string SharedMemoryAccessor::AddrSrc(const IResource &res) {
+  return SrcName(res, "addr");
+}
+
+string SharedMemoryAccessor::ReqSrc(const IResource &res) {
+  return SrcName(res, "req");
+}
+
+string SharedMemoryAccessor::WDataSrc(const IResource &res) {
+  return SrcName(res, "wdata");
+}
+
+string SharedMemoryAccessor::WEnSrc(const IResource &res) {
+  return SrcName(res, "wen");
+}
+
+const IResource *SharedMemoryAccessor::GetMem(const IResource &accessor) {
+  const auto *mem = accessor.GetParentResource();
+  if (mem == nullptr) {
+    return &accessor;
+  }
+  return mem;
+}
+
+string SharedMemoryAccessor::SrcName(const IResource &accessor,
+				     const string &name) {
+  const auto *mem = GetMem(accessor);
+  string rn = SharedMemory::GetName(*mem);
+  return wire::Names::AccessorSignalBase(rn, &accessor, name.c_str()) + "_src";
 }
 
 }  // namespace verilog

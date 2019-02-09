@@ -7,6 +7,8 @@
 #include "writer/verilog/ports.h"
 #include "writer/verilog/table.h"
 #include "writer/verilog/shared_memory.h"
+#include "writer/verilog/shared_memory_accessor.h"
+#include "writer/verilog/wire/wire_set.h"
 
 namespace iroha {
 namespace writer {
@@ -22,31 +24,41 @@ void AxiPort::OutputSRAMConnection(ostream &os) {
   const string &clk = tab_.GetPorts()->GetClk();
   const string &rst = tab_.GetPorts()->GetReset();
   const IResource *mem = res_.GetParentResource();
+  string rn = SharedMemory::GetName(*mem);
   int idx = 0;
   int excl = 0;
   const IResource *accessor;
+  string addr, wdata, rdata, wen;
   if (IsExclusiveAccessor()) {
     idx = 1;
     excl = 1;
     accessor = nullptr;
+    // Directly connected to port 1 (of 0 and 1).
+    addr = SharedMemory::MemoryAddrPin(*mem, idx, accessor);
+    wdata = SharedMemory::MemoryWdataPin(*mem, idx, accessor);
+    rdata = SharedMemory::MemoryRdataPin(*mem, idx);
+    wen = SharedMemory::MemoryWenPin(*mem, idx, accessor);
   } else {
     accessor = &res_;
+    // Connection via WireSet.
+    addr = SharedMemoryAccessor::AddrSrc(res_);
+    wdata = SharedMemoryAccessor::WDataSrc(res_);
+    wen = SharedMemoryAccessor::WEnSrc(res_);
+    rdata = wire::Names::AccessorWire(rn, &res_, "rdata");
   }
   os << ".clk("<< clk << "), "
      << "." << AxiController::ResetName(reset_polarity_)
      << "(" << rst << "), "
-     << ".sram_addr(" << SharedMemory::MemoryAddrPin(*mem, idx, accessor)
-     << "), "
-     << ".sram_wdata(" << SharedMemory::MemoryWdataPin(*mem, idx, accessor)
-     << "), "
-     << ".sram_rdata(" << SharedMemory::MemoryRdataPin(*mem, idx) << "), "
-     << ".sram_wen(" << SharedMemory::MemoryWenPin(*mem, idx, accessor) << "), "
+     << ".sram_addr(" << addr << "), "
+     << ".sram_wdata(" << wdata << "), "
+     << ".sram_rdata(" << rdata << "), "
+     << ".sram_wen(" << wen << "), "
      << ".sram_EXCLUSIVE(1'b" << excl << ")";
   if (excl) {
     os << ", .sram_req(/*not connected*/), .sram_ack(1'b1)";
   } else {
-    os << ", .sram_req(" << SharedMemory::MemoryReqPin(*mem, accessor)
-       << "), .sram_ack(" << SharedMemory::MemoryAckPin(*mem, accessor)
+    os << ", .sram_req(" << wire::Names::AccessorWire(rn, &res_, "req")
+       << "), .sram_ack(" << wire::Names::AccessorWire(rn, &res_, "ack")
        << ")";
   }
 }

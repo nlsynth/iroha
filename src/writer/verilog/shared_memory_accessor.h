@@ -23,6 +23,15 @@ public:
   static void BuildMemoryAccessorResource(const Resource &accessor,
 					  bool do_write, bool gen_reg,
 					  const IResource *mem);
+
+  static string AddrSrc(const IResource &accessor);
+  static string ReqSrc(const IResource &accessor);
+  static string WDataSrc(const IResource &accessor);
+  static string WEnSrc(const IResource &accessor);
+
+private:
+  static const IResource *GetMem(const IResource &accessor);
+  static string SrcName(const IResource &accessor, const string &name);
 };
 
 }  // namespace verilog
