@@ -131,6 +131,7 @@ AccessorInfo *WireSet::AddAccessor(const IResource *accessor) {
 void WireSet::Build() {
   SignalDescription *req_desc = nullptr;
   SignalDescription *ack_desc = nullptr;
+  SignalDescription *notify_desc = nullptr;
   for (auto it : signal_desc_) {
     SignalDescription *desc = it.second;
     if (desc->type_ == AccessorSignalType::ACCESSOR_REQ) {
@@ -154,13 +155,16 @@ void WireSet::Build() {
     SignalDescription *desc = it.second;
     switch (desc->type_) {
     case AccessorSignalType::ACCESSOR_WRITE_ARG:
-      BuildWriteArg(*desc, *req_desc);
+      BuildWriteArg(*desc, req_desc, notify_desc);
       break;
     case AccessorSignalType::ACCESSOR_READ_ARG:
       BuildReadArg(*desc);
       break;
     case AccessorSignalType::ACCESSOR_NOTIFY_PARENT:
       BuildNotifyParent(*desc);
+      break;
+    case AccessorSignalType::ACCESSOR_NOTIFY_ACCESSOR:
+      BuildNotifyAccessor(*desc);
       break;
     default:
       break;
@@ -170,19 +174,37 @@ void WireSet::Build() {
 }
 
 void WireSet::BuildWriteArg(const SignalDescription &arg_desc,
-			    const SignalDescription &req_desc) {
+			    const SignalDescription *req_desc,
+			    const SignalDescription *notify_desc) {
   const Table &tab = res_.GetTable();
   ostream &rs = tab.ResourceSectionStream();
   rs << "  assign " << ResourceWireName(arg_desc) << " = ";
   // wire names of write_arg, req
   vector<pair<string, string> > pins;
+  vector<pair<string, string> > notify_pins;
   for (AccessorInfo *ac : accessors_) {
-    AccessorSignal *rsig = ac->FindSignal(req_desc);
     AccessorSignal *warg = ac->FindSignal(arg_desc);
-    if (rsig == nullptr || warg == nullptr) {
+    if (warg == nullptr) {
       continue;
     }
-    pins.push_back(make_pair(AccessorWireName(*warg), AccessorWireName(*rsig)));
+    if (req_desc != nullptr) {
+      AccessorSignal *rsig = ac->FindSignal(*req_desc);
+      if (rsig != nullptr) {
+	pins.push_back(make_pair(AccessorWireName(*warg),
+				 AccessorWireName(*rsig)));
+      }
+    }
+    if (notify_desc != nullptr) {
+      AccessorSignal *nsig = ac->FindSignal(*notify_desc);
+      if (nsig != nullptr) {
+	pins.push_back(make_pair(AccessorWireName(*warg),
+				 AccessorWireName(*nsig)));
+      }
+    }
+  }
+  // Order: Req based writes -> Notify based writes.
+  for (auto &p : notify_pins) {
+    pins.push_back(p);
   }
   // reverse order.
   string s;
@@ -199,14 +221,19 @@ void WireSet::BuildWriteArg(const SignalDescription &arg_desc,
 void WireSet::BuildReadArg(const SignalDescription &arg_desc) {
   const Table &tab = res_.GetTable();
   ostream &rs = tab.ResourceSectionStream();
+  string rwire = ResourceWireName(arg_desc);
   for (AccessorInfo *ac : accessors_) {
     AccessorSignal *rsig = ac->FindSignal(arg_desc);
     if (rsig == nullptr) {
       continue;
     }
     rs << "  assign " << AccessorWireName(*rsig)
-       << " = " << ResourceWireName(arg_desc) << ";\n";
+       << " = " << rwire << ";\n";
   }
+}
+
+void WireSet::BuildNotifyAccessor(const SignalDescription &desc) {
+  BuildReadArg(desc);
 }
 
 void WireSet::BuildNotifyParent(const SignalDescription &desc) {
@@ -244,7 +271,8 @@ void WireSet::BuildAccessorWire(const SignalDescription &desc) {
   bool driven_by_reg = false;
   auto type = desc.type_;
   if (type == AccessorSignalType::ACCESSOR_REQ ||
-      type == AccessorSignalType::ACCESSOR_WRITE_ARG) {
+      type == AccessorSignalType::ACCESSOR_WRITE_ARG ||
+      type == AccessorSignalType::ACCESSOR_NOTIFY_PARENT) {
     from_parent = false;
   }
   for (auto *ac : accessors_sigs) {

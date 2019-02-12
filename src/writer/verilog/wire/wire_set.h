@@ -94,9 +94,11 @@ private:
 			const SignalDescription &asig_desc,
 			vector<AccessorInfo *> &handshake_accessors);
   void BuildWriteArg(const SignalDescription &arg_desc,
-		     const SignalDescription &req_desc);
+		     const SignalDescription *req_desc,
+		     const SignalDescription *notify_desc);
   void BuildReadArg(const SignalDescription &arg_desc);
   void BuildNotifyParent(const SignalDescription &desc);
+  void BuildNotifyAccessor(const SignalDescription &desc);
   string ResourceWireName(const SignalDescription &desc);
   string AccessorWireName(const AccessorSignal &sig);
   string AccessorWireNameWithReg(const AccessorSignal &sig);
