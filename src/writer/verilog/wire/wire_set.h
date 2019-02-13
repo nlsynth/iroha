@@ -32,6 +32,7 @@ enum AccessorSignalType : int {
   ACCESSOR_READ_ARG,
   ACCESSOR_WRITE_ARG,
   ACCESSOR_NOTIFY_PARENT,
+  ACCESSOR_NOTIFY_PARENT_SECONDARY,
   ACCESSOR_NOTIFY_ACCESSOR,
 };
 
@@ -95,7 +96,8 @@ private:
 			vector<AccessorInfo *> &handshake_accessors);
   void BuildWriteArg(const SignalDescription &arg_desc,
 		     const SignalDescription *req_desc,
-		     const SignalDescription *notify_desc);
+		     const SignalDescription *notify_desc,
+		     const SignalDescription *notify_secondary_desc);
   void BuildReadArg(const SignalDescription &arg_desc);
   void BuildNotifyParent(const SignalDescription &desc);
   void BuildNotifyAccessor(const SignalDescription &desc);
