@@ -13,6 +13,7 @@
 #include "writer/verilog/state.h"
 #include "writer/verilog/table.h"
 #include "writer/verilog/shared_reg.h"
+#include "writer/verilog/wire/wire_set.h"
 
 namespace iroha {
 namespace writer {
@@ -71,16 +72,17 @@ void SharedRegAccessor::BuildSharedRegReaderResource() {
 }
 
 void SharedRegAccessor::BuildSharedRegWriterResource() {
+  string wrn = GetName();
   ostream &rs = tab_.ResourceSectionStream();
   rs << "  // shared-reg-writer\n";
   ostream &rvs = tab_.ResourceValueSectionStream();
   // Write en signal.
   map<IState *, IInsn *> callers;
   CollectResourceCallers("*", &callers);
-  rvs << "  assign " << SharedReg::WriterEnName(res_) << " = ";
+  rvs << "  assign " << wire::Names::AccessorWire(wrn, &res_, "wen") << " = ";
   WriteStateUnion(callers, rvs);
   rvs << ";\n";
-  rvs << "  assign " << SharedReg::WriterName(res_) << " = ";
+  rvs << "  assign " << wire::Names::AccessorWire(wrn, &res_, "w") << " = ";
   string v;
   for (auto &p : callers) {
     if (v.empty()) {
@@ -95,14 +97,16 @@ void SharedRegAccessor::BuildSharedRegWriterResource() {
   if (UseNotify(&res_)) {
     map<IState *, IInsn *> notifiers;
     CollectResourceCallers(operand::kNotify, &notifiers);
-    rvs << "  assign " << SharedReg::WriterNotifierName(res_) << " = ";
+    rvs << "  assign " << wire::Names::AccessorWire(wrn, &res_, "notify")
+	<< " = ";
     WriteStateUnion(notifiers, rvs);
     rvs << ";\n";
   }
   if (UseMailbox(&res_)) {
     map<IState *, IInsn *> putters;
     CollectResourceCallers(operand::kPutMailbox, &putters);
-    rvs << "  assign " << SharedReg::RegMailboxPutReqName(res_) << " = "
+    rvs << "  assign " << wire::Names::AccessorWire(wrn, &res_, "put_req")
+	<< " = "
 	<< JoinStatesWithSubState(putters, 0) << ";\n";
   }
 }
@@ -208,9 +212,11 @@ void SharedRegAccessor::BuildWriteInsn(IInsn *insn, State *st) {
     static const char I[] = "          ";
     string insn_st = InsnWriter::MultiCycleStateName(res_);
     ostream &os = st->StateBodySectionStream();
+    string wrn = GetName();
     os << I << "// Wait put mailbox\n"
        << I << "if (" << insn_st << " == 0) begin\n"
-       << I << "  if (" << SharedReg::RegMailboxPutAckName(res_) << ") begin\n"
+       << I << "  if (" << wire::Names::AccessorWire(wrn, &res_, "put_ack")
+       << ") begin\n"
        << I << "    " << insn_st << " <= 3;\n"
        << I << "  end\n"
        << I << "end\n";  }
@@ -226,6 +232,12 @@ bool SharedRegAccessor::UseMailbox(const IResource *accessor) {
   bool n, s;
   GetAccessorFeatures(accessor, &n, &s);
   return s;
+}
+
+string SharedRegAccessor::GetName() {
+  auto *klass = res_.GetClass();
+  return SharedReg::GetNameRW(*(res_.GetParentResource()),
+			      resource::IsSharedRegWriter(*klass));
 }
 
 }  // namespace verilog

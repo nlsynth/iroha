@@ -26,6 +26,8 @@ private:
   void BuildReadInsn(IInsn *insn, State *st);
   void BuildWriteInsn(IInsn *insn, State *st);
 
+  string GetName();
+
   int width_;
 };
 

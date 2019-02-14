@@ -157,7 +157,9 @@ void WireSet::Build() {
     BuildAccessorWire(*desc);
   }
   BuildResourceWire();
-  BuildArbitration(*req_desc, *ack_desc);
+  if (req_desc != nullptr && ack_desc != nullptr) {
+    BuildArbitration(*req_desc, *ack_desc);
+  }
   for (auto it : signal_desc_) {
     SignalDescription *desc = it.second;
     switch (desc->type_) {

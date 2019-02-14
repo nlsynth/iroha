@@ -15,7 +15,11 @@ public:
   virtual void BuildResource() override;
   virtual void BuildInsn(IInsn *insn, State *st) override;
 
+  // Actual storage (reg).
   static string RegName(const IResource &reg);
+  // Resource name.
+  static string GetName(const IResource &reg);
+  static string GetNameRW(const IResource &reg, bool is_write);
   static string WriterName(const IResource &writer);
   static string WriterEnName(const IResource &writer);
   // Notifier
@@ -34,6 +38,8 @@ public:
 
 private:
   void BuildAccessorWire();
+  void BuildAccessorWireR();
+  void BuildAccessorWireW();
   void GetOptions(bool *use_notify, bool *use_mailbox);
   void BuildMailbox();
 
