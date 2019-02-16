@@ -54,6 +54,7 @@ void SharedRegAccessor::BuildInsn(IInsn *insn, State *st) {
 }
 
 void SharedRegAccessor::BuildSharedRegReaderResource() {
+  string rrn = GetName();
   ostream &rs = tab_.ResourceSectionStream();
   rs << "  // shared-reg-reader\n";
   ostream &rvs = tab_.ResourceValueSectionStream();
@@ -61,7 +62,8 @@ void SharedRegAccessor::BuildSharedRegReaderResource() {
   if (UseMailbox(&res_)) {
     map<IState *, IInsn *> getters;
     CollectResourceCallers(operand::kGetMailbox, &getters);
-    rvs << "  assign " << SharedReg::RegMailboxGetReqName(res_) << " = "
+    rvs << "  assign " << wire::Names::AccessorWire(rrn, &res_, "get_req")
+	<< " = "
 	<< JoinStatesWithSubState(getters, 0) << ";\n";
   }
   if (UseMailbox(&res_) || UseNotify(&res_)) {
@@ -102,6 +104,7 @@ void SharedRegAccessor::BuildSharedRegWriterResource() {
     WriteStateUnion(notifiers, rvs);
     rvs << ";\n";
   }
+  // write mailbox req signal.
   if (UseMailbox(&res_)) {
     map<IState *, IInsn *> putters;
     CollectResourceCallers(operand::kPutMailbox, &putters);
@@ -139,6 +142,7 @@ void SharedRegAccessor::GetAccessorFeatures(const IResource *accessor,
 
 void SharedRegAccessor::BuildReadInsn(IInsn *insn, State *st) {
   IResource *source = res_.GetParentResource();
+  string rrn = GetName();
   ostream &ws = tab_.InsnWireValueSectionStream();
   int s = 0;
   for (int i = 0; i < insn->outputs_.size(); ++i) {
@@ -165,22 +169,25 @@ void SharedRegAccessor::BuildReadInsn(IInsn *insn, State *st) {
   static const char I[] = "          ";
   string insn_st = InsnWriter::MultiCycleStateName(*(insn->GetResource()));
   ostream &os = st->StateBodySectionStream();
+  string rwire = wire::Names::AccessorWire(rrn, &res_, "r");
   if (insn->GetOperand() == operand::kWaitNotify) {
+    string notify = wire::Names::AccessorWire(rrn, &res_, "notify");
     os << I << "// Wait notify\n"
        << I << "if (" << insn_st << " == 0) begin\n"
-       << I << "  if (" << SharedReg::RegNotifierName(*source) << ") begin\n"
+       << I << "  if (" << notify << ") begin\n"
        << I << "    " << SharedReg::RegMailboxBufName(res_) << " <= "
-       << SharedReg::RegName(*source) << ";\n"
+       << rwire << ";\n"
        << I << "    " << insn_st << " <= 3;\n"
        << I << "  end\n"
        << I << "end\n";
   }
   if (insn->GetOperand() == operand::kGetMailbox) {
+    string ack = wire::Names::AccessorWire(rrn, &res_, "get_ack");
     os << I << "// Wait get mailbox\n"
        << I << "if (" << insn_st << " == 0) begin\n"
-       << I << "  if (" << SharedReg::RegMailboxGetAckName(res_) << ") begin\n"
+       << I << "  if (" << ack << ") begin\n"
        << I << "    " << SharedReg::RegMailboxBufName(res_) << " <= "
-       << SharedReg::RegName(*source) << ";\n"
+       << rwire << ";\n"
        << I << "    " << insn_st << " <= 3;\n"
        << I << "  end\n"
        << I << "end\n";

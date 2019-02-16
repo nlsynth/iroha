@@ -17,27 +17,19 @@ public:
 
   // Actual storage (reg).
   static string RegName(const IResource &reg);
+  // Notifier
+  static string RegNotifierName(const IResource &reg);
   // Resource name.
   static string GetName(const IResource &reg);
   static string GetNameRW(const IResource &reg, bool is_write);
-  static string WriterName(const IResource &writer);
-  static string WriterEnName(const IResource &writer);
-  // Notifier
-  //  notification wire to readers
-  static string RegNotifierName(const IResource &reg);
-  //  notification from each writer
-  static string WriterNotifierName(const IResource &writer);
   // Mailbox
   static string RegMailboxName(const IResource &reg);
-  static string RegMailboxPutReqName(const IResource &writer);
   static string RegMailboxPutAckName(const IResource &writer);
-  static string RegMailboxGetReqName(const IResource &reader);
   static string RegMailboxGetAckName(const IResource &reader);
   // Either notifier or mailbox.
   static string RegMailboxBufName(const IResource &reader);
 
 private:
-  void BuildAccessorWire();
   void BuildAccessorWireR();
   void BuildAccessorWireW();
   void GetOptions(bool *use_notify, bool *use_mailbox);
