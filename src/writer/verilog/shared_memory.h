@@ -25,6 +25,7 @@ public:
 			       const IResource *accessor);
   static string MemoryWenPin(const IResource &res, int nth_port,
 			     const IResource *accessor);
+  static string MemoryWenReg(const IResource &res, int nth_port);
   // Buffer to capture the rdata by readers.
   // (the data may change if other readers start reading).
   static string MemoryRdataBuf(const IResource &res, const IResource *accessor);

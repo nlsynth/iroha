@@ -96,15 +96,29 @@ void SharedMemory::BuildMemoryInstance() {
   string addr_wire = wire::Names::ResourceWire(rn, "addr");
   string rdata_wire = wire::Names::ResourceWire(rn, "rdata");
   string wdata_wire = wire::Names::ResourceWire(rn, "wdata");
-  // TODO: WEn is generated unnecessarily long.
+  // Deassert wen in the ack cycle.
+  // Asserting Wen 2 cycles might not cause any problems, but
+  // avoiding this to make waveforms clean.
   string wen_wire = wire::Names::ResourceWire(rn, "wen");
+  ostream &rs = tab_.ResourceSectionStream();
+  string wen = MemoryWenPin(res_, 0, nullptr);
+  string wen_reg = MemoryWenReg(res_, 0);
+  rs << "  wire " << wen << ";\n"
+     << "  reg " << wen_reg << ";\n";
+  ostream &is = tab_.InitialValueSectionStream();
+  is << "      " << wen_reg << " <= 0;\n";
+  ostream &ss = tab_.StateOutputSectionStream();
+  ss << "      " << wen_reg << " <= " << wen << ";\n";
+  ostream &rvs = tab_.ResourceValueSectionStream();
+  rvs << "  assign " << wen << " = "
+      << wen_wire << " && !" << wen_reg << ";\n";
   es << "  " << name << " " << inst << "("
      << ".clk(" << ports->GetClk() << ")"
      << ", ." << sram->GetResetPinName() << "(" << ports->GetReset() << ")"
      << ", ." << sram->GetAddrPin(0) << "(" << addr_wire << ")"
      << ", ." << sram->GetRdataPin(0) <<"(" << rdata_wire << ")"
      << ", ." << sram->GetWdataPin(0) <<"(" << wdata_wire << ")"
-     << ", ." << sram->GetWenPin(0) <<"(" << wen_wire << ")";
+     << ", ." << sram->GetWenPin(0) <<"(" << wen << ")";
   if (num_ports == 2) {
     // AXI controller connects to port 1.
     es << ", ." << sram->GetAddrPin(1) << "("
@@ -117,7 +131,6 @@ void SharedMemory::BuildMemoryInstance() {
        << MemoryWenPin(res_, 1, nullptr) << ")";
   }
   es <<");\n";
-  ostream &rs = tab_.ResourceSectionStream();
   if (num_ports == 2) {
     rs << "  wire " << sram->AddressWidthSpec() << " "
        << MemoryAddrPin(res_, 1, nullptr) << ";\n";
@@ -210,6 +223,11 @@ string SharedMemory::MemoryWenPin(const IResource &res,
 				  const IResource *accessor) {
   return MemoryPinPrefix(res, accessor) +
     "_p" + Util::Itoa(nth_port) + "_wen";
+}
+
+string SharedMemory::MemoryWenReg(const IResource &res, int nth_port) {
+  return MemoryPinPrefix(res, nullptr) +
+    "_p" + Util::Itoa(nth_port) + "_wen_reg";
 }
 
 }  // namespace verilog
