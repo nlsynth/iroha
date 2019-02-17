@@ -84,7 +84,7 @@ string Names::ResourceWire(const string &resource_name, const char *name) {
 }
 
 AccessorInfo::AccessorInfo(WireSet *wire_set, const IResource *accessor)
-  : wire_set_(wire_set), accessor_(accessor) {
+  : wire_set_(wire_set), accessor_(accessor), distance_(0) {
 }
 
 AccessorInfo::~AccessorInfo() {
@@ -111,6 +111,14 @@ AccessorSignal *AccessorInfo::FindSignal(const SignalDescription &desc) {
     }
   }
   return nullptr;
+}
+
+void AccessorInfo::SetDistance(int distance) {
+  distance_ = distance;
+}
+
+int AccessorInfo::GetDistance() const {
+  return distance_;
 }
 
 WireSet::WireSet(Resource &res, const string &resource_name)

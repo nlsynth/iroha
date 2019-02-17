@@ -3,6 +3,7 @@
 #include "iroha/i_design.h"
 #include "iroha/logging.h"
 #include "iroha/resource_class.h"
+#include "iroha/resource_params.h"
 #include "writer/connection.h"
 #include "writer/module_template.h"
 #include "writer/verilog/embed.h"
@@ -150,6 +151,7 @@ void SharedMemory::BuildAccessWireAll(vector<const IResource *> &accessors) {
   for (auto *accessor : accessors) {
     auto *klass = accessor->GetClass();
     wire::AccessorInfo *ainfo = ws.AddAccessor(accessor);
+    ainfo->SetDistance(accessor->GetParams()->GetDistance());
     ainfo->AddSignal("addr", wire::AccessorSignalType::ACCESSOR_WRITE_ARG,
 		     aw);
     ainfo->AddSignal("req", wire::AccessorSignalType::ACCESSOR_REQ, 0);

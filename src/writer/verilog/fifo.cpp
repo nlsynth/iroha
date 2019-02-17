@@ -109,6 +109,7 @@ void Fifo::BuildWriterConnections() {
   int dw = res_.GetParams()->GetWidth();
   for (auto *writer : writers) {
     wire::AccessorInfo *ainfo = ws.AddAccessor(writer);
+    ainfo->SetDistance(writer->GetParams()->GetDistance());
     ainfo->AddSignal("wreq", wire::AccessorSignalType::ACCESSOR_REQ, 0);
     ainfo->AddSignal("wack", wire::AccessorSignalType::ACCESSOR_ACK, 0);
     ainfo->AddSignal("wdata", wire::AccessorSignalType::ACCESSOR_WRITE_ARG, dw);
@@ -127,6 +128,7 @@ void Fifo::BuildReaderConnections() {
   int dw = res_.GetParams()->GetWidth();
   for (auto *reader : readers) {
     wire::AccessorInfo *ainfo = ws.AddAccessor(reader);
+    ainfo->SetDistance(reader->GetParams()->GetDistance());
     ainfo->AddSignal("rreq", wire::AccessorSignalType::ACCESSOR_REQ, 0);
     ainfo->AddSignal("rack", wire::AccessorSignalType::ACCESSOR_ACK, 0);
     ainfo->AddSignal("rdata", wire::AccessorSignalType::ACCESSOR_READ_ARG, dw);

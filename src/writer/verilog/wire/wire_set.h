@@ -64,12 +64,15 @@ public:
   void AddSignal(const string &name, AccessorSignalType type, int width);
   const vector<AccessorSignal *> &GetSignals();
   AccessorSignal *FindSignal(const SignalDescription &desc);
+  void SetDistance(int distance);
+  int GetDistance() const;
 
 private:
   WireSet *wire_set_;
   const IResource *accessor_;
   string accessor_name_;
   vector<AccessorSignal *> accessor_signals_;
+  int distance_;
 };
 
 class WireSet {

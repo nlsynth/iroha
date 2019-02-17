@@ -240,6 +240,7 @@ void SharedReg::BuildAccessorWireR() {
   int dw = res_.GetParams()->GetWidth();
   for (auto *reader : readers) {
     wire::AccessorInfo *ainfo = ws.AddAccessor(reader);
+    ainfo->SetDistance(reader->GetParams()->GetDistance());
     ainfo->AddSignal("r", wire::AccessorSignalType::ACCESSOR_READ_ARG, dw);
     if (SharedRegAccessor::UseNotify(reader)) {
       ainfo->AddSignal("notify",
@@ -260,6 +261,7 @@ void SharedReg::BuildAccessorWireW() {
   int dw = res_.GetParams()->GetWidth();
   for (auto *writer : writers) {
     wire::AccessorInfo *ainfo = ws.AddAccessor(writer);
+    ainfo->SetDistance(writer->GetParams()->GetDistance());
     ainfo->AddSignal("w", wire::AccessorSignalType::ACCESSOR_WRITE_ARG, dw);
     ainfo->AddSignal("wen",
 		     wire::AccessorSignalType::ACCESSOR_NOTIFY_PARENT, 0);

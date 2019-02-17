@@ -4,6 +4,7 @@
 #include "iroha/i_design.h"
 #include "iroha/logging.h"
 #include "iroha/resource_class.h"
+#include "iroha/resource_params.h"
 #include "writer/connection.h"
 #include "writer/module_template.h"
 #include "writer/verilog/insn_writer.h"
@@ -128,6 +129,7 @@ void Task::BuildWireSet() {
   wire::WireSet ws(*this, TaskPinPrefix(*(tab_.GetITable()), nullptr));
   for (auto *accessor : callers) {
     wire::AccessorInfo *ainfo = ws.AddAccessor(accessor);
+    ainfo->SetDistance(accessor->GetParams()->GetDistance());
     ainfo->AddSignal("en", wire::AccessorSignalType::ACCESSOR_REQ, 0);
     ainfo->AddSignal("ack", wire::AccessorSignalType::ACCESSOR_ACK, 0);
     for (int i = 0; i < res_.output_types_.size(); ++i) {
