@@ -3,6 +3,8 @@
 #define _writer_verilog_wire_wire_set_h_
 
 #include "writer/verilog/common.h"
+// For convenience.
+#include "writer/verilog/wire/names.h"
 
 #include <map>
 
@@ -10,21 +12,6 @@ namespace iroha {
 namespace writer {
 namespace verilog {
 namespace wire {
-
-class Names {
-public:
-  static string AccessorName(const string &resource_name,
-			     const IResource *res);
-  static string AccessorResourceName(const IResource *res);
-  static string AccessorSignalBase(const string &resource_name,
-				   const IResource *res, const char *name);
-  static string AccessorWire(const string &resource_name, const IResource *res,
-			     const char *name);
-
-  static string ResourceSignalBase(const string &resource_name,
-				   const char *name);
-  static string ResourceWire(const string &resource_name, const char *name);
-};
 
 enum AccessorSignalType : int {
   ACCESSOR_REQ,

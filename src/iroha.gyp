@@ -289,6 +289,8 @@
         'writer/verilog/verilog_writer.h',
         'writer/verilog/wire/inter_module_wire.cpp',
         'writer/verilog/wire/inter_module_wire.h',
+        'writer/verilog/wire/names.cpp',
+        'writer/verilog/wire/names.h',
         'writer/verilog/wire/wire_set.cpp',
         'writer/verilog/wire/wire_set.h',
       ],

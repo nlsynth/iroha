@@ -9,7 +9,7 @@
 #include "writer/verilog/table.h"
 #include "writer/verilog/wire/inter_module_wire.h"
 
-// WIP: Unified interconnect wiring system for
+// Unified interconnect wiring system for
 // shared_memory, shared_reg, fifo, task (and study)
 // This handles:
 //  * Handshake between accessors and a parent.
@@ -42,46 +42,6 @@ namespace iroha {
 namespace writer {
 namespace verilog {
 namespace wire {
-
-string Names::AccessorName(const string &resource_name, const IResource *res) {
-  if (res == nullptr) {
-    return resource_name;
-  }
-  return resource_name + "_" + AccessorResourceName(res);
-}
-
-string Names::AccessorResourceName(const IResource *res) {
-  if (res == nullptr) {
-    return "";
-  }
-  ITable *tab = res->GetTable();
-  IModule *mod = tab->GetModule();
-  return Util::Itoa(mod->GetId()) + "_" + Util::Itoa(tab->GetId()) + "_"
-    + Util::Itoa(res->GetId());
-}
-
-string Names::AccessorSignalBase(const string &resource_name,
-				 const IResource *res, const char *name) {
-  string s = AccessorName(resource_name, res);
-  if (name != nullptr) {
-    s += "_" + string(name);
-  }
-  return s;
-}
-
-string Names::AccessorWire(const string &resource_name, const IResource *res,
-			   const char *name) {
-  return AccessorSignalBase(resource_name, res, name) + "_wire";
-}
-
-string Names::ResourceSignalBase(const string &resource_name,
-				 const char *name) {
-  return AccessorSignalBase(resource_name, nullptr, name);
-}
-
-string Names::ResourceWire(const string &resource_name, const char *name) {
-  return ResourceSignalBase(resource_name, name) + "_wire";
-}
 
 AccessorInfo::AccessorInfo(WireSet *wire_set, const IResource *accessor)
   : wire_set_(wire_set), accessor_(accessor), distance_(0) {
