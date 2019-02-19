@@ -259,7 +259,6 @@ void WireSet::BuildAccessorWire(const SignalDescription &desc) {
   }
   InterModuleWire wire(res_);
   bool from_parent = true;
-  bool driven_by_reg = false;
   auto type = desc.type_;
   if (type == AccessorSignalType::ACCESSOR_REQ ||
       type == AccessorSignalType::ACCESSOR_WRITE_ARG ||
@@ -269,7 +268,7 @@ void WireSet::BuildAccessorWire(const SignalDescription &desc) {
   for (auto *ac : accessors_sigs) {
     string name = AccessorWireName(*ac);
     wire.AddWire(*ac->accessor_res_, name, ac->sig_desc_->width_,
-		 from_parent, driven_by_reg);
+		 from_parent);
   }
 }
 
