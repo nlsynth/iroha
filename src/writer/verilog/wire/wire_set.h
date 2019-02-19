@@ -93,6 +93,7 @@ private:
   void BuildNotifyAccessor(const SignalDescription &desc);
   string ResourceWireName(const SignalDescription &desc);
   string AccessorWireName(const AccessorSignal &sig);
+  string AccessorEdgeWireName(const AccessorSignal &sig);
   string AccessorWireNameWithReg(const AccessorSignal &sig);
 
   Resource &res_;

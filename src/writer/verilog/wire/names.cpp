@@ -38,6 +38,13 @@ string Names::AccessorWire(const string &resource_name, const IResource *res,
   return AccessorSignalBase(resource_name, res, name) + "_wire";
 }
 
+string Names::AccessorEdgeWire(const string &resource_name,
+			       const IResource *res,
+			       const char *name) {
+  // Same as AccessorWire for now.
+  return AccessorSignalBase(resource_name, res, name) + "_wire";
+}
+
 string Names::ResourceSignalBase(const string &resource_name,
 				 const char *name) {
   return AccessorSignalBase(resource_name, nullptr, name);

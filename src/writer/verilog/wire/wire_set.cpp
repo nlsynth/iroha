@@ -34,6 +34,7 @@
 // parent: {prefix}_{parent}_{name}
 //
 // accessor resource -> accessor wire -> delay registers
+//  -> accesor edge wire (WIP)
 //  -> arbitration/handshake logic
 //  -> resource wire -> parent resource
 
@@ -170,22 +171,22 @@ void WireSet::BuildWriteArg(const SignalDescription &arg_desc,
     if (req_desc != nullptr) {
       AccessorSignal *rsig = ac->FindSignal(*req_desc);
       if (rsig != nullptr) {
-	pins.push_back(make_pair(AccessorWireName(*warg),
-				 AccessorWireName(*rsig)));
+	pins.push_back(make_pair(AccessorEdgeWireName(*warg),
+				 AccessorEdgeWireName(*rsig)));
       }
     }
     if (notify_desc != nullptr) {
       AccessorSignal *nsig = ac->FindSignal(*notify_desc);
       if (nsig != nullptr) {
-	notify_pins.push_back(make_pair(AccessorWireName(*warg),
-					AccessorWireName(*nsig)));
+	notify_pins.push_back(make_pair(AccessorEdgeWireName(*warg),
+					AccessorEdgeWireName(*nsig)));
       }
     }
     if (notify_secondary_desc != nullptr) {
       AccessorSignal *nsig = ac->FindSignal(*notify_secondary_desc);
       if (nsig != nullptr) {
-	notify_secondary_pins.push_back(make_pair(AccessorWireName(*warg),
-						  AccessorWireName(*nsig)));
+	notify_secondary_pins.push_back(make_pair(AccessorEdgeWireName(*warg),
+						  AccessorEdgeWireName(*nsig)));
       }
     }
   }
@@ -218,7 +219,7 @@ void WireSet::BuildReadArg(const SignalDescription &arg_desc) {
     if (rsig == nullptr) {
       continue;
     }
-    rs << "  assign " << AccessorWireName(*rsig)
+    rs << "  assign " << AccessorEdgeWireName(*rsig)
        << " = " << rwire << ";\n";
   }
 }
@@ -234,7 +235,7 @@ void WireSet::BuildNotifyParent(const SignalDescription &desc) {
     if (sig == nullptr) {
       continue;
     }
-    wires.push_back(AccessorWireName(*sig));
+    wires.push_back(AccessorEdgeWireName(*sig));
   }
   const Table &tab = res_.GetTable();
   ostream &rs = tab.ResourceSectionStream();
@@ -293,6 +294,11 @@ string WireSet::AccessorWireName(const AccessorSignal &sig) {
 			     sig.sig_desc_->name_.c_str());
 }
 
+string WireSet::AccessorEdgeWireName(const AccessorSignal &sig) {
+  return Names::AccessorEdgeWire(resource_name_, sig.accessor_res_,
+				 sig.sig_desc_->name_.c_str());
+}
+
 string WireSet::AccessorWireNameWithReg(const AccessorSignal &sig) {
   return Names::AccessorSignalBase(resource_name_, sig.accessor_res_,
 				   sig.sig_desc_->name_.c_str()) + "_reg";
@@ -319,7 +325,7 @@ void WireSet::BuildArbitration(const SignalDescription &req_desc,
   vector<string> req_sigs;
   for (auto *ac : handshake_accessors) {
     AccessorSignal *rsig = ac->FindSignal(req_desc);
-    req_sigs.push_back(AccessorWireName(*rsig));
+    req_sigs.push_back(AccessorEdgeWireName(*rsig));
   }
   rs << "  assign " << ResourceWireName(req_desc) << " = "
      << Util::Join(req_sigs, " | ") << ";\n";
@@ -337,9 +343,9 @@ void WireSet::BuildAccessorAck(const SignalDescription &req_desc,
   for (auto *ac : handshake_accessors) {
     AccessorSignal *asig = ac->FindSignal(ack_desc);
     AccessorSignal *rsig = ac->FindSignal(req_desc);
-    string req = AccessorWireName(*rsig);
+    string req = AccessorEdgeWireName(*rsig);
     // ack = resource_ack & req & !(req from higher accessors).
-    rs << "  assign " << AccessorWireName(*asig) << " = "
+    rs << "  assign " << AccessorEdgeWireName(*asig) << " = "
        << resource_ack << " & " << req;
     if (high_reqs.size() > 0) {
       rs << " & !(" <<  Util::Join(high_reqs, " | ") << ")";
@@ -358,7 +364,7 @@ void WireSet::BuildRegisteredReq(const SignalDescription &req_desc,
   for (auto *ac : handshake_accessors) {
     AccessorSignal *rsig = ac->FindSignal(req_desc);
     string reg = AccessorWireNameWithReg(*rsig);
-    string wire = AccessorWireName(*rsig);
+    string wire = AccessorEdgeWireName(*rsig);
     rs << "  reg " << reg << ";\n";
     initial += "      " + reg + " <= 0;\n";
     body += "      " + reg + " <= " + wire + ";\n";
