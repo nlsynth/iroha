@@ -29,6 +29,8 @@ public:
   string name_;
   AccessorSignalType type_;
   int width_;
+
+  bool IsUpstream() const;
 };
 
 class AccessorInfo;
@@ -71,12 +73,17 @@ public:
   SignalDescription *GetSignalDescription(const string &name,
 					  AccessorSignalType type, int width);
   string GetResourceName() const;
+  Resource &GetResource() const;
 
   void Build();
+
+  string AccessorWireName(const AccessorSignal &sig);
+  string AccessorEdgeWireName(const AccessorSignal &sig);
 
 private:
   void BuildAccessorWire(const SignalDescription &desc);
   void BuildResourceWire();
+  void BuildDistanceRegs();
   void BuildArbitration(const SignalDescription &req_desc,
 			const SignalDescription &ack_desc);
   void BuildRegisteredReq(const SignalDescription &req_desc,
@@ -92,8 +99,6 @@ private:
   void BuildNotifyParent(const SignalDescription &desc);
   void BuildNotifyAccessor(const SignalDescription &desc);
   string ResourceWireName(const SignalDescription &desc);
-  string AccessorWireName(const AccessorSignal &sig);
-  string AccessorEdgeWireName(const AccessorSignal &sig);
   string AccessorWireNameWithReg(const AccessorSignal &sig);
 
   Resource &res_;

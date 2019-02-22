@@ -287,6 +287,8 @@
         'writer/verilog/ticker.h',
         'writer/verilog/verilog_writer.cpp',
         'writer/verilog/verilog_writer.h',
+        'writer/verilog/wire/distance_regs.cpp',
+        'writer/verilog/wire/distance_regs.h',
         'writer/verilog/wire/inter_module_wire.cpp',
         'writer/verilog/wire/inter_module_wire.h',
         'writer/verilog/wire/names.cpp',

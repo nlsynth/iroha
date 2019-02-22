@@ -7,6 +7,7 @@
 #include "writer/verilog/module.h"
 #include "writer/verilog/resource.h"
 #include "writer/verilog/table.h"
+#include "writer/verilog/wire/distance_regs.h"
 #include "writer/verilog/wire/inter_module_wire.h"
 
 // Unified interconnect wiring system for
@@ -43,6 +44,19 @@ namespace iroha {
 namespace writer {
 namespace verilog {
 namespace wire {
+
+bool SignalDescription::IsUpstream() const {
+  switch (type_) {
+  case ACCESSOR_REQ: return true;
+  case ACCESSOR_ACK: return false;
+  case ACCESSOR_READ_ARG: return false;
+  case ACCESSOR_WRITE_ARG:return true;
+  case ACCESSOR_NOTIFY_PARENT: return true;
+  case ACCESSOR_NOTIFY_PARENT_SECONDARY: return true;
+  case ACCESSOR_NOTIFY_ACCESSOR: return false;
+  }
+  return false;
+}
 
 AccessorInfo::AccessorInfo(WireSet *wire_set, const IResource *accessor)
   : wire_set_(wire_set), accessor_(accessor), distance_(0) {
@@ -126,6 +140,7 @@ void WireSet::Build() {
     BuildAccessorWire(*desc);
   }
   BuildResourceWire();
+  BuildDistanceRegs();
   if (req_desc != nullptr && ack_desc != nullptr) {
     BuildArbitration(*req_desc, *ack_desc);
   }
@@ -285,6 +300,13 @@ void WireSet::BuildResourceWire() {
   }
 }
 
+void WireSet::BuildDistanceRegs() {
+  for (AccessorInfo *ac : accessors_) {
+    DistanceRegs d(ac, this);
+    d.Build();
+  }
+}
+
 string WireSet::ResourceWireName(const SignalDescription &desc) {
   return Names::ResourceWire(resource_name_, desc.name_.c_str());
 }
@@ -393,6 +415,10 @@ SignalDescription *WireSet::GetSignalDescription(const string &name,
 
 string WireSet::GetResourceName() const {
   return resource_name_;
+}
+
+Resource &WireSet::GetResource() const {
+  return res_;
 }
 
 }  // namespace wire
