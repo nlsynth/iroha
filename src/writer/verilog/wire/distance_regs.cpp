@@ -132,6 +132,20 @@ void DistanceRegs::BuildHandshakeFSM(AccessorSignal *req, AccessorSignal *ack,
   string ack_i = wset_->AccessorEdgeWireName(*ack);
   string ack_o = StageRegName(*ack, 0);
   string st = HandshakeStateReg();
+  auto &asigs = ainfo_->GetSignals();
+  for (auto *asig : asigs) {
+    if (asig == req || asig == ack) {
+      continue;
+    }
+    bool upstream = asig->sig_desc_->IsUpstream();
+    if (upstream) {
+      os << EdgeSrcRegName(wset_->AccessorEdgeWireName(*asig))
+	 << " <= " << StageRegName(*asig, 0) << ";\n";
+    } else {
+      os << StageRegName(*asig, 0)
+	 << " <= " << wset_->AccessorEdgeWireName(*asig) << ";\n";
+    }
+  }
   os << "      case (" << st << ")\n"
      << "        0: begin\n"
      << "          if (" << req_i << ") begin\n"
