@@ -104,23 +104,15 @@ void Task::BuildResource() {
        << " = " << a << ";\n";
   }
   // Capturing args
-  bool is_first = true;
-  for (IResource *caller : callers) {
-    string e;
-    if (!is_first) {
-      e = "else ";
-    }
-    string en = TaskEnablePin(*(tab_.GetITable()), caller);
-    fs << "      " << e << "if (" << ack_cond << " && " << en << "_wire) begin\n"
-       << "      // Capturing args\n";
-    for (int i = 0; i < res_.output_types_.size(); ++i) {
-      string ad = TaskArgPin(*(tab_.GetITable()), i, nullptr);
-      string as = TaskArgPin(*(tab_.GetITable()), i, caller);
-      fs << "        " << ad << "_reg" << " <= " << as << "_wire;\n";
-    }
-    fs << "      end\n";
-    is_first = false;
+  string en = TaskEnablePin(*(tab_.GetITable()), nullptr);
+  fs << "      " << "if (" << ack_cond << " && " << en << "_wire) begin\n"
+     << "      // Capturing args\n";
+  for (int i = 0; i < res_.output_types_.size(); ++i) {
+    string ad = TaskArgPin(*(tab_.GetITable()), i, nullptr);
+    string as = TaskArgPin(*(tab_.GetITable()), i, nullptr);
+    fs << "        " << ad << "_reg" << " <= " << as << "_wire;\n";
   }
+  fs << "      end\n";
 }
 
 void Task::BuildWireSet() {
