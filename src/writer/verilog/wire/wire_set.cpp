@@ -96,6 +96,10 @@ int AccessorInfo::GetDistance() const {
   return distance_;
 }
 
+const IResource *AccessorInfo::GetResource() const {
+  return accessor_;
+}
+
 WireSet::WireSet(Resource &res, const string &resource_name)
   : res_(res), resource_name_(resource_name) {
 }

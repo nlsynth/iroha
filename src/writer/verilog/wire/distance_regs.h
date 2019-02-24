@@ -10,6 +10,7 @@ namespace verilog {
 namespace wire {
 
 class AccessorInfo;
+class AccessorSignal;
 
 class DistanceRegs {
 public:
@@ -18,6 +19,14 @@ public:
   void Build();
 
 private:
+  void Build0DistanceHandshake();
+  void BuildDistanceHandshake();
+  string StageRegName(const AccessorSignal &sig, int n);
+  string HandshakeStateReg();
+  string EdgeSrcRegName(const string &edge_wire);
+  void BuildHandshakeFSM(AccessorSignal *req, AccessorSignal *ack,
+			 ostream &os, ostream &is);
+
   AccessorInfo *ainfo_;
   WireSet *wset_;
 };

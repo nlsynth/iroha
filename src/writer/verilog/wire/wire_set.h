@@ -55,6 +55,7 @@ public:
   AccessorSignal *FindSignal(const SignalDescription &desc);
   void SetDistance(int distance);
   int GetDistance() const;
+  const IResource *GetResource() const;
 
 private:
   WireSet *wire_set_;
