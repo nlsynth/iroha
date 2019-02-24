@@ -147,7 +147,7 @@ void DistanceRegs::BuildHandshakeFSM(AccessorSignal *req, AccessorSignal *ack,
      << "          end\n"
      << "        end\n"
      << "        2: begin\n"
-     << "          " << ack_o << " <= 1;\n"
+     << "          " << ack_o << " <= 0;\n"
      << "          " << st << " <= 3;\n"
      << "        end\n"
      << "        3: begin\n"
