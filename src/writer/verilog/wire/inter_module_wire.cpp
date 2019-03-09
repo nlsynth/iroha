@@ -17,14 +17,13 @@ InterModuleWire::InterModuleWire(Resource &res) : res_(res) {
 }
 
 void InterModuleWire::AddWire(const IResource &accessor, const string &name,
-			      int width, bool from_parent, bool drive_by_reg) {
-  AddWireConnection(accessor, name, width, from_parent, drive_by_reg);
-  AddWireEdge(accessor, name, width, from_parent, drive_by_reg);
+			      int width, bool from_parent) {
+  AddWireConnection(accessor, name, width, from_parent);
+  AddWireEdge(accessor, name, width, from_parent);
 }
 
 void InterModuleWire::AddWireEdge(const IResource &accessor, const string &name,
-				  int width, bool from_parent,
-				  bool drive_by_reg) {
+				  int width, bool from_parent) {
   Module *parent_mod = res_.GetTable().GetModule();
   const IModule *parent_imodule = parent_mod->GetIModule();
   IModule *accessor_imodule = accessor.GetTable()->GetModule();
@@ -56,13 +55,9 @@ void InterModuleWire::AddWireEdge(const IResource &accessor, const string &name,
   }
 }
 
-void InterModuleWire::AddWireConnection(const IResource &accessor, const string &name,
-					int width, bool from_parent,
-					bool drive_by_reg) {
-  string drive = "wire";
-  if (drive_by_reg) {
-    drive = "reg";
-  }
+void InterModuleWire::AddWireConnection(const IResource &accessor,
+					const string &name,
+					int width, bool from_parent) {
   Module *parent_mod = res_.GetTable().GetModule();
   const IModule *parent_imodule = parent_mod->GetIModule();
   IModule *accessor_imodule = accessor.GetTable()->GetModule();
@@ -76,7 +71,7 @@ void InterModuleWire::AddWireConnection(const IResource &accessor, const string 
     auto *tmpl_a = accessor_module->GetModuleTemplate();
     ostream &rs_a = tmpl_a->GetStream(kInsnWireDeclSection);
     if (!from_parent) {
-      rs_a << "  " << drive << " " << a;
+      rs_a << "  wire " << a;
       AddWireName(accessor_module, name);
     }
   }
@@ -85,7 +80,7 @@ void InterModuleWire::AddWireConnection(const IResource &accessor, const string 
     auto *tmpl_p = parent_mod->GetModuleTemplate();
     ostream &rs_p = res_.GetTable().ResourceSectionStream();
     if (from_parent) {
-      rs_p << "  " << drive << " " << a;
+      rs_p << "  wire " << a;
       AddWireName(parent_mod, name);
     }
   }
@@ -145,12 +140,12 @@ void InterModuleWire::AddPort(Module *mod, const string &name, int width,
 
 void InterModuleWire::AddSharedWires(const vector<const IResource *> &accessors,
 				     const string &name, int width,
-				     bool from_parent, bool drive_by_reg) {
+				     bool from_parent) {
   for (auto *a : accessors) {
-    AddWireConnection(*a, name, width, from_parent, drive_by_reg);
+    AddWireConnection(*a, name, width, from_parent);
   }
   for (auto *a : accessors) {
-    AddWireEdge(*a, name, width, from_parent, drive_by_reg);
+    AddWireEdge(*a, name, width, from_parent);
   }
 }
 

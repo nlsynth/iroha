@@ -15,32 +15,27 @@ public:
   virtual void BuildResource() override;
   virtual void BuildInsn(IInsn *insn, State *st) override;
 
-  static string MemoryAddrPin(const IResource &res, int nth_port, const IResource *accessor);
+  static string GetName(const IResource &res);
+  // Pin names (addr, rdata, wdata, wen) are used to connect
+  // port 1 (of 0 and 1) or external sram.
+  static string MemoryAddrPin(const IResource &res, int nth_port,
+			      const IResource *accessor);
   static string MemoryRdataPin(const IResource &res, int nth_port);
   static string MemoryWdataPin(const IResource &res, int nth_port,
 			       const IResource *accessor);
   static string MemoryWenPin(const IResource &res, int nth_port,
 			     const IResource *accessor);
-  static string MemoryReqPin(const IResource &res, const IResource *accessor);
-  static string MemoryAckPin(const IResource &res, const IResource *accessor);
+  static string MemoryWenReg(const IResource &res, int nth_port);
   // Buffer to capture the rdata by readers.
   // (the data may change if other readers start reading).
   static string MemoryRdataBuf(const IResource &res, const IResource *accessor);
-  // Wire just to connect to the SRAM instance.
-  // (this simplifies the code if there's no readers).
-  static string MemoryRdataRawPin(const IResource &res);
-
-  // gen_reg determines if addr/wdata/req/wen are driven from this module.
-  // generates wires and let them driven by dmac.
-  static void BuildMemoryAccessorResource(const Resource &accessor,
-					  bool do_write, bool gen_reg,
-					  const IResource *mem);
 
 private:
   void BuildMemoryResource();
   void BuildMemoryInstance();
   void BuildExternalMemoryConnection();
   void BuildAccessWireAll(vector<const IResource *> &acccessors);
+  void BuildAck();
 
   static string MemoryPinPrefix(const IResource &res,
 				const IResource *accessor);

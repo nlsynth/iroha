@@ -3,6 +3,7 @@
 #define _writer_verilog_common_h_
 
 #include "iroha/common.h"
+#include "writer/verilog/debug_marker.h"
 
 namespace iroha {
 namespace writer {

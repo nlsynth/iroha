@@ -13,7 +13,7 @@ namespace writer {
 
 Writer::Writer(const IDesign *design)
   : design_(design), output_shell_module_(false), output_self_clock_(false),
-    output_vcd_(false) {
+    output_vcd_(false), debug_(false) {
 }
 
 bool Writer::Write(const string &fn) {
@@ -43,7 +43,7 @@ bool Writer::Write(const string &fn) {
   if (language_ == "verilog") {
     Connection conn(design_);
     conn.Build();
-    verilog::VerilogWriter writer(design_, conn, *os);
+    verilog::VerilogWriter writer(design_, conn, debug_, *os);
     if (!shell.empty()) {
       writer.SetShellModuleName(shell, output_self_clock_, output_vcd_);
     }
@@ -69,9 +69,11 @@ void Writer::OutputShellModule(bool b, bool self_clock, bool vcd) {
   output_vcd_ = vcd;
 }
 
-void Writer::SetOutputConfig(const string &root, const string &marker) {
+void Writer::SetOutputConfig(const string &root, const string &marker,
+			     bool debug) {
   root_dir_ = root;
   output_marker_ = marker;
+  debug_ = debug;
 }
 
 void Writer::WriteDumpHeader(ostream &os) {

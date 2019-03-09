@@ -19,7 +19,7 @@
 #include "writer/verilog/shared_reg_accessor.h"
 #include "writer/verilog/state.h"
 #include "writer/verilog/table.h"
-#include "writer/verilog/wire/inter_module_wire.h"
+#include "writer/verilog/wire/wire_set.h"
 
 namespace iroha {
 namespace writer {
@@ -64,13 +64,8 @@ void SharedReg::BuildResource() {
     rs << " use-mailbox";
   }
   rs << "\n";
-  if (readers_.size() == 0) {
-    rs << "  reg ";
-    if (width_ > 0) {
-      rs << "[" << width_ - 1 << ":0]";
-    }
-    rs << " " << RegName(res_) << ";\n";
-  }
+  rs << "  reg " << Table::WidthSpec(width_)
+     << RegName(res_) << ";\n";
   // Reset value
   is << "      " << RegName(res_) << " <= ";
   if (has_default_output_value_) {
@@ -79,22 +74,20 @@ void SharedReg::BuildResource() {
     is << 0;
   }
   is << ";\n";
+  if (readers_.size() > 0) {
+    ostream &rvs = tab_.ResourceValueSectionStream();
+    string rrn = GetNameRW(res_, false);
+    rvs << "  assign " << wire::Names::ResourceWire(rrn, "r")
+	<< " = " << RegName(res_) << ";\n";
+  }
   if (use_notify_) {
-    vector<string> notifiers;
-    for (auto *writer : writers_) {
-      if (SharedRegAccessor::UseNotify(writer)) {
-	notifiers.push_back(WriterNotifierName(*writer));
-      }
-    }
+    rs << "  reg " << RegNotifierName(res_) << ";\n";
     ostream &os = tab_.StateOutputSectionStream();
     os << "      " << RegNotifierName(res_)
        << " <= ";
-    if (notifiers.size() > 0) {
-      os << Util::Join(notifiers, " | ");
-    } else {
-      os << "0";
-    }
-    os << ";\n";
+    string rn = GetNameRW(res_, true);
+    os << wire::Names::ResourceWire(rn, "notify")
+       << ";\n";
     is << "      " << RegNotifierName(res_) << " <= 0;\n";
   }
   if (use_mailbox_) {
@@ -113,69 +106,56 @@ void SharedReg::BuildResource() {
     } else {
       value = RegName(res_);
     }
-    for (auto *writer : writers_) {
-      string en = WriterEnName(*writer);
-      bool n, m;
-      SharedRegAccessor::GetAccessorFeatures(writer, &n, &m);
-      if (m) {
-	// Writes the value only when put to the mailbox is granted.
-	en = "(" + en + " || " + RegMailboxPutAckName(*writer) + ")";
-      }
-      value = en + " ? " + WriterName(*writer) + " : (" + value + ")";
+    string rn = GetNameRW(res_, true);
+    string en = wire::Names::ResourceWire(rn, "wen");
+    if (use_notify_) {
+      en += " | " + wire::Names::ResourceWire(rn, "notify");
     }
+    if (use_mailbox_) {
+      en += " | (" + wire::Names::ResourceWire(rn, "put_req") + " && !" +
+	wire::Names::ResourceWire(rn, "put_ack") + ")";
+    }
+    value = "(" + en + ") ? " + wire::Names::ResourceWire(rn, "w")
+      + " : (" + value + ");";
     os << SelectValueByState(value);
     os << ";\n";
   }
-  BuildAccessorWire();
+  BuildAccessorWireW();
+  BuildAccessorWireR();
 }
 
 void SharedReg::BuildMailbox() {
   ostream &rs = tab_.ResourceSectionStream();
-  rs << "  reg " << RegMailboxName(res_) << ";\n";
+  rs << "  reg " << RegMailboxName(res_) << ";\n"
+     << "  reg " << RegMailboxPutAckName(res_) << ";\n"
+     << "  reg " << RegMailboxGetAckName(res_) << ";\n";
   ostream &rvs = tab_.ResourceValueSectionStream();
   ostream &is = tab_.InitialValueSectionStream();
-  is << "      " << RegMailboxName(res_) << " <= 0;\n";
-  vector<string> put_reqs;
-  if (writers_.size() > 0) {
-    for (auto *writer : writers_) {
-      if (!SharedRegAccessor::UseMailbox(writer)) {
-	continue;
-      }
-      rvs << "  assign " << RegMailboxPutAckName(*writer) << " = "
-	  << "(!" << RegMailboxName(res_) << ") && ";
-      if (put_reqs.size() > 0) {
-	rvs << "(!(" << Util::Join(put_reqs, " | ") << ")) && ";
-      }
-      rvs << RegMailboxPutReqName(*writer) << ";\n";
-      put_reqs.push_back(RegMailboxPutReqName(*writer));
-    }
-  } else {
-    put_reqs.push_back("0");
-  }
-  vector<string> get_reqs;
-  if (readers_.size() > 0) {
-    for (auto *reader : readers_) {
-      if (!SharedRegAccessor::UseMailbox(reader)) {
-	continue;
-      }
-      rvs << "  assign " << RegMailboxGetAckName(*reader) << " = "
-	 << "(" << RegMailboxName(res_) << ") && ";
-      if (get_reqs.size() > 0) {
-	rvs << "(!(" << Util::Join(get_reqs, " | ") << ")) && ";
-      }
-      rvs << RegMailboxGetReqName(*reader) << ";\n";
-      get_reqs.push_back(RegMailboxGetReqName(*reader));
-    }
-  } else {
-    get_reqs.push_back("0");
-  }
+  is << "      " << RegMailboxName(res_) << " <= 0;\n"
+     << "      " << RegMailboxPutAckName(res_) << " <= 0;\n"
+     << "      " << RegMailboxGetAckName(res_) << " <= 0;\n";
+  string wrn = GetNameRW(res_, true);
+  rvs << "  assign " << wire::Names::ResourceWire(wrn, "put_ack")
+      << " = " << RegMailboxPutAckName(res_) << ";\n";
+  string rrn = GetNameRW(res_, false);
+  rvs << "  assign " << wire::Names::ResourceWire(rrn, "get_ack")
+      << " = " << RegMailboxGetAckName(res_) << ";\n";
   ostream &os = tab_.StateOutputSectionStream();
+  string put_cond = wire::Names::ResourceWire(wrn, "put_req")
+    + " && !" + RegMailboxName(res_);
+  os << "      " << RegMailboxPutAckName(res_) << " <= "
+     << put_cond << ";\n";
+
+  string get_req = wire::Names::ResourceWire(rrn, "get_req");
+  string get_cond = get_req + " && " + RegMailboxName(res_);
+  os << "      " << RegMailboxGetAckName(res_) << " <= "
+     << put_cond << ";\n";
   os << "      if (" << RegMailboxName(res_) << ") begin\n"
      << "        " << RegMailboxName(res_) << " <= "
-     << "!(" << Util::Join(get_reqs, " | ") << ");\n"
+     << "!(" << get_req << ");\n"
      << "      end else begin\n"
      << "        " << RegMailboxName(res_) << " <= "
-     << Util::Join(put_reqs, " | ") << ";\n"
+     << put_cond << ";\n"
      << "      end\n";
 }
 
@@ -200,36 +180,16 @@ void SharedReg::BuildInsn(IInsn *insn, State *st) {
   }
 }
 
-string SharedReg::WriterName(const IResource &writer) {
-  return RegName(writer) + "_w";
-}
-
-string SharedReg::WriterEnName(const IResource &writer) {
-  return WriterName(writer) + "_en";
-}
-
 string SharedReg::RegNotifierName(const IResource &reg) {
   return RegName(reg) + "_notify";
-}
-
-string SharedReg::WriterNotifierName(const IResource &writer) {
-  return RegName(writer) + "_write_notify";
 }
 
 string SharedReg::RegMailboxName(const IResource &reg) {
   return RegName(reg) + "_mailbox";
 }
 
-string SharedReg::RegMailboxPutReqName(const IResource &writer) {
-  return RegName(writer) + "_mailbox_put_req";
-}
-
 string SharedReg::RegMailboxPutAckName(const IResource &writer) {
   return RegName(writer) + "_mailbox_put_ack";
-}
-
-string SharedReg::RegMailboxGetReqName(const IResource &reader) {
-  return RegName(reader) + "_mailbox_get_req";
 }
 
 string SharedReg::RegMailboxGetAckName(const IResource &reader) {
@@ -249,43 +209,72 @@ string SharedReg::RegName(const IResource &reg) {
   }
   ITable *tab = reg.GetTable();
   IModule *mod = tab->GetModule();
-  string n = "shared_reg_" +
-    Util::Itoa(mod->GetId()) + "_" +
-    Util::Itoa(tab->GetId()) + "_" + Util::Itoa(reg.GetId());
+  string n = GetName(reg);
   if (!port_name.empty()) {
     n += "_" + port_name;
   }
   return n;
 }
 
-void SharedReg::BuildAccessorWire() {
-  wire::InterModuleWire wire(*this);
-  int dw = res_.GetParams()->GetWidth();
+string SharedReg::GetName(const IResource &reg) {
+  ITable *tab = reg.GetTable();
+  IModule *mod = tab->GetModule();
+  return "shared_reg_" +
+    Util::Itoa(mod->GetId()) + "_" +
+    Util::Itoa(tab->GetId()) + "_" + Util::Itoa(reg.GetId());
+}
+
+string SharedReg::GetNameRW(const IResource &reg, bool is_write) {
+  string s = GetName(reg);
+  if (is_write) {
+    return s + "_w";
+  } else {
+    return s + "_r";
+  }
+}
+
+void SharedReg::BuildAccessorWireR() {
   auto &conn = tab_.GetModule()->GetConnection();
   auto &readers = conn.GetSharedRegReaders(&res_);
+  wire::WireSet ws(*this, GetNameRW(res_, false));
+  int dw = res_.GetParams()->GetWidth();
   for (auto *reader : readers) {
-    wire.AddWire(*reader, RegName(res_), dw, true, true);
+    wire::AccessorInfo *ainfo = ws.AddAccessor(reader);
+    ainfo->SetDistance(reader->GetParams()->GetDistance());
+    ainfo->AddSignal("r", wire::AccessorSignalType::ACCESSOR_READ_ARG, dw);
     if (SharedRegAccessor::UseNotify(reader)) {
-      wire.AddWire(*reader, RegNotifierName(res_), 0, true, true);
+      ainfo->AddSignal("notify",
+		       wire::AccessorSignalType::ACCESSOR_NOTIFY_ACCESSOR, 0);
     }
     if (SharedRegAccessor::UseMailbox(reader)) {
-      wire.AddWire(*reader, RegMailboxGetReqName(*reader), 0, false, false);
-      wire.AddWire(*reader, RegMailboxGetAckName(*reader), 0, true, false);
+      ainfo->AddSignal("get_req", wire::AccessorSignalType::ACCESSOR_REQ, 0);
+      ainfo->AddSignal("get_ack", wire::AccessorSignalType::ACCESSOR_ACK, 0);
     }
   }
-  // TODO: Move all writer wiring logic to here too.
+  ws.Build();
+}
+
+void SharedReg::BuildAccessorWireW() {
+  auto &conn = tab_.GetModule()->GetConnection();
   auto &writers = conn.GetSharedRegWriters(&res_);
+  wire::WireSet ws(*this, GetNameRW(res_, true));
+  int dw = res_.GetParams()->GetWidth();
   for (auto *writer : writers) {
-    wire.AddWire(*writer, WriterName(*writer), dw, false, false);
-    wire.AddWire(*writer, WriterEnName(*writer), 0, false, false);
+    wire::AccessorInfo *ainfo = ws.AddAccessor(writer);
+    ainfo->SetDistance(writer->GetParams()->GetDistance());
+    ainfo->AddSignal("w", wire::AccessorSignalType::ACCESSOR_WRITE_ARG, dw);
+    ainfo->AddSignal("wen",
+		     wire::AccessorSignalType::ACCESSOR_NOTIFY_PARENT, 0);
     if (SharedRegAccessor::UseNotify(writer)) {
-      wire.AddWire(*writer, WriterNotifierName(*writer), 0, false, false);
+      ainfo->AddSignal("notify",
+		       wire::AccessorSignalType::ACCESSOR_NOTIFY_PARENT_SECONDARY, 0);
     }
     if (SharedRegAccessor::UseMailbox(writer)) {
-      wire.AddWire(*writer, RegMailboxPutReqName(*writer), 0, true, false);
-      wire.AddWire(*writer, RegMailboxPutAckName(*writer), 0, false, false);
+      ainfo->AddSignal("put_req", wire::AccessorSignalType::ACCESSOR_REQ, 0);
+      ainfo->AddSignal("put_ack", wire::AccessorSignalType::ACCESSOR_ACK, 0);
     }
   }
+  ws.Build();
 }
 
 void SharedReg::GetOptions(bool *use_notify, bool *use_mailbox) {

@@ -7,7 +7,7 @@
 #include "writer/verilog/insn_writer.h"
 #include "writer/verilog/module.h"
 #include "writer/verilog/ports.h"
-#include "writer/verilog/shared_memory.h"
+#include "writer/verilog/shared_memory_accessor.h"
 #include "writer/verilog/state.h"
 #include "writer/verilog/table.h"
 
@@ -24,8 +24,8 @@ void SlavePort::BuildResource() {
   string wires_to_ext = BuildPortToExt();
   BuildControllerInstance(wires_to_ext);
   if (!IsExclusiveAccessor()) {
-    SharedMemory::BuildMemoryAccessorResource(*this, true, false,
-					      res_.GetParentResource());
+    SharedMemoryAccessor::BuildMemoryAccessorResource(*this, true, false,
+						      res_.GetParentResource());
   }
 
   ostream &os = tab_.ResourceSectionStream();

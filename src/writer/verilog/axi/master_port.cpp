@@ -10,7 +10,7 @@
 #include "writer/verilog/insn_writer.h"
 #include "writer/verilog/module.h"
 #include "writer/verilog/ports.h"
-#include "writer/verilog/shared_memory.h"
+#include "writer/verilog/shared_memory_accessor.h"
 #include "writer/verilog/state.h"
 #include "writer/verilog/table.h"
 
@@ -28,8 +28,8 @@ void MasterPort::BuildResource() {
   string s = BuildPortToExt();
   BuildControllerInstance(s);
   if (!IsExclusiveAccessor()) {
-    SharedMemory::BuildMemoryAccessorResource(*this, true, false,
-					      res_.GetParentResource());
+    SharedMemoryAccessor::BuildMemoryAccessorResource(*this, true, false,
+						      res_.GetParentResource());
   }
 
   ostream &os = tab_.ResourceSectionStream();

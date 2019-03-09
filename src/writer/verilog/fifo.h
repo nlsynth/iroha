@@ -24,6 +24,8 @@ public:
   static string WAck(const IResource &res, const IResource *accessor);
   static string WData(const IResource &res, const IResource *accessor);
   static string WNoWait(const IResource &res, const IResource *accessor);
+  static string GetName(const IResource &res);
+  static string GetNameRW(const IResource &res, bool is_write);
 
 private:
   string WritePtr();
@@ -32,22 +34,23 @@ private:
   string Full();
   string Empty();
   string WEn();
+  string WReqWire();
+  string WAckWire();
+  string WAckReg();
+  string WDataWire();
+  string WNoWaitWire();
+  string RReqWire();
+  string RAckWire();
+  string RAckReg();
+  string RDataWire();
 
   static string PinPrefix(const IResource &res, const IResource *accessor);
 
   void BuildMemoryInstance();
   void BuildWires();
-  void BuildHandShake();
-  void BuildAccessConnectionsAll();
+  void BuildWriterConnections();
+  void BuildReaderConnections();
   void BuildController();
-  void BuildReqAckAssign(bool is_write, const vector<IResource *> &accessors);
-  void BuildAck(bool is_write, const vector<IResource *> &accessors);
-  void BuildAckAssigns(bool is_write, const string &ack,
-		       const vector<IResource *> &accessors,
-		       const string &indent,
-		       ostream &os);
-  void AssignJoin(const string &lhs, const vector<string> &accessors,
-		  ostream &os);
 };
 
 }  // namespace verilog

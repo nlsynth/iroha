@@ -20,11 +20,11 @@ public:
   InterModuleWire(Resource &res);
 
   void AddWire(const IResource &accessor, const string &name,
-	       int width, bool from_parent, bool drive_by_reg);
+	       int width, bool from_parent);
   // Connects one shared value to many accessors in the module hierarchy.
   void AddSharedWires(const vector<const IResource *> &accessors,
 		      const string &name, int width,
-		      bool from_parent, bool drive_by_reg);
+		      bool from_parent);
 
 private:
   bool HasWire(const Module *mod, const string &name);
@@ -32,14 +32,14 @@ private:
   void AddWireName(const Module *mod, const string &name);
   void AddPort(Module *m, const string &name, int width, bool upward);
   void AddWireConnection(const IResource &accessor, const string &name,
-			 int width, bool from_parent, bool drive_by_reg);
+			 int width, bool from_parent);
   // Adds a wire (not a reg) to the upper edge of the route.
   // module M1( /* w doesn't go up */ )
   //   wire w; // generates this!
   //   M2 m2_inst(.w(w) /* wire w from below */)
   //   M3 m3_inst(/* no wire w here */)
   void AddWireEdge(const IResource &accessor, const string &name,
-		   int width, bool from_parent, bool drive_by_reg);
+		   int width, bool from_parent);
 
   Resource &res_;
   map<const Module *, set<string> > has_wire_;
