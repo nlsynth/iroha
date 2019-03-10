@@ -19,6 +19,7 @@ enum BinOp {
   BINOP_OR,
   BINOP_XOR,
   BINOP_MUL,
+  BINOP_DIV,
 };
 
 // NOTE:

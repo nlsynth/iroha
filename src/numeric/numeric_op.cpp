@@ -60,6 +60,8 @@ void Op::CalcBinOp(BinOp op, const Numeric &x, const Numeric &y,
       }
       break;
     case BINOP_MUL:
+    case BINOP_DIV:
+      // These are not usable for wide nums.
       return;
       break;
     }
@@ -88,6 +90,9 @@ void Op::CalcBinOp(BinOp op, const Numeric &x, const Numeric &y,
     break;
   case BINOP_MUL:
     res->SetValue0(x.GetValue0() * y.GetValue0());
+    break;
+  case BINOP_DIV:
+    res->SetValue0(x.GetValue0() / y.GetValue0());
     break;
   }
 }
