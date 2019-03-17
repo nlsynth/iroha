@@ -269,6 +269,8 @@
         'writer/verilog/shared_memory_accessor.h',
         'writer/verilog/shared_reg_accessor.cpp',
         'writer/verilog/shared_reg_accessor.h',
+        'writer/verilog/shared_reg_ext_writer.cpp',
+        'writer/verilog/shared_reg_ext_writer.h',
         'writer/verilog/shared_reg.cpp',
         'writer/verilog/shared_reg.h',
         'writer/verilog/state.cpp',
