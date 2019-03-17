@@ -81,14 +81,7 @@ void SharedReg::BuildResource() {
 	<< " = " << RegName(res_) << ";\n";
   }
   if (use_notify_) {
-    rs << "  reg " << RegNotifierName(res_) << ";\n";
-    ostream &os = tab_.StateOutputSectionStream();
-    os << "      " << RegNotifierName(res_)
-       << " <= ";
-    string rn = GetNameRW(res_, true);
-    os << wire::Names::ResourceWire(rn, "notify")
-       << ";\n";
-    is << "      " << RegNotifierName(res_) << " <= 0;\n";
+    BuildNotifier();
   }
   if (use_mailbox_) {
     BuildMailbox();
@@ -157,6 +150,25 @@ void SharedReg::BuildMailbox() {
      << "        " << RegMailboxName(res_) << " <= "
      << put_cond << ";\n"
      << "      end\n";
+}
+
+void SharedReg::BuildNotifier() {
+  ostream &rs = tab_.ResourceSectionStream();
+  rs << "  reg " << RegNotifierName(res_) << ";\n";
+  ostream &os = tab_.StateOutputSectionStream();
+  os << "      " << RegNotifierName(res_)
+     << " <= ";
+  string wrn = GetNameRW(res_, true);
+  os << wire::Names::ResourceWire(wrn, "notify")
+     << ";\n";
+  ostream &is = tab_.InitialValueSectionStream();
+  is << "      " << RegNotifierName(res_) << " <= 0;\n";
+  if (readers_.size() > 0) {
+    ostream &rvs = tab_.ResourceValueSectionStream();
+    string rrn = GetNameRW(res_, false);
+    rvs << "  assign " << wire::Names::ResourceWire(rrn, "notify")
+	<< " = " << RegNotifierName(res_) << ";\n";
+  }
 }
 
 void SharedReg::BuildInsn(IInsn *insn, State *st) {

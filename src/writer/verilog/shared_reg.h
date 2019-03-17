@@ -34,6 +34,7 @@ private:
   void BuildAccessorWireW();
   void GetOptions(bool *use_notify, bool *use_mailbox);
   void BuildMailbox();
+  void BuildNotifier();
 
   int width_;
   bool has_default_output_value_;
