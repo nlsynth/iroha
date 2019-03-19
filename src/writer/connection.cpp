@@ -63,6 +63,9 @@ void Connection::ProcessSharedRegAccessors(ITable *tab) {
     if (resource::IsSharedRegWriter(*rc)) {
       ai->shared_reg_writers_.push_back(res);
     }
+    if (resource::IsSharedRegExtWriter(*rc)) {
+      ai->shared_reg_ext_writers_.push_back(res);
+    }
     if (resource::IsSharedRegReader(*rc)) {
       ai->shared_reg_readers_.push_back(res);
     }
@@ -157,6 +160,11 @@ const vector<IResource *> &Connection::GetSharedRegReaders(const IResource *res)
 const vector<IResource *> &Connection::GetSharedRegWriters(const IResource *res) const {
   const auto *ai = GetAccessorInfo(res);
   return ai->shared_reg_writers_;
+}
+
+const vector<IResource *> &Connection::GetSharedRegExtWriters(const IResource *res) const {
+  const auto *ai = GetAccessorInfo(res);
+  return ai->shared_reg_ext_writers_;
 }
 
 const vector<IResource *> &Connection::GetSharedRegChildren(const IResource *res) const {

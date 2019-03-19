@@ -19,6 +19,7 @@ public:
   vector<IResource *> shared_memory_port1_accessors_;
   vector<IResource *> shared_reg_readers_;
   vector<IResource *> shared_reg_writers_;
+  vector<IResource *> shared_reg_ext_writers_;
   // dataflowin-s attached to this shared register resource.
   vector<IResource *> shared_reg_children_;
   vector<IResource *> fifo_readers_;
@@ -36,6 +37,7 @@ public:
   const AccessorInfo *GetAccessorInfo(const IResource *res) const;
   const vector<IResource *> &GetTaskCallers(const IResource *res) const;
   const vector<IResource *> &GetSharedRegWriters(const IResource *res) const;
+  const vector<IResource *> &GetSharedRegExtWriters(const IResource *res) const;
   const vector<IResource *> &GetSharedRegReaders(const IResource *res) const;
   const vector<IResource *> &GetSharedRegChildren(const IResource *res) const;
   const vector<IResource *> &GetSharedMemoryAccessors(const IResource *res) const;

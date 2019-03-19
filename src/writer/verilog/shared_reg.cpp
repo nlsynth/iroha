@@ -47,6 +47,11 @@ SharedReg::SharedReg(const IResource &res, const Table &table)
     readers_.push_back(r);
   }
   writers_ = table.GetModule()->GetConnection().GetSharedRegWriters(&res_);
+  auto &ext_writers =
+    table.GetModule()->GetConnection().GetSharedRegExtWriters(&res_);
+  for (auto *w: ext_writers) {
+    writers_.push_back(w);
+  }
   if (writers_.size() > 0 || has_default_output_value_) {
     need_write_arbitration_ = true;
   }
@@ -277,6 +282,9 @@ void SharedReg::BuildAccessorWireW() {
     ainfo->AddSignal("w", wire::AccessorSignalType::ACCESSOR_WRITE_ARG, dw);
     ainfo->AddSignal("wen",
 		     wire::AccessorSignalType::ACCESSOR_NOTIFY_PARENT, 0);
+    if (resource::IsSharedRegExtWriter(*(writer->GetClass()))) {
+      continue;
+    }
     if (SharedRegAccessor::UseNotify(writer)) {
       ainfo->AddSignal("notify",
 		       wire::AccessorSignalType::ACCESSOR_NOTIFY_PARENT_SECONDARY, 0);
@@ -303,6 +311,9 @@ void SharedReg::GetOptions(bool *use_notify, bool *use_mailbox) {
     }
   }
   for (auto *writer : writers_) {
+    if (resource::IsSharedRegExtWriter(*(writer->GetClass()))) {
+      continue;
+    }
     bool n, m;
     SharedRegAccessor::GetAccessorFeatures(writer, &n, &m);
     *use_notify |= n;
