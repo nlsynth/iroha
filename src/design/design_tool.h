@@ -44,6 +44,8 @@ public:
 						  IResource *reg);
   static IResource *CreateSharedRegWriterResource(ITable *table,
 						  IResource *reg);
+  static IResource *CreateSharedRegExtWriterResource(ITable *table,
+						  IResource *reg);
   static IResource *CreateFifoResource(ITable *table, int width);
   static IResource *CreateFifoReaderResource(ITable *table, IResource *fifo);
   static IResource *CreateFifoWriterResource(ITable *table, IResource *fifo);

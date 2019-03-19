@@ -167,6 +167,14 @@ IResource *DesignTool::CreateSharedRegWriterResource(ITable *table,
   return res;
 }
 
+IResource *DesignTool::CreateSharedRegExtWriterResource(ITable *table,
+							IResource *reg) {
+  IResource *res = DesignUtil::CreateResource(table,
+					      resource::kSharedRegExtWriter);
+  res->SetParentResource(reg);
+  return res;
+}
+
 IResource *DesignTool::CreateFifoResource(ITable *table, int width) {
   IResource *res = DesignUtil::CreateResource(table, resource::kFifo);
   res->GetParams()->SetWidth(width);
