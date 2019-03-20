@@ -3,6 +3,7 @@
 #include "iroha/i_design.h"
 #include "iroha/resource_params.h"
 #include "writer/verilog/shared_reg.h"
+#include "writer/verilog/table.h"
 #include "writer/verilog/wire/names.h"
 
 namespace iroha {
@@ -19,10 +20,16 @@ void SharedRegExtWriter::BuildResource() {
   auto *klass = res_.GetClass();
   string wrn = SharedReg::GetNameRW(*(res_.GetParentResource()),
 				    true);
-  string w = wire::Names::AccessorWire(wrn, &res_, "w");
-  string wen = wire::Names::AccessorWire(wrn, &res_, "wen");
+  string w_wire = wire::Names::AccessorWire(wrn, &res_, "w");
+  string wen_wire = wire::Names::AccessorWire(wrn, &res_, "wen");
+  string w = wire::Names::AccessorSignalBase(wrn, &res_, "w");
+  string wen = wire::Names::AccessorSignalBase(wrn, &res_, "wen");
   AddPortToTop(w, false, true, width);
   AddPortToTop(wen, false, true, 0);
+  ostream &rvs = tab_.ResourceValueSectionStream();
+  rvs << "  // shared-reg-ext-writer\n"
+      << "  assign " << w_wire << " = " << w << ";\n"
+      << "  assign " << wen_wire << " = " << wen << ";\n";
 }
 
 void SharedRegExtWriter::BuildInsn(IInsn *insn, State *st) {

@@ -273,10 +273,9 @@ void SharedReg::BuildAccessorWireR() {
 
 void SharedReg::BuildAccessorWireW() {
   auto &conn = tab_.GetModule()->GetConnection();
-  auto &writers = conn.GetSharedRegWriters(&res_);
   wire::WireSet ws(*this, GetNameRW(res_, true));
   int dw = res_.GetParams()->GetWidth();
-  for (auto *writer : writers) {
+  for (auto *writer : writers_) {
     wire::AccessorInfo *ainfo = ws.AddAccessor(writer);
     ainfo->SetDistance(writer->GetParams()->GetDistance());
     ainfo->AddSignal("w", wire::AccessorSignalType::ACCESSOR_WRITE_ARG, dw);
