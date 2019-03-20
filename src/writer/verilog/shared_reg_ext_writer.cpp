@@ -22,8 +22,16 @@ void SharedRegExtWriter::BuildResource() {
 				    true);
   string w_wire = wire::Names::AccessorWire(wrn, &res_, "w");
   string wen_wire = wire::Names::AccessorWire(wrn, &res_, "wen");
-  string w = wire::Names::AccessorSignalBase(wrn, &res_, "w");
-  string wen = wire::Names::AccessorSignalBase(wrn, &res_, "wen");
+  string w;
+  string wen;
+  string name = res_.GetParams()->GetPortNamePrefix();
+  if (name.empty()) {
+    w = wire::Names::AccessorSignalBase(wrn, &res_, "w");
+    wen = wire::Names::AccessorSignalBase(wrn, &res_, "wen");
+  } else {
+    w = name + "_w";
+    wen = name + "_wen";
+  }
   AddPortToTop(w, false, true, width);
   AddPortToTop(wen, false, true, 0);
   ostream &rvs = tab_.ResourceValueSectionStream();
