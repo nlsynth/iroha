@@ -24,13 +24,18 @@ void SharedRegExtWriter::BuildResource() {
   string wen_wire = wire::Names::AccessorWire(wrn, &res_, "wen");
   string w;
   string wen;
-  string name = res_.GetParams()->GetPortNamePrefix();
+  auto *params = res_.GetParams();
+  string name = params->GetPortNamePrefix();
   if (name.empty()) {
     w = wire::Names::AccessorSignalBase(wrn, &res_, "w");
     wen = wire::Names::AccessorSignalBase(wrn, &res_, "wen");
   } else {
-    w = name + "_w";
-    wen = name + "_wen";
+    w = name;
+    string s = params->GetWenSuffix();
+    if (s.empty()) {
+      s = "wen";
+    }
+    wen = name + "_" + s;
   }
   AddPortToTop(w, false, true, width);
   AddPortToTop(wen, false, true, 0);

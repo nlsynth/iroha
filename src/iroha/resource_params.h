@@ -35,6 +35,9 @@ const char kEmbeddedModuleOutputs[] = "EMBEDDED-MODULE-OUTPUTS";
 const char kSramPortIndex[] = "SRAM-PORT-INDEX";
 const char kExtTaskName[] = "EXT-TASK";
 const char kDistance[] = "DISTANCE";
+const char kWenSuffix[] = "WEN";
+const char kNotifySuffix[] = "NOTIFY";
+const char kPutSuffix[] = "PUT";
 }  // namespace resource
 
 class ResourceParams {
@@ -104,6 +107,14 @@ public:
 
   int GetDistance() const;
   void SetDistance(int distance);
+
+  // for shared-reg-ext-writer.
+  void SetWenSuffix(const string &wen);
+  string GetWenSuffix() const;
+  void SetNotifySuffix(const string &notify);
+  string GetNotifySuffix() const;
+  void SetPutSuffix(const string &put);
+  string GetPutSuffix();
 
 private:
   resource::ResourceParamValueSet *values_;

@@ -388,4 +388,28 @@ void ResourceParams::SetDistance(int distance) {
   return values_->SetIntParam(resource::kDistance, distance);
 }
 
+void ResourceParams::SetWenSuffix(const string &wen) {
+  values_->SetStringParam(resource::kWenSuffix, wen);
+}
+
+string ResourceParams::GetWenSuffix() const {
+  return values_->GetStringParam(resource::kWenSuffix, "");
+}
+
+void ResourceParams::SetNotifySuffix(const string &notify) {
+  values_->SetStringParam(resource::kNotifySuffix, notify);
+}
+
+string ResourceParams::GetNotifySuffix() const {
+  return values_->GetStringParam(resource::kNotifySuffix, "");
+}
+
+void ResourceParams::SetPutSuffix(const string &put) {
+  values_->SetStringParam(resource::kPutSuffix, put);
+}
+
+string ResourceParams::GetPutSuffix() {
+  return values_->GetStringParam(resource::kPutSuffix, "");
+}
+
 }  // namespace iroha
