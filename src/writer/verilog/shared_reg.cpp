@@ -290,10 +290,10 @@ void SharedReg::BuildAccessorWireW() {
       ainfo->AddSignal("notify",
 		       wire::AccessorSignalType::ACCESSOR_NOTIFY_PARENT_SECONDARY, 0);
     }
-    if (resource::IsSharedRegExtWriter(*(writer->GetClass()))) {
-      continue;
-    }
-    if (SharedRegAccessor::UseMailbox(writer)) {
+    if ((resource::IsSharedRegWriter(*klass) &&
+	 SharedRegAccessor::UseMailbox(writer)) ||
+	(resource::IsSharedRegExtWriter(*klass) &&
+	 SharedRegExtWriter::UseMailbox(writer))) {
       ainfo->AddSignal("put_req", wire::AccessorSignalType::ACCESSOR_REQ, 0);
       ainfo->AddSignal("put_ack", wire::AccessorSignalType::ACCESSOR_ACK, 0);
     }

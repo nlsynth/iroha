@@ -23,10 +23,13 @@ void SharedRegExtWriter::BuildResource() {
   string w_wire = wire::Names::AccessorWire(wrn, &res_, "w");
   string wen_wire = wire::Names::AccessorWire(wrn, &res_, "wen");
   string notify_wire = wire::Names::AccessorWire(wrn, &res_, "notify");
+  string put_wire = wire::Names::AccessorWire(wrn, &res_, "put_req");
+  string put_ack_wire = wire::Names::AccessorWire(wrn, &res_, "put_ack");
   string w;
   string wen;
   auto *params = res_.GetParams();
-  string name = params->GetPortNamePrefix();
+  string raw_name = params->GetPortNamePrefix();
+  string name = raw_name;
   if (name.empty()) {
     w = wire::Names::AccessorSignalBase(wrn, &res_, "w");
     wen = wire::Names::AccessorSignalBase(wrn, &res_, "wen");
@@ -42,8 +45,16 @@ void SharedRegExtWriter::BuildResource() {
   AddPortToTop(wen, false, true, 0);
   string notify = params->GetNotifySuffix();
   if (!notify.empty()) {
-    notify = name + "_" + notify;
+    notify = raw_name + "_" + notify;
     AddPortToTop(notify, false, true, 0);
+  }
+  string put = params->GetPutSuffix();
+  string put_ack;
+  if (!put.empty()) {
+    put_ack = raw_name + "_" + put + "_ack";
+    put = raw_name + "_" + put;
+    AddPortToTop(put, false, true, 0);
+    AddPortToTop(put_ack, true, true, 0);
   }
   ostream &rvs = tab_.ResourceValueSectionStream();
   rvs << "  // shared-reg-ext-writer\n"
@@ -52,7 +63,10 @@ void SharedRegExtWriter::BuildResource() {
   if (!notify.empty()) {
     rvs << "  assign " << notify_wire << " = " << notify << ";\n";
   }
-  // TODO: Wire put.
+  if (!put.empty()) {
+    rvs << "  assign " << put_wire << " = " << put << ";\n";
+    rvs << "  assign " << put_ack << " = " << put_ack_wire << ";\n";
+  }
 }
 
 void SharedRegExtWriter::BuildInsn(IInsn *insn, State *st) {
