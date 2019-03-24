@@ -17,6 +17,7 @@
 #include "writer/verilog/module.h"
 #include "writer/verilog/ports.h"
 #include "writer/verilog/shared_reg_accessor.h"
+#include "writer/verilog/shared_reg_ext_writer.h"
 #include "writer/verilog/state.h"
 #include "writer/verilog/table.h"
 #include "writer/verilog/wire/wire_set.h"
@@ -281,12 +282,16 @@ void SharedReg::BuildAccessorWireW() {
     ainfo->AddSignal("w", wire::AccessorSignalType::ACCESSOR_WRITE_ARG, dw);
     ainfo->AddSignal("wen",
 		     wire::AccessorSignalType::ACCESSOR_NOTIFY_PARENT, 0);
-    if (resource::IsSharedRegExtWriter(*(writer->GetClass()))) {
-      continue;
-    }
-    if (SharedRegAccessor::UseNotify(writer)) {
+    auto *klass = writer->GetClass();
+    if ((resource::IsSharedRegWriter(*klass) &&
+	 SharedRegAccessor::UseNotify(writer)) ||
+	(resource::IsSharedRegExtWriter(*klass) &&
+	 SharedRegExtWriter::UseNotify(writer))) {
       ainfo->AddSignal("notify",
 		       wire::AccessorSignalType::ACCESSOR_NOTIFY_PARENT_SECONDARY, 0);
+    }
+    if (resource::IsSharedRegExtWriter(*(writer->GetClass()))) {
+      continue;
     }
     if (SharedRegAccessor::UseMailbox(writer)) {
       ainfo->AddSignal("put_req", wire::AccessorSignalType::ACCESSOR_REQ, 0);
@@ -310,11 +315,13 @@ void SharedReg::GetOptions(bool *use_notify, bool *use_mailbox) {
     }
   }
   for (auto *writer : writers_) {
-    if (resource::IsSharedRegExtWriter(*(writer->GetClass()))) {
-      continue;
-    }
     bool n, m;
-    SharedRegAccessor::GetAccessorFeatures(writer, &n, &m);
+    if (resource::IsSharedRegExtWriter(*(writer->GetClass()))) {
+      SharedRegExtWriter::GetAccessorFeatures(writer, &n, &m);
+    } else {
+      // shared-reg-writer.
+      SharedRegAccessor::GetAccessorFeatures(writer, &n, &m);
+    }
     *use_notify |= n;
     *use_mailbox |= m;
   }
