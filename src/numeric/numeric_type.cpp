@@ -18,7 +18,12 @@ void NumericWidth::SetWidth(int width) {
   width_ = width;
   mask_ = ~0;
   if (width_ < 64) {
-    mask_ >>= (64 - width_);
+    int w = width_;
+    if (w == 0) {
+      // 0 means a scalar value.
+      w = 1;
+    }
+    mask_ >>= (64 - w);
   }
   if (width_ > 0) {
     value_count_ = ((width_ - 1) / 64) + 1;
