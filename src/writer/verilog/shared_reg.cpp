@@ -115,7 +115,7 @@ void SharedReg::BuildResource() {
 	wire::Names::ResourceWire(rn, "put_ack") + ")";
     }
     value = "(" + en + ") ? " + wire::Names::ResourceWire(rn, "w")
-      + " : (" + value + ");";
+      + " : (" + value + ")";
     os << SelectValueByState(value);
     os << ";\n";
   }
