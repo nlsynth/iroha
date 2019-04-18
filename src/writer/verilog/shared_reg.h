@@ -37,8 +37,8 @@ private:
   void BuildNotifier();
 
   int width_;
-  bool has_default_output_value_;
-  int default_output_value_;
+  bool has_default_value_;
+  int default_value_;
   // readers_ includes dataflow-in for pipeline.
   vector<IResource *> readers_;
   vector<IResource *> writers_;

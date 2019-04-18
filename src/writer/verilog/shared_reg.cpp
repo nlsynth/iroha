@@ -27,16 +27,16 @@ namespace writer {
 namespace verilog {
 
 SharedReg::SharedReg(const IResource &res, const Table &table)
-  : Resource(res, table), has_default_output_value_(false),
-    default_output_value_(0),
+  : Resource(res, table), has_default_value_(false),
+    default_value_(0),
     need_write_arbitration_(false) {
   auto *klass = res_.GetClass();
   CHECK(resource::IsSharedReg(*klass));
   auto *params = res_.GetParams();
   string unused;
   params->GetExtOutputPort(&unused, &width_);
-  has_default_output_value_ =
-    params->GetDefaultValue(&default_output_value_);
+  has_default_value_ =
+    params->GetDefaultValue(&default_value_);
   auto &readers =
     table.GetModule()->GetConnection().GetSharedRegReaders(&res_);
   for (auto *r : readers) {
@@ -53,7 +53,7 @@ SharedReg::SharedReg(const IResource &res, const Table &table)
   for (auto *w: ext_writers) {
     writers_.push_back(w);
   }
-  if (writers_.size() > 0 || has_default_output_value_) {
+  if (writers_.size() > 0 || has_default_value_) {
     need_write_arbitration_ = true;
   }
   GetOptions(&use_notify_, &use_mailbox_);
@@ -74,8 +74,11 @@ void SharedReg::BuildResource() {
      << RegName(res_) << ";\n";
   // Reset value
   is << "      " << RegName(res_) << " <= ";
-  if (has_default_output_value_) {
-    is << default_output_value_;
+  int initial_value;
+  if (res_.GetParams()->GetInitialValue(&initial_value)) {
+    is << initial_value;
+  } else if (has_default_value_) {
+    is << default_value_;
   } else {
     is << 0;
   }
@@ -100,8 +103,8 @@ void SharedReg::BuildResource() {
     ostream &os = tab_.StateOutputSectionStream();
     os << "      " << RegName(res_) << " <= ";
     string value;
-    if (has_default_output_value_) {
-      value = Util::Itoa(default_output_value_);
+    if (has_default_value_) {
+      value = Util::Itoa(default_value_);
     } else {
       value = RegName(res_);
     }

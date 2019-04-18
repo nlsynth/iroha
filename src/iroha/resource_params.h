@@ -25,6 +25,7 @@ const char kAddrWidth[] = "ADDR-WIDTH";
 const char kExtInputPort[] = "INPUT";
 const char kExtOutputPort[] = "OUTPUT";
 const char kExtIOWidth[] = "WIDTH";
+const char kInitialValue[] = "INITIAL-VALUE";
 const char kDefaultOutputValue[] = "DEFAULT-VALUE";
 const char kEmbeddedModule[] = "EMBEDDED-MODULE";
 const char kEmbeddedModuleFile[] = "EMBEDDED-MODULE-FILE";
@@ -89,8 +90,11 @@ public:
   void SetExtOutputPort(const string &output, int width);
   void GetExtOutputPort(string *name, int *width);
 
+  bool GetInitialValue(int *value) const;
+  void SetInitialValue(int value);
   // DEFAULT-VALUE
   bool GetDefaultValue(int *value) const;
+  void SetDefaultValue(int value);
   int GetWidth();
   void SetWidth(int w);
 

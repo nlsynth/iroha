@@ -317,6 +317,19 @@ void ResourceParams::GetExtOutputPort(string *name, int *width) {
   }
 }
 
+bool ResourceParams::GetInitialValue(int *value) const {
+  auto *p = values_->LookupParam(resource::kInitialValue);
+  if (p == nullptr || p->values_.size() == 0) {
+    return false;
+  }
+  *value = Util::Atoi(p->values_[0]);
+  return true;
+}
+
+void ResourceParams::SetInitialValue(int value) {
+  values_->SetIntParam(resource::kInitialValue, value);
+}
+
 bool ResourceParams::GetDefaultValue(int *value) const {
   auto *p = values_->LookupParam(resource::kDefaultOutputValue);
   if (p == nullptr || p->values_.size() == 0) {
@@ -326,12 +339,16 @@ bool ResourceParams::GetDefaultValue(int *value) const {
   return true;
 }
 
+void ResourceParams::SetDefaultValue(int value) {
+  values_->SetIntParam(resource::kDefaultOutputValue, value);
+}
+
 int ResourceParams::GetWidth() {
   return values_->GetIntParam(resource::kExtIOWidth, 0);
 }
 
 void ResourceParams::SetWidth(int w) {
-  return values_->SetIntParam(resource::kExtIOWidth, w);
+  values_->SetIntParam(resource::kExtIOWidth, w);
 }
 
 void ResourceParams::SetEmbeddedModuleName(const string &mod,
