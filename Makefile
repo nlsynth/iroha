@@ -1,6 +1,7 @@
 include config.mk
 
 prefix ?= /usr/local
+pkgdir ?= /tmp
 
 iroha	: src/out/Default/iroha build
 	rm -f iroha
@@ -24,5 +25,8 @@ install: install-data
 
 install-data:
 	install -D lib/generic-platform.iroha $(prefix)/share/iroha/generic-platform.iroha
+
+pkg-data:
+	cp lib/generic-platform.iroha $(pkgdir)/
 
 .PHONY: build clean install install-data
