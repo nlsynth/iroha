@@ -113,7 +113,9 @@ void DistanceRegs::BuildDistanceHandshake() {
     }
   }
   ostringstream hs;
-  BuildHandshakeFSM(req_sig, ack_sig, hs, reset_vals);
+  if (req_sig != nullptr && ack_sig != nullptr) {
+    BuildHandshakeFSM(req_sig, ack_sig, hs, reset_vals);
+  }
 
   tab.WriteAlwaysBlockHead(rvs);
   rvs << reset_vals.str();
