@@ -1,8 +1,9 @@
-;; Generic platform. wip.
+;; 1st item is the default.
+(PLATFORM default
+ (DEF (COND) (VALUE (DELAY 1))))
+
+;; Generic platform.
 (PLATFORM generic
  (DEF (COND (AND (CLASS add) (< (INPUT 0) 16))) (VALUE (DELAY 2000)))
  (DEF (COND (CLASS add)) (VALUE (DELAY 4000)))
  (DEF (COND (CLASS sub)) (VALUE (DELAY 2000))))
-
-(PLATFORM test
- (DEF (COND) (VALUE (DELAY 1))))
