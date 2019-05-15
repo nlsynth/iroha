@@ -27,7 +27,8 @@ bool Writer::Write(const string &fn) {
       fn_path = root_dir_ + "/" + fn_path;
     }
     os = new ofstream(fn_path);
-    if (os == nullptr) {
+    if (!(*os)) {
+      cerr << "Failed to open [" << fn_path << "]\n";
       return false;
     }
     os_deleter.reset(os);
@@ -54,6 +55,10 @@ bool Writer::Write(const string &fn) {
   } else {
     ExpWriter writer(design_, *os);
     writer.Write();
+  }
+  if (!(*os)) {
+    cerr << "Failed to write [" << fn << "]\n";
+    res = false;
   }
   return res;
 }

@@ -181,7 +181,9 @@ int main(int argc, char **argv) {
     if (!skipValidation) {
       DesignTool::Validate(design);
     }
-    writer->Write(output);
+    if (!writer->Write(output)) {
+      return 1;
+    }
     if (!debug_dump.empty()) {
       optimizer->DumpIntermediateToFiles(debug_dump);
     }
