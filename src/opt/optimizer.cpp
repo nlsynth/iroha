@@ -12,8 +12,9 @@
 #include "opt/compound.h"
 #include "opt/debug_annotation.h"
 #include "opt/phase.h"
-#include "opt/ssa/ssa.h"
 #include "opt/sched/sched_phase.h"
+#include "opt/ssa/ssa.h"
+#include "opt/study.h"
 #include "platform/platform.h"
 #include "platform/platform_db.h"
 
@@ -44,6 +45,7 @@ void Optimizer::Init() {
   RegisterPhase("phi_cleaner", &ssa::PhiCleanerPhase::Create);
   RegisterPhase("alloc_resource", &sched::SchedPhase::Create);
   RegisterPhase("wire_insn", &sched::SchedPhase::Create);
+  RegisterPhase("study", &Study::Create);
   CompoundPhase::Init();
 }
 
