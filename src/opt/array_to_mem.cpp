@@ -1,6 +1,6 @@
-#include "opt/array_to_mem.h"
+// array to mapped mem resource.
 
-#include <map>
+#include "opt/array_to_mem.h"
 
 #include "design/design_tool.h"
 #include "design/design_util.h"
@@ -9,10 +9,10 @@
 #include "iroha/resource_class.h"
 #include "iroha/resource_params.h"
 
+#include <map>
+
 namespace iroha {
 namespace opt {
-
-static const string name("array_to_mem");
 
 ArrayToMem::~ArrayToMem() {
 }

@@ -8,9 +8,9 @@ namespace iroha {
 namespace writer {
 namespace verilog {
 
-class MappedResource : public Resource {
+class ArrayResource : public Resource {
 public:
-  MappedResource(const IResource &res, const Table &table);
+  ArrayResource(const IResource &res, const Table &table);
 
   virtual void BuildResource() override;
   virtual void BuildInsn(IInsn *insn, State *st) override;

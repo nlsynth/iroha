@@ -1,7 +1,8 @@
-#include "writer/verilog/mapped.h"
+#include "writer/verilog/array.h"
 
 #include "iroha/insn_operands.h"
 #include "iroha/i_design.h"
+#include "iroha/resource_class.h"
 #include "iroha/resource_params.h"
 #include "writer/module_template.h"
 #include "writer/verilog/embed.h"
@@ -16,13 +17,14 @@ namespace iroha {
 namespace writer {
 namespace verilog {
 
-MappedResource::MappedResource(const IResource &res, const Table &table)
+ArrayResource::ArrayResource(const IResource &res, const Table &table)
   : Resource(res, table) {
 }
 
-void MappedResource::BuildResource() {
+void ArrayResource::BuildResource() {
+  auto *klass = res_.GetClass();
   auto *params = res_.GetParams();
-  if (params->GetMappedName() == "mem") {
+  if (resource::IsArray(*klass) || params->GetMappedName() == "mem") {
     IArray *array = res_.GetArray();
     if (array->IsExternal()) {
       BuildExternalSRAM();
@@ -32,14 +34,15 @@ void MappedResource::BuildResource() {
   }
 }
 
-void MappedResource::BuildInsn(IInsn *insn, State *st) {
+void ArrayResource::BuildInsn(IInsn *insn, State *st) {
+  auto *klass = res_.GetClass();
   auto *params = res_.GetParams();
-  if (params->GetMappedName() == "mem") {
+  if (resource::IsArray(*klass) || params->GetMappedName() == "mem") {
     BuildMemInsn(insn, st);
   }
 }
 
-void MappedResource::BuildMemInsn(IInsn *insn, State *st) {
+void ArrayResource::BuildMemInsn(IInsn *insn, State *st) {
   string res_id;
   IArray *array = res_.GetArray();
   if (!array->IsExternal()) {
@@ -67,7 +70,7 @@ void MappedResource::BuildMemInsn(IInsn *insn, State *st) {
   }
 }
 
-void MappedResource::BuildExternalSRAM() {
+void ArrayResource::BuildExternalSRAM() {
   auto *ports = tab_.GetPorts();
   IArray *array = res_.GetArray();
   int data_width = array->GetDataType().GetWidth();
@@ -78,7 +81,7 @@ void MappedResource::BuildExternalSRAM() {
   BuildSRAMWrite("");
 }
 
-void MappedResource::BuildInternalSRAM() {
+void ArrayResource::BuildInternalSRAM() {
   InternalSRAM *sram =
     tab_.GetEmbeddedModules()->RequestInternalSRAM(*tab_.GetModule(), *res_.GetArray(), 1);
   auto *ports = tab_.GetPorts();
@@ -102,7 +105,7 @@ void MappedResource::BuildInternalSRAM() {
   BuildSRAMWrite("_" + res_id);
 }
 
-void MappedResource::BuildSRAMWrite(const string &res_id) {
+void ArrayResource::BuildSRAMWrite(const string &res_id) {
   map<IState *, IInsn *> callers;
   CollectResourceCallers("sram_write", &callers);
   ostream &fs = tab_.StateOutputSectionStream();

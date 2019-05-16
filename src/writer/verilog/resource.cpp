@@ -5,6 +5,7 @@
 #include "iroha/resource_class.h"
 #include "iroha/resource_params.h"
 #include "writer/module_template.h"
+#include "writer/verilog/array.h"
 #include "writer/verilog/axi/master_port.h"
 #include "writer/verilog/axi/slave_port.h"
 #include "writer/verilog/dataflow_in.h"
@@ -16,7 +17,6 @@
 #include "writer/verilog/fifo.h"
 #include "writer/verilog/fifo_accessor.h"
 #include "writer/verilog/insn_writer.h"
-#include "writer/verilog/mapped.h"
 #include "writer/verilog/module.h"
 #include "writer/verilog/operator.h"
 #include "writer/verilog/shared_memory.h"
@@ -77,8 +77,10 @@ Resource *Resource::Create(const IResource &res, const Table &table) {
       resource::IsSharedMemoryWriter(*klass)) {
     return new SharedMemoryAccessor(res, table);
   }
-  if (resource::IsMapped(*klass)) {
-    return new MappedResource(res, table);
+  if (resource::IsArray(*klass) ||
+      // mapped memory is being deprecated.
+      resource::IsMapped(*klass)) {
+    return new ArrayResource(res, table);
   }
   if (resource::IsAxiMasterPort(*klass)) {
     return new axi::MasterPort(res, table);
