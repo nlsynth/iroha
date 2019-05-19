@@ -16,7 +16,7 @@ public:
 private:
   virtual bool ApplyForTable(const string &key, ITable *table);
 
-  IRegister *GetRegister(IResource *array, IRegister *index_reg);
+  IRegister *GetRegister(IResource *array_res, IRegister *index_reg);
   map<tuple<IResource *, int>, IRegister *> fixed_regs_;
 };
 

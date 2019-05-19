@@ -84,20 +84,27 @@ bool ArrayElimination::ApplyForTable(const string &key, ITable *table) {
   return true;
 }
 
-IRegister *ArrayElimination::GetRegister(IResource *array,
+IRegister *ArrayElimination::GetRegister(IResource *array_res,
 					 IRegister *index_reg) {
 
   int idx = index_reg->GetInitialValue().GetValue0();
-  auto key = make_tuple(array, idx);
+  auto key = make_tuple(array_res, idx);
   auto it = fixed_regs_.find(key);
   if (it != fixed_regs_.end()) {
     return it->second;
   }
-  string name = "a_" + Util::Itoa(array->GetId()) + "_" + Util::Itoa(idx);
-  IRegister *reg = new IRegister(array->GetTable(), name);
-  reg->value_type_ = array->GetArray()->GetDataType();
+  string name = "a_" + Util::Itoa(array_res->GetId()) + "_" + Util::Itoa(idx);
+  IRegister *reg = new IRegister(array_res->GetTable(), name);
+  IArray *array = array_res->GetArray();
+  reg->value_type_ = array->GetDataType();
+  IArrayImage *img = array->GetArrayImage();
+  if (img != nullptr) {
+    Numeric n;
+    n.SetValue0(img->values_[idx]);
+    reg->SetInitialValue(n);
+  }
   fixed_regs_[key] = reg;
-  ITable *tab = array->GetTable();
+  ITable *tab = array_res->GetTable();
   tab->registers_.push_back(reg);
   return reg;
 }
