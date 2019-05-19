@@ -23,6 +23,7 @@ private:
   bool CollectResource(ITable *table);
 
   set<IResource *> used_resources_;
+  set<IArrayImage *> used_images_;
 };
 
 }  // namespace clean

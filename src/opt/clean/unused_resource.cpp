@@ -45,12 +45,21 @@ bool CleanUnusedResourcePhase::ScanTable(ITable *table) {
 }
 
 void CleanUnusedResourcePhase::MarkResource(IResource *res) {
-  if (used_resources_.find(res) != used_resources_.end()) {
+  if (res == nullptr) {
     return;
   }
-  for (IResource *parent = res;
-       res != nullptr; res = res->GetParentResource()) {
-    used_resources_.insert(res);
+  if (used_resources_.find(res) != used_resources_.end()) {
+    // already marked, so the parent and ancestors.
+    return;
+  }
+  used_resources_.insert(res);
+  MarkResource(res->GetParentResource());
+  IArray *array = res->GetArray();
+  if (array != nullptr) {
+    IArrayImage *image = array->GetArrayImage();
+    if (image != nullptr) {
+      used_images_.insert(image);
+    }
   }
 }
 
@@ -62,6 +71,14 @@ bool CleanUnusedResourcePhase::CollectResource(ITable *table) {
     }
   }
   table->resources_ = new_resources;
+  vector<IArrayImage *> new_images;
+  IDesign *design = table->GetModule()->GetDesign();
+  for (IArrayImage *im : design->array_images_) {
+    if (used_images_.find(im) != used_images_.end()) {
+      new_images.push_back(im);
+    }
+  }
+  design->array_images_ = new_images;
   return true;
 }
 
