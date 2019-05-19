@@ -3,6 +3,7 @@
 #include "design/validator.h"
 #include "iroha/i_design.h"
 #include "iroha/logging.h"
+#include "opt/array_elimination.h"
 #include "opt/array_to_mem.h"
 #include "opt/clean/empty_state.h"
 #include "opt/clean/empty_table.h"
@@ -33,6 +34,7 @@ Optimizer::~Optimizer() {
 
 void Optimizer::Init() {
   RegisterPhase("array_to_mem", &ArrayToMem::Create);
+  RegisterPhase("array_elimination", &ArrayElimination::Create);
   RegisterPhase("clean_empty_state", &clean::CleanEmptyStatePhase::Create);
   RegisterPhase("clean_empty_table", &clean::CleanEmptyTablePhase::Create);
   RegisterPhase("clean_unreachable_state",
