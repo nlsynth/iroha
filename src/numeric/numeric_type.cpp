@@ -1,7 +1,13 @@
 #include "numeric/numeric_type.h"
 
+#include "numeric/numeric_manager.h"
+
 #include <iomanip>
 #include <sstream>
+
+namespace {
+iroha::NumericManager *default_manager;
+}  // namespace
 
 namespace iroha {
 
@@ -30,7 +36,11 @@ void NumericWidth::SetWidth(int width) {
   } else {
     value_count_ = 1;
   }
+  is_extra_wide_ = false;
   if (value_count_ > 1) {
+    if (value_count_ > 8) {
+      is_extra_wide_ = true;
+    }
     is_wide_ = true;
   } else {
     is_wide_ = false;
@@ -67,23 +77,18 @@ Numeric::Numeric() {
 }
 
 void Numeric::SetValue0(uint64_t value) {
-  value_.value_[0] = value;
+  if (type_.IsExtraWide()) {
+    value_.extra_wide_value_->value_[0] = value;
+  } else {
+    value_.value_[0] = value;
+  }
 }
 
 std::string Numeric::Format() const {
-  if (type_.IsWide()) {
-    int w = (type_.GetWidth() + 63) / 64;
-    std::stringstream ss;
-    bool first = true;
-    for (int i = w - 1; i >= 0; --i) {
-      if (!first) {
-	ss << "_";
-      }
-      ss << std::hex << std::setw(16) << std::setfill('0');
-      ss << value_.value_[i];
-      first = false;
-    }
-    return ss.str();
+  if (type_.IsExtraWide()) {
+    return FormatArray(value_.extra_wide_value_->value_);
+  } else if (type_.IsWide()) {
+    return FormatArray(value_.value_);
   } else {
     uint64_t v = value_.value_[0];
     std::string s;
@@ -95,6 +100,33 @@ std::string Numeric::Format() const {
     ss << v;
     return s + ss.str();
   }
+}
+
+std::string Numeric::FormatArray(const uint64_t *v) const {
+  int w = (type_.GetWidth() + 63) / 64;
+  std::stringstream ss;
+  bool first = true;
+  for (int i = w - 1; i >= 0; --i) {
+    if (!first) {
+      ss << "_";
+    }
+    ss << std::hex << std::setw(16) << std::setfill('0');
+    ss << value_.value_[i];
+    first = false;
+  }
+  return ss.str();
+}
+
+
+NumericManager *Numeric::DefaultManager() {
+  if (default_manager == nullptr) {
+    default_manager = new NumericManager;
+  }
+  return default_manager;
+}
+
+NumericManager *Numeric::CreateManager() {
+  return new NumericManager;
 }
 
 }  // namespace iroha

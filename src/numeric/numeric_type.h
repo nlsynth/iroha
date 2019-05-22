@@ -8,6 +8,8 @@
 
 namespace iroha {
 
+class NumericManager;
+
 class NumericWidth {
 public:
   NumericWidth();
@@ -34,19 +36,34 @@ public:
   bool IsWide() const {
     return is_wide_;
   }
+  bool IsExtraWide() const {
+    return is_extra_wide_;
+  }
   std::string Format() const;
 
 private:
   bool is_signed_;
   bool is_wide_;
+  bool is_extra_wide_;
   int value_count_;
   int width_;
   uint64_t mask_;
 };
 
+class ExtraWideValue {
+public:
+  uint64_t value_[32];
+};
+
 class NumericValue {
 public:
-  uint64_t value_[8];
+  union {
+    // 512 bit storage as default and use extra wide_values_ if the
+    // width is wider than 512.
+    // (We might change 512 to just 64 later)
+    uint64_t value_[8];
+    ExtraWideValue *extra_wide_value_;
+  };
 };
 
 class Numeric {
@@ -55,7 +72,11 @@ public:
 
   // Get/SetValue0 are convenient interface for small values.
   uint64_t GetValue0() const {
-    return value_.value_[0];
+    if (type_.IsExtraWide()) {
+      return value_.extra_wide_value_->value_[0];
+    } else {
+      return value_.value_[0];
+    }
   }
   void SetValue0(uint64_t value);
   const NumericValue &GetArray() const {
@@ -66,10 +87,15 @@ public:
   }
   std::string Format() const;
 
+  static NumericManager *DefaultManager();
+  static NumericManager *CreateManager();
+
   NumericWidth type_;
 
 private:
   NumericValue value_;
+
+  std::string FormatArray(const uint64_t *v) const;
 };
 
 }  // namespace iroha
