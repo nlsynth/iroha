@@ -53,6 +53,7 @@ private:
 class ExtraWideValue {
 public:
   uint64_t value_[32];
+  NumericManager *owner_;
 };
 
 class NumericValue {
@@ -89,6 +90,7 @@ public:
 
   static NumericManager *DefaultManager();
   static NumericManager *CreateManager();
+  static void Copy(const Numeric &src, Numeric *dst);
 
   NumericWidth type_;
 

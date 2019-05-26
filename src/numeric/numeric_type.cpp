@@ -129,4 +129,11 @@ NumericManager *Numeric::CreateManager() {
   return new NumericManager;
 }
 
+void Numeric::Copy(const Numeric &src, Numeric *dst) {
+  if (!src.type_.IsExtraWide()) {
+    return;
+  }
+  src.GetArray().extra_wide_value_->owner_->Copy(src, dst);
+}
+
 }  // namespace iroha

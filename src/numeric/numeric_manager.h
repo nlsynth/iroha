@@ -2,12 +2,11 @@
 #ifndef _numeric_numeric_manager_h_
 #define _numeric_numeric_manager_h_
 
+#include "numeric/numeric_type.h"
+
 #include <set>
 
 namespace iroha {
-
-class ExtraWideValue;
-class Numeric;
 
 class NumericManager {
 public:
@@ -17,6 +16,7 @@ public:
   void StartGC();
   void MarkStorage(const Numeric *n);
   void DoGC();
+  void Copy(const Numeric &src, Numeric *dst);
 
 private:
   std::set<ExtraWideValue *> values_;

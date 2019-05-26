@@ -8,6 +8,7 @@
 #include "iroha/logging.h"
 #include "iroha/resource_class.h"
 #include "iroha/resource_params.h"
+#include "numeric/numeric_manager.h"
 
 namespace iroha {
 namespace builder {
@@ -213,6 +214,7 @@ IRegister *DesignBuilder::BuildRegister(Exp *e, ITable *table) {
     Numeric value;
     value.SetValue0(Util::AtoULL(ini));
     value.type_ = reg->value_type_;
+    Numeric::DefaultManager()->MayPopulateStorage(&value);
     reg->SetInitialValue(value);
   }
   return reg;

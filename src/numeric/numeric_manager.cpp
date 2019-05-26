@@ -14,6 +14,7 @@ void NumericManager::MayPopulateStorage(Numeric *n) {
     return;
   }
   ExtraWideValue *ev = new ExtraWideValue();
+  ev->owner_ = this;
   n->GetMutableArray()->extra_wide_value_ = ev;
   values_.insert(ev);
 }
@@ -38,6 +39,16 @@ void NumericManager::DoGC() {
   }
   values_ = live;
   marked_values_.clear();
+}
+
+void NumericManager::Copy(const Numeric &src, Numeric *dst) {
+  if (!src.type_.IsExtraWide()) {
+    *dst = src;
+    return;
+  }
+  ExtraWideValue *ev = new ExtraWideValue(*src.GetArray().extra_wide_value_);
+  dst->GetMutableArray()->extra_wide_value_ = ev;
+  values_.insert(ev);
 }
 
 }  // iroha
