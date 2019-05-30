@@ -52,6 +52,8 @@ private:
 
 class ExtraWideValue {
 public:
+  void Clear();
+
   uint64_t value_[32];
   NumericManager *owner_;
 };
@@ -88,9 +90,12 @@ public:
   }
   std::string Format() const;
 
+  // Manages storage for big number.
   static NumericManager *DefaultManager();
   static NumericManager *CreateManager();
   static void Copy(const Numeric &src, Numeric *dst);
+  static void MayPopulateStorage(NumericManager *mgr, Numeric *n);
+  static void MayExpandStorage(NumericManager *mgr, Numeric *n);
 
   NumericWidth type_;
 

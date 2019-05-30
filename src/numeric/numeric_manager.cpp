@@ -1,6 +1,7 @@
 #include "numeric/numeric_manager.h"
 
 // This class manages storage of extra wide values.
+// Multiple instances can represent different units of GCs (multiple VMs in).
 
 #include "numeric/numeric_type.h"
 
@@ -14,6 +15,7 @@ void NumericManager::MayPopulateStorage(Numeric *n) {
     return;
   }
   ExtraWideValue *ev = new ExtraWideValue();
+  ev->Clear();
   ev->owner_ = this;
   n->GetMutableArray()->extra_wide_value_ = ev;
   values_.insert(ev);

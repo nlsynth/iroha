@@ -72,6 +72,12 @@ std::string NumericWidth::Format() const {
   return ss.str();
 }
 
+void ExtraWideValue::Clear() {
+  for (int i = 0; i < 32; ++i) {
+    value_[i] = 0;
+  }
+}
+
 Numeric::Numeric() {
   value_.value_[0] = 0;
 }
@@ -134,6 +140,24 @@ void Numeric::Copy(const Numeric &src, Numeric *dst) {
     return;
   }
   src.GetArray().extra_wide_value_->owner_->Copy(src, dst);
+}
+
+void Numeric::MayPopulateStorage(NumericManager *mgr, Numeric *n) {
+  if (mgr == nullptr) {
+    mgr = DefaultManager();
+  }
+  mgr->MayPopulateStorage(n);
+}
+
+void Numeric::MayExpandStorage(NumericManager *mgr, Numeric *n) {
+  if (!n->type_.IsExtraWide()) {
+    return;
+  }
+  NumericValue v = n->GetArray();
+  MayPopulateStorage(mgr, n);
+  for (int i = 0; i < 8; ++i) {
+    n->GetMutableArray()->extra_wide_value_->value_[i] = v.value_[i];
+  }
 }
 
 }  // namespace iroha
