@@ -137,6 +137,7 @@ NumericManager *Numeric::CreateManager() {
 
 void Numeric::CopyValue(const Numeric &src, NumericManager *mgr, Numeric *dst) {
   if (!src.type_.IsExtraWide()) {
+    *(dst->GetMutableArray()) = src.GetArray();
     return;
   }
   if (mgr == nullptr) {
