@@ -135,11 +135,14 @@ NumericManager *Numeric::CreateManager() {
   return new NumericManager;
 }
 
-void Numeric::Copy(const Numeric &src, Numeric *dst) {
+void Numeric::CopyValue(const Numeric &src, NumericManager *mgr, Numeric *dst) {
   if (!src.type_.IsExtraWide()) {
     return;
   }
-  src.GetArray().extra_wide_value_->owner_->Copy(src, dst);
+  if (mgr == nullptr) {
+    mgr = src.GetArray().extra_wide_value_->owner_;
+  }
+  mgr->CopyValue(src, dst);
 }
 
 void Numeric::MayPopulateStorage(NumericManager *mgr, Numeric *n) {

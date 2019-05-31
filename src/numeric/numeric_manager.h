@@ -16,7 +16,7 @@ public:
   void StartGC();
   void MarkStorage(const Numeric *n);
   void DoGC();
-  void Copy(const Numeric &src, Numeric *dst);
+  void CopyValue(const Numeric &src, Numeric *dst);
 
 private:
   std::set<ExtraWideValue *> values_;
