@@ -4,10 +4,12 @@
 // Multiple instances can represent different units of GCs (multiple VMs in).
 
 #include "numeric/numeric_type.h"
+#include "iroha/stl_util.h"
 
 namespace iroha {
 
 NumericManager::~NumericManager() {
+  STLDeleteValues(&values_);
 }
 
 void NumericManager::MayPopulateStorage(Numeric *n) {

@@ -135,6 +135,10 @@ NumericManager *Numeric::CreateManager() {
   return new NumericManager;
 }
 
+void Numeric::DeleteManager(NumericManager *mgr) {
+  delete mgr;
+}
+
 void Numeric::CopyValue(const Numeric &src, NumericManager *mgr, Numeric *dst) {
   if (!src.type_.IsExtraWide()) {
     *(dst->GetMutableArray()) = src.GetArray();

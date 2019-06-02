@@ -93,6 +93,7 @@ public:
   // Manages storage for big number.
   static NumericManager *DefaultManager();
   static NumericManager *CreateManager();
+  static void DeleteManager(NumericManager *mgr);
   static void CopyValue(const Numeric &src, NumericManager *mgr, Numeric *dst);
   static void MayPopulateStorage(NumericManager *mgr, Numeric *n);
   static void MayExpandStorage(NumericManager *mgr, Numeric *n);
