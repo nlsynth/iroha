@@ -143,7 +143,7 @@ void Numeric::CopyValue(const Numeric &src, NumericManager *mgr, Numeric *dst) {
   if (mgr == nullptr) {
     mgr = src.GetArray().extra_wide_value_->owner_;
   }
-  mgr->CopyValue(src, dst);
+  mgr->CopyValue(src, dst->GetMutableArray());
 }
 
 void Numeric::MayPopulateStorage(NumericManager *mgr, Numeric *n) {

@@ -43,13 +43,13 @@ void NumericManager::DoGC() {
   marked_values_.clear();
 }
 
-void NumericManager::CopyValue(const Numeric &src, Numeric *dst) {
+void NumericManager::CopyValue(const Numeric &src, NumericValue *dst) {
   if (!src.type_.IsExtraWide()) {
-    *(dst->GetMutableArray()) = src.GetArray();
+    *dst = src.GetArray();
     return;
   }
   ExtraWideValue *ev = new ExtraWideValue(*src.GetArray().extra_wide_value_);
-  dst->GetMutableArray()->extra_wide_value_ = ev;
+  dst->extra_wide_value_ = ev;
   ev->owner_ = this;
   values_.insert(ev);
 }
