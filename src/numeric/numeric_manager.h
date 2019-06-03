@@ -12,7 +12,7 @@ class NumericManager {
 public:
   ~NumericManager();
 
-  void MayPopulateStorage(Numeric *n);
+  void MayPopulateStorage(const NumericWidth &w, NumericValue *v);
   void StartGC();
   void MarkStorage(const Numeric *n);
   void DoGC();

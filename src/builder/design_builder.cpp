@@ -214,7 +214,8 @@ IRegister *DesignBuilder::BuildRegister(Exp *e, ITable *table) {
     Numeric value;
     value.SetValue0(Util::AtoULL(ini));
     value.type_ = reg->value_type_;
-    Numeric::DefaultManager()->MayPopulateStorage(&value);
+    Numeric::DefaultManager()->MayPopulateStorage(value.type_,
+						  value.GetMutableArray());
     reg->SetInitialValue(value);
   }
   return reg;

@@ -95,6 +95,11 @@ public:
   static NumericManager *CreateManager();
   static void DeleteManager(NumericManager *mgr);
   static void CopyValue(const Numeric &src, NumericManager *mgr, Numeric *dst);
+  static void CopyValueWithWidth(const NumericValue &src_value,
+				 const NumericWidth &src_width,
+				 const NumericWidth &dst_width,
+				 NumericManager *mgr,
+				 NumericValue *value);
   static void MayPopulateStorage(NumericManager *mgr, Numeric *n);
   static void MayExpandStorage(NumericManager *mgr, Numeric *n);
 

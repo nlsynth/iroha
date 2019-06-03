@@ -12,14 +12,15 @@ NumericManager::~NumericManager() {
   STLDeleteValues(&values_);
 }
 
-void NumericManager::MayPopulateStorage(Numeric *n) {
-  if (!n->type_.IsExtraWide()) {
+void NumericManager::MayPopulateStorage(const NumericWidth &w,
+					NumericValue *v) {
+  if (!w.IsExtraWide()) {
     return;
   }
   ExtraWideValue *ev = new ExtraWideValue();
   ev->Clear();
   ev->owner_ = this;
-  n->GetMutableArray()->extra_wide_value_ = ev;
+  v->extra_wide_value_ = ev;
   values_.insert(ev);
 }
 
