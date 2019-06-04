@@ -163,7 +163,8 @@ void Numeric::CopyValueWithWidth(const NumericValue &src_value,
   if (src_width.IsExtraWide()) {
     if (dst_width.IsExtraWide()) {
       for (int i = 0; i < 32; ++i) {
-	value->value_[i] =  src_value.extra_wide_value_->value_[i];
+	value->extra_wide_value_->value_[i] =
+	  src_value.extra_wide_value_->value_[i];
       }
     } else {
       for (int i = 0; i < 8; ++i) {
@@ -173,10 +174,10 @@ void Numeric::CopyValueWithWidth(const NumericValue &src_value,
   } else {
     if (dst_width.IsExtraWide()) {
       for (int i = 0; i < 8; ++i) {
-	value->value_[i] = src_value.value_[i];
+	value->extra_wide_value_->value_[i] = src_value.value_[i];
       }
       for (int i = 8; i < 32; ++i) {
-	value->value_[i] = 0;
+	value->extra_wide_value_->value_[i] = 0;
       }
     } else {
       *value = src_value;
