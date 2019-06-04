@@ -103,21 +103,25 @@ void WideOp::Concat(const Numeric &x, const Numeric &y, Numeric *a) {
   Numeric tmp;
   Shift(x, y.type_.GetWidth(), true, &tmp);
   Numeric yy = y;
-  FixupWidth(y.type_, &yy);
+  FixupWidth(y.type_, yy.GetMutableArray());
   BinBitOp(BINOP_OR, tmp, yy, a);
   NumericWidth w = NumericWidth(false,
 				x.type_.GetWidth() + y.type_.GetWidth());
   a->type_ = w;
 }
 
-void WideOp::FixupWidth(const NumericWidth &w, Numeric *num) {
+void WideOp::FixupWidth(const NumericWidth &w, NumericValue *val) {
   uint64_t mask = ~0;
   mask >>= (64 - (w.GetWidth() % 64));
   int value_count = w.GetValueCount();
-  uint64_t *rv = num->GetMutableArray()->value_;
-  int s = 8;
+  uint64_t *rv;
+  int s;
   if (w.IsExtraWide()) {
+    rv = val->extra_wide_value_->value_;
     s = 32;
+  } else {
+    rv = val->value_;
+    s = 8;
   }
   for (int i = value_count; i < s; ++i) {
     rv[i] = 0;

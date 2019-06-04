@@ -46,6 +46,7 @@ public:
   static void BitInv(const Numeric &num, Numeric *res);
   // cuts upper bits
   static void FixupWidth(const NumericWidth &w, Numeric *num);
+  static void FixupValueWidth(const NumericWidth &w, NumericValue *val);
 };
 
 }  // namespace iroha

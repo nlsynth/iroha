@@ -1,6 +1,7 @@
 #include "numeric/numeric_type.h"
 
 #include "numeric/numeric_manager.h"
+#include "numeric/numeric_op.h"
 
 #include <iomanip>
 #include <sstream>

@@ -133,11 +133,16 @@ void Op::BitInv(const Numeric &num, Numeric *res) {
 }
 
 void Op::FixupWidth(const NumericWidth &w, Numeric *num) {
+  FixupValueWidth(w, num->GetMutableArray());
+}
+
+void Op::FixupValueWidth(const NumericWidth &w, NumericValue *val) {
   if (w.IsWide()) {
-    WideOp::FixupWidth(w, num);
+    WideOp::FixupWidth(w, val);
     return;
   }
-  num->SetValue0(num->GetValue0() & w.GetMask());
+  // Non wide.
+  val->value_[0] = val->value_[0] & w.GetMask();
 }
 
 void Op::SelectBits(const Numeric &num, int h, int l,
