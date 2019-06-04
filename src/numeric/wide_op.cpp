@@ -115,7 +115,11 @@ void WideOp::FixupWidth(const NumericWidth &w, Numeric *num) {
   mask >>= (64 - (w.GetWidth() % 64));
   int value_count = w.GetValueCount();
   uint64_t *rv = num->GetMutableArray()->value_;
-  for (int i = value_count; i < 8; ++i) {
+  int s = 8;
+  if (w.IsExtraWide()) {
+    s = 32;
+  }
+  for (int i = value_count; i < s; ++i) {
     rv[i] = 0;
   }
   rv[value_count - 1] &= mask;
