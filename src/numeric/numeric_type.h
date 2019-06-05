@@ -89,6 +89,7 @@ public:
     return &value_;
   }
   std::string Format() const;
+  static std::string Format(const NumericWidth &w, const NumericValue &val);
 
   // Manages storage for big number.
   static NumericManager *DefaultManager();
@@ -108,7 +109,8 @@ public:
 private:
   NumericValue value_;
 
-  std::string FormatArray(const uint64_t *v) const;
+  static std::string FormatArray(const NumericWidth &type,
+				 const uint64_t *v);
 };
 
 }  // namespace iroha

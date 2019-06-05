@@ -92,14 +92,18 @@ void Numeric::SetValue0(uint64_t value) {
 }
 
 std::string Numeric::Format() const {
-  if (type_.IsExtraWide()) {
-    return FormatArray(value_.extra_wide_value_->value_);
-  } else if (type_.IsWide()) {
-    return FormatArray(value_.value_);
+  return Format(type_, value_);
+}
+
+std::string Numeric::Format(const NumericWidth &w, const NumericValue &val) {
+  if (w.IsExtraWide()) {
+    return FormatArray(w, val.extra_wide_value_->value_);
+  } else if (w.IsWide()) {
+    return FormatArray(w, val.value_);
   } else {
-    uint64_t v = value_.value_[0];
+    uint64_t v = val.value_[0];
     std::string s;
-    if (type_.IsSigned() && (v & (1 << (type_.GetWidth() - 1)))) {
+    if (w.IsSigned() && (v & (1 << (w.GetWidth() - 1)))) {
       s = "-";
       v = (~v) + 1;
     }
@@ -109,8 +113,9 @@ std::string Numeric::Format() const {
   }
 }
 
-std::string Numeric::FormatArray(const uint64_t *v) const {
-  int w = (type_.GetWidth() + 63) / 64;
+std::string Numeric::FormatArray(const NumericWidth &type,
+				 const uint64_t *v) {
+  int w = (type.GetWidth() + 63) / 64;
   std::stringstream ss;
   bool first = true;
   for (int i = w - 1; i >= 0; --i) {
@@ -118,7 +123,7 @@ std::string Numeric::FormatArray(const uint64_t *v) const {
       ss << "_";
     }
     ss << std::hex << std::setw(16) << std::setfill('0');
-    ss << value_.value_[i];
+    ss << v[i];
     first = false;
   }
   return ss.str();
