@@ -111,6 +111,7 @@ private:
 
   static std::string FormatArray(const NumericWidth &type,
 				 const uint64_t *v);
+  static void FixupArray(int w, int l, uint64_t *v);
 };
 
 }  // namespace iroha

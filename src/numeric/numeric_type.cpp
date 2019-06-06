@@ -188,6 +188,28 @@ void Numeric::CopyValueWithWidth(const NumericValue &src_value,
       *value = src_value;
     }
   }
+  if (dst_width.GetWidth() > src_width.GetWidth()) {
+    if (dst_width.IsExtraWide()) {
+      FixupArray(src_width.GetWidth(), 32, value->extra_wide_value_->value_);
+    } else {
+      FixupArray(src_width.GetWidth(), 8, value->value_);
+    }
+  }
+}
+
+void Numeric::FixupArray(int w, int l, uint64_t *v) {
+  uint64_t mask = ~0;
+  mask >>= (64 - (w % 64));
+  int value_count;
+  if (w == 0) {
+    value_count = 1;
+  } else {
+    value_count = ((w - 1) / 64) + 1;
+  }
+  for (int i = value_count; i < l; ++i) {
+    v[i] = 0;
+  }
+  v[value_count - 1] &= mask;
 }
 
 void Numeric::MayPopulateStorage(NumericManager *mgr, Numeric *n) {
