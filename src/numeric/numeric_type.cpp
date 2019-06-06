@@ -212,11 +212,12 @@ void Numeric::FixupArray(int w, int l, uint64_t *v) {
   v[value_count - 1] &= mask;
 }
 
-void Numeric::MayPopulateStorage(NumericManager *mgr, Numeric *n) {
+void Numeric::MayPopulateStorage(const NumericWidth &width,
+				 NumericManager *mgr, Numeric *n) {
   if (mgr == nullptr) {
     mgr = DefaultManager();
   }
-  mgr->MayPopulateStorage(n->type_, n->GetMutableArray());
+  mgr->MayPopulateStorage(width, n->GetMutableArray());
 }
 
 void Numeric::MayExpandStorage(NumericManager *mgr, Numeric *n) {
@@ -224,7 +225,7 @@ void Numeric::MayExpandStorage(NumericManager *mgr, Numeric *n) {
     return;
   }
   NumericValue v = n->GetArray();
-  MayPopulateStorage(mgr, n);
+  MayPopulateStorage(n->type_, mgr, n);
   for (int i = 0; i < 8; ++i) {
     n->GetMutableArray()->extra_wide_value_->value_[i] = v.value_[i];
   }

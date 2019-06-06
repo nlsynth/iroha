@@ -101,7 +101,8 @@ public:
 				 const NumericWidth &dst_width,
 				 NumericManager *mgr,
 				 NumericValue *value);
-  static void MayPopulateStorage(NumericManager *mgr, Numeric *n);
+  static void MayPopulateStorage(const NumericWidth &width, NumericManager *mgr,
+				 Numeric *n);
   static void MayExpandStorage(NumericManager *mgr, Numeric *n);
 
   NumericWidth type_;
