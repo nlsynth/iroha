@@ -2,10 +2,26 @@
 #include "numeric/numeric_op.h"
 #include "numeric/wide_op.h"
 
+#include <assert.h>
 #include <iostream>
 
 using namespace iroha;
 using namespace std;
+
+namespace {
+
+class Tool {
+public:
+  static uint64_t GetValue(const Numeric &n, int idx) {
+    assert(n.type_.IsWide());
+    return n.GetArray().value_[idx];
+  }
+  static void AssertEq(uint64_t e, uint64_t a) {
+    assert(e == a);
+  }
+};
+
+}  // namespace
 
 void shift() {
   cout << "shift\n";
@@ -14,6 +30,8 @@ void shift() {
   Op::Clear(&n);
   n.SetValue0(0xfffffffffffffff0ULL);
   cout << "n=" << n.Format() << "\n";
+  Tool::AssertEq(0xfffffffffffffff0UL, n.GetValue0());
+  Tool::AssertEq(0, Tool::GetValue(n, 1));
 
   Numeric m;
   m.type_.SetWidth(512);
@@ -21,12 +39,21 @@ void shift() {
   // Left
   WideOp::Shift(n, 1, true, &m);
   cout << "m=" << m.Format() << "\n";
+  Tool::AssertEq(1, Tool::GetValue(m, 1));
+
   WideOp::Shift(n, 64, true, &m);
   cout << "m=" << m.Format() << "\n";
+  Tool::AssertEq(0, Tool::GetValue(m, 0));
+  Tool::AssertEq(Tool::GetValue(n, 0), Tool::GetValue(m, 1));
+
   WideOp::Shift(n, 65, true, &m);
   cout << "m=" << m.Format() << "\n";
+  Tool::AssertEq(1, Tool::GetValue(m, 2));
+
   WideOp::Shift(n, 385, true, &m);
   cout << "m=" << m.Format() << "\n";
+  Tool::AssertEq(1, Tool::GetValue(m, 7));
+
   // Right
   n = m;
   WideOp::Shift(n, 0, false, &m);

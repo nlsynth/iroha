@@ -3,8 +3,16 @@
 namespace iroha {
 
 bool WideOp::IsZero(const Numeric &n) {
-  const uint64_t *v = n.GetArray().value_;
-  for (int i = 0; i < 8; ++i) {
+  const uint64_t *v;
+  int s;
+  if (n.type_.IsExtraWide()) {
+    s = 32;
+    v = n.GetArray().extra_wide_value_->value_;
+  } else {
+    s = 8;
+    v = n.GetArray().value_;
+  }
+  for (int i = 0; i < s; ++i) {
     if (v[i] > 0) {
       return false;
     }
@@ -12,8 +20,8 @@ bool WideOp::IsZero(const Numeric &n) {
   return true;
 }
 
-void WideOp::Shift(const Numeric &s, int a, bool left, Numeric *res) {
-  int a64 = a / 64;
+void WideOp::Shift(const Numeric &s, int amount, bool left, Numeric *res) {
+  int a64 = amount / 64;
   int d = 0;
   uint64_t tv[8];
   if (a64 > 0) {
@@ -42,7 +50,7 @@ void WideOp::Shift(const Numeric &s, int a, bool left, Numeric *res) {
     }
   }
 
-  int a1 = a % 64;
+  int a1 = amount % 64;
   uint64_t *rv = res->GetMutableArray()->value_;
   if (a1 > 0) {
     if (left) {
