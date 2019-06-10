@@ -24,7 +24,7 @@ public:
 }  // namespace
 
 void shift() {
-  cout << "shift\n";
+  cout << "Shift\n";
   Numeric n;
   n.type_.SetWidth(512);
   Op::Clear(&n);
@@ -37,6 +37,7 @@ void shift() {
   m.type_.SetWidth(512);
   Op::Clear(&m);
   // Left
+  cout << "Left Shift\n";
   WideOp::Shift(n, 1, true, &m);
   cout << "m=" << m.Format() << "\n";
   Tool::AssertEq(1, Tool::GetValue(m, 1));
@@ -55,13 +56,19 @@ void shift() {
   Tool::AssertEq(1, Tool::GetValue(m, 7));
 
   // Right
+  cout << "Right Shift\n";
   n = m;
   WideOp::Shift(n, 0, false, &m);
   cout << "m=" << m.Format() << "\n";
+  Tool::AssertEq(1, Tool::GetValue(m, 7));
+
   WideOp::Shift(n, 64, false, &m);
   cout << "m=" << m.Format() << "\n";
+  Tool::AssertEq(1, Tool::GetValue(m, 6));
+
   WideOp::Shift(n, 65, false, &m);
   cout << "m=" << m.Format() << "\n";
+  Tool::AssertEq(0xfffffffffffffff0ULL, Tool::GetValue(m, 5));
 }
 
 void concat() {
