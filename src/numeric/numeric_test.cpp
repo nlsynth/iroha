@@ -19,6 +19,9 @@ public:
   static void AssertEq(uint64_t e, uint64_t a) {
     assert(e == a);
   }
+  static void Assert(bool b) {
+    assert(b);
+  }
 };
 
 }  // namespace
@@ -72,7 +75,7 @@ void shift() {
 }
 
 void concat() {
-  cout << "concat\n";
+  cout << "Concat\n";
   Numeric m, n;
   m.type_.SetWidth(64);
   m.SetValue0(0x5555555555555550ULL);
@@ -81,10 +84,13 @@ void concat() {
   Numeric r;
   Op::Concat(m, n, &r);
   cout << "r=" << r.Format() << "\n";
+  Tool::Assert(r.type_.GetWidth() == 127);
+  Tool::AssertEq(0x5555555555555550ULL, Tool::GetValue(r, 0));
+  Tool::AssertEq(0x2aaaaaaaaaaaaaa8ULL, Tool::GetValue(r, 1));
 }
 
 void fixup() {
-  cout << "fixup\n";
+  cout << "Fixup\n";
   Numeric n;
   n.type_.SetWidth(68);
   n.SetValue0(0xfffffffffffffff0ULL);
@@ -92,8 +98,11 @@ void fixup() {
   WideOp::Shift(n, 16, true, &m);
   m.type_ = n.type_;
   cout << "m=" << m.Format() << "\n";
+  Tool::AssertEq(65535, Tool::GetValue(m, 1));
+
   Op::FixupWidth(m.type_, &m);
   cout << "m=" << m.Format() << "\n";
+  Tool::AssertEq(15, Tool::GetValue(m, 1));
 }
 
 int main(int argc, char **argv) {
@@ -112,6 +121,7 @@ int main(int argc, char **argv) {
   w.type_.SetWidth(512);
   Op::Clear(&w);
   cout << "w=" << w.Format() << "\n";
+  Tool::Assert(Op::IsZero(w));
 
   shift();
   concat();
