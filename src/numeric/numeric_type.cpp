@@ -231,4 +231,14 @@ void Numeric::MayExpandStorage(NumericManager *mgr, Numeric *n) {
   }
 }
 
+void Numeric::Clear(const NumericWidth &width, NumericValue *value) {
+  if (width.IsExtraWide()) {
+    value->extra_wide_value_->Clear();
+  } else {
+    for (int i = 0; i < 8; ++i) {
+      value->value_[i] = 0;
+    }
+  }
+}
+
 }  // namespace iroha
