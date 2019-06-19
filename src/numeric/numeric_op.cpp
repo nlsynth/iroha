@@ -8,7 +8,7 @@ NumericWidth Op::ValueWidth(const Numeric &src_num) {
   bool is_signed = false;
   Numeric num = src_num;
   Numeric zero;
-  Op::MakeConst(0, &zero);
+  Op::MakeConst0(0, zero.GetMutableArray());
   if (Compare(COMPARE_LT, num, zero)) {
     Numeric tmp = num;
     // negate
@@ -37,8 +37,8 @@ void Op::Sub0(const NumericValue &x, const NumericValue &y, NumericValue *a) {
   a->SetValue0(x.GetValue0() - y.GetValue0());
 }
 
-void Op::MakeConst(uint64_t value, Numeric *num) {
-  num->SetValue0(value);
+void Op::MakeConst0(uint64_t value, NumericValue *v) {
+  v->SetValue0(value);
 }
 
 void Op::CalcBinOp(BinOp op, const Numeric &x, const Numeric &y,

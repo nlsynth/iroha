@@ -38,12 +38,13 @@ public:
 		   NumericValue *a);
   static void Sub0(const NumericValue &x, const NumericValue &y,
 		   NumericValue *a);
+  static void MakeConst0(uint64_t value, NumericValue *v);
+
   static void Clear(Numeric *res);
   static void Minus(const Numeric &num, Numeric *res);
   static bool Compare(enum CompareOp op, const Numeric &x, const Numeric &y);
   static void CalcBinOp(enum BinOp op, const Numeric &x, const Numeric &y,
 			Numeric *res);
-  static void MakeConst(uint64_t value, Numeric *num);
   static void Concat(const Numeric &x, const Numeric &y, Numeric *a);
   static void SelectBits(const Numeric &num, int h, int l, Numeric *res);
   static void BitInv(const Numeric &num, Numeric *res);
