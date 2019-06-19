@@ -29,11 +29,11 @@ bool Op::IsZero(const Numeric &n) {
   return n.GetValue0() == 0;
 }
 
-void Op::Add(const Numeric &x, const Numeric &y, Numeric *a) {
+void Op::Add0(const NumericValue &x, const NumericValue &y, NumericValue *a) {
   a->SetValue0(x.GetValue0() + y.GetValue0());
 }
 
-void Op::Sub(const Numeric &x, const Numeric &y, Numeric *a) {
+void Op::Sub0(const NumericValue &x, const NumericValue &y, NumericValue *a) {
   a->SetValue0(x.GetValue0() - y.GetValue0());
 }
 

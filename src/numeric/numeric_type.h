@@ -67,6 +67,14 @@ public:
     uint64_t value_[8];
     ExtraWideValue *extra_wide_value_;
   };
+  // Only for non wide values.
+  uint64_t GetValue0() const {
+    return value_[0];
+  }
+  // Only for non wide values.
+  void SetValue0(uint64_t v) {
+    value_[0] = v;
+  }
 };
 
 class Numeric {

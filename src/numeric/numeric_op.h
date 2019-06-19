@@ -33,8 +33,11 @@ public:
   static bool IsZero(const Numeric &n);
   // Gets required width to store given number.
   static NumericWidth ValueWidth(const Numeric &n);
-  static void Add(const Numeric &x, const Numeric &y, Numeric *a);
-  static void Sub(const Numeric &x, const Numeric &y, Numeric *a);
+  // Limited to 64bit.
+  static void Add0(const NumericValue &x, const NumericValue &y,
+		   NumericValue *a);
+  static void Sub0(const NumericValue &x, const NumericValue &y,
+		   NumericValue *a);
   static void Clear(Numeric *res);
   static void Minus(const Numeric &num, Numeric *res);
   static bool Compare(enum CompareOp op, const Numeric &x, const Numeric &y);
