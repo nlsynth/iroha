@@ -80,6 +80,8 @@ public:
 class Numeric {
 public:
   Numeric();
+  Numeric(const NumericValue &v, const NumericWidth &w) : type_(w), value_(v) {
+  }
 
   // Get/SetValue0 are convenient interface for small values.
   uint64_t GetValue0() const {
