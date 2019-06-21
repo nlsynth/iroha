@@ -10,7 +10,8 @@ namespace iroha {
 class WideOp {
 public:
   static bool IsZero(const Numeric &n);
-  static void Shift(const Numeric &s, int amount, bool left, Numeric *res);
+  static void Shift(const NumericValue &s, int amount, bool left,
+		    NumericValue *res);
   static void BinBitOp(enum BinOp op, const Numeric &x, const Numeric &y,
 		       Numeric *res);
   static void SelectBits(const Numeric &num, int h, int l, Numeric *res);

@@ -49,7 +49,8 @@ void Op::CalcBinOp(BinOp op, const Numeric &x, const Numeric &y,
     case BINOP_RSHIFT:
       {
 	int c = y.GetValue0();
-	WideOp::Shift(x, c, (op == BINOP_LSHIFT), res);
+	WideOp::Shift(x.GetArray(), c, (op == BINOP_LSHIFT),
+		      res->GetMutableArray());
       }
       break;
     case BINOP_AND:
