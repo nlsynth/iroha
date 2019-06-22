@@ -31,18 +31,17 @@ enum BinOp {
 class Op {
 public:
   static bool IsZero(const Numeric &n);
-  // Gets required width to store given number.
-  static NumericWidth ValueWidth(const Numeric &n);
-  // Limited to 64bit.
+  // *0 methods can be used up to 64bit.
   static void Add0(const NumericValue &x, const NumericValue &y,
 		   NumericValue *a);
   static void Sub0(const NumericValue &x, const NumericValue &y,
 		   NumericValue *a);
   static void MakeConst0(uint64_t value, NumericValue *v);
+  static void Minus0(const NumericValue &val, NumericValue *res);
+  static bool Compare0(enum CompareOp op, const NumericValue &x,
+		       const NumericValue &y);
 
   static void Clear(Numeric *res);
-  static void Minus(const Numeric &num, Numeric *res);
-  static bool Compare(enum CompareOp op, const Numeric &x, const Numeric &y);
   static void CalcBinOp(enum BinOp op, const Numeric &x, const Numeric &y,
 			Numeric *res);
   static void Concat(const Numeric &x, const Numeric &y, Numeric *a);

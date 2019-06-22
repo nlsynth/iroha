@@ -4,24 +4,6 @@
 
 namespace iroha {
 
-NumericWidth Op::ValueWidth(const Numeric &src_num) {
-  bool is_signed = false;
-  Numeric num = src_num;
-  Numeric zero;
-  Op::MakeConst0(0, zero.GetMutableArray());
-  if (Compare(COMPARE_LT, num, zero)) {
-    Numeric tmp = num;
-    // negate
-    Minus(tmp, &num);
-    is_signed = true;
-  }
-  uint64_t n;
-  n = num.GetValue0();
-  int w;
-  for (w = 0; n > 0; w++, n /= 2);
-  return NumericWidth(is_signed, w);
-}
-
 bool Op::IsZero(const Numeric &n) {
   if (n.type_.IsWide()) {
     return WideOp::IsZero(n);
@@ -98,7 +80,7 @@ void Op::CalcBinOp(BinOp op, const Numeric &x, const Numeric &y,
   }
 }
 
-void Op::Minus(const Numeric &x, Numeric *res) {
+void Op::Minus0(const NumericValue &x, NumericValue *res) {
   *res = x;
   res->SetValue0(res->GetValue0() * -1);
 }
@@ -114,7 +96,7 @@ void Op::Clear(Numeric *res) {
   }
 }
 
-bool Op::Compare(CompareOp op, const Numeric &x, const Numeric &y) {
+bool Op::Compare0(CompareOp op, const NumericValue &x, const NumericValue &y) {
   switch (op) {
   case COMPARE_LT:
     return x.GetValue0() < y.GetValue0();
