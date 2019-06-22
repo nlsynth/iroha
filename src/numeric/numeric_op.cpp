@@ -147,21 +147,23 @@ void Op::FixupValueWidth(const NumericWidth &w, NumericValue *val) {
 }
 
 void Op::SelectBits(const Numeric &num, int h, int l,
-		    Numeric *res) {
+		    NumericValue *res, NumericWidth *res_width) {
   int width = h - l + 1;
+  if (res_width != nullptr) {
+    *res_width = NumericWidth(false, width);
+  }
   if (num.type_.IsWide()) {
-    WideOp::SelectBits(num, h, l, res);
-    res->type_ = NumericWidth(false, width);
+    WideOp::SelectBits(num.GetArray(), h, l, res);
     return;
   }
-  *res = num;
-  res->SetValue0(0);
+  uint64_t o = 0;
+  uint64_t v = num.GetValue0();
   for (int i = 0; i < width; ++i) {
-    if ((1UL << (l + i)) & num.GetValue0()) {
-      res->SetValue0(res->GetValue0() | (1UL << i));
+    if ((1UL << (l + i)) & v) {
+      o = o | (1UL << i);
     }
   }
-  res->type_ = NumericWidth(false, width);
+  res->SetValue0(o);
 }
 
 void Op::Concat(const Numeric &x, const Numeric &y,

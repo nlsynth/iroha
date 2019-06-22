@@ -14,7 +14,8 @@ public:
 		    NumericValue *res);
   static void BinBitOp(enum BinOp op, const Numeric &x, const Numeric &y,
 		       Numeric *res);
-  static void SelectBits(const Numeric &num, int h, int l, Numeric *res);
+  static void SelectBits(const NumericValue &val, int h, int l,
+			 NumericValue *res);
   static void Concat(const Numeric &x, const Numeric &y, Numeric *a);
   static void FixupWidth(const NumericWidth &w, NumericValue *val);
 };

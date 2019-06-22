@@ -104,8 +104,9 @@ void WideOp::BinBitOp(enum BinOp op, const Numeric &x, const Numeric &y, Numeric
   }
 }
 
-void WideOp::SelectBits(const Numeric &num, int h, int l, Numeric *res) {
-  Shift(num.GetArray(), l, false, res->GetMutableArray());
+void WideOp::SelectBits(const NumericValue &val, int h, int l,
+			NumericValue *res) {
+  Shift(val, l, false, res);
 }
 
 void WideOp::Concat(const Numeric &x, const Numeric &y, Numeric *a) {
