@@ -85,14 +85,13 @@ void Op::Minus0(const NumericValue &x, NumericValue *res) {
   res->SetValue0(res->GetValue0() * -1);
 }
 
-void Op::Clear(Numeric *res) {
-  if (res->type_.IsWide()) {
-    NumericValue *v = res->GetMutableArray();
+void Op::Clear(NumericWidth &w, NumericValue *val) {
+  if (w.IsWide()) {
     for (int i = 0; i < 8; ++i) {
-      v->value_[i] = 0;
+      val->value_[i] = 0;
     }
   } else {
-    res->SetValue0(0);
+    val->SetValue0(0);
   }
 }
 

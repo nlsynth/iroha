@@ -112,7 +112,7 @@ public:
 				 NumericManager *mgr,
 				 NumericValue *value);
   static void MayPopulateStorage(const NumericWidth &width, NumericManager *mgr,
-				 Numeric *n);
+				 NumericValue *n);
   static void MayExpandStorage(NumericManager *mgr, Numeric *n);
   static void Clear(const NumericWidth &width, NumericValue *value);
 

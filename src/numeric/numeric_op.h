@@ -41,7 +41,7 @@ public:
   static bool Compare0(enum CompareOp op, const NumericValue &x,
 		       const NumericValue &y);
 
-  static void Clear(Numeric *res);
+  static void Clear(NumericWidth &w, NumericValue *val);
   static void CalcBinOp(enum BinOp op, const Numeric &x, const Numeric &y,
 			Numeric *res);
   static void Concat(const Numeric &x, const Numeric &y, Numeric *a);

@@ -30,7 +30,7 @@ void shift() {
   cout << "Shift\n";
   Numeric n;
   n.type_.SetWidth(512);
-  Op::Clear(&n);
+  Op::Clear(n.type_, n.GetMutableArray());
   n.SetValue0(0xfffffffffffffff0ULL);
   cout << "n=" << n.Format() << "\n";
   Tool::AssertEq(0xfffffffffffffff0UL, n.GetValue0());
@@ -38,7 +38,7 @@ void shift() {
 
   Numeric m;
   m.type_.SetWidth(512);
-  Op::Clear(&m);
+  Op::Clear(m.type_, m.GetMutableArray());
   // Left
   cout << "Left Shift\n";
   WideOp::Shift(n.GetArray(), 1, true, m.GetMutableArray());
@@ -119,7 +119,7 @@ int main(int argc, char **argv) {
 
   Numeric w;
   w.type_.SetWidth(512);
-  Op::Clear(&w);
+  Op::Clear(w.type_, w.GetMutableArray());
   cout << "w=" << w.Format() << "\n";
   Tool::Assert(Op::IsZero(w));
 
