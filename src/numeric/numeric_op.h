@@ -30,7 +30,7 @@ enum BinOp {
 // (or even take NumericValue instead of Numeric.)
 class Op {
 public:
-  static bool IsZero(const Numeric &n);
+  static bool IsZero(const NumericWidth &w, const NumericValue &n);
   // *0 methods can be used up to 64bit.
   static void Add0(const NumericValue &x, const NumericValue &y,
 		   NumericValue *a);
@@ -40,6 +40,7 @@ public:
   static void Minus0(const NumericValue &val, NumericValue *res);
   static bool Compare0(enum CompareOp op, const NumericValue &x,
 		       const NumericValue &y);
+  static void BitInv0(const NumericValue &num, NumericValue *res);
 
   static void Clear(NumericWidth &w, NumericValue *val);
   static void CalcBinOp(enum BinOp op, const Numeric &x, const Numeric &y,
@@ -47,7 +48,6 @@ public:
   static void Concat(const Numeric &x, const Numeric &y, Numeric *a);
   static void SelectBits(const Numeric &num, int h, int l,
 			 NumericValue *res, NumericWidth *res_width);
-  static void BitInv(const Numeric &num, Numeric *res);
   // cuts upper bits
   static void FixupWidth(const NumericWidth &w, Numeric *num);
   static void FixupValueWidth(const NumericWidth &w, NumericValue *val);

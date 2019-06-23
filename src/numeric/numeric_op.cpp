@@ -4,11 +4,11 @@
 
 namespace iroha {
 
-bool Op::IsZero(const Numeric &n) {
-  if (n.type_.IsWide()) {
-    return WideOp::IsZero(n);
+bool Op::IsZero(const NumericWidth &w, const NumericValue &n) {
+  if (w.IsWide()) {
+    return WideOp::IsZero(w, n);
   }
-  return n.GetValue0() == 0;
+  return (n.GetValue0() & w.GetMask()) == 0;
 }
 
 void Op::Add0(const NumericValue &x, const NumericValue &y, NumericValue *a) {
@@ -109,9 +109,8 @@ bool Op::Compare0(CompareOp op, const NumericValue &x, const NumericValue &y) {
   return true;
 }
 
-void Op::BitInv(const Numeric &num, Numeric *res) {
-  *res = num;
-  res->SetValue0(~res->GetValue0());
+void Op::BitInv0(const NumericValue &num, NumericValue *res) {
+  res->SetValue0(~(num.GetValue0()));
 }
 
 void Op::FixupWidth(const NumericWidth &w, Numeric *num) {

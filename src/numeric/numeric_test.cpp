@@ -121,7 +121,7 @@ int main(int argc, char **argv) {
   w.type_.SetWidth(512);
   Op::Clear(w.type_, w.GetMutableArray());
   cout << "w=" << w.Format() << "\n";
-  Tool::Assert(Op::IsZero(w));
+  Tool::Assert(Op::IsZero(w.type_, w.GetArray()));
 
   shift();
   concat();

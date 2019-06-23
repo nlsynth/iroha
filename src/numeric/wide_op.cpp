@@ -2,15 +2,15 @@
 
 namespace iroha {
 
-bool WideOp::IsZero(const Numeric &n) {
+bool WideOp::IsZero(const NumericWidth &w, const NumericValue &val) {
   const uint64_t *v;
   int s;
-  if (n.type_.IsExtraWide()) {
+  if (w.IsExtraWide()) {
     s = 32;
-    v = n.GetArray().extra_wide_value_->value_;
+    v = val.extra_wide_value_->value_;
   } else {
     s = 8;
-    v = n.GetArray().value_;
+    v = val.value_;
   }
   for (int i = 0; i < s; ++i) {
     if (v[i] > 0) {
