@@ -43,7 +43,9 @@ public:
   static void BitInv0(const NumericValue &num, NumericValue *res);
 
   static void Clear(NumericWidth &w, NumericValue *val);
-  static void CalcBinOp(enum BinOp op, const Numeric &x, const Numeric &y,
+  static void CalcBinOp(enum BinOp op,
+			const NumericValue &x, const NumericValue &y,
+			const NumericWidth &w,
 			NumericValue *res);
   static void Concat(const NumericValue &x, const NumericWidth &xw,
 		     const NumericValue &y, const NumericWidth &yw,

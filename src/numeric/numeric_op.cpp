@@ -23,22 +23,22 @@ void Op::MakeConst0(uint64_t value, NumericValue *v) {
   v->SetValue0(value);
 }
 
-void Op::CalcBinOp(BinOp op, const Numeric &x, const Numeric &y,
-		   NumericValue *res) {
-  if (x.type_.IsWide()) {
+void Op::CalcBinOp(BinOp op, const NumericValue &x, const NumericValue &y,
+		   const NumericWidth &w, NumericValue *res) {
+  if (w.IsWide()) {
     switch (op) {
     case BINOP_LSHIFT:
     case BINOP_RSHIFT:
       {
 	int c = y.GetValue0();
-	WideOp::Shift(x.GetArray(), c, (op == BINOP_LSHIFT), res);
+	WideOp::Shift(x, c, (op == BINOP_LSHIFT), res);
       }
       break;
     case BINOP_AND:
     case BINOP_OR:
     case BINOP_XOR:
       {
-	WideOp::BinBitOp(op, x.GetArray(), y.GetArray(), res);
+	WideOp::BinBitOp(op, x, y, res);
       }
       break;
     case BINOP_MUL:
