@@ -16,7 +16,8 @@ public:
 		       const NumericValue &y, NumericValue *res);
   static void SelectBits(const NumericValue &val, int h, int l,
 			 NumericValue *res);
-  static void Concat(const Numeric &x, const Numeric &y,
+  static void Concat(const NumericValue &x, const NumericWidth &xw,
+		     const NumericValue &y, const NumericWidth &yw,
 		     NumericValue *a, NumericWidth *aw);
   static void FixupWidth(const NumericWidth &w, NumericValue *val);
 };

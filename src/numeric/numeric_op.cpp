@@ -146,14 +146,15 @@ void Op::SelectBits(const NumericValue &num, const NumericWidth &num_width,
   res->SetValue0(o);
 }
 
-void Op::Concat(const Numeric &x, const Numeric &y,
+void Op::Concat(const NumericValue &x, const NumericWidth &xw,
+		const NumericValue &y, const NumericWidth &yw,
 		NumericValue *a, NumericWidth *aw) {
-  NumericWidth w(false, x.type_.GetWidth() + y.type_.GetWidth());
+  NumericWidth w(false, xw.GetWidth() + yw.GetWidth());
   if (w.IsWide()) {
-    WideOp::Concat(x, y, a, aw);
+    WideOp::Concat(x, xw, y, yw, a, aw);
     return;
   }
-  a->SetValue0((x.GetValue0() << y.type_.GetWidth()) + y.GetValue0());
+  a->SetValue0((x.GetValue0() << yw.GetWidth()) + y.GetValue0());
   if (aw != nullptr) {
     *aw = w;
   }

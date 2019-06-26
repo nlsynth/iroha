@@ -109,15 +109,16 @@ void WideOp::SelectBits(const NumericValue &val, int h, int l,
   Shift(val, l, false, res);
 }
 
-void WideOp::Concat(const Numeric &x, const Numeric &y, NumericValue *a,
-		    NumericWidth *aw) {
+void WideOp::Concat(const NumericValue &x, const NumericWidth &xw,
+		    const NumericValue &y, const NumericWidth &yw,
+		    NumericValue *a, NumericWidth *aw) {
   NumericValue tmp;
-  Shift(x.GetArray(), y.type_.GetWidth(), true, &tmp);
-  Numeric yy = y;
-  FixupWidth(y.type_, yy.GetMutableArray());
-  BinBitOp(BINOP_OR, tmp, yy.GetArray(), a);
+  Shift(x, yw.GetWidth(), true, &tmp);
+  NumericValue yy = y;
+  FixupWidth(yw, &yy);
+  BinBitOp(BINOP_OR, tmp, yy, a);
   if (aw != nullptr) {
-    *aw = NumericWidth(false, x.type_.GetWidth() + y.type_.GetWidth());
+    *aw = NumericWidth(false, xw.GetWidth() + yw.GetWidth());
   }
 }
 

@@ -82,7 +82,8 @@ void concat() {
   n.type_.SetWidth(63);
   n.SetValue0(0x5555555555555550ULL);
   Numeric r;
-  Op::Concat(m, n, r.GetMutableArray(), &r.type_);
+  Op::Concat(m.GetArray(), m.type_, n.GetArray(), n.type_,
+	     r.GetMutableArray(), &r.type_);
   cout << "r=" << r.Format() << "\n";
   Tool::Assert(r.type_.GetWidth() == 127);
   Tool::AssertEq(0x5555555555555550ULL, Tool::GetValue(r, 0));
