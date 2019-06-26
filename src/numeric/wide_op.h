@@ -12,11 +12,12 @@ public:
   static bool IsZero(const NumericWidth &w, const NumericValue &val);
   static void Shift(const NumericValue &s, int amount, bool left,
 		    NumericValue *res);
-  static void BinBitOp(enum BinOp op, const Numeric &x, const Numeric &y,
-		       Numeric *res);
+  static void BinBitOp(enum BinOp op, const NumericValue &x,
+		       const NumericValue &y, NumericValue *res);
   static void SelectBits(const NumericValue &val, int h, int l,
 			 NumericValue *res);
-  static void Concat(const Numeric &x, const Numeric &y, Numeric *a);
+  static void Concat(const Numeric &x, const Numeric &y,
+		     NumericValue *a, NumericWidth *aw);
   static void FixupWidth(const NumericWidth &w, NumericValue *val);
 };
 

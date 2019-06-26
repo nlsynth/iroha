@@ -24,22 +24,21 @@ void Op::MakeConst0(uint64_t value, NumericValue *v) {
 }
 
 void Op::CalcBinOp(BinOp op, const Numeric &x, const Numeric &y,
-		   Numeric *res) {
+		   NumericValue *res) {
   if (x.type_.IsWide()) {
     switch (op) {
     case BINOP_LSHIFT:
     case BINOP_RSHIFT:
       {
 	int c = y.GetValue0();
-	WideOp::Shift(x.GetArray(), c, (op == BINOP_LSHIFT),
-		      res->GetMutableArray());
+	WideOp::Shift(x.GetArray(), c, (op == BINOP_LSHIFT), res);
       }
       break;
     case BINOP_AND:
     case BINOP_OR:
     case BINOP_XOR:
       {
-	WideOp::BinBitOp(op, x, y, res);
+	WideOp::BinBitOp(op, x.GetArray(), y.GetArray(), res);
       }
       break;
     case BINOP_MUL:
@@ -126,14 +125,15 @@ void Op::FixupValueWidth(const NumericWidth &w, NumericValue *val) {
   val->value_[0] = val->value_[0] & w.GetMask();
 }
 
-void Op::SelectBits(const Numeric &num, int h, int l,
+void Op::SelectBits(const NumericValue &num, const NumericWidth &num_width,
+		    int h, int l,
 		    NumericValue *res, NumericWidth *res_width) {
   int width = h - l + 1;
   if (res_width != nullptr) {
     *res_width = NumericWidth(false, width);
   }
-  if (num.type_.IsWide()) {
-    WideOp::SelectBits(num.GetArray(), h, l, res);
+  if (num_width.IsWide()) {
+    WideOp::SelectBits(num, h, l, res);
     return;
   }
   uint64_t o = 0;
@@ -147,15 +147,16 @@ void Op::SelectBits(const Numeric &num, int h, int l,
 }
 
 void Op::Concat(const Numeric &x, const Numeric &y,
-		Numeric *a) {
-  NumericWidth w = NumericWidth(false,
-				x.type_.GetWidth() + y.type_.GetWidth());
+		NumericValue *a, NumericWidth *aw) {
+  NumericWidth w(false, x.type_.GetWidth() + y.type_.GetWidth());
   if (w.IsWide()) {
-    WideOp::Concat(x, y, a);
+    WideOp::Concat(x, y, a, aw);
     return;
   }
   a->SetValue0((x.GetValue0() << y.type_.GetWidth()) + y.GetValue0());
-  a->type_ = w;
+  if (aw != nullptr) {
+    *aw = w;
+  }
 }
 
 }  // namespace iroha

@@ -75,10 +75,10 @@ void WideOp::Shift(const NumericValue &s, int amount, bool left,
   }
 }
 
-void WideOp::BinBitOp(enum BinOp op, const Numeric &x, const Numeric &y, Numeric *res) {
-  uint64_t *rv = res->GetMutableArray()->value_;
-  const uint64_t *xv = x.GetArray().value_;
-  const uint64_t *yv = y.GetArray().value_;
+void WideOp::BinBitOp(enum BinOp op, const NumericValue &x, const NumericValue &y, NumericValue *res) {
+  uint64_t *rv = res->value_;
+  const uint64_t *xv = x.value_;
+  const uint64_t *yv = y.value_;
   switch (op) {
   case BINOP_AND:
     {
@@ -109,15 +109,16 @@ void WideOp::SelectBits(const NumericValue &val, int h, int l,
   Shift(val, l, false, res);
 }
 
-void WideOp::Concat(const Numeric &x, const Numeric &y, Numeric *a) {
-  Numeric tmp;
-  Shift(x.GetArray(), y.type_.GetWidth(), true, tmp.GetMutableArray());
+void WideOp::Concat(const Numeric &x, const Numeric &y, NumericValue *a,
+		    NumericWidth *aw) {
+  NumericValue tmp;
+  Shift(x.GetArray(), y.type_.GetWidth(), true, &tmp);
   Numeric yy = y;
   FixupWidth(y.type_, yy.GetMutableArray());
-  BinBitOp(BINOP_OR, tmp, yy, a);
-  NumericWidth w = NumericWidth(false,
-				x.type_.GetWidth() + y.type_.GetWidth());
-  a->type_ = w;
+  BinBitOp(BINOP_OR, tmp, yy.GetArray(), a);
+  if (aw != nullptr) {
+    *aw = NumericWidth(false, x.type_.GetWidth() + y.type_.GetWidth());
+  }
 }
 
 void WideOp::FixupWidth(const NumericWidth &w, NumericValue *val) {

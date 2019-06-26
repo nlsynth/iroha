@@ -44,9 +44,11 @@ public:
 
   static void Clear(NumericWidth &w, NumericValue *val);
   static void CalcBinOp(enum BinOp op, const Numeric &x, const Numeric &y,
-			Numeric *res);
-  static void Concat(const Numeric &x, const Numeric &y, Numeric *a);
-  static void SelectBits(const Numeric &num, int h, int l,
+			NumericValue *res);
+  static void Concat(const Numeric &x, const Numeric &y,
+		     NumericValue *a, NumericWidth *aw);
+  static void SelectBits(const NumericValue &num, const NumericWidth &num_width,
+			 int h, int l,
 			 NumericValue *res, NumericWidth *res_width);
   // cuts upper bits
   static void FixupWidth(const NumericWidth &w, Numeric *num);
