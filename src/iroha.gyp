@@ -88,6 +88,7 @@
         'iroha/resource_params.cpp',
         'iroha/resource_params.h',
         'iroha/stl_util.h',
+	'iroha/test_util.h',
         'iroha/writer_api.h',
         'opt/array_elimination.cpp',
         'opt/array_elimination.h',
