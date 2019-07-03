@@ -5,6 +5,7 @@
 #include "iroha/common.h"
 
 namespace iroha {
+namespace writer {
 
 class ExpWriter {
 public:
@@ -44,6 +45,7 @@ private:
   ostream &os_;
 };
 
+}  // namespace writer
 }  // namespace iroha
 
 #endif  // _writer_exp_writer_h_

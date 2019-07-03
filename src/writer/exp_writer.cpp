@@ -8,6 +8,7 @@
 #include "numeric/numeric_type.h"
 
 namespace iroha {
+namespace writer {
 
 ExpWriter::ExpWriter(const IDesign *design, ostream &os)
   : design_(design), os_(os) {
@@ -377,4 +378,5 @@ void ExpWriter::WriteNodeDef(const platform::DefNode &node) {
   }
 }
 
+}  // namespace writer
 }  // namespace iroha

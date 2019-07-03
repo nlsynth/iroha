@@ -10,6 +10,8 @@ namespace opt {
 class DebugAnnotation;
 }  // namespace opt
 
+namespace writer {
+
 class HtmlWriter {
 public:
   HtmlWriter(const IDesign *design, ostream &os);
@@ -36,6 +38,7 @@ private:
   const opt::DebugAnnotation *annotation_;
 };
 
+}  // namespace writer
 }  // namespace iroha
 
 #endif  // _writer_html_writer_h_

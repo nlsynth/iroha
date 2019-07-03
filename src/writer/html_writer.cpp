@@ -4,6 +4,7 @@
 #include "opt/debug_annotation.h"
 
 namespace iroha {
+namespace writer {
 
 HtmlWriter::HtmlWriter(const IDesign *design, ostream &os)
   : design_(design), os_(os), annotation_(design->GetDebugAnnotation()) {
@@ -177,4 +178,5 @@ string HtmlWriter::StateRowStyle(int block_index, int in_block_index) {
   return " style=\"background-color: " + color + "\"";
 }
 
+}  // namespace writer
 }  // namespace iroha
