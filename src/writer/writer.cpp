@@ -49,6 +49,8 @@ bool Writer::Write(const string &fn) {
       writer.SetShellModuleName(shell, output_self_clock_, output_vcd_);
     }
     res = writer.Write();
+  } else if (language_ == "dot") {
+    // TODO: Implement this.
   } else if (language_ == "html") {
     HtmlWriter writer(design_, *os);
     writer.Write();

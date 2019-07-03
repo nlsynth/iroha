@@ -36,6 +36,7 @@ string getFlagValue(int argc, char **argv, int *idx) {
 int main(int argc, char **argv) {
   vector<string> files;
   bool verilog = false;
+  bool dot = false;
   bool html = false;
   bool shell = false;
   bool selfShell = false;
@@ -78,6 +79,10 @@ int main(int argc, char **argv) {
     }
     if (arg == "-k") {
       skipValidation = true;
+      continue;
+    }
+    if (arg == "-dot") {
+      dot = true;
       continue;
     }
     if (arg == "-vcd") {
@@ -177,6 +182,9 @@ int main(int argc, char **argv) {
     }
     if (html) {
       writer->SetLanguage("html");
+    }
+    if (dot) {
+      writer->SetLanguage("dot");
     }
     if (!skipValidation) {
       DesignTool::Validate(design);

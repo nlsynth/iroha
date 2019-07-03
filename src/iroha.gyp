@@ -68,6 +68,8 @@
         'design/validator.cpp',
         'design/validator.h',
         'iroha/common.h',
+        'iroha/dot.cpp',
+        'iroha/dot.h',
         'iroha/i_design.cpp',
         'iroha/i_design.h',
         'iroha/i_platform.cpp',
