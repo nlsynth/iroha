@@ -58,14 +58,14 @@ public:
   ~Dot();
 
   void Write(const string &fn);
+  void Output(ostream &os);
 
   Node *GetNode(const string &s);
   Cluster *GetCluster(const string &s);
 
 private:
-  void Output(ostream &os);
 
-  unique_ptr<ofstream> ofs_;
+  unique_ptr<ostream> ofs_;
   std::map<string, Node *> nodes_;
   std::map<string, Cluster *> clusters_;
 };

@@ -2,6 +2,7 @@
 
 #include "iroha/iroha.h"
 #include "writer/connection.h"
+#include "writer/dot_writer.h"
 #include "writer/exp_writer.h"
 #include "writer/html_writer.h"
 #include "writer/verilog/verilog_writer.h"
@@ -50,7 +51,8 @@ bool Writer::Write(const string &fn) {
     }
     res = writer.Write();
   } else if (language_ == "dot") {
-    // TODO: Implement this.
+    DotWriter writer(design_, *os);
+    writer.Write();
   } else if (language_ == "html") {
     HtmlWriter writer(design_, *os);
     writer.Write();

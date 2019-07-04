@@ -182,6 +182,8 @@
         'platform/platform_db.h',
         'writer/connection.cpp',
         'writer/connection.h',
+        'writer/dot_writer.cpp',
+        'writer/dot_writer.h',
         'writer/exp_writer.cpp',
         'writer/exp_writer.h',
         'writer/html_writer.cpp',
