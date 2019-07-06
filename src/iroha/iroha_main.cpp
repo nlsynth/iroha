@@ -16,6 +16,7 @@ void printVersion() {
 	    << "  -v Output Verilog\n"
 	    << "  -I Set import paths (comma separated. can have multiple -I options)\n"
 	    << "  -h Output HTML\n"
+	    << "  -dot Output Dot (graphviz)\n"
 	    << "  -o [fn] output to the file name\n"
 	    << "  -d Debug dump\n"
 	    << "  -k Don't validate ids and names\n"

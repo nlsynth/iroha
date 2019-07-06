@@ -20,11 +20,11 @@ void Dot::Output(ostream &os) {
   for (auto it : clusters_) {
     Cluster *c = it.second;
     os << "  subgraph cluster_" << c->GetName() << " {\n"
-       << "    label = \"" << c->GetName() << "\"";
+       << "    label = \"" << c->GetName() << "\"\n";
     for (auto jt : nodes_) {
       Node *n = jt.second;
       if (n->GetCluster() == c) {
-	os << "  " << n->GetName() << "\n";
+	os << "    " << n->GetName() << "\n";
       }
     }
     os << "  }\n";
