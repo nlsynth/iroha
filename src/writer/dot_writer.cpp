@@ -16,13 +16,22 @@ DotWriter::~DotWriter() {
 void DotWriter::Write() {
   dot_.reset(new Dot);
   for (auto *mod : design_->modules_) {
+    Cluster *cl = dot_->GetCluster(mod->GetName());
+    mod_to_cluster_[mod] = cl;
+  }
+  for (auto *mod : design_->modules_) {
     WriteModule(*mod);
   }
   dot_->Output(os_);
 }
 
 void DotWriter::WriteModule(const IModule &mod) {
-  Cluster *cl = dot_->GetCluster(mod.GetName());
+  Cluster *cl = mod_to_cluster_[&mod];
+  IModule *parent = mod.GetParentModule();
+  if (parent != nullptr) {
+    Cluster *parent_cl = mod_to_cluster_[parent];
+    cl->SetParent(parent_cl);
+  }
   for (auto *tab : mod.tables_) {
     Node *n = dot_->GetNode(TableName(*tab));
     n->SetCluster(cl);

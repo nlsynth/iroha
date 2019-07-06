@@ -4,8 +4,13 @@
 
 #include "iroha/common.h"
 
+#include <map>
+
+using std::map;
+
 namespace iroha {
 
+class Cluster;
 class Dot;
 
 namespace writer {
@@ -24,6 +29,7 @@ private:
   const IDesign *design_;
   ostream &os_;
   std::unique_ptr<Dot> dot_;
+  map<const IModule *, Cluster *> mod_to_cluster_;
 };
 
 }  // namespace writer

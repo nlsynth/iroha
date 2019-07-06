@@ -11,15 +11,24 @@ namespace iroha {
 
 class Cluster {
 public:
-  Cluster(const string &name) : name_(name) {
+  Cluster(const string &name) : name_(name), parent_(nullptr) {
   }
 
   const string &GetName() const {
     return name_;
   }
 
+  void SetParent(Cluster *parent) {
+    parent_ = parent;
+  }
+
+  Cluster *GetParent() const {
+    return parent_;
+  }
+
 private:
   string name_;
+  Cluster *parent_;
 };
 
 class Node {

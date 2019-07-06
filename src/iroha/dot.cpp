@@ -16,7 +16,18 @@ Dot::~Dot() {
 }
 
 void Dot::Output(ostream &os) {
-  os << "digraph g {\n";
+  os << "digraph g {\n"
+     << "  compound = true;\n";
+  // Pick one node for each cluster to generate links between clusters.
+  map<Cluster *, Node *> cluster_to_one_node;
+  for (auto it : nodes_) {
+    Node *n = it.second;
+    Cluster *cl = n->GetCluster();
+    if (cl != nullptr) {
+      cluster_to_one_node[cl] = n;
+    }
+  }
+  // Subgraphs.
   for (auto it : clusters_) {
     Cluster *c = it.second;
     os << "  subgraph cluster_" << c->GetName() << " {\n"
@@ -29,6 +40,7 @@ void Dot::Output(ostream &os) {
     }
     os << "  }\n";
   }
+  // Independent node decls and links.
   for (auto it : nodes_) {
     Node *n = it.second;
     if (n->GetCluster() == nullptr) {
@@ -41,6 +53,19 @@ void Dot::Output(ostream &os) {
     if (s != nullptr) {
       os << "  " << n->GetName() << " -> " << s->GetName() << "\n";
     }
+  }
+  // Cluster to cluster link.
+  for (auto it : clusters_) {
+    Cluster *sc = it.second;
+    Cluster *pc = sc->GetParent();
+    if (pc == nullptr) {
+      continue;
+    }
+    Node *sn = cluster_to_one_node[sc];
+    Node *pn = cluster_to_one_node[pc];
+    os << "  " << sn->GetName() << " -> " << pn->GetName()
+       << " [ltail=cluster_" << sc->GetName()
+       << " lhead=cluster_" << pc->GetName() << "]\n";
   }
   os << "}\n";
 }
