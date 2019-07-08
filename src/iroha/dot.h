@@ -11,24 +11,24 @@ namespace iroha {
 
 class Cluster {
 public:
-  Cluster(const string &name) : name_(name), parent_(nullptr) {
+  Cluster(const string &name) : name_(name), sink_(nullptr) {
   }
 
   const string &GetName() const {
     return name_;
   }
 
-  void SetParent(Cluster *parent) {
-    parent_ = parent;
+  void SetSink(Cluster *sink) {
+    sink_ = sink;
   }
 
-  Cluster *GetParent() const {
-    return parent_;
+  Cluster *GetSink() const {
+    return sink_;
   }
 
 private:
   string name_;
-  Cluster *parent_;
+  Cluster *sink_;
 };
 
 class Node {
@@ -82,4 +82,3 @@ private:
 }  // namespace iroha
 
 #endif // _iroha_dot_h_
-

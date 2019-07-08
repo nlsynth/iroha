@@ -29,8 +29,8 @@ void DotWriter::WriteModule(const IModule &mod) {
   Cluster *cl = mod_to_cluster_[&mod];
   IModule *parent = mod.GetParentModule();
   if (parent != nullptr) {
-    Cluster *parent_cl = mod_to_cluster_[parent];
-    cl->SetParent(parent_cl);
+    Cluster *sink_cl = mod_to_cluster_[parent];
+    cl->SetSink(sink_cl);
   }
   for (auto *tab : mod.tables_) {
     Node *n = dot_->GetNode(TableName(*tab));

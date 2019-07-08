@@ -57,7 +57,7 @@ void Dot::Output(ostream &os) {
   // Cluster to cluster link.
   for (auto it : clusters_) {
     Cluster *sc = it.second;
-    Cluster *pc = sc->GetParent();
+    Cluster *pc = sc->GetSink();
     if (pc == nullptr) {
       continue;
     }
