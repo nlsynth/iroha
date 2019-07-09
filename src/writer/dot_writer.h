@@ -12,6 +12,7 @@ namespace iroha {
 
 class Cluster;
 class Dot;
+class Node;
 
 namespace writer {
 
@@ -24,12 +25,17 @@ public:
 
 private:
   void WriteModule(const IModule &mod);
+  void WriteTable(const ITable &tab);
+  string ModuleName(const IModule &mod);
   string TableName(const ITable &tab);
+  string ResourceName(const IResource &res);
 
   const IDesign *design_;
   ostream &os_;
   std::unique_ptr<Dot> dot_;
   map<const IModule *, Cluster *> mod_to_cluster_;
+  map<const ITable *, Cluster *> tab_to_cluster_;
+  map<const IResource *, Node *> res_to_node_;
 };
 
 }  // namespace writer

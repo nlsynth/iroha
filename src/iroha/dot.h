@@ -11,11 +11,18 @@ namespace iroha {
 
 class Cluster {
 public:
-  Cluster(const string &name) : name_(name), sink_(nullptr) {
-  }
+  Cluster(const string &name);
 
   const string &GetName() const {
     return name_;
+  }
+
+  const string &GetLabel() const {
+    return label_;
+  }
+
+  void SetLabel(const string &label) {
+    label_ = label;
   }
 
   void SetSink(Cluster *sink) {
@@ -26,26 +33,51 @@ public:
     return sink_;
   }
 
+  void SetParent(Cluster *parent) {
+    parent_ = parent;
+  }
+
+  Cluster *GetParent() {
+    return parent_;
+  }
+
 private:
   string name_;
+  string label_;
   Cluster *sink_;
+  Cluster *parent_;
 };
 
 class Node {
 public:
-  Node(const string &name) : name_(name), sink_(nullptr), cluster_(nullptr) {
-  }
+  Node(const string &name);
 
   const string &GetName() const {
     return name_;
   }
 
-  Node *GetSink() const {
-    return sink_;
+  const string &GetLabel() const {
+    return label_;
   }
 
-  void SetSink(Node *sink) {
-    sink_ = sink;
+  void SetLabel(const string &label) {
+    label_ = label;
+  }
+
+  Node *GetSinkNode() const {
+    return sink_node_;
+  }
+
+  void SetSinkNode(Node *sink_node) {
+    sink_node_ = sink_node;
+  }
+
+  Cluster *GetSinkCluster() const {
+    return sink_cluster_;
+  }
+
+  void SetSinkCluster(Cluster *sink_cluster) {
+    sink_cluster_ = sink_cluster;
   }
 
   void SetCluster(Cluster *cluster) {
@@ -56,10 +88,21 @@ public:
     return cluster_;
   }
 
+  void SetVisible(bool visible) {
+    visible_ = visible;
+  }
+
+  bool GetVisible() const {
+    return visible_;
+  }
+
 private:
   string name_;
-  Node *sink_;
+  string label_;
+  Node *sink_node_;
+  Cluster *sink_cluster_;
   Cluster *cluster_;
+  bool visible_;
 };
 
 class Dot {
@@ -73,10 +116,15 @@ public:
   Cluster *GetCluster(const string &s);
 
 private:
+  void OutputCluster(Cluster *cl, ostream &os);
+  void OutputNode(Node *node, ostream &os);
+  void BuildTree();
 
   unique_ptr<ostream> ofs_;
   std::map<string, Node *> nodes_;
   std::map<string, Cluster *> clusters_;
+  std::map<Cluster *, Node *> cluster_to_one_node_;
+  std::map<Cluster *, vector<Cluster *> > child_clusters_;
 };
 
 }  // namespace iroha
