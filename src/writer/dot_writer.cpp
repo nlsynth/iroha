@@ -52,6 +52,7 @@ void DotWriter::WriteModule(const IModule &mod) {
 void DotWriter::WriteTable(const ITable &tab) {
   Cluster *mod_cl = mod_to_cluster_[tab.GetModule()];
   Cluster *tab_cl = dot_->GetCluster(TableName(tab));
+  tab_cl->SetLabel(tab.GetName());
   tab_cl->SetParent(mod_cl);
   for (IResource *res : tab.resources_) {
     Node *n = dot_->GetNode(ResourceName(*res));
