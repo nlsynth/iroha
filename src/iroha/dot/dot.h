@@ -14,33 +14,13 @@ class Cluster {
 public:
   Cluster(const string &name);
 
-  const string &GetName() const {
-    return name_;
-  }
-
-  const string &GetLabel() const {
-    return label_;
-  }
-
-  void SetLabel(const string &label) {
-    label_ = label;
-  }
-
-  void SetSink(Cluster *sink) {
-    sink_ = sink;
-  }
-
-  Cluster *GetSink() const {
-    return sink_;
-  }
-
-  void SetParent(Cluster *parent) {
-    parent_ = parent;
-  }
-
-  Cluster *GetParent() {
-    return parent_;
-  }
+  const string &GetName() const;
+  const string &GetLabel() const;
+  void SetLabel(const string &label);
+  void SetSink(Cluster *sink);
+  Cluster *GetSink() const;
+  void SetParent(Cluster *parent);
+  Cluster *GetParent();
 
 private:
   string name_;
@@ -53,49 +33,17 @@ class Node {
 public:
   Node(const string &name);
 
-  const string &GetName() const {
-    return name_;
-  }
-
-  const string &GetLabel() const {
-    return label_;
-  }
-
-  void SetLabel(const string &label) {
-    label_ = label;
-  }
-
-  Node *GetSinkNode() const {
-    return sink_node_;
-  }
-
-  void SetSinkNode(Node *sink_node) {
-    sink_node_ = sink_node;
-  }
-
-  Cluster *GetSinkCluster() const {
-    return sink_cluster_;
-  }
-
-  void SetSinkCluster(Cluster *sink_cluster) {
-    sink_cluster_ = sink_cluster;
-  }
-
-  void SetCluster(Cluster *cluster) {
-    cluster_ = cluster;
-  }
-
-  Cluster *GetCluster() const {
-    return cluster_;
-  }
-
-  void SetVisible(bool visible) {
-    visible_ = visible;
-  }
-
-  bool GetVisible() const {
-    return visible_;
-  }
+  const string &GetName() const;
+  const string &GetLabel() const;
+  void SetLabel(const string &label);
+  Node *GetSinkNode() const;
+  void SetSinkNode(Node *sink_node);
+  Cluster *GetSinkCluster() const;
+  void SetSinkCluster(Cluster *sink_cluster);
+  void SetCluster(Cluster *cluster);
+  Cluster *GetCluster() const;
+  void SetVisible(bool visible);
+  bool GetVisible() const;
 
 private:
   string name_;

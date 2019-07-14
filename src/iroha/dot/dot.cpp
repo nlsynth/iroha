@@ -15,9 +15,81 @@ Cluster::Cluster(const string &name)
   : name_(name), sink_(nullptr), parent_(nullptr) {
 }
 
+const string &Cluster::GetName() const {
+  return name_;
+}
+
+const string &Cluster::GetLabel() const {
+  return label_;
+}
+
+void Cluster::SetLabel(const string &label) {
+  label_ = label;
+}
+
+void Cluster::SetSink(Cluster *sink) {
+  sink_ = sink;
+}
+
+Cluster *Cluster::GetSink() const {
+  return sink_;
+}
+
+void Cluster::SetParent(Cluster *parent) {
+  parent_ = parent;
+}
+
+Cluster *Cluster::GetParent() {
+  return parent_;
+}
+
 Node::Node(const string &name)
   : name_(name), sink_node_(nullptr), sink_cluster_(nullptr),
     cluster_(nullptr), visible_(true) {
+}
+
+const string &Node::GetName() const {
+  return name_;
+}
+
+const string &Node::GetLabel() const {
+  return label_;
+}
+
+void Node::SetLabel(const string &label) {
+  label_ = label;
+}
+
+Node *Node::GetSinkNode() const {
+  return sink_node_;
+}
+
+void Node::SetSinkNode(Node *sink_node) {
+  sink_node_ = sink_node;
+}
+
+Cluster *Node::GetSinkCluster() const {
+  return sink_cluster_;
+}
+
+void Node::SetSinkCluster(Cluster *sink_cluster) {
+  sink_cluster_ = sink_cluster;
+}
+
+void Node::SetCluster(Cluster *cluster) {
+  cluster_ = cluster;
+}
+
+Cluster *Node::GetCluster() const {
+  return cluster_;
+}
+
+void Node::SetVisible(bool visible) {
+  visible_ = visible;
+}
+
+bool Node::GetVisible() const {
+  return visible_;
 }
 
 Dot::~Dot() {
