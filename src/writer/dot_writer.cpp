@@ -1,7 +1,11 @@
 #include "writer/dot_writer.h"
 
-#include "iroha/dot.h"
+#include "iroha/dot/dot.h"
 #include "iroha/i_design.h"
+
+using iroha::dot::Cluster;
+using iroha::dot::Dot;
+using iroha::dot::Node;
 
 namespace iroha {
 namespace writer {

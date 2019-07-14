@@ -1,5 +1,5 @@
 // Code for DOT (Graphviz) format.
-#include "iroha/dot.h"
+#include "iroha/dot/dot.h"
 
 #include "iroha/stl_util.h"
 
@@ -9,6 +9,7 @@
 using namespace std;
 
 namespace iroha {
+namespace dot {
 
 Cluster::Cluster(const string &name)
   : name_(name), sink_(nullptr), parent_(nullptr) {
@@ -154,4 +155,5 @@ void Dot::Write(const string &fn) {
   Output(*ofs_);
 }
 
+}  // namespace dot
 }  // namespace iroha

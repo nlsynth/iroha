@@ -1,13 +1,14 @@
 // -*- C++ -*-
 // Code for DOT (Graphviz) format.
-#ifndef _iroha_dot_h_
-#define _iroha_dot_h_
+#ifndef _iroha_dot_dot_h_
+#define _iroha_dot_dot_h_
 
 #include "iroha/common.h"
 
 #include <map>
 
 namespace iroha {
+namespace dot {
 
 class Cluster {
 public:
@@ -127,6 +128,7 @@ private:
   std::map<Cluster *, vector<Cluster *> > child_clusters_;
 };
 
+}  // namespace dot
 }  // namespace iroha
 
-#endif // _iroha_dot_h_
+#endif // _iroha_dot_dot_h_

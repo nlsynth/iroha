@@ -9,10 +9,11 @@
 using std::map;
 
 namespace iroha {
-
+namespace dot {
 class Cluster;
 class Dot;
 class Node;
+}  // namespace dot
 
 namespace writer {
 
@@ -32,10 +33,10 @@ private:
 
   const IDesign *design_;
   ostream &os_;
-  std::unique_ptr<Dot> dot_;
-  map<const IModule *, Cluster *> mod_to_cluster_;
-  map<const ITable *, Cluster *> tab_to_cluster_;
-  map<const IResource *, Node *> res_to_node_;
+  std::unique_ptr<dot::Dot> dot_;
+  map<const IModule *, dot::Cluster *> mod_to_cluster_;
+  map<const ITable *, dot::Cluster *> tab_to_cluster_;
+  map<const IResource *, dot::Node *> res_to_node_;
 };
 
 }  // namespace writer
