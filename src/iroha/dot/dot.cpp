@@ -11,8 +11,23 @@ using namespace std;
 namespace iroha {
 namespace dot {
 
+Edge::Edge(int id) : id_(id) {
+}
+
+int Edge::GetId() const {
+  return id_;
+}
+
+void Edge::SetLabel(const string &label) {
+  label_ = label;
+}
+
+const string &Edge::GetLabel() const {
+  return label_;
+}
+
 Cluster::Cluster(const string &name)
-  : name_(name), sink_(nullptr), parent_(nullptr) {
+  : name_(name), parent_(nullptr) {
 }
 
 const string &Cluster::GetName() const {
@@ -27,12 +42,14 @@ void Cluster::SetLabel(const string &label) {
   label_ = label;
 }
 
-void Cluster::SetSink(Cluster *sink) {
-  sink_ = sink;
+Edge *Cluster::AddSink(Dot *dot, Cluster *sink) {
+  Edge *e = dot->NewEdge();
+  sinks_[e->GetId()] = sink;
+  return e;
 }
 
-Cluster *Cluster::GetSink() const {
-  return sink_;
+const std::map<int, Cluster *> &Cluster::GetSinks() const {
+  return sinks_;
 }
 
 void Cluster::SetParent(Cluster *parent) {
@@ -95,6 +112,7 @@ bool Node::GetVisible() const {
 Dot::~Dot() {
   STLDeleteSecondElements(&nodes_);
   STLDeleteSecondElements(&clusters_);
+  STLDeleteSecondElements(&edges_);
 }
 
 void Dot::Output(ostream &os) {
@@ -133,21 +151,30 @@ void Dot::Output(ostream &os) {
   // Cluster to cluster link.
   for (auto it : clusters_) {
     Cluster *sc = it.second;
-    Cluster *pc = sc->GetSink();
-    if (pc == nullptr) {
+    if (sc == nullptr) {
       continue;
     }
-    Node *sn = cluster_to_one_node_[sc];
-    Node *pn = cluster_to_one_node_[pc];
-    if (sn == nullptr || pn == nullptr) {
-      // Given clusters don't have a node.
-      continue;
+    auto &sinks = sc->GetSinks();
+    for (auto jt : sinks) {
+      OutputClusterLink(sc, jt.second, os);
     }
-    os << "  " << sn->GetName() << " -> " << pn->GetName()
-       << " [ltail=cluster_" << sc->GetName()
-       << " lhead=cluster_" << pc->GetName() << "]\n";
   }
   os << "}\n";
+}
+
+void Dot::OutputClusterLink(Cluster *sc, Cluster *pc, ostream &os) {
+  if (pc == nullptr) {
+    return;
+  }
+  Node *sn = cluster_to_one_node_[sc];
+  Node *pn = cluster_to_one_node_[pc];
+  if (sn == nullptr || pn == nullptr) {
+    // Given clusters don't have a node.
+    return;
+  }
+  os << "  " << sn->GetName() << " -> " << pn->GetName()
+     << " [ltail=cluster_" << sc->GetName()
+     << " lhead=cluster_" << pc->GetName() << "]\n";
 }
 
 void Dot::BuildTree() {
@@ -220,6 +247,21 @@ Cluster *Dot::GetCluster(const string &name) {
   Cluster *c = new Cluster(name);
   clusters_[name] = c;
   return c;
+}
+
+Edge *Dot::NewEdge() {
+  int id = edges_.size() + 1;
+  Edge *e = new Edge(id);
+  edges_[id] = e;
+  return e;
+}
+
+Edge *Dot::GetEdge(int id) const {
+  auto it = edges_.find(id);
+  if (it == edges_.end()) {
+    return nullptr;
+  }
+  return it->second;
 }
 
 void Dot::Write(const string &fn) {

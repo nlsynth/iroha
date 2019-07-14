@@ -46,7 +46,7 @@ void DotWriter::WriteModule(const IModule &mod) {
   IModule *parent = mod.GetParentModule();
   if (parent != nullptr) {
     Cluster *sink_cl = mod_to_cluster_[parent];
-    cl->SetSink(sink_cl);
+    cl->AddSink(dot_.get(), sink_cl);
   }
   for (auto *tab : mod.tables_) {
     WriteTable(*tab);

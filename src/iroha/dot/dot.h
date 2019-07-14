@@ -10,6 +10,21 @@
 namespace iroha {
 namespace dot {
 
+class Dot;
+
+class Edge {
+public:
+  Edge(int id);
+
+  int GetId() const;
+  void SetLabel(const string &label);
+  const string &GetLabel() const;
+
+private:
+  int id_;
+  string label_;
+};
+
 class Cluster {
 public:
   Cluster(const string &name);
@@ -17,15 +32,15 @@ public:
   const string &GetName() const;
   const string &GetLabel() const;
   void SetLabel(const string &label);
-  void SetSink(Cluster *sink);
-  Cluster *GetSink() const;
+  Edge *AddSink(Dot *dot, Cluster *sink);
+  const std::map<int, Cluster *> &GetSinks() const;
   void SetParent(Cluster *parent);
   Cluster *GetParent();
 
 private:
   string name_;
   string label_;
-  Cluster *sink_;
+  std::map<int, Cluster *> sinks_;
   Cluster *parent_;
 };
 
@@ -63,13 +78,17 @@ public:
 
   Node *GetNode(const string &s);
   Cluster *GetCluster(const string &s);
+  Edge *NewEdge();
+  Edge *GetEdge(int id) const;
 
 private:
   void OutputCluster(Cluster *cl, ostream &os);
+  void OutputClusterLink(Cluster *sc, Cluster *pc, ostream &os);
   void OutputNode(Node *node, ostream &os);
   void BuildTree();
 
   unique_ptr<ostream> ofs_;
+  std::map<int, Edge *> edges_;
   std::map<string, Node *> nodes_;
   std::map<string, Cluster *> clusters_;
   std::map<Cluster *, Node *> cluster_to_one_node_;
