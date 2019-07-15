@@ -83,7 +83,7 @@ public:
 
 private:
   void OutputCluster(Cluster *cl, ostream &os);
-  void OutputClusterLink(Cluster *sc, Cluster *pc, ostream &os);
+  void OutputClusterLink(Cluster *sc, Cluster *pc, Edge *edge, ostream &os);
   void OutputNode(Node *node, ostream &os);
   void BuildTree();
 

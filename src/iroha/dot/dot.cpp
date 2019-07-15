@@ -156,13 +156,15 @@ void Dot::Output(ostream &os) {
     }
     auto &sinks = sc->GetSinks();
     for (auto jt : sinks) {
-      OutputClusterLink(sc, jt.second, os);
+      Edge *edge = GetEdge(jt.first);
+      OutputClusterLink(sc, jt.second, edge, os);
     }
   }
   os << "}\n";
 }
 
-void Dot::OutputClusterLink(Cluster *sc, Cluster *pc, ostream &os) {
+void Dot::OutputClusterLink(Cluster *sc, Cluster *pc, Edge *edge,
+			    ostream &os) {
   if (pc == nullptr) {
     return;
   }
@@ -173,7 +175,12 @@ void Dot::OutputClusterLink(Cluster *sc, Cluster *pc, ostream &os) {
     return;
   }
   os << "  " << sn->GetName() << " -> " << pn->GetName()
-     << " [ltail=cluster_" << sc->GetName()
+     << " [";
+  string label = edge->GetLabel();
+  if (!label.empty()) {
+    os << "label=\"" + label + "\" ";
+  }
+  os << "ltail=cluster_" << sc->GetName()
      << " lhead=cluster_" << pc->GetName() << "]\n";
 }
 
