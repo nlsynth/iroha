@@ -11,7 +11,7 @@ using namespace std;
 namespace iroha {
 namespace dot {
 
-Edge::Edge(int id) : id_(id) {
+Edge::Edge(int id) : id_(id), dotted_(false) {
 }
 
 int Edge::GetId() const {
@@ -24,6 +24,14 @@ void Edge::SetLabel(const string &label) {
 
 const string &Edge::GetLabel() const {
   return label_;
+}
+
+void Edge::SetDotted(bool dotted) {
+  dotted_ = dotted;
+}
+
+bool Edge::GetDotted() const {
+  return dotted_;
 }
 
 Cluster::Cluster(const string &name)
@@ -179,6 +187,9 @@ void Dot::OutputClusterLink(Cluster *sc, Cluster *pc, Edge *edge,
   string label = edge->GetLabel();
   if (!label.empty()) {
     os << "label=\"" + label + "\" ";
+  }
+  if (edge->GetDotted()) {
+    os << "style=\"dotted\" ";
   }
   os << "ltail=cluster_" << sc->GetName()
      << " lhead=cluster_" << pc->GetName() << "]\n";

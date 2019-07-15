@@ -19,10 +19,13 @@ public:
   int GetId() const;
   void SetLabel(const string &label);
   const string &GetLabel() const;
+  void SetDotted(bool dotted);
+  bool GetDotted() const;
 
 private:
   int id_;
   string label_;
+  bool dotted_;
 };
 
 class Cluster {
