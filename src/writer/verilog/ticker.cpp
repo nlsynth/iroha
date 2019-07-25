@@ -2,6 +2,7 @@
 
 #include "iroha/i_design.h"
 #include "writer/module_template.h"
+#include "writer/verilog/insn_writer.h"
 #include "writer/verilog/state.h"
 #include "writer/verilog/table.h"
 #include "writer/verilog/module.h"
@@ -25,9 +26,15 @@ void Ticker::BuildResource() {
 }
 
 void Ticker::BuildInsn(IInsn *insn, State *st) {
-  ostream &os = st->StateBodySectionStream();
   string n = TickerName();
-  os << "          $display(\"ticker:%d\", " << n << ");\n";
+  if (insn->outputs_.size() > 0) {
+    ostream &ws = tab_.InsnWireValueSectionStream();
+    ws << "  assign " << InsnWriter::InsnOutputWireName(*insn, 0)
+       << " = " << n << ";\n";
+  } else {
+    ostream &os = st->StateBodySectionStream();
+    os << "          $display(\"ticker:%d\", " << n << ");\n";
+  }
 }
 
 string Ticker::TickerName() {
