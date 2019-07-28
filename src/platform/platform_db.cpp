@@ -46,7 +46,7 @@ NodeResult NodeResult::SetError() {
 }
 
 NodeResult NodeResult::ErrorNode() {
-  NodeResult().SetError();
+  return NodeResult().SetError();
 }
 
 PlatformDB::PlatformDB(IPlatform *platform) : platform_(platform) {

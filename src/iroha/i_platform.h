@@ -55,8 +55,8 @@ public:
   vector<platform::Definition *> defs_;
 
 private:
-  ObjectPool *objects_;
   IDesign *design_;
+  ObjectPool *objects_;
   string name_;
 };
 

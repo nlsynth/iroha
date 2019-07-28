@@ -6,7 +6,8 @@
 
 namespace iroha {
 
-IPlatform::IPlatform(IDesign *design) : design_(design), objects_(new ObjectPool) {
+IPlatform::IPlatform(IDesign *design)
+  : design_(design), objects_(new ObjectPool) {
   if (design != nullptr) {
     design->GetObjectPool()->platforms_.Add(this);
   }
@@ -67,7 +68,7 @@ const string &DefNode::GetHead() {
 }
 
 Definition::Definition(IPlatform *platform)
-  : platform_(platform), condition_(nullptr), value_(nullptr) {
+  : condition_(nullptr), value_(nullptr), platform_(platform) {
 }
 
 Definition::~Definition() {

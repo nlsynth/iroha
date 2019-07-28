@@ -61,10 +61,6 @@ void WirePlan::SaveResources() {
     ResourceEntry *rent = p.second;
     allocation_plan_.num_replicas_[rent] = rent->GetNumReplicas();
   }
-  auto &resources = vrs->GetVirtualResources();
-  for (auto &p : resources) {
-    VirtualResource *vres = p.second;
-  }
 }
 
 void WirePlan::RestoreResources() {
