@@ -14,7 +14,6 @@ public:
 
   void Print();
   void Assert();
-  void Mapped();
 
   static string RegisterValue(const IRegister &reg, Names *names);
   static string ConstValue(const IRegister &reg);

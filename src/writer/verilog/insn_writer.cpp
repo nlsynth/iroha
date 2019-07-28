@@ -68,9 +68,6 @@ void InsnWriter::Assert() {
   os_ << I << "end\n";
 }
 
-void InsnWriter::Mapped() {
-}
-
 string InsnWriter::InsnOutputWireName(const IInsn &insn, int nth) {
   return "insn_o_" + Util::Itoa(insn.GetResource()->GetTable()->GetId()) + "_"
     + Util::Itoa(insn.GetId()) + "_" + Util::Itoa(nth);

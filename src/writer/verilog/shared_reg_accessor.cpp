@@ -58,7 +58,6 @@ void SharedRegAccessor::BuildSharedRegReaderResource() {
   ostream &rs = tab_.ResourceSectionStream();
   rs << "  // shared-reg-reader\n";
   ostream &rvs = tab_.ResourceValueSectionStream();
-  const IResource *reg = res_.GetParentResource();
   if (UseMailbox(&res_)) {
     map<IState *, IInsn *> getters;
     CollectResourceCallers(operand::kGetMailbox, &getters);

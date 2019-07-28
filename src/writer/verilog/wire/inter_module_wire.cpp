@@ -47,7 +47,6 @@ void InterModuleWire::AddWireEdge(const IResource &accessor, const string &name,
   if (!HasWire(parent_mod, name) && !HasPort(parent_mod, name)) {
     if (!from_parent && common_root == parent_imodule &&
 	!same_module) {
-      auto *tmpl_p = parent_mod->GetModuleTemplate();
       ostream &rs_p = res_.GetTable().ResourceSectionStream();
       rs_p << "  wire " << a;
       AddWireName(parent_mod, name);

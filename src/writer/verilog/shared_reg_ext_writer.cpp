@@ -17,7 +17,6 @@ SharedRegExtWriter::SharedRegExtWriter(const IResource &res,
 
 void SharedRegExtWriter::BuildResource() {
   int width =  res_.GetParentResource()->GetParams()->GetWidth();
-  auto *klass = res_.GetClass();
   string wrn = SharedReg::GetNameRW(*(res_.GetParentResource()),
 				    true);
   string w_wire = wire::Names::AccessorWire(wrn, &res_, "w");

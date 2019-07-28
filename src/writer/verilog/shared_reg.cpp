@@ -228,8 +228,6 @@ string SharedReg::RegName(const IResource &reg) {
   if (params != nullptr) {
     params->GetExtOutputPort(&port_name, &unused_width);
   }
-  ITable *tab = reg.GetTable();
-  IModule *mod = tab->GetModule();
   string n = GetName(reg);
   if (!port_name.empty()) {
     n += "_" + port_name;
@@ -276,7 +274,6 @@ void SharedReg::BuildAccessorWireR() {
 }
 
 void SharedReg::BuildAccessorWireW() {
-  auto &conn = tab_.GetModule()->GetConnection();
   wire::WireSet ws(*this, GetNameRW(res_, true));
   int dw = res_.GetParams()->GetWidth();
   for (auto *writer : writers_) {

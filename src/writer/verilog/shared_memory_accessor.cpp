@@ -35,12 +35,9 @@ void SharedMemoryAccessor::BuildMemoryAccessorResource(const Resource &accessor,
 						       bool do_write,
 						       bool gen_reg,
 						       const IResource *mem) {
-  bool is_self_mem =
-    resource::IsSharedMemory(*(accessor.GetIResource().GetClass()));
   IArray *array = mem->GetArray();
   int addr_width = array->GetAddressWidth();
   int data_width = array->GetDataType().GetWidth();
-  ModuleTemplate *tmpl = accessor.GetModuleTemplate();
   ostream &rs = accessor.GetTable().ResourceSectionStream();
   const IResource &res = accessor.GetIResource();
   string storage;
