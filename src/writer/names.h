@@ -27,7 +27,7 @@ public:
   string GetRegName(const IRegister &reg);
   bool IsReserved(const string &name);
 
-  Names *GetNewChildNames();
+  Names *NewChildNames();
 
 private:
   string GetPrefix(const string &s);

@@ -19,19 +19,20 @@ VerilogWriter::VerilogWriter(const IDesign *design, const Connection &conn,
 			     bool debug, ostream &os)
   : design_(design), conn_(conn), os_(os), debug_(debug),
     embedded_modules_(new EmbeddedModules), with_self_clock_(false),
-    output_vcd_(false), names_(new Names(nullptr)), reset_polarity_(false) {
+    output_vcd_(false), names_root_(new Names(nullptr)),
+    reset_polarity_(false) {
 }
 
 VerilogWriter::~VerilogWriter() {
 }
 
 bool VerilogWriter::Write() {
-  names_->ReservePrefix("insn");
-  names_->ReservePrefix("mem");
-  names_->ReservePrefix("shared_reg");
-  names_->ReservePrefix("st");
-  names_->ReservePrefix("task");
-  names_->ReservePrefix("S");
+  names_root_->ReservePrefix("insn");
+  names_root_->ReservePrefix("mem");
+  names_root_->ReservePrefix("shared_reg");
+  names_root_->ReservePrefix("st");
+  names_root_->ReservePrefix("task");
+  names_root_->ReservePrefix("S");
 
   DebugMarker::SetEnable(debug_);
 
@@ -103,7 +104,7 @@ void VerilogWriter::PrepareModulesRec(const IModule *imod) {
   }
   Module *mod = new Module(imod, this, conn_,
 			   embedded_modules_.get(),
-			   names_->GetNewChildNames());
+			   names_root_->NewChildNames());
   modules_[imod] = mod;
   ordered_modules_.push_back(mod);
 }

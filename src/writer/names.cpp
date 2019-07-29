@@ -63,7 +63,7 @@ string Names::GetPrefix(const string &s) {
   return tokens[0];
 }
 
-Names *Names::GetNewChildNames() {
+Names *Names::NewChildNames() {
   Names *names = new Names(this);
   child_names_.push_back(unique_ptr<Names>(names));
   return names;

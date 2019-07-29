@@ -40,7 +40,7 @@ private:
   string shell_module_name_;
   bool with_self_clock_;
   bool output_vcd_;
-  unique_ptr<Names> names_;
+  unique_ptr<Names> names_root_;
   bool reset_polarity_;
 };
 
