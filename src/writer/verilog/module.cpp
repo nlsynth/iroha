@@ -6,6 +6,7 @@
 #include "iroha/stl_util.h"
 #include "writer/connection.h"
 #include "writer/module_template.h"
+#include "writer/names.h"
 #include "writer/verilog/dataflow_table.h"
 #include "writer/verilog/ports.h"
 #include "writer/verilog/table.h"
@@ -24,6 +25,7 @@ Module::Module(const IModule *i_mod, const VerilogWriter *writer,
   ports_.reset(new Ports);
   reset_name_ = i_mod->GetParams()->GetResetName();
   name_ = i_mod->GetName();
+  names_->AssignRegNames(i_mod_);
 }
 
 Module::~Module() {

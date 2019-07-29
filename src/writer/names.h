@@ -12,6 +12,7 @@
 
 #include "iroha/common.h"
 
+#include <map>
 #include <set>
 
 namespace iroha {
@@ -22,12 +23,13 @@ public:
   explicit Names(Names *parent);
   ~Names();
 
+  Names *NewChildNames();
   void ReservePrefix(const string &prefix);
   void ReserveGlobalName(const string &name);
+  void AssignRegNames(const IModule *mod);
+  bool IsReservedName(const string &name);
+  bool IsReservedPrefix(const string &prefix);
   string GetRegName(const IRegister &reg);
-  bool IsReserved(const string &name);
-
-  Names *NewChildNames();
 
 private:
   string GetPrefix(const string &s);
@@ -37,6 +39,7 @@ private:
   set<string> prefixes_;
   set<string> reserved_names_;
   vector<unique_ptr<Names>> child_names_;
+  map<const IRegister *, string> reg_names_;
 };
 
 }  // namespace writer
