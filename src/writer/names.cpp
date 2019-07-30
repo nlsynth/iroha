@@ -40,12 +40,40 @@ bool Names::IsReservedPrefix(const string &prefix) {
 }
 
 void Names::AssignRegNames(const IModule *mod) {
+  set<string> all_names;
+  set<string> conflict_names;
   for (auto *tab : mod->tables_) {
     for (auto *reg : tab->registers_) {
       if (reg->IsConst()) {
 	continue;
       }
-      reg_names_[reg] = GetName(reg->GetName(), "r_");
+      string n = GetName(reg->GetName(), "r_");
+      if (all_names.find(n) != all_names.end()) {
+	conflict_names.insert(n);
+      }
+      reg_names_[reg] = n;
+      all_names.insert(n);
+    }
+  }
+  // Though the Validator assigns unique names, there is a possiblity
+  // GetName() introduces a new conflict again.
+  for (auto *tab : mod->tables_) {
+    for (auto *reg : tab->registers_) {
+      if (reg->IsConst()) {
+	continue;
+      }
+      string n = reg_names_[reg];
+      if (conflict_names.find(n) == conflict_names.end()) {
+	continue;
+      }
+      int s = 0;
+      while (all_names.find(n) != all_names.end()) {
+	string p = "r" + Util::Itoa(s) + "_";
+	n = GetName(p + reg->GetName(), "r_");
+	++s;
+      }
+      all_names.insert(n);
+      reg_names_[reg] = n;
     }
   }
 }

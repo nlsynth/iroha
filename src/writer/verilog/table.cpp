@@ -110,7 +110,8 @@ void Table::BuildRegister() {
 	rs << "  reg";
       }
       rs << " " << ValueWidthSpec(reg->value_type_);
-      rs << " " << names_->GetRegName(*reg) << ";\n";
+      rs << " " << names_->GetRegName(*reg) << "; // "
+	 << reg->GetName() << "\n";
     }
     if (!reg->IsConst() && reg->HasInitialValue()) {
       is << "      " << names_->GetRegName(*reg) << " <= "
