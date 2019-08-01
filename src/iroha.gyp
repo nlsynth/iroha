@@ -108,6 +108,8 @@
         'opt/clean/pseudo_resource.h',
         'opt/clean/unreachable_state.cpp',
         'opt/clean/unreachable_state.h',
+        'opt/clean/unused_register.cpp',
+        'opt/clean/unused_register.h',
         'opt/clean/unused_resource.cpp',
         'opt/clean/unused_resource.h',
         'opt/common.h',

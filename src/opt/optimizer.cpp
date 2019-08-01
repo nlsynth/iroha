@@ -9,6 +9,7 @@
 #include "opt/clean/empty_table.h"
 #include "opt/clean/unreachable_state.h"
 #include "opt/clean/pseudo_resource.h"
+#include "opt/clean/unused_register.h"
 #include "opt/clean/unused_resource.h"
 #include "opt/compound.h"
 #include "opt/debug_annotation.h"
@@ -39,6 +40,8 @@ void Optimizer::Init() {
   RegisterPhase("clean_empty_table", &clean::CleanEmptyTablePhase::Create);
   RegisterPhase("clean_unreachable_state",
 		&clean::CleanUnreachableStatePhase::Create);
+  RegisterPhase("clean_unused_register",
+		&clean::CleanUnusedRegPhase::Create);
   RegisterPhase("clean_unused_resource",
 		&clean::CleanUnusedResourcePhase::Create);
   RegisterPhase("clean_pseudo_resource",
