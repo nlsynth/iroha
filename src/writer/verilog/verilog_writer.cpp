@@ -28,11 +28,16 @@ VerilogWriter::~VerilogWriter() {
 
 bool VerilogWriter::Write() {
   names_root_->ReservePrefix("insn");
-  names_root_->ReservePrefix("mem");
-  names_root_->ReservePrefix("shared_reg");
   names_root_->ReservePrefix("st");
   names_root_->ReservePrefix("task");
   names_root_->ReservePrefix("S");
+  // Resource related.
+  names_root_->ReservePrefix("fifo");
+  names_root_->ReservePrefix("mem");
+  // e.g. shared_reg
+  names_root_->ReservePrefix("shared");
+  // SystemVerilog keyword.
+  names_root_->ReservePrefix("always");
 
   DebugMarker::SetEnable(debug_);
 
