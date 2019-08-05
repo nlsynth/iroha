@@ -54,6 +54,14 @@ void Optimizer::Init() {
   CompoundPhase::Init();
 }
 
+vector<string> Optimizer::GetPhaseNames() {
+  vector<string> names;
+  for (auto it : phases_) {
+    names.push_back(it.first);
+  }
+  return names;
+}
+
 void Optimizer::RegisterPhase(const string &name,
 			      function<Phase *()> factory) {
   phases_[name] = factory;

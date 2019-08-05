@@ -6,7 +6,7 @@
 
 namespace iroha {
 
-void printVersion() {
+void printUsage() {
   std::cout << " Iroha frontend: " << PACKAGE << "-" << VERSION << "\n"
 	    << " [OPTION]... [FILE]...\n"
 	    << "  Read standard input when FILE is -\n\n"
@@ -22,7 +22,16 @@ void printVersion() {
 	    << "  -k Don't validate ids and names\n"
 	    << "  --output_marker=[marker]\n"
 	    << "  --root=[root dir]\n"
-	    << "  -opt [optimizers]\n";
+	    << "  -opt [optimizer names (comma separated)]\n";
+  std::cout << "    available optimizers: ";
+  vector<string> phases = Iroha::GetOptimizerPhaseNames();
+  for (size_t i = 0; i < phases.size(); ++i) {
+    if (i > 0) {
+      std::cout << ",";
+    }
+    std::cout << phases[i];
+  }
+  std::cout << "\n";
 }
 
 string getFlagValue(int argc, char **argv, int *idx) {
@@ -44,6 +53,7 @@ int main(int argc, char **argv) {
   bool vcd = false;
   bool skipValidation = false;
   bool debugWriter = false;
+  bool showVersion = false;
 
   string output;
   string debug_dump;
@@ -54,9 +64,9 @@ int main(int argc, char **argv) {
 
   for (int i = 1; i < argc; ++i) {
     const string arg(argv[i]);
-    if (arg == "--version") {
-      printVersion();
-      return 0;
+    if (arg == "--version" || arg == "--help") {
+      showVersion = true;
+      break;
     }
     if (arg == "--iroha") {
       // Ignored. This can be used to tell real frontend to run as Iroha.
@@ -138,12 +148,12 @@ int main(int argc, char **argv) {
     files.push_back(arg);
   }
 
-  if (files.empty()) {
-    printVersion();
+  Iroha::Init();
+
+  if (files.empty() || showVersion) {
+    printUsage();
     return 0;
   }
-
-  Iroha::Init();
 
   if (inc_paths.size() > 0) {
     Iroha::SetImportPaths(inc_paths);

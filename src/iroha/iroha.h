@@ -52,6 +52,7 @@ public:
   static IDesign *ReadDesignFromFile(const string &fn);
   static WriterAPI *CreateWriter(IDesign *design);
   static OptAPI *CreateOptimizer(IDesign *design);
+  static vector<string> GetOptimizerPhaseNames();
 };
 
 }  // namespace iroha

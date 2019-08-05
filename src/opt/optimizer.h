@@ -17,6 +17,7 @@ public:
   ~Optimizer();
 
   static void Init();
+  static vector<string> GetPhaseNames();
   static void RegisterPhase(const string &name,
 			    function<Phase *()> factory);
 

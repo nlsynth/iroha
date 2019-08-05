@@ -69,4 +69,8 @@ OptAPI *Iroha::CreateOptimizer(IDesign *design) {
   return opt;
 }
 
+vector<string> Iroha::GetOptimizerPhaseNames() {
+  return opt::Optimizer::GetPhaseNames();
+}
+
 }  // namespace iroha
