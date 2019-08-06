@@ -79,6 +79,7 @@ void PhiCleaner::EmitSelector(map<IRegister *, RegDef *> *last_defs,
 			      IState *st, IInsn *phi_insn) {
   // Condition reg for each BB.
   IRegister *cond_reg = new IRegister(table_, "cond_" + Util::Itoa(nth_sel_));
+  table_->registers_.push_back(cond_reg);
   cond_reg->value_type_.SetWidth(0);
   int nth = 0;
   for (IRegister *reg : phi_insn->inputs_) {
