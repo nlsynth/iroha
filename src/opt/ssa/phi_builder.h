@@ -22,13 +22,13 @@ private:
   };
   class PerRegister {
   public:
-    map<int,IRegister *> versions_;
+    map<int, IRegister *> versions_;
   };
 
   void CalculatePHIInputsForBB(BB *bb);
   void UpdatePHIInputs(PHI *phi);
   void UpdateVersionsForBB(BB *bb);
-  void UpdateVersionsForInsn(map<IRegister *, RegDef *> *last_defs,
+  void UpdateVersionsForInsn(map<IRegister *, RegDef *> *reg_to_last_def,
 			     IInsn *insn);
   // For versioning.
   int GetVersionFromDefInfo(RegDef *reg_def);
@@ -40,7 +40,7 @@ private:
   unique_ptr<BBSet> bset_;
   unique_ptr<DataFlow> data_flow_;
   vector<PHI *> phis_;
-  map<IInsn *, set<RegDef *> > reg_def_map_;
+  map<IInsn *, set<RegDef *> > insn_to_reg_defs_;
   // For versioning.
   map<IRegister *, PerRegister *> reg_info_;
   map<RegDef *, int> def_versions_;

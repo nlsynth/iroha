@@ -24,6 +24,8 @@ SSAConverter::~SSAConverter() {
 }
 
 void SSAConverter::Perform() {
+  // PhiInjector injects just phi insns and their output register.
+  // PhiBuilder updates affected registers.
   PhiInjector injector(table_, annotation_);
   injector.Perform();
 

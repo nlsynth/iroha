@@ -37,6 +37,7 @@ void PhiInjector::Perform() {
   }
   CollectOriginalDefs();
   PropagatePHIs();
+  CommitPHIInsn();
 }
 
 void PhiInjector::CollectSingularRegister() {
@@ -135,12 +136,19 @@ void PhiInjector::CommitPHIInsn() {
   for (BB *bb : bbs) {
     PrependState(bb);
   }
-  // Allocate insns.
+  // Order regs in reg_phis_map_
+  map<int, IRegister *> id_to_reg;
   for (auto it : reg_phis_map_) {
-    PerRegister *pr = it.second;
+    IRegister *ireg = it.first;
+    id_to_reg[ireg->GetId()] = ireg;
+  }
+  // Allocate insns.
+  for (auto it : id_to_reg) {
+    IRegister *reg = it.second;
+    PerRegister *pr = reg_phis_map_[reg];
     for (BB *bb : pr->phi_bbs_) {
       IInsn *insn = new IInsn(phi_);
-      insn->outputs_.push_back(it.first);
+      insn->outputs_.push_back(reg);
       bb->states_[0]->insns_.push_back(insn);
     }
   }

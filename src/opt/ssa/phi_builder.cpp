@@ -34,7 +34,7 @@ void PhiBuilder::Perform() {
   }
 
   for (RegDef *reg_def : data_flow_->all_defs_) {
-    reg_def_map_[reg_def->insn].insert(reg_def);
+    insn_to_reg_defs_[reg_def->insn].insert(reg_def);
   }
 
   for (BB *bb : bset_->bbs_) {
@@ -75,37 +75,39 @@ void PhiBuilder::UpdatePHIInputs(PHI *phi) {
 void PhiBuilder::UpdateVersionsForBB(BB *bb) {
   vector<RegDef *> reaches;
   data_flow_->GetReachDefs(bb, &reaches);
-  map<IRegister *, RegDef *> last_defs;
+  // map (instead of multimap) is sufficient since the graph is in SSA mode.
+  map<IRegister *, RegDef *> reg_to_last_def;
   for (RegDef *reg_def : reaches) {
-    last_defs[reg_def->reg] = reg_def;
+    reg_to_last_def[reg_def->reg] = reg_def;
   }
   for (IState *st : bb->states_) {
     for (IInsn *insn : st->insns_) {
-      UpdateVersionsForInsn(&last_defs, insn);
+      UpdateVersionsForInsn(&reg_to_last_def, insn);
     }
   }
 }
 
-void PhiBuilder::UpdateVersionsForInsn(map<IRegister *, RegDef *> *last_defs,
-				       IInsn *insn) {
+void
+PhiBuilder::UpdateVersionsForInsn(map<IRegister *, RegDef *> *reg_to_last_def,
+				  IInsn *insn) {
   if (insn->GetResource() != phi_) {
     for (auto it = insn->inputs_.begin(); it != insn->inputs_.end(); ++it) {
       IRegister *ireg = *it;
-      if (last_defs->find(ireg) != last_defs->end()) {
-	RegDef *reg_def = (*last_defs)[ireg];
+      if (reg_to_last_def->find(ireg) != reg_to_last_def->end()) {
+	RegDef *reg_def = (*reg_to_last_def)[ireg];
 	*it = FindVersionedReg(reg_def);
       }
     }
   }
   for (auto it = insn->outputs_.begin(); it != insn->outputs_.end(); ++it) {
-    set<RegDef *> &defs = reg_def_map_[insn];
+    set<RegDef *> &defs = insn_to_reg_defs_[insn];
     RegDef *reg_def = nullptr;
     for (RegDef *d : defs) {
       if (d->reg == *it) {
 	reg_def = d;
       }
     }
-    (*last_defs)[reg_def->reg] = reg_def;
+    (*reg_to_last_def)[reg_def->reg] = reg_def;
     *it = FindVersionedReg(reg_def);
   }
 }
