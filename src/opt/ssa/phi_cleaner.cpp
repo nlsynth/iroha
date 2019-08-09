@@ -93,8 +93,10 @@ void PhiCleaner::EmitSelector(map<IRegister *, RegDef *> *last_defs,
   }
   // Emit a selector.
   IInsn *sel_insn = new IInsn(sel_);
-  sel_insn->inputs_ = phi_insn->inputs_;
   sel_insn->inputs_.push_back(cond_reg);
+  for (IRegister *reg : phi_insn->inputs_) {
+    sel_insn->inputs_.push_back(reg);
+  }
   IRegister *output_reg = *(phi_insn->outputs_.begin());
   sel_insn->outputs_.push_back(output_reg);
   st->insns_.push_back(sel_insn);
