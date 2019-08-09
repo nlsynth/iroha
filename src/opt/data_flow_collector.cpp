@@ -35,7 +35,7 @@ DataFlow *DataFlowCollector::Create() {
 
 void DataFlowCollector::Annotate(ostream &os) {
   for (auto p : bb_info_) {
-    os << "bb:<br>\n";
+    os << "bb:" << p.first->bb_id_ << "<br>\n";
     for (auto *reg_def : p.second->reaches_) {
       os << " def: insn:" << reg_def->insn->GetId()
 	 << " reg: " << reg_def->reg->GetName() << "<br>\n";
@@ -100,7 +100,7 @@ void DataFlowCollector::CopyReaches() {
   for (auto p : bb_info_) {
     BBInfo *info = p.second;
     for (RegDef *reg_def : info->reaches_) {
-      df_->reaches_.insert(make_pair(reg_def->bb, reg_def));
+      df_->reaches_.insert(make_pair(info->bb_, reg_def));
     }
   }
 }
