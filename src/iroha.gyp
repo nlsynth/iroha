@@ -4,7 +4,7 @@
   'make_global_settings': [
   ],
   'target_defaults': {
-    'cflags': [ '-std=c++11', '-fPIC'],
+    'cflags': [ '-std=c++11', '-fPIC', '-Wall', '-Wno-sign-compare'],
     'defines': ['PACKAGE="iroha"', 'VERSION="0.0.1"'],
     'xcode_settings': {
       'OTHER_CFLAGS': [
