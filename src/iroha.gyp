@@ -112,6 +112,8 @@
         'opt/clean/unused_register.h',
         'opt/clean/unused_resource.cpp',
         'opt/clean/unused_resource.h',
+        'opt/constant/constant_propagation.cpp',
+        'opt/constant/constant_propagation.h',
         'opt/common.h',
         'opt/compound.cpp',
         'opt/compound.h',

@@ -11,6 +11,7 @@
 #include "opt/clean/pseudo_resource.h"
 #include "opt/clean/unused_register.h"
 #include "opt/clean/unused_resource.h"
+#include "opt/constant/constant_propagation.h"
 #include "opt/compound.h"
 #include "opt/debug_annotation.h"
 #include "opt/phase.h"
@@ -46,6 +47,8 @@ void Optimizer::Init() {
 		&clean::CleanUnusedResourcePhase::Create);
   RegisterPhase("clean_pseudo_resource",
 		&clean::CleanPseudoResourcePhase::Create);
+  RegisterPhase("constant_propagation",
+		&constant::ConstantPropagation::Create);
   RegisterPhase("ssa_convert", &ssa::SSAConverterPhase::Create);
   RegisterPhase("phi_cleaner", &ssa::PhiCleanerPhase::Create);
   RegisterPhase("alloc_resource", &sched::SchedPhase::Create);
