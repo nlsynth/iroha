@@ -57,7 +57,12 @@ bool BBScheduler::IsSchedulable() {
 	  ResourceAttr::IsExtWaitInsn(insn)) {
 	return false;
       }
-      if (resource::IsExtCombinational(*(insn->GetResource()->GetClass()))) {
+      auto rc = *(insn->GetResource()->GetClass());
+      if (resource::IsArray(rc)) {
+	// WIP: Fixing bug not to reorder memory access.
+	return false;
+      }
+      if (resource::IsExtCombinational(rc)) {
 	return false;
       }
       // This is really awkward...
