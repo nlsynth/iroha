@@ -94,12 +94,12 @@ void Task::BuildResource() {
   ostream &is = tab_.InitialValueSectionStream();
   is << "      " << ack << " <= 0;\n";
   // Args
+  IInsn *task_entry_insn = DesignUtil::FindTaskEntryInsn(tab_.GetITable());
   for (int i = 0; i < res_.output_types_.size(); ++i) {
     auto &type = res_.output_types_[i];
     string a = TaskArgPin(*(tab_.GetITable()), i, nullptr) + "_reg";
     rs << "  reg " << Table::ValueWidthSpec(type) << " " << a << ";\n";
     is << "      " << a << " <= 0;\n";
-    IInsn *task_entry_insn = DesignUtil::FindTaskEntryInsn(tab_.GetITable());
     rs << "  assign " << InsnWriter::InsnOutputWireName(*task_entry_insn, i)
        << " = " << a << ";\n";
   }
@@ -108,9 +108,12 @@ void Task::BuildResource() {
   fs << "      " << "if (" << ack_cond << " && " << en << "_wire) begin\n"
      << "      // Capturing args\n";
   for (int i = 0; i < res_.output_types_.size(); ++i) {
-    string ad = TaskArgPin(*(tab_.GetITable()), i, nullptr);
-    string as = TaskArgPin(*(tab_.GetITable()), i, nullptr);
-    fs << "        " << ad << "_reg" << " <= " << as << "_wire;\n";
+    string a = TaskArgPin(*(tab_.GetITable()), i, nullptr);
+    fs << "        " << a << "_reg" << " <= " << a << "_wire;\n";
+    IRegister *oreg = task_entry_insn->outputs_[i];
+    if (!oreg->IsStateLocal()) {
+      fs << "        " << InsnWriter::RegisterValue(*oreg, tab_.GetNames()) << " <= " << a << "_wire;\n";
+    }
   }
   fs << "      end\n";
 }
