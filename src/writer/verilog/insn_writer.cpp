@@ -60,7 +60,7 @@ void InsnWriter::Assert() {
       os_ << " && ";
     }
     IRegister *reg = insn_->inputs_[i];
-    os_ << RegisterValue(*reg, st_->GetNames());
+    os_ << "(" << RegisterValue(*reg, st_->GetNames()) << " === 1)";
   }
   os_ << ")) begin\n";
   os_ << I << "  $display(\"ASSERTION FAILURE: "
