@@ -58,10 +58,6 @@ bool BBScheduler::IsSchedulable() {
 	return false;
       }
       auto rc = *(insn->GetResource()->GetClass());
-      if (resource::IsArray(rc)) {
-	// WIP: Fixing bug not to reorder memory access.
-	return false;
-      }
       if (resource::IsExtCombinational(rc)) {
 	return false;
       }

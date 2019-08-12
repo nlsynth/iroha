@@ -107,7 +107,7 @@ bool ResourceAttr::IsDuplicatableResource(IResource *res) {
 
 bool ResourceAttr::IsOrderedResource(IResource *res) {
   IResourceClass &rc = *(res->GetClass());
-  if (resource::IsMapped(rc)) {
+  if (resource::IsArray(rc) || resource::IsMapped(rc)) {
     return true;
   }
   return false;
