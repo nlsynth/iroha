@@ -23,7 +23,6 @@ bool WideOp::IsZero(const NumericWidth &w, const NumericValue &val) {
 void WideOp::Shift(const NumericValue &s, int amount, bool left,
 		   NumericValue *res) {
   int a64 = amount / 64;
-  int d = 0;
   uint64_t tv[8];
   if (a64 > 0) {
     const uint64_t *sv = s.value_;
@@ -75,7 +74,8 @@ void WideOp::Shift(const NumericValue &s, int amount, bool left,
   }
 }
 
-void WideOp::BinBitOp(enum BinOp op, const NumericValue &x, const NumericValue &y, NumericValue *res) {
+void WideOp::BinBitOp(enum BinOp op, const NumericValue &x,
+		      const NumericValue &y, NumericValue *res) {
   uint64_t *rv = res->value_;
   const uint64_t *xv = x.value_;
   const uint64_t *yv = y.value_;
@@ -100,6 +100,8 @@ void WideOp::BinBitOp(enum BinOp op, const NumericValue &x, const NumericValue &
 	rv[i] = xv[i] ^ yv[i];
       }
     }
+    break;
+  default:
     break;
   }
 }

@@ -126,7 +126,7 @@ IInsn *PathNode::GetInsn() {
 }
 
 bool PathNode::IsTransition() {
-  resource::IsTransition(*(insn_->GetResource()->GetClass()));
+  return resource::IsTransition(*(insn_->GetResource()->GetClass()));
 }
 
 BBDataPath *PathNode::GetBBDataPath() {

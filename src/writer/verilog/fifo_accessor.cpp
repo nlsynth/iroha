@@ -32,7 +32,6 @@ void FifoAccessor::BuildResource() {
 }
 
 void FifoAccessor::BuildInsn(IInsn *insn, State *st) {
-  IResource *res = insn->GetResource();
   auto *klass = res_.GetClass();
   if (resource::IsFifoReader(*klass)) {
     BuildReadInsn(insn, st);

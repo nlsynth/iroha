@@ -74,9 +74,6 @@ void SlavePort::BuildControllerInstance(const string &wires_to_ext) {
   tab_.GetEmbeddedModules()->RequestAxiSlaveController(&res_);
   ostream &es = tmpl_->GetStream(kEmbeddedInstanceSection);
   string name = ControllerName(res_);
-  const string &clk = tab_.GetPorts()->GetClk();
-  const string &rst = tab_.GetPorts()->GetReset();
-  const IResource *mem = res_.GetParentResource();
   es << "  " << name << " inst_" << PortSuffix()
      << "_" << name << "(";
   OutputSRAMConnection(es);
