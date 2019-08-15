@@ -48,6 +48,8 @@ public:
   enum OutputType {
     // SystemVerilog style module head.
     PORT_MODULE_HEAD,
+    // SystemVerilog style module head with only the direction.
+    PORT_MODULE_HEAD_DIRECTION,
     // Only port names for module head.
     PORT_NAME,
     // Input and output. Also generate reg for output.

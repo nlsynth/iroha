@@ -66,8 +66,9 @@ void Ports::OutputPort(Port *p, enum OutputType type, bool is_first,
     os << DirectionPort(p->GetType()) << ":" << p->GetWidth() << ":" << p->GetPrefix() << ":" << p->GetSuffix();
     return;
   }
-  if (type == PORT_TYPE || type == PORT_DIRECTION || type == PORT_MODULE_HEAD) {
-    if (type == PORT_MODULE_HEAD) {
+  if (type == PORT_TYPE || type == PORT_DIRECTION || type == PORT_MODULE_HEAD ||
+      type == PORT_MODULE_HEAD_DIRECTION) {
+    if (type == PORT_MODULE_HEAD || type == PORT_MODULE_HEAD_DIRECTION) {
       if (is_first) {
 	os << "\n";
       } else {
@@ -86,6 +87,7 @@ void Ports::OutputPort(Port *p, enum OutputType type, bool is_first,
       t = DirectionPort(port_type);
     }
     os << "  " << t;
+    // omitted for PORT_MODULE_HEAD_DIRECTION
     if (type == PORT_MODULE_HEAD && port_type == Port::OUTPUT) {
       os << " reg";
     }
@@ -93,7 +95,7 @@ void Ports::OutputPort(Port *p, enum OutputType type, bool is_first,
       os << " [" << (p->GetWidth() - 1) << ":0]";
     }
     os << " " << p->GetName();
-    if (type != PORT_MODULE_HEAD) {
+    if (type != PORT_MODULE_HEAD && type != PORT_MODULE_HEAD_DIRECTION) {
       os << ";\n";
     }
   }

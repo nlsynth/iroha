@@ -148,13 +148,11 @@ void VerilogWriter::WriteShellModule(const Module *mod) {
   const Ports *ports = mod->GetPorts();
   os_ << "module " << shell_module_name_ << "(";
   if (!with_self_clock_) {
-    ports->Output(Ports::PORT_NAME, os_);
+    ports->Output(Ports::PORT_MODULE_HEAD_DIRECTION, os_);
   }
   os_ << ");\n";
   if (with_self_clock_) {
     WriteSelfClockGenerator(mod);
-  } else {
-    ports->Output(Ports::PORT_DIRECTION, os_);
   }
   string name = mod->GetName();
   if (design_->GetParams()->GetModuleNamePrefix().empty()) {
