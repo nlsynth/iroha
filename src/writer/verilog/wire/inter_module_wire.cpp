@@ -76,7 +76,6 @@ void InterModuleWire::AddWireConnection(const IResource &accessor,
   }
   // (parent) Resource.
   if (!HasWire(parent_mod, name)) {
-    auto *tmpl_p = parent_mod->GetModuleTemplate();
     ostream &rs_p = res_.GetTable().ResourceSectionStream();
     if (from_parent) {
       rs_p << "  wire " << a;

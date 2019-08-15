@@ -103,7 +103,6 @@ void Fifo::BuildInsn(IInsn *insn, State *st) {
 }
 
 void Fifo::BuildWriterConnections() {
-  auto &conn = tab_.GetModule()->GetConnection();
   auto &writers = tab_.GetModule()->GetConnection().GetFifoWriters(&res_);
   wire::WireSet ws(*this, GetNameRW(res_, true));
   int dw = res_.GetParams()->GetWidth();
@@ -122,7 +121,6 @@ void Fifo::BuildWriterConnections() {
 }
 
 void Fifo::BuildReaderConnections() {
-  auto &conn = tab_.GetModule()->GetConnection();
   auto &readers = tab_.GetModule()->GetConnection().GetFifoReaders(&res_);
   wire::WireSet ws(*this, GetNameRW(res_, false));
   int dw = res_.GetParams()->GetWidth();
@@ -198,7 +196,6 @@ string Fifo::RDataWire() {
 }
 
 void Fifo::BuildController() {
-  ostream &rs = tab_.ResourceSectionStream();
   string wreq = WReqWire();
   ostream &es = tmpl_->GetStream(kEmbeddedInstanceSection);
   bool reset_polarity = tab_.GetModule()->GetResetPolarity();

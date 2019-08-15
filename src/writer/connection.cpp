@@ -105,7 +105,6 @@ void Connection::ProcessFifoAccessors(ITable *tab) {
     }
     auto *ai = FindAccessorInfo(p);
     auto *rc = res->GetClass();
-    auto *params = res->GetParams();
     if (resource::IsFifoReader(*rc)) {
       ai->fifo_readers_.push_back(res);
     }
