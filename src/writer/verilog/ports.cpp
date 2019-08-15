@@ -42,19 +42,13 @@ const string &Ports::GetReset() const {
 void Ports::Output(enum OutputType type, ostream &os) const {
   bool is_first = true;
   for (Port *p : ports_) {
-    OutputPort(p, type, is_first, false, os);
+    OutputPort(p, type, is_first, os);
     is_first = false;
-  }
-  if (type == PORT_TYPE) {
-    // 'reg' for output ports.
-    for (Port *p : ports_) {
-      OutputPort(p, type, false, true, os);
-    }
   }
 }
 
 void Ports::OutputPort(Port *p, enum OutputType type, bool is_first,
-		       bool reg_phase, ostream &os) const {
+		       ostream &os) const {
   if (type == FIXED_VALUE_ASSIGN) {
     OutputFixedValueAssign(p, os);
     return;
@@ -63,30 +57,18 @@ void Ports::OutputPort(Port *p, enum OutputType type, bool is_first,
     if (!is_first) {
       os << ",";
     }
-    os << DirectionPort(p->GetType()) << ":" << p->GetWidth() << ":" << p->GetPrefix() << ":" << p->GetSuffix();
+    os << DirectionPort(p->GetType()) << ":" << p->GetWidth() << ":"
+       << p->GetPrefix() << ":" << p->GetSuffix();
     return;
   }
-  if (type == PORT_TYPE || type == PORT_DIRECTION || type == PORT_MODULE_HEAD ||
-      type == PORT_MODULE_HEAD_DIRECTION) {
-    if (type == PORT_MODULE_HEAD || type == PORT_MODULE_HEAD_DIRECTION) {
-      if (is_first) {
-	os << "\n";
-      } else {
-	os << ",\n";
-      }
+  if (type == PORT_MODULE_HEAD || type == PORT_MODULE_HEAD_DIRECTION) {
+    if (is_first) {
+      os << "\n";
+    } else {
+      os << ",\n";
     }
     Port::PortType port_type = p->GetType();
-    string t;
-    if (reg_phase && type == PORT_TYPE) {
-      if (port_type == Port::OUTPUT) {
-	t = "reg";
-      } else {
-	return;
-      }
-    } else {
-      t = DirectionPort(port_type);
-    }
-    os << "  " << t;
+    os << "  " << DirectionPort(port_type);
     // omitted for PORT_MODULE_HEAD_DIRECTION
     if (type == PORT_MODULE_HEAD && port_type == Port::OUTPUT) {
       os << " reg";
@@ -95,9 +77,6 @@ void Ports::OutputPort(Port *p, enum OutputType type, bool is_first,
       os << " [" << (p->GetWidth() - 1) << ":0]";
     }
     os << " " << p->GetName();
-    if (type != PORT_MODULE_HEAD && type != PORT_MODULE_HEAD_DIRECTION) {
-      os << ";\n";
-    }
   }
   if (type == PORT_CONNECTION || type == PORT_CONNECTION_TEMPLATE) {
     if (!is_first) {
@@ -108,12 +87,6 @@ void Ports::OutputPort(Port *p, enum OutputType type, bool is_first,
       os << p->GetName();
     }
     os << ")";
-  }
-  if (type == PORT_NAME) {
-    if (!is_first) {
-      os << ", ";
-    }
-    os << p->GetName();
   }
 }
 

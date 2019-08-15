@@ -50,12 +50,6 @@ public:
     PORT_MODULE_HEAD,
     // SystemVerilog style module head with only the direction.
     PORT_MODULE_HEAD_DIRECTION,
-    // Only port names for module head.
-    PORT_NAME,
-    // Input and output. Also generate reg for output.
-    PORT_TYPE,
-    // Only input/output. Used to generate top level wrapper.
-    PORT_DIRECTION,
     // Pin connection from internal module ".name(name)"
     PORT_CONNECTION,
     // Pin connection template for outer module ".name()"
@@ -77,7 +71,7 @@ public:
 
 private:
   void OutputPort(Port *p, enum OutputType type, bool is_first,
-		  bool reg_phase, ostream &os) const;
+		  ostream &os) const;
   void OutputFixedValueAssign(Port *port, ostream &os) const;
   static const string &DirectionPort(Port::PortType type);
 
