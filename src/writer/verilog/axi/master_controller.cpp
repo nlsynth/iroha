@@ -32,9 +32,8 @@ void MasterController::Write(ostream &os) {
   GenWriteChannel(cfg_, true, nullptr, ports_.get(), &initials);
   string name = MasterPort::ControllerName(res_);
   WriteModuleHeader(name, os);
-  ports_->Output(Ports::PORT_NAME, os);
+  ports_->Output(Ports::PORT_MODULE_HEAD, os);
   os << ");\n";
-  ports_->Output(Ports::PORT_TYPE, os);
   ports_->Output(Ports::FIXED_VALUE_ASSIGN, os);
   os << "\n"
      << "  `define S_IDLE 0\n"

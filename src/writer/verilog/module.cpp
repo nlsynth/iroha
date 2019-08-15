@@ -35,9 +35,8 @@ Module::~Module() {
 void Module::Write(const string &prefix, ostream &os) {
   os << "\n// Module " << i_mod_->GetId() << ";\n"
      << "module " << prefix << GetName() << "(";
-  ports_->Output(Ports::PORT_NAME, os);
+  ports_->Output(Ports::PORT_MODULE_HEAD, os);
   os << ");\n";
-  ports_->Output(Ports::PORT_TYPE, os);
   ports_->Output(Ports::FIXED_VALUE_ASSIGN, os);
   os << "\n";
 

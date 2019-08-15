@@ -46,6 +46,8 @@ private:
 class Ports {
 public:
   enum OutputType {
+    // SystemVerilog style module head.
+    PORT_MODULE_HEAD,
     // Only port names for module head.
     PORT_NAME,
     // Input and output. Also generate reg for output.

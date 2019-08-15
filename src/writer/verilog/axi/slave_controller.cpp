@@ -28,9 +28,8 @@ void SlaveController::Write(ostream &os) {
   GenReadChannel(cfg_, false, nullptr, ports_.get(), &initials);
   GenWriteChannel(cfg_, false, nullptr, ports_.get(), &initials);
   WriteModuleHeader(name, os);
-  ports_->Output(Ports::PORT_NAME, os);
+  ports_->Output(Ports::PORT_MODULE_HEAD, os);
   os << ");\n";
-  ports_->Output(Ports::PORT_TYPE, os);
   ports_->Output(Ports::FIXED_VALUE_ASSIGN, os);
 
   os << "  `define S_IDLE 0\n"
