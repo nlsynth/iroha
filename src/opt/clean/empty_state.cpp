@@ -41,18 +41,7 @@ void CleanEmptyState::ShrinkBB(BB *bb) {
   // Skips first status.
   for (int i = 1; i < bb->states_.size(); ++i) {
     IState *st = bb->states_[i];
-    bool has_insn = false;
-    for (IInsn *insn : st->insns_) {
-      if (insn->GetResource() == transition_) {
-	if (insn->target_states_.size() > 1) {
-	  // Consider branch as an insn.
-	  has_insn = true;
-	}
-      } else {
-	has_insn = true;
-      }
-    }
-    if (!has_insn) {
+    if (IsEmptyState(st)) {
       dead_st_.insert(st);
     }
   }
@@ -66,6 +55,21 @@ void CleanEmptyState::ShrinkBB(BB *bb) {
       *it = GetNextIfDead(*it);
     }
   }
+}
+
+bool CleanEmptyState::IsEmptyState(IState *st) {
+  bool has_insn = false;
+  for (IInsn *insn : st->insns_) {
+    if (insn->GetResource() == transition_) {
+      if (insn->target_states_.size() > 1) {
+	// Consider branch as an insn.
+	has_insn = true;
+      }
+    } else {
+      has_insn = true;
+    }
+  }
+  return !has_insn;
 }
 
 IState *CleanEmptyState::GetNextIfDead(IState *st) {

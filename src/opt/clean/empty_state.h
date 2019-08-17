@@ -29,6 +29,7 @@ public:
 private:
   void ShrinkBB(BB *bb);
   IState *GetNextIfDead(IState *st);
+  bool IsEmptyState(IState *st);
 
   ITable *table_;
   DebugAnnotation *annotation_;
