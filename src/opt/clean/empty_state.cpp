@@ -3,8 +3,6 @@
 #include "design/design_util.h"
 #include "iroha/i_design.h"
 #include "iroha/logging.h"
-#include "opt/bb_set.h"
-#include "opt/debug_annotation.h"
 
 namespace iroha {
 namespace opt {
@@ -28,33 +26,43 @@ CleanEmptyState::CleanEmptyState(ITable *table,  DebugAnnotation *annotation)
 }
 
 bool CleanEmptyState::Perform() {
-  unique_ptr<BBSet> bbs(BBSet::Create(table_, annotation_));
-  for (BB *bb : bbs->bbs_) {
-    ShrinkBB(bb);
-  }
-  return true;
-}
-
-void CleanEmptyState::ShrinkBB(BB *bb) {
-  // Doesn't consider states in other BBs.
-  dead_st_.clear();
-  // Skips first status.
-  for (int i = 1; i < bb->states_.size(); ++i) {
-    IState *st = bb->states_[i];
+  // Finds dead states.
+  for (IState *st : table_->states_) {
+    if (st == table_->GetInitialState()) {
+      continue;
+    }
     if (IsEmptyState(st)) {
+      IInsn *tr_insn = DesignUtil::FindInsnByResource(st, transition_);
+      if (tr_insn == nullptr || tr_insn->target_states_.size() == 0 ||
+	  (tr_insn->target_states_.size() == 1 &&
+	   tr_insn->target_states_[0] == st)) {
+	// skips if this is a terminal state.
+	continue;
+      }
       dead_st_.insert(st);
     }
   }
-  for (IState *st : bb->states_) {
+  // Finds an alternative state for a dead state.
+  map<IState *, IState *> dead_to_next;
+  for (IState *st : dead_st_) {
+    dead_to_next[st] = GetNextIfDead(st);
+  }
+  // Updates transition targets.
+  for (IState *st : table_->states_) {
     IInsn *tr_insn = DesignUtil::FindInsnByResource(st, transition_);
     if (tr_insn == nullptr) {
       continue;
     }
     for (auto it = tr_insn->target_states_.begin();
 	 it != tr_insn->target_states_.end(); ++it) {
-      *it = GetNextIfDead(*it);
+      IState *tst = *it;
+      auto jt = dead_to_next.find(tst);
+      if (jt != dead_to_next.end()) {
+	*it = jt->second;
+      }
     }
   }
+  return true;
 }
 
 bool CleanEmptyState::IsEmptyState(IState *st) {

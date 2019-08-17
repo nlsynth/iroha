@@ -27,7 +27,6 @@ public:
   bool Perform();
 
 private:
-  void ShrinkBB(BB *bb);
   IState *GetNextIfDead(IState *st);
   bool IsEmptyState(IState *st);
 
