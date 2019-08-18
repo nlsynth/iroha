@@ -27,26 +27,19 @@ void InternalSRAM::Write(ostream &os) {
      << "// SRAM("<< num_ports_ << " port(s))\n"
      << "`ifndef " << guard << "\n"
      << " `define " << guard << "\n"
-     << "module " << name << "(clk, " << GetResetPinName() << ", ";
+     << "module " << name << "(\n"
+     << "  input clk,\n"
+     << "  input " << GetResetPinName() << ",\n";
   for (int p = 0; p < num_ports_; ++p) {
-    if (p > 0) {
-      os << ", ";
+    os << "  input " << AddressWidthSpec() << GetAddrPin(p) << ",\n"
+       << "  output reg " << DataWidthSpec() << GetRdataPin(p) << ",\n"
+       << "  input " << DataWidthSpec() << GetWdataPin(p) << ",\n"
+       << "  input " << GetWenPin(p);
+    if (p != num_ports_ - 1) {
+      os << ",\n";
     }
-    os << GetAddrPin(p) << ", "
-       << GetRdataPin(p) << ", "
-       << GetWdataPin(p) << ", "
-       << GetWenPin(p);
   }
-  os << ");\n"
-     << "  input clk;\n"
-     << "  input " << GetResetPinName() << ";\n";
-  for (int p = 0; p < num_ports_; ++p) {
-    os << "  input " << AddressWidthSpec() << GetAddrPin(p) << ";\n"
-       << "  output " << DataWidthSpec() << GetRdataPin(p) << ";\n"
-       << "  input " << DataWidthSpec() << GetWdataPin(p) << ";\n"
-       << "  input " << GetWenPin(p) << ";\n\n"
-       << "  reg " << DataWidthSpec() << GetRdataPin(p) << ";\n\n";
-  }
+  os << ");\n\n";
   WriteInternal(os);
   os << "endmodule\n"
      << "`endif  // " + guard + "\n"
