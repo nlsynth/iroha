@@ -1,5 +1,6 @@
 #include "writer/verilog/axi/slave_controller.h"
 
+#include "writer/verilog/axi/channel_generator.h"
 #include "writer/verilog/axi/slave_port.h"
 #include "writer/verilog/module.h"
 #include "writer/verilog/ports.h"
@@ -25,8 +26,10 @@ void SlaveController::Write(ostream &os) {
   AddSramPorts();
   AddNotifierPorts();
   string initials;
-  GenReadChannel(cfg_, false, nullptr, ports_.get(), &initials);
-  GenWriteChannel(cfg_, false, nullptr, ports_.get(), &initials);
+  ChannelGenerator::GenReadChannel(cfg_, false, nullptr, ports_.get(),
+				   &initials);
+  ChannelGenerator::GenWriteChannel(cfg_, false, nullptr, ports_.get(),
+				    &initials);
   WriteModuleHeader(name, os);
   ports_->Output(Ports::PORT_MODULE_HEAD, os);
   os << ");\n";
@@ -67,8 +70,8 @@ void SlaveController::Write(ostream &os) {
 
 void SlaveController::AddPorts(const PortConfig &cfg, Module *mod, string *s) {
   Ports *ports = mod->GetPorts();
-  GenWriteChannel(cfg, false, mod, ports, s);
-  GenReadChannel(cfg, false, mod, ports, s);
+  ChannelGenerator::GenWriteChannel(cfg, false, mod, ports, s);
+  ChannelGenerator::GenReadChannel(cfg, false, mod, ports, s);
 }
 
 void SlaveController::OutputFSM(ostream &os) {

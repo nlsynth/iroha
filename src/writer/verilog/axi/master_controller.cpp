@@ -1,6 +1,7 @@
 #include "writer/verilog/axi/master_controller.h"
 
 #include "iroha/i_design.h"
+#include "writer/verilog/axi/channel_generator.h"
 #include "writer/verilog/axi/master_port.h"
 #include "writer/verilog/module.h"
 #include "writer/verilog/ports.h"
@@ -28,8 +29,10 @@ void MasterController::Write(ostream &os) {
   ports_->AddPort("req", Port::INPUT, 0);
   ports_->AddPort("ack", Port::OUTPUT, 0);
   string initials;
-  GenReadChannel(cfg_, true, nullptr, ports_.get(), &initials);
-  GenWriteChannel(cfg_, true, nullptr, ports_.get(), &initials);
+  ChannelGenerator::GenReadChannel(cfg_, true, nullptr, ports_.get(),
+				   &initials);
+  ChannelGenerator::GenWriteChannel(cfg_, true, nullptr, ports_.get(),
+				    &initials);
   string name = MasterPort::ControllerName(res_);
   WriteModuleHeader(name, os);
   ports_->Output(Ports::PORT_MODULE_HEAD, os);
@@ -89,10 +92,10 @@ void MasterController::AddPorts(const PortConfig &cfg,
 				string *s) {
   Ports *ports = mod->GetPorts();
   if (r) {
-    GenReadChannel(cfg, true, mod, ports, s);
+    ChannelGenerator::GenReadChannel(cfg, true, mod, ports, s);
   }
   if (w) {
-    GenWriteChannel(cfg, true, mod, ports, s);
+    ChannelGenerator::GenWriteChannel(cfg, true, mod, ports, s);
   }
 }
 

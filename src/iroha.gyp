@@ -238,6 +238,8 @@
         'writer/verilog/axi/axi_port.h',
         'writer/verilog/axi/axi_shell.cpp',
         'writer/verilog/axi/axi_shell.h',
+        'writer/verilog/axi/channel_generator.cpp',
+        'writer/verilog/axi/channel_generator.h',
         'writer/verilog/axi/master_controller.cpp',
         'writer/verilog/axi/master_controller.h',
         'writer/verilog/axi/master_port.cpp',
