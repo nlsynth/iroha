@@ -13,7 +13,8 @@ public:
 
   virtual bool Write(const string &fn) override;
   virtual bool SetLanguage(const string &lang) override;
-  virtual void OutputShellModule(bool b, bool self_clock, bool vcd) override;
+  virtual void OutputShellModule(bool b, bool self_contained,
+				 bool vcd) override;
   virtual void SetOutputConfig(const string &root,
 			       const string &marker,
 			       bool debug) override;
@@ -29,7 +30,7 @@ private:
   const IDesign *design_;
   string language_;
   bool output_shell_module_;
-  bool output_self_clock_;
+  bool output_self_contained_;
   bool output_vcd_;
   string output_marker_;
   bool debug_;

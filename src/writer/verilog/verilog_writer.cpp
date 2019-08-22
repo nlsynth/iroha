@@ -10,6 +10,7 @@
 #include "writer/verilog/internal_sram.h"
 #include "writer/verilog/module.h"
 #include "writer/verilog/ports.h"
+#include "writer/verilog/self_shell.h"
 
 namespace iroha {
 namespace writer {
@@ -18,7 +19,7 @@ namespace verilog {
 VerilogWriter::VerilogWriter(const IDesign *design, const Connection &conn,
 			     bool debug, ostream &os)
   : design_(design), conn_(conn), os_(os), debug_(debug),
-    embedded_modules_(new EmbeddedModules), with_self_clock_(false),
+    embedded_modules_(new EmbeddedModules), with_self_contained_(false),
     output_vcd_(false), names_root_(new Names(nullptr)),
     reset_polarity_(false) {
 }
@@ -74,10 +75,11 @@ bool VerilogWriter::Write() {
   return true;
 }
 
-void VerilogWriter::SetShellModuleName(const string &n, bool with_self_clock,
+void VerilogWriter::SetShellModuleName(const string &n,
+				       bool with_self_contained,
 				       bool output_vcd) {
   shell_module_name_ = n;
-  with_self_clock_ = with_self_clock;
+  with_self_contained_ = with_self_contained;
   output_vcd_ = output_vcd;
 }
 
@@ -147,12 +149,17 @@ void VerilogWriter::BuildChildModuleSection() {
 void VerilogWriter::WriteShellModule(const Module *mod) {
   const Ports *ports = mod->GetPorts();
   os_ << "module " << shell_module_name_ << "(";
-  if (!with_self_clock_) {
+  if (!with_self_contained_) {
     ports->Output(Ports::PORT_MODULE_HEAD_DIRECTION, os_);
   }
   os_ << ");\n";
-  if (with_self_clock_) {
+  if (with_self_contained_) {
     WriteSelfClockGenerator(mod);
+  }
+  std::unique_ptr<SelfShell> shell;
+  if (with_self_contained_) {
+    shell.reset(new SelfShell(design_));
+    shell->WriteWireDecl(os_);
   }
   string name = mod->GetName();
   if (design_->GetParams()->GetModuleNamePrefix().empty()) {
@@ -161,8 +168,9 @@ void VerilogWriter::WriteShellModule(const Module *mod) {
     name = design_->GetParams()->GetModuleNamePrefix() + name;
   }
   os_ << "  " << name << " " << name << "_inst(";
-  if (with_self_clock_) {
+  if (with_self_contained_) {
     WriteSelfClockConnection(mod);
+    shell->WritePortConnection(os_);
   } else {
     ports->Output(Ports::PORT_CONNECTION, os_);
   }

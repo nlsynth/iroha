@@ -17,7 +17,7 @@ public:
   ~VerilogWriter();
 
   bool Write();
-  void SetShellModuleName(const string &n, bool with_self_clock, bool output_vcd);
+  void SetShellModuleName(const string &n, bool with_self_contained, bool output_vcd);
   Module *GetByIModule(const IModule *mod) const;
   bool GetResetPolarity() const;
 
@@ -38,7 +38,7 @@ private:
   map<const IModule *, Module *> modules_;
   unique_ptr<EmbeddedModules> embedded_modules_;
   string shell_module_name_;
-  bool with_self_clock_;
+  bool with_self_contained_;
   bool output_vcd_;
   unique_ptr<Names> names_root_;
   bool reset_polarity_;

@@ -6,7 +6,7 @@
 #include "writer/verilog/ports.h"
 
 namespace {
-  const int kStrbMagic = -7;
+const int kStrbMagic = -7;
 }  // namespace
 
 namespace iroha {
@@ -155,8 +155,9 @@ void AxiController::AddPort(const PortConfig &cfg,
     if (!is_fixed_output) {
       *s += "      " + name + " <= ";
       if (fixed_value == kStrbMagic) {
-	// NOTE: Kludge to handle 1024 bit data bus width. WSTRB can be up to 128 bits,
-	// but I don't want to exapnd fixed_value width for now...
+	// NOTE: Kludge to handle 1024 bit data bus width.
+	// WSTRB can be up to 128 bits, but I don't want to exapnd
+	// fixed_value width for now...
 	*s += Util::Itoa(width) + "'b";
 	for (int i = 0; i < width; ++i) {
 	  *s += "1";
