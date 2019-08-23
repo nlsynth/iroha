@@ -11,20 +11,21 @@ namespace axi {
 
 class ChannelGenerator {
 public:
+  ChannelGenerator(const PortConfig &cfg, bool is_master);
+
+  void GenReadChannel(Module *module, Ports *ports, string *s);
+  void GenWriteChannel(Module *module, Ports *ports, string *s);
+private:
   // module==nullptr: Can get register initializer.
   // module!=nullptr: Child module wirings.
-  static void AddPort(const PortConfig &cfg, const string &name, int width,
-		      bool dir_s2m,
-		      bool is_master,
-		      // valid if non negative.
-		      int fixed_value,
-		      Module *module, Ports *ports, string *s);
-  static void GenReadChannel(const PortConfig &cfg,
-			     bool is_master, Module *module, Ports *ports,
-			     string *s);
-  static void GenWriteChannel(const PortConfig &cfg,
-			      bool is_master, Module *module, Ports *ports,
-			      string *s);
+  void AddPort(const string &name, int width,
+	       bool dir_s2m,
+	       // valid if non negative.
+	       int fixed_value,
+	       Module *module, Ports *ports, string *s);
+
+  const PortConfig &cfg_;
+  bool is_master_;
 };
 
 }  // namespace axi
