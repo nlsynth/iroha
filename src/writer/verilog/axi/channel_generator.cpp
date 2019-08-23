@@ -14,67 +14,64 @@ namespace verilog {
 namespace axi {
 
 ChannelGenerator::ChannelGenerator(const PortConfig &cfg,
-				   bool is_master)
-  : cfg_(cfg), is_master_(is_master) {
+				   bool is_master, Module *module,
+				   Ports *ports, string *s)
+  : cfg_(cfg), is_master_(is_master), module_(module), ports_(ports), s_(s) {
 }
 
-void ChannelGenerator::GenReadChannel(Module *module, Ports *ports,
-				      string *s) {
-  AddPort("ARADDR", cfg_.axi_addr_width, false, -1, module, ports, s);
-  AddPort("ARVALID", 0, false, -1, module, ports, s);
-  AddPort("ARREADY", 0, true, -1, module, ports, s);
-  AddPort("ARLEN", 8, false, -1, module, ports, s);
-  AddPort("ARSIZE", 3, false, -1, module, ports, s);
-  AddPort("ARID", 1, false, 0, module, ports, s);
-  AddPort("ARBURST", 2, false, 1, module, ports, s);  // INCR
-  AddPort("ARLOCK", 0, false, 0, module, ports, s);
-  AddPort("ARCACHE", 4, false, 3, module, ports, s); // non cacheable. bufferable.
-  AddPort("ARPROT", 3, false, 1, module, ports, s); // unpriviledged, non secure.
-  AddPort("ARQOS", 4, false, 0, module, ports, s);
-  AddPort("ARUSER", 1, false, 0, module, ports, s);
+void ChannelGenerator::GenReadChannel() {
+  AddPort("ARADDR", cfg_.axi_addr_width, false, -1);
+  AddPort("ARVALID", 0, false, -1);
+  AddPort("ARREADY", 0, true, -1);
+  AddPort("ARLEN", 8, false, -1);
+  AddPort("ARSIZE", 3, false, -1);
+  AddPort("ARID", 1, false, 0);
+  AddPort("ARBURST", 2, false, 1);  // INCR
+  AddPort("ARLOCK", 0, false, 0);
+  AddPort("ARCACHE", 4, false, 3); // non cacheable. bufferable.
+  AddPort("ARPROT", 3, false, 1); // unpriviledged, non secure.
+  AddPort("ARQOS", 4, false, 0);
+  AddPort("ARUSER", 1, false, 0);
 
-  AddPort("RVALID", 0, true, -1, module, ports, s);
-  AddPort("RDATA", cfg_.data_width, true, -1, module, ports, s);
-  AddPort("RREADY", 0, false, -1, module, ports, s);
-  AddPort("RLAST", 0, true, -1, module, ports, s);
-  AddPort("RRESP", 2, true, 0, module, ports, s);
-  AddPort("RUSER", 1, true, 0, module, ports, s);
+  AddPort("RVALID", 0, true, -1);
+  AddPort("RDATA", cfg_.data_width, true, -1);
+  AddPort("RREADY", 0, false, -1);
+  AddPort("RLAST", 0, true, -1);
+  AddPort("RRESP", 2, true, 0);
+  AddPort("RUSER", 1, true, 0);
 }
 
-void ChannelGenerator::GenWriteChannel(Module *module, Ports *ports,
-				       string *s) {
-  AddPort("AWADDR", cfg_.axi_addr_width, false, -1, module, ports, s);
-  AddPort("AWVALID", 0, false, -1, module, ports, s);
-  AddPort("AWREADY", 0, true, -1, module, ports, s);
-  AddPort("AWLEN", 8, false, -1, module, ports, s);
-  AddPort("AWSIZE", 3, false, -1, module, ports, s);
-  AddPort("AWID", 1, false, 0, module, ports, s);
-  AddPort("AWBURST", 2, false, 1, module, ports, s);  // INCR
-  AddPort("AWLOCK", 0, false, 0, module, ports, s);
-  AddPort("AWCACHE", 4, false, 3, module, ports, s); // non cacheable. bufferable.
-  AddPort("AWPROT", 3, false, 1, module, ports, s); // unpriviledged, non secure.
-  AddPort("AWQOS", 4, false, 0, module, ports, s);
-  AddPort("AWUSER", 1, false, 0, module, ports, s);
+void ChannelGenerator::GenWriteChannel() {
+  AddPort("AWADDR", cfg_.axi_addr_width, false, -1);
+  AddPort("AWVALID", 0, false, -1);
+  AddPort("AWREADY", 0, true, -1);
+  AddPort("AWLEN", 8, false, -1);
+  AddPort("AWSIZE", 3, false, -1);
+  AddPort("AWID", 1, false, 0);
+  AddPort("AWBURST", 2, false, 1);  // INCR
+  AddPort("AWLOCK", 0, false, 0);
+  AddPort("AWCACHE", 4, false, 3); // non cacheable. bufferable.
+  AddPort("AWPROT", 3, false, 1); // unpriviledged, non secure.
+  AddPort("AWQOS", 4, false, 0);
+  AddPort("AWUSER", 1, false, 0);
 
-  AddPort("WVALID", 0, false, -1, module, ports, s);
-  AddPort("WREADY", 0, true, -1, module, ports, s);
-  AddPort("WDATA", cfg_.data_width, false, -1, module, ports, s);
-  AddPort("WLAST", 0, false, -1, module, ports, s);
-  AddPort("WSTRB", cfg_.data_width / 8, false, kStrbMagic, module, ports, s);
-  AddPort("WUSER", 1, false, -1, module, ports, s);
+  AddPort("WVALID", 0, false, -1);
+  AddPort("WREADY", 0, true, -1);
+  AddPort("WDATA", cfg_.data_width, false, -1);
+  AddPort("WLAST", 0, false, -1);
+  AddPort("WSTRB", cfg_.data_width / 8, false, kStrbMagic);
+  AddPort("WUSER", 1, false, -1);
 
-  AddPort("BVALID", 0, true, -1, module, ports, s);
-  AddPort("BREADY", 0, false, -1, module, ports, s);
-  AddPort("BRESP", 2, true, -1, module, ports, s);
+  AddPort("BVALID", 0, true, -1);
+  AddPort("BREADY", 0, false, -1);
+  AddPort("BRESP", 2, true, -1);
 }
 
 void ChannelGenerator::AddPort(const string &name, int width, bool dir_s2m,
-			       int fixed_value,
-			       Module *module, Ports *ports,
-			       string *s) {
+			       int fixed_value) {
   // This method is used to add a port to either user's modules or
   // controller module.
-  bool is_controller = (module == nullptr);
+  bool is_controller = (module_ == nullptr);
   Port::PortType t;
   bool is_input = false;
   if (is_master_) {
@@ -96,40 +93,41 @@ void ChannelGenerator::AddPort(const string &name, int width, bool dir_s2m,
   if (!is_controller) {
     prefix = cfg_.prefix;
   }
-  Port *port = ports->AddPrefixedPort(prefix, name, t, width);
+  Port *port = ports_->AddPrefixedPort(prefix, name, t, width);
   if (t == Port::OUTPUT_WIRE && is_controller && is_fixed_output) {
     port->SetFixedValue(fixed_value);
   }
   // On the controller instantiation. Owner of the controller.
-  if (!is_controller && s != nullptr) {
+  if (!is_controller && s_ != nullptr) {
     string p = ", ." + name + "(" + cfg_.prefix + name + ")";
-    *s += p;
+    *s_ += p;
   }
   // Non controller.
   if (!is_controller) {
-    Module *parent = module->GetParentModule();
+    Module *parent = module_->GetParentModule();
     if (parent != nullptr) {
-      ostream &os = parent->ChildModuleInstSectionStream(module);
+      ostream &os = parent->ChildModuleInstSectionStream(module_);
       string p = ", ." + cfg_.prefix + name + "(" + cfg_.prefix + name + ")";
       os << p;
     }
   }
   // Controller.
+  // Initial value on reset.
   if (is_controller && !is_input) {
     if (!is_fixed_output) {
-      *s += "      " + name + " <= ";
+      *s_ += "      " + name + " <= ";
       if (fixed_value == kStrbMagic) {
 	// NOTE: Kludge to handle 1024 bit data bus width.
-	// WSTRB can be up to 128 bits, but I don't want to exapnd
-	// fixed_value width for now...
-	*s += Util::Itoa(width) + "'b";
+	// WSTRB can be up to 128 bits, but I don't want to use 128 bits
+	// integer (e.g. uint128_t) to represent fixed_value width for now...
+	*s_ += Util::Itoa(width) + "'b";
 	for (int i = 0; i < width; ++i) {
-	  *s += "1";
+	  *s_ += "1";
 	}
       } else {
-	*s += "0";
+	*s_ += "0";
       }
-      *s += ";\n";
+      *s_ += ";\n";
     }
   }
 }
