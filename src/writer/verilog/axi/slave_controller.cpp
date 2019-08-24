@@ -27,8 +27,7 @@ void SlaveController::Write(ostream &os) {
   AddNotifierPorts();
   string initials;
   ChannelGenerator ch(cfg_, false, nullptr, ports_.get(), &initials);
-  ch.GenReadChannel();
-  ch.GenWriteChannel();
+  ch.GenerateChannel(true, true);
   WriteModuleHeader(name, os);
   ports_->Output(Ports::PORT_MODULE_HEAD, os);
   os << ");\n";
@@ -70,8 +69,7 @@ void SlaveController::Write(ostream &os) {
 void SlaveController::AddPorts(const PortConfig &cfg, Module *mod, string *s) {
   Ports *ports = mod->GetPorts();
   ChannelGenerator ch(cfg, false, mod, ports, s);
-  ch.GenWriteChannel();
-  ch.GenReadChannel();
+  ch.GenerateChannel(true, true);
 }
 
 void SlaveController::OutputFSM(ostream &os) {

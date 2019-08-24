@@ -14,10 +14,11 @@ public:
   ChannelGenerator(const PortConfig &cfg, bool is_master,
 		   Module *module, Ports *ports, string *s);
 
-  void GenReadChannel();
-  void GenWriteChannel();
+  void GenerateChannel(bool r, bool w);
 
 private:
+  void GenReadChannel();
+  void GenWriteChannel();
   // module==nullptr: Can get register initializer.
   // module!=nullptr: Child module wirings.
   void AddPort(const string &name, int width,

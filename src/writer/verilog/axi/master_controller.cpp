@@ -30,8 +30,7 @@ void MasterController::Write(ostream &os) {
   ports_->AddPort("ack", Port::OUTPUT, 0);
   string initials;
   ChannelGenerator ch(cfg_, true, nullptr, ports_.get(), &initials);
-  ch.GenReadChannel();
-  ch.GenWriteChannel();
+  ch.GenerateChannel(true, true);
   string name = MasterPort::ControllerName(res_);
   WriteModuleHeader(name, os);
   ports_->Output(Ports::PORT_MODULE_HEAD, os);
@@ -91,12 +90,7 @@ void MasterController::AddPorts(const PortConfig &cfg,
 				string *s) {
   Ports *ports = mod->GetPorts();
   ChannelGenerator ch(cfg, true, mod, ports, s);
-  if (r) {
-    ch.GenReadChannel();
-  }
-  if (w) {
-    ch.GenWriteChannel();
-  }
+  ch.GenerateChannel(true, true);
 }
 
 void MasterController::OutputMainFsm(ostream &os) {

@@ -19,6 +19,15 @@ ChannelGenerator::ChannelGenerator(const PortConfig &cfg,
   : cfg_(cfg), is_master_(is_master), module_(module), ports_(ports), s_(s) {
 }
 
+void ChannelGenerator::GenerateChannel(bool r, bool w) {
+  if (r) {
+    GenReadChannel();
+  }
+  if (w) {
+    GenWriteChannel();
+  }
+}
+
 void ChannelGenerator::GenReadChannel() {
   AddPort("ARADDR", cfg_.axi_addr_width, false, -1);
   AddPort("ARVALID", 0, false, -1);
