@@ -14,6 +14,8 @@ public:
   enum OutputType {
     CONTROLLER_PORTS_AND_REG_INITIALS,
     PORTS_TO_EXT_AND_CONNECTIONS,
+    SHELL_WIRE_DECL,
+    SHELL_PORT_CONNECTION,
   };
   ChannelGenerator(const PortConfig &cfg, enum OutputType type,
 		   bool is_master,
@@ -36,6 +38,7 @@ private:
 		 // valid if non negative.
 		 int fixed_value);
   void MayAddInitialRegValue(const string &name, int width, int fixed_value);
+  void WriteShellConnection(const string &name, int width);
 
   const PortConfig &cfg_;
   enum OutputType type_;

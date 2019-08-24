@@ -18,6 +18,7 @@ public:
 
 private:
   IResource *res_;
+  bool is_master_;
 };
 
 }  // namespace axi

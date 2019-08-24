@@ -3,6 +3,7 @@
 #include "iroha/i_design.h"
 #include "writer/verilog/module.h"
 #include "writer/verilog/ports.h"
+#include "writer/verilog/table.h"
 
 namespace {
 const int kStrbMagic = -7;
@@ -89,7 +90,10 @@ void ChannelGenerator::AddPort(const string &name, int width, bool dir_s2m,
     is_input = !dir_s2m;
   }
   bool is_fixed_output = (fixed_value >= 0) && !is_input;
-  DoAddPort(name, width, is_input, is_fixed_output, fixed_value);
+  if (type_ == CONTROLLER_PORTS_AND_REG_INITIALS ||
+      type_ == PORTS_TO_EXT_AND_CONNECTIONS) {
+    DoAddPort(name, width, is_input, is_fixed_output, fixed_value);
+  }
   // On the controller instantiation. Owner of the controller.
   if (type_ == PORTS_TO_EXT_AND_CONNECTIONS) {
     string p = ", ." + name + "(" + cfg_.prefix + name + ")";
@@ -110,6 +114,10 @@ void ChannelGenerator::AddPort(const string &name, int width, bool dir_s2m,
     if (!is_input && !is_fixed_output) {
       MayAddInitialRegValue(name, width, fixed_value);
     }
+  }
+  if (type_ == SHELL_WIRE_DECL ||
+      type_ == SHELL_PORT_CONNECTION) {
+    WriteShellConnection(name, width);
   }
 }
 
@@ -152,6 +160,16 @@ void ChannelGenerator::MayAddInitialRegValue(const string &name, int width,
     *s_ += "0";
   }
   *s_ += ";\n";
+}
+
+void ChannelGenerator::WriteShellConnection(const string &name, int width) {
+  if (type_ == SHELL_WIRE_DECL) {
+    *s_ += "  wire " + Table::WidthSpec(width) + cfg_.prefix + name + ";\n";
+  }
+  if (type_ == SHELL_PORT_CONNECTION) {
+    string n = cfg_.prefix + name;
+    *s_ += ", ." + n + "(" + n + ")";
+  }
 }
 
 }  // namespace axi
