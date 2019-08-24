@@ -30,6 +30,11 @@ private:
 	       bool dir_s2m,
 	       // valid if non negative.
 	       int fixed_value);
+  void DoAddPort(const string &name, int width,
+		 bool is_input,
+		 bool is_fixed_output,
+		 // valid if non negative.
+		 int fixed_value);
   void MayAddInitialRegValue(const string &name, int width, int fixed_value);
 
   const PortConfig &cfg_;

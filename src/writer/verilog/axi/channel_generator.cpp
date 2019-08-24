@@ -82,8 +82,6 @@ void ChannelGenerator::AddPort(const string &name, int width, bool dir_s2m,
 			       int fixed_value) {
   // This method is used to add a port to either user's modules or
   // controller module.
-  bool is_controller = (type_ == CONTROLLER_PORTS_AND_REG_INITIALS);
-  Port::PortType t;
   bool is_input = false;
   if (is_master_) {
     is_input = dir_s2m;
@@ -91,30 +89,14 @@ void ChannelGenerator::AddPort(const string &name, int width, bool dir_s2m,
     is_input = !dir_s2m;
   }
   bool is_fixed_output = (fixed_value >= 0) && !is_input;
-  if (is_input) {
-    t = Port::INPUT;
-  } else {
-    if (is_controller && !is_fixed_output) {
-      t = Port::OUTPUT;
-    } else {
-      t = Port::OUTPUT_WIRE;
-    }
-  }
-  string prefix;
-  if (!is_controller) {
-    prefix = cfg_.prefix;
-  }
-  Port *port = ports_->AddPrefixedPort(prefix, name, t, width);
-  if (t == Port::OUTPUT_WIRE && is_controller && is_fixed_output) {
-    port->SetFixedValue(fixed_value);
-  }
+  DoAddPort(name, width, is_input, is_fixed_output, fixed_value);
   // On the controller instantiation. Owner of the controller.
-  if (!is_controller && s_ != nullptr) {
+  if (type_ == PORTS_TO_EXT_AND_CONNECTIONS) {
     string p = ", ." + name + "(" + cfg_.prefix + name + ")";
     *s_ += p;
   }
   // Non controller.
-  if (!is_controller) {
+  if (type_ == PORTS_TO_EXT_AND_CONNECTIONS) {
     Module *parent = module_->GetParentModule();
     if (parent != nullptr) {
       ostream &os = parent->ChildModuleInstSectionStream(module_);
@@ -128,6 +110,30 @@ void ChannelGenerator::AddPort(const string &name, int width, bool dir_s2m,
     if (!is_input && !is_fixed_output) {
       MayAddInitialRegValue(name, width, fixed_value);
     }
+  }
+}
+
+void ChannelGenerator::DoAddPort(const string &name, int width, bool is_input,
+				 bool is_fixed_output,
+				 int fixed_value) {
+  Port::PortType t;
+  if (is_input) {
+    t = Port::INPUT;
+  } else {
+    if (type_ == CONTROLLER_PORTS_AND_REG_INITIALS && !is_fixed_output) {
+      t = Port::OUTPUT;
+    } else {
+      t = Port::OUTPUT_WIRE;
+    }
+  }
+  string prefix;
+  if (type_ == PORTS_TO_EXT_AND_CONNECTIONS) {
+    prefix = cfg_.prefix;
+  }
+  Port *port = ports_->AddPrefixedPort(prefix, name, t, width);
+  if (type_ == CONTROLLER_PORTS_AND_REG_INITIALS &&
+      t == Port::OUTPUT_WIRE && is_fixed_output) {
+    port->SetFixedValue(fixed_value);
   }
 }
 
