@@ -11,7 +11,12 @@ namespace axi {
 
 class ChannelGenerator {
 public:
-  ChannelGenerator(const PortConfig &cfg, bool is_master,
+  enum OutputType {
+    CONTROLLER_PORTS_AND_REG_INITIALS,
+    PORTS_TO_EXT_AND_CONNECTIONS,
+  };
+  ChannelGenerator(const PortConfig &cfg, enum OutputType type,
+		   bool is_master,
 		   Module *module, Ports *ports, string *s);
 
   void GenerateChannel(bool r, bool w);
@@ -25,8 +30,10 @@ private:
 	       bool dir_s2m,
 	       // valid if non negative.
 	       int fixed_value);
+  void MayAddInitialRegValue(const string &name, int width, int fixed_value);
 
   const PortConfig &cfg_;
+  enum OutputType type_;
   bool is_master_;
   Module *module_;
   Ports *ports_;

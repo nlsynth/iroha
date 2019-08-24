@@ -14,9 +14,11 @@ namespace verilog {
 namespace axi {
 
 ChannelGenerator::ChannelGenerator(const PortConfig &cfg,
+				   enum OutputType type,
 				   bool is_master, Module *module,
 				   Ports *ports, string *s)
-  : cfg_(cfg), is_master_(is_master), module_(module), ports_(ports), s_(s) {
+  : cfg_(cfg), type_(type), is_master_(is_master), module_(module),
+    ports_(ports), s_(s) {
 }
 
 void ChannelGenerator::GenerateChannel(bool r, bool w) {
@@ -80,7 +82,7 @@ void ChannelGenerator::AddPort(const string &name, int width, bool dir_s2m,
 			       int fixed_value) {
   // This method is used to add a port to either user's modules or
   // controller module.
-  bool is_controller = (module_ == nullptr);
+  bool is_controller = (type_ == CONTROLLER_PORTS_AND_REG_INITIALS);
   Port::PortType t;
   bool is_input = false;
   if (is_master_) {
@@ -122,23 +124,28 @@ void ChannelGenerator::AddPort(const string &name, int width, bool dir_s2m,
   }
   // Controller.
   // Initial value on reset.
-  if (is_controller && !is_input) {
-    if (!is_fixed_output) {
-      *s_ += "      " + name + " <= ";
-      if (fixed_value == kStrbMagic) {
-	// NOTE: Kludge to handle 1024 bit data bus width.
-	// WSTRB can be up to 128 bits, but I don't want to use 128 bits
-	// integer (e.g. uint128_t) to represent fixed_value width for now...
-	*s_ += Util::Itoa(width) + "'b";
-	for (int i = 0; i < width; ++i) {
-	  *s_ += "1";
-	}
-      } else {
-	*s_ += "0";
-      }
-      *s_ += ";\n";
+  if (type_ == CONTROLLER_PORTS_AND_REG_INITIALS) {
+    if (!is_input && !is_fixed_output) {
+      MayAddInitialRegValue(name, width, fixed_value);
     }
   }
+}
+
+void ChannelGenerator::MayAddInitialRegValue(const string &name, int width,
+					     int fixed_value) {
+  *s_ += "      " + name + " <= ";
+  if (fixed_value == kStrbMagic) {
+    // NOTE: Kludge to handle 1024 bit data bus width.
+    // WSTRB can be up to 128 bits, but I don't want to use 128 bits
+    // integer (e.g. uint128_t) to represent fixed_value width for now...
+    *s_ += Util::Itoa(width) + "'b";
+    for (int i = 0; i < width; ++i) {
+      *s_ += "1";
+    }
+  } else {
+    *s_ += "0";
+  }
+  *s_ += ";\n";
 }
 
 }  // namespace axi
