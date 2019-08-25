@@ -1,5 +1,7 @@
 #include "writer/verilog/axi/axi_shell.h"
 
+#include "iroha/i_design.h"
+#include "iroha/resource_class.h"
 #include "writer/verilog/axi/axi_port.h"
 #include "writer/verilog/axi/channel_generator.h"
 
@@ -9,22 +11,23 @@ namespace verilog {
 namespace axi {
 
 AxiShell::AxiShell(IResource *res) : res_(res) {
-  is_master_ = true;
+  auto *klass = res->GetClass();
+  is_master_ = resource::IsAxiMasterPort(*klass);
 }
 
 void AxiShell::WriteWireDecl(ostream &os) {
   PortConfig config = AxiPort::GetPortConfig(*res_);
-  os << "  // WIP AXI prefix " << config.prefix << "\n";
+  os << "  // AXI shell: " << config.prefix << "\n";
   string s;
   ChannelGenerator ch(config, ChannelGenerator::SHELL_WIRE_DECL,
 		      is_master_, nullptr, nullptr, &s);
   ch.GenerateChannel(true, true);
-  os << s;
+  os << s << "\n";
 }
 
 void AxiShell::WritePortConnection(ostream &os) {
   PortConfig config = AxiPort::GetPortConfig(*res_);
-  os << "  /* WIP AXI prefix " << config.prefix << " */";
+  os << "  /* AXI shell: " << config.prefix << " */";
   string s;
   ChannelGenerator ch(config, ChannelGenerator::SHELL_PORT_CONNECTION,
 		      is_master_, nullptr, nullptr, &s);

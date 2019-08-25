@@ -117,7 +117,7 @@ void ChannelGenerator::AddPort(const string &name, int width, bool dir_s2m,
   }
   if (type_ == SHELL_WIRE_DECL ||
       type_ == SHELL_PORT_CONNECTION) {
-    WriteShellConnection(name, width);
+    WriteShellConnection(name, width, is_input);
   }
 }
 
@@ -162,9 +162,14 @@ void ChannelGenerator::MayAddInitialRegValue(const string &name, int width,
   *s_ += ";\n";
 }
 
-void ChannelGenerator::WriteShellConnection(const string &name, int width) {
+void ChannelGenerator::WriteShellConnection(const string &name, int width,
+					    bool is_input) {
   if (type_ == SHELL_WIRE_DECL) {
-    *s_ += "  wire " + Table::WidthSpec(width) + cfg_.prefix + name + ";\n";
+    string n = cfg_.prefix + name;
+    *s_ += "  wire " + Table::WidthSpec(width) + n + ";\n";
+    if (is_input) {
+      *s_ += "  assign " + n + " = 0;\n";
+    }
   }
   if (type_ == SHELL_PORT_CONNECTION) {
     string n = cfg_.prefix + name;

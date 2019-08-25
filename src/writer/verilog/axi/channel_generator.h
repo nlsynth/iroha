@@ -38,7 +38,7 @@ private:
 		 // valid if non negative.
 		 int fixed_value);
   void MayAddInitialRegValue(const string &name, int width, int fixed_value);
-  void WriteShellConnection(const string &name, int width);
+  void WriteShellConnection(const string &name, int width, bool is_input);
 
   const PortConfig &cfg_;
   enum OutputType type_;
