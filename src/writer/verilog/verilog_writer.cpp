@@ -158,7 +158,7 @@ void VerilogWriter::WriteShellModule(const Module *mod) {
   }
   std::unique_ptr<SelfShell> shell;
   if (with_self_contained_) {
-    shell.reset(new SelfShell(design_));
+    shell.reset(new SelfShell(design_, reset_polarity_));
     shell->WriteWireDecl(os_);
   }
   string name = mod->GetName();
@@ -175,8 +175,12 @@ void VerilogWriter::WriteShellModule(const Module *mod) {
     ports->Output(Ports::PORT_CONNECTION, os_);
   }
   os_ << ");\n";
+  if (with_self_contained_) {
+    shell->WriteShellFSM(os_);
+  }
   if (output_vcd_) {
-    os_ << "  initial begin\n"
+    os_ << "\n"
+	<< "initial begin\n"
 	<< "    $dumpfile(\"/tmp/" << shell_module_name_ << ".vcd\");\n"
 	<< "    $dumpvars(0, " << name << "_inst);\n"
 	<< "  end\n";
@@ -197,11 +201,10 @@ void VerilogWriter::WriteSelfClockGenerator(const Module *mod) {
   const Ports *ports = mod->GetPorts();
   const string &clk = ports->GetClk();
   const string &rst = ports->GetReset();
-  bool polarity = mod->GetResetPolarity();
   os_ << "  reg " << clk << ", " <<  rst << ";\n\n"
       << "  initial begin\n"
       << "    " << clk << " <= 0;\n"
-      << "    " << rst << " <= " << (polarity ? "1" : "0") << ";\n"
+      << "    " << rst << " <= " << (reset_polarity_ ? "1" : "0") << ";\n"
       << "    #15\n"
       << "    " << rst << " <= ~" << rst << ";\n"
       << "    #10000\n"

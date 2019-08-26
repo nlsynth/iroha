@@ -8,7 +8,8 @@ namespace iroha {
 namespace writer {
 namespace verilog {
 
-SelfShell::SelfShell(const IDesign *design) : design_(design) {
+SelfShell::SelfShell(const IDesign *design, bool reset_polarity)
+  : design_(design), reset_polarity_(reset_polarity) {
   for (IModule *mod : design->modules_) {
     ProcessModule(mod);
   }
@@ -25,6 +26,13 @@ void SelfShell::WritePortConnection(ostream &os) {
   for (IResource *res : axi_) {
     axi::AxiShell shell(res);
     shell.WritePortConnection(os);
+  }
+}
+
+void SelfShell::WriteShellFSM(ostream &os) {
+  for (IResource *res : axi_) {
+    axi::AxiShell shell(res);
+    shell.WriteFSM(reset_polarity_, os);
   }
 }
 

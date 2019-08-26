@@ -31,14 +31,16 @@ private:
   void AddPort(const string &name, int width,
 	       bool dir_s2m,
 	       // valid if non negative.
-	       int fixed_value);
+	       int fixed_value,
+	       bool drive_from_shell);
   void DoAddPort(const string &name, int width,
 		 bool is_input,
 		 bool is_fixed_output,
 		 // valid if non negative.
 		 int fixed_value);
   void MayAddInitialRegValue(const string &name, int width, int fixed_value);
-  void WriteShellConnection(const string &name, int width, bool is_input);
+  void WriteShellConnection(const string &name, int width, bool is_input,
+			    bool drive_from_shell);
 
   const PortConfig &cfg_;
   enum OutputType type_;

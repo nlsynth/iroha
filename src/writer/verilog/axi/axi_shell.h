@@ -15,6 +15,7 @@ public:
 
   void WriteWireDecl(ostream &os);
   void WritePortConnection(ostream &os);
+  void WriteFSM(bool reset_polarity, ostream &os);
 
 private:
   IResource *res_;

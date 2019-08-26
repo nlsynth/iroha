@@ -32,55 +32,55 @@ void ChannelGenerator::GenerateChannel(bool r, bool w) {
 }
 
 void ChannelGenerator::GenReadChannel() {
-  AddPort("ARADDR", cfg_.axi_addr_width, false, -1);
-  AddPort("ARVALID", 0, false, -1);
-  AddPort("ARREADY", 0, true, -1);
-  AddPort("ARLEN", 8, false, -1);
-  AddPort("ARSIZE", 3, false, -1);
-  AddPort("ARID", 1, false, 0);
-  AddPort("ARBURST", 2, false, 1);  // INCR
-  AddPort("ARLOCK", 0, false, 0);
-  AddPort("ARCACHE", 4, false, 3); // non cacheable. bufferable.
-  AddPort("ARPROT", 3, false, 1); // unpriviledged, non secure.
-  AddPort("ARQOS", 4, false, 0);
-  AddPort("ARUSER", 1, false, 0);
+  AddPort("ARADDR", cfg_.axi_addr_width, false, -1, false);
+  AddPort("ARVALID", 0, false, -1, false);
+  AddPort("ARREADY", 0, true, -1, false);
+  AddPort("ARLEN", 8, false, -1, false);
+  AddPort("ARSIZE", 3, false, -1, false);
+  AddPort("ARID", 1, false, 0, false);
+  AddPort("ARBURST", 2, false, 1, false);  // INCR
+  AddPort("ARLOCK", 0, false, 0, false);
+  AddPort("ARCACHE", 4, false, 3, false); // non cacheable. bufferable.
+  AddPort("ARPROT", 3, false, 1, false); // unpriviledged, non secure.
+  AddPort("ARQOS", 4, false, 0, false);
+  AddPort("ARUSER", 1, false, 0, false);
 
-  AddPort("RVALID", 0, true, -1);
-  AddPort("RDATA", cfg_.data_width, true, -1);
-  AddPort("RREADY", 0, false, -1);
-  AddPort("RLAST", 0, true, -1);
-  AddPort("RRESP", 2, true, 0);
-  AddPort("RUSER", 1, true, 0);
+  AddPort("RVALID", 0, true, -1, false);
+  AddPort("RDATA", cfg_.data_width, true, -1, false);
+  AddPort("RREADY", 0, false, -1, false);
+  AddPort("RLAST", 0, true, -1, false);
+  AddPort("RRESP", 2, true, 0, false);
+  AddPort("RUSER", 1, true, 0, false);
 }
 
 void ChannelGenerator::GenWriteChannel() {
-  AddPort("AWADDR", cfg_.axi_addr_width, false, -1);
-  AddPort("AWVALID", 0, false, -1);
-  AddPort("AWREADY", 0, true, -1);
-  AddPort("AWLEN", 8, false, -1);
-  AddPort("AWSIZE", 3, false, -1);
-  AddPort("AWID", 1, false, 0);
-  AddPort("AWBURST", 2, false, 1);  // INCR
-  AddPort("AWLOCK", 0, false, 0);
-  AddPort("AWCACHE", 4, false, 3); // non cacheable. bufferable.
-  AddPort("AWPROT", 3, false, 1); // unpriviledged, non secure.
-  AddPort("AWQOS", 4, false, 0);
-  AddPort("AWUSER", 1, false, 0);
+  AddPort("AWADDR", cfg_.axi_addr_width, false, -1, false);
+  AddPort("AWVALID", 0, false, -1, false);
+  AddPort("AWREADY", 0, true, -1, false);
+  AddPort("AWLEN", 8, false, -1, false);
+  AddPort("AWSIZE", 3, false, -1, false);
+  AddPort("AWID", 1, false, 0, false);
+  AddPort("AWBURST", 2, false, 1, false);  // INCR
+  AddPort("AWLOCK", 0, false, 0, false);
+  AddPort("AWCACHE", 4, false, 3, false); // non cacheable. bufferable.
+  AddPort("AWPROT", 3, false, 1, false); // unpriviledged, non secure.
+  AddPort("AWQOS", 4, false, 0, false);
+  AddPort("AWUSER", 1, false, 0, false);
 
-  AddPort("WVALID", 0, false, -1);
-  AddPort("WREADY", 0, true, -1);
-  AddPort("WDATA", cfg_.data_width, false, -1);
-  AddPort("WLAST", 0, false, -1);
-  AddPort("WSTRB", cfg_.data_width / 8, false, kStrbMagic);
-  AddPort("WUSER", 1, false, -1);
+  AddPort("WVALID", 0, false, -1, false);
+  AddPort("WREADY", 0, true, -1, false);
+  AddPort("WDATA", cfg_.data_width, false, -1, false);
+  AddPort("WLAST", 0, false, -1, false);
+  AddPort("WSTRB", cfg_.data_width / 8, false, kStrbMagic, false);
+  AddPort("WUSER", 1, false, -1, false);
 
-  AddPort("BVALID", 0, true, -1);
-  AddPort("BREADY", 0, false, -1);
-  AddPort("BRESP", 2, true, -1);
+  AddPort("BVALID", 0, true, -1, false);
+  AddPort("BREADY", 0, false, -1, false);
+  AddPort("BRESP", 2, true, -1, false);
 }
 
 void ChannelGenerator::AddPort(const string &name, int width, bool dir_s2m,
-			       int fixed_value) {
+			       int fixed_value, bool drive_from_shell) {
   // This method is used to add a port to either user's modules or
   // controller module.
   bool is_input = false;
@@ -117,7 +117,7 @@ void ChannelGenerator::AddPort(const string &name, int width, bool dir_s2m,
   }
   if (type_ == SHELL_WIRE_DECL ||
       type_ == SHELL_PORT_CONNECTION) {
-    WriteShellConnection(name, width, is_input);
+    WriteShellConnection(name, width, is_input, drive_from_shell);
   }
 }
 
@@ -163,11 +163,16 @@ void ChannelGenerator::MayAddInitialRegValue(const string &name, int width,
 }
 
 void ChannelGenerator::WriteShellConnection(const string &name, int width,
-					    bool is_input) {
+					    bool is_input,
+					    bool drive_from_shell) {
   if (type_ == SHELL_WIRE_DECL) {
+    string storage = "wire";
+    if (is_input && drive_from_shell) {
+      storage = "reg";
+    }
     string n = cfg_.prefix + name;
-    *s_ += "  wire " + Table::WidthSpec(width) + n + ";\n";
-    if (is_input) {
+    *s_ += "  " + storage + " " + Table::WidthSpec(width) + n + ";\n";
+    if (is_input && !drive_from_shell) {
       *s_ += "  assign " + n + " = 0;\n";
     }
   }

@@ -10,15 +10,17 @@ namespace verilog {
 
 class SelfShell {
 public:
-  SelfShell(const IDesign *design);
+  SelfShell(const IDesign *design, bool reset_polarity);
 
   void WriteWireDecl(ostream &os);
   void WritePortConnection(ostream &os);
+  void WriteShellFSM(ostream &os);
 
 private:
   void ProcessModule(IModule *mod);
 
   const IDesign *design_;
+  bool reset_polarity_;
   vector<IResource *> axi_;
 };
 
