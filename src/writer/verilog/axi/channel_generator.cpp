@@ -34,7 +34,7 @@ void ChannelGenerator::GenerateChannel(bool r, bool w) {
 void ChannelGenerator::GenReadChannel() {
   AddPort("ARADDR", cfg_.axi_addr_width, false, -1, false);
   AddPort("ARVALID", 0, false, -1, false);
-  AddPort("ARREADY", 0, true, -1, false);
+  AddPort("ARREADY", 0, true, -1, true);
   AddPort("ARLEN", 8, false, -1, false);
   AddPort("ARSIZE", 3, false, -1, false);
   AddPort("ARID", 1, false, 0, false);
@@ -45,10 +45,10 @@ void ChannelGenerator::GenReadChannel() {
   AddPort("ARQOS", 4, false, 0, false);
   AddPort("ARUSER", 1, false, 0, false);
 
-  AddPort("RVALID", 0, true, -1, false);
+  AddPort("RVALID", 0, true, -1, true);
   AddPort("RDATA", cfg_.data_width, true, -1, false);
   AddPort("RREADY", 0, false, -1, false);
-  AddPort("RLAST", 0, true, -1, false);
+  AddPort("RLAST", 0, true, -1, true);
   AddPort("RRESP", 2, true, 0, false);
   AddPort("RUSER", 1, true, 0, false);
 }

@@ -15,11 +15,13 @@ public:
 
   void WriteWireDecl(ostream &os);
   void WritePortConnection(ostream &os);
-  void WriteFSM(bool reset_polarity, ostream &os);
+  void WriteFSM(const Ports *ports, bool reset_polarity, ostream &os);
 
 private:
+  string P(const string &p);
   IResource *res_;
   bool is_master_;
+  string p_;
 };
 
 }  // namespace axi

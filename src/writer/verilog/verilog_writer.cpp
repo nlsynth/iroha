@@ -158,7 +158,7 @@ void VerilogWriter::WriteShellModule(const Module *mod) {
   }
   std::unique_ptr<SelfShell> shell;
   if (with_self_contained_) {
-    shell.reset(new SelfShell(design_, reset_polarity_));
+    shell.reset(new SelfShell(design_, ports, reset_polarity_));
     shell->WriteWireDecl(os_);
   }
   string name = mod->GetName();
@@ -185,7 +185,7 @@ void VerilogWriter::WriteShellModule(const Module *mod) {
 	<< "    $dumpvars(0, " << name << "_inst);\n"
 	<< "  end\n";
   }
-  os_ << "endmodule\n";
+  os_ << "\nendmodule\n";
 
   os_ << "\n// NOTE: Please copy the follwoing line to your design.\n"
       << "// " << shell_module_name_ << " " << shell_module_name_ << "_inst(";
