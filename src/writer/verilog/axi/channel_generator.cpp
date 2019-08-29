@@ -56,7 +56,7 @@ void ChannelGenerator::GenReadChannel() {
 void ChannelGenerator::GenWriteChannel() {
   AddPort("AWADDR", cfg_.axi_addr_width, false, -1, false);
   AddPort("AWVALID", 0, false, -1, false);
-  AddPort("AWREADY", 0, true, -1, false);
+  AddPort("AWREADY", 0, true, -1, true);
   AddPort("AWLEN", 8, false, -1, false);
   AddPort("AWSIZE", 3, false, -1, false);
   AddPort("AWID", 1, false, 0, false);
@@ -68,13 +68,13 @@ void ChannelGenerator::GenWriteChannel() {
   AddPort("AWUSER", 1, false, 0, false);
 
   AddPort("WVALID", 0, false, -1, false);
-  AddPort("WREADY", 0, true, -1, false);
+  AddPort("WREADY", 0, true, -1, true);
   AddPort("WDATA", cfg_.data_width, false, -1, false);
   AddPort("WLAST", 0, false, -1, false);
   AddPort("WSTRB", cfg_.data_width / 8, false, kStrbMagic, false);
   AddPort("WUSER", 1, false, -1, false);
 
-  AddPort("BVALID", 0, true, -1, false);
+  AddPort("BVALID", 0, true, -1, true);
   AddPort("BREADY", 0, false, -1, false);
   AddPort("BRESP", 2, true, -1, false);
 }
