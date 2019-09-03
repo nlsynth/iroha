@@ -23,6 +23,7 @@ private:
   const Ports *ports_;
   bool reset_polarity_;
   vector<IResource *> axi_;
+  vector<IResource *> ext_input_;
 };
 
 }  // namespace verilog

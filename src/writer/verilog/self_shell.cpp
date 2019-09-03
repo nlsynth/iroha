@@ -2,7 +2,9 @@
 
 #include "iroha/i_design.h"
 #include "iroha/resource_class.h"
+#include "iroha/resource_params.h"
 #include "writer/verilog/axi/axi_shell.h"
+#include "writer/verilog/table.h"
 
 namespace iroha {
 namespace writer {
@@ -21,12 +23,27 @@ void SelfShell::WriteWireDecl(ostream &os) {
     axi::AxiShell shell(res);
     shell.WriteWireDecl(os);
   }
+  for (IResource *res : ext_input_) {
+    auto *params = res->GetParams();
+    string input_port;
+    int width;
+    params->GetExtInputPort(&input_port, &width);
+    os << "  wire " << Table::WidthSpec(width) << input_port << ";\n";
+    os << "  assign " << input_port << " = 0;\n";
+  }
 }
 
 void SelfShell::WritePortConnection(ostream &os) {
   for (IResource *res : axi_) {
     axi::AxiShell shell(res);
     shell.WritePortConnection(os);
+  }
+  for (IResource *res : ext_input_) {
+    auto *params = res->GetParams();
+    string input_port;
+    int width;
+    params->GetExtInputPort(&input_port, &width);
+    os << ", ." << input_port << "(" << input_port << ")";
   }
 }
 
@@ -44,6 +61,9 @@ void SelfShell::ProcessModule(IModule *mod) {
       if (resource::IsAxiMasterPort(*klass) ||
 	  resource::IsAxiSlavePort(*klass)) {
 	axi_.push_back(res);
+      }
+      if (resource::IsExtInput(*klass)) {
+	ext_input_.push_back(res);
       }
     }
   }
