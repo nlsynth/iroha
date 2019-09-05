@@ -44,7 +44,7 @@ void State::Build() {
 }
 
 void State::Write(ostream &os) {
-  os << I << "`" << table_->StateName(i_state_->GetId()) << ": begin\n";
+  os << I << table_->StateName(i_state_->GetId()) << ": begin\n";
   WriteStateBody(os);
   WriteTransition(os);
   os << I << "end\n";
@@ -97,7 +97,7 @@ void State::WriteTransitionBody(ostream &os) {
   const string &sv = table_->StateVariable();
   if (DesignUtil::IsTerminalState(i_state_) &&
       table_->IsTaskOrExtTask()) {
-    os << I << "  " << sv << " <= `"
+    os << I << "  " << sv << " <= "
        << table_->StateName(Task::kTaskEntryStateId)
        << ";\n";
     return;
@@ -107,7 +107,7 @@ void State::WriteTransitionBody(ostream &os) {
     return;
   }
   if (transition_insn_->target_states_.size() == 1) {
-    os << I << "  " << sv << " <= `"
+    os << I << "  " << sv << " <= "
        << table_->StateName(transition_insn_->target_states_[0]->GetId())
        << ";\n";
     return;
@@ -115,11 +115,11 @@ void State::WriteTransitionBody(ostream &os) {
   IRegister *cond = transition_insn_->inputs_[0];
   os << I << "  if (" << InsnWriter::RegisterValue(*cond, names_) << ") begin\n"
      << I << "    " << sv << " <= "
-     << "`" << table_->StateName(transition_insn_->target_states_[1]->GetId())
+     << table_->StateName(transition_insn_->target_states_[1]->GetId())
      << ";\n"
      << I << "  end else begin\n"
      << I << "    " << sv << " <= "
-     << "`" << table_->StateName(transition_insn_->target_states_[0]->GetId())
+     << table_->StateName(transition_insn_->target_states_[0]->GetId())
      << ";\n"
      << I << "  end\n";
 }
@@ -164,7 +164,7 @@ string State::MultiCycleTransitionCond() {
 }
 
 void State::WriteTaskEntry(Table *tab, ostream &os) {
-  os << I << "`" << tab->StateName(Task::kTaskEntryStateId)
+  os << I << tab->StateName(Task::kTaskEntryStateId)
      << ": begin\n";
   string s;
   if (Task::IsTask(*tab)) {
@@ -173,7 +173,7 @@ void State::WriteTaskEntry(Table *tab, ostream &os) {
     s = ExtTask::TaskReadyPin(*tab);
   }
   os << I << "  if (" << s << ") begin\n"
-     << I << "    " << tab->StateVariable() << " <= `"
+     << I << "    " << tab->StateVariable() << " <= "
      << tab->InitialStateName() << ";\n"
      << tab->TaskEntrySectionContents()
      << I << "  end\n"

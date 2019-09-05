@@ -120,11 +120,11 @@ void ExtTask::BuildExtTask() {
   ostream &ss = tab_.StateOutputSectionStream();
   ss << "      " << ReqReadyPin(&res_) << " <= "
      << ReqValidPin(&res_) << " & ("
-     << tab_.StateVariable() << " == `"
+     << tab_.StateVariable() << " == "
      << tab_.StateName(Task::kTaskEntryStateId) << ")"
      << ";\n";
   ss << "      " << BusyPin(&res_) << " <= !("
-     << tab_.StateVariable() << " == `"
+     << tab_.StateVariable() << " == "
      << tab_.StateName(Task::kTaskEntryStateId) << ");\n";
   ITable *i_table = tab_.GetITable();
   IInsn *task_entry_insn = DesignUtil::FindTaskEntryInsn(i_table);

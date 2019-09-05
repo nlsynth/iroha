@@ -38,22 +38,22 @@ void MasterController::Write(ostream &os) {
   os << ");\n";
   ports_->Output(Ports::FIXED_VALUE_ASSIGN, os);
   os << "\n"
-     << "  `define S_IDLE 0\n"
-     << "  `define S_ADDR_WAIT 1\n";
+     << "  localparam S_IDLE = 0;\n"
+     << "  localparam S_ADDR_WAIT = 1;\n";
   if (r_) {
-    os << "  `define S_READ_DATA 2\n"
-       << "  `define S_READ_DATA_WAIT 3\n";
+    os << "  localparam S_READ_DATA = 2;\n"
+       << "  localparam S_READ_DATA_WAIT = 3;\n";
   }
   if (w_) {
-    os << "  `define S_WRITE_WAIT 4\n";
+    os << "  localparam S_WRITE_WAIT = 4;\n";
   }
   os << "  reg [2:0] st;\n\n";
   if (w_) {
-    os << "  `define WS_IDLE 0\n"
-       << "  `define WS_WRITE 1\n"
-       << "  `define WS_WAIT 2\n"
-       << "  `define WS_SRAM 4\n"
-       << "  `define WS_AXI 5\n"
+    os << "  localparam WS_IDLE = 0;\n"
+       << "  localparam WS_WRITE = 1;\n"
+       << "  localparam WS_WAIT = 2;\n"
+       << "  localparam WS_SRAM = 4;\n"
+       << "  localparam WS_AXI = 5;\n"
        << "  reg [2:0] wst;\n"
        << "  reg [" << sram_addr_width_ << ":0] wmax;\n\n";
   }
@@ -70,9 +70,9 @@ void MasterController::Write(ostream &os) {
      << "      ack <= 0;\n"
      << "      sram_req <= 0;\n"
      << "      sram_wen <= 0;\n"
-     << "      st <= `S_IDLE;\n";
+     << "      st <= S_IDLE;\n";
   if (w_) {
-    os << "      wst <= `WS_IDLE;\n"
+    os << "      wst <= WS_IDLE;\n"
        << "      wmax <= 0;\n";
   }
   os << initials
@@ -98,7 +98,7 @@ void MasterController::AddPorts(const PortConfig &cfg,
 void MasterController::OutputMainFsm(ostream &os) {
   if (r_) {
     os << "      if (sram_EXCLUSIVE) begin\n"
-       << "        sram_wen <= (st == `S_READ_DATA && RVALID);\n"
+       << "        sram_wen <= (st == S_READ_DATA && RVALID);\n"
        << "      end\n";
   } else {
     os << "      sram_wen <= 0;\n";
@@ -111,14 +111,14 @@ void MasterController::OutputMainFsm(ostream &os) {
     rwsize = 3;
   }
   os << "      case (st)\n"
-     << "        `S_IDLE: begin\n"
+     << "        S_IDLE: begin\n"
      << "          ack <= 0;\n";
   if (r_ || w_) {
     os << "          if (req && !ack) begin\n";
     if (r_) {
       os << "            ridx <= 0;\n";
     }
-    os << "            st <= `S_ADDR_WAIT;\n";
+    os << "            st <= S_ADDR_WAIT;\n";
     if (r_ && !w_) {
       os << "            ARVALID <= 1;\n"
 	 << "            ARADDR <= addr;\n"
@@ -150,18 +150,18 @@ void MasterController::OutputMainFsm(ostream &os) {
   }
   os << "        end\n";
   if (r_ || w_) {
-    os << "        `S_ADDR_WAIT: begin\n"
+    os << "        S_ADDR_WAIT: begin\n"
        << "          ack <= 0;\n";
     if (r_ && !w_) {
       os << "          if (ARREADY) begin\n"
-	 << "            st <= `S_READ_DATA;\n"
+	 << "            st <= S_READ_DATA;\n"
 	 << "            ARVALID <= 0;\n"
 	 << "            RREADY <= 1;\n"
 	 << "          end\n";
     }
     if (!r_ && w_) {
       os << "          if (AWREADY) begin\n"
-	 << "            st <= `S_WRITE_WAIT;\n"
+	 << "            st <= S_WRITE_WAIT;\n"
 	 << "            AWVALID <= 0;\n"
 	 << "            sram_addr <= start;\n"
 	 << "            if (!sram_EXCLUSIVE) begin\n"
@@ -172,7 +172,7 @@ void MasterController::OutputMainFsm(ostream &os) {
     if (r_ && w_) {
       os << "          if (AWVALID) begin\n"
 	 << "            if (AWREADY) begin\n"
-	 << "              st <= `S_WRITE_WAIT;\n"
+	 << "              st <= S_WRITE_WAIT;\n"
 	 << "              AWVALID <= 0;\n"
 	 << "              sram_addr <= start;\n"
 	 << "              if (!sram_EXCLUSIVE) begin\n"
@@ -181,7 +181,7 @@ void MasterController::OutputMainFsm(ostream &os) {
 	 << "            end\n"
 	 << "          end else begin\n"
 	 << "            if (ARREADY) begin\n"
-	 << "              st <= `S_READ_DATA;\n"
+	 << "              st <= S_READ_DATA;\n"
 	 << "              ARVALID <= 0;\n"
 	 << "              RREADY <= 1;\n"
 	 << "            end\n"
@@ -193,22 +193,22 @@ void MasterController::OutputMainFsm(ostream &os) {
     ReadState(os);
   }
   if (w_) {
-    os << "        `S_WRITE_WAIT: begin\n"
+    os << "        S_WRITE_WAIT: begin\n"
        << "          if (BVALID) begin\n"
        << "            ack <= 1;\n"
-       << "            st <= `S_IDLE;\n"
+       << "            st <= S_IDLE;\n"
        << "          end\n"
-       << "          if (wst == `WS_WRITE) begin\n"  // sram_EXCLUSIVE
+       << "          if (wst == WS_WRITE) begin\n"  // sram_EXCLUSIVE
        << "            if (widx == 0 || (WREADY && WVALID)) begin\n"
        << "              sram_addr <= sram_addr + 1;\n"
        << "            end\n"
        << "          end\n"
-       << "          if (wst == `WS_SRAM) begin\n"  // !sram_EXCLUSIVE
+       << "          if (wst == WS_SRAM) begin\n"  // !sram_EXCLUSIVE
        << "          if (sram_ack) begin\n"
        << "              sram_req <= 0;\n"
        << "            end\n"
        << "          end\n"
-       << "          if (wst == `WS_AXI) begin\n"  // !sram_EXCLUSIVE
+       << "          if (wst == WS_AXI) begin\n"  // !sram_EXCLUSIVE
        << "            if (WREADY && WVALID) begin\n"
        << "              if (widx <= wmax) begin\n"
        << "                sram_req <= 1;\n"
@@ -222,7 +222,7 @@ void MasterController::OutputMainFsm(ostream &os) {
 }
 
 void MasterController::ReadState(ostream &os) {
-  os << "        `S_READ_DATA: begin\n"
+  os << "        S_READ_DATA: begin\n"
      << "          if (RVALID) begin\n"
      << "            sram_addr <= start + ridx;\n"
      << "            sram_wdata <= RDATA;\n"
@@ -231,10 +231,10 @@ void MasterController::ReadState(ostream &os) {
      << "              if (RLAST) begin\n"
      << "                RREADY <= 0;\n"
      << "                ack <= 1;\n"
-     << "                st <= `S_IDLE;\n"
+     << "                st <= S_IDLE;\n"
      << "              end\n"
      << "            end else begin\n"
-     << "              st <= `S_READ_DATA_WAIT;\n"
+     << "              st <= S_READ_DATA_WAIT;\n"
      << "              sram_req <= 1;\n"
      << "              sram_wen <= 1;\n"
      << "              RREADY <= 0;\n"
@@ -242,15 +242,15 @@ void MasterController::ReadState(ostream &os) {
      << "            end\n"
      << "          end\n"
      << "        end\n"
-     << "        `S_READ_DATA_WAIT: begin\n" // !sram_EXCLUSIVE
+     << "        S_READ_DATA_WAIT: begin\n" // !sram_EXCLUSIVE
      << "          if (sram_ack) begin\n"
      << "            sram_req <= 0;\n"
      << "            sram_wen <= 0;\n"
      << "            if (read_last) begin\n"
      << "              ack <= 1;\n"
-     << "              st <= `S_IDLE;\n"
+     << "              st <= S_IDLE;\n"
      << "            end else begin\n"
-     << "              st <= `S_READ_DATA;\n"
+     << "              st <= S_READ_DATA;\n"
      << "              RREADY <= 1;\n"
      << "            end\n"
      << "          end\n"
@@ -259,17 +259,17 @@ void MasterController::ReadState(ostream &os) {
 
 void MasterController::OutputWriterFsm(ostream &os) {
   os << "      case (wst)\n"
-     << "        `WS_IDLE: begin\n"
+     << "        WS_IDLE: begin\n"
      << "          if (AWVALID && AWREADY) begin\n"
      << "            if (sram_EXCLUSIVE) begin\n"
-     << "              wst <= `WS_WRITE;\n"
+     << "              wst <= WS_WRITE;\n"
      << "            end else begin\n"
-     << "              wst <= `WS_SRAM;\n"
+     << "              wst <= WS_SRAM;\n"
      << "            end\n"
      << "            widx <= 0;\n"
      << "          end\n"
      << "        end\n"
-     << "        `WS_WRITE: begin\n" // sram_EXCLUSIVE
+     << "        WS_WRITE: begin\n" // sram_EXCLUSIVE
      << "          if (widx <= wmax) begin\n"
      << "            WVALID <= 1;\n"
      << "            WDATA <= sram_rdata;\n"
@@ -282,13 +282,13 @@ void MasterController::OutputWriterFsm(ostream &os) {
      << "          end else begin\n"
      << "            WVALID <= 0;\n"
      << "            WLAST <= 0;\n"
-     << "            wst <= `WS_WAIT;\n"
+     << "            wst <= WS_WAIT;\n"
      << "            BREADY <= 1;\n"
      << "          end\n"
      << "        end\n"
-     << "        `WS_SRAM: begin\n" // !sram_EXCLUSIVE
+     << "        WS_SRAM: begin\n" // !sram_EXCLUSIVE
      << "          if (sram_ack) begin\n"
-     << "            wst <= `WS_AXI;\n"
+     << "            wst <= WS_AXI;\n"
      << "            WDATA <= sram_rdata;\n"
      << "            widx <= widx + 1;\n"
      << "            WVALID <= 1;\n"
@@ -297,21 +297,21 @@ void MasterController::OutputWriterFsm(ostream &os) {
      << "            end\n"
      << "          end\n"
      << "        end\n"
-     << "        `WS_AXI: begin\n" // !sram_EXCLUSIVE
+     << "        WS_AXI: begin\n" // !sram_EXCLUSIVE
      << "          if (WREADY && WVALID) begin\n"
      << "            WVALID <= 0;\n"
      << "            if (widx <= wmax) begin\n"
-     << "              wst <= `WS_SRAM;\n"
+     << "              wst <= WS_SRAM;\n"
      << "            end else begin\n"
      << "              WLAST <= 0;\n"
-     << "              wst <= `WS_WAIT;\n"
+     << "              wst <= WS_WAIT;\n"
      << "            end\n"
      << "          end\n"
      << "        end\n"
-     << "        `WS_WAIT: begin\n"
+     << "        WS_WAIT: begin\n"
      << "          if (BVALID) begin\n"
      << "            BREADY <= 0;\n"
-     << "            wst <= `WS_IDLE;\n"
+     << "            wst <= WS_IDLE;\n"
      << "          end\n"
      << "        end\n"
      << "      endcase\n";

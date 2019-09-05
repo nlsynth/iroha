@@ -196,7 +196,7 @@ void Resource::WriteInputSel(const string &name,
     if (cond.empty()) {
       cond = InsnWriter::RegisterValue(*insn->inputs_[nth], tab_.GetNames());
     } else {
-      cond = "(" + tab_.StateVariable() + " == `" +
+      cond = "(" + tab_.StateVariable() + " == " +
 	tab_.StateName(st->GetId()) + ") ? " +
 	InsnWriter::RegisterValue(*insn->inputs_[nth], tab_.GetNames()) +
 	" : (" + cond + ")";
@@ -237,7 +237,7 @@ string Resource::JoinStates(const map<IState *, IInsn *> &sts) const {
   vector<string> conds;
   for (auto &p : sts) {
     IState *st = p.first;
-    conds.push_back("(" + tab_.StateVariable() + " == `" +
+    conds.push_back("(" + tab_.StateVariable() + " == " +
 		    Table::StateNameFromTable(*tab_.GetITable(), st->GetId()) +
 		    ")");
   }

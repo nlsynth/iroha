@@ -69,16 +69,16 @@ void Table::BuildStateDecl() {
   int max_id = 0;
   for (auto *st : i_table_->states_) {
     int id = st->GetId();
-    sd << "  `define " << StateName(id) << " "
-       << id << "\n";
+    sd << "  localparam " << StateName(id) << " = "
+       << id << ";\n";
     if (id > max_id) {
       max_id = id;
     }
   }
   if (IsTaskOrExtTask()) {
     ++max_id;
-    sd << "  `define " << StateName(Task::kTaskEntryStateId) << " "
-       << max_id << "\n";
+    sd << "  localparam " << StateName(Task::kTaskEntryStateId) << " = "
+       << max_id << ";\n";
   }
   int bits = 0;
   int u = 1;
@@ -201,7 +201,7 @@ void Table::WriteAlwaysBlockTail(ostream &os) const {
 
 void Table::WriteReset(ostream &os) {
   if (!IsEmpty()) {
-    os << "      " << StateVariable() << " <= `";
+    os << "      " << StateVariable() << " <= ";
     if (IsTaskOrExtTask()) {
       os << StateName(Task::kTaskEntryStateId);
     } else {
@@ -352,7 +352,7 @@ Task *Table::GetTask() const {
 }
 
 string Table::GetStateCondition(const IState *st) const {
-  return StateVariable() + " == `" +
+  return StateVariable() + " == " +
     StateNameFromTable(*i_table_, st->GetId());
 }
 

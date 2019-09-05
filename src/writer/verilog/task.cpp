@@ -82,7 +82,7 @@ void Task::BuildResource() {
   string ack_cond = ack + "_cond";
   rs << "  wire " << ack_cond << ";\n"
      << "  assign " << ack_cond << " = ("
-     << tab_.StateVariable() << " == `"
+     << tab_.StateVariable() << " == "
      << tab_.StateName(Task::kTaskEntryStateId) << ") && " << common_en
      << ";\n";
   rs << "  assign " << TaskAckPin(*(tab_.GetITable()), nullptr) << "_wire" << " = " << ack << ";\n";
