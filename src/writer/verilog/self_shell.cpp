@@ -4,6 +4,7 @@
 #include "iroha/resource_class.h"
 #include "iroha/resource_params.h"
 #include "writer/verilog/axi/axi_shell.h"
+#include "writer/verilog/ext_task.h"
 #include "writer/verilog/table.h"
 
 namespace iroha {
@@ -31,6 +32,11 @@ void SelfShell::WriteWireDecl(ostream &os) {
     os << "  wire " << Table::WidthSpec(width) << input_port << ";\n";
     os << "  assign " << input_port << " = 0;\n";
   }
+  for (IResource *res : ext_task_) {
+    string v = ExtTask::ReqValidPin(res);
+    os << "  wire " << v << ";\n"
+       << "  assign " << v << " = 0;\n";
+  }
 }
 
 void SelfShell::WritePortConnection(ostream &os) {
@@ -44,6 +50,10 @@ void SelfShell::WritePortConnection(ostream &os) {
     int width;
     params->GetExtInputPort(&input_port, &width);
     os << ", ." << input_port << "(" << input_port << ")";
+  }
+  for (IResource *res : ext_task_) {
+    string v = ExtTask::ReqValidPin(res);
+    os << ", ." << v << "(" << v << ")";
   }
 }
 
@@ -64,6 +74,9 @@ void SelfShell::ProcessModule(IModule *mod) {
       }
       if (resource::IsExtInput(*klass)) {
 	ext_input_.push_back(res);
+      }
+      if (resource::IsExtTask(*klass)) {
+	ext_task_.push_back(res);
       }
     }
   }
