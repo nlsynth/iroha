@@ -49,7 +49,7 @@ string InsnWriter::ResourceName(const IResource &res) {
 void InsnWriter::Print() {
   for (int i = 0; i < insn_->inputs_.size(); ++i) {
     IRegister *reg = insn_->inputs_[i];
-    os_ << I << "$display(\"%d\", " << RegisterValue(*reg, st_->GetNames()) << ");\n";
+    os_ << I << "$display(\"%m %d\", " << RegisterValue(*reg, st_->GetNames()) << ");\n";
   }
 }
 
