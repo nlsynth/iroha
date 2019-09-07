@@ -24,7 +24,9 @@ private:
   bool reset_polarity_;
   vector<IResource *> axi_;
   vector<IResource *> ext_input_;
-  vector<IResource *> ext_task_;
+  vector<IResource *> ext_task_entry_;
+  vector<IResource *> ext_task_call_;
+  vector<IResource *> ext_task_wait_;
 };
 
 }  // namespace verilog
