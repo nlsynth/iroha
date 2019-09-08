@@ -95,7 +95,9 @@ void ChannelGenerator::AddPort(const string &name, int width, bool dir_s2m,
     DoAddPort(name, width, is_input, is_fixed_output, fixed_value);
   }
   // On the controller instantiation. Owner of the controller.
-  if (type_ == PORTS_TO_EXT_AND_CONNECTIONS) {
+  if (type_ == PORTS_TO_EXT_AND_CONNECTIONS &&
+      // s == nullptr if this module is above the owner.
+      s_ != nullptr) {
     string p = ", ." + name + "(" + cfg_.prefix + name + ")";
     *s_ += p;
   }
