@@ -3,6 +3,7 @@
 #include "writer/module_template.h"
 #include "writer/verilog/resource.h"
 #include "writer/verilog/table.h"
+#include "writer/verilog/wire/accessor_info.h"
 #include "writer/verilog/wire/wire_set.h"
 
 namespace iroha {
@@ -28,7 +29,7 @@ void DistanceRegs::Build0DistanceHandshake() {
   auto &asigs = ainfo_->GetSignals();
   ostream &rs = tab.ResourceSectionStream();
   ostream &rvs = tab.ResourceValueSectionStream();
-  // accessor -> delay regs (TODO) -> accessor edge -> resource.
+  // accessor -> delay regs -> accessor edge -> resource.
   rvs << DEBUG_MESSAGE("  // DistanceRegs: begin");
   for (auto &asig : asigs) {
     bool upstream = asig->sig_desc_->IsUpstream();

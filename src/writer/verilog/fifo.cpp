@@ -11,6 +11,7 @@
 #include "writer/verilog/module.h"
 #include "writer/verilog/ports.h"
 #include "writer/verilog/table.h"
+#include "writer/verilog/wire/accessor_info.h"
 #include "writer/verilog/wire/wire_set.h"
 
 // TODO: Fix code no_wait writers.

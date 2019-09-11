@@ -20,6 +20,7 @@
 #include "writer/verilog/shared_reg_ext_writer.h"
 #include "writer/verilog/state.h"
 #include "writer/verilog/table.h"
+#include "writer/verilog/wire/accessor_info.h"
 #include "writer/verilog/wire/wire_set.h"
 
 namespace iroha {

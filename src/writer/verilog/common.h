@@ -35,8 +35,22 @@ class SlavePort;
 }  // namespace axi
 
 namespace wire {
+class AccessorSignal;
+class AccessorInfo;
 class InterModuleWire;
+class SignalDescription;
 class WireSet;
+
+enum AccessorSignalType : int {
+  ACCESSOR_REQ,
+  ACCESSOR_ACK,
+  ACCESSOR_READ_ARG,
+  ACCESSOR_WRITE_ARG,
+  ACCESSOR_NOTIFY_PARENT,
+  ACCESSOR_NOTIFY_PARENT_SECONDARY,
+  ACCESSOR_NOTIFY_ACCESSOR,
+};
+
 }  // namespace wire
 
 }  // namespace verilog

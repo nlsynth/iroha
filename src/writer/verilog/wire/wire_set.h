@@ -13,58 +13,6 @@ namespace writer {
 namespace verilog {
 namespace wire {
 
-enum AccessorSignalType : int {
-  ACCESSOR_REQ,
-  ACCESSOR_ACK,
-  ACCESSOR_READ_ARG,
-  ACCESSOR_WRITE_ARG,
-  ACCESSOR_NOTIFY_PARENT,
-  ACCESSOR_NOTIFY_PARENT_SECONDARY,
-  ACCESSOR_NOTIFY_ACCESSOR,
-};
-
-class SignalDescription {
-public:
-  // e.g. ack, req...
-  string name_;
-  AccessorSignalType type_;
-  int width_;
-
-  bool IsUpstream() const;
-};
-
-class AccessorInfo;
-
-// Per accessor and signal.
-class AccessorSignal {
-public:
-  SignalDescription *sig_desc_;
-  const IResource *accessor_res_;
-  AccessorInfo *accessor_info_;
-};
-
-class WireSet;
-
-class AccessorInfo {
-public:
-  AccessorInfo(WireSet *wire_set, const IResource *accessor);
-  ~AccessorInfo();
-
-  void AddSignal(const string &name, AccessorSignalType type, int width);
-  const vector<AccessorSignal *> &GetSignals();
-  AccessorSignal *FindSignal(const SignalDescription &desc);
-  void SetDistance(int distance);
-  int GetDistance() const;
-  const IResource *GetResource() const;
-
-private:
-  WireSet *wire_set_;
-  const IResource *accessor_;
-  string accessor_name_;
-  vector<AccessorSignal *> accessor_signals_;
-  int distance_;
-};
-
 class WireSet {
 public:
   WireSet(Resource &res, const string &resource_name);
