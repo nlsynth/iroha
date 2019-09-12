@@ -8,6 +8,7 @@
 #include "writer/verilog/axi/master_port.h"
 #include "writer/verilog/axi/slave_port.h"
 #include "writer/verilog/internal_sram.h"
+#include "writer/verilog/wire/mux.h"
 #include "writer/verilog/wire/wire_set.h"
 
 #include <set>
@@ -37,7 +38,6 @@ void EmbeddedModules::RequestAxiSlaveController(const IResource *axi_port) {
 }
 
 void EmbeddedModules::RequestWireMux(const wire::WireSet *wire_set) {
-  // WIP.
   wire_sets_.push_back(wire_set);
 }
 
@@ -80,6 +80,10 @@ bool EmbeddedModules::Write(bool reset_polarity, ostream &os) {
       axi::SlavePort::WriteController(*res, reset_polarity, os);
     }
     controllers.insert(name);
+  }
+  // Wire set muxes
+  for (const auto *ws : wire_sets_) {
+    wire::Mux::Write(ws);
   }
   return true;
 }

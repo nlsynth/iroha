@@ -317,6 +317,8 @@
         'writer/verilog/wire/distance_regs.h',
         'writer/verilog/wire/inter_module_wire.cpp',
         'writer/verilog/wire/inter_module_wire.h',
+        'writer/verilog/wire/mux.cpp',
+        'writer/verilog/wire/mux.h',
         'writer/verilog/wire/names.cpp',
         'writer/verilog/wire/names.h',
         'writer/verilog/wire/wire_set.cpp',
