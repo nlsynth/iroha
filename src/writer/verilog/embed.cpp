@@ -4,9 +4,11 @@
 #include "iroha/logging.h"
 #include "iroha/resource_class.h"
 #include "iroha/resource_params.h"
+#include "iroha/stl_util.h"
 #include "writer/verilog/axi/master_port.h"
 #include "writer/verilog/axi/slave_port.h"
 #include "writer/verilog/internal_sram.h"
+#include "writer/verilog/wire/wire_set.h"
 
 #include <set>
 
@@ -15,6 +17,7 @@ namespace writer {
 namespace verilog {
 
 EmbeddedModules::~EmbeddedModules() {
+  STLDeleteValues(&wire_sets_);
 }
 
 void EmbeddedModules::RequestModule(const ResourceParams &params) {
@@ -31,6 +34,11 @@ void EmbeddedModules::RequestAxiMasterController(const IResource *axi_port) {
 
 void EmbeddedModules::RequestAxiSlaveController(const IResource *axi_port) {
   axi_ports_.push_back(axi_port);
+}
+
+void EmbeddedModules::RequestWireMux(const wire::WireSet *wire_set) {
+  // WIP.
+  wire_sets_.push_back(wire_set);
 }
 
 bool EmbeddedModules::Write(bool reset_polarity, ostream &os) {

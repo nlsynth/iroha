@@ -122,9 +122,10 @@ void Task::BuildResource() {
 void Task::BuildWireSet() {
   auto &conn = tab_.GetModule()->GetConnection();
   const auto &callers = conn.GetTaskCallers(&res_);
-  wire::WireSet ws(*this, TaskPinPrefix(*(tab_.GetITable()), nullptr));
+  wire::WireSet *ws =
+    new wire::WireSet(*this, TaskPinPrefix(*(tab_.GetITable()), nullptr));
   for (auto *accessor : callers) {
-    wire::AccessorInfo *ainfo = ws.AddAccessor(accessor);
+    wire::AccessorInfo *ainfo = ws->AddAccessor(accessor);
     ainfo->SetDistance(accessor->GetParams()->GetDistance());
     ainfo->AddSignal("en", wire::AccessorSignalType::ACCESSOR_REQ, 0);
     ainfo->AddSignal("ack", wire::AccessorSignalType::ACCESSOR_ACK, 0);
@@ -135,7 +136,7 @@ void Task::BuildWireSet() {
 		       type.GetWidth());
     }
   }
-  ws.Build();
+  ws->Build();
 }
 
 string Task::TaskArgName(int nth) {

@@ -256,10 +256,10 @@ string SharedReg::GetNameRW(const IResource &reg, bool is_write) {
 void SharedReg::BuildAccessorWireR() {
   auto &conn = tab_.GetModule()->GetConnection();
   auto &readers = conn.GetSharedRegReaders(&res_);
-  wire::WireSet ws(*this, GetNameRW(res_, false));
+  wire::WireSet *ws = new wire::WireSet(*this, GetNameRW(res_, false));
   int dw = res_.GetParams()->GetWidth();
   for (auto *reader : readers) {
-    wire::AccessorInfo *ainfo = ws.AddAccessor(reader);
+    wire::AccessorInfo *ainfo = ws->AddAccessor(reader);
     ainfo->SetDistance(reader->GetParams()->GetDistance());
     ainfo->AddSignal("r", wire::AccessorSignalType::ACCESSOR_READ_ARG, dw);
     if (SharedRegAccessor::UseNotify(reader)) {
@@ -271,14 +271,14 @@ void SharedReg::BuildAccessorWireR() {
       ainfo->AddSignal("get_ack", wire::AccessorSignalType::ACCESSOR_ACK, 0);
     }
   }
-  ws.Build();
+  ws->Build();
 }
 
 void SharedReg::BuildAccessorWireW() {
-  wire::WireSet ws(*this, GetNameRW(res_, true));
+  wire::WireSet *ws = new wire::WireSet(*this, GetNameRW(res_, true));
   int dw = res_.GetParams()->GetWidth();
   for (auto *writer : writers_) {
-    wire::AccessorInfo *ainfo = ws.AddAccessor(writer);
+    wire::AccessorInfo *ainfo = ws->AddAccessor(writer);
     ainfo->SetDistance(writer->GetParams()->GetDistance());
     ainfo->AddSignal("w", wire::AccessorSignalType::ACCESSOR_WRITE_ARG, dw);
     ainfo->AddSignal("wen",
@@ -299,7 +299,7 @@ void SharedReg::BuildAccessorWireW() {
       ainfo->AddSignal("put_ack", wire::AccessorSignalType::ACCESSOR_ACK, 0);
     }
   }
-  ws.Build();
+  ws->Build();
 }
 
 void SharedReg::GetOptions(bool *use_notify, bool *use_mailbox) {

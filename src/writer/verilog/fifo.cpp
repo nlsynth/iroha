@@ -105,10 +105,10 @@ void Fifo::BuildInsn(IInsn *insn, State *st) {
 
 void Fifo::BuildWriterConnections() {
   auto &writers = tab_.GetModule()->GetConnection().GetFifoWriters(&res_);
-  wire::WireSet ws(*this, GetNameRW(res_, true));
+  wire::WireSet *ws = new wire::WireSet(*this, GetNameRW(res_, true));
   int dw = res_.GetParams()->GetWidth();
   for (auto *writer : writers) {
-    wire::AccessorInfo *ainfo = ws.AddAccessor(writer);
+    wire::AccessorInfo *ainfo = ws->AddAccessor(writer);
     ainfo->SetDistance(writer->GetParams()->GetDistance());
     ainfo->AddSignal("wreq", wire::AccessorSignalType::ACCESSOR_REQ, 0);
     ainfo->AddSignal("wack", wire::AccessorSignalType::ACCESSOR_ACK, 0);
@@ -118,21 +118,21 @@ void Fifo::BuildWriterConnections() {
 		       wire::AccessorSignalType::ACCESSOR_NOTIFY_PARENT, 0);
     }
   }
-  ws.Build();
+  ws->Build();
 }
 
 void Fifo::BuildReaderConnections() {
   auto &readers = tab_.GetModule()->GetConnection().GetFifoReaders(&res_);
-  wire::WireSet ws(*this, GetNameRW(res_, false));
+  wire::WireSet *ws = new wire::WireSet(*this, GetNameRW(res_, false));
   int dw = res_.GetParams()->GetWidth();
   for (auto *reader : readers) {
-    wire::AccessorInfo *ainfo = ws.AddAccessor(reader);
+    wire::AccessorInfo *ainfo = ws->AddAccessor(reader);
     ainfo->SetDistance(reader->GetParams()->GetDistance());
     ainfo->AddSignal("rreq", wire::AccessorSignalType::ACCESSOR_REQ, 0);
     ainfo->AddSignal("rack", wire::AccessorSignalType::ACCESSOR_ACK, 0);
     ainfo->AddSignal("rdata", wire::AccessorSignalType::ACCESSOR_READ_ARG, dw);
   }
-  ws.Build();
+  ws->Build();
 }
 
 string Fifo::WritePtr() {

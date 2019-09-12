@@ -4,6 +4,7 @@
 #include "iroha/stl_util.h"
 #include "iroha/logging.h"
 #include "writer/module_template.h"
+#include "writer/verilog/embed.h"
 #include "writer/verilog/module.h"
 #include "writer/verilog/resource.h"
 #include "writer/verilog/table.h"
@@ -39,6 +40,8 @@
 //  -> accesor edge wire
 //  -> arbitration/handshake logic
 //  -> resource wire -> parent resource
+//
+// allocated with new WireSet and EmbeddedModules deletes it.
 
 
 namespace iroha {
@@ -115,6 +118,8 @@ void WireSet::Build() {
     }
   }
   rs << DEBUG_MESSAGE("  // WireSet end");
+  // Hands over the ownership as well.
+  tab.GetEmbeddedModules()->RequestWireMux(this);
 }
 
 void WireSet::BuildWriteArg(const SignalDescription &arg_desc,

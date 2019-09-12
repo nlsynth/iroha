@@ -25,6 +25,8 @@ public:
   // Called from SlavePort::BuildResource()
   void RequestAxiSlaveController(const IResource *axi_port);
 
+  void RequestWireMux(const wire::WireSet *wire_set);
+
   // Writes embedded file contents.
   bool Write(bool reset_polarity, ostream &os);
 
@@ -36,6 +38,7 @@ private:
   map<string, string> files_;
   vector<InternalSRAM *> srams_;
   vector<const IResource *> axi_ports_;
+  vector<const wire::WireSet *> wire_sets_;
 };
 
 }  // namespace verilog

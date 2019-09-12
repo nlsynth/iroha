@@ -145,13 +145,13 @@ void SharedMemory::BuildMemoryInstance() {
 }
 
 void SharedMemory::BuildAccessWireAll(vector<const IResource *> &accessors) {
-  wire::WireSet ws(*this, GetName(res_));
+  wire::WireSet *ws = new wire::WireSet(*this, GetName(res_));
   IArray *array = res_.GetArray();
   int aw = array->GetAddressWidth();
   int dw = array->GetDataType().GetWidth();
   for (auto *accessor : accessors) {
     auto *klass = accessor->GetClass();
-    wire::AccessorInfo *ainfo = ws.AddAccessor(accessor);
+    wire::AccessorInfo *ainfo = ws->AddAccessor(accessor);
     ainfo->SetDistance(accessor->GetParams()->GetDistance());
     ainfo->AddSignal("addr", wire::AccessorSignalType::ACCESSOR_WRITE_ARG,
 		     aw);
@@ -170,7 +170,7 @@ void SharedMemory::BuildAccessWireAll(vector<const IResource *> &accessors) {
 		       dw);
     }
   }
-  ws.Build();
+  ws->Build();
 }
 
 void SharedMemory::BuildInsn(IInsn *insn, State *st) {
