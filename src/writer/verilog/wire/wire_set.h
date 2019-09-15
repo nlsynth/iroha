@@ -23,36 +23,27 @@ public:
 					  AccessorSignalType type, int width);
   string GetResourceName() const;
   Resource &GetResource() const;
+  string GetMuxName() const;
 
   void Build();
 
   string AccessorWireName(const AccessorSignal &sig);
-  string AccessorEdgeWireName(const AccessorSignal &sig);
+  string AccessorEdgeWireName(const AccessorSignal &sig) const;
+  string ResourceWireName(const SignalDescription &desc) const;
+  string AccessorWireNameWithReg(const AccessorSignal &sig) const;
+
+  const vector<AccessorInfo *> &GetAccessors() const;
+  vector<SignalDescription *> GetSignals() const;
 
 private:
   void BuildAccessorWire(const SignalDescription &desc);
   void BuildResourceWire();
   void BuildDistanceRegs();
-  void BuildArbitration(const SignalDescription &req_desc,
-			const SignalDescription &ack_desc);
-  void BuildRegisteredReq(const SignalDescription &req_desc,
-			  vector<AccessorInfo *> &handshake_accessors);
-  void BuildAccessorAck(const SignalDescription &rsig_desc,
-			const SignalDescription &asig_desc,
-			vector<AccessorInfo *> &handshake_accessors);
-  void BuildWriteArg(const SignalDescription &arg_desc,
-		     const SignalDescription *req_desc,
-		     const SignalDescription *notify_desc,
-		     const SignalDescription *notify_secondary_desc);
-  void BuildReadArg(const SignalDescription &arg_desc);
-  void BuildNotifyParent(const SignalDescription &desc);
-  void BuildNotifyAccessor(const SignalDescription &desc);
-  string ResourceWireName(const SignalDescription &desc);
-  string AccessorWireNameWithReg(const AccessorSignal &sig);
 
   Resource &res_;
   string resource_name_;
   vector<AccessorInfo *> accessors_;
+  // Keyed by "req", "ack" and so on.
   map<string, SignalDescription *> signal_desc_;
 };
 

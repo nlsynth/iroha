@@ -11,7 +11,37 @@ namespace wire {
 
 class Mux {
 public:
-  static void Write(const WireSet *ws);
+  Mux(const WireSet *ws);
+  ~Mux();
+
+  static void Write(const WireSet *ws, ostream &os);
+
+  void DoWrite(ostream &os);
+
+private:
+  const WireSet *ws_;
+  unique_ptr<Ports> ports_;
+
+  void WriteMux(ostream &os);
+  void BuildArbitration(const SignalDescription &req_desc,
+			const SignalDescription &ack_desc,
+			ostream &os);
+  void BuildWriteArg(const SignalDescription &arg_desc,
+		     const SignalDescription *req_desc,
+		     const SignalDescription *notify_desc,
+		     const SignalDescription *notify_secondary_desc,
+		     ostream &os);
+  void BuildReadArg(const SignalDescription &arg_desc,
+		    ostream &os);
+  void BuildNotifyParent(const SignalDescription &desc, ostream &os);
+  void BuildNotifyAccessor(const SignalDescription &desc, ostream &os);
+  void BuildRegisteredReq(const SignalDescription &req_desc,
+			  vector<AccessorInfo *> &handshake_accessors,
+			  ostream &os);
+  void BuildAccessorAck(const SignalDescription &rsig_desc,
+			const SignalDescription &asig_desc,
+			vector<AccessorInfo *> &handshake_accessors,
+			ostream &os);
 };
 
 }  // namespace wire

@@ -83,7 +83,7 @@ bool EmbeddedModules::Write(bool reset_polarity, ostream &os) {
   }
   // Wire set muxes
   for (const auto *ws : wire_sets_) {
-    wire::Mux::Write(ws);
+    wire::Mux::Write(ws, os);
   }
   return true;
 }
