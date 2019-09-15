@@ -16,6 +16,10 @@ namespace wire {
 
 Mux::Mux(const WireSet *ws) : ws_(ws) {
   ports_.reset(new Ports);
+  const Table &tab = ws_->GetResource().GetTable();
+  Ports *pp = tab.GetPorts();
+  ports_->AddPort(pp->GetClk(), Port::INPUT_CLK, 0);
+  ports_->AddPort(pp->GetReset(), Port::INPUT_RESET, 0);
 }
 
 Mux::~Mux() {
@@ -51,11 +55,7 @@ void Mux::DoWrite(ostream &os) {
     }
   }
 
-  os << "\nmodule " << ws_->GetMuxName() << "(\n"
-     << "  input clk, input rst";
-  if (sigs.size() > 0) {
-    os << ",";
-  }
+  os << "\nmodule " << ws_->GetMuxName() << "(";
   ports_->Output(Ports::PORT_MODULE_HEAD, os);
   os << ");\n";
 
@@ -217,7 +217,6 @@ void Mux::BuildArbitration(const SignalDescription &req_desc,
     CHECK(asig != nullptr);
     handshake_accessors.push_back(ac);
   }
-  os << "  // Arbitration and handshake - " << ws_->GetResourceName() << "\n";
   // Registered req.
   BuildRegisteredReq(req_desc, handshake_accessors, os);
   // Req.
@@ -244,13 +243,12 @@ void Mux::BuildRegisteredReq(const SignalDescription &req_desc,
     initial += "      " + reg + " <= 0;\n";
     body += "      " + reg + " <= " + wire + ";\n";
   }
-  os << "  always @(posedge clk) begin\n"
-     << "    if (rst) begin\n";
+  const Table &tab = ws_->GetResource().GetTable();
+  tab.WriteAlwaysBlockHead(os);
   os << initial;
-  os << "    end else begin\n";
+  tab.WriteAlwaysBlockMiddle(os);
   os << body;
-  os << "    end\n"
-     << "  end\n";
+  tab.WriteAlwaysBlockTail(os);
 }
 
 void Mux::BuildAccessorAck(const SignalDescription &req_desc,
