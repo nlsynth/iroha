@@ -32,12 +32,12 @@ State::~State() {
 void State::Build() {
   ostream &ws = table_->InsnWireValueSectionStream();
   for (auto *insn : i_state_->insns_) {
-    auto *res = insn->GetResource();
-    unique_ptr<Resource> builder(Resource::Create(*res, *table_));
-    if (builder.get() != nullptr) {
-      builder->BuildInsn(insn, this);
+    auto *ires = insn->GetResource();
+    Resource *res = table_->GetResource(ires);
+    if (res != nullptr) {
+      res->BuildInsn(insn, this);
     }
-    if (!resource::IsSet(*res->GetClass())) {
+    if (!resource::IsSet(*ires->GetClass())) {
       CopyResults(insn, true, ws);
     }
   }

@@ -41,6 +41,7 @@ public:
   Task *GetTask() const;
   ModuleTemplate *GetModuleTemplate() const;
   Names *GetNames() const;
+  Resource *GetResource(const IResource *ires);
 
   ostream &StateOutputSectionStream() const;
   string StateOutputSectionContents() const;
@@ -85,6 +86,7 @@ protected:
   string st_;
   vector<State *> states_;
   bool is_task_or_ext_task_;
+  map<const IResource *, Resource *> resources_;
 };
 
 }  // namespace verilog

@@ -32,12 +32,13 @@ Table::Table(ITable *table, Ports *ports, Module *mod, EmbeddedModules *embed,
 
 Table::~Table() {
   STLDeleteValues(&states_);
+  STLDeleteSecondElements(&resources_);
 }
 
 void Table::CollectNames() {
-  for (auto *res : i_table_->resources_) {
-    unique_ptr<Resource> builder(Resource::Create(*res, *this));
-    builder->CollectNames(names_);
+  for (auto *ires : i_table_->resources_) {
+    Resource *res = GetResource(ires);
+    res->CollectNames(names_);
   }
 }
 
@@ -91,10 +92,10 @@ void Table::BuildStateDecl() {
 }
 
 void Table::BuildResource() {
-  for (auto *res : i_table_->resources_) {
-    unique_ptr<Resource> builder(Resource::Create(*res, *this));
-    if (builder.get()) {
-      builder->BuildResource();
+  for (auto *ires : i_table_->resources_) {
+    Resource *res = GetResource(ires);
+    if (res != nullptr) {
+      res->BuildResource();
     }
   }
 }
@@ -253,6 +254,16 @@ ModuleTemplate *Table::GetModuleTemplate() const {
 
 Names *Table::GetNames() const {
   return names_;
+}
+
+Resource *Table::GetResource(const IResource *ires) {
+  auto it = resources_.find(ires);
+  if (it != resources_.end()) {
+    return it->second;
+  }
+  Resource *r = Resource::Create(*ires, *this);
+  resources_[ires] = r;
+  return r;
 }
 
 ostream &Table::StateOutputSectionStream() const {

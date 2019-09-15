@@ -129,6 +129,9 @@ Resource::Resource(const IResource &res, const Table &table)
   tmpl_ = tab_.GetModuleTemplate();
 }
 
+Resource::~Resource() {
+}
+
 void Resource::BuildResource() {
 }
 

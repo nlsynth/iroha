@@ -13,6 +13,7 @@ namespace verilog {
 class Resource {
 public:
   Resource(const IResource &res, const Table &tab);
+  virtual ~Resource();
 
   static Resource *Create(const IResource &res, const Table &tab);
 
