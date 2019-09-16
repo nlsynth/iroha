@@ -152,7 +152,7 @@ void SharedReg::BuildMailbox() {
   string get_req = wire::Names::ResourceWire(rrn, "get_req");
   string get_cond = get_req + " && " + RegMailboxName(res_);
   os << "      " << RegMailboxGetAckName(res_) << " <= "
-     << put_cond << ";\n";
+     << get_cond << ";\n";
   os << "      if (" << RegMailboxName(res_) << ") begin\n"
      << "        " << RegMailboxName(res_) << " <= "
      << "!(" << get_req << ");\n"
