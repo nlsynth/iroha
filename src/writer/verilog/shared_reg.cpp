@@ -115,7 +115,7 @@ void SharedReg::BuildResource() {
       en += " | " + wire::Names::ResourceWire(rn, "notify");
     }
     if (use_mailbox_) {
-      en += " | (" + wire::Names::ResourceWire(rn, "put_req") + " && !" +
+      en += " | (" + wire::Names::ResourceWire(rn, "put_req") + " && " +
 	wire::Names::ResourceWire(rn, "put_ack") + ")";
     }
     value = "(" + en + ") ? " + wire::Names::ResourceWire(rn, "w")

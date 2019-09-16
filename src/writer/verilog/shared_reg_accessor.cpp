@@ -77,12 +77,15 @@ void SharedRegAccessor::BuildSharedRegWriterResource() {
   ostream &rs = tab_.ResourceSectionStream();
   rs << "  // shared-reg-writer\n";
   ostream &rvs = tab_.ResourceValueSectionStream();
-  // Write en signal.
+  // Write en signal (only for pure writes, not for notify, put_mailbox).
+  map<IState *, IInsn *> wen_callers;
+  CollectResourceCallers("", &wen_callers);
+  rvs << "  assign " << wire::Names::AccessorWire(wrn, &res_, "wen") << " = ";
+  WriteStateUnion(wen_callers, rvs);
+  rvs << ";\n";
+  // Write data.
   map<IState *, IInsn *> callers;
   CollectResourceCallers("*", &callers);
-  rvs << "  assign " << wire::Names::AccessorWire(wrn, &res_, "wen") << " = ";
-  WriteStateUnion(callers, rvs);
-  rvs << ";\n";
   rvs << "  assign " << wire::Names::AccessorWire(wrn, &res_, "w") << " = ";
   string v;
   for (auto &p : callers) {
