@@ -9,6 +9,14 @@ namespace writer {
 namespace verilog {
 namespace wire {
 
+// WIP: This will host a tree, but only 1 level for now.
+struct MuxNode {
+  MuxNode();
+
+  const AccessorInfo *accessor_;
+  vector<MuxNode *> children_;
+};
+
 class Mux {
 public:
   Mux(const WireSet *ws);
@@ -21,6 +29,7 @@ public:
 private:
   const WireSet *ws_;
   unique_ptr<Ports> ports_;
+  MuxNode *root_node_;
 
   void WriteMux(ostream &os);
   void BuildArbitration(const SignalDescription &req_desc,
@@ -36,12 +45,15 @@ private:
   void BuildNotifyParent(const SignalDescription &desc, ostream &os);
   void BuildNotifyAccessor(const SignalDescription &desc, ostream &os);
   void BuildRegisteredReq(const SignalDescription &req_desc,
-			  vector<AccessorInfo *> &handshake_accessors,
+			  vector<const AccessorInfo *> &handshake_accessors,
 			  ostream &os);
   void BuildAccessorAck(const SignalDescription &rsig_desc,
 			const SignalDescription &asig_desc,
-			vector<AccessorInfo *> &handshake_accessors,
+			vector<const AccessorInfo *> &handshake_accessors,
 			ostream &os);
+  MuxNode *BuildNodes(const vector<AccessorInfo *> &acs);
+  void WriteIOWire(MuxNode *node);
+  void DeleteNode(MuxNode *node);
 };
 
 }  // namespace wire

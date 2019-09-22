@@ -33,8 +33,8 @@ public:
   ~AccessorInfo();
 
   void AddSignal(const string &name, AccessorSignalType type, int width);
-  const vector<AccessorSignal *> &GetSignals();
-  AccessorSignal *FindSignal(const SignalDescription &desc);
+  const vector<AccessorSignal *> &GetSignals() const;
+  AccessorSignal *FindSignal(const SignalDescription &desc) const;
   void SetDistance(int distance);
   int GetDistance() const;
   const IResource *GetResource() const;

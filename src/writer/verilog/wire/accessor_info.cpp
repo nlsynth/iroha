@@ -38,11 +38,11 @@ void AccessorInfo::AddSignal(const string &name, AccessorSignalType type,
   accessor_signals_.push_back(asig);
 }
 
-const vector<AccessorSignal *> &AccessorInfo::GetSignals() {
+const vector<AccessorSignal *> &AccessorInfo::GetSignals() const {
   return accessor_signals_;
 }
 
-AccessorSignal *AccessorInfo::FindSignal(const SignalDescription &desc) {
+AccessorSignal *AccessorInfo::FindSignal(const SignalDescription &desc) const {
   for (auto *asig : accessor_signals_) {
     if (asig->sig_desc_ == &desc) {
       return asig;
