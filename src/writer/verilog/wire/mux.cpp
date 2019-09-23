@@ -5,6 +5,7 @@
 #include "writer/verilog/resource.h"
 #include "writer/verilog/table.h"
 #include "writer/verilog/wire/accessor_info.h"
+#include "writer/verilog/wire/mux_node.h"
 #include "writer/verilog/wire/wire_set.h"
 
 // edge wire -> arbitration/handshake logic -> resource wire
@@ -13,9 +14,6 @@ namespace iroha {
 namespace writer {
 namespace verilog {
 namespace wire {
-
-MuxNode::MuxNode() : accessor_(nullptr) {
-}
 
 Mux::Mux(const WireSet *ws) : ws_(ws), root_node_(nullptr) {
   ports_.reset(new Ports);
@@ -36,7 +34,7 @@ void Mux::Write(const WireSet *ws, ostream &os) {
 }
 
 void Mux::DoWrite(ostream &os) {
-  WriteIOWire(root_node_);
+  root_node_->WriteIOWire(ports_.get(), os);
   auto sigs = ws_->GetSignals();
   for (auto *sig : sigs) {
     string n = ws_->ResourceWireName(*sig);
@@ -55,27 +53,6 @@ void Mux::DoWrite(ostream &os) {
   WriteMux(os);
 
   os << "endmodule // " << ws_->GetMuxName() << "\n";
-}
-
-void Mux::WriteIOWire(MuxNode *node) {
-  for (MuxNode *cn : node->children_) {
-    WriteIOWire(cn);
-  }
-  const AccessorInfo *ac = node->accessor_;
-  if (ac == nullptr) {
-    return;
-  }
-  // Writes external wire from a leaf node.
-  const auto &asigs = ac->GetSignals();
-  for (auto &asig : asigs) {
-    string s = ws_->AccessorEdgeWireName(*asig);
-    int w = asig->sig_desc_->width_;
-    if (asig->sig_desc_->IsUpstream()) {
-      ports_->AddPort(s, Port::INPUT, w);
-    } else {
-      ports_->AddPort(s, Port::OUTPUT_WIRE, w);
-    }
-  }
 }
 
 void Mux::WriteMux(ostream &os) {
@@ -287,9 +264,9 @@ void Mux::BuildAccessorAck(const SignalDescription &req_desc,
 }
 
 MuxNode *Mux::BuildNodes(const vector<AccessorInfo *> &acs) {
-  MuxNode *root = new MuxNode();
+  MuxNode *root = new MuxNode(ws_);
   for (auto *ac : acs) {
-    MuxNode *node = new MuxNode();
+    MuxNode *node = new MuxNode(ws_);
     node->accessor_ = ac;
     root->children_.push_back(node);
   }

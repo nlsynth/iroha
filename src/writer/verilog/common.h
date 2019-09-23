@@ -38,6 +38,8 @@ namespace wire {
 class AccessorSignal;
 class AccessorInfo;
 class InterModuleWire;
+class Mux;
+class MuxNode;
 class SignalDescription;
 class WireSet;
 
