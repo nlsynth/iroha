@@ -42,6 +42,10 @@ private:
 			const SignalDescription &asig_desc,
 			vector<const AccessorInfo *> &handshake_accessors,
 			ostream &os);
+
+  string AccessorEdgeWireName(const AccessorSignal &sig) const;
+  string AccessorWireNameWithReg(const AccessorSignal &sig) const;
+  string ResourceWireName(const SignalDescription &desc) const;
 };
 
 }  // namespace wire

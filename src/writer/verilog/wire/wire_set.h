@@ -30,7 +30,6 @@ public:
   string AccessorWireName(const AccessorSignal &sig);
   string AccessorEdgeWireName(const AccessorSignal &sig) const;
   string ResourceWireName(const SignalDescription &desc) const;
-  string AccessorWireNameWithReg(const AccessorSignal &sig) const;
 
   const vector<AccessorInfo *> &GetAccessors() const;
   vector<SignalDescription *> GetSignals() const;

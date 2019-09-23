@@ -37,9 +37,9 @@
 // * Sink module.
 // parent: {prefix}_{parent}_{name}
 //
-// accessor resource -> accessor wire -> delay registers
+// accessor resource -> accessor wire -> distance registers
 //  -> accesor edge wire
-//  -> arbitration/handshake logic
+//  -> arbitration/handshake logic (Mux)
 //  -> resource wire -> parent resource
 //
 // allocated with new WireSet and EmbeddedModules deletes it.
@@ -159,11 +159,6 @@ string WireSet::AccessorWireName(const AccessorSignal &sig) {
 string WireSet::AccessorEdgeWireName(const AccessorSignal &sig) const {
   return Names::AccessorEdgeWire(resource_name_, sig.accessor_res_,
 				 sig.sig_desc_->name_.c_str());
-}
-
-string WireSet::AccessorWireNameWithReg(const AccessorSignal &sig) const {
-  return Names::AccessorSignalBase(resource_name_, sig.accessor_res_,
-				   sig.sig_desc_->name_.c_str()) + "_reg";
 }
 
 SignalDescription *WireSet::GetSignalDescription(const string &name,

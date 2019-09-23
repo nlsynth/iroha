@@ -8,7 +8,15 @@
 #include "writer/verilog/wire/mux_node.h"
 #include "writer/verilog/wire/wire_set.h"
 
+// (accessor*s* ... ->)
 // edge wire -> arbitration/handshake logic -> resource wire
+// (... -> parent resource)
+
+// // a mux module will look like this.
+// module mux_name(accessor 1 wires, accessor 2 wires,,, resource wire);
+//   // arbitration logic
+//   ... for each MuxNode ...
+// endmodule
 
 namespace iroha {
 namespace writer {
