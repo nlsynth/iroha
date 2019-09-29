@@ -33,7 +33,7 @@ void MuxNode::WriteIOWire(Ports *ports, ostream &os) {
   if (IsRoot()) {
     auto sigs = ws_->GetSignals();
     for (auto &sig : sigs) {
-      string n = ws_->ResourceWireName(*sig);
+      string n = ResourceWireName(*sig);
       int w = sig->width_;
       if (sig->IsUpstream()) {
 	ports->AddPort(n, Port::OUTPUT_WIRE, w);
@@ -45,7 +45,7 @@ void MuxNode::WriteIOWire(Ports *ports, ostream &os) {
   if (IsLeaf()) {
     const auto &asigs = accessor_->GetSignals();
     for (auto &asig : asigs) {
-      string s = ws_->AccessorEdgeWireName(*asig);
+      string s = AccessorEdgeWireName(*asig);
       int w = asig->sig_desc_->width_;
       if (asig->sig_desc_->IsUpstream()) {
 	ports->AddPort(s, Port::INPUT, w);
@@ -57,6 +57,9 @@ void MuxNode::WriteIOWire(Ports *ports, ostream &os) {
 }
 
 void MuxNode::WriteMux(ostream &os) {
+  if (IsLeaf()) {
+    return;
+  }
   os << "  // node:" << id_ << " " << children_.size() << " child nodes\n";
   auto sigs = ws_->GetSignals();
   SignalDescription *req_desc = nullptr;
@@ -99,6 +102,9 @@ void MuxNode::WriteMux(ostream &os) {
       break;
     }
   }
+  for (MuxNode *cn : children_) {
+    cn->WriteMux(os);
+  }
 }
 
 void MuxNode::BuildWriteArg(const SignalDescription &arg_desc,
@@ -106,12 +112,15 @@ void MuxNode::BuildWriteArg(const SignalDescription &arg_desc,
 			    const SignalDescription *notify_desc,
 			    const SignalDescription *notify_secondary_desc,
 			    ostream &os) {
-  os << "  assign " << ws_->ResourceWireName(arg_desc) << " = ";
+  os << "  assign " << ResourceWireName(arg_desc) << " = ";
   // wire names of write_arg, req
   vector<pair<string, string> > pins;
   vector<pair<string, string> > notify_pins;
   vector<pair<string, string> > notify_secondary_pins;
   for (MuxNode *n : children_) {
+    if (!n->IsLeaf()) {
+      continue;
+    }
     const AccessorInfo *ac = n->accessor_;
     AccessorSignal *warg = ac->FindSignal(arg_desc);
     if (warg == nullptr) {
@@ -163,6 +172,9 @@ void MuxNode::BuildReadArg(const SignalDescription &arg_desc,
 			   ostream &os) {
   string rwire = ResourceWireName(arg_desc);
   for (MuxNode *n : children_) {
+    if (!n->IsLeaf()) {
+      continue;
+    }
     const AccessorInfo *ac = n->accessor_;
     AccessorSignal *rsig = ac->FindSignal(arg_desc);
     if (rsig == nullptr) {
@@ -176,6 +188,9 @@ void MuxNode::BuildReadArg(const SignalDescription &arg_desc,
 void MuxNode::BuildNotifyParent(const SignalDescription &desc, ostream &os) {
   vector<string> wires;
   for (MuxNode *n : children_) {
+    if (!n->IsLeaf()) {
+      continue;
+    }
     const AccessorInfo *ac = n->accessor_;
     AccessorSignal *sig = ac->FindSignal(desc);
     if (sig == nullptr) {
@@ -200,7 +215,11 @@ void MuxNode::BuildArbitration(const SignalDescription &req_desc,
 			       const SignalDescription &ack_desc,
 			       ostream &os) {
   vector<const AccessorInfo*> handshake_accessors;
+  vector<const MuxNode *> handshake_nodes;
   for (MuxNode *n : children_) {
+    if (!n->IsLeaf()) {
+      continue;
+    }
     const AccessorInfo *ac = n->accessor_;
     AccessorSignal *rsig = ac->FindSignal(req_desc);
     if (rsig == nullptr) {
@@ -209,26 +228,29 @@ void MuxNode::BuildArbitration(const SignalDescription &req_desc,
     AccessorSignal *asig = ac->FindSignal(ack_desc);
     CHECK(asig != nullptr);
     handshake_accessors.push_back(ac);
+    handshake_nodes.push_back(n);
   }
   // Registered req.
-  BuildRegisteredReq(req_desc, handshake_accessors, os);
+  BuildRegisteredReq(req_desc, handshake_nodes, os);
   // Req.
   vector<string> req_sigs;
-  for (auto *ac : handshake_accessors) {
+  for (auto *n : handshake_nodes) {
+    const AccessorInfo *ac = n->accessor_;
     AccessorSignal *rsig = ac->FindSignal(req_desc);
     req_sigs.push_back(AccessorEdgeWireName(*rsig));
   }
   os << "  assign " << ResourceWireName(req_desc) << " = "
      << Util::Join(req_sigs, " | ") << ";\n";
   // Accessor Acks.
-  BuildAccessorAck(req_desc, ack_desc, handshake_accessors, os);
+  BuildAccessorAck(req_desc, ack_desc, handshake_nodes, os);
 }
 
 void MuxNode::BuildRegisteredReq(const SignalDescription &req_desc,
-				 vector<const AccessorInfo *> &handshake_accessors,
+				 vector<const MuxNode *> &handshake_nodes,
 				 ostream &os) {
   string initial, body;
-  for (auto *ac : handshake_accessors) {
+  for (auto *n : handshake_nodes) {
+    const AccessorInfo *ac = n->accessor_;
     AccessorSignal *rsig = ac->FindSignal(req_desc);
     string reg = AccessorWireNameWithReg(*rsig);
     string wire = AccessorEdgeWireName(*rsig);
@@ -246,11 +268,12 @@ void MuxNode::BuildRegisteredReq(const SignalDescription &req_desc,
 
 void MuxNode::BuildAccessorAck(const SignalDescription &req_desc,
 			       const SignalDescription &ack_desc,
-			       vector<const AccessorInfo *> &handshake_accessors,
+			       vector<const MuxNode *> &handshake_nodes,
 			       ostream &os) {
   string resource_ack = ResourceWireName(ack_desc);
   vector<string> high_reqs;
-  for (auto *ac : handshake_accessors) {
+  for (auto *n : handshake_nodes) {
+    const AccessorInfo *ac = n->accessor_;
     AccessorSignal *asig = ac->FindSignal(ack_desc);
     AccessorSignal *rsig = ac->FindSignal(req_desc);
     string req = AccessorEdgeWireName(*rsig);

@@ -93,7 +93,15 @@ void Mux::BalanceNode(MuxNode *node) {
       j = 0;
     }
   }
-  node->children_ = new_nodes;
+  node->children_.clear();
+  for (MuxNode *c : new_nodes) {
+    if (c->children_.size() == 1) {
+      node->children_.push_back(c->children_[0]);
+      delete c;
+    } else {
+      node->children_.push_back(c);
+    }
+  }
   for (MuxNode *c : node->children_) {
     BalanceNode(c);
   }

@@ -39,11 +39,11 @@ private:
   void BuildNotifyParent(const SignalDescription &desc, ostream &os);
   void BuildNotifyAccessor(const SignalDescription &desc, ostream &os);
   void BuildRegisteredReq(const SignalDescription &req_desc,
-			  vector<const AccessorInfo *> &handshake_accessors,
+			  vector<const MuxNode *> &handshake_nodes,
 			  ostream &os);
   void BuildAccessorAck(const SignalDescription &rsig_desc,
 			const SignalDescription &asig_desc,
-			vector<const AccessorInfo *> &handshake_accessors,
+			vector<const MuxNode *> &handshake_nodes,
 			ostream &os);
 
   string AccessorEdgeWireName(const AccessorSignal &sig) const;
