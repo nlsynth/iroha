@@ -23,7 +23,7 @@ namespace writer {
 namespace verilog {
 namespace wire {
 
-Mux::Mux(const WireSet *ws) : ws_(ws), root_node_(nullptr) {
+Mux::Mux(const WireSet *ws) : ws_(ws), root_node_(nullptr), num_nodes_(0) {
   ports_.reset(new Ports);
   const Table &tab = ws_->GetResource().GetTable();
   Ports *pp = tab.GetPorts();
@@ -41,18 +41,16 @@ void Mux::Write(const WireSet *ws, ostream &os) {
   mux.DoWrite(os);
 }
 
+const WireSet *Mux::GetWireSet() const {
+  return ws_;
+}
+
+MuxNode *Mux::GetRootNode() const {
+  return root_node_;
+}
+
 void Mux::DoWrite(ostream &os) {
   root_node_->WriteIOWire(ports_.get(), os);
-  auto sigs = ws_->GetSignals();
-  for (auto *sig : sigs) {
-    string n = ws_->ResourceWireName(*sig);
-    int w = sig->width_;
-    if (sig->IsUpstream()) {
-      ports_->AddPort(n, Port::OUTPUT_WIRE, w);
-    } else {
-      ports_->AddPort(n, Port::INPUT, w);
-    }
-  }
 
   os << "\nmodule " << ws_->GetMuxName() << "(";
   ports_->Output(Ports::PORT_MODULE_HEAD, os);
@@ -64,12 +62,46 @@ void Mux::DoWrite(ostream &os) {
 }
 
 MuxNode *Mux::BuildNodes(const vector<AccessorInfo *> &acs) {
-  MuxNode *root = new MuxNode(ws_, nullptr);
+  MuxNode *root = new MuxNode(this, 0, nullptr);
   for (auto *ac : acs) {
-    MuxNode *node = new MuxNode(ws_, ac);
+    MuxNode *node = new MuxNode(this, 0, ac);
     root->children_.push_back(node);
   }
+  BalanceNode(root);
   return root;
+}
+
+void Mux::BalanceNode(MuxNode *node) {
+  int s = node->children_.size();
+  int f = MaxFanOut();
+  if (s < f) {
+    return;
+  }
+  vector<MuxNode *> new_nodes;
+  // Set up f nodes.
+  for (int i = 0; i < f; ++i) {
+    num_nodes_++;
+    MuxNode *c = new MuxNode(this, num_nodes_, nullptr);
+    new_nodes.push_back(c);
+  }
+  int j = 0;
+  for (int i = 0; i < s; ++i) {
+    // distribute s original children to f nodes.
+    new_nodes[j]->children_.push_back(node->children_[i]);
+    ++j;
+    if (j == f) {
+      j = 0;
+    }
+  }
+  node->children_ = new_nodes;
+  for (MuxNode *c : node->children_) {
+    BalanceNode(c);
+  }
+}
+
+int Mux::MaxFanOut() {
+  // WIP.
+  return 10000;
 }
 
 void Mux::DeleteNode(MuxNode *node) {

@@ -17,14 +17,19 @@ public:
   static void Write(const WireSet *ws, ostream &os);
 
   void DoWrite(ostream &os);
+  const WireSet *GetWireSet() const;
+  MuxNode *GetRootNode() const;
 
 private:
   const WireSet *ws_;
   unique_ptr<Ports> ports_;
   MuxNode *root_node_;
+  int num_nodes_;
 
   MuxNode *BuildNodes(const vector<AccessorInfo *> &acs);
+  void BalanceNode(MuxNode *node);
   void DeleteNode(MuxNode *node);
+  int MaxFanOut();
 };
 
 }  // namespace wire

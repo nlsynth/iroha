@@ -9,17 +9,20 @@ namespace writer {
 namespace verilog {
 namespace wire {
 
-// WIP: This will host a tree, but only 1 level for now.
 class MuxNode {
 public:
-  MuxNode(const WireSet *ws, const AccessorInfo *accessor);
+  MuxNode(const Mux *mux, int id, const AccessorInfo *accessor);
 
   void WriteIOWire(Ports *ports, ostream &os);
   void WriteMux(ostream &os);
+  bool IsRoot() const;
+  bool IsLeaf() const;
 
   vector<MuxNode *> children_;
 
 private:
+  const Mux *mux_;
+  int id_;
   const WireSet *ws_;
   const AccessorInfo *accessor_;
 

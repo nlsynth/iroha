@@ -5,6 +5,7 @@
 #include "writer/verilog/resource.h"
 #include "writer/verilog/table.h"
 #include "writer/verilog/wire/accessor_info.h"
+#include "writer/verilog/wire/mux.h"
 #include "writer/verilog/wire/wire_set.h"
 
 namespace iroha {
@@ -12,31 +13,51 @@ namespace writer {
 namespace verilog {
 namespace wire {
 
-MuxNode::MuxNode(const WireSet *ws, const AccessorInfo *accessor)
-  : ws_(ws), accessor_(accessor) {
+MuxNode::MuxNode(const Mux *mux, int id, const AccessorInfo *accessor)
+  : mux_(mux), id_(id), ws_(mux->GetWireSet()), accessor_(accessor) {
+}
+
+bool MuxNode::IsRoot() const {
+  return (mux_->GetRootNode() == this);
+}
+
+bool MuxNode::IsLeaf() const {
+  return (accessor_ != nullptr);
 }
 
 void MuxNode::WriteIOWire(Ports *ports, ostream &os) {
   for (MuxNode *cn : children_) {
     cn->WriteIOWire(ports, os);
   }
-  if (accessor_ == nullptr) {
-    return;
+  // Root or leaf nodes have external wires.
+  if (IsRoot()) {
+    auto sigs = ws_->GetSignals();
+    for (auto &sig : sigs) {
+      string n = ws_->ResourceWireName(*sig);
+      int w = sig->width_;
+      if (sig->IsUpstream()) {
+	ports->AddPort(n, Port::OUTPUT_WIRE, w);
+      } else {
+	ports->AddPort(n, Port::INPUT, w);
+      }
+    }
   }
-  // Writes external wire from a leaf node.
-  const auto &asigs = accessor_->GetSignals();
-  for (auto &asig : asigs) {
-    string s = ws_->AccessorEdgeWireName(*asig);
-    int w = asig->sig_desc_->width_;
-    if (asig->sig_desc_->IsUpstream()) {
-      ports->AddPort(s, Port::INPUT, w);
-    } else {
-      ports->AddPort(s, Port::OUTPUT_WIRE, w);
+  if (IsLeaf()) {
+    const auto &asigs = accessor_->GetSignals();
+    for (auto &asig : asigs) {
+      string s = ws_->AccessorEdgeWireName(*asig);
+      int w = asig->sig_desc_->width_;
+      if (asig->sig_desc_->IsUpstream()) {
+	ports->AddPort(s, Port::INPUT, w);
+      } else {
+	ports->AddPort(s, Port::OUTPUT_WIRE, w);
+      }
     }
   }
 }
 
 void MuxNode::WriteMux(ostream &os) {
+  os << "  // node:" << id_ << " " << children_.size() << " child nodes\n";
   auto sigs = ws_->GetSignals();
   SignalDescription *req_desc = nullptr;
   SignalDescription *ack_desc = nullptr;
