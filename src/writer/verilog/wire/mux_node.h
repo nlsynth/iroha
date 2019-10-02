@@ -18,6 +18,8 @@ public:
   bool IsRoot() const;
   bool IsLeaf() const;
 
+  string NodeWireName(const SignalDescription &desc) const;
+
   vector<MuxNode *> children_;
 
 private:
@@ -46,9 +48,8 @@ private:
 			vector<const MuxNode *> &handshake_nodes,
 			ostream &os);
 
-  string AccessorEdgeWireName(const AccessorSignal &sig) const;
-  string AccessorWireNameWithReg(const AccessorSignal &sig) const;
   string ResourceWireName(const SignalDescription &desc) const;
+  string NodeWireNameWithReg(const SignalDescription &desc) const;
 };
 
 }  // namespace wire
