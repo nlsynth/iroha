@@ -107,6 +107,33 @@ void MuxNode::WriteMux(ostream &os) {
   }
 }
 
+void MuxNode::WriteDecls(ostream &os) {
+  if (IsLeaf()) {
+    return;
+  }
+  for (MuxNode *cn : children_) {
+    cn->WriteDecls(os);
+  }
+  if (IsRoot()) {
+    return;
+  }
+  auto sigs = ws_->GetSignals();
+  for (SignalDescription *desc : sigs) {
+    if (desc->type_ == AccessorSignalType::ACCESSOR_REQ ||
+	desc->type_ == AccessorSignalType::ACCESSOR_ACK ||
+	desc->type_ == AccessorSignalType::ACCESSOR_NOTIFY_PARENT ||
+	desc->type_ == AccessorSignalType::ACCESSOR_NOTIFY_PARENT_SECONDARY ||
+	desc->type_ == AccessorSignalType::ACCESSOR_NOTIFY_ACCESSOR) {
+      os << "  wire " << NodeWireName(*desc) << ";\n";
+    }
+    if (desc->type_ == AccessorSignalType::ACCESSOR_WRITE_ARG ||
+	desc->type_ == AccessorSignalType::ACCESSOR_READ_ARG) {
+      os << "  wire " << Table::WidthSpec(desc->width_)
+	 << NodeWireName(*desc) << ";\n";
+    }
+  }
+}
+
 void MuxNode::BuildWriteArg(const SignalDescription &arg_desc,
 			    const SignalDescription *req_desc,
 			    const SignalDescription *notify_desc,
@@ -267,9 +294,6 @@ void MuxNode::BuildRegisteredReq(const SignalDescription &req_desc,
 				 ostream &os) {
   string initial, body;
   for (auto *n : handshake_nodes) {
-    if (!n->IsLeaf()) {
-      continue;
-    }
     string reg = n->NodeWireNameWithReg(req_desc);
     string wire = n->NodeWireName(req_desc);
     os << "  reg " << reg << ";\n";
@@ -291,9 +315,6 @@ void MuxNode::BuildAccessorAck(const SignalDescription &req_desc,
   string resource_ack = ResourceWireName(ack_desc);
   vector<string> high_reqs;
   for (auto *n : handshake_nodes) {
-    if (!n->IsLeaf()) {
-      continue;
-    }
     string req = n->NodeWireName(req_desc);
     // ack = resource_ack & req & !(req from higher accessors).
     os << "  assign " << n->NodeWireName(ack_desc) << " = "

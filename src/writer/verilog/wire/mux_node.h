@@ -14,6 +14,7 @@ public:
   MuxNode(const Mux *mux, int id, const AccessorInfo *accessor);
 
   void WriteIOWire(Ports *ports, ostream &os);
+  void WriteDecls(ostream &os);
   void WriteMux(ostream &os);
   bool IsRoot() const;
   bool IsLeaf() const;

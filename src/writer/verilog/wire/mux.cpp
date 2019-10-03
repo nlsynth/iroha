@@ -56,6 +56,7 @@ void Mux::DoWrite(ostream &os) {
   ports_->Output(Ports::PORT_MODULE_HEAD, os);
   os << ");\n";
 
+  root_node_->WriteDecls(os);
   root_node_->WriteMux(os);
 
   os << "endmodule // " << ws_->GetMuxName() << "\n";
