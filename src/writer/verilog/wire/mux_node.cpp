@@ -139,7 +139,7 @@ void MuxNode::BuildWriteArg(const SignalDescription &arg_desc,
 			    const SignalDescription *notify_desc,
 			    const SignalDescription *notify_secondary_desc,
 			    ostream &os) {
-  os << "  assign " << ResourceWireName(arg_desc) << " = ";
+  os << "  assign " << NodeWireName(arg_desc) << " = ";
   // wire names of write_arg, req
   vector<pair<string, string> > pins;
   vector<pair<string, string> > notify_pins;
@@ -312,7 +312,7 @@ void MuxNode::BuildAccessorAck(const SignalDescription &req_desc,
 			       const SignalDescription &ack_desc,
 			       vector<const MuxNode *> &handshake_nodes,
 			       ostream &os) {
-  string resource_ack = ResourceWireName(ack_desc);
+  string resource_ack = NodeWireName(ack_desc);
   vector<string> high_reqs;
   for (auto *n : handshake_nodes) {
     string req = n->NodeWireName(req_desc);
