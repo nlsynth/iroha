@@ -283,7 +283,7 @@ void MuxNode::BuildArbitration(const SignalDescription &req_desc,
     }
     req_sigs.push_back(n->NodeWireName(req_desc));
   }
-  os << "  assign " << ResourceWireName(req_desc) << " = "
+  os << "  assign " << NodeWireName(req_desc) << " = "
      << Util::Join(req_sigs, " | ") << ";\n";
   // Accessor Acks.
   BuildAccessorAck(req_desc, ack_desc, handshake_nodes, os);
