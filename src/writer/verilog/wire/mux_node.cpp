@@ -139,7 +139,6 @@ void MuxNode::BuildWriteArg(const SignalDescription &arg_desc,
 			    const SignalDescription *notify_desc,
 			    const SignalDescription *notify_secondary_desc,
 			    ostream &os) {
-  os << "  assign " << NodeWireName(arg_desc) << " = ";
   // wire names of write_arg, req
   vector<pair<string, string> > pins;
   vector<pair<string, string> > notify_pins;
@@ -204,6 +203,10 @@ void MuxNode::BuildWriteArg(const SignalDescription &arg_desc,
     } else {
       s = pins[i].second + " ? " + pins[i].first + " : (" + s + ")";
     }
+  }
+  os << "  assign " << NodeWireName(arg_desc) << " = ";
+  if (s.empty()) {
+    s = "0";
   }
   os << s << ";\n";
 }
@@ -283,8 +286,13 @@ void MuxNode::BuildArbitration(const SignalDescription &req_desc,
     }
     req_sigs.push_back(n->NodeWireName(req_desc));
   }
-  os << "  assign " << NodeWireName(req_desc) << " = "
-     << Util::Join(req_sigs, " | ") << ";\n";
+  os << "  assign " << NodeWireName(req_desc) << " = ";
+  if (req_sigs.size() > 0) {
+    os << Util::Join(req_sigs, " | ");
+  } else {
+    os << "0";
+  }
+  os << ";\n";
   // Accessor Acks.
   BuildAccessorAck(req_desc, ack_desc, handshake_nodes, os);
 }

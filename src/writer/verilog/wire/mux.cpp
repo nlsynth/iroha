@@ -109,8 +109,7 @@ void Mux::BalanceNode(MuxNode *node) {
 }
 
 int Mux::MaxFanOut() {
-  // WIP.
-  return 10000;
+  return 8;
 }
 
 void Mux::DeleteNode(MuxNode *node) {
