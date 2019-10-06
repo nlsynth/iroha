@@ -153,7 +153,34 @@ void MuxNode::BuildWriteArg(const SignalDescription &arg_desc,
   vector<pair<string, string> > notify_pins;
   vector<pair<string, string> > notify_secondary_pins;
   for (MuxNode *n : children_) {
-    if (!n->IsLeaf()) {
+    if (n->IsLeaf()) {
+      const AccessorInfo *ac = n->accessor_;
+      AccessorSignal *warg = ac->FindSignal(arg_desc);
+      if (warg == nullptr) {
+	continue;
+      }
+      if (req_desc != nullptr) {
+	AccessorSignal *rsig = ac->FindSignal(*req_desc);
+	if (rsig != nullptr) {
+	  pins.push_back(make_pair(n->NodeWireName(arg_desc),
+				   n->NodeWireName(*req_desc)));
+	}
+      }
+      if (notify_desc != nullptr) {
+	AccessorSignal *nsig = ac->FindSignal(*notify_desc);
+	if (nsig != nullptr) {
+	  notify_pins.push_back(make_pair(n->NodeWireName(arg_desc),
+					  n->NodeWireName(*notify_desc)));
+	}
+      }
+      if (notify_secondary_desc != nullptr) {
+	AccessorSignal *nsig = ac->FindSignal(*notify_secondary_desc);
+	if (nsig != nullptr) {
+	  notify_secondary_pins.push_back(make_pair(n->NodeWireName(arg_desc),
+						    n->NodeWireName(*notify_secondary_desc)));
+	}
+      }
+    } else {
       if (req_desc != nullptr) {
 	pins.push_back(make_pair(n->NodeWireName(arg_desc),
 				 n->NodeWireName(*req_desc)));
@@ -165,34 +192,6 @@ void MuxNode::BuildWriteArg(const SignalDescription &arg_desc,
       if (notify_secondary_desc != nullptr) {
 	notify_secondary_pins.push_back(make_pair(n->NodeWireName(arg_desc),
 						  n->NodeWireName(*notify_secondary_desc)));
-      }
-      continue;
-    }
-    const AccessorInfo *ac = n->accessor_;
-    AccessorSignal *warg = ac->FindSignal(arg_desc);
-    if (warg == nullptr) {
-      continue;
-    }
-    if (req_desc != nullptr) {
-      AccessorSignal *rsig = ac->FindSignal(*req_desc);
-      if (rsig != nullptr) {
-	pins.push_back(make_pair(n->NodeWireName(arg_desc),
-				 n->NodeWireName(*req_desc)));
-      }
-    }
-    if (notify_desc != nullptr) {
-      AccessorSignal *nsig = ac->FindSignal(*notify_desc);
-      if (nsig != nullptr) {
-	notify_pins.push_back(make_pair(n->NodeWireName(arg_desc),
-					n->NodeWireName(*notify_desc)));
-      }
-    }
-    if (notify_secondary_desc != nullptr) {
-      AccessorSignal *nsig = ac->FindSignal(*notify_secondary_desc);
-      if (nsig != nullptr) {
-	notify_secondary_pins.push_back(make_pair(n->NodeWireName(arg_desc),
-						  n->NodeWireName(*notify_secondary_desc)));
-
       }
     }
   }
@@ -224,15 +223,12 @@ void MuxNode::BuildReadArg(const SignalDescription &arg_desc,
 			   ostream &os) {
   string rwire = NodeWireName(arg_desc);
   for (MuxNode *n : children_) {
-    if (!n->IsLeaf()) {
-      os << "  assign " << n->NodeWireName(arg_desc)
-	 << " = " << rwire << ";\n";
-      continue;
-    }
-    const AccessorInfo *ac = n->accessor_;
-    AccessorSignal *rsig = ac->FindSignal(arg_desc);
-    if (rsig == nullptr) {
-      continue;
+    if (n->IsLeaf()) {
+      const AccessorInfo *ac = n->accessor_;
+      AccessorSignal *rsig = ac->FindSignal(arg_desc);
+      if (rsig == nullptr) {
+	continue;
+      }
     }
     os << "  assign " << n->NodeWireName(arg_desc)
        << " = " << rwire << ";\n";
@@ -242,14 +238,12 @@ void MuxNode::BuildReadArg(const SignalDescription &arg_desc,
 void MuxNode::BuildNotifyParent(const SignalDescription &desc, ostream &os) {
   vector<string> wires;
   for (MuxNode *n : children_) {
-    if (!n->IsLeaf()) {
-      wires.push_back(n->NodeWireName(desc));
-      continue;
-    }
-    const AccessorInfo *ac = n->accessor_;
-    AccessorSignal *sig = ac->FindSignal(desc);
-    if (sig == nullptr) {
-      continue;
+    if (n->IsLeaf()) {
+      const AccessorInfo *ac = n->accessor_;
+      AccessorSignal *sig = ac->FindSignal(desc);
+      if (sig == nullptr) {
+	continue;
+      }
     }
     wires.push_back(n->NodeWireName(desc));
   }
@@ -271,17 +265,15 @@ void MuxNode::BuildArbitration(const SignalDescription &req_desc,
 			       ostream &os) {
   vector<const MuxNode *> handshake_nodes;
   for (MuxNode *n : children_) {
-    if (!n->IsLeaf()) {
-      handshake_nodes.push_back(n);
-      continue;
+    if (n->IsLeaf()) {
+      const AccessorInfo *ac = n->accessor_;
+      AccessorSignal *rsig = ac->FindSignal(req_desc);
+      if (rsig == nullptr) {
+	continue;
+      }
+      AccessorSignal *asig = ac->FindSignal(ack_desc);
+      CHECK(asig != nullptr);
     }
-    const AccessorInfo *ac = n->accessor_;
-    AccessorSignal *rsig = ac->FindSignal(req_desc);
-    if (rsig == nullptr) {
-      continue;
-    }
-    AccessorSignal *asig = ac->FindSignal(ack_desc);
-    CHECK(asig != nullptr);
     handshake_nodes.push_back(n);
   }
   // Registered req.
@@ -289,10 +281,6 @@ void MuxNode::BuildArbitration(const SignalDescription &req_desc,
   // Req.
   vector<string> req_sigs;
   for (auto *n : handshake_nodes) {
-    if (!n->IsLeaf()) {
-      req_sigs.push_back(n->NodeWireName(req_desc));
-      continue;
-    }
     req_sigs.push_back(n->NodeWireName(req_desc));
   }
   os << "  assign " << NodeWireName(req_desc) << " = ";
