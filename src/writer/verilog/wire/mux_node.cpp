@@ -27,7 +27,7 @@ bool MuxNode::IsLeaf() const {
 
 bool MuxNode::IsStaged() const {
   // WIP.
-  return false;
+  return false; // !(IsRoot() || IsLeaf());
 }
 
 void MuxNode::WriteIOWire(Ports *ports, ostream &os) {
@@ -128,19 +128,9 @@ void MuxNode::WriteDecls(ostream &os) {
   }
   auto sigs = ws_->GetSignals();
   for (SignalDescription *desc : sigs) {
-    if (desc->type_ == AccessorSignalType::ACCESSOR_REQ ||
-	desc->type_ == AccessorSignalType::ACCESSOR_ACK ||
-	desc->type_ == AccessorSignalType::ACCESSOR_NOTIFY_PARENT ||
-	desc->type_ == AccessorSignalType::ACCESSOR_NOTIFY_PARENT_SECONDARY ||
-	desc->type_ == AccessorSignalType::ACCESSOR_NOTIFY_ACCESSOR) {
-      os << "  wire " << NodeWireName(*desc) << ";\n";
-    }
-    if (desc->type_ == AccessorSignalType::ACCESSOR_WRITE_ARG ||
-	desc->type_ == AccessorSignalType::ACCESSOR_READ_ARG) {
-      os << "  wire " << Table::WidthSpec(desc->width_)
-	 << NodeWireName(*desc) << ";\n";
-    }
-  }
+    os << "  wire " << Table::WidthSpec(desc->width_)
+       << NodeWireName(*desc) << ";\n";
+   }
 }
 
 void MuxNode::BuildWriteArg(const SignalDescription &arg_desc,
