@@ -29,6 +29,7 @@ private:
   const WireSet *ws_;
   const AccessorInfo *accessor_;
 
+  bool IsStaged() const;
   void BuildArbitration(const SignalDescription &req_desc,
 			const SignalDescription &ack_desc,
 			ostream &os);
@@ -49,7 +50,6 @@ private:
 			vector<const MuxNode *> &handshake_nodes,
 			ostream &os);
 
-  string ResourceWireName(const SignalDescription &desc) const;
   string NodeWireNameWithReg(const SignalDescription &desc) const;
 };
 

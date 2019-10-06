@@ -25,6 +25,11 @@ bool MuxNode::IsLeaf() const {
   return (accessor_ != nullptr);
 }
 
+bool MuxNode::IsStaged() const {
+  // WIP.
+  return false;
+}
+
 void MuxNode::WriteIOWire(Ports *ports, ostream &os) {
   for (MuxNode *cn : children_) {
     cn->WriteIOWire(ports, os);
@@ -33,7 +38,7 @@ void MuxNode::WriteIOWire(Ports *ports, ostream &os) {
   if (IsRoot()) {
     auto sigs = ws_->GetSignals();
     for (auto &sig : sigs) {
-      string n = ResourceWireName(*sig);
+      string n = NodeWireName(*sig);
       int w = sig->width_;
       if (sig->IsUpstream()) {
 	ports->AddPort(n, Port::OUTPUT_WIRE, w);
@@ -60,7 +65,11 @@ void MuxNode::WriteMux(ostream &os) {
   if (IsLeaf()) {
     return;
   }
-  os << "  // node:" << id_ << " " << children_.size() << " child nodes\n";
+  os << "  // node:" << id_ << " " << children_.size() << " child nodes";
+  if (IsStaged()) {
+    os << " - staged";
+  }
+  os << "\n";
   auto sigs = ws_->GetSignals();
   SignalDescription *req_desc = nullptr;
   SignalDescription *ack_desc = nullptr;
@@ -302,6 +311,7 @@ void MuxNode::BuildRegisteredReq(const SignalDescription &req_desc,
 				 ostream &os) {
   string initial, body;
   for (auto *n : handshake_nodes) {
+    // Used to generate ack signals.
     string reg = n->NodeWireNameWithReg(req_desc);
     string wire = n->NodeWireName(req_desc);
     os << "  reg " << reg << ";\n";
@@ -335,17 +345,13 @@ void MuxNode::BuildAccessorAck(const SignalDescription &req_desc,
   }
 }
 
-string MuxNode::ResourceWireName(const SignalDescription &desc) const {
-  return ws_->ResourceWireName(desc);
-}
-
 string MuxNode::NodeWireName(const SignalDescription &desc) const {
   if (IsLeaf()) {
     AccessorSignal *sig = accessor_->FindSignal(desc);
     return ws_->AccessorEdgeWireName(*sig);
   }
   if (IsRoot()) {
-    return ResourceWireName(desc);
+    return ws_->ResourceWireName(desc);
   }
   return "node" + Util::Itoa(id_) + "_" + desc.name_;
 }
