@@ -290,11 +290,11 @@ void MuxNode::BuildRegisteredReq(const SignalDescription &req_desc,
   string initial, body;
   for (auto *n : handshake_nodes) {
     // Used to generate ack signals.
-    string reg = n->NodeWireNameWithReg(req_desc);
+    string prev_reg = n->NodeWireNameWithPrev(req_desc);
     string wire = n->NodeWireName(req_desc);
-    os << "  reg " << reg << ";\n";
-    initial += "      " + reg + " <= 0;\n";
-    body += "      " + reg + " <= " + wire + ";\n";
+    os << "  reg " << prev_reg << ";\n";
+    initial += "      " + prev_reg + " <= 0;\n";
+    body += "      " + prev_reg + " <= " + wire + ";\n";
   }
   const Table &tab = ws_->GetResource().GetTable();
   tab.WriteAlwaysBlockHead(os);
@@ -319,7 +319,7 @@ void MuxNode::BuildAccessorAck(const SignalDescription &req_desc,
       os << " & !(" <<  Util::Join(high_reqs, " | ") << ")";
     }
     os << ";\n";
-    high_reqs.push_back(n->NodeWireNameWithReg(req_desc));
+    high_reqs.push_back(n->NodeWireNameWithPrev(req_desc));
   }
 }
 
@@ -334,8 +334,8 @@ string MuxNode::NodeWireName(const SignalDescription &desc) const {
   return "node" + Util::Itoa(id_) + "_" + desc.name_;
 }
 
-string MuxNode::NodeWireNameWithReg(const SignalDescription &desc) const {
-  return NodeWireName(desc) + "_reg";
+string MuxNode::NodeWireNameWithPrev(const SignalDescription &desc) const {
+  return NodeWireName(desc) + "_prev";
 }
 
 }  // namespace wire

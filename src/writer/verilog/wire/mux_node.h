@@ -50,7 +50,7 @@ private:
 			vector<const MuxNode *> &handshake_nodes,
 			ostream &os);
 
-  string NodeWireNameWithReg(const SignalDescription &desc) const;
+  string NodeWireNameWithPrev(const SignalDescription &desc) const;
 };
 
 }  // namespace wire
