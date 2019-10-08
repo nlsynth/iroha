@@ -51,6 +51,7 @@ private:
 			ostream &os);
 
   string NodeWireNameWithPrev(const SignalDescription &desc) const;
+  string NodeWireNameWithReg(const SignalDescription &desc) const;
 };
 
 }  // namespace wire

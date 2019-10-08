@@ -130,7 +130,18 @@ void MuxNode::WriteDecls(ostream &os) {
   for (SignalDescription *desc : sigs) {
     os << "  wire " << Table::WidthSpec(desc->width_)
        << NodeWireName(*desc) << ";\n";
-   }
+    if (IsStaged()) {
+      if (desc->IsUpstream()) {
+	os << "  reg " << Table::WidthSpec(desc->width_)
+	   << NodeWireNameWithReg(*desc) << ";\n";
+      } else {
+	for (MuxNode *cn : children_) {
+	  os << "  reg " << Table::WidthSpec(desc->width_)
+	     << cn->NodeWireNameWithReg(*desc) << ";\n";
+	}
+      }
+    }
+  }
 }
 
 void MuxNode::BuildWriteArg(const SignalDescription &arg_desc,
@@ -144,42 +155,27 @@ void MuxNode::BuildWriteArg(const SignalDescription &arg_desc,
   vector<pair<string, string> > notify_secondary_pins;
   for (MuxNode *n : children_) {
     if (n->IsLeaf()) {
-      const AccessorInfo *ac = n->accessor_;
-      AccessorSignal *warg = ac->FindSignal(arg_desc);
+      AccessorSignal *warg = n->accessor_->FindSignal(arg_desc);
       if (warg == nullptr) {
 	continue;
       }
-      if (req_desc != nullptr) {
-	AccessorSignal *rsig = ac->FindSignal(*req_desc);
-	if (rsig != nullptr) {
-	  pins.push_back(make_pair(n->NodeWireName(arg_desc),
-				   n->NodeWireName(*req_desc)));
-	}
-      }
-      if (notify_desc != nullptr) {
-	AccessorSignal *nsig = ac->FindSignal(*notify_desc);
-	if (nsig != nullptr) {
-	  notify_pins.push_back(make_pair(n->NodeWireName(arg_desc),
-					  n->NodeWireName(*notify_desc)));
-	}
-      }
-      if (notify_secondary_desc != nullptr) {
-	AccessorSignal *nsig = ac->FindSignal(*notify_secondary_desc);
-	if (nsig != nullptr) {
-	  notify_secondary_pins.push_back(make_pair(n->NodeWireName(arg_desc),
-						    n->NodeWireName(*notify_secondary_desc)));
-	}
-      }
-    } else {
-      if (req_desc != nullptr) {
+    }
+    bool isInternal = !n->IsLeaf();
+    const AccessorInfo *ac = n->accessor_;
+    if (req_desc != nullptr) {
+      if (isInternal || ac->FindSignal(*req_desc) != nullptr) {
 	pins.push_back(make_pair(n->NodeWireName(arg_desc),
 				 n->NodeWireName(*req_desc)));
       }
-      if (notify_desc != nullptr) {
+    }
+    if (notify_desc != nullptr) {
+      if (isInternal || ac->FindSignal(*notify_desc) != nullptr) {
 	notify_pins.push_back(make_pair(n->NodeWireName(arg_desc),
 					n->NodeWireName(*notify_desc)));
       }
-      if (notify_secondary_desc != nullptr) {
+    }
+    if (notify_secondary_desc != nullptr) {
+      if (isInternal || ac->FindSignal(*notify_secondary_desc) != nullptr) {
 	notify_secondary_pins.push_back(make_pair(n->NodeWireName(arg_desc),
 						  n->NodeWireName(*notify_secondary_desc)));
       }
@@ -336,6 +332,10 @@ string MuxNode::NodeWireName(const SignalDescription &desc) const {
 
 string MuxNode::NodeWireNameWithPrev(const SignalDescription &desc) const {
   return NodeWireName(desc) + "_prev";
+}
+
+string MuxNode::NodeWireNameWithReg(const SignalDescription &desc) const {
+  return NodeWireName(desc) + "_reg";
 }
 
 }  // namespace wire
