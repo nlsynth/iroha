@@ -65,7 +65,7 @@ void MuxNode::WriteMux(ostream &os) {
   if (IsLeaf()) {
     return;
   }
-  os << "  // node:" << id_ << " " << children_.size() << " child nodes";
+  os << "\n  // node:" << id_ << " " << children_.size() << " child nodes";
   if (IsStaged()) {
     os << " - staged";
   }
@@ -111,9 +111,22 @@ void MuxNode::WriteMux(ostream &os) {
       break;
     }
   }
+  if (IsStaged()) {
+    WriteStage(os);
+  }
   for (MuxNode *cn : children_) {
     cn->WriteMux(os);
   }
+}
+
+void MuxNode::WriteStage(ostream &os) {
+  const Table &tab = ws_->GetResource().GetTable();
+  os << "\n  // stage\n" << as_.str();
+  tab.WriteAlwaysBlockHead(os);
+  os << is_.str();
+  tab.WriteAlwaysBlockMiddle(os);
+  os << ss_.str();
+  tab.WriteAlwaysBlockTail(os);
 }
 
 void MuxNode::WriteDecls(ostream &os) {
@@ -198,7 +211,22 @@ void MuxNode::BuildWriteArg(const SignalDescription &arg_desc,
       s = pins[i].second + " ? " + pins[i].first + " : (" + s + ")";
     }
   }
-  os << "  assign " << NodeWireName(arg_desc) << " = ";
+  if (IsStaged()) {
+    os << "  wire " << Table::WidthSpec(arg_desc.width_)
+       << NodeWireNameWithSrc(arg_desc) << ";\n";
+  }
+  os << "  assign ";
+  if (IsStaged()) {
+    os << NodeWireNameWithSrc(arg_desc);
+    ss_ << "      " << NodeWireNameWithReg(arg_desc) << " <= "
+	<< NodeWireNameWithSrc(arg_desc) << ";\n";
+    as_ << "  assign " << NodeWireName(arg_desc) << " = "
+	<< NodeWireNameWithReg(arg_desc) << ";\n";
+    is_ << "      " << NodeWireNameWithReg(arg_desc) << " <= 0;\n";
+  } else {
+    os << NodeWireName(arg_desc);
+  }
+  os << " = ";
   if (s.empty()) {
     s = "0";
   }
@@ -233,7 +261,13 @@ void MuxNode::BuildNotifyParent(const SignalDescription &desc, ostream &os) {
     }
     wires.push_back(n->NodeWireName(desc));
   }
-  os << "  assign " << NodeWireName(desc) << " = ";
+  os << "  assign ";
+  if (IsStaged()) {
+    os << NodeWireNameWithSrc(desc);
+  } else {
+    os << NodeWireName(desc);
+  }
+  os << " = ";
   if (wires.size() == 0) {
     os << "0";
   } else {
@@ -269,7 +303,13 @@ void MuxNode::BuildArbitration(const SignalDescription &req_desc,
   for (auto *n : handshake_nodes) {
     req_sigs.push_back(n->NodeWireName(req_desc));
   }
-  os << "  assign " << NodeWireName(req_desc) << " = ";
+  os << "  assign ";
+  if (IsStaged()) {
+    os << NodeWireNameWithSrc(req_desc);
+  } else {
+    os << NodeWireName(req_desc);
+  }
+  os << " = ";
   if (req_sigs.size() > 0) {
     os << Util::Join(req_sigs, " | ");
   } else {
@@ -336,6 +376,10 @@ string MuxNode::NodeWireNameWithPrev(const SignalDescription &desc) const {
 
 string MuxNode::NodeWireNameWithReg(const SignalDescription &desc) const {
   return NodeWireName(desc) + "_reg";
+}
+
+string MuxNode::NodeWireNameWithSrc(const SignalDescription &desc) const {
+  return NodeWireName(desc) + "_src";
 }
 
 }  // namespace wire

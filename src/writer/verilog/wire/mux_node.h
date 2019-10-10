@@ -4,6 +4,8 @@
 
 #include "writer/verilog/common.h"
 
+#include <sstream>
+
 namespace iroha {
 namespace writer {
 namespace verilog {
@@ -28,6 +30,12 @@ private:
   int id_;
   const WireSet *ws_;
   const AccessorInfo *accessor_;
+  // initial registers values for staged mux.
+  ostringstream is_;
+  // stage updates for staged mux.
+  ostringstream ss_;
+  // wire assigns for staged mux.
+  ostringstream as_;
 
   bool IsStaged() const;
   void BuildArbitration(const SignalDescription &req_desc,
@@ -49,9 +57,11 @@ private:
 			const SignalDescription &asig_desc,
 			vector<const MuxNode *> &handshake_nodes,
 			ostream &os);
+  void WriteStage(ostream &os);
 
   string NodeWireNameWithPrev(const SignalDescription &desc) const;
   string NodeWireNameWithReg(const SignalDescription &desc) const;
+  string NodeWireNameWithSrc(const SignalDescription &desc) const;
 };
 
 }  // namespace wire
