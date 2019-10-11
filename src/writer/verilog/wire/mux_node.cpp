@@ -144,7 +144,8 @@ void MuxNode::WriteDecls(ostream &os) {
     os << "  wire " << Table::WidthSpec(desc->width_)
        << NodeWireName(*desc) << ";\n";
     if (IsStaged()) {
-      if (desc->IsUpstream()) {
+      if (desc->IsUpstream() ||
+	  desc->type_ == ACCESSOR_READ_ARG) {
 	os << "  reg " << Table::WidthSpec(desc->width_)
 	   << NodeWireNameWithReg(*desc) << ";\n";
       } else {
@@ -236,6 +237,13 @@ void MuxNode::BuildWriteArg(const SignalDescription &arg_desc,
 void MuxNode::BuildReadArg(const SignalDescription &arg_desc,
 			   ostream &os) {
   string rwire = NodeWireName(arg_desc);
+  if (IsStaged()) {
+    ss_ << "      " << NodeWireNameWithReg(arg_desc)
+	<< " <= " << NodeWireName(arg_desc) << ";\n";
+    is_ << "      " << NodeWireNameWithReg(arg_desc)
+	<< " <= 0;\n";
+    rwire = NodeWireNameWithReg(arg_desc);
+  }
   for (MuxNode *n : children_) {
     if (n->IsLeaf()) {
       const AccessorInfo *ac = n->accessor_;
