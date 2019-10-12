@@ -272,6 +272,11 @@ void MuxNode::BuildNotifyParent(const SignalDescription &desc, ostream &os) {
   os << "  assign ";
   if (IsStaged()) {
     os << NodeWireNameWithSrc(desc);
+    ss_ << "      " << NodeWireNameWithReg(desc) << " <= "
+	<< NodeWireNameWithSrc(desc) << ";\n";
+    as_ << "  assign " << NodeWireName(desc) << " = "
+	<< NodeWireNameWithReg(desc) << ";\n";
+    is_ << "      " << NodeWireNameWithReg(desc) << " <= 0;\n";
   } else {
     os << NodeWireName(desc);
   }
