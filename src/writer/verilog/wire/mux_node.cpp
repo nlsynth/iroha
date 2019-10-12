@@ -8,6 +8,31 @@
 #include "writer/verilog/wire/mux.h"
 #include "writer/verilog/wire/wire_set.h"
 
+// Up-stream <--> Down-stream
+//
+// Basic structure:
+//   NodeWire <---Mux+--- c0.NodeWire()
+//                   +--- c1.NodeWire()
+//                        ..
+//
+// Staged:
+//   wdata:
+//     NodeWire = NodeWireWithReg
+//     NodeWireWithReg <= aribitor(c0.NodeWire(), c1.NodeWire(), ...)
+//   rdata, notify accessor:
+//     NodeWireWithReg <= NodeWire
+//     c0.NodeWire = NodeWireWithReg
+//     c1.NodeWire = NodeWireWithReg
+//     ..
+//   notify parent:
+//     NodeWire = NodeWireWithReg
+//     NodeWireWithReg <= |c0.NodeWire(), c1.NodeWire
+//   req:
+//     NodeWire = NodeWireWithReg
+//     NodeWireWithReg <= |c0.NodeWire(), c1.NodeWire
+//   ack:
+//     WIP
+
 namespace iroha {
 namespace writer {
 namespace verilog {
@@ -319,6 +344,11 @@ void MuxNode::BuildArbitration(const SignalDescription &req_desc,
   os << "  assign ";
   if (IsStaged()) {
     os << NodeWireNameWithSrc(req_desc);
+    ss_ << "      " << NodeWireNameWithReg(req_desc) << " <= "
+	<< NodeWireNameWithSrc(req_desc) << ";\n";
+    as_ << "  assign " << NodeWireName(req_desc) << " = "
+	<< NodeWireNameWithReg(req_desc) << ";\n";
+    is_ << "      " << NodeWireNameWithReg(req_desc) << " <= 0;\n";
   } else {
     os << NodeWireName(req_desc);
   }
