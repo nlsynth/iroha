@@ -392,8 +392,18 @@ void MuxNode::BuildAccessorAck(const SignalDescription &req_desc,
   for (auto *n : handshake_nodes) {
     string req = n->NodeWireName(req_desc);
     // ack = resource_ack & req & !(req from higher accessors).
-    os << "  assign " << n->NodeWireName(ack_desc) << " = "
-       << resource_ack << " & " << req;
+    os << "  assign ";
+    if (IsStaged()) {
+      os << n->NodeWireNameWithSrc(ack_desc);
+      ss_ << "      " << n->NodeWireNameWithReg(ack_desc) << " <= "
+	  << n->NodeWireNameWithSrc(ack_desc) << ";\n";
+      as_ << "  assign " << n->NodeWireName(ack_desc) << " = "
+	  << n->NodeWireNameWithReg(ack_desc) << ";\n";
+      is_ << "      " << n->NodeWireNameWithReg(ack_desc) << " <= 0;\n";
+    } else {
+      os << n->NodeWireName(ack_desc);
+    }
+    os << " = " << resource_ack << " & " << req;
     if (high_reqs.size() > 0) {
       os << " & !(" <<  Util::Join(high_reqs, " | ") << ")";
     }
