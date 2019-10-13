@@ -163,13 +163,12 @@ void MuxNode::WriteDecls(ostream &os) {
   for (MuxNode *cn : children_) {
     cn->WriteDecls(os);
   }
-  if (IsRoot()) {
-    return;
-  }
   auto sigs = ws_->GetSignals();
   for (SignalDescription *desc : sigs) {
-    os << "  wire " << Table::WidthSpec(desc->width_)
-       << NodeWireName(*desc) << ";\n";
+    if (!IsRoot()) {
+      os << "  wire " << Table::WidthSpec(desc->width_)
+	 << NodeWireName(*desc) << ";\n";
+    }
     if (IsStaged()) {
       os << "  reg " << Table::WidthSpec(desc->width_)
 	 << NodeWireNameWithReg(*desc) << ";\n";
