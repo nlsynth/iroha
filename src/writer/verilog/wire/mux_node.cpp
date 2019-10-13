@@ -18,20 +18,22 @@
 // Staged:
 //   wdata:
 //     NodeWire = NodeWireWithReg
-//     NodeWireWithReg <= aribitor(c0.NodeWire(), c1.NodeWire(), ...)
+//     NodeWireWithReg <= aribiter(c0.NodeWire(), c1.NodeWire(), ...)
 //   rdata, notify accessor:
 //     NodeWireWithReg <= NodeWire
 //     c0.NodeWire = NodeWireWithReg
 //     c1.NodeWire = NodeWireWithReg
-//     ..
+//     ...
 //   notify parent:
 //     NodeWire = NodeWireWithReg
-//     NodeWireWithReg <= |c0.NodeWire(), c1.NodeWire
+//     NodeWireWithReg <= |c0.NodeWire(), c1.NodeWire, ...
 //   req:
 //     NodeWire = NodeWireWithReg
-//     NodeWireWithReg <= |c0.NodeWire(), c1.NodeWire
+//     NodeWireWithReg <= |c0.NodeWire(), c1.NodeWire, ...
 //   ack:
-//     WIP
+//     NodeWireWithReg <= NodeWire
+//     c0.NodeWire = arbiter(NodeWireWithReg)
+//     c1.NodeWire = arbiter(NodeWireWithReg)
 
 namespace iroha {
 namespace writer {
@@ -169,16 +171,8 @@ void MuxNode::WriteDecls(ostream &os) {
     os << "  wire " << Table::WidthSpec(desc->width_)
        << NodeWireName(*desc) << ";\n";
     if (IsStaged()) {
-      if (desc->IsUpstream() ||
-	  desc->type_ == ACCESSOR_READ_ARG) {
-	os << "  reg " << Table::WidthSpec(desc->width_)
-	   << NodeWireNameWithReg(*desc) << ";\n";
-      } else {
-	for (MuxNode *cn : children_) {
-	  os << "  reg " << Table::WidthSpec(desc->width_)
-	     << cn->NodeWireNameWithReg(*desc) << ";\n";
-	}
-      }
+      os << "  reg " << Table::WidthSpec(desc->width_)
+	 << NodeWireNameWithReg(*desc) << ";\n";
     }
   }
 }
@@ -387,23 +381,22 @@ void MuxNode::BuildAccessorAck(const SignalDescription &req_desc,
 			       const SignalDescription &ack_desc,
 			       vector<const MuxNode *> &handshake_nodes,
 			       ostream &os) {
-  string resource_ack = NodeWireName(ack_desc);
+  string resource_ack;
+  if (IsStaged()) {
+    resource_ack = NodeWireNameWithReg(ack_desc);
+    is_ << "      " << NodeWireNameWithReg(ack_desc) << " <= 0;\n";
+    ss_ << "      " << NodeWireNameWithReg(ack_desc) << " <= "
+	<< NodeWireName(ack_desc) << ";\n";
+  } else {
+    resource_ack = NodeWireName(ack_desc);
+  }
   vector<string> high_reqs;
   for (auto *n : handshake_nodes) {
     string req = n->NodeWireName(req_desc);
     // ack = resource_ack & req & !(req from higher accessors).
-    os << "  assign ";
-    if (IsStaged()) {
-      os << n->NodeWireNameWithSrc(ack_desc);
-      ss_ << "      " << n->NodeWireNameWithReg(ack_desc) << " <= "
-	  << n->NodeWireNameWithSrc(ack_desc) << ";\n";
-      as_ << "  assign " << n->NodeWireName(ack_desc) << " = "
-	  << n->NodeWireNameWithReg(ack_desc) << ";\n";
-      is_ << "      " << n->NodeWireNameWithReg(ack_desc) << " <= 0;\n";
-    } else {
-      os << n->NodeWireName(ack_desc);
-    }
-    os << " = " << resource_ack << " & " << req;
+    os << "  assign "
+       << n->NodeWireName(ack_desc)
+       << " = " << resource_ack << " & " << req;
     if (high_reqs.size() > 0) {
       os << " & !(" <<  Util::Join(high_reqs, " | ") << ")";
     }
