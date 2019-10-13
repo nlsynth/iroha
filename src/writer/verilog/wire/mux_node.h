@@ -57,11 +57,14 @@ private:
 			const SignalDescription &asig_desc,
 			vector<const MuxNode *> &handshake_nodes,
 			ostream &os);
+  void BuildStageHandShake(const SignalDescription &req_desc,
+			   const SignalDescription &ack_desc);
   void WriteStage(ostream &os);
 
   string NodeWireNameWithPrev(const SignalDescription &desc) const;
   string NodeWireNameWithReg(const SignalDescription &desc) const;
   string NodeWireNameWithSrc(const SignalDescription &desc) const;
+  string HandShakeState() const;
 };
 
 }  // namespace wire

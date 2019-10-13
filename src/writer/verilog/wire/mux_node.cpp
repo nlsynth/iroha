@@ -175,6 +175,9 @@ void MuxNode::WriteDecls(ostream &os) {
 	 << NodeWireNameWithReg(*desc) << ";\n";
     }
   }
+  if (IsStaged()) {
+    os << "  reg [1:0] " << HandShakeState() << ";\n";
+  }
 }
 
 void MuxNode::BuildWriteArg(const SignalDescription &arg_desc,
@@ -338,8 +341,6 @@ void MuxNode::BuildArbitration(const SignalDescription &req_desc,
   os << "  assign ";
   if (IsStaged()) {
     os << NodeWireNameWithSrc(req_desc);
-    ss_ << "      " << NodeWireNameWithReg(req_desc) << " <= "
-	<< NodeWireNameWithSrc(req_desc) << ";\n";
     as_ << "  assign " << NodeWireName(req_desc) << " = "
 	<< NodeWireNameWithReg(req_desc) << ";\n";
     is_ << "      " << NodeWireNameWithReg(req_desc) << " <= 0;\n";
@@ -355,6 +356,40 @@ void MuxNode::BuildArbitration(const SignalDescription &req_desc,
   os << ";\n";
   // Accessor Acks.
   BuildAccessorAck(req_desc, ack_desc, handshake_nodes, os);
+  // Handshake.
+  if (IsStaged()) {
+    BuildStageHandShake(req_desc, ack_desc);
+  }
+}
+
+void MuxNode::BuildStageHandShake(const SignalDescription &req_desc,
+				  const SignalDescription &ack_desc) {
+  string st = HandShakeState();
+  is_ << "      " << st << " <= 0;\n";
+  ss_ << "      case (" << st << ")\n"
+      << "        0: begin\n"
+      << "          if (" << NodeWireNameWithSrc(req_desc) << ") begin\n"
+      << "            " << NodeWireNameWithReg(req_desc) << " <= 1;\n"
+      << "            " << st << " <= 1;\n"
+      << "          end\n"
+      << "        end\n"
+      << "        1: begin\n"
+      << "          if (" << NodeWireName(ack_desc) << ") begin\n"
+      << "            " << NodeWireNameWithReg(req_desc) << " <= 0;\n"
+      << "            " << NodeWireNameWithReg(ack_desc) << " <= 1;\n"
+      << "            " << st << " <= 2;\n"
+      << "          end\n"
+      << "        end\n"
+      << "        2: begin\n"
+      << "            " << NodeWireNameWithReg(ack_desc) << " <= 0;\n"
+      << "            " << st << " <= 3;\n"
+      << "        end\n"
+      << "        3: begin\n"
+      << "          if (!" << NodeWireNameWithSrc(req_desc) << ") begin\n"
+      << "            " << st << " <= 0;\n"
+      << "          end\n"
+      << "        end\n"
+      << "      endcase\n";
 }
 
 void MuxNode::BuildRegisteredReq(const SignalDescription &req_desc,
@@ -385,8 +420,6 @@ void MuxNode::BuildAccessorAck(const SignalDescription &req_desc,
   if (IsStaged()) {
     resource_ack = NodeWireNameWithReg(ack_desc);
     is_ << "      " << NodeWireNameWithReg(ack_desc) << " <= 0;\n";
-    ss_ << "      " << NodeWireNameWithReg(ack_desc) << " <= "
-	<< NodeWireName(ack_desc) << ";\n";
   } else {
     resource_ack = NodeWireName(ack_desc);
   }
@@ -426,6 +459,10 @@ string MuxNode::NodeWireNameWithReg(const SignalDescription &desc) const {
 
 string MuxNode::NodeWireNameWithSrc(const SignalDescription &desc) const {
   return NodeWireName(desc) + "_src";
+}
+
+string MuxNode::HandShakeState() const {
+  return "st" + Util::Itoa(id_);
 }
 
 }  // namespace wire
