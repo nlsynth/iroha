@@ -365,6 +365,7 @@ void MuxNode::BuildStageHandShake(const SignalDescription &req_desc,
 				  const SignalDescription &ack_desc) {
   string st = HandShakeState();
   is_ << "      " << st << " <= 0;\n";
+  // Generates a pulse of ack.
   ss_ << "      case (" << st << ")\n"
       << "        0: begin\n"
       << "          if (" << NodeWireNameWithSrc(req_desc) << ") begin\n"
@@ -381,12 +382,7 @@ void MuxNode::BuildStageHandShake(const SignalDescription &req_desc,
       << "        end\n"
       << "        2: begin\n"
       << "            " << NodeWireNameWithReg(ack_desc) << " <= 0;\n"
-      << "            " << st << " <= 3;\n"
-      << "        end\n"
-      << "        3: begin\n"
-      << "          if (!" << NodeWireNameWithSrc(req_desc) << ") begin\n"
       << "            " << st << " <= 0;\n"
-      << "          end\n"
       << "        end\n"
       << "      endcase\n";
 }
