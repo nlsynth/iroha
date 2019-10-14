@@ -52,9 +52,10 @@ private:
 		    ostream &os);
   void BuildNotifyParent(const SignalDescription &desc, ostream &os);
   void BuildNotifyAccessor(const SignalDescription &desc, ostream &os);
-  void BuildRegisteredReq(const SignalDescription &req_desc,
-			  vector<const MuxNode *> &handshake_nodes,
-			  ostream &os);
+  void BuildReqState(const SignalDescription &req_desc,
+		     const SignalDescription &ack_desc,
+		     vector<const MuxNode *> &handshake_nodes,
+		     ostream &os);
   void BuildAccessorAck(const SignalDescription &rsig_desc,
 			const SignalDescription &asig_desc,
 			vector<const MuxNode *> &handshake_nodes,
@@ -63,10 +64,10 @@ private:
 			   const SignalDescription &ack_desc);
   void WriteStage(SignalDescription *req, ostream &os);
 
-  string NodeWireNameWithPrev(const SignalDescription &desc) const;
   string NodeWireNameWithReg(const SignalDescription &desc) const;
   string NodeWireNameWithSrc(const SignalDescription &desc) const;
   string HandShakeState() const;
+  string ReqState() const;
 };
 
 }  // namespace wire

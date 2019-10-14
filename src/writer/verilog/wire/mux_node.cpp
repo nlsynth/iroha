@@ -338,9 +338,11 @@ void MuxNode::BuildArbitration(const SignalDescription &req_desc,
     }
     handshake_nodes.push_back(n);
   }
-  // Registered req.
-  BuildRegisteredReq(req_desc, handshake_nodes, os);
-  // Req.
+  os << "  reg " << Table::WidthSpec(handshake_nodes.size())
+     << ReqState() << ";\n";
+  // Req state.
+  BuildReqState(req_desc, ack_desc, handshake_nodes, os);
+  // Req signals.
   vector<string> req_sigs;
   for (auto *n : handshake_nodes) {
     req_sigs.push_back(n->NodeWireName(req_desc));
@@ -395,23 +397,34 @@ void MuxNode::BuildStageHandShake(const SignalDescription &req_desc,
       << "      endcase\n";
 }
 
-void MuxNode::BuildRegisteredReq(const SignalDescription &req_desc,
-				 vector<const MuxNode *> &handshake_nodes,
-				 ostream &os) {
-  string initial, body;
+void MuxNode::BuildReqState(const SignalDescription &req_desc,
+			    const SignalDescription &ack_desc,
+			    vector<const MuxNode *> &handshake_nodes,
+			    ostream &os) {
+  ostringstream ss;
+  ss << "      if (" << ReqState() << " == 0) begin\n";
+  int nth = 0;
   for (auto *n : handshake_nodes) {
-    // Used to generate ack signals.
-    string prev_reg = n->NodeWireNameWithPrev(req_desc);
-    string wire = n->NodeWireName(req_desc);
-    os << "  reg " << prev_reg << ";\n";
-    initial += "      " + prev_reg + " <= 0;\n";
-    body += "      " + prev_reg + " <= " + wire + ";\n";
+    if (nth > 0) {
+      ss << "         else\n";
+    }
+    ss << "         if (" << n->NodeWireName(req_desc) << ") begin\n"
+       << "           " << ReqState() << "[" << nth << "] <= 1;\n"
+       << "         end\n";
+    ++nth;
   }
+  string resource_ack = NodeWireName(ack_desc);
+  if (IsStaged()) {
+    resource_ack = NodeWireNameWithReg(ack_desc);
+  }
+  ss << "      end else if (" << resource_ack << ") begin\n"
+     << "        " << ReqState() << " <= 0;\n"
+     << "      end\n";
   const Table &tab = ws_->GetResource().GetTable();
   tab.WriteAlwaysBlockHead(os);
-  os << initial;
+  os << "      " << ReqState() << " <= 0;\n";
   tab.WriteAlwaysBlockMiddle(os);
-  os << body;
+  os << ss.str();
   tab.WriteAlwaysBlockTail(os);
 }
 
@@ -426,18 +439,12 @@ void MuxNode::BuildAccessorAck(const SignalDescription &req_desc,
   } else {
     resource_ack = NodeWireName(ack_desc);
   }
-  vector<string> high_reqs;
+  int nth = 0;
   for (auto *n : handshake_nodes) {
-    string req = n->NodeWireName(req_desc);
-    // ack = resource_ack & req & !(req from higher accessors).
     os << "  assign "
-       << n->NodeWireName(ack_desc)
-       << " = " << resource_ack << " & " << req;
-    if (high_reqs.size() > 0) {
-      os << " & !(" <<  Util::Join(high_reqs, " | ") << ")";
-    }
-    os << ";\n";
-    high_reqs.push_back(n->NodeWireNameWithPrev(req_desc));
+       << n->NodeWireName(ack_desc) << " = " << resource_ack << " & "
+       << ReqState() << "[" << nth << "];\n";
+    ++nth;
   }
 }
 
@@ -452,10 +459,6 @@ string MuxNode::NodeWireName(const SignalDescription &desc) const {
   return "node" + Util::Itoa(id_) + "_" + desc.name_;
 }
 
-string MuxNode::NodeWireNameWithPrev(const SignalDescription &desc) const {
-  return NodeWireName(desc) + "_prev";
-}
-
 string MuxNode::NodeWireNameWithReg(const SignalDescription &desc) const {
   return NodeWireName(desc) + "_reg";
 }
@@ -466,6 +469,10 @@ string MuxNode::NodeWireNameWithSrc(const SignalDescription &desc) const {
 
 string MuxNode::HandShakeState() const {
   return "st" + Util::Itoa(id_);
+}
+
+string MuxNode::ReqState() const {
+  return "req" + Util::Itoa(id_);
 }
 
 }  // namespace wire
