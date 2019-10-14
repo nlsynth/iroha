@@ -139,20 +139,28 @@ void MuxNode::WriteMux(ostream &os) {
     }
   }
   if (IsStaged()) {
-    WriteStage(os);
+    WriteStage(req_desc, os);
   }
   for (MuxNode *cn : children_) {
     cn->WriteMux(os);
   }
 }
 
-void MuxNode::WriteStage(ostream &os) {
+void MuxNode::WriteStage(SignalDescription *req, ostream &os) {
   const Table &tab = ws_->GetResource().GetTable();
   os << "\n  // stage\n" << as_.str();
   tab.WriteAlwaysBlockHead(os);
   os << is_.str();
   tab.WriteAlwaysBlockMiddle(os);
   os << ss_.str();
+  if (req != nullptr) {
+    // Captures upstream args.
+    string st = HandShakeState();
+    os << "      if (" << st << " == 0 && "
+       << NodeWireNameWithSrc(*req) << ") begin\n";
+    os << cs_.str();
+    os << "      end\n";
+  }
   tab.WriteAlwaysBlockTail(os);
 }
 
@@ -240,7 +248,7 @@ void MuxNode::BuildWriteArg(const SignalDescription &arg_desc,
   os << "  assign ";
   if (IsStaged()) {
     os << NodeWireNameWithSrc(arg_desc);
-    ss_ << "      " << NodeWireNameWithReg(arg_desc) << " <= "
+    cs_ << "        " << NodeWireNameWithReg(arg_desc) << " <= "
 	<< NodeWireNameWithSrc(arg_desc) << ";\n";
     as_ << "  assign " << NodeWireName(arg_desc) << " = "
 	<< NodeWireNameWithReg(arg_desc) << ";\n";
@@ -293,7 +301,7 @@ void MuxNode::BuildNotifyParent(const SignalDescription &desc, ostream &os) {
   os << "  assign ";
   if (IsStaged()) {
     os << NodeWireNameWithSrc(desc);
-    ss_ << "      " << NodeWireNameWithReg(desc) << " <= "
+    cs_ << "        " << NodeWireNameWithReg(desc) << " <= "
 	<< NodeWireNameWithSrc(desc) << ";\n";
     as_ << "  assign " << NodeWireName(desc) << " = "
 	<< NodeWireNameWithReg(desc) << ";\n";
