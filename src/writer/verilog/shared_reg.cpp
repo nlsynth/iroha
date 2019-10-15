@@ -71,8 +71,7 @@ void SharedReg::BuildResource() {
     rs << " use-mailbox";
   }
   rs << "\n";
-  rs << "  reg " << Table::WidthSpec(width_)
-     << RegName(res_) << ";\n";
+  tab_.AddReg(RegName(res_), width_);
   // Reset value
   is << "      " << RegName(res_) << " <= ";
   int initial_value;
@@ -128,10 +127,9 @@ void SharedReg::BuildResource() {
 }
 
 void SharedReg::BuildMailbox() {
-  ostream &rs = tab_.ResourceSectionStream();
-  rs << "  reg " << RegMailboxName(res_) << ";\n"
-     << "  reg " << RegMailboxPutAckName(res_) << ";\n"
-     << "  reg " << RegMailboxGetAckName(res_) << ";\n";
+  tab_.AddReg(RegMailboxName(res_), 0);
+  tab_.AddReg(RegMailboxPutAckName(res_), 0);
+  tab_.AddReg(RegMailboxGetAckName(res_), 0);
   ostream &rvs = tab_.ResourceValueSectionStream();
   ostream &is = tab_.InitialValueSectionStream();
   is << "      " << RegMailboxName(res_) << " <= 0;\n"
@@ -163,8 +161,7 @@ void SharedReg::BuildMailbox() {
 }
 
 void SharedReg::BuildNotifier() {
-  ostream &rs = tab_.ResourceSectionStream();
-  rs << "  reg " << RegNotifierName(res_) << ";\n";
+  tab_.AddReg(RegNotifierName(res_), 0);
   ostream &os = tab_.StateOutputSectionStream();
   os << "      " << RegNotifierName(res_)
      << " <= ";

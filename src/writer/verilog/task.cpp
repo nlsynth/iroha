@@ -91,7 +91,7 @@ void Task::BuildResource() {
   fs << "      " << ack
      << " <= " << ack_cond
      << ";\n";
-  rs << "  reg " << ack << ";\n";
+  tab_.AddReg(ack, 0);
   ostream &is = tab_.InitialValueSectionStream();
   is << "      " << ack << " <= 0;\n";
   // Args

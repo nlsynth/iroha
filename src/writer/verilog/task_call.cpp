@@ -21,7 +21,7 @@ void TaskCall::BuildResource() {
   ostream &ss = tab_.StateOutputSectionStream();
   string en = Task::TaskEnablePin(*(res_.GetCalleeTable()), &res_);
   ostream &rs = tab_.ResourceSectionStream();
-  rs << "  reg " << en << ";\n";
+  tab_.AddReg(en, 0);
   rs << "  assign " << en << "_wire = " << en << ";\n";
   for (int i = 0; i < res_.input_types_.size(); ++i) {
     auto &type = res_.input_types_[i];

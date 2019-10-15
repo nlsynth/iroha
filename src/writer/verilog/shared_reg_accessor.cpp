@@ -67,8 +67,7 @@ void SharedRegAccessor::BuildSharedRegReaderResource() {
   }
   if (UseMailbox(&res_) || UseNotify(&res_)) {
     int width = res_.GetParentResource()->GetParams()->GetWidth();
-    rs << "  reg " << Table::WidthSpec(width) << " "
-       << SharedReg::RegMailboxBufName(res_) << ";\n";
+    tab_.AddReg(SharedReg::RegMailboxBufName(res_), width);
   }
 }
 

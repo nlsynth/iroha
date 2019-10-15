@@ -52,7 +52,7 @@ void SharedMemory::BuildAck() {
   string ack = wire::Names::ResourceWire(rn, "ack");
   string ack_src = ack + "_src";
   ostream &rs = tab_.ResourceSectionStream();
-  rs << "  reg " << ack_src << ";\n";
+  tab_.AddReg(ack_src, 0);
   rs << "  assign " << ack << " = " << ack_src << ";\n";
   ostream &is = tab_.InitialValueSectionStream();
   is << "      " << ack_src << " <= 0;\n";
@@ -105,8 +105,8 @@ void SharedMemory::BuildMemoryInstance() {
   ostream &rs = tab_.ResourceSectionStream();
   string wen = MemoryWenPin(res_, 0, nullptr);
   string wen_reg = MemoryWenReg(res_, 0);
-  rs << "  wire " << wen << ";\n"
-     << "  reg " << wen_reg << ";\n";
+  rs << "  wire " << wen << ";\n";
+  tab_.AddReg(wen_reg, 0);
   ostream &is = tab_.InitialValueSectionStream();
   is << "      " << wen_reg << " <= 0;\n";
   ostream &ss = tab_.StateOutputSectionStream();

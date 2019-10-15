@@ -78,8 +78,7 @@ void SharedMemoryAccessor::BuildMemoryAccessorResource(const Resource &accessor,
 
   auto *klass = res.GetClass();
   if (!resource::IsSharedMemoryWriter(*klass)) {
-    rs << "  reg " << Table::WidthSpec(data_width)
-       << SharedMemory::MemoryRdataBuf(*mem, &res) << ";\n";
+    tab.AddReg(SharedMemory::MemoryRdataBuf(*mem, &res), data_width);
   }
   ostream &ss = tab.StateOutputSectionStream();
   map<IState *, IInsn *> callers;
