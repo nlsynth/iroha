@@ -154,6 +154,17 @@ void Table::BuildMultiCycleStateReg() {
   }
 }
 
+void Table::AddReg(const string &name, int width) const {
+  ostream &rs = ResourceSectionStream();
+  rs << "  reg " << Table::WidthSpec(width) << name << ";\n";
+}
+
+void Table::AddRegWithInitial(const string &name, int width, int value) const {
+  AddReg(name, width);
+  ostream &is = InitialValueSectionStream();
+  is << "      " << name << " <= " << value << ";\n";
+}
+
 string Table::ValueWidthSpec(const IValueType &type) {
   if (type.GetWidth() > 0) {
     string s = " [" + Util::Itoa(type.GetWidth() - 1) + ":0]";

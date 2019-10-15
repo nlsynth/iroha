@@ -60,6 +60,9 @@ public:
   ostream &InsnWireValueSectionStream() const;
   string InsnWireValueSectionContents() const;
 
+  void AddReg(const string &name, int width) const;
+  void AddRegWithInitial(const string &name, int width, int value) const;
+
   static string ValueWidthSpec(const IValueType &type);
   static string WidthSpec(int w);
   static string StateNameFromTable(const ITable &tab, int id);

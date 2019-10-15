@@ -36,13 +36,13 @@ void Fifo::BuildWires() {
   int aw = params->GetAddrWidth();
 
   // Use [aw:0] (instead of aw-1) to have an extra bit to handle full.
+  tab_.AddReg(ReadPtr(), aw + 1);
+  tab_.AddReg(ReadPtrBuf(), aw + 1);
+  tab_.AddReg(WritePtr(), aw + 1);
+  tab_.AddReg(RAckReg(), 0);
+  tab_.AddReg(WAckReg(), 0);
   ostream &rs = tab_.ResourceSectionStream();
-  rs << "  reg [" << aw << ":0] " << ReadPtr() << ";\n"
-     << "  reg [" << aw << ":0] " << ReadPtrBuf() << ";\n"
-     << "  reg [" << aw << ":0] " << WritePtr() << ";\n"
-     << "  reg " << RAckReg() << ";\n"
-     << "  reg " << WAckReg() << ";\n"
-     << "  wire " << Full() << ";\n"
+  rs << "  wire " << Full() << ";\n"
      << "  wire " << Empty() << ";\n"
      << "  wire " << WEn() << ";\n\n";
 
