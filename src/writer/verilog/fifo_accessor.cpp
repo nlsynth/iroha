@@ -45,7 +45,7 @@ void FifoAccessor::BuildReader() {
   int dw = res_.GetParentResource()->GetParams()->GetWidth();
   ostream &rs = tab_.ResourceSectionStream();
   string rreq = Fifo::RReq(*(res_.GetParentResource()), &res_);
-  tab_.AddReg(rreq, 0);
+  tab_.AddRegWithInitial(rreq, 0, 0);
   tab_.AddReg(Fifo::RDataBuf(res_), dw);
   string rn = Fifo::GetNameRW(*(res_.GetParentResource()), false);
   rs << "  assign " << wire::Names::AccessorWire(rn, &res_, "rreq") << " = "
@@ -56,7 +56,7 @@ void FifoAccessor::BuildReader() {
 void FifoAccessor::BuildWriter() {
   ostream &rs = tab_.ResourceSectionStream();
   string wreq = Fifo::WReq(*(res_.GetParentResource()), &res_);
-  tab_.AddReg(wreq, 0);
+  tab_.AddRegWithInitial(wreq, 0, 0);
   string wdata = Fifo::WData(*(res_.GetParentResource()), &res_);
   int dw = res_.GetParentResource()->GetParams()->GetWidth();
   tab_.AddReg(wdata, dw);

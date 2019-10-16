@@ -21,7 +21,7 @@ void TaskCall::BuildResource() {
   ostream &ss = tab_.StateOutputSectionStream();
   string en = Task::TaskEnablePin(*(res_.GetCalleeTable()), &res_);
   ostream &rs = tab_.ResourceSectionStream();
-  tab_.AddReg(en, 0);
+  tab_.AddRegWithInitial(en, 0, 0);
   rs << "  assign " << en << "_wire = " << en << ";\n";
   for (int i = 0; i < res_.input_types_.size(); ++i) {
     auto &type = res_.input_types_[i];
@@ -32,8 +32,6 @@ void TaskCall::BuildResource() {
   }
   ss << "      " << en << " <= " << JoinStatesWithSubState(callers, 0)
      << ";\n";
-  ostream &is = tab_.InitialValueSectionStream();
-  is << "      " << en << " <= 0;\n";
 }
 
 void TaskCall::BuildInsn(IInsn *insn, State *st) {

@@ -68,6 +68,7 @@ private:
   string NodeWireNameWithSrc(const SignalDescription &desc) const;
   string HandShakeState() const;
   string ReqState() const;
+  string ReqStateWire() const;
 };
 
 }  // namespace wire

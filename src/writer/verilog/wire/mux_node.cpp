@@ -338,9 +338,11 @@ void MuxNode::BuildArbitration(const SignalDescription &req_desc,
     }
     handshake_nodes.push_back(n);
   }
+  // Req state.
   os << "  reg " << Table::WidthSpec(handshake_nodes.size())
      << ReqState() << ";\n";
-  // Req state.
+  os << "  wire " << Table::WidthSpec(handshake_nodes.size())
+     << ReqStateWire() << ";\n";
   BuildReqState(req_desc, ack_desc, handshake_nodes, os);
   // Req signals.
   vector<string> req_sigs;
@@ -401,18 +403,25 @@ void MuxNode::BuildReqState(const SignalDescription &req_desc,
 			    const SignalDescription &ack_desc,
 			    vector<const MuxNode *> &handshake_nodes,
 			    ostream &os) {
-  ostringstream ss;
-  ss << "      if (" << ReqState() << " == 0) begin\n";
+  string higher_reqs;
   int nth = 0;
   for (auto *n : handshake_nodes) {
-    if (nth > 0) {
-      ss << "         else\n";
+    string req = n->NodeWireName(req_desc);
+    os << "  assign " << ReqStateWire() << "[" << nth << "] = " << req;
+    if (!higher_reqs.empty()) {
+      os << " && !(" << higher_reqs << ")";
     }
-    ss << "         if (" << n->NodeWireName(req_desc) << ") begin\n"
-       << "           " << ReqState() << "[" << nth << "] <= 1;\n"
-       << "         end\n";
+    os << ";\n";
+    if (higher_reqs.empty()) {
+      higher_reqs = req;
+    } else {
+      higher_reqs = higher_reqs + " | " + req;
+    }
     ++nth;
   }
+  ostringstream ss;
+  ss << "      if (" << ReqState() << " == 0) begin\n"
+     << "      " << ReqState() << " <= " << ReqStateWire() << ";\n";
   string resource_ack = NodeWireName(ack_desc);
   if (IsStaged()) {
     resource_ack = NodeWireNameWithReg(ack_desc);
@@ -473,6 +482,10 @@ string MuxNode::HandShakeState() const {
 
 string MuxNode::ReqState() const {
   return "req" + Util::Itoa(id_);
+}
+
+string MuxNode::ReqStateWire() const {
+  return ReqState() + "_wire";
 }
 
 }  // namespace wire
