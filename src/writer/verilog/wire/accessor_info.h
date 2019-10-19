@@ -15,6 +15,8 @@ public:
   string name_;
   AccessorSignalType type_;
   int width_;
+  // Sets 0 to the arg if type_ == ACCESSOR_WRITE_ARG (e.g. wen).
+  bool default0_;
 
   bool IsUpstream() const;
 };
@@ -32,7 +34,8 @@ public:
   AccessorInfo(WireSet *wire_set, const IResource *accessor);
   ~AccessorInfo();
 
-  void AddSignal(const string &name, AccessorSignalType type, int width);
+  AccessorSignal *AddSignal(const string &name, AccessorSignalType type,
+			    int width);
   const vector<AccessorSignal *> &GetSignals() const;
   AccessorSignal *FindSignal(const SignalDescription &desc) const;
   void SetDistance(int distance);

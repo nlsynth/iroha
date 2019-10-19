@@ -170,6 +170,7 @@ SignalDescription *WireSet::GetSignalDescription(const string &name,
     sd->name_ = name;
     sd->type_ = type;
     sd->width_ = width;
+    sd->default0_ = false;
     signal_desc_[name] = sd;
     return sd;
   }

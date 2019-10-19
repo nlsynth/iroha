@@ -38,6 +38,8 @@ private:
   ostringstream as_;
   // wdata capture for staged mux.
   ostringstream cs_;
+  // default control value for staged mux.
+  ostringstream ds_;
 
   bool IsStaged() const;
   void BuildArbitration(const SignalDescription &req_desc,
@@ -62,7 +64,7 @@ private:
 			ostream &os);
   void BuildStageHandShake(const SignalDescription &req_desc,
 			   const SignalDescription &ack_desc);
-  void WriteStage(SignalDescription *req, ostream &os);
+  void WriteStage(SignalDescription *req, SignalDescription *ack, ostream &os);
 
   string NodeWireNameWithReg(const SignalDescription &desc) const;
   string NodeWireNameWithSrc(const SignalDescription &desc) const;

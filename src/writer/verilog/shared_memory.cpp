@@ -159,8 +159,10 @@ void SharedMemory::BuildAccessWireAll(vector<const IResource *> &accessors) {
     ainfo->AddSignal("ack", wire::AccessorSignalType::ACCESSOR_ACK, 0);
     if (!resource::IsSharedMemoryReader(*klass)) {
       // SharedMemory, SharedMemoryWriter, AxiMaster, AxiSlave.
-      ainfo->AddSignal("wen", wire::AccessorSignalType::ACCESSOR_WRITE_ARG,
-		       0);
+      wire::AccessorSignal *asig =
+	ainfo->AddSignal("wen", wire::AccessorSignalType::ACCESSOR_WRITE_ARG,
+			 0);
+      asig->sig_desc_->default0_ = true;
       ainfo->AddSignal("wdata", wire::AccessorSignalType::ACCESSOR_WRITE_ARG,
 		       dw);
     }

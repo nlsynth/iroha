@@ -29,13 +29,15 @@ AccessorInfo::~AccessorInfo() {
   STLDeleteValues(&accessor_signals_);
 }
 
-void AccessorInfo::AddSignal(const string &name, AccessorSignalType type,
-			     int width) {
+AccessorSignal *AccessorInfo::AddSignal(const string &name,
+					AccessorSignalType type,
+					int width) {
   AccessorSignal *asig = new AccessorSignal();
   asig->sig_desc_ = wire_set_->GetSignalDescription(name, type, width);
   asig->accessor_res_ = accessor_;
   asig->accessor_info_ = this;
   accessor_signals_.push_back(asig);
+  return asig;
 }
 
 const vector<AccessorSignal *> &AccessorInfo::GetSignals() const {
