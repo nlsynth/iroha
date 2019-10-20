@@ -47,6 +47,7 @@ private:
 			ostream &os);
   void BuildWriteArg(const SignalDescription &arg_desc,
 		     const SignalDescription *req_desc,
+		     const SignalDescription *ack_desc,
 		     const SignalDescription *notify_desc,
 		     const SignalDescription *notify_secondary_desc,
 		     ostream &os);
@@ -68,6 +69,7 @@ private:
 
   string NodeWireNameWithReg(const SignalDescription &desc) const;
   string NodeWireNameWithSrc(const SignalDescription &desc) const;
+  string NodeWireNameWithPrev(const SignalDescription &desc) const;
   string HandShakeState() const;
   string ReqState() const;
   string ReqStateWire() const;
