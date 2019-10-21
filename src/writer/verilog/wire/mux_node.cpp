@@ -140,7 +140,7 @@ void MuxNode::WriteMux(ostream &os) {
     }
   }
   if (IsStaged()) {
-    WriteStage(req_desc, ack_desc, os);
+    WriteStage(req_desc, ack_desc, notify_secondary_desc, os);
   }
   for (MuxNode *cn : children_) {
     cn->WriteMux(os);
@@ -148,20 +148,29 @@ void MuxNode::WriteMux(ostream &os) {
 }
 
 void MuxNode::WriteStage(SignalDescription *req, SignalDescription *ack,
-			 ostream &os) {
+			 SignalDescription *notify_secondary, ostream &os) {
   const Table &tab = ws_->GetResource().GetTable();
   os << "\n  // stage\n" << as_.str();
   tab.WriteAlwaysBlockHead(os);
   os << is_.str();
   tab.WriteAlwaysBlockMiddle(os);
   os << ss_.str();
-  if (req != nullptr) {
+  string st = HandShakeState();
+  if (req != nullptr || notify_secondary != nullptr) {
     // Captures upstream args.
-    string st = HandShakeState();
-    os << "      if (" << st << " == 0 && "
-       << NodeWireNameWithSrc(*req) << ") begin\n";
+    vector<string> conds;
+    if (req != nullptr) {
+      conds.push_back("(" + st + " == 0 && "  +
+		      NodeWireNameWithSrc(*req) + ")");
+    }
+    if (notify_secondary != nullptr) {
+      conds.push_back(NodeWireNameWithSrc(*notify_secondary));
+    }
+    os << "      if (" << Util::Join(conds, " | ") << ") begin\n";
     os << cs_.str();
     os << "      end\n";
+  }
+  if (ack != nullptr) {
     os << "      if (" << st << " == 1 && "
        << NodeWireName(*ack) << ") begin\n";
     os << ds_.str();
@@ -312,8 +321,14 @@ void MuxNode::BuildNotifyParent(const SignalDescription &desc, ostream &os) {
   os << "  assign ";
   if (IsStaged()) {
     os << NodeWireNameWithSrc(desc);
-    cs_ << "        " << NodeWireNameWithReg(desc) << " <= "
-	<< NodeWireNameWithSrc(desc) << ";\n";
+    if (desc.type_ == AccessorSignalType::ACCESSOR_NOTIFY_PARENT_SECONDARY) {
+      // Secondary signal propagates without handshake.
+      ss_ << "      " << NodeWireNameWithReg(desc) << " <= "
+	  << NodeWireNameWithSrc(desc) << ";\n";
+    } else {
+      cs_ << "        " << NodeWireNameWithReg(desc) << " <= "
+	  << NodeWireNameWithSrc(desc) << ";\n";
+    }
     as_ << "  assign " << NodeWireName(desc) << " = "
 	<< NodeWireNameWithReg(desc) << ";\n";
     is_ << "      " << NodeWireNameWithReg(desc) << " <= 0;\n";

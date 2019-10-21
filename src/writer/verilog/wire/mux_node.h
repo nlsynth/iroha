@@ -65,7 +65,8 @@ private:
 			ostream &os);
   void BuildStageHandShake(const SignalDescription &req_desc,
 			   const SignalDescription &ack_desc);
-  void WriteStage(SignalDescription *req, SignalDescription *ack, ostream &os);
+  void WriteStage(SignalDescription *req, SignalDescription *ack,
+		  SignalDescription *notify_secondary, ostream &os);
 
   string NodeWireNameWithReg(const SignalDescription &desc) const;
   string NodeWireNameWithSrc(const SignalDescription &desc) const;
