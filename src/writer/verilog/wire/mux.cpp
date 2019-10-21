@@ -68,11 +68,15 @@ MuxNode *Mux::BuildNodes(const vector<AccessorInfo *> &acs) {
     MuxNode *node = new MuxNode(this, 0, ac);
     root->children_.push_back(node);
   }
+  if (root->children_.size() <= 2) {
+    return root;
+  }
   BalanceNode(root);
   return root;
 }
 
 void Mux::BalanceNode(MuxNode *node) {
+  node->SetStaged(true);
   int s = node->children_.size();
   int f = MaxFanOut();
   if (s < f) {

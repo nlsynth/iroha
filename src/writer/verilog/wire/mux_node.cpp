@@ -41,7 +41,8 @@ namespace verilog {
 namespace wire {
 
 MuxNode::MuxNode(const Mux *mux, int id, const AccessorInfo *accessor)
-  : mux_(mux), id_(id), ws_(mux->GetWireSet()), accessor_(accessor) {
+  : mux_(mux), id_(id), ws_(mux->GetWireSet()), accessor_(accessor),
+    is_staged_(false) {
 }
 
 bool MuxNode::IsRoot() const {
@@ -53,8 +54,11 @@ bool MuxNode::IsLeaf() const {
 }
 
 bool MuxNode::IsStaged() const {
-  // WIP.
-  return false; // !(IsRoot() || IsLeaf());
+  return is_staged_;
+}
+
+void MuxNode::SetStaged(bool staged) {
+  is_staged_ = staged;
 }
 
 void MuxNode::WriteIOWire(Ports *ports, ostream &os) {

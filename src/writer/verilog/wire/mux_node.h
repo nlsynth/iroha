@@ -20,6 +20,7 @@ public:
   void WriteMux(ostream &os);
   bool IsRoot() const;
   bool IsLeaf() const;
+  void SetStaged(bool staged);
 
   string NodeWireName(const SignalDescription &desc) const;
 
@@ -30,6 +31,7 @@ private:
   int id_;
   const WireSet *ws_;
   const AccessorInfo *accessor_;
+  bool is_staged_;
   // initial registers values for staged mux.
   ostringstream is_;
   // stage updates for staged mux.
