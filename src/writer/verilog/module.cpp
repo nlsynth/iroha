@@ -90,7 +90,7 @@ void Module::Write(const string &prefix, ostream &os) {
     os << ChildModuleInstSectionContents(child, false);
     os << ");\n";
   }
-  os << "\nendmodule // " << GetName() << "\n";
+  os << "\nendmodule // " << prefix << GetName() << "\n";
 }
 
 bool Module::GetResetPolarity() const {
