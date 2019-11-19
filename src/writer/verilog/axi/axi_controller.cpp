@@ -47,7 +47,7 @@ void AxiController::WriteModuleFooter(const string &name, ostream &os) {
 void AxiController::AddSramPorts() {
   ports_->AddPort("clk", Port::INPUT_CLK, 0);
   ports_->AddPort(ResetName(reset_polarity_), Port::INPUT_RESET, 0);
-  ports_->AddPort("sram_addr", Port::OUTPUT, sram_addr_width_);
+  ports_->AddPort("sram_addr", Port::OUTPUT_WIRE, sram_addr_width_);
   ports_->AddPort("sram_wdata", Port::OUTPUT, cfg_.data_width);
   ports_->AddPort("sram_wen", Port::OUTPUT, 0);
   ports_->AddPort("sram_rdata", Port::INPUT, cfg_.data_width);

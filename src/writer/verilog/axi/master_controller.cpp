@@ -48,6 +48,8 @@ void MasterController::Write(ostream &os) {
     os << "  localparam S_WRITE_WAIT = 4;\n";
   }
   os << "  reg [2:0] st;\n\n";
+  os << "  reg [" << (sram_addr_width_ -  1) << ":0] sram_addr_src;\n"
+     << "  assign sram_addr = sram_addr_src;\n\n";
   if (w_) {
     os << "  localparam WS_IDLE = 0;\n"
        << "  localparam WS_WRITE = 1;\n"
@@ -130,7 +132,7 @@ void MasterController::OutputMainFsm(ostream &os) {
 	 << "            AWADDR <= addr;\n"
 	 << "            AWLEN <= len;\n"
 	 << "            AWSIZE <= " << rwsize << ";\n"
-	 << "            sram_addr <= start;\n"
+	 << "            sram_addr_src <= start;\n"
 	 << "            wmax <= len;\n";
     }
     if (r_ && w_) {
@@ -139,7 +141,7 @@ void MasterController::OutputMainFsm(ostream &os) {
 	 << "              AWADDR <= addr;\n"
 	 << "              AWLEN <= len;\n"
 	 << "              AWSIZE <= " << rwsize << ";\n"
-	 << "              sram_addr <= start;\n"
+	 << "              sram_addr_src <= start;\n"
 	 << "              wmax <= len;\n"
 	 << "            end else begin\n"
 	 << "              ARVALID <= 1;\n"
@@ -165,7 +167,7 @@ void MasterController::OutputMainFsm(ostream &os) {
       os << "          if (AWREADY) begin\n"
 	 << "            st <= S_WRITE_WAIT;\n"
 	 << "            AWVALID <= 0;\n"
-	 << "            sram_addr <= start;\n"
+	 << "            sram_addr_src <= start;\n"
 	 << "            if (!sram_EXCLUSIVE) begin\n"
 	 << "              sram_req <= 1;\n"
 	 << "            end\n"
@@ -201,7 +203,7 @@ void MasterController::OutputMainFsm(ostream &os) {
        << "          end\n"
        << "          if (wst == WS_WRITE) begin\n"  // sram_EXCLUSIVE
        << "            if (widx == 0 || (WREADY && WVALID)) begin\n"
-       << "              sram_addr <= sram_addr + 1;\n"
+       << "              sram_addr_src <= sram_addr_src + 1;\n"
        << "            end\n"
        << "          end\n"
        << "          if (wst == WS_SRAM) begin\n"  // !sram_EXCLUSIVE
@@ -213,7 +215,7 @@ void MasterController::OutputMainFsm(ostream &os) {
        << "            if (WREADY && WVALID) begin\n"
        << "              if (widx <= wmax) begin\n"
        << "                sram_req <= 1;\n"
-       << "                sram_addr <= sram_addr + 1;\n"
+       << "                sram_addr_src <= sram_addr_src + 1;\n"
        << "              end\n"
        << "            end\n"
        << "          end\n"
@@ -225,7 +227,7 @@ void MasterController::OutputMainFsm(ostream &os) {
 void MasterController::ReadState(ostream &os) {
   os << "        S_READ_DATA: begin\n"
      << "          if (RVALID) begin\n"
-     << "            sram_addr <= start + ridx;\n"
+     << "            sram_addr_src <= start + ridx;\n"
      << "            sram_wdata <= RDATA;\n"
      << "            ridx <= ridx + 1;\n"
      << "            if (sram_EXCLUSIVE) begin\n"
