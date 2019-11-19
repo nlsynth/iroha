@@ -48,8 +48,16 @@ void MasterController::Write(ostream &os) {
     os << "  localparam S_WRITE_WAIT = 4;\n";
   }
   os << "  reg [2:0] st;\n\n";
-  os << "  reg [" << (sram_addr_width_ -  1) << ":0] sram_addr_src;\n"
-     << "  assign sram_addr = sram_addr_src;\n\n";
+  os << "  reg [" << (sram_addr_width_ -  1) << ":0] sram_addr_src;\n";
+  os << "  wire [" << (sram_addr_width_ -  1) << ":0] next_sram_addr;\n";
+  if (w_) {
+    // Outputs next address immediately from the combinational logic,
+    // if handshake happens.
+    os << "  assign sram_addr = (WREADY && WVALID && sram_EXCLUSIVE) ? next_sram_addr : sram_addr_src;\n";
+  } else {
+    os << "  assign sram_addr = sram_addr_src;\n";
+  }
+  os << "  assign next_sram_addr = sram_addr_src + 1;\n\n";
   if (w_) {
     os << "  localparam WS_IDLE = 0;\n"
        << "  localparam WS_WRITE = 1;\n"
@@ -203,7 +211,7 @@ void MasterController::OutputMainFsm(ostream &os) {
        << "          end\n"
        << "          if (wst == WS_WRITE) begin\n"  // sram_EXCLUSIVE
        << "            if (widx == 0 || (WREADY && WVALID)) begin\n"
-       << "              sram_addr_src <= sram_addr_src + 1;\n"
+       << "              sram_addr_src <= next_sram_addr;\n"
        << "            end\n"
        << "          end\n"
        << "          if (wst == WS_SRAM) begin\n"  // !sram_EXCLUSIVE
@@ -215,7 +223,7 @@ void MasterController::OutputMainFsm(ostream &os) {
        << "            if (WREADY && WVALID) begin\n"
        << "              if (widx <= wmax) begin\n"
        << "                sram_req <= 1;\n"
-       << "                sram_addr_src <= sram_addr_src + 1;\n"
+       << "                sram_addr_src <= next_sram_addr;\n"
        << "              end\n"
        << "            end\n"
        << "          end\n"
