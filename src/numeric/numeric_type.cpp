@@ -224,10 +224,12 @@ void Numeric::MayExpandStorage(NumericManager *mgr, Numeric *n) {
   if (!n->type_.IsExtraWide()) {
     return;
   }
-  NumericValue v = n->GetArray();
+  NumericValue savedValue = n->GetArray();
   MayPopulateStorage(n->type_, mgr, n->GetMutableArray());
+  NumericValue *nv = n->GetMutableArray();
+  nv->extra_wide_value_->Clear();
   for (int i = 0; i < 8; ++i) {
-    n->GetMutableArray()->extra_wide_value_->value_[i] = v.value_[i];
+    nv->extra_wide_value_->value_[i] = savedValue.value_[i];
   }
 }
 

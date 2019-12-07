@@ -113,6 +113,8 @@ public:
 				 NumericValue *value);
   static void MayPopulateStorage(const NumericWidth &width, NumericManager *mgr,
 				 NumericValue *n);
+  // Assumes n has value in the inline storage and n.type_ (maybe) is
+  // extra wide. This also copies the data.
   static void MayExpandStorage(NumericManager *mgr, Numeric *n);
   static void Clear(const NumericWidth &width, NumericValue *value);
 

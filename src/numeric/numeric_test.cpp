@@ -22,8 +22,8 @@ public:
 
 }  // namespace
 
-void shift() {
-  cout << "Shift\n";
+void Shift() {
+  TEST_CASE("Shift");
   Numeric n;
   n.type_.SetWidth(512);
   Op::Clear(n.type_, n.GetMutableArray());
@@ -70,8 +70,8 @@ void shift() {
   TestUtil::AssertEq(0xfffffffffffffff0ULL, Tool::GetValue(m, 5));
 }
 
-void concat() {
-  cout << "Concat\n";
+void Concat() {
+  TEST_CASE("Concat");
   Numeric m, n;
   m.type_.SetWidth(64);
   m.SetValue0(0x5555555555555550ULL);
@@ -86,8 +86,8 @@ void concat() {
   TestUtil::AssertEq(0x2aaaaaaaaaaaaaa8ULL, Tool::GetValue(r, 1));
 }
 
-void fixup() {
-  cout << "Fixup\n";
+void Fixup() {
+  TEST_CASE("Fixup");
   Numeric n;
   n.type_.SetWidth(68);
   n.SetValue0(0xfffffffffffffff0ULL);
@@ -102,10 +102,8 @@ void fixup() {
   TestUtil::AssertEq(15, Tool::GetValue(m, 1));
 }
 
-int main(int argc, char **argv) {
-  cout << "sizeof(width)=" << sizeof(NumericWidth) << "\n";
-  cout << "sizeof(numeric)=" << sizeof(Numeric) << "\n";
-
+void Basic() {
+  TEST_CASE("Basic");
   Numeric n;
   n.type_.SetWidth(64);
   n.type_.SetIsSigned(true);
@@ -119,10 +117,26 @@ int main(int argc, char **argv) {
   Op::Clear(w.type_, w.GetMutableArray());
   cout << "w=" << w.Format() << "\n";
   TestUtil::Assert(Op::IsZero(w.type_, w.GetArray()));
+}
 
-  shift();
-  concat();
-  fixup();
+void ExtraWide() {
+  TEST_CASE("ExtraWide");
+  Numeric n;
+  n.SetValue0(1);
+  n.type_.SetWidth(1024);
+  Numeric::MayExpandStorage(nullptr, &n);
+  TestUtil::Assert(n.GetValue0() == 1);
+}
+
+int main(int argc, char **argv) {
+  cout << "sizeof(width)=" << sizeof(NumericWidth) << "\n";
+  cout << "sizeof(numeric)=" << sizeof(Numeric) << "\n";
+
+  Basic();
+  Shift();
+  Concat();
+  Fixup();
+  ExtraWide();
 
   return 0;
 }

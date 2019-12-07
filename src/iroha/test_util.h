@@ -4,6 +4,7 @@
 
 #include <assert.h>
 #include <stdint.h>
+#include <iostream>
 
 class TestUtil {
 public:
@@ -13,6 +14,11 @@ public:
   static void Assert(bool b) {
     assert(b);
   }
+  static void PrintTestName(const char *c) {
+    std::cout << "TestCase: " << c << "\n";
+  }
 };
+
+#define TEST_CASE(x) do { TestUtil::PrintTestName(x); } while (false)
 
 #endif  // _iroha_test_util_h_
