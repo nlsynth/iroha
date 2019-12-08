@@ -24,19 +24,30 @@ void WideOp::Shift(const NumericValue &s, int amount, bool left,
 		   NumericValue *res) {
   int a64 = amount / 64;
   uint64_t tv[8];
-  ShiftArray(s.value_, a64, left, tv);
+  ShiftArray(s.value_, 8, a64, left, tv);
 
   int a1 = amount % 64;
   uint64_t *rv = res->value_;
-  ShiftLocal(tv, a1, left, rv);
+  ShiftLocal(tv, 8, a1, left, rv);
 }
 
-void WideOp::ShiftArray(const uint64_t *sv, int amount, bool left,
+void WideOp::ShiftExtraWide(const NumericValue &s, int amount, bool left,
+			    NumericValue *res) {
+  int a64 = amount / 64;
+  uint64_t tv[32];
+  ShiftArray(s.extra_wide_value_->value_, 32, a64, left, tv);
+
+  int a1 = amount % 64;
+  uint64_t *rv = res->extra_wide_value_->value_;
+  ShiftLocal(tv, 32, a1, left, rv);
+}
+
+void WideOp::ShiftArray(const uint64_t *sv, int len, int amount, bool left,
 			uint64_t *tv) {
   if (amount > 0) {
     if (left) {
       int j = 0;
-      for (int i = amount; i < 8; ++i, ++j) {
+      for (int i = amount; i < len; ++i, ++j) {
 	tv[i] = sv[j];
       }
       for (int k = 0; k < amount; ++k) {
@@ -44,39 +55,39 @@ void WideOp::ShiftArray(const uint64_t *sv, int amount, bool left,
       }
     } else {
       int j = 0;
-      for (int i = amount; i < 8; ++i, ++j) {
+      for (int i = amount; i < len; ++i, ++j) {
 	tv[j] = sv[i];
       }
-      for (int k = j; k < 8; ++k) {
+      for (int k = j; k < len; ++k) {
 	tv[k] = 0;
       }
     }
   } else {
-    for (int i = 0; i < 8; ++i) {
+    for (int i = 0; i < len; ++i) {
       tv[i] = sv[i];
     }
   }
 }
 
-void WideOp::ShiftLocal(const uint64_t *tv, int amount, bool left,
+void WideOp::ShiftLocal(const uint64_t *tv, int len, int amount, bool left,
 			uint64_t *rv) {
   if (amount > 0) {
     if (left) {
       uint64_t carry = 0;
-      for (int i = 0; i < 8; ++i) {
+      for (int i = 0; i < len; ++i) {
 	rv[i] = carry | (tv[i] << amount);
 	carry = tv[i] >> (64 - amount);
       }
     } else {
       uint64_t mask = (~0) >> (64 - amount);
       uint64_t carry = 0;
-      for (int i = 7; i >= 0; --i) {
+      for (int i = (len - 1); i >= 0; --i) {
 	rv[i] = carry | (tv[i] >> amount);
 	carry = (tv[i] & mask) << (64 - amount);
       }
     }
   } else {
-    for (int i = 0; i < 8; ++i) {
+    for (int i = 0; i < len; ++i) {
       rv[i] = tv[i];
     }
   }
@@ -114,8 +125,9 @@ void WideOp::BinBitOp(enum BinOp op, const NumericValue &x,
   }
 }
 
-void WideOp::SelectBits(const NumericValue &val, int h, int l,
-			NumericValue *res) {
+void WideOp::SelectBits(const NumericValue &val, const NumericWidth &w,
+			int h, int l, NumericValue *res) {
+  // TODO: Fix the case where w is extra wide and (h-l) is not.
   Shift(val, l, false, res);
 }
 

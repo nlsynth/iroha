@@ -31,7 +31,11 @@ void Op::CalcBinOp(BinOp op, const NumericValue &x, const NumericValue &y,
     case BINOP_RSHIFT:
       {
 	int c = y.GetValue0();
-	WideOp::Shift(x, c, (op == BINOP_LSHIFT), res);
+	if (w.IsExtraWide()) {
+	  WideOp::ShiftExtraWide(x, c, (op == BINOP_LSHIFT), res);
+	} else {
+	  WideOp::Shift(x, c, (op == BINOP_LSHIFT), res);
+	}
       }
       break;
     case BINOP_AND:
@@ -133,7 +137,7 @@ void Op::SelectBits(const NumericValue &num, const NumericWidth &num_width,
     *res_width = NumericWidth(false, width);
   }
   if (num_width.IsWide()) {
-    WideOp::SelectBits(num, h, l, res);
+    WideOp::SelectBits(num, num_width, h, l, res);
     return;
   }
   uint64_t o = 0;
