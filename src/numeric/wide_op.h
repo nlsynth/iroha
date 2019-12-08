@@ -20,6 +20,12 @@ public:
 		     const NumericValue &y, const NumericWidth &yw,
 		     NumericValue *a, NumericWidth *aw);
   static void FixupWidth(const NumericWidth &w, NumericValue *val);
+
+private:
+  static void ShiftArray(const uint64_t *sv, int amount, bool left,
+			 uint64_t *tv);
+  static void ShiftLocal(const uint64_t *tv, int amount, bool left,
+			 uint64_t *rv);
 };
 
 }  // namespace iroha

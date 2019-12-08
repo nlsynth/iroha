@@ -24,19 +24,27 @@ void WideOp::Shift(const NumericValue &s, int amount, bool left,
 		   NumericValue *res) {
   int a64 = amount / 64;
   uint64_t tv[8];
-  if (a64 > 0) {
-    const uint64_t *sv = s.value_;
+  ShiftArray(s.value_, a64, left, tv);
+
+  int a1 = amount % 64;
+  uint64_t *rv = res->value_;
+  ShiftLocal(tv, a1, left, rv);
+}
+
+void WideOp::ShiftArray(const uint64_t *sv, int amount, bool left,
+			uint64_t *tv) {
+  if (amount > 0) {
     if (left) {
       int j = 0;
-      for (int i = a64; i < 8; ++i, ++j) {
+      for (int i = amount; i < 8; ++i, ++j) {
 	tv[i] = sv[j];
       }
-      for (int k = 0; k < a64; ++k) {
+      for (int k = 0; k < amount; ++k) {
 	tv[k] = 0;
       }
     } else {
       int j = 0;
-      for (int i = a64; i < 8; ++i, ++j) {
+      for (int i = amount; i < 8; ++i, ++j) {
 	tv[j] = sv[i];
       }
       for (int k = j; k < 8; ++k) {
@@ -44,27 +52,27 @@ void WideOp::Shift(const NumericValue &s, int amount, bool left,
       }
     }
   } else {
-    const uint64_t *sv = s.value_;
     for (int i = 0; i < 8; ++i) {
       tv[i] = sv[i];
     }
   }
+}
 
-  int a1 = amount % 64;
-  uint64_t *rv = res->value_;
-  if (a1 > 0) {
+void WideOp::ShiftLocal(const uint64_t *tv, int amount, bool left,
+			uint64_t *rv) {
+  if (amount > 0) {
     if (left) {
       uint64_t carry = 0;
       for (int i = 0; i < 8; ++i) {
-	rv[i] = carry | (tv[i] << a1);
-	carry = tv[i] >> (64 - a1);
+	rv[i] = carry | (tv[i] << amount);
+	carry = tv[i] >> (64 - amount);
       }
     } else {
-      uint64_t mask = (~0) >> (64 - a1);
+      uint64_t mask = (~0) >> (64 - amount);
       uint64_t carry = 0;
       for (int i = 7; i >= 0; --i) {
-	rv[i] = carry | (tv[i] >> a1);
-	carry = (tv[i] & mask) << (64 - a1);
+	rv[i] = carry | (tv[i] >> amount);
+	carry = (tv[i] & mask) << (64 - amount);
       }
     }
   } else {
