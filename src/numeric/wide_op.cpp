@@ -127,8 +127,23 @@ void WideOp::BinBitOp(enum BinOp op, const NumericValue &x,
 
 void WideOp::SelectBits(const NumericValue &val, const NumericWidth &w,
 			int h, int l, NumericValue *res) {
-  // TODO: Fix the case where w is extra wide and (h-l) is not.
-  Shift(val, l, false, res);
+  if (w.IsExtraWide()) {
+    int rw = (h - l + 1);
+    ExtraWideValue tmp;
+    if (rw <= 512) {
+      // Source is extra wide but the result is not. So, use a tmp value
+      // to get the result and shrink it.
+      res->extra_wide_value_ = &tmp;
+    }
+    ShiftExtraWide(val, l, false, res);
+    if (rw <= 512) {
+      for (int i = 0; i < 8; ++i) {
+	res->value_[i] = tmp.value_[i];
+      }
+    }
+  } else {
+    Shift(val, l, false, res);
+  }
 }
 
 void WideOp::Concat(const NumericValue &x, const NumericWidth &xw,

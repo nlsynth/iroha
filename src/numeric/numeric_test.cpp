@@ -122,10 +122,19 @@ void Basic() {
 void ExtraWide() {
   TEST_CASE("ExtraWide");
   Numeric n;
-  n.SetValue0(1);
+  Numeric::Clear(n.type_, n.GetMutableArray());
+  n.SetValue0(2);
   n.type_.SetWidth(1024);
   Numeric::MayExpandStorage(nullptr, &n);
-  TestUtil::Assert(n.GetValue0() == 1);
+  TestUtil::Assert(n.GetValue0() == 2);
+
+  Numeric nn;
+  nn.type_.SetWidth(768);
+  Numeric::MayPopulateStorage(nn.type_, nullptr, nn.GetMutableArray());
+
+  Op::SelectBits(n.GetArray(), n.type_,
+		 768, 1, nn.GetMutableArray(), nullptr);
+  TestUtil::Assert(nn.GetValue0() == 1);
 }
 
 int main(int argc, char **argv) {

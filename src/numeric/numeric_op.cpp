@@ -90,8 +90,12 @@ void Op::Minus0(const NumericValue &x, NumericValue *res) {
 
 void Op::Clear(NumericWidth &w, NumericValue *val) {
   if (w.IsWide()) {
-    for (int i = 0; i < 8; ++i) {
-      val->value_[i] = 0;
+    if (w.IsExtraWide()) {
+      val->extra_wide_value_->Clear();
+    } else {
+      for (int i = 0; i < 8; ++i) {
+	val->value_[i] = 0;
+      }
     }
   } else {
     val->SetValue0(0);
