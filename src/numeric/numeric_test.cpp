@@ -15,7 +15,7 @@ namespace {
 class Tool {
 public:
   static uint64_t GetValue(const Numeric &n, int idx) {
-    assert(n.type_.IsWide());
+    ASSERT(n.type_.IsWide());
     return n.GetArray().value_[idx];
   }
 };
@@ -29,8 +29,8 @@ void Shift() {
   Op::Clear(n.type_, n.GetMutableArray());
   n.SetValue0(0xfffffffffffffff0ULL);
   cout << "n=" << n.Format() << "\n";
-  TestUtil::AssertEq(0xfffffffffffffff0UL, n.GetValue0());
-  TestUtil::AssertEq(0, Tool::GetValue(n, 1));
+  ASSERT_EQ(0xfffffffffffffff0UL, n.GetValue0());
+  ASSERT_EQ(0, Tool::GetValue(n, 1));
 
   Numeric m;
   m.type_.SetWidth(512);
@@ -39,35 +39,35 @@ void Shift() {
   cout << "Left Shift\n";
   WideOp::Shift(n.GetArray(), 1, true, m.GetMutableArray());
   cout << "m=" << m.Format() << "\n";
-  TestUtil::AssertEq(1, Tool::GetValue(m, 1));
+  ASSERT_EQ(1, Tool::GetValue(m, 1));
 
   WideOp::Shift(n.GetArray(), 64, true, m.GetMutableArray());
   cout << "m=" << m.Format() << "\n";
-  TestUtil::AssertEq(0, Tool::GetValue(m, 0));
-  TestUtil::AssertEq(Tool::GetValue(n, 0), Tool::GetValue(m, 1));
+  ASSERT_EQ(0, Tool::GetValue(m, 0));
+  ASSERT_EQ(Tool::GetValue(n, 0), Tool::GetValue(m, 1));
 
   WideOp::Shift(n.GetArray(), 65, true, m.GetMutableArray());
   cout << "m=" << m.Format() << "\n";
-  TestUtil::AssertEq(1, Tool::GetValue(m, 2));
+  ASSERT_EQ(1, Tool::GetValue(m, 2));
 
   WideOp::Shift(n.GetArray(), 385, true, m.GetMutableArray());
   cout << "m=" << m.Format() << "\n";
-  TestUtil::AssertEq(1, Tool::GetValue(m, 7));
+  ASSERT_EQ(1, Tool::GetValue(m, 7));
 
   // Right
   cout << "Right Shift\n";
   n = m;
   WideOp::Shift(n.GetArray(), 0, false, m.GetMutableArray());
   cout << "m=" << m.Format() << "\n";
-  TestUtil::AssertEq(1, Tool::GetValue(m, 7));
+  ASSERT_EQ(1, Tool::GetValue(m, 7));
 
   WideOp::Shift(n.GetArray(), 64, false, m.GetMutableArray());
   cout << "m=" << m.Format() << "\n";
-  TestUtil::AssertEq(1, Tool::GetValue(m, 6));
+  ASSERT_EQ(1, Tool::GetValue(m, 6));
 
   WideOp::Shift(n.GetArray(), 65, false, m.GetMutableArray());
   cout << "m=" << m.Format() << "\n";
-  TestUtil::AssertEq(0xfffffffffffffff0ULL, Tool::GetValue(m, 5));
+  ASSERT_EQ(0xfffffffffffffff0ULL, Tool::GetValue(m, 5));
 }
 
 void Concat() {
@@ -81,9 +81,9 @@ void Concat() {
   Op::Concat(m.GetArray(), m.type_, n.GetArray(), n.type_,
 	     r.GetMutableArray(), &r.type_);
   cout << "r=" << r.Format() << "\n";
-  TestUtil::Assert(r.type_.GetWidth() == 127);
-  TestUtil::AssertEq(0x5555555555555550ULL, Tool::GetValue(r, 0));
-  TestUtil::AssertEq(0x2aaaaaaaaaaaaaa8ULL, Tool::GetValue(r, 1));
+  ASSERT(r.type_.GetWidth() == 127);
+  ASSERT_EQ(0x5555555555555550ULL, Tool::GetValue(r, 0));
+  ASSERT_EQ(0x2aaaaaaaaaaaaaa8ULL, Tool::GetValue(r, 1));
 }
 
 void Fixup() {
@@ -95,11 +95,11 @@ void Fixup() {
   WideOp::Shift(n.GetArray(), 16, true, m.GetMutableArray());
   m.type_ = n.type_;
   cout << "m=" << m.Format() << "\n";
-  TestUtil::AssertEq(65535, Tool::GetValue(m, 1));
+  ASSERT_EQ(65535, Tool::GetValue(m, 1));
 
   Op::FixupWidth(m.type_, &m);
   cout << "m=" << m.Format() << "\n";
-  TestUtil::AssertEq(15, Tool::GetValue(m, 1));
+  ASSERT_EQ(15, Tool::GetValue(m, 1));
 }
 
 void Basic() {
@@ -116,7 +116,7 @@ void Basic() {
   w.type_.SetWidth(512);
   Op::Clear(w.type_, w.GetMutableArray());
   cout << "w=" << w.Format() << "\n";
-  TestUtil::Assert(Op::IsZero(w.type_, w.GetArray()));
+  ASSERT(Op::IsZero(w.type_, w.GetArray()));
 }
 
 void ExtraWide() {
@@ -126,7 +126,7 @@ void ExtraWide() {
   n.SetValue0(2);
   n.type_.SetWidth(1024);
   Numeric::MayExpandStorage(nullptr, &n);
-  TestUtil::Assert(n.GetValue0() == 2);
+  ASSERT(n.GetValue0() == 2);
 
   Numeric nn;
   nn.type_.SetWidth(768);
@@ -134,7 +134,7 @@ void ExtraWide() {
 
   Op::SelectBits(n.GetArray(), n.type_,
 		 768, 1, nn.GetMutableArray(), nullptr);
-  TestUtil::Assert(nn.GetValue0() == 1);
+  ASSERT(nn.GetValue0() == 1);
 }
 
 int main(int argc, char **argv) {
