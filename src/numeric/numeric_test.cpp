@@ -73,8 +73,10 @@ void Shift() {
 void Concat() {
   TEST_CASE("Concat");
   Numeric m, n;
+  Numeric::Clear(m.type_, m.GetMutableArray());
   m.type_.SetWidth(64);
   m.SetValue0(0x5555555555555550ULL);
+  Numeric::Clear(n.type_, n.GetMutableArray());
   n.type_.SetWidth(63);
   n.SetValue0(0x5555555555555550ULL);
   Numeric r;
@@ -89,6 +91,7 @@ void Concat() {
 void Fixup() {
   TEST_CASE("Fixup");
   Numeric n;
+  Numeric::Clear(n.type_, n.GetMutableArray());
   n.type_.SetWidth(68);
   n.SetValue0(0xfffffffffffffff0ULL);
   Numeric m;
