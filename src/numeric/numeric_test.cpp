@@ -138,6 +138,11 @@ void ExtraWide() {
   Op::SelectBits(n.GetArray(), n.type_,
 		 768, 1, nn.GetMutableArray(), nullptr);
   ASSERT(nn.GetValue0() == 1);
+
+  Numeric m;
+  Op::SelectBits(n.GetArray(), n.type_,
+		 512, 1, m.GetMutableArray(), nullptr);
+  ASSERT(m.GetValue0() == 1);
 }
 
 int main(int argc, char **argv) {
