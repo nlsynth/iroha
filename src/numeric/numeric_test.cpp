@@ -100,7 +100,7 @@ void Fixup() {
   cout << "m=" << m.Format() << "\n";
   ASSERT_EQ(65535, Tool::GetValue(m, 1));
 
-  Op::FixupWidth(m.type_, &m);
+  Op::FixupValueWidth(m.type_, m.GetMutableArray());
   cout << "m=" << m.Format() << "\n";
   ASSERT_EQ(15, Tool::GetValue(m, 1));
 }
@@ -145,6 +145,19 @@ void ExtraWide() {
   ASSERT(m.GetValue0() == 1);
 }
 
+void Set() {
+  TEST_CASE("Set");
+  Numeric s;
+  Numeric::Clear(s.type_, s.GetMutableArray());
+  s.SetValue0(1);
+  s.type_.SetWidth(64);
+
+  Numeric d;
+  d.type_.SetWidth(64);
+  Op::Set(s.type_, s.GetArray(), d.type_, d.GetMutableArray());
+  ASSERT(d.GetValue0() == 1);
+}
+
 int main(int argc, char **argv) {
   cout << "sizeof(width)=" << sizeof(NumericWidth) << "\n";
   cout << "sizeof(numeric)=" << sizeof(Numeric) << "\n";
@@ -154,6 +167,7 @@ int main(int argc, char **argv) {
   Concat();
   Fixup();
   ExtraWide();
+  Set();
 
   return 0;
 }

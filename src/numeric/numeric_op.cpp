@@ -102,6 +102,35 @@ void Op::Clear(NumericWidth &w, NumericValue *val) {
   }
 }
 
+void Op::Set(const NumericWidth &sw, const NumericValue &src,
+	     const NumericWidth &dw, NumericValue *dst) {
+  const uint64_t *sv;
+  if (sw.IsExtraWide()) {
+    sv = src.extra_wide_value_->value_;
+  } else {
+    sv = src.value_;
+  }
+  uint64_t *dv;
+  if (dw.IsExtraWide()) {
+    dv = dst->extra_wide_value_->value_;
+  } else {
+    dv = dst->value_;
+  }
+  int bits = sw.GetWidth();
+  if (dw.GetWidth() < bits) {
+    bits = dw.GetWidth();
+  }
+  int a = bits / 64;
+  for (int i = 0; i < a; ++i) {
+    dv[i] = sv[i];
+  }
+  int r = bits % 64;
+  if (r > 0) {
+    uint64_t mask = ~((~0ULL) << r);
+    dv[a] = sv[a] | mask;
+  }
+}
+
 bool Op::Compare0(CompareOp op, const NumericValue &x, const NumericValue &y) {
   switch (op) {
   case COMPARE_LT:
@@ -118,10 +147,6 @@ bool Op::Compare0(CompareOp op, const NumericValue &x, const NumericValue &y) {
 
 void Op::BitInv0(const NumericValue &num, NumericValue *res) {
   res->SetValue0(~(num.GetValue0()));
-}
-
-void Op::FixupWidth(const NumericWidth &w, Numeric *num) {
-  FixupValueWidth(w, num->GetMutableArray());
 }
 
 void Op::FixupValueWidth(const NumericWidth &w, NumericValue *val) {

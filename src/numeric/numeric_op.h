@@ -43,6 +43,8 @@ public:
   static void BitInv0(const NumericValue &num, NumericValue *res);
 
   static void Clear(NumericWidth &w, NumericValue *val);
+  static void Set(const NumericWidth &sw, const NumericValue &src,
+		  const NumericWidth &dw, NumericValue *dst);
   static void CalcBinOp(enum BinOp op,
 			const NumericValue &x, const NumericValue &y,
 			const NumericWidth &w,
@@ -54,7 +56,6 @@ public:
 			 int h, int l,
 			 NumericValue *res, NumericWidth *res_width);
   // cuts upper bits
-  static void FixupWidth(const NumericWidth &w, Numeric *num);
   static void FixupValueWidth(const NumericWidth &w, NumericValue *val);
 };
 
