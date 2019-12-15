@@ -158,6 +158,18 @@ void Set() {
   ASSERT(d.GetValue0() == 1);
 }
 
+void Eq() {
+  TEST_CASE("Eq");
+  Numeric n1, n2;
+  n1.type_.SetWidth(8);
+  n1.SetValue0(0x105);
+  n2.type_.SetWidth(8);
+  n2.SetValue0(0x05);
+  ASSERT(Op::Eq(n1.type_, n1.GetArray(), n2.GetArray()));
+  n1.type_.SetWidth(9);
+  ASSERT(!Op::Eq(n1.type_, n1.GetArray(), n2.GetArray()));
+}
+
 int main(int argc, char **argv) {
   cout << "sizeof(width)=" << sizeof(NumericWidth) << "\n";
   cout << "sizeof(numeric)=" << sizeof(Numeric) << "\n";
@@ -168,6 +180,7 @@ int main(int argc, char **argv) {
   Fixup();
   ExtraWide();
   Set();
+  Eq();
 
   return 0;
 }

@@ -40,6 +40,8 @@ public:
   static void Minus0(const NumericValue &val, NumericValue *res);
   static bool Compare0(enum CompareOp op, const NumericValue &x,
 		       const NumericValue &y);
+  static bool Eq(const NumericWidth &w, const NumericValue &v1,
+		 const NumericValue &v2);
   static void BitInv0(const NumericValue &num, NumericValue *res);
 
   static void Clear(NumericWidth &w, NumericValue *val);

@@ -131,6 +131,34 @@ void Op::Set(const NumericWidth &sw, const NumericValue &src,
   }
 }
 
+bool Op::Eq(const NumericWidth &w, const NumericValue &v1,
+	    const NumericValue &v2) {
+  const uint64_t *s1;
+  const uint64_t *s2;
+  if (w.IsExtraWide()) {
+    s1 = v1.extra_wide_value_->value_;
+    s2 = v2.extra_wide_value_->value_;
+  } else {
+    s1 = v1.value_;
+    s2 = v2.value_;
+  }
+  int bits = w.GetWidth();
+  int a = bits / 64;
+  for (int i = 0; i < a; ++i) {
+    if (s1[i] != s2[i]) {
+      return false;
+    }
+  }
+  int r = bits % 64;
+  if (r > 0) {
+    uint64_t mask = ~((~0ULL) << r);
+    if ((s1[a] & mask) != (s2[a] & mask)) {
+      return false;
+    }
+  }
+  return true;
+}
+
 bool Op::Compare0(CompareOp op, const NumericValue &x, const NumericValue &y) {
   switch (op) {
   case COMPARE_LT:
