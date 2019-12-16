@@ -221,4 +221,25 @@ void Op::Concat(const NumericValue &x, const NumericWidth &xw,
   }
 }
 
+void Op::ConcatWithStorage(const NumericValue &x, const NumericWidth &xw,
+			   const NumericValue &y, const NumericWidth &yw,
+			   NumericManager *mgr,
+			   NumericValue *a, NumericWidth *aw) {
+  NumericWidth w;
+  w.SetWidth(xw.GetWidth() + yw.GetWidth());
+  Numeric::MayPopulateStorage(w, mgr, a);
+  Concat(x, xw, y, yw, a, aw);
+}
+
+void Op::SelectBitsWithStorage(const NumericValue &num,
+			       const NumericWidth &num_width,
+			       int h, int l,
+			       NumericManager *mgr,
+			       NumericValue *res, NumericWidth *res_width) {
+  NumericWidth w;
+  w.SetWidth(h - l + 1);
+  Numeric::MayPopulateStorage(w, mgr, res);
+  SelectBits(num, num_width, h, l, res, res_width);
+}
+
 }  // namespace iroha

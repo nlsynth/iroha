@@ -57,6 +57,15 @@ public:
   static void SelectBits(const NumericValue &num, const NumericWidth &num_width,
 			 int h, int l,
 			 NumericValue *res, NumericWidth *res_width);
+  static void ConcatWithStorage(const NumericValue &x, const NumericWidth &xw,
+				const NumericValue &y, const NumericWidth &yw,
+				NumericManager *mgr,
+				NumericValue *a, NumericWidth *aw);
+  static void SelectBitsWithStorage(const NumericValue &num,
+				    const NumericWidth &num_width,
+				    int h, int l,
+				    NumericManager *mgr,
+				    NumericValue *res, NumericWidth *res_width);
   // cuts upper bits
   static void FixupValueWidth(const NumericWidth &w, NumericValue *val);
 };
