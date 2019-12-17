@@ -1,5 +1,7 @@
 #include "numeric/wide_op.h"
 
+#include "numeric/numeric_op.h"
+
 namespace iroha {
 
 bool WideOp::IsZero(const NumericWidth &w, const NumericValue &val) {
@@ -149,13 +151,43 @@ void WideOp::SelectBits(const NumericValue &val, const NumericWidth &w,
 void WideOp::Concat(const NumericValue &x, const NumericWidth &xw,
 		    const NumericValue &y, const NumericWidth &yw,
 		    NumericValue *a, NumericWidth *aw) {
+  // Sets x.
   NumericValue tmp;
-  Shift(x, yw.GetWidth(), true, &tmp);
-  NumericValue yy = y;
-  FixupWidth(yw, &yy);
-  BinBitOp(BINOP_OR, tmp, yy, a);
+  ExtraWideValue ev;
+  NumericWidth w = NumericWidth(false, xw.GetWidth() + yw.GetWidth());
+  if (w.IsExtraWide()) {
+    tmp.extra_wide_value_ = &ev;
+    ShiftExtraWide(x, yw.GetWidth(), true, &tmp);
+  } else {
+    Shift(x, yw.GetWidth(), true, &tmp);
+  }
+  Numeric::Clear(w, a);
+  Op::Set(w, tmp, w, a);
+  // Sets y.
+  uint64_t *av;
+  const uint64_t *yv;
+  if (w.IsExtraWide()) {
+    av = a->extra_wide_value_->value_;
+  } else {
+    av = a->value_;
+  }
+  if (yw.IsExtraWide()) {
+    yv = y.extra_wide_value_->value_;
+  } else {
+    yv = y.value_;
+  }
+  int m = yw.GetWidth() / 64;
+  for (int i = 0; i < m; ++i) {
+    av[i] = yv[i];
+  }
+  int r = yw.GetWidth() % 64;
+  if (r > 0) {
+    uint64_t mask = ~((~0ULL) << r);
+    av[m] &= ~mask;
+    av[m] = av[m] | (mask & yv[m]);
+  }
   if (aw != nullptr) {
-    *aw = NumericWidth(false, xw.GetWidth() + yw.GetWidth());
+    *aw = w;
   }
 }
 

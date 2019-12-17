@@ -127,7 +127,8 @@ void Op::Set(const NumericWidth &sw, const NumericValue &src,
   int r = bits % 64;
   if (r > 0) {
     uint64_t mask = ~((~0ULL) << r);
-    dv[a] = sv[a] | mask;
+    dv[a] &= ~mask;
+    dv[a] |= (sv[a] & mask);
   }
 }
 
