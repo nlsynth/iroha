@@ -157,7 +157,15 @@ void WideOp::Concat(const NumericValue &x, const NumericWidth &xw,
   NumericWidth w = NumericWidth(false, xw.GetWidth() + yw.GetWidth());
   if (w.IsExtraWide()) {
     tmp.extra_wide_value_ = &ev;
-    ShiftExtraWide(x, yw.GetWidth(), true, &tmp);
+    NumericValue xc = x;
+    ExtraWideValue xtmp;
+    if (xw.IsExtraWide()) {
+      xc = x;
+    } else {
+      xc.extra_wide_value_ = &xtmp;
+      Op::Set(xw, x, w, &xc);
+    }
+    ShiftExtraWide(xc, yw.GetWidth(), true, &tmp);
   } else {
     Shift(x, yw.GetWidth(), true, &tmp);
   }
