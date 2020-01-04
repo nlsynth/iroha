@@ -46,11 +46,11 @@ void SlaveController::Write(ostream &os) {
      << "  localparam S_WRITE_AXI = 5;\n"
      << "  localparam S_WRITE_SRAM = 6;\n";
   os << "  reg [3:0] st;\n\n";
-  os << "  reg [" << sram_addr_width_ << ":0] idx;\n\n";
+  os << "  reg [" << cfg_.sram_addr_width << ":0] idx;\n\n";
   os << "  reg first_addr;\n"
      << "  reg last_write;\n"
      << "  reg [7:0] rlen;\n\n";
-  os << "  reg [" << (sram_addr_width_ -  1) << ":0] sram_addr_src;\n"
+  os << "  reg [" << (cfg_.sram_addr_width -  1) << ":0] sram_addr_src;\n"
      << "  assign sram_addr = sram_addr_src;\n\n";
 
   os << "  always @(posedge clk) begin\n"
@@ -88,7 +88,7 @@ void SlaveController::OutputFSM(ostream &os) {
      << "          if (ARVALID) begin\n"
      << "            if (ARREADY) begin\n"
      << "              ARREADY <= 0;\n"
-     << "              sram_addr_src <= ARADDR[" << (sram_addr_width_ - 1 + data_shift) << ":" << data_shift << "];\n"
+     << "              sram_addr_src <= ARADDR[" << (cfg_.sram_addr_width - 1 + data_shift) << ":" << data_shift << "];\n"
      << "              rlen <= ARLEN;\n"
      << "              if (sram_EXCLUSIVE) begin\n"
      << "                st <= S_READ;\n"
@@ -103,7 +103,7 @@ void SlaveController::OutputFSM(ostream &os) {
      << "            if (AWREADY) begin\n"
      << "              AWREADY <= 0;\n"
      << "              first_addr <= 1;\n"
-     << "              sram_addr_src <= AWADDR[" << (sram_addr_width_ - 1 + data_shift) << ":" << data_shift << "];\n"
+     << "              sram_addr_src <= AWADDR[" << (cfg_.sram_addr_width - 1 + data_shift) << ":" << data_shift << "];\n"
      << "              if (sram_EXCLUSIVE) begin\n"
      << "                st <= S_WRITE;\n"
      << "              end else begin\n"

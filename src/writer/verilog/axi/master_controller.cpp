@@ -23,8 +23,8 @@ MasterController::~MasterController() {
 void MasterController::Write(ostream &os) {
   AddSramPorts();
   ports_->AddPort("addr", Port::INPUT, 32);
-  ports_->AddPort("len", Port::INPUT, sram_addr_width_);
-  ports_->AddPort("start", Port::INPUT, sram_addr_width_);
+  ports_->AddPort("len", Port::INPUT, cfg_.sram_addr_width);
+  ports_->AddPort("start", Port::INPUT, cfg_.sram_addr_width);
   ports_->AddPort("wen", Port::INPUT, 0);
   ports_->AddPort("req", Port::INPUT, 0);
   ports_->AddPort("ack", Port::OUTPUT, 0);
@@ -48,8 +48,8 @@ void MasterController::Write(ostream &os) {
     os << "  localparam S_WRITE_WAIT = 4;\n";
   }
   os << "  reg [2:0] st;\n\n";
-  os << "  reg [" << (sram_addr_width_ -  1) << ":0] sram_addr_src;\n";
-  os << "  wire [" << (sram_addr_width_ -  1) << ":0] next_sram_addr;\n";
+  os << "  reg [" << (cfg_.sram_addr_width -  1) << ":0] sram_addr_src;\n";
+  os << "  wire [" << (cfg_.sram_addr_width -  1) << ":0] next_sram_addr;\n";
   if (w_) {
     // Outputs next address immediately from the combinational logic,
     // if handshake happens.
@@ -65,14 +65,14 @@ void MasterController::Write(ostream &os) {
        << "  localparam WS_SRAM = 4;\n"
        << "  localparam WS_AXI = 5;\n"
        << "  reg [2:0] wst;\n"
-       << "  reg [" << sram_addr_width_ << ":0] wmax;\n\n";
+       << "  reg [" << cfg_.sram_addr_width << ":0] wmax;\n\n";
   }
   if (r_) {
-    os << "  reg [" << sram_addr_width_ << ":0] ridx;\n"
+    os << "  reg [" << cfg_.sram_addr_width << ":0] ridx;\n"
        << "  reg read_last;\n\n";
   }
   if (w_) {
-    os << "  reg [" << sram_addr_width_ << ":0] widx;\n\n";
+    os << "  reg [" << cfg_.sram_addr_width << ":0] widx;\n\n";
   }
   os << "  always @(posedge clk) begin\n"
      << "    if (" << (reset_polarity_ ? "" : "!")

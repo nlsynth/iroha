@@ -28,7 +28,6 @@ protected:
 
   unique_ptr<Ports> ports_;
   PortConfig cfg_;
-  int sram_addr_width_;
 };
 
 }  // namespace axi
