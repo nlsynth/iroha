@@ -31,6 +31,7 @@ public:
 private:
   static string WidthSpec(int w);
   void WriteInternal(ostream &os);
+  string GenWen(int p);
   string MaybePortPrefix(int port) const;
 
   const Module &mod_;

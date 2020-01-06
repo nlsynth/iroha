@@ -66,7 +66,7 @@ void InternalSRAM::WriteInternal(ostream &os) {
       }
     }
     os << "    end else begin\n";
-    os << "      if (" << GetWenPin(p) << ") begin\n"
+    os << "      if (" << GenWen(p) << ") begin\n"
        << "        data[" << GetAddrPin(p) << "] <= " << GetWdataPin(p) << ";\n"
        << "      end\n";
     os << "    end\n"
@@ -78,6 +78,21 @@ void InternalSRAM::WriteInternal(ostream &os) {
        << "    " << GetRdataPin(p) << " = data[" << GetAddrPin(p) << "];\n"
        << "  end\n";
   }
+}
+
+string InternalSRAM::GenWen(int p) {
+  string s = GetWenPin(p);
+  if (num_ports_ == 1) {
+    return s;
+  }
+  vector<string> w;
+  for (int i = 0; i < num_ports_; ++i) {
+    if (p != i) {
+      w.push_back("~" + GetWenPin(i));
+    }
+  }
+  s += " && (" + Util::Join(w, " && ") + ")";
+  return s;
 }
 
 string InternalSRAM::GetModuleName() const {
