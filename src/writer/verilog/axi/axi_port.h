@@ -14,6 +14,13 @@ public:
   PortConfig() : axi_addr_width(32) {
   }
 
+  int SramMSB() {
+    if (sram_addr_width == 0) {
+      return 0;
+    }
+    return sram_addr_width - 1;
+  }
+
   int axi_addr_width;
   int sram_addr_width;
   int data_width;

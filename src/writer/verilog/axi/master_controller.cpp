@@ -48,8 +48,8 @@ void MasterController::Write(ostream &os) {
     os << "  localparam S_WRITE_WAIT = 4;\n";
   }
   os << "  reg [2:0] st;\n\n";
-  os << "  reg [" << (cfg_.sram_addr_width -  1) << ":0] sram_addr_src;\n";
-  os << "  wire [" << (cfg_.sram_addr_width -  1) << ":0] next_sram_addr;\n";
+  os << "  reg [" << cfg_.SramMSB() << ":0] sram_addr_src;\n";
+  os << "  wire [" << cfg_.SramMSB() << ":0] next_sram_addr;\n";
   if (w_) {
     // Outputs next address immediately from the combinational logic,
     // if handshake happens.
@@ -57,7 +57,11 @@ void MasterController::Write(ostream &os) {
   } else {
     os << "  assign sram_addr = sram_addr_src;\n";
   }
-  os << "  assign next_sram_addr = sram_addr_src + 1;\n\n";
+  if (cfg_.sram_addr_width == 0) {
+    os << "  assign next_sram_addr = 0;\n\n";
+  } else {
+    os << "  assign next_sram_addr = sram_addr_src + 1;\n\n";
+  }
   if (w_) {
     os << "  localparam WS_IDLE = 0;\n"
        << "  localparam WS_WRITE = 1;\n"

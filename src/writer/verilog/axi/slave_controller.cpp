@@ -50,7 +50,7 @@ void SlaveController::Write(ostream &os) {
   os << "  reg first_addr;\n"
      << "  reg last_write;\n"
      << "  reg [7:0] rlen;\n\n";
-  os << "  reg [" << (cfg_.sram_addr_width -  1) << ":0] sram_addr_src;\n"
+  os << "  reg [" << cfg_.SramMSB() << ":0] sram_addr_src;\n"
      << "  assign sram_addr = sram_addr_src;\n\n";
 
   os << "  always @(posedge clk) begin\n"

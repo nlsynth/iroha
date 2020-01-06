@@ -38,9 +38,8 @@ void MasterPort::BuildResource() {
      << "  reg " << ReqPort() << ";\n"
      << "  wire " << AckPort() << ";\n";
   PortConfig cfg = AxiPort::GetPortConfig(res_);
-  int aw = cfg.sram_addr_width - 1;
-  os << "  reg [" << aw << ":0] " << LenPort() << ";\n"
-     << "  reg [" << aw << ":0] " << StartPort() << ";\n";
+  os << "  reg [" << cfg.SramMSB() << ":0] " << LenPort() << ";\n"
+     << "  reg [" << cfg.SramMSB() << ":0] " << StartPort() << ";\n";
 
   ostream &is = tab_.InitialValueSectionStream();
   is << "      " << AddrPort() << " <= 0;\n"
