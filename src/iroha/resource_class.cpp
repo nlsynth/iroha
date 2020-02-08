@@ -163,6 +163,10 @@ bool IsFifoWriter(const IResourceClass &rc) {
   return (rc.GetName() == kFifoWriter);
 }
 
+bool IsSramIf(const IResourceClass &rc) {
+  return (rc.GetName() == kSramIf);
+}
+
 bool IsTicker(const IResourceClass &rc) {
   return (rc.GetName() == kTicker);
 }
@@ -235,6 +239,7 @@ void InstallResourceClasses(IDesign *design) {
   InstallResource(design, resource::kFifoReader, true);
   InstallResource(design, resource::kFifoWriter, true);
   InstallResource(design, resource::kTicker, true);
+  InstallResource(design, resource::kSramIf, true);
   InstallResource(design, resource::kStudy, true);
   InstallResource(design, resource::kStudyReader, true);
   InstallResource(design, resource::kStudyWriter, true);

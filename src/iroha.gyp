@@ -295,6 +295,8 @@
         'writer/verilog/shared_reg_ext_writer.h',
         'writer/verilog/shared_reg.cpp',
         'writer/verilog/shared_reg.h',
+        'writer/verilog/sram_if.cpp',
+        'writer/verilog/sram_if.h',
         'writer/verilog/state.cpp',
         'writer/verilog/state.h',
         'writer/verilog/study.cpp',

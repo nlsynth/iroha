@@ -25,6 +25,7 @@
 #include "writer/verilog/shared_reg_accessor.h"
 #include "writer/verilog/shared_reg_ext_writer.h"
 #include "writer/verilog/ports.h"
+#include "writer/verilog/sram_if.h"
 #include "writer/verilog/state.h"
 #include "writer/verilog/study.h"
 #include "writer/verilog/study_accessor.h"
@@ -76,6 +77,9 @@ Resource *Resource::Create(const IResource &res, const Table &table) {
   if (resource::IsSharedMemoryReader(*klass) ||
       resource::IsSharedMemoryWriter(*klass)) {
     return new SharedMemoryAccessor(res, table);
+  }
+  if (resource::IsSramIf(*klass)) {
+    return new SramIf(res, table);
   }
   if (resource::IsArray(*klass) ||
       // mapped memory is being deprecated.
