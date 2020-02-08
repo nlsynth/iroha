@@ -34,7 +34,8 @@ bool ResourceAttr::IsMultiCycleInsn(IInsn *insn) {
     return true;
   }
   if (resource::IsAxiMasterPort(rc) ||
-      resource::IsAxiSlavePort(rc)) {
+      resource::IsAxiSlavePort(rc) ||
+      resource::IsSramIf(rc)) {
     return true;
   }
   if (resource::IsFifo(rc) ||
@@ -65,6 +66,7 @@ bool ResourceAttr::IsExtAccessResource(IResource *res) {
       resource::IsExtOutput(rc) ||
       resource::IsAxiMasterPort(rc) ||
       resource::IsAxiSlavePort(rc) ||
+      resource::IsSramIf(rc) ||
       resource::IsExtTask(rc) ||
       resource::IsExtTaskDone(rc) ||
       resource::IsExtTaskCall(rc) ||
@@ -75,7 +77,8 @@ bool ResourceAttr::IsExtAccessResource(IResource *res) {
 }
 
 bool ResourceAttr::IsExtWaitInsn(IInsn *insn) {
-  return resource::IsAxiSlavePort(*(insn->GetResource()->GetClass()));
+  IResourceClass &rc = *(insn->GetResource()->GetClass());
+  return resource::IsAxiSlavePort(rc) || resource::IsSramIf(rc);
 }
 
 bool ResourceAttr::IsExtAccessInsn(IInsn *insn) {
