@@ -85,7 +85,8 @@ void Connection::ProcessSharedMemoryAccessors(ITable *tab) {
       ai->shared_memory_accessors_.push_back(res);
     }
     if (resource::IsAxiMasterPort(*rc) ||
-	resource::IsAxiSlavePort(*rc)) {
+	resource::IsAxiSlavePort(*rc) ||
+	resource::IsSramIf(*rc)) {
       if (params->GetSramPortIndex() == "0") {
 	ai->shared_memory_accessors_.push_back(res);
       } else {

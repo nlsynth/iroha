@@ -15,6 +15,9 @@ public:
   virtual void BuildResource() override;
   virtual void BuildInsn(IInsn *insn, State *st) override;
   virtual void CollectNames(Names *names) override;
+
+private:
+  void AddPorts(Module *mod);
 };
 
 }  // namespace verilog
