@@ -3,7 +3,6 @@
 #include "iroha/i_design.h"
 #include "iroha/resource_params.h"
 #include "writer/verilog/module.h"
-#include "writer/verilog/ports.h"
 #include "writer/verilog/shared_memory.h"
 #include "writer/verilog/table.h"
 
@@ -35,15 +34,14 @@ void SramIf::CollectNames(Names *names) {
 
 void SramIf::AddPorts(Module *mod) {
   string prefix = res_.GetParams()->GetPortNamePrefix();
-  Ports *ports = mod->GetPorts();
   IArray *array = res_.GetParentResource()->GetArray();
   int aw = array->GetAddressWidth();
 
   int dw = array->GetDataType().GetWidth();
-  ports->AddPrefixedPort(prefix, "addr", Port::INPUT, aw);
-  ports->AddPrefixedPort(prefix, "wen", Port::INPUT, 0);
-  ports->AddPrefixedPort(prefix, "rdata", Port::OUTPUT_WIRE, dw);
-  ports->AddPrefixedPort(prefix, "wdata", Port::INPUT, dw);
+  AddPortToTop(prefix + "addr", false, true, aw);
+  AddPortToTop(prefix + "wen", false, true, 0);
+  AddPortToTop(prefix + "rdata", true, true, dw);
+  AddPortToTop(prefix + "wdata", false, true, dw);
 }
 
 }  // namespace verilog
