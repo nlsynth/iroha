@@ -2,8 +2,10 @@
 
 #include "iroha/i_design.h"
 #include "iroha/resource_params.h"
+#include "writer/verilog/insn_writer.h"
 #include "writer/verilog/module.h"
 #include "writer/verilog/shared_memory.h"
+#include "writer/verilog/state.h"
 #include "writer/verilog/table.h"
 
 namespace iroha {
@@ -27,6 +29,19 @@ void SramIf::BuildResource() {
 }
 
 void SramIf::BuildInsn(IInsn *insn, State *st) {
+  static const char I[] = "          ";
+  string insn_st = InsnWriter::MultiCycleStateName(*(insn->GetResource()));
+  string prefix = res_.GetParams()->GetPortNamePrefix();
+  ostream &os = st->StateBodySectionStream();
+  os << I << "// SRAM notification wait\n"
+     << I << "if (" << insn_st << " == 0) begin\n"
+     << I << "  if (" << (prefix + "wen") << ") begin\n"
+     << I << "    " << insn_st << " <= 1;\n"
+     << I << "  end\n"
+     << I << "end\n"
+     << I << "if (" << insn_st << " == 1) begin\n"
+     << I << "  " << insn_st << " <= 3;\n"
+     << I << "end\n";
 }
 
 void SramIf::CollectNames(Names *names) {
