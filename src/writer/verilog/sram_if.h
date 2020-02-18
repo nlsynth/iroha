@@ -18,6 +18,8 @@ public:
 
 private:
   void AddPorts(Module *mod);
+  string AckReg();
+  string NotifyReg();
 };
 
 }  // namespace verilog
