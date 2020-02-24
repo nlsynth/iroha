@@ -41,28 +41,23 @@ void ArrayResource::BuildInsn(IInsn *insn, State *st) {
 }
 
 void ArrayResource::BuildMemInsn(IInsn *insn, State *st) {
-  string res_id;
-  IArray *array = res_.GetArray();
-  if (!array->IsExternal()) {
-    res_id = "_" + Util::Itoa(res_.GetId());
-  }
   const string &opr = insn->GetOperand();
   if (opr == operand::kSramReadData) {
     ostream &ws = tab_.InsnWireValueSectionStream();
     ws << "  assign " << InsnWriter::InsnOutputWireName(*insn, 0)
-       << " = sram_rdata" << res_id << ";\n";
+       << " = " << SigName("rdata") << ";\n";
   }
 
   static const char I[] = "          ";
   ostream &os = st->StateBodySectionStream();
   if (opr == "sram_read_address" ||
       opr == "sram_write") {
-    os << I << "sram_addr" + res_id << " <= "
+    os << I << SigName("addr") << " <= "
        << InsnWriter::RegisterValue(*(insn->inputs_[0]), tab_.GetNames())
        << ";\n";
   }
   if (opr == "sram_write") {
-    os << I << "sram_wdata" + res_id << " <= "
+    os << I << SigName("wdata") << " <= "
        << InsnWriter::RegisterValue(*(insn->inputs_[1]), tab_.GetNames())
        << ";\n";
   }
@@ -72,44 +67,58 @@ void ArrayResource::BuildExternalSRAM() {
   auto *ports = tab_.GetPorts();
   IArray *array = res_.GetArray();
   int data_width = array->GetDataType().GetWidth();
-  ports->AddPort("sram_addr", Port::OUTPUT, array->GetAddressWidth());
-  ports->AddPort("sram_rdata", Port::INPUT, data_width);
-  ports->AddPort("sram_wdata", Port::OUTPUT, data_width);
-  ports->AddPort("sram_wdata_en", Port::OUTPUT, 0);
-  BuildSRAMWrite("");
+  ports->AddPort(SigName("addr"), Port::OUTPUT, array->GetAddressWidth());
+  ports->AddPort(SigName("rdata"), Port::INPUT, data_width);
+  ports->AddPort(SigName("wdata"), Port::OUTPUT, data_width);
+  ports->AddPort(SigName("wdata_en"), Port::OUTPUT, 0);
+  BuildSRAMWrite();
 }
 
 void ArrayResource::BuildInternalSRAM() {
   InternalSRAM *sram =
-    tab_.GetEmbeddedModules()->RequestInternalSRAM(*tab_.GetModule(), *res_.GetArray(), 1);
+    tab_.GetEmbeddedModules()->RequestInternalSRAM(*tab_.GetModule(),
+						   *res_.GetArray(), 1);
   auto *ports = tab_.GetPorts();
   ostream &es = tmpl_->GetStream(kEmbeddedInstanceSection);
   string name = sram->GetModuleName();
-  string res_id = Util::Itoa(res_.GetId());
-  string inst = name + "_inst_" + res_id;
+  string inst = name + "_inst_" + Util::Itoa(res_.GetId());
   es << "  " << name << " " << inst << "("
      << ".clk(" << ports->GetClk() << ")"
      << ", ." << sram->GetResetPinName() << "(" << ports->GetReset() << ")"
-     << ", ." << sram->GetAddrPin(0) << "(sram_addr_" << res_id << ")"
-     << ", ." << sram->GetRdataPin(0) << "(sram_rdata_" << res_id << ")"
-     << ", ." << sram->GetWdataPin(0) << "(sram_wdata_" << res_id << ")"
-     << ", ." << sram->GetWenPin(0) << "(sram_wdata_en_" << res_id << ")"
+     << ", ." << sram->GetAddrPin(0) << "(" << SigName("addr") << ")"
+     << ", ." << sram->GetRdataPin(0) << "(" << SigName("rdata") << ")"
+     << ", ." << sram->GetWdataPin(0) << "(" << SigName("wdata") << ")"
+     << ", ." << sram->GetWenPin(0) << "(" << SigName("wdata_en") << ")"
      <<");\n";
   ostream &rs = tab_.ResourceSectionStream();
-  rs << "  reg " << sram->AddressWidthSpec() << "sram_addr_" << res_id << ";\n"
-     << "  wire " << sram->DataWidthSpec() << "sram_rdata_" << res_id << ";\n"
-     << "  reg " << sram->DataWidthSpec() << "sram_wdata_" << res_id << ";\n"
-     << "  reg sram_wdata_en_" << res_id << ";\n";
-  BuildSRAMWrite("_" + res_id);
+  rs << "  reg " << sram->AddressWidthSpec() << SigName("addr") << ";\n"
+     << "  wire " << sram->DataWidthSpec() << SigName("rdata") << ";\n"
+     << "  reg " << sram->DataWidthSpec() << SigName("wdata") << ";\n"
+     << "  reg " << SigName("wdata_en") << ";\n";
+  BuildSRAMWrite();
 }
 
-void ArrayResource::BuildSRAMWrite(const string &res_id) {
+void ArrayResource::BuildSRAMWrite() {
   map<IState *, IInsn *> callers;
   CollectResourceCallers("sram_write", &callers);
   ostream &fs = tab_.StateOutputSectionStream();
-  fs << "      sram_wdata_en" << res_id << " <= ";
+  fs << "      " << SigName("wdata_en") << " <= ";
   WriteStateUnion(callers, fs);
   fs << ";\n";
+}
+
+string ArrayResource::SigName(const string &sig) {
+  string res_id;
+  IArray *array = res_.GetArray();
+  if (array->IsExternal()) {
+    string prefix = res_.GetParams()->GetPortNamePrefix();
+    if (!prefix.empty()) {
+      res_id = "_" + prefix;
+    }
+  } else {
+    res_id = Util::Itoa(res_.GetId());
+  }
+  return "sram" + res_id + "_" + sig;
 }
 
 }  // namespace verilog
