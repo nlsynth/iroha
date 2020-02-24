@@ -230,14 +230,6 @@ void ResourceParams::SetSramPortIndex(const string &idx) {
   values_->SetStringParam(resource::kSramPortIndex, idx);
 }
 
-string ResourceParams::GetMappedName() const {
-  return values_->GetStringParam(resource::kMappedName, "");
-}
-
-void ResourceParams::SetMappedName(const string &name) {
-  values_->SetStringParam(resource::kMappedName, name);
-}
-
 bool ResourceParams::GetResetPolarity() const {
   // default is negative.
   return values_->GetBoolParam(resource::kResetPolarity, false);

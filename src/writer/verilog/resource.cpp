@@ -81,9 +81,7 @@ Resource *Resource::Create(const IResource &res, const Table &table) {
   if (resource::IsSramIf(*klass)) {
     return new SramIf(res, table);
   }
-  if (resource::IsArray(*klass) ||
-      // mapped memory is being deprecated.
-      resource::IsMapped(*klass)) {
+  if (resource::IsArray(*klass)) {
     return new ArrayResource(res, table);
   }
   if (resource::IsAxiMasterPort(*klass)) {

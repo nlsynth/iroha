@@ -23,8 +23,7 @@ ArrayResource::ArrayResource(const IResource &res, const Table &table)
 
 void ArrayResource::BuildResource() {
   auto *klass = res_.GetClass();
-  auto *params = res_.GetParams();
-  if (resource::IsArray(*klass) || params->GetMappedName() == "mem") {
+  if (resource::IsArray(*klass)) {
     IArray *array = res_.GetArray();
     if (array->IsExternal()) {
       BuildExternalSRAM();
@@ -36,8 +35,7 @@ void ArrayResource::BuildResource() {
 
 void ArrayResource::BuildInsn(IInsn *insn, State *st) {
   auto *klass = res_.GetClass();
-  auto *params = res_.GetParams();
-  if (resource::IsArray(*klass) || params->GetMappedName() == "mem") {
+  if (resource::IsArray(*klass)) {
     BuildMemInsn(insn, st);
   }
 }

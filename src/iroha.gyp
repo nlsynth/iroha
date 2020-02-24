@@ -94,8 +94,6 @@
         'iroha/writer_api.h',
         'opt/array_elimination.cpp',
         'opt/array_elimination.h',
-        'opt/array_to_mem.cpp',
-        'opt/array_to_mem.h',
         'opt/bb_collector.cpp',
         'opt/bb_collector.h',
         'opt/bb_set.cpp',

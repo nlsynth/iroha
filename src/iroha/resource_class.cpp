@@ -103,10 +103,6 @@ bool IsSharedMemoryWriter(const IResourceClass &rc) {
   return (rc.GetName() == kSharedMemoryWriter);
 }
 
-bool IsMapped(const IResourceClass &rc) {
-  return (rc.GetName() == kMapped);
-}
-
 bool IsTask(const IResourceClass &rc) {
   return (rc.GetName() == kTask);
 }
@@ -198,7 +194,6 @@ void InstallResourceClasses(IDesign *design) {
   InstallResource(design, resource::kSelect, false);
   InstallResource(design, resource::kPrint, false);
   InstallResource(design, resource::kAssert, false);
-  InstallResource(design, resource::kMapped, true);
   InstallResource(design, resource::kTask, true);
   InstallResource(design, resource::kTaskCall, true);
   InstallResource(design, resource::kTransition, true);

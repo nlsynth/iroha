@@ -13,7 +13,6 @@ namespace iroha {
 namespace resource {
 class ResourceParamValueSet;
 
-const char kMappedName[] = "MAPPED-NAME";
 const char kResetPolarity[] = "RESET-POLARITY";
 const char kMaxDelayPs[] = "MAX-DELAY-PS";
 const char kPlatformFamily[] = "PLATFORM-FAMILY";
@@ -62,9 +61,6 @@ public:
 
   string GetSramPortIndex() const;
   void SetSramPortIndex(const string &idx);
-
-  string GetMappedName() const;
-  void SetMappedName(const string &name);
 
   bool GetResetPolarity() const;
   void SetResetPolarity(bool p);
