@@ -73,6 +73,10 @@ bool ResourceAttr::IsExtAccessResource(IResource *res) {
       resource::IsExtTaskWait(rc)) {
     return true;
   }
+  if (resource::IsArray(rc) && res->GetArray() != nullptr &&
+      res->GetArray()->IsExternal()) {
+    return true;
+  }
   return false;
 }
 
