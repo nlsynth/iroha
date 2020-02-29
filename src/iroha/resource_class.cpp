@@ -99,6 +99,10 @@ bool IsSharedMemoryReader(const IResourceClass &rc) {
   return (rc.GetName() == kSharedMemoryReader);
 }
 
+bool IsSharedMemoryReplica(const IResourceClass &rc) {
+  return (rc.GetName() == kSharedMemoryReplica);
+}
+
 bool IsSharedMemoryWriter(const IResourceClass &rc) {
   return (rc.GetName() == kSharedMemoryWriter);
 }
@@ -206,6 +210,7 @@ void InstallResourceClasses(IDesign *design) {
   InstallResource(design, resource::kSharedRegExtWriter, true);
   InstallResource(design, resource::kSharedMemory, true);
   InstallResource(design, resource::kSharedMemoryReader, true);
+  InstallResource(design, resource::kSharedMemoryReplica, true);
   InstallResource(design, resource::kSharedMemoryWriter, true);
   InstallResource(design, resource::kArray, true);
   InstallResource(design, resource::kGt, true);

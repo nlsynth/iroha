@@ -21,6 +21,7 @@
 #include "writer/verilog/operator.h"
 #include "writer/verilog/shared_memory.h"
 #include "writer/verilog/shared_memory_accessor.h"
+#include "writer/verilog/shared_memory_replica.h"
 #include "writer/verilog/shared_reg.h"
 #include "writer/verilog/shared_reg_accessor.h"
 #include "writer/verilog/shared_reg_ext_writer.h"
@@ -77,6 +78,9 @@ Resource *Resource::Create(const IResource &res, const Table &table) {
   if (resource::IsSharedMemoryReader(*klass) ||
       resource::IsSharedMemoryWriter(*klass)) {
     return new SharedMemoryAccessor(res, table);
+  }
+  if (resource::IsSharedMemoryReplica(*klass)) {
+    return new SharedMemoryReplica(res, table);
   }
   if (resource::IsSramIf(*klass)) {
     return new SramIf(res, table);
