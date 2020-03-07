@@ -8,6 +8,7 @@ namespace iroha {
 namespace writer {
 namespace verilog {
 
+// SharedMemoryReplica inherits this.
 class ArrayResource : public Resource {
 public:
   ArrayResource(const IResource &res, const Table &table);
@@ -16,12 +17,14 @@ public:
   virtual void BuildInsn(IInsn *insn, State *st) override;
 
 private:
-  void BuildMemInsn(IInsn *insn, State *st);
   void BuildExternalSRAM();
   void BuildInternalSRAM();
   void BuildSRAMWrite();
 
+protected:
+  void BuildMemInsn(IInsn *insn, State *st);
   string SigName(const string &sig);
+  virtual IArray *GetArray();
 };
 
 }  // namespace verilog

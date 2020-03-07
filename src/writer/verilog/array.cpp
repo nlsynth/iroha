@@ -109,7 +109,7 @@ void ArrayResource::BuildSRAMWrite() {
 
 string ArrayResource::SigName(const string &sig) {
   string res_id;
-  IArray *array = res_.GetArray();
+  IArray *array = GetArray();
   if (array->IsExternal()) {
     string prefix = res_.GetParams()->GetPortNamePrefix();
     if (!prefix.empty()) {
@@ -119,6 +119,10 @@ string ArrayResource::SigName(const string &sig) {
     res_id = Util::Itoa(res_.GetId());
   }
   return "sram" + res_id + "_" + sig;
+}
+
+IArray *ArrayResource::GetArray() {
+  return res_.GetArray();
 }
 
 }  // namespace verilog
