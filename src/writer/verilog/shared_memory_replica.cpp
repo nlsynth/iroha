@@ -6,7 +6,9 @@
 #include "writer/verilog/internal_sram.h"
 #include "writer/verilog/module.h"
 #include "writer/verilog/ports.h"
+#include "writer/verilog/shared_memory.h"
 #include "writer/verilog/table.h"
+#include "writer/verilog/wire/wire_set.h"
 
 namespace iroha {
 namespace writer {
@@ -28,12 +30,21 @@ void SharedMemoryReplica::BuildResource() {
   string inst = name + "_inst_" + Util::Itoa(tab_.GetITable()->GetId()) +
     "_" + Util::Itoa(res_.GetId());
   auto *ports = tab_.GetPorts();
+  string rn = SharedMemory::GetName(*parent);
+  string addr_wire = wire::Names::ResourceWire(rn, "addr");
+  string wdata_wire = wire::Names::ResourceWire(rn, "wdata");
+  string wen_wire = wire::Names::ResourceWire(rn, "wen");
   es << "  " << name << " " << inst << "("
      << ".clk(" << ports->GetClk() << ")"
+    // port 0 to read.
      << ", ." << sram->GetResetPinName() << "(" << ports->GetReset() << ")"
      << ", ." << sram->GetAddrPin(0) << "(" << SigName("addr") << ")"
      << ", ." << sram->GetRdataPin(0) << "(" << SigName("rdata") << ")"
      << ", ." << sram->GetWenPin(0) << "(1'b0)"
+    // port 1 to write.
+     << ", ." << sram->GetAddrPin(1) << "(" << addr_wire << ")"
+     << ", ." << sram->GetWdataPin(1) << "(" << wdata_wire << ")"
+     << ", ." << sram->GetWenPin(1) << "(" << wen_wire << ")"
      << ");\n";
   ostream &rs = tab_.ResourceSectionStream();
   rs << "  reg " << sram->AddressWidthSpec() << SigName("addr") << ";\n"
