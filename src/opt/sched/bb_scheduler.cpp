@@ -15,26 +15,6 @@ namespace iroha {
 namespace opt {
 namespace sched {
 
-SchedulerCore::SchedulerCore(DataPathSet *data_path_set, DelayInfo *delay_info)
-  : data_path_set_(data_path_set), delay_info_(delay_info) {
-  conflict_tracker_.reset(new ResourceConflictTracker);
-}
-
-SchedulerCore::~SchedulerCore() {
-}
-
-void SchedulerCore::Schedule() {
-  auto &paths = data_path_set_->GetPaths();
-  for (auto &p : paths) {
-    BBScheduler sch(p.second, delay_info_, conflict_tracker_.get());
-    sch.Schedule();
-  }
-}
-
-ResourceConflictTracker *SchedulerCore::AcquireConflictTracker() {
-  return conflict_tracker_.release();
-}
-
 BBScheduler::BBScheduler(BBDataPath *data_path, DelayInfo *delay_info,
 			 ResourceConflictTracker *conflict_tracker)
   : data_path_(data_path), delay_info_(delay_info),

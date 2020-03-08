@@ -8,22 +8,6 @@ namespace iroha {
 namespace opt {
 namespace sched {
 
-// Schedules a DataPathSet (=ITable).
-class SchedulerCore {
-public:
-  SchedulerCore(DataPathSet *data_path_set, DelayInfo *delay_info);
-  ~SchedulerCore();
-
-  void Schedule();
-  // Takes the ownership of the object.
-  ResourceConflictTracker *AcquireConflictTracker();
-
-private:
-  DataPathSet *data_path_set_;
-  DelayInfo *delay_info_;
-  std::unique_ptr<ResourceConflictTracker> conflict_tracker_;
-};
-
 // Schedules a BB.
 class BBScheduler {
 public:

@@ -21,6 +21,22 @@ namespace iroha {
 namespace opt {
 namespace sched {
 
+// Schedules a DataPathSet (=ITable).
+class SchedulerCore {
+public:
+  SchedulerCore(DataPathSet *data_path_set, DelayInfo *delay_info);
+  ~SchedulerCore();
+
+  void Schedule();
+  // Takes the ownership of the object.
+  ResourceConflictTracker *AcquireConflictTracker();
+
+private:
+  DataPathSet *data_path_set_;
+  DelayInfo *delay_info_;
+  std::unique_ptr<ResourceConflictTracker> conflict_tracker_;
+};
+
 TableScheduler::TableScheduler(ITable *table, DelayInfo *delay_info,
 			       DebugAnnotation *annotation)
   : table_(table), delay_info_(delay_info), annotation_(annotation) {
@@ -82,6 +98,26 @@ void TableScheduler::IterateScheduling() {
   } while (explorer.MaySetNextAllocationPlan());
 
   wps.ApplyBest();
+}
+
+SchedulerCore::SchedulerCore(DataPathSet *data_path_set, DelayInfo *delay_info)
+  : data_path_set_(data_path_set), delay_info_(delay_info) {
+  conflict_tracker_.reset(new ResourceConflictTracker);
+}
+
+SchedulerCore::~SchedulerCore() {
+}
+
+void SchedulerCore::Schedule() {
+  auto &paths = data_path_set_->GetPaths();
+  for (auto &p : paths) {
+    BBScheduler sch(p.second, delay_info_, conflict_tracker_.get());
+    sch.Schedule();
+  }
+}
+
+ResourceConflictTracker *SchedulerCore::AcquireConflictTracker() {
+  return conflict_tracker_.release();
 }
 
 }  // namespace sched
