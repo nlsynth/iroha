@@ -5,7 +5,7 @@
 #include "opt/delay_info.h"
 #include "opt/optimizer.h"
 #include "opt/profile/profile.h"
-#include "opt/sched/sched.h"
+#include "opt/sched/table_scheduler.h"
 
 namespace iroha {
 namespace opt {
@@ -29,7 +29,7 @@ bool SchedPhase::ApplyForDesign(IDesign *design) {
 }
 
 bool SchedPhase::ApplyForTable(const string &key, ITable *table) {
-  Sched sched(table, delay_info_.get(), annotation_);
+  TableScheduler sched(table, delay_info_.get(), annotation_);
   return sched.Perform();
 }
 

@@ -1,4 +1,4 @@
-#include "opt/sched/sched.h"
+#include "opt/sched/table_scheduler.h"
 
 #include "design/resource_attr.h"
 #include "design/validator.h"
@@ -21,15 +21,16 @@ namespace iroha {
 namespace opt {
 namespace sched {
 
-Sched::Sched(ITable *table, DelayInfo *delay_info, DebugAnnotation *annotation)
+TableScheduler::TableScheduler(ITable *table, DelayInfo *delay_info,
+			       DebugAnnotation *annotation)
   : table_(table), delay_info_(delay_info), annotation_(annotation) {
   data_path_set_.reset(new DataPathSet());
 }
 
-Sched::~Sched() {
+TableScheduler::~TableScheduler() {
 }
 
-bool Sched::Perform() {
+bool TableScheduler::Perform() {
   bset_.reset(BBSet::Create(table_, annotation_));
   if (annotation_->IsEnabled()) {
     annotation_->DumpIntermediateTable(table_);
@@ -61,7 +62,7 @@ bool Sched::Perform() {
   return true;
 }
 
-void Sched::IterateScheduling() {
+void TableScheduler::IterateScheduling() {
   PlanEvaluator ev(data_path_set_.get());
   WirePlanSet wps(data_path_set_.get(), &ev);
   Explorer explorer(&wps);

@@ -1,6 +1,6 @@
 // -*- C++ -*-
-#ifndef _opt_sched_sched_h_
-#define _opt_sched_sched_h_
+#ifndef _opt_sched_table_scheduler_h_
+#define _opt_sched_table_scheduler_h_
 
 #include "opt/sched/common.h"
 
@@ -8,10 +8,11 @@ namespace iroha {
 namespace opt {
 namespace sched {
 
-class Sched {
+class TableScheduler {
 public:
-  Sched(ITable *table, DelayInfo *delay_info, DebugAnnotation *annotation);
-  virtual ~Sched();
+  TableScheduler(ITable *table, DelayInfo *delay_info,
+		 DebugAnnotation *annotation);
+  virtual ~TableScheduler();
   bool Perform();
 
 private:
@@ -29,4 +30,4 @@ private:
 }  // namespace opt
 }  // namespace iroha
 
-#endif  // _opt_sched_sched_h_
+#endif  // _opt_sched_scheduler_h_
