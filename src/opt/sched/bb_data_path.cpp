@@ -1,4 +1,4 @@
-#include "opt/sched/data_path.h"
+#include "opt/sched/bb_data_path.h"
 
 #include "iroha/i_design.h"
 #include "iroha/stl_util.h"

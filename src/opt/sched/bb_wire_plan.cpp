@@ -1,6 +1,6 @@
 #include "opt/sched/bb_wire_plan.h"
 
-#include "opt/sched/data_path.h"
+#include "opt/sched/bb_data_path.h"
 #include "opt/sched/path_node.h"
 
 namespace iroha {

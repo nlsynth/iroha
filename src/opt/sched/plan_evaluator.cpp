@@ -3,7 +3,7 @@
 #include "iroha/i_design.h"
 #include "opt/bb_set.h"
 #include "opt/sched/bb_wire_plan.h"
-#include "opt/sched/data_path.h"
+#include "opt/sched/bb_data_path.h"
 #include "opt/sched/path_node.h"
 #include "opt/sched/wire_plan.h"
 

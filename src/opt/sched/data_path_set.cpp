@@ -4,7 +4,7 @@
 #include "opt/debug_annotation.h"
 #include "iroha/stl_util.h"
 #include "opt/bb_set.h"
-#include "opt/sched/data_path.h"
+#include "opt/sched/bb_data_path.h"
 #include "opt/sched/virtual_resource.h"
 
 namespace iroha {

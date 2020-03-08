@@ -9,7 +9,7 @@
 #include "opt/debug_annotation.h"
 #include "opt/delay_info.h"
 #include "opt/sched/bb_scheduler.h"
-#include "opt/sched/data_path.h"
+#include "opt/sched/bb_data_path.h"
 #include "opt/sched/data_path_set.h"
 #include "opt/sched/explorer.h"
 #include "opt/sched/plan_evaluator.h"
