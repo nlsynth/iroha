@@ -3,6 +3,7 @@
 #include "iroha/stl_util.h"
 #include "opt/sched/bb_wire_plan.h"
 #include "opt/sched/data_path.h"
+#include "opt/sched/data_path_set.h"
 #include "opt/sched/plan_evaluator.h"
 #include "opt/sched/resource_conflict_tracker.h"
 #include "opt/sched/resource_entry.h"

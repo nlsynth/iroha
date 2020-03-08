@@ -42,25 +42,6 @@ private:
   map<IResource *, map<int, PathNode *> > resource_node_map_;
 };
 
-class DataPathSet {
-public:
-  DataPathSet();
-  ~DataPathSet();
-
-  void Build(BBSet *bbs);
-  void SetDelay(DelayInfo *dinfo);
-  void Dump(DebugAnnotation *an);
-  map<int, BBDataPath *> &GetPaths();
-  BBSet *GetBBSet();
-  VirtualResourceSet *GetVirtualResourceSet();
-
-private:
-  BBSet *bbs_;
-  // bb_id to BBDataPath.
-  map<int, BBDataPath *> data_paths_;
-  std::unique_ptr<VirtualResourceSet> vres_set_;
-};
-
 }  // namespace sched
 }  // namespace opt
 }  // namespace iroha

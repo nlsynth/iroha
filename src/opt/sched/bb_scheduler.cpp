@@ -6,6 +6,7 @@
 #include "opt/bb_set.h"
 #include "opt/delay_info.h"
 #include "opt/sched/data_path.h"
+#include "opt/sched/data_path_set.h"
 #include "opt/sched/path_node.h"
 #include "opt/sched/resource_conflict_tracker.h"
 #include "opt/sched/resource_tracker.h"

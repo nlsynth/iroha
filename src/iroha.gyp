@@ -142,6 +142,8 @@
 	'opt/sched/common.h',
 	'opt/sched/data_path.cpp',
 	'opt/sched/data_path.h',
+	'opt/sched/data_path_set.cpp',
+	'opt/sched/data_path_set.h',
 	'opt/sched/explorer.cpp',
 	'opt/sched/explorer.h',
 	'opt/sched/path_node.cpp',

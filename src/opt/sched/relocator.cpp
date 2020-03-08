@@ -7,6 +7,7 @@
 #include "iroha/resource_class.h"
 #include "opt/bb_set.h"
 #include "opt/sched/data_path.h"
+#include "opt/sched/data_path_set.h"
 #include "opt/sched/path_node.h"
 #include "opt/sched/resource_entry.h"
 #include "opt/sched/resource_replica_assigner.h"
