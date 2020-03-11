@@ -24,6 +24,7 @@ public:
 private:
   // Template resource.
   IResource *res_;
+  // replicas_[0] = res_
   vector<IResource *> replicas_;
   int num_replicas_;
 };

@@ -19,7 +19,8 @@ namespace sched {
 // (1) Write -> Read
 //     This is a real dependency and considered to compute latencies.
 // (2) Write -> Write
-//     This is for ordering. (this might be resolved by renaming the preceding output).
+//     This is for ordering. (this might be resolved by renaming the preceding
+//     output).
 // (3) Read -> Write
 //     This is for ordeing.
 enum PathEdgeType : int {
@@ -29,8 +30,8 @@ enum PathEdgeType : int {
 };
 class PathEdge {
 public:
-  PathEdge(int id, PathEdgeType type, PathNode *source_node, PathNode *sink_node,
-	   int source_reg_index);
+  PathEdge(int id, PathEdgeType type, PathNode *source_node,
+	   PathNode *sink_node, int source_reg_index);
 
   int GetId();
   PathEdgeType GetType();

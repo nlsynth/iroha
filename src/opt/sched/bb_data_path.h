@@ -18,7 +18,9 @@ public:
   void SetDelay(DelayInfo *dinfo);
   void Dump(ostream &os);
   BB *GetBB();
+  // keyed by node id.
   map<int, PathNode *> &GetNodes();
+  // keyed by state index.
   map<int, PathNode *> &GetResourceNodeMap(IResource *res);
 
 private:

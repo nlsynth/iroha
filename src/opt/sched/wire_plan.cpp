@@ -94,18 +94,19 @@ AllocationPlan &WirePlan::GetAllocationPlan() {
   return allocation_plan_;
 }
 
-WirePlanSet::WirePlanSet(DataPathSet *dps, PlanEvaluator *ev)
-  : dps_(dps), ev_(ev) {
+WirePlanSet::WirePlanSet() {
 }
 
 WirePlanSet::~WirePlanSet() {
   STLDeleteValues(&plans_);
 }
 
-void WirePlanSet::Save(ResourceConflictTracker *conflicts) {
-  WirePlan *wp = new WirePlan(dps_, conflicts);
+void WirePlanSet::SaveCurrentSchedulingPlan(DataPathSet *dps,
+					    ResourceConflictTracker *conflicts,
+					    PlanEvaluator *ev) {
+  WirePlan *wp = new WirePlan(dps, conflicts);
   wp->Save();
-  wp->SetScore(ev_->Evaluate(wp));
+  wp->SetScore(ev->Evaluate(wp));
   plans_.push_back(wp);
 }
 

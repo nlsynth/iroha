@@ -26,7 +26,8 @@ void BBDataPath::Build() {
   int st_index = 0;
   for (IState *st : bb_->states_) {
     for (IInsn *insn : st->insns_) {
-      PathNode *n = new PathNode(this, st_index, insn, vrset_->GetFromInsn(insn));
+      PathNode *n = new PathNode(this, st_index, insn,
+				 vrset_->GetFromInsn(insn));
       nodes_[n->GetId()] = n;
       insn_to_node[insn] = n;
       auto &m = resource_node_map_[insn->GetResource()];

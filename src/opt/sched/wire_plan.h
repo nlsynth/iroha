@@ -45,17 +45,17 @@ private:
 
 class WirePlanSet {
 public:
-  WirePlanSet(DataPathSet *dps, PlanEvaluator *ev);
+  WirePlanSet();
   ~WirePlanSet();
 
-  void Save(ResourceConflictTracker *conflicts);
+  void SaveCurrentSchedulingPlan(DataPathSet *dps,
+				 ResourceConflictTracker *conflicts,
+				 PlanEvaluator *ev);
   void ApplyBest();
 
   WirePlan *GetLatestPlan(int nth);
 
 private:
-  DataPathSet *dps_;
-  PlanEvaluator *ev_;
   vector<WirePlan *> plans_;
 };
 

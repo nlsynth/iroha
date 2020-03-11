@@ -80,7 +80,7 @@ bool TableScheduler::Perform() {
 
 void TableScheduler::IterateScheduling() {
   PlanEvaluator ev(data_path_set_.get());
-  WirePlanSet wps(data_path_set_.get(), &ev);
+  WirePlanSet wps;
   Explorer explorer(&wps);
   explorer.SetInitialAllocation();
 
@@ -88,7 +88,7 @@ void TableScheduler::IterateScheduling() {
     SchedulerCore sch(data_path_set_.get(), delay_info_);
     sch.Schedule();
     auto *conflict_tracker = sch.AcquireConflictTracker();
-    wps.Save(conflict_tracker);
+    wps.SaveCurrentSchedulingPlan(data_path_set_.get(), conflict_tracker, &ev);
 
     if (annotation_->IsEnabled()) {
       annotation_->StartSubSection("sched", false);
