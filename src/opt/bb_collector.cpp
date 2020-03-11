@@ -1,6 +1,7 @@
 #include "opt/bb_collector.h"
 
 #include "design/design_util.h"
+#include "design/resource_attr.h"
 #include "iroha/i_design.h"
 #include "opt/bb_set.h"
 #include "opt/debug_annotation.h"
@@ -9,8 +10,10 @@
 namespace iroha {
 namespace opt {
 
-BBCollector::BBCollector(ITable *table, DebugAnnotation *annotation)
-  : table_(table), annotation_(annotation), bset_(new BBSet(table)) {
+BBCollector::BBCollector(ITable *table, bool splitMultiCycle,
+			 DebugAnnotation *annotation)
+  : table_(table), splitMultiCycle_(splitMultiCycle),
+    annotation_(annotation), bset_(new BBSet(table)) {
   tr_ = DesignUtil::FindTransitionResource(table_);
 }
 
@@ -37,8 +40,15 @@ void BBCollector::CollectEntries() {
   OptUtil::CollectReachableStates(table_, &reachables);
   OptUtil::CollectTransitionInfo(table_, &transition_info_);
   for (IState *st : reachables) {
+    bool nextIsEntry = false;
+    if (splitMultiCycle_) {
+      if (ResourceAttr::NumMultiCycleInsn(st)) {
+	bb_entries_.insert(st);
+	nextIsEntry = true;
+      }
+    }
     TransitionInfo &ti = transition_info_[st];
-    if (ti.nr_branch_ > 1) {
+    if (nextIsEntry || ti.nr_branch_ > 1) {
       IInsn *tr_insn = DesignUtil::FindInsnByResource(st, tr_);
       if (tr_insn != nullptr) {
 	for (IState *target_st : tr_insn->target_states_) {

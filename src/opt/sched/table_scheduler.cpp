@@ -47,7 +47,7 @@ TableScheduler::~TableScheduler() {
 }
 
 bool TableScheduler::Perform() {
-  bset_.reset(BBSet::Create(table_, annotation_));
+  bset_.reset(BBSet::CreateWip(table_, true, annotation_));
   if (annotation_->IsEnabled()) {
     annotation_->DumpIntermediateTable(table_);
   }

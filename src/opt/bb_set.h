@@ -26,6 +26,8 @@ public:
   ~BBSet();
 
   static BBSet *Create(ITable *table, DebugAnnotation *annotation);
+  static BBSet *CreateWip(ITable *table, bool splitMultiCycle,
+			  DebugAnnotation *annotation);
   static void SortBBs(const set<BB *> &input, vector<BB *> *sorted);
 
   void Annotate(DebugAnnotation *annotation);

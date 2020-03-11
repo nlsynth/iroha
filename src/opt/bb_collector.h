@@ -14,7 +14,8 @@ class DebugAnnotation;
 
 class BBCollector {
 public:
-  BBCollector(ITable *table, DebugAnnotation *annotation);
+  BBCollector(ITable *table, bool splitMultiCycle,
+	      DebugAnnotation *annotation);
   BBSet *Create();
 
 private:
@@ -28,6 +29,7 @@ private:
   void Annotate();
 
   ITable *table_;
+  bool splitMultiCycle_;
   DebugAnnotation *annotation_;
   BBSet *bset_;
   IResource *tr_;
