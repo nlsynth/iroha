@@ -27,13 +27,8 @@ BBSet::~BBSet() {
   STLDeleteValues(&bbs_);
 }
 
-BBSet *BBSet::Create(ITable *table, DebugAnnotation *annotation) {
-  BBCollector collector(table, false, annotation);
-  return collector.Create();
-}
-
-BBSet *BBSet::CreateWip(ITable *table, bool splitMultiCycle,
-			DebugAnnotation *annotation) {
+BBSet *BBSet::Create(ITable *table, bool splitMultiCycle,
+		     DebugAnnotation *annotation) {
   BBCollector collector(table, splitMultiCycle, annotation);
   return collector.Create();
 }

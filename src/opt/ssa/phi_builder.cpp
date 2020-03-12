@@ -21,7 +21,7 @@ PhiBuilder::~PhiBuilder() {
 }
 
 void PhiBuilder::Perform() {
-  bset_.reset(BBSet::Create(table_, annotation_));
+  bset_.reset(BBSet::Create(table_, false, annotation_));
   data_flow_.reset(DataFlow::Create(bset_.get(), annotation_));
   phi_ = DesignTool::GetOneResource(table_, resource::kPhi);
 
