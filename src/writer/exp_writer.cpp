@@ -164,6 +164,10 @@ void ExpWriter::WriteRegisters(const ITable &tab) {
       os_ << "()";
     }
     os_ << "\n";
+    auto *params = reg->GetParams(false);
+    if (params != nullptr) {
+      WriteResourceParams(*params, "        ");
+    }
     os_ << "      )\n";
   }
   os_ << "    )\n";

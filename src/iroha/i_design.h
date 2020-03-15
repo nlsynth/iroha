@@ -122,6 +122,7 @@ public:
   bool IsStateLocal() const;
   // For convenience (!IsStateLocal() && !IsConst()).
   bool IsNormal() const;
+  ResourceParams *GetParams(bool cr);
 
   IValueType value_type_;
 
@@ -133,6 +134,7 @@ private:
   bool has_initial_value_;
   bool is_const_;
   bool state_local_;
+  unique_ptr<ResourceParams> params_;
 };
 
 class IInsn {

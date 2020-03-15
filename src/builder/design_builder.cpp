@@ -190,7 +190,7 @@ IRegister *DesignBuilder::BuildRegister(Exp *e, ITable *table) {
     SetError() << "Only REGISTER can be allowed";
     return nullptr;
   }
-  if (e->Size() != 6) {
+  if (e->Size() < 6) {
     SetError() << "Insufficient parameters for a register";
     return nullptr;
   }
@@ -210,6 +210,7 @@ IRegister *DesignBuilder::BuildRegister(Exp *e, ITable *table) {
   }
   BuildValueType(e->vec[4], &reg->value_type_);
   if (!e->Str(5).empty()) {
+    // Initial value
     const string &ini = e->Str(5);
     Numeric value;
     value.SetValue0(Util::AtoULL(ini));
@@ -217,6 +218,9 @@ IRegister *DesignBuilder::BuildRegister(Exp *e, ITable *table) {
     Numeric::DefaultManager()->MayPopulateStorage(value.type_,
 						  value.GetMutableArray());
     reg->SetInitialValue(value);
+  }
+  if (e->Size() >= 7) {
+    BuildResourceParams(e->vec[6], reg->GetParams(true));
   }
   return reg;
 }

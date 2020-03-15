@@ -159,7 +159,8 @@ IValueType IValueType::FromNumericWidth(const NumericWidth &w) {
 
 IRegister::IRegister(ITable *table, const string &name)
   : table_(table), name_(name), id_(-1),
-    has_initial_value_(false), is_const_(false), state_local_(false) {
+    has_initial_value_(false), is_const_(false), state_local_(false),
+    params_(nullptr) {
   IDesign *design =
     table->GetModule()->GetDesign();
   design->GetObjectPool()->registers_.Add(this);
@@ -217,6 +218,13 @@ bool IRegister::IsStateLocal() const {
 
 bool IRegister::IsNormal() const {
   return !state_local_ && !is_const_;
+}
+
+ResourceParams *IRegister::GetParams(bool cr) {
+  if (params_.get() == nullptr && cr) {
+    params_.reset(new ResourceParams);
+  }
+  return params_.get();
 }
 
 IInsn::IInsn(IResource *resource) : resource_(resource), id_(-1) {
@@ -354,7 +362,8 @@ ResourceParams *IModule::GetParams() const{
 }
 
 IDesign::IDesign()
-  : objects_(new ObjectPool), params_(new ResourceParams), annotation_(nullptr) {
+  : objects_(new ObjectPool), params_(new ResourceParams),
+    annotation_(nullptr) {
   resource::InstallResourceClasses(this);
 }
 

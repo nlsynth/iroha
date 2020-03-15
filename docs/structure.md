@@ -41,11 +41,11 @@ inital-state    := "(" "INITIAL" state-id:number ")"
 
 registers       := "(" "REGISTERS" register* ")"
 
-register        := "(" "REGISTER" reg-id:number reg-name:label register-class reg-type:value-type initial-value? ")"
+register        := "(" "REGISTER" reg-id:number reg-name:label register-class reg-type:value-type initial-value params?")"
 
 register-class  := "REG" | "CONST" | "WIRE"
 
-initial-value   := number
+initial-value   := number | "(" ")"
 
 resources       := "(" "RESOURCES" resource* ")"
 
