@@ -180,6 +180,8 @@
         'opt/ssa/ssa.h',
         'opt/study.cpp',
         'opt/study.h',
+        'opt/unroll/unroll_phase.cpp',
+        'opt/unroll/unroll_phase.h',
         'platform/platform.cpp',
         'platform/platform.h',
         'platform/platform_db.cpp',
