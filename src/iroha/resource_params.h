@@ -38,6 +38,7 @@ const char kDistance[] = "DISTANCE";
 const char kWenSuffix[] = "WEN";
 const char kNotifySuffix[] = "NOTIFY";
 const char kPutSuffix[] = "PUT";
+const char kLoopUnroll[] = "LOOP-UNROLL";
 }  // namespace resource
 
 class ResourceParams {
@@ -115,6 +116,10 @@ public:
   string GetNotifySuffix() const;
   void SetPutSuffix(const string &put);
   string GetPutSuffix();
+
+  // for register
+  int GetLoopUnroll();
+  void SetLoopUnroll(int unroll);
 
 private:
   resource::ResourceParamValueSet *values_;

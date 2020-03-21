@@ -421,4 +421,12 @@ string ResourceParams::GetPutSuffix() {
   return values_->GetStringParam(resource::kPutSuffix, "");
 }
 
+int ResourceParams::GetLoopUnroll() {
+  return values_->GetIntParam(resource::kLoopUnroll, 1);
+}
+
+void ResourceParams::SetLoopUnroll(int unroll) {
+  return values_->SetIntParam(resource::kLoopUnroll, unroll);
+}
+
 }  // namespace iroha
