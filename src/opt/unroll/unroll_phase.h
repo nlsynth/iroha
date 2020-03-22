@@ -13,6 +13,9 @@ public:
   virtual ~UnrollPhase();
 
   static Phase *Create();
+
+private:
+  virtual bool ApplyForTable(const string &key, ITable *table);
 };
 
 }  // namespace unroll
