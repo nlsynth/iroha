@@ -15,8 +15,11 @@ public:
   bool Build();
 
 private:
+  void FindInitialAssign(IInsn *insn);
+
   ITable *tab_;
   IRegister *reg_;
+  IInsn *initial_assign_;
 };
 
 }  // namespace unroll
