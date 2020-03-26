@@ -69,6 +69,7 @@ bool IsLightUniOp(const IResourceClass &rc);
 bool IsBitShiftOp(const IResourceClass &rc);
 bool IsArray(const IResourceClass &rc);
 bool IsSet(const IResourceClass &rc);
+bool IsGt(const IResourceClass &rc);
 bool IsBitSel(const IResourceClass &rc);
 bool IsBitConcat(const IResourceClass &rc);
 bool IsExtInput(const IResourceClass &rc);

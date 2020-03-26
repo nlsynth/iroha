@@ -15,11 +15,13 @@ public:
   bool Build();
 
 private:
-  void FindInitialAssign(IInsn *insn);
+  void FindInitialAssign(IState *st, IInsn *insn);
+  IInsn *CompareResult(IInsn *insn);
 
   ITable *tab_;
   IRegister *reg_;
-  IInsn *initial_assign_;
+  IState *initial_assign_st_;
+  int loop_count_;
 };
 
 }  // namespace unroll

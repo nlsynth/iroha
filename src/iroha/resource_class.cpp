@@ -15,6 +15,10 @@ bool IsSelect(const IResourceClass &rc) {
   return (rc.GetName() == kSelect);
 }
 
+bool IsGt(const IResourceClass &rc) {
+  return (rc.GetName() == kGt);
+}
+
 bool IsPseudo(const IResourceClass &rc) {
   return (rc.GetName() == kPseudo);
 }
