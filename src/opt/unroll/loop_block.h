@@ -17,6 +17,7 @@ public:
 private:
   void FindInitialAssign(IState *st, IInsn *insn);
   IInsn *CompareResult(IInsn *insn);
+  IState *FindTransition(IState *compare_st, IInsn *compare_insn);
 
   ITable *tab_;
   IRegister *reg_;

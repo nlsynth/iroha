@@ -1,5 +1,6 @@
 #include "opt/unroll/loop_block.h"
 
+#include "design/design_util.h"
 #include "iroha/resource_class.h"
 #include "iroha/i_design.h"
 #include "opt/opt_util.h"
@@ -15,9 +16,9 @@ LoopBlock::LoopBlock(ITable *tab, IRegister *reg)
 bool LoopBlock::Build() {
   // Finds
   // * Initial 0-value assignment to the index.
-  // WIP.
   // * Compare with a constant.
   // * Branch to exit or enter the loop.
+  // WIP.
   // * Increment the index.
   for (IState *st : tab_->states_) {
     for (IInsn *insn : st->insns_) {
@@ -46,13 +47,13 @@ bool LoopBlock::Build() {
     return false;
   }
   loop_count_ = compare_insn->inputs_[0]->GetInitialValue().GetValue0();
-  for (IState *st = OptUtil::GetOneNextState(compare_st); st != nullptr;
-       st = OptUtil::GetOneNextState(st)) {
-    for (IInsn *insn : st->insns_) {
-      (void) insn;
-    }
+  IState *tr_st = FindTransition(compare_st, compare_insn);
+  IInsn *tr_insn = DesignUtil::FindTransitionInsn(tr_st);
+  IState *exit_state = tr_insn->target_states_[0];
+  if (exit_state == nullptr) {
+    return false;
   }
-  return false;
+  return true;
 }
 
 void LoopBlock::FindInitialAssign(IState *st, IInsn *insn) {
@@ -83,6 +84,26 @@ IInsn *LoopBlock::CompareResult(IInsn *insn) {
   if (insn->inputs_[0]->IsConst() &&
       insn->inputs_[1] == reg_) {
     return insn;
+  }
+  return nullptr;
+}
+
+IState *LoopBlock::FindTransition(IState *compare_st, IInsn *compare_insn) {
+  IRegister *compare_reg = compare_insn->outputs_[0];
+  for (IState *st = OptUtil::GetOneNextState(compare_st); st != nullptr;
+       st = OptUtil::GetOneNextState(st)) {
+    for (IInsn *insn : st->insns_) {
+      IResourceClass *rc = insn->GetResource()->GetClass();
+      if (!resource::IsTransition(*rc)) {
+	continue;
+      }
+      if (insn->inputs_.size() != 1 || (insn->inputs_[0] != compare_reg)) {
+	continue;
+      }
+      if (insn->target_states_.size() == 2) {
+	return st;
+      }
+    }
   }
   return nullptr;
 }
