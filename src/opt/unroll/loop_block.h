@@ -18,11 +18,13 @@ private:
   void FindInitialAssign(IState *st, IInsn *insn);
   IInsn *CompareResult(IInsn *insn);
   IState *FindTransition(IState *compare_st, IInsn *compare_insn);
+  void CollectLoopStates(IState *exit_st, IState *compare_st);
 
   ITable *tab_;
   IRegister *reg_;
   IState *initial_assign_st_;
   int loop_count_;
+  set<IState *> states_;
 };
 
 }  // namespace unroll

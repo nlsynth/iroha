@@ -10,10 +10,18 @@ TransitionInfo::TransitionInfo() : nr_branch_(0), nr_join_(0) {
 }
 
 void OptUtil::CollectReachableStates(ITable *tab, set<IState *> *reachable) {
+  CollectReachableStatesWithExclude(tab, tab->GetInitialState(),
+				    nullptr, reachable);
+}
+
+void OptUtil::CollectReachableStatesWithExclude(ITable *tab,
+						IState *initial,
+						IState *exclude,
+						set<IState *> *reachable) {
   map<IState *, set<IState *> > targets;
   CollectTransitionTargets(tab, &targets);
   set<IState *> frontier;
-  frontier.insert(tab->GetInitialState());
+  frontier.insert(initial);
   reachable->clear();
 
   while (frontier.size()) {
@@ -21,9 +29,13 @@ void OptUtil::CollectReachableStates(ITable *tab, set<IState *> *reachable) {
     frontier.erase(s);
     reachable->insert(s);
     auto nexts = targets[s];
-    for (auto n : nexts) {
-      if (reachable->find(n) == reachable->end()) {
-	frontier.insert(n);
+    for (IState *ns : nexts) {
+      if (ns == exclude) {
+	// ignore.
+	continue;
+      }
+      if (reachable->find(ns) == reachable->end()) {
+	frontier.insert(ns);
       }
     }
   }

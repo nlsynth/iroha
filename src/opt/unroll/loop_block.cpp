@@ -53,6 +53,7 @@ bool LoopBlock::Build() {
   if (exit_state == nullptr) {
     return false;
   }
+  CollectLoopStates(exit_state, compare_st);
   return true;
 }
 
@@ -106,6 +107,14 @@ IState *LoopBlock::FindTransition(IState *compare_st, IInsn *compare_insn) {
     }
   }
   return nullptr;
+}
+
+void LoopBlock::CollectLoopStates(IState *exit_st, IState *compare_st) {
+  OptUtil::CollectReachableStatesWithExclude(tab_, compare_st,
+					     exit_st, &states_);
+  for (auto *st : states_) {
+    cout << "ST=" << st->GetId() << "\n";
+  }
 }
 
 }  // namespace unroll

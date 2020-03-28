@@ -21,6 +21,10 @@ public:
 class OptUtil {
 public:
   static void CollectReachableStates(ITable *tab, set<IState *> *reachable);
+  static void CollectReachableStatesWithExclude(ITable *tab,
+						IState *initial,
+						IState *exclude,
+						set<IState *> *reachable);
   static void CollectTransitionInfo(ITable *tab,
 				    map<IState *, TransitionInfo> *transition_info);
   static IState *GetOneNextState(IState *cur);
