@@ -184,6 +184,8 @@
         'opt/unroll/loop_block.h',
         'opt/unroll/unroll_phase.cpp',
         'opt/unroll/unroll_phase.h',
+        'opt/unroll/unroller.cpp',
+        'opt/unroll/unroller.h',
         'platform/platform.cpp',
         'platform/platform.h',
         'platform/platform_db.cpp',

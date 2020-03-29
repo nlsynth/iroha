@@ -3,6 +3,7 @@
 #include "iroha/i_design.h"
 #include "iroha/resource_params.h"
 #include "opt/unroll/loop_block.h"
+#include "opt/unroll/unroller.h"
 
 namespace iroha {
 namespace opt {
@@ -18,10 +19,17 @@ Phase *UnrollPhase::Create() {
 bool UnrollPhase::ApplyForTable(const string &key, ITable *table) {
   for (IRegister *reg : table->registers_) {
     auto *params = reg->GetParams(false);
-    if (params != nullptr && params->GetLoopUnroll() != 1) {
-      // WIP.
+    if (params == nullptr) {
+      continue;
+    }
+    int count = params->GetLoopUnroll();
+    if (count != 1) {
       LoopBlock lb(table, reg);
-      lb.Build();
+      if (!lb.Build()) {
+	continue;
+      }
+      Unroller unroller(table, &lb, count);
+      unroller.Unroll();
     }
   }
   return true;
