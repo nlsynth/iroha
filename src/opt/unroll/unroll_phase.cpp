@@ -22,15 +22,17 @@ bool UnrollPhase::ApplyForTable(const string &key, ITable *table) {
     if (params == nullptr) {
       continue;
     }
-    int count = params->GetLoopUnroll();
-    if (count != 1) {
-      LoopBlock lb(table, reg);
-      if (!lb.Build()) {
-	continue;
-      }
-      Unroller unroller(table, &lb, count);
-      unroller.Unroll();
+    int unroll_count = params->GetLoopUnroll();
+    if (unroll_count <= 1) {
+      // 1 for no unroll. 0 for auto (TBD).
+      continue;
     }
+    LoopBlock lb(table, reg);
+    if (!lb.Build()) {
+      continue;
+    }
+    Unroller unroller(table, &lb, unroll_count);
+    unroller.Unroll();
   }
   return true;
 }

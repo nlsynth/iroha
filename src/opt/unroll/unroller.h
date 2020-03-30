@@ -12,14 +12,14 @@ class LoopBlock;
 
 class Unroller {
 public:
-  Unroller(ITable *tab, LoopBlock *lb, int count);
+  Unroller(ITable *tab, LoopBlock *lb, int unroll_count);
 
   bool Unroll();
 
 private:
   ITable *tab_;
   LoopBlock *lb_;
-  int count_;
+  int unroll_count_;
 };
 
 }  // namespace unroll

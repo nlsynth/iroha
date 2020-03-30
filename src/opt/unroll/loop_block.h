@@ -14,6 +14,8 @@ public:
 
   bool Build();
 
+  int GetLoopCount();
+
 private:
   void FindInitialAssign(IState *st, IInsn *insn);
   IInsn *CompareResult(IInsn *insn);
@@ -24,7 +26,7 @@ private:
   IRegister *reg_;
   IState *initial_assign_st_;
   int loop_count_;
-  set<IState *> states_;
+  vector<IState *> states_;
 };
 
 }  // namespace unroll

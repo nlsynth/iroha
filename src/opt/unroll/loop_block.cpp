@@ -57,6 +57,10 @@ bool LoopBlock::Build() {
   return true;
 }
 
+int LoopBlock::GetLoopCount() {
+  return loop_count_;
+}
+
 void LoopBlock::FindInitialAssign(IState *st, IInsn *insn) {
   IResourceClass *rc = insn->GetResource()->GetClass();
   if (!resource::IsSet(*rc)) {
@@ -110,8 +114,14 @@ IState *LoopBlock::FindTransition(IState *compare_st, IInsn *compare_insn) {
 }
 
 void LoopBlock::CollectLoopStates(IState *exit_st, IState *compare_st) {
+  set<IState *> sts;
   OptUtil::CollectReachableStatesWithExclude(tab_, compare_st,
-					     exit_st, &states_);
+					     exit_st, &sts);
+  for (IState *st : tab_->states_) {
+    if (sts.find(st) != sts.end()) {
+      states_.push_back(st);
+    }
+  }
 }
 
 }  // namespace unroll
