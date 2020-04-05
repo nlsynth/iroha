@@ -61,6 +61,10 @@ int LoopBlock::GetLoopCount() {
   return loop_count_;
 }
 
+vector<IState *> &LoopBlock::GetStates() {
+  return states_;
+}
+
 void LoopBlock::FindInitialAssign(IState *st, IInsn *insn) {
   IResourceClass *rc = insn->GetResource()->GetClass();
   if (!resource::IsSet(*rc)) {

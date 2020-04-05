@@ -17,6 +17,8 @@ public:
   bool Unroll();
 
 private:
+  void UnrollOne();
+
   ITable *tab_;
   LoopBlock *lb_;
   int unroll_count_;

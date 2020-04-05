@@ -15,6 +15,7 @@ public:
   bool Build();
 
   int GetLoopCount();
+  vector<IState *> &GetStates();
 
 private:
   void FindInitialAssign(IState *st, IInsn *insn);

@@ -182,6 +182,8 @@
         'opt/study.h',
         'opt/unroll/loop_block.cpp',
         'opt/unroll/loop_block.h',
+        'opt/unroll/state_copier.cpp',
+        'opt/unroll/state_copier.h',
         'opt/unroll/unroll_phase.cpp',
         'opt/unroll/unroll_phase.h',
         'opt/unroll/unroller.cpp',

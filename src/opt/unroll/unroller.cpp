@@ -1,6 +1,7 @@
 #include "opt/unroll/unroller.h"
 
 #include "opt/unroll/loop_block.h"
+#include "opt/unroll/state_copier.h"
 
 namespace iroha {
 namespace opt {
@@ -14,7 +15,15 @@ bool Unroller::Unroll() {
   if ((lb_->GetLoopCount() % unroll_count_) != 0) {
     return false;
   }
+  for (int i = 0; i < unroll_count_; ++i) {
+    UnrollOne();
+  }
   return true;
+}
+
+void Unroller::UnrollOne() {
+  StateCopier copier(tab_, lb_);
+  copier.Copy();
 }
 
 }  // namespace unroll
