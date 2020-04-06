@@ -17,12 +17,16 @@ public:
   void Copy();
 
 private:
+  void CopyState(IState *st);
+
   ITable *tab_;
   LoopBlock *lb_;
+  IState *exit_state_;
 
   vector<IState *> new_states_;
   // origin to new.
-  map<IState *, IState *> copy_map_;
+  map<IInsn *, IInsn *> insn_copy_map_;
+  map<IState *, IState *> state_copy_map_;
 };
 
 }  // namespace unroll

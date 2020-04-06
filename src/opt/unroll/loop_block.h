@@ -8,6 +8,12 @@ namespace iroha {
 namespace opt {
 namespace unroll {
 
+// Loop states *.
+//   (Sa) Sets initial value
+// * (Sb) num > count then ->Sc else -> Se
+// * (Sc..) ..
+// * (Sd) count += 1, ->Sb
+//   (Se) ..
 class LoopBlock {
 public:
   LoopBlock(ITable *tab, IRegister *reg);

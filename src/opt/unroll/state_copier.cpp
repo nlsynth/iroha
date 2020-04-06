@@ -7,16 +7,51 @@ namespace iroha {
 namespace opt {
 namespace unroll {
 
-StateCopier::StateCopier(ITable *tab, LoopBlock *lb) : tab_(tab), lb_(lb) {
+StateCopier::StateCopier(ITable *tab, LoopBlock *lb)
+  : tab_(tab), lb_(lb), exit_state_(nullptr) {
 }
 
 void StateCopier::Copy() {
   auto &states = lb_->GetStates();
   for (IState *os : states) {
     IState *ns = new IState(tab_);
-    copy_map_[os] = ns;
+    state_copy_map_[os] = ns;
     new_states_.push_back(ns);
     tab_->states_.push_back(ns);
+  }
+  exit_state_ = new IState(tab_);
+  new_states_.push_back(exit_state_);
+  tab_->states_.push_back(exit_state_);
+  for (IState *os : states) {
+    CopyState(os);
+  }
+  for (IState *os : states) {
+    for (IInsn *oinsn : os->insns_) {
+      IInsn *ninsn = insn_copy_map_[oinsn];
+      for (IInsn *dinsn : oinsn->depending_insns_) {
+	ninsn->depending_insns_.push_back(insn_copy_map_[dinsn]);
+      }
+    }
+  }
+}
+
+void StateCopier::CopyState(IState *os) {
+  IState *ns = state_copy_map_[os];
+  for (IInsn *oinsn : os->insns_) {
+    IInsn *ninsn = new IInsn(oinsn->GetResource());
+    insn_copy_map_[oinsn] = ninsn;
+    // input, output
+    ninsn->inputs_ = oinsn->inputs_;
+    ninsn->outputs_ = oinsn->outputs_;
+    // target states
+    for (IState *otarget_st : oinsn->target_states_) {
+      IState *ntarget_st = state_copy_map_[otarget_st];
+      if (ntarget_st == nullptr) {
+	ntarget_st = exit_state_;
+      }
+      ninsn->target_states_.push_back(ntarget_st);
+    }
+    ns->insns_.push_back(ninsn);
   }
 }
 
