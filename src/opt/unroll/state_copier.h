@@ -15,13 +15,13 @@ public:
   StateCopier(ITable *tab, LoopBlock *lb);
 
   void Copy();
+  IState *GetInitialState();
 
 private:
   void CopyState(IState *st);
 
   ITable *tab_;
   LoopBlock *lb_;
-  IState *exit_state_;
 
   vector<IState *> new_states_;
   // origin to new.

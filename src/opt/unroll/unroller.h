@@ -9,6 +9,7 @@ namespace opt {
 namespace unroll {
 
 class LoopBlock;
+class StateCopier;
 
 class Unroller {
 public:
@@ -18,10 +19,12 @@ public:
 
 private:
   void UnrollOne();
+  void Reconnect();
 
   ITable *tab_;
   LoopBlock *lb_;
   int unroll_count_;
+  std::unique_ptr<vector<StateCopier *> > copiers_;
 };
 
 }  // namespace unroll

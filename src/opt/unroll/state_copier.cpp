@@ -7,8 +7,7 @@ namespace iroha {
 namespace opt {
 namespace unroll {
 
-StateCopier::StateCopier(ITable *tab, LoopBlock *lb)
-  : tab_(tab), lb_(lb), exit_state_(nullptr) {
+StateCopier::StateCopier(ITable *tab, LoopBlock *lb) : tab_(tab), lb_(lb) {
 }
 
 void StateCopier::Copy() {
@@ -19,9 +18,6 @@ void StateCopier::Copy() {
     new_states_.push_back(ns);
     tab_->states_.push_back(ns);
   }
-  exit_state_ = new IState(tab_);
-  new_states_.push_back(exit_state_);
-  tab_->states_.push_back(exit_state_);
   for (IState *os : states) {
     CopyState(os);
   }
@@ -47,12 +43,16 @@ void StateCopier::CopyState(IState *os) {
     for (IState *otarget_st : oinsn->target_states_) {
       IState *ntarget_st = state_copy_map_[otarget_st];
       if (ntarget_st == nullptr) {
-	ntarget_st = exit_state_;
+	ntarget_st = lb_->GetExitState();
       }
       ninsn->target_states_.push_back(ntarget_st);
     }
     ns->insns_.push_back(ninsn);
   }
+}
+
+IState *StateCopier::GetInitialState() {
+  return new_states_[0];
 }
 
 }  // namespace unroll

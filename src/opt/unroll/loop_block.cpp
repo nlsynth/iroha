@@ -10,7 +10,8 @@ namespace opt {
 namespace unroll {
 
 LoopBlock::LoopBlock(ITable *tab, IRegister *reg)
-  : tab_(tab), reg_(reg), initial_assign_st_(nullptr), loop_count_(0) {
+  : tab_(tab), reg_(reg), initial_assign_st_(nullptr), exit_st_(nullptr),
+    loop_count_(0) {
 }
 
 bool LoopBlock::Build() {
@@ -49,11 +50,11 @@ bool LoopBlock::Build() {
   loop_count_ = compare_insn->inputs_[0]->GetInitialValue().GetValue0();
   IState *tr_st = FindTransition(compare_st, compare_insn);
   IInsn *tr_insn = DesignUtil::FindTransitionInsn(tr_st);
-  IState *exit_state = tr_insn->target_states_[0];
-  if (exit_state == nullptr) {
+  exit_st_ = tr_insn->target_states_[0];
+  if (exit_st_ == nullptr) {
     return false;
   }
-  CollectLoopStates(exit_state, compare_st);
+  CollectLoopStates(exit_st_, compare_st);
   return true;
 }
 
@@ -126,6 +127,14 @@ void LoopBlock::CollectLoopStates(IState *exit_st, IState *compare_st) {
       states_.push_back(st);
     }
   }
+}
+
+IState *LoopBlock::GetEntryAssignState() {
+  return initial_assign_st_;
+}
+
+IState *LoopBlock::GetExitState() {
+  return exit_st_;
 }
 
 }  // namespace unroll
