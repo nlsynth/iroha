@@ -1,6 +1,7 @@
 #include "opt/unroll/unroller.h"
 
 #include "design/design_util.h"
+#include "design/design_tool.h"
 #include "iroha/i_design.h"
 #include "opt/unroll/loop_block.h"
 #include "opt/unroll/state_copier.h"
@@ -36,6 +37,14 @@ void Unroller::Reconnect() {
   IInsn *tr = DesignUtil::FindTransitionInsn(es);
   tr->target_states_.clear();
   tr->target_states_.push_back(copiers_->at(0)->GetInitialState());
+  for (int i = 0; i < copiers_->size() - 1; ++i) {
+    StateCopier *cur = copiers_->at(i);
+    StateCopier *next = copiers_->at(i + 1);
+    DesignTool::AddNextState(cur->GetContinueState(), next->GetInitialState());
+  }
+  StateCopier *head = copiers_->at(0);
+  StateCopier *last = copiers_->at(copiers_->size() - 1);
+  DesignTool::AddNextState(last->GetContinueState(), head->GetInitialState());
 }
 
 }  // namespace unroll
