@@ -20,14 +20,15 @@ bool Unroller::Unroll() {
     return false;
   }
   for (int i = 0; i < unroll_count_; ++i) {
-    UnrollOne();
+    bool is_head = (i == 0);
+    UnrollOne(is_head);
   }
   Reconnect();
   return true;
 }
 
-void Unroller::UnrollOne() {
-  StateCopier *copier = new StateCopier(tab_, lb_);
+void Unroller::UnrollOne(bool is_head) {
+  StateCopier *copier = new StateCopier(tab_, lb_, is_head);
   copier->Copy();
   copiers_->push_back(copier);
 }

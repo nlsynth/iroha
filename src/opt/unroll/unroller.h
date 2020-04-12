@@ -18,7 +18,7 @@ public:
   bool Unroll();
 
 private:
-  void UnrollOne();
+  void UnrollOne(bool is_head);
   void Reconnect();
 
   ITable *tab_;

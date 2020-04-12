@@ -7,8 +7,8 @@ namespace iroha {
 namespace opt {
 namespace unroll {
 
-StateCopier::StateCopier(ITable *tab, LoopBlock *lb)
-  : tab_(tab), lb_(lb), continue_st_(nullptr) {
+StateCopier::StateCopier(ITable *tab, LoopBlock *lb, bool is_head)
+  : tab_(tab), lb_(lb), is_head_(is_head), continue_st_(nullptr) {
 }
 
 void StateCopier::Copy() {
@@ -38,7 +38,12 @@ void StateCopier::Copy() {
 void StateCopier::CopyState(IState *os) {
   IState *ns = state_copy_map_[os];
   IState *orig_compare_st = lb_->GetCompareState();
+  IInsn *orig_compare_insn = lb_->GetCompareInsn();
+  IInsn *orig_branch_insn = lb_->GetBranchInsn();
   for (IInsn *oinsn : os->insns_) {
+    if (oinsn == orig_compare_insn && !is_head_) {
+      continue;
+    }
     IInsn *ninsn = new IInsn(oinsn->GetResource());
     insn_copy_map_[oinsn] = ninsn;
     // input, output
@@ -54,6 +59,13 @@ void StateCopier::CopyState(IState *os) {
 	ntarget_st = lb_->GetExitState();
       }
       ninsn->target_states_.push_back(ntarget_st);
+    }
+    if (oinsn == orig_branch_insn && !is_head_) {
+      // Removes the conditional branch and just proceed to next.
+      ninsn->inputs_.clear();
+      IState *next = ninsn->target_states_[1];
+      ninsn->target_states_.clear();
+      ninsn->target_states_.push_back(next);
     }
     ns->insns_.push_back(ninsn);
   }

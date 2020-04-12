@@ -12,7 +12,7 @@ class LoopBlock;
 
 class StateCopier {
 public:
-  StateCopier(ITable *tab, LoopBlock *lb);
+  StateCopier(ITable *tab, LoopBlock *lb, bool is_head);
 
   void Copy();
   IState *GetInitialState();
@@ -23,6 +23,7 @@ private:
 
   ITable *tab_;
   LoopBlock *lb_;
+  bool is_head_;
   IState *continue_st_;
 
   vector<IState *> new_states_;

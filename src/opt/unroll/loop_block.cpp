@@ -11,6 +11,7 @@ namespace unroll {
 
 LoopBlock::LoopBlock(ITable *tab, IRegister *reg)
   : tab_(tab), reg_(reg), initial_assign_st_(nullptr), compare_st_(nullptr),
+    compare_insn_(nullptr), branch_insn_(nullptr),
     exit_st_(nullptr), loop_count_(0) {
 }
 
@@ -29,27 +30,26 @@ bool LoopBlock::Build() {
   if (initial_assign_st_ == nullptr) {
     return false;
   }
-  IInsn *compare_insn = nullptr;
   for (IState *st = initial_assign_st_; st != nullptr;
        st = OptUtil::GetOneNextState(st)) {
     for (IInsn *insn : st->insns_) {
-      compare_insn = CompareResult(insn);
-      if (compare_insn != nullptr) {
+      compare_insn_ = CompareResult(insn);
+      if (compare_insn_ != nullptr) {
 	compare_st_ = st;
 	break;
       }
     }
-    if (compare_insn != nullptr) {
+    if (compare_insn_ != nullptr) {
       break;
     }
   }
-  if (compare_insn == nullptr) {
+  if (compare_insn_ == nullptr) {
     return false;
   }
-  loop_count_ = compare_insn->inputs_[0]->GetInitialValue().GetValue0();
-  IState *tr_st = FindTransition(compare_st_, compare_insn);
-  IInsn *tr_insn = DesignUtil::FindTransitionInsn(tr_st);
-  exit_st_ = tr_insn->target_states_[0];
+  loop_count_ = compare_insn_->inputs_[0]->GetInitialValue().GetValue0();
+  IState *tr_st = FindTransition(compare_st_, compare_insn_);
+  branch_insn_ = DesignUtil::FindTransitionInsn(tr_st);
+  exit_st_ = branch_insn_->target_states_[0];
   if (exit_st_ == nullptr) {
     return false;
   }
@@ -138,6 +138,14 @@ IState *LoopBlock::GetExitState() {
 
 IState *LoopBlock::GetCompareState() {
   return compare_st_;
+}
+
+IInsn *LoopBlock::GetCompareInsn() {
+  return compare_insn_;
+}
+
+IInsn *LoopBlock::GetBranchInsn() {
+  return branch_insn_;
 }
 
 }  // namespace unroll

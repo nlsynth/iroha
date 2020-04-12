@@ -25,6 +25,8 @@ public:
   IState *GetEntryAssignState();
   IState *GetExitState();
   IState *GetCompareState();
+  IInsn *GetCompareInsn();
+  IInsn *GetBranchInsn();
 
 private:
   void FindInitialAssign(IState *st, IInsn *insn);
@@ -36,6 +38,8 @@ private:
   IRegister *reg_;
   IState *initial_assign_st_;
   IState *compare_st_;
+  IInsn *compare_insn_;
+  IInsn *branch_insn_;
   IState *exit_st_;
   int loop_count_;
   vector<IState *> states_;
