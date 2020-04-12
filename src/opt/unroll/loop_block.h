@@ -24,6 +24,7 @@ public:
   vector<IState *> &GetStates();
   IState *GetEntryAssignState();
   IState *GetExitState();
+  IState *GetCompareState();
 
 private:
   void FindInitialAssign(IState *st, IInsn *insn);
@@ -34,6 +35,7 @@ private:
   ITable *tab_;
   IRegister *reg_;
   IState *initial_assign_st_;
+  IState *compare_st_;
   IState *exit_st_;
   int loop_count_;
   vector<IState *> states_;

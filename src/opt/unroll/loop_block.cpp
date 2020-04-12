@@ -10,8 +10,8 @@ namespace opt {
 namespace unroll {
 
 LoopBlock::LoopBlock(ITable *tab, IRegister *reg)
-  : tab_(tab), reg_(reg), initial_assign_st_(nullptr), exit_st_(nullptr),
-    loop_count_(0) {
+  : tab_(tab), reg_(reg), initial_assign_st_(nullptr), compare_st_(nullptr),
+    exit_st_(nullptr), loop_count_(0) {
 }
 
 bool LoopBlock::Build() {
@@ -30,13 +30,12 @@ bool LoopBlock::Build() {
     return false;
   }
   IInsn *compare_insn = nullptr;
-  IState *compare_st = nullptr;
   for (IState *st = initial_assign_st_; st != nullptr;
        st = OptUtil::GetOneNextState(st)) {
     for (IInsn *insn : st->insns_) {
       compare_insn = CompareResult(insn);
       if (compare_insn != nullptr) {
-	compare_st = st;
+	compare_st_ = st;
 	break;
       }
     }
@@ -48,13 +47,13 @@ bool LoopBlock::Build() {
     return false;
   }
   loop_count_ = compare_insn->inputs_[0]->GetInitialValue().GetValue0();
-  IState *tr_st = FindTransition(compare_st, compare_insn);
+  IState *tr_st = FindTransition(compare_st_, compare_insn);
   IInsn *tr_insn = DesignUtil::FindTransitionInsn(tr_st);
   exit_st_ = tr_insn->target_states_[0];
   if (exit_st_ == nullptr) {
     return false;
   }
-  CollectLoopStates(exit_st_, compare_st);
+  CollectLoopStates(exit_st_, compare_st_);
   return true;
 }
 
@@ -135,6 +134,10 @@ IState *LoopBlock::GetEntryAssignState() {
 
 IState *LoopBlock::GetExitState() {
   return exit_st_;
+}
+
+IState *LoopBlock::GetCompareState() {
+  return compare_st_;
 }
 
 }  // namespace unroll
