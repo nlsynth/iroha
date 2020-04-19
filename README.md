@@ -5,7 +5,7 @@ TL;DR: Aiming to be LLVM for HLS
 
 ## What's this?
 
-Iroha is a text representation of a network off state machines and tools to process it. The representation uses S-expression to describe a network of state machines.
+Iroha is a text representation of a network of state machines and tools to process it. The representation uses S-expression to describe a network of state machines.
 It looks like as follows:
 
     (MODULE ...
@@ -48,22 +48,6 @@ A TABLE denotes a state machine. It can have its behavior including calculation 
 
 Please read src/iroha/iroha.h, src/iroha/iroha_main.cpp examples/ for more details.
 
-## TODOs
-
-* WIP: Document
-* P1: Better error handling
-* P1: More debug output from optimizers.
-* P1: Ability to merge AXI channels.
-* P1: Connect FIFO to a dataflow table.
-* P2: Export optimizer API so that users can add own phase
-* P2: FPGA style register initialization
-* P2: I/O for embedded verilog module
-* P2: Simplify wait cycle if there's 1 multi cycle insn in a state
-* P2: Set reset polarity to embedded module.
-* P2: Allow multiple embedded module instances.
-* Q: Do we need instance/module separation?
-* AXI: Allow or fail to attach both master/slave to an array.
-
 ## Source tree
 
 * src/
@@ -81,6 +65,22 @@ Please read src/iroha/iroha.h, src/iroha/iroha_main.cpp examples/ for more detai
     * Code to write design IR as a file.
 * tests/
     * Test input.
+
+## TODOs
+
+* P1: Connect FIFO to a dataflow table.
+* P2: FPGA style coding style (e.g. register initialization)
+* P2: I/O for embedded verilog module
+* P2: Simplify wait cycle if there's 1 multi cycle insn in a state
+* P2: Set reset polarity to embedded module.
+* P2: Allow multiple embedded module instances.
+* Usability: Document
+* Usability: More debug output from optimizers.
+* Usability: Export optimizer API so that users can add own phase
+* Dev: Migrate from unmaintained gyp build.
+* Q: Do we need instance/module separation?
+* AXI: Allow or fail to attach both master/slave to an array.
+* AXI: Ability to merge channels.
 
 ## Authors and friends
 
