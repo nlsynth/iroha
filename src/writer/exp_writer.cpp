@@ -15,6 +15,7 @@ ExpWriter::ExpWriter(const IDesign *design, ostream &os)
 }
 
 void ExpWriter::Write() {
+  WriteHeader();
   WriteResourceParams(*design_->GetParams(), "");
   for (auto *platform : design_->platforms_) {
     WritePlatform(*platform);
@@ -25,6 +26,15 @@ void ExpWriter::Write() {
   for (auto *mod : design_->modules_) {
     WriteModule(*mod);
   }
+}
+
+void ExpWriter::WriteHeader() {
+  os_ << "; Generated from " << PACKAGE << "-" << VERSION << "\n"
+      << "; See https://github.com/nlsynth/iroha\n\n"
+      << "; \n"
+      << "; (REGISTER id name storage-type (type width) initial)\n"
+      << "; (RESOURCE id class (input-types) (output-types) (params) (array))\n"
+      << "; (INSN id res res-id (opr) (target-st) (inputs) (outputs) (deps))\n\n";
 }
 
 void ExpWriter::WriteModule(const IModule &mod) {

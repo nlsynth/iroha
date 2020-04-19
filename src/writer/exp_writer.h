@@ -14,6 +14,7 @@ public:
   void Write();
 
 private:
+  void WriteHeader();
   void WriteModule(const IModule &mod);
   void WriteTable(const ITable &tab);
   void WriteInitialState(const ITable &tab);
