@@ -4,6 +4,7 @@
 #include "iroha/i_design.h"
 #include "iroha/logging.h"
 #include "opt/array_elimination.h"
+#include "opt/array_split_rdata.h"
 #include "opt/clean/empty_state.h"
 #include "opt/clean/empty_table.h"
 #include "opt/clean/unreachable_state.h"
@@ -36,6 +37,7 @@ Optimizer::~Optimizer() {
 
 void Optimizer::Init() {
   RegisterPhase("array_elimination", &ArrayElimination::Create);
+  RegisterPhase("array_split_rdata", &ArraySplitRData::Create);
   RegisterPhase("clean_empty_state", &clean::CleanEmptyStatePhase::Create);
   RegisterPhase("clean_empty_table", &clean::CleanEmptyTablePhase::Create);
   RegisterPhase("clean_unreachable_state",
