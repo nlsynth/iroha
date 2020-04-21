@@ -55,6 +55,10 @@ bool IsArray(const IResourceClass &rc) {
   return (rc.GetName() == kArray);
 }
 
+bool IsArrayRData(const IResourceClass &rc) {
+  return (rc.GetName() == kArrayRData);
+}
+
 bool IsSet(const IResourceClass &rc) {
   return (rc.GetName() == kSet);
 }

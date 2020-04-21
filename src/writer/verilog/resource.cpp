@@ -6,6 +6,7 @@
 #include "iroha/resource_params.h"
 #include "writer/module_template.h"
 #include "writer/verilog/array.h"
+#include "writer/verilog/array_rdata.h"
 #include "writer/verilog/axi/master_port.h"
 #include "writer/verilog/axi/slave_port.h"
 #include "writer/verilog/dataflow_in.h"
@@ -87,6 +88,9 @@ Resource *Resource::Create(const IResource &res, const Table &table) {
   }
   if (resource::IsArray(*klass)) {
     return new ArrayResource(res, table);
+  }
+  if (resource::IsArrayRData(*klass)) {
+    return new ArrayRDataResource(res, table);
   }
   if (resource::IsAxiMasterPort(*klass)) {
     return new axi::MasterPort(res, table);

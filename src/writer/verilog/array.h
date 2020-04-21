@@ -1,6 +1,6 @@
 // -*- C++ -*-
-#ifndef _writer_verilog_mapped_h_
-#define _writer_verilog_mapped_h_
+#ifndef _writer_verilog_array_h_
+#define _writer_verilog_array_h_
 
 #include "writer/verilog/resource.h"
 
@@ -31,4 +31,4 @@ protected:
 }  // namespace writer
 }  // namespace iroha
 
-#endif  // _writer_verilog_mapped_h_
+#endif  // _writer_verilog_array_h_

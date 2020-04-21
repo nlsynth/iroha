@@ -240,6 +240,8 @@
       'sources': [
         'writer/verilog/array.cpp',
         'writer/verilog/array.h',
+        'writer/verilog/array_rdata.cpp',
+        'writer/verilog/array_rdata.h',
         'writer/verilog/axi/axi_controller.cpp',
         'writer/verilog/axi/axi_controller.h',
         'writer/verilog/axi/axi_port.cpp',
