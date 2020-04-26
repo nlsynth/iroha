@@ -17,7 +17,8 @@ public:
 
 private:
   IResource *GetRDataResource(IResource *a);
-  bool IsArrayRead(IInsn *insn);
+  bool IsArrayRAddress(IInsn *insn);
+  bool IsArrayRData(IInsn *insn);
 
   ITable *tab_;
   map<IResource *, IResource *> array_to_rdata_;
@@ -27,10 +28,14 @@ TableConverter::TableConverter(ITable *tab) : tab_(tab) {
 }
 
 void TableConverter::Convert() {
+  map<IResource *, IInsn *> raddr_insn;
   for (IState *st : tab_->states_) {
     vector<IInsn *> new_insns;
     for (IInsn *insn : st->insns_) {
-      if (!IsArrayRead(insn)) {
+      if (IsArrayRAddress(insn)) {
+	raddr_insn[insn->GetResource()] = insn;
+      }
+      if (!IsArrayRData(insn)) {
 	new_insns.push_back(insn);
 	continue;
       }
@@ -39,14 +44,28 @@ void TableConverter::Convert() {
       IInsn *rd_insn = new IInsn(rd);
       rd_insn->inputs_ = insn->inputs_;
       rd_insn->outputs_ = insn->outputs_;
+      IInsn *a_insn = raddr_insn[insn->GetResource()];
+      rd_insn->depending_insns_.push_back(a_insn);
       new_insns.push_back(rd_insn);
     }
     st->insns_ = new_insns;
   }
-  // TODO: Set rd_insn->depending_insns_.
 }
 
-bool TableConverter::IsArrayRead(IInsn *insn) {
+bool TableConverter::IsArrayRAddress(IInsn *insn) {
+  IResource *res = insn->GetResource();
+  auto *klass = res->GetClass();
+  if (!resource::IsArray(*klass)) {
+    return false;
+  }
+  if (insn->inputs_.size() == 1 &&
+      insn->outputs_.size() == 0) {
+    return true;
+  }
+  return false;
+}
+
+bool TableConverter::IsArrayRData(IInsn *insn) {
   IResource *res = insn->GetResource();
   auto *klass = res->GetClass();
   if (!resource::IsArray(*klass)) {
@@ -64,6 +83,7 @@ IResource *TableConverter::GetRDataResource(IResource *a) {
   IResource *r = nullptr;
   if (it == array_to_rdata_.end()) {
     r = DesignUtil::CreateResource(tab_, resource::kArrayRData);
+    r->SetParentResource(a);
     tab_->resources_.push_back(r);
     array_to_rdata_[a] = r;
   } else {
