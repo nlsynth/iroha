@@ -108,15 +108,19 @@ void ArrayResource::BuildSRAMWrite() {
 }
 
 string ArrayResource::SigName(const string &sig) {
+  return SigName(res_, res_.GetArray(), sig);
+}
+
+string ArrayResource::SigName(const IResource &res, IArray *array,
+			      const string &sig) {
   string res_id;
-  IArray *array = GetArray();
   if (array->IsExternal()) {
-    string prefix = res_.GetParams()->GetPortNamePrefix();
+    string prefix = res.GetParams()->GetPortNamePrefix();
     if (!prefix.empty()) {
       res_id = "_" + prefix;
     }
   } else {
-    res_id = Util::Itoa(res_.GetId());
+    res_id = Util::Itoa(res.GetId());
   }
   return "sram" + res_id + "_" + sig;
 }

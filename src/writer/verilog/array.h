@@ -16,6 +16,8 @@ public:
   virtual void BuildResource() override;
   virtual void BuildInsn(IInsn *insn, State *st) override;
 
+  static string SigName(const IResource &res, IArray *array, const string &sig);
+
 private:
   void BuildExternalSRAM();
   void BuildInternalSRAM();

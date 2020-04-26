@@ -1,5 +1,10 @@
 #include "writer/verilog/array_rdata.h"
 
+#include "iroha/i_design.h"
+#include "writer/verilog/array.h"
+#include "writer/verilog/insn_writer.h"
+#include "writer/verilog/table.h"
+
 namespace iroha {
 namespace writer {
 namespace verilog {
@@ -13,6 +18,12 @@ void ArrayRDataResource::BuildResource() {
 }
 
 void ArrayRDataResource::BuildInsn(IInsn *insn, State *st) {
+  // Similar to ArrayResource::BuildInsn().
+  ostream &ws = tab_.InsnWireValueSectionStream();
+  IResource *res = res_.GetParentResource();
+  IArray *arr = res->GetArray();
+  ws << "  assign " << InsnWriter::InsnOutputWireName(*insn, 0)
+     << " = " << ArrayResource::SigName(*res, arr, "rdata") << ";\n";
 }
 
 }  // namespace verilog
