@@ -12,6 +12,9 @@ public:
   virtual ~ArraySplitRData();
 
   static Phase *Create();
+
+private:
+  virtual bool ApplyForTable(const string &key, ITable *table);
 };
 
 }  // namespace opt

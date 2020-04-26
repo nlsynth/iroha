@@ -221,6 +221,7 @@ void InstallResourceClasses(IDesign *design) {
   InstallResource(design, resource::kSharedMemoryReplica, true);
   InstallResource(design, resource::kSharedMemoryWriter, true);
   InstallResource(design, resource::kArray, true);
+  InstallResource(design, resource::kArrayRData, true);
   InstallResource(design, resource::kGt, true);
   InstallResource(design, resource::kGte, true);
   InstallResource(design, resource::kEq, true);
