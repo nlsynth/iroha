@@ -27,6 +27,7 @@ enum PathEdgeType : int {
   WRITE_READ,
   WRITE_WRITE,
   READ_WRITE,
+  INSN_DEP,
 };
 class PathEdge {
 public:
@@ -38,6 +39,7 @@ public:
   bool IsWtoR();
   bool IsWtoW();
   bool IsRtoW();
+  bool IsDep();
   IRegister *GetSourceReg();
   void SetSourceReg(IRegister *reg);
   int GetSourceRegIndex();

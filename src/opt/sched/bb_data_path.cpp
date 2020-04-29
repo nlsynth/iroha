@@ -37,6 +37,7 @@ void BBDataPath::Build() {
   }
   BuildFromWrite(insn_to_node);
   BuildFromRead(insn_to_node);
+  BuildFromDep(insn_to_node);
 }
 
 void BBDataPath::BuildFromWrite(map<IInsn *, PathNode *> &insn_to_node) {
@@ -95,6 +96,22 @@ void BBDataPath::BuildFromRead(map<IInsn *, PathNode *> &insn_to_node) {
 	  input_to_insn[ireg] = make_pair(insn, iindex);
 	}
 	++iindex;
+      }
+    }
+  }
+}
+
+void BBDataPath::BuildFromDep(map<IInsn *, PathNode *> &insn_to_node) {
+  for (IState *st : bb_->states_) {
+    for (IInsn *insn : st->insns_) {
+      for (IInsn *dinsn : insn->depending_insns_) {
+	PathNode *src_node = insn_to_node[dinsn];
+	if (src_node == nullptr) {
+	  // should be in another bb.
+	  continue;
+	}
+	PathNode *this_node = insn_to_node[insn];
+	BuildEdge(PathEdgeType::INSN_DEP, src_node, -1, this_node);
       }
     }
   }

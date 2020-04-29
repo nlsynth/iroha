@@ -34,6 +34,10 @@ bool PathEdge::IsRtoW() {
   return (type_ == READ_WRITE);
 }
 
+bool PathEdge::IsDep() {
+  return (type_ == INSN_DEP);
+}
+
 IRegister *PathEdge::GetSourceReg() {
   CHECK(IsWtoR() || IsWtoW());
   return source_node_->GetInsn()->outputs_[source_reg_index_];

@@ -111,10 +111,12 @@ bool BBScheduler::ScheduleNode(PathNode *n) {
 }
 
 int BBScheduler::GetMinStIndex(PathNode *n) {
+  cout << n->GetInsn()->GetId() << "\n";
   // Checks if all preceding nodes (W->W, W->R, R->W) are scheduled.
   for (auto &s : n->source_edges_) {
     PathEdge *edge = s.second;
     PathNode *source_node = edge->GetSourceNode();
+    // cout << " " << source_node->GetInsn()->GetId() << " " << edge->GetType() << "\n";
     if (source_node->GetFinalStIndex() < 0) {
       // Not yet scheduled. Fail and try later again.
       return -1;

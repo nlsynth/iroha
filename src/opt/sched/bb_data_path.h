@@ -29,6 +29,7 @@ private:
   void BuildFromWrite(map<IInsn *, PathNode *> &insn_to_node);
   // R->W
   void BuildFromRead(map<IInsn *, PathNode *> &insn_to_node);
+  void BuildFromDep(map<IInsn *, PathNode *> &insn_to_node);
   void BuildEdge(PathEdgeType type, PathNode *src_node, int reg_index,
 		 PathNode *this_node);
   void BuildEdgeForReg(map<IInsn *, PathNode *> &insn_to_node,
