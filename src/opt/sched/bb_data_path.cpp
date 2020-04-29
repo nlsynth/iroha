@@ -62,6 +62,12 @@ void BBDataPath::BuildFromWrite(map<IInsn *, PathNode *> &insn_to_node) {
       }
       // Process outputs (W->W).
       for (IRegister *oreg : insn->outputs_) {
+	auto it = output_to_insn.find(oreg);
+	if (it == output_to_insn.end() ||
+	    it->second.first == insn) {
+	  // Write by self.
+	  continue;
+	}
 	BuildEdgeForReg(insn_to_node, output_to_insn,
 			PathEdgeType::WRITE_WRITE, insn, oreg);
       }
