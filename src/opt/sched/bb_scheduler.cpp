@@ -26,8 +26,6 @@ BBScheduler::~BBScheduler() {
 }
 
 bool BBScheduler::IsSchedulable() {
-  // TODO: We might split a basic block before/after special insns, because
-  // this is too awkward.
   BB *bb = data_path_->GetBB();
   for (IState *st : bb->states_) {
     for (IInsn *insn : st->insns_) {
@@ -40,10 +38,6 @@ bool BBScheduler::IsSchedulable() {
       }
       auto rc = *(insn->GetResource()->GetClass());
       if (resource::IsExtCombinational(rc)) {
-	return false;
-      }
-      // This is really awkward...
-      if (insn->depending_insns_.size() > 0) {
 	return false;
       }
     }
