@@ -135,6 +135,8 @@
         'opt/opt_util.h',
         'opt/phase.cpp',
         'opt/phase.h',
+        'opt/pipeline/pipeline_phase.h',
+        'opt/pipeline/pipeline_phase.cpp',
 	'opt/profile/profile.cpp',
 	'opt/profile/profile.h',
 	'opt/sched/bb_data_path.cpp',
