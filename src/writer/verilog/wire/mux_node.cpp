@@ -1,7 +1,7 @@
 #include "writer/verilog/wire/mux_node.h"
 
 #include "iroha/logging.h"
-#include "writer/verilog/ports.h"
+#include "writer/verilog/port.h"
 #include "writer/verilog/port_set.h"
 #include "writer/verilog/resource.h"
 #include "writer/verilog/table.h"

@@ -4,7 +4,7 @@
 #include "iroha/resource_class.h"
 #include "writer/verilog/axi/axi_port.h"
 #include "writer/verilog/axi/channel_generator.h"
-#include "writer/verilog/ports.h"
+#include "writer/verilog/port.h"
 #include "writer/verilog/port_set.h"
 
 namespace iroha {

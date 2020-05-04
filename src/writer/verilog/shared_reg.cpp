@@ -15,7 +15,7 @@
 #include "writer/module_template.h"
 #include "writer/verilog/insn_writer.h"
 #include "writer/verilog/module.h"
-#include "writer/verilog/ports.h"
+#include "writer/verilog/port.h"
 #include "writer/verilog/shared_reg_accessor.h"
 #include "writer/verilog/shared_reg_ext_writer.h"
 #include "writer/verilog/state.h"

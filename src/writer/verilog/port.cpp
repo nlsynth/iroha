@@ -1,11 +1,13 @@
-#include "writer/verilog/ports.h"
+#include "writer/verilog/port.h"
 
 namespace iroha {
 namespace writer {
 namespace verilog {
 
-Port::Port(const string &prefix, const string &name, enum PortType type, int width)
-  : prefix_(prefix), name_(prefix + name), suffix_(name), type_(type), width_(width), fixed_value_(-1) {
+Port::Port(const string &prefix, const string &name, enum PortType type,
+	   int width)
+  : prefix_(prefix), name_(prefix + name), suffix_(name), type_(type),
+    width_(width), fixed_value_(-1) {
 }
 
 Port::~Port() {

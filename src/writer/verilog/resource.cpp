@@ -20,7 +20,7 @@
 #include "writer/verilog/insn_writer.h"
 #include "writer/verilog/module.h"
 #include "writer/verilog/operator.h"
-#include "writer/verilog/ports.h"
+#include "writer/verilog/port.h"
 #include "writer/verilog/port_set.h"
 #include "writer/verilog/shared_memory.h"
 #include "writer/verilog/shared_memory_accessor.h"

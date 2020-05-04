@@ -1,6 +1,6 @@
 #include "writer/verilog/port_set.h"
 
-#include "writer/verilog/ports.h"
+#include "writer/verilog/port.h"
 #include "iroha/stl_util.h"
 
 static const string kInput = "input";

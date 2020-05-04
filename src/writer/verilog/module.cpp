@@ -8,7 +8,7 @@
 #include "writer/module_template.h"
 #include "writer/names.h"
 #include "writer/verilog/dataflow_table.h"
-#include "writer/verilog/ports.h"
+#include "writer/verilog/port.h"
 #include "writer/verilog/port_set.h"
 #include "writer/verilog/table.h"
 #include "writer/verilog/verilog_writer.h"

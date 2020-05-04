@@ -3,7 +3,7 @@
 #define _writer_verilog_port_set_h_
 
 #include "writer/verilog/common.h"
-#include "writer/verilog/ports.h"
+#include "writer/verilog/port.h"
 
 namespace iroha {
 namespace writer {

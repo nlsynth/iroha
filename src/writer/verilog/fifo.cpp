@@ -9,7 +9,7 @@
 #include "writer/verilog/fifo_accessor.h"
 #include "writer/verilog/internal_sram.h"
 #include "writer/verilog/module.h"
-#include "writer/verilog/ports.h"
+#include "writer/verilog/port.h"
 #include "writer/verilog/port_set.h"
 #include "writer/verilog/table.h"
 #include "writer/verilog/wire/accessor_info.h"
