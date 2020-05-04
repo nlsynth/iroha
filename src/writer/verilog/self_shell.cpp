@@ -11,7 +11,7 @@ namespace iroha {
 namespace writer {
 namespace verilog {
 
-SelfShell::SelfShell(const IDesign *design, const Ports *ports,
+SelfShell::SelfShell(const IDesign *design, const PortSet *ports,
 		     bool reset_polarity)
   : design_(design), ports_(ports), reset_polarity_(reset_polarity) {
   for (IModule *mod : design->modules_) {

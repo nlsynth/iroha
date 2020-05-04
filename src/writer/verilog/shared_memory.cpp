@@ -11,6 +11,7 @@
 #include "writer/verilog/internal_sram.h"
 #include "writer/verilog/module.h"
 #include "writer/verilog/ports.h"
+#include "writer/verilog/port_set.h"
 #include "writer/verilog/shared_memory_accessor.h"
 #include "writer/verilog/state.h"
 #include "writer/verilog/table.h"
@@ -63,7 +64,7 @@ void SharedMemory::BuildAck() {
 
 void SharedMemory::BuildExternalMemoryConnection() {
   IArray *array = res_.GetArray();
-  auto *ports = tab_.GetPorts();
+  auto *ports = tab_.GetPortSet();
   ports->AddPort("sram_addr", Port::OUTPUT_WIRE, array->GetAddressWidth());
   ports->AddPort("sram_wdata", Port::OUTPUT_WIRE,
 		 array->GetDataType().GetWidth());
@@ -89,7 +90,7 @@ void SharedMemory::BuildMemoryInstance() {
     tab_.GetEmbeddedModules()->RequestInternalSRAM(*tab_.GetModule(),
 						   *res_.GetArray(),
 						   num_ports);
-  auto *ports = tab_.GetPorts();
+  auto *ports = tab_.GetPortSet();
   ostream &es = tmpl_->GetStream(kEmbeddedInstanceSection);
   string name = sram->GetModuleName();
   string inst = name + "_inst_" + Util::Itoa(tab_.GetITable()->GetId()) +

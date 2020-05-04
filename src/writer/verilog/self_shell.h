@@ -10,7 +10,7 @@ namespace verilog {
 
 class SelfShell {
 public:
-  SelfShell(const IDesign *design, const Ports *ports, bool reset_polarity);
+  SelfShell(const IDesign *design, const PortSet *ports, bool reset_polarity);
 
   void WriteWireDecl(ostream &os);
   void WritePortConnection(ostream &os);
@@ -20,7 +20,7 @@ private:
   void ProcessModule(IModule *mod);
 
   const IDesign *design_;
-  const Ports *ports_;
+  const PortSet *ports_;
   bool reset_polarity_;
   vector<IResource *> axi_;
   vector<IResource *> ext_input_;

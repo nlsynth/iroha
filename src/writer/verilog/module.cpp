@@ -9,6 +9,7 @@
 #include "writer/names.h"
 #include "writer/verilog/dataflow_table.h"
 #include "writer/verilog/ports.h"
+#include "writer/verilog/port_set.h"
 #include "writer/verilog/table.h"
 #include "writer/verilog/verilog_writer.h"
 
@@ -22,7 +23,7 @@ Module::Module(const IModule *i_mod, const VerilogWriter *writer,
   : i_mod_(i_mod), writer_(writer), conn_(conn), embed_(embed), names_(names),
     parent_(nullptr) {
   tmpl_.reset(new ModuleTemplate);
-  ports_.reset(new Ports);
+  ports_.reset(new PortSet);
   reset_name_ = i_mod->GetParams()->GetResetName();
   name_ = i_mod->GetName();
   names_->AssignRegNames(i_mod_);
@@ -35,9 +36,9 @@ Module::~Module() {
 void Module::Write(const string &prefix, ostream &os) {
   os << "\n// Module " << i_mod_->GetId() << ";\n"
      << "module " << prefix << GetName() << "(";
-  ports_->Output(Ports::PORT_MODULE_HEAD, os);
+  ports_->Output(PortSet::PORT_MODULE_HEAD, os);
   os << ");\n";
-  ports_->Output(Ports::FIXED_VALUE_ASSIGN, os);
+  ports_->Output(PortSet::FIXED_VALUE_ASSIGN, os);
   os << "\n";
 
   os << "  // State decls\n"
@@ -109,7 +110,7 @@ const IModule *Module::GetIModule() const {
   return i_mod_;
 }
 
-Ports *Module::GetPorts() const {
+PortSet *Module::GetPortSet() const {
   return ports_.get();
 }
 
@@ -155,10 +156,10 @@ void Module::BuildChildModuleInstSection(vector<Module *> &child_mods) {
   for (auto *child_mod : child_modules_) {
     string current_content = ChildModuleInstSectionContents(child_mod, true);
     ostream &is = ChildModuleInstSectionStream(child_mod);
-    is << "." << child_mod->GetPorts()->GetClk()
-       << "(" << GetPorts()->GetClk() << ")";
-    is << ", ." << child_mod->GetPorts()->GetReset()
-       << "(" << GetPorts()->GetReset() << ")";
+    is << "." << child_mod->GetPortSet()->GetClk()
+       << "(" << GetPortSet()->GetClk() << ")";
+    is << ", ." << child_mod->GetPortSet()->GetReset()
+       << "(" << GetPortSet()->GetReset() << ")";
     is << current_content;
   }
 }

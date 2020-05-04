@@ -5,6 +5,7 @@
 #include "writer/module_template.h"
 #include "writer/verilog/module.h"
 #include "writer/verilog/ports.h"
+#include "writer/verilog/port_set.h"
 #include "writer/verilog/resource.h"
 #include "writer/verilog/table.h"
 
@@ -125,7 +126,7 @@ void InterModuleWire::AddPort(Module *mod, const string &name, int width,
     AddWireName(mod, wire_key);
   }
 
-  Ports *ports = mod->GetPorts();
+  PortSet *ports = mod->GetPortSet();
   if (upward) {
     ports->AddPort(name, Port::OUTPUT_WIRE, width);
   } else {

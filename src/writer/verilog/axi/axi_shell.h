@@ -15,7 +15,7 @@ public:
 
   void WriteWireDecl(ostream &os);
   void WritePortConnection(ostream &os);
-  void WriteFSM(const Ports *ports, bool reset_polarity, ostream &os);
+  void WriteFSM(const PortSet *ports, bool reset_polarity, ostream &os);
 
 private:
   string P(const string &p);

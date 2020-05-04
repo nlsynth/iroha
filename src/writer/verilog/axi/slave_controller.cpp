@@ -4,6 +4,7 @@
 #include "writer/verilog/axi/slave_port.h"
 #include "writer/verilog/module.h"
 #include "writer/verilog/ports.h"
+#include "writer/verilog/port_set.h"
 
 namespace iroha {
 namespace writer {
@@ -13,7 +14,7 @@ namespace axi {
 SlaveController::SlaveController(const IResource &res,
 				 bool reset_polarity)
   : AxiController(res, reset_polarity) {
-  ports_.reset(new Ports);
+  ports_.reset(new PortSet);
 }
 
 SlaveController::~SlaveController() {
@@ -31,9 +32,9 @@ void SlaveController::Write(ostream &os) {
 		      false, nullptr, ports_.get(), &initials);
   ch.GenerateChannel(true, true);
   WriteModuleHeader(name, os);
-  ports_->Output(Ports::PORT_MODULE_HEAD, os);
+  ports_->Output(PortSet::PORT_MODULE_HEAD, os);
   os << ");\n";
-  ports_->Output(Ports::FIXED_VALUE_ASSIGN, os);
+  ports_->Output(PortSet::FIXED_VALUE_ASSIGN, os);
 
   os << "  localparam S_IDLE = 0;\n"
      << "  localparam S_WRITE_DONE = 7;\n"
@@ -71,7 +72,7 @@ void SlaveController::Write(ostream &os) {
 }
 
 void SlaveController::AddPorts(const PortConfig &cfg, Module *mod, string *s) {
-  Ports *ports = mod->GetPorts();
+  PortSet *ports = mod->GetPortSet();
   ChannelGenerator ch(cfg, ChannelGenerator::PORTS_TO_EXT_AND_CONNECTIONS,
 		      false, mod, ports, s);
   ch.GenerateChannel(true, true);

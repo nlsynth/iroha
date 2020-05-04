@@ -13,6 +13,7 @@
 #include "writer/verilog/insn_writer.h"
 #include "writer/verilog/module.h"
 #include "writer/verilog/ports.h"
+#include "writer/verilog/port_set.h"
 #include "writer/verilog/resource.h"
 #include "writer/verilog/state.h"
 #include "writer/verilog/task.h"
@@ -21,7 +22,7 @@ namespace iroha {
 namespace writer {
 namespace verilog {
 
-Table::Table(ITable *table, Ports *ports, Module *mod, EmbeddedModules *embed,
+Table::Table(ITable *table, PortSet *ports, Module *mod, EmbeddedModules *embed,
 	     Names *names, ModuleTemplate *tmpl)
   : i_table_(table), ports_(ports), mod_(mod), embedded_modules_(embed),
     names_(names), tmpl_(tmpl) {
@@ -357,7 +358,7 @@ bool Table::IsEmpty() {
   return (states_.size() == 0);
 }
 
-Ports *Table::GetPorts() const {
+PortSet *Table::GetPortSet() const {
   return ports_;
 }
 

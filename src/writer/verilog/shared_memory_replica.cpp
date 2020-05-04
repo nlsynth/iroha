@@ -6,6 +6,7 @@
 #include "writer/verilog/internal_sram.h"
 #include "writer/verilog/module.h"
 #include "writer/verilog/ports.h"
+#include "writer/verilog/port_set.h"
 #include "writer/verilog/shared_memory.h"
 #include "writer/verilog/table.h"
 #include "writer/verilog/wire/wire_set.h"
@@ -29,7 +30,7 @@ void SharedMemoryReplica::BuildResource() {
   string name = sram->GetModuleName();
   string inst = name + "_inst_" + Util::Itoa(tab_.GetITable()->GetId()) +
     "_" + Util::Itoa(res_.GetId());
-  auto *ports = tab_.GetPorts();
+  auto *ports = tab_.GetPortSet();
   string rn = SharedMemory::GetName(*parent);
   string addr_wire = wire::Names::ResourceWire(rn, "addr");
   string wdata_wire = wire::Names::ResourceWire(rn, "wdata");

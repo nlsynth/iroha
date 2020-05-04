@@ -20,13 +20,14 @@
 #include "writer/verilog/insn_writer.h"
 #include "writer/verilog/module.h"
 #include "writer/verilog/operator.h"
+#include "writer/verilog/ports.h"
+#include "writer/verilog/port_set.h"
 #include "writer/verilog/shared_memory.h"
 #include "writer/verilog/shared_memory_accessor.h"
 #include "writer/verilog/shared_memory_replica.h"
 #include "writer/verilog/shared_reg.h"
 #include "writer/verilog/shared_reg_accessor.h"
 #include "writer/verilog/shared_reg_ext_writer.h"
-#include "writer/verilog/ports.h"
 #include "writer/verilog/sram_if.h"
 #include "writer/verilog/state.h"
 #include "writer/verilog/study.h"
@@ -302,7 +303,7 @@ void Resource::AddPortToTop(const string &port, bool is_output,
   } else {
     type = Port::INPUT;
   }
-  auto *ports = tab_.GetPorts();
+  auto *ports = tab_.GetPortSet();
   ports->AddPort(port, type, width);
   // Outer modules.
   if (is_output) {
@@ -314,7 +315,7 @@ void Resource::AddPortToTop(const string &port, bool is_output,
     if (parent_mod != nullptr) {
       ostream &os = parent_mod->ChildModuleInstSectionStream(mod);
       os << ", ." << port << "(" << port << ")";
-      auto *parent_ports = parent_mod->GetPorts();
+      auto *parent_ports = parent_mod->GetPortSet();
       parent_ports->AddPort(port, type, width);
     }
   }
@@ -336,7 +337,7 @@ void Resource::BuildEmbeddedModule(const string &connection) {
   auto *params = res_.GetParams();
   tab_.GetEmbeddedModules()->RequestModule(*params);
 
-  auto *ports = tab_.GetPorts();
+  auto *ports = tab_.GetPortSet();
   ostream &is = tmpl_->GetStream(kEmbeddedInstanceSection);
   string name = params->GetEmbeddedModuleName();
   is << "  // " << name << "\n"

@@ -5,6 +5,7 @@
 #include "writer/verilog/axi/axi_controller.h"
 #include "writer/verilog/module.h"
 #include "writer/verilog/ports.h"
+#include "writer/verilog/port_set.h"
 #include "writer/verilog/table.h"
 #include "writer/verilog/shared_memory.h"
 #include "writer/verilog/shared_memory_accessor.h"
@@ -21,8 +22,8 @@ AxiPort::AxiPort(const IResource &res, const Table &table)
 }
 
 void AxiPort::OutputSRAMConnection(ostream &os) {
-  const string &clk = tab_.GetPorts()->GetClk();
-  const string &rst = tab_.GetPorts()->GetReset();
+  const string &clk = tab_.GetPortSet()->GetClk();
+  const string &rst = tab_.GetPortSet()->GetReset();
   const IResource *mem = res_.GetParentResource();
   string rn = SharedMemory::GetName(*mem);
   int idx = 0;

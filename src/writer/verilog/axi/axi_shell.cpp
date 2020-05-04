@@ -5,6 +5,7 @@
 #include "writer/verilog/axi/axi_port.h"
 #include "writer/verilog/axi/channel_generator.h"
 #include "writer/verilog/ports.h"
+#include "writer/verilog/port_set.h"
 
 namespace iroha {
 namespace writer {
@@ -42,7 +43,8 @@ void AxiShell::WritePortConnection(ostream &os) {
   os << s;
 }
 
-void AxiShell::WriteFSM(const Ports *ports, bool reset_polarity, ostream &os) {
+void AxiShell::WriteFSM(const PortSet *ports, bool reset_polarity,
+			ostream &os) {
   if (!is_master_) {
     return;
   }

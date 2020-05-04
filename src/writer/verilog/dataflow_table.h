@@ -11,7 +11,7 @@ namespace verilog {
 
 class DataFlowTable : public Table {
 public:
-  DataFlowTable(ITable *table, Ports *ports, Module *mod,
+  DataFlowTable(ITable *table, PortSet *ports, Module *mod,
 		EmbeddedModules *embed, Names *names,
 		ModuleTemplate *tmpl);
 

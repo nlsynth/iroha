@@ -10,6 +10,7 @@
 #include "writer/verilog/internal_sram.h"
 #include "writer/verilog/module.h"
 #include "writer/verilog/ports.h"
+#include "writer/verilog/port_set.h"
 #include "writer/verilog/table.h"
 #include "writer/verilog/wire/accessor_info.h"
 #include "writer/verilog/wire/wire_set.h"
@@ -79,7 +80,7 @@ void Fifo::BuildMemoryInstance() {
   InternalSRAM *sram =
     tab_.GetEmbeddedModules()->RequestInternalSRAM(*tab_.GetModule(),
 						   array, 2);
-  auto *ports = tab_.GetPorts();
+  auto *ports = tab_.GetPortSet();
   string name = sram->GetModuleName();
   string inst = name + "_inst_" + Util::Itoa(tab_.GetITable()->GetId()) +
     "_" + Util::Itoa(res_.GetId());

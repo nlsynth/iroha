@@ -22,7 +22,7 @@ public:
 
 private:
   const WireSet *ws_;
-  unique_ptr<Ports> ports_;
+  unique_ptr<PortSet> ports_;
   MuxNode *root_node_;
   int num_nodes_;
 

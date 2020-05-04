@@ -2,6 +2,7 @@
 
 #include "iroha/logging.h"
 #include "writer/verilog/ports.h"
+#include "writer/verilog/port_set.h"
 #include "writer/verilog/resource.h"
 #include "writer/verilog/table.h"
 #include "writer/verilog/wire/accessor_info.h"
@@ -61,7 +62,7 @@ void MuxNode::SetStaged(bool staged) {
   is_staged_ = staged;
 }
 
-void MuxNode::WriteIOWire(Ports *ports, ostream &os) {
+void MuxNode::WriteIOWire(PortSet *ports, ostream &os) {
   for (MuxNode *cn : children_) {
     cn->WriteIOWire(ports, os);
   }

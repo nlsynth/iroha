@@ -295,6 +295,8 @@
         'writer/verilog/operator.h',
         'writer/verilog/ports.cpp',
         'writer/verilog/ports.h',
+        'writer/verilog/port_set.cpp',
+        'writer/verilog/port_set.h',
         'writer/verilog/resource.cpp',
         'writer/verilog/resource.h',
         'writer/verilog/self_shell.cpp',

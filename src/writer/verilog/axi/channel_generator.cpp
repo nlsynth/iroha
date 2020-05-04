@@ -3,6 +3,7 @@
 #include "iroha/i_design.h"
 #include "writer/verilog/module.h"
 #include "writer/verilog/ports.h"
+#include "writer/verilog/port_set.h"
 #include "writer/verilog/table.h"
 
 namespace {
@@ -17,7 +18,7 @@ namespace axi {
 ChannelGenerator::ChannelGenerator(const PortConfig &cfg,
 				   enum OutputType type,
 				   bool is_master, Module *module,
-				   Ports *ports, string *s)
+				   PortSet *ports, string *s)
   : cfg_(cfg), type_(type), is_master_(is_master), module_(module),
     ports_(ports), s_(s) {
 }

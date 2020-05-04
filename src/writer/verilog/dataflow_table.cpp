@@ -12,7 +12,7 @@ namespace iroha {
 namespace writer {
 namespace verilog {
 
-DataFlowTable::DataFlowTable(ITable *table, Ports *ports, Module *mod,
+DataFlowTable::DataFlowTable(ITable *table, PortSet *ports, Module *mod,
 			     EmbeddedModules *embed, Names *names,
 			     ModuleTemplate *tmpl)
   : Table(table, ports, mod, embed, names, tmpl) {

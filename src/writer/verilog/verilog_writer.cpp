@@ -10,6 +10,7 @@
 #include "writer/verilog/internal_sram.h"
 #include "writer/verilog/module.h"
 #include "writer/verilog/ports.h"
+#include "writer/verilog/port_set.h"
 #include "writer/verilog/self_shell.h"
 
 namespace iroha {
@@ -147,10 +148,10 @@ void VerilogWriter::BuildChildModuleSection() {
 }
 
 void VerilogWriter::WriteShellModule(const Module *mod) {
-  const Ports *ports = mod->GetPorts();
+  const PortSet *ports = mod->GetPortSet();
   os_ << "module " << shell_module_name_ << "(";
   if (!with_self_contained_) {
-    ports->Output(Ports::PORT_MODULE_HEAD_DIRECTION, os_);
+    ports->Output(PortSet::PORT_MODULE_HEAD_DIRECTION, os_);
   }
   os_ << ");\n";
   if (with_self_contained_) {
@@ -172,7 +173,7 @@ void VerilogWriter::WriteShellModule(const Module *mod) {
     WriteSelfClockConnection(mod);
     shell->WritePortConnection(os_);
   } else {
-    ports->Output(Ports::PORT_CONNECTION, os_);
+    ports->Output(PortSet::PORT_CONNECTION, os_);
   }
   os_ << ");\n";
   if (with_self_contained_) {
@@ -189,16 +190,16 @@ void VerilogWriter::WriteShellModule(const Module *mod) {
 
   os_ << "\n// NOTE: Please copy the follwoing line to your design.\n"
       << "// " << shell_module_name_ << " " << shell_module_name_ << "_inst(";
-  ports->Output(Ports::PORT_CONNECTION_TEMPLATE, os_);
+  ports->Output(PortSet::PORT_CONNECTION_TEMPLATE, os_);
   os_ << ");\n";
   os_ << "// NOTE: This can be used by your script to auto generate the instantiation and connections.\n"
       << "// :connection: " << shell_module_name_ << ":" << shell_module_name_ << "_inst ";
-  ports->Output(Ports::PORT_CONNECTION_DATA, os_);
+  ports->Output(PortSet::PORT_CONNECTION_DATA, os_);
   os_ << "\n";
 }
 
 void VerilogWriter::WriteSelfClockGenerator(const Module *mod) {
-  const Ports *ports = mod->GetPorts();
+  const PortSet *ports = mod->GetPortSet();
   const string &clk = ports->GetClk();
   const string &rst = ports->GetReset();
   os_ << "  reg " << clk << ", " <<  rst << ";\n\n"
@@ -216,7 +217,7 @@ void VerilogWriter::WriteSelfClockGenerator(const Module *mod) {
 }
 
 void VerilogWriter::WriteSelfClockConnection(const Module *mod) {
-  const Ports *ports = mod->GetPorts();
+  const PortSet *ports = mod->GetPortSet();
   const string &clk = ports->GetClk();
   const string &rst = ports->GetReset();
   os_ << "." << clk << "(" << clk << "), ." << rst << "(" << rst << ")";

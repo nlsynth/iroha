@@ -2,6 +2,7 @@
 
 #include "iroha/logging.h"
 #include "writer/verilog/ports.h"
+#include "writer/verilog/port_set.h"
 #include "writer/verilog/table.h"
 #include "writer/verilog/resource.h"
 #include "writer/verilog/wire/accessor_info.h"
@@ -24,9 +25,9 @@ namespace verilog {
 namespace wire {
 
 Mux::Mux(const WireSet *ws) : ws_(ws), root_node_(nullptr), num_nodes_(0) {
-  ports_.reset(new Ports);
+  ports_.reset(new PortSet);
   const Table &tab = ws_->GetResource().GetTable();
-  Ports *pp = tab.GetPorts();
+  PortSet *pp = tab.GetPortSet();
   ports_->AddPort(pp->GetClk(), Port::INPUT_CLK, 0);
   ports_->AddPort(pp->GetReset(), Port::INPUT_RESET, 0);
   root_node_ = BuildNodes(ws_->GetAccessors());
@@ -53,7 +54,7 @@ void Mux::DoWrite(ostream &os) {
   root_node_->WriteIOWire(ports_.get(), os);
 
   os << "\nmodule " << ws_->GetMuxName() << "(";
-  ports_->Output(Ports::PORT_MODULE_HEAD, os);
+  ports_->Output(PortSet::PORT_MODULE_HEAD, os);
   os << ");\n";
 
   root_node_->WriteDecls(os);

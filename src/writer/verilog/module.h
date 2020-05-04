@@ -40,7 +40,7 @@ public:
   Module *GetParentModule() const;
   void SetParentModule(Module *parent);
   const IModule *GetIModule() const;
-  Ports *GetPorts() const;
+  PortSet *GetPortSet() const;
   ModuleTemplate *GetModuleTemplate() const;
   void BuildChildModuleInstSection(vector<Module *> &child_mods);
   const string &GetName() const;
@@ -59,7 +59,7 @@ private:
   Names *names_;
   Module *parent_;
   unique_ptr<ModuleTemplate> tmpl_;
-  unique_ptr<Ports> ports_;
+  unique_ptr<PortSet> ports_;
   vector<Table *> tables_;
   vector<Module *> child_modules_;
   string name_;

@@ -5,6 +5,7 @@
 #include "writer/verilog/axi/master_port.h"
 #include "writer/verilog/module.h"
 #include "writer/verilog/ports.h"
+#include "writer/verilog/port_set.h"
 #include "writer/verilog/table.h"
 
 namespace iroha {
@@ -34,9 +35,9 @@ void MasterController::Write(ostream &os) {
   ch.GenerateChannel(true, true);
   string name = MasterPort::ControllerName(res_);
   WriteModuleHeader(name, os);
-  ports_->Output(Ports::PORT_MODULE_HEAD, os);
+  ports_->Output(PortSet::PORT_MODULE_HEAD, os);
   os << ");\n";
-  ports_->Output(Ports::FIXED_VALUE_ASSIGN, os);
+  ports_->Output(PortSet::FIXED_VALUE_ASSIGN, os);
   os << "\n"
      << "  localparam S_IDLE = 0;\n"
      << "  localparam S_ADDR_WAIT = 1;\n";
@@ -103,7 +104,7 @@ void MasterController::Write(ostream &os) {
 void MasterController::AddPorts(const PortConfig &cfg,
 				Module *mod, bool r, bool w,
 				string *s) {
-  Ports *ports = mod->GetPorts();
+  PortSet *ports = mod->GetPortSet();
   ChannelGenerator ch(cfg, ChannelGenerator::PORTS_TO_EXT_AND_CONNECTIONS,
 		      true, mod, ports, s);
   ch.GenerateChannel(true, true);

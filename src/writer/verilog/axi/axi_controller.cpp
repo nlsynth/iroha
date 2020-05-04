@@ -4,6 +4,7 @@
 #include "writer/verilog/axi/axi_port.h"
 #include "writer/verilog/module.h"
 #include "writer/verilog/ports.h"
+#include "writer/verilog/port_set.h"
 
 namespace iroha {
 namespace writer {
@@ -13,7 +14,7 @@ namespace axi {
 AxiController::AxiController(const IResource &res,
 			     bool reset_polarity)
   : res_(res), reset_polarity_(reset_polarity) {
-  ports_.reset(new Ports);
+  ports_.reset(new PortSet);
   cfg_ = AxiPort::GetPortConfig(res);
 }
 

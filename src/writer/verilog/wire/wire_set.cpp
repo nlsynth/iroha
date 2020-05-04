@@ -7,6 +7,7 @@
 #include "writer/verilog/embed.h"
 #include "writer/verilog/module.h"
 #include "writer/verilog/ports.h"
+#include "writer/verilog/port_set.h"
 #include "writer/verilog/resource.h"
 #include "writer/verilog/table.h"
 #include "writer/verilog/wire/accessor_info.h"
@@ -83,7 +84,7 @@ void WireSet::Build() {
   auto *tmpl = mod->GetModuleTemplate();
   ostream &es = tmpl->GetStream(kEmbeddedInstanceSection);
   string name = GetMuxName();
-  Ports *pp = tab.GetPorts();
+  PortSet *pp = tab.GetPortSet();
   string clk = pp->GetClk();
   string rst = pp->GetReset();
   es << "  " << name << " inst_" << name <<

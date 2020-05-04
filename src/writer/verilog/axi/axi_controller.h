@@ -26,7 +26,7 @@ protected:
   const IResource &res_;
   bool reset_polarity_;
 
-  unique_ptr<Ports> ports_;
+  unique_ptr<PortSet> ports_;
   PortConfig cfg_;
 };
 

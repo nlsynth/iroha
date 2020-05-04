@@ -10,6 +10,7 @@
 #include "writer/verilog/internal_sram.h"
 #include "writer/verilog/module.h"
 #include "writer/verilog/ports.h"
+#include "writer/verilog/port_set.h"
 #include "writer/verilog/state.h"
 #include "writer/verilog/table.h"
 
@@ -64,7 +65,7 @@ void ArrayResource::BuildMemInsn(IInsn *insn, State *st) {
 }
 
 void ArrayResource::BuildExternalSRAM() {
-  auto *ports = tab_.GetPorts();
+  auto *ports = tab_.GetPortSet();
   IArray *array = res_.GetArray();
   int data_width = array->GetDataType().GetWidth();
   ports->AddPort(SigName("addr"), Port::OUTPUT, array->GetAddressWidth());
@@ -78,7 +79,7 @@ void ArrayResource::BuildInternalSRAM() {
   InternalSRAM *sram =
     tab_.GetEmbeddedModules()->RequestInternalSRAM(*tab_.GetModule(),
 						   *res_.GetArray(), 1);
-  auto *ports = tab_.GetPorts();
+  auto *ports = tab_.GetPortSet();
   ostream &es = tmpl_->GetStream(kEmbeddedInstanceSection);
   string name = sram->GetModuleName();
   string inst = name + "_inst_" + Util::Itoa(res_.GetId());

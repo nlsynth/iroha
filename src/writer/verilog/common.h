@@ -26,7 +26,8 @@ class Resource;
 class State;
 class Table;
 class Task;
-class Ports;
+class Port;
+class PortSet;
 class VerilogWriter;
 
 namespace axi {

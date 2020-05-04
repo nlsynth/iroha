@@ -19,7 +19,7 @@ public:
   };
   ChannelGenerator(const PortConfig &cfg, enum OutputType type,
 		   bool is_master,
-		   Module *module, Ports *ports, string *s);
+		   Module *module, PortSet *ports, string *s);
 
   void GenerateChannel(bool r, bool w);
 
@@ -46,7 +46,7 @@ private:
   enum OutputType type_;
   bool is_master_;
   Module *module_;
-  Ports *ports_;
+  PortSet *ports_;
   string *s_;
 };
 
