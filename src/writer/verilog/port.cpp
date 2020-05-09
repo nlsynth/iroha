@@ -6,7 +6,7 @@ namespace verilog {
 
 Port::Port(const string &prefix, const string &name, enum PortType type,
 	   int width)
-  : prefix_(prefix), name_(prefix + name), suffix_(name), type_(type),
+  : prefix_(prefix), name_(name), full_name_(prefix + name), type_(type),
     width_(width), fixed_value_(-1) {
 }
 
@@ -21,12 +21,12 @@ const string &Port::GetPrefix() {
   return prefix_;
 }
 
-const string &Port::GetName() {
-  return name_;
+const string &Port::GetFullName() {
+  return full_name_;
 }
 
-const string &Port::GetSuffix() {
-  return suffix_;
+const string &Port::GetName() {
+  return name_;
 }
 
 enum Port::PortType Port::GetType() {

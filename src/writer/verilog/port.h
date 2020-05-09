@@ -25,8 +25,8 @@ public:
 
   void SetComment(const string &comment);
   const string &GetPrefix();
+  const string &GetFullName();
   const string &GetName();
-  const string &GetSuffix();
   enum PortType GetType();
   int GetWidth();
   void SetFixedValue(int default_value);
@@ -35,7 +35,7 @@ public:
 private:
   string prefix_;
   string name_;
-  string suffix_;
+  string full_name_;
   enum PortType type_;
   int width_;
   string comment_;

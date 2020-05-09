@@ -59,7 +59,7 @@ void PortSet::OutputPort(Port *p, enum OutputType type, bool is_first,
       os << ",";
     }
     os << DirectionPort(p->GetType()) << ":" << p->GetWidth() << ":"
-       << p->GetPrefix() << ":" << p->GetSuffix();
+       << p->GetPrefix() << ":" << p->GetName();
     return;
   }
   if (type == PORT_MODULE_HEAD || type == PORT_MODULE_HEAD_DIRECTION) {
@@ -77,15 +77,15 @@ void PortSet::OutputPort(Port *p, enum OutputType type, bool is_first,
     if (p->GetWidth() > 0) {
       os << " [" << (p->GetWidth() - 1) << ":0]";
     }
-    os << " " << p->GetName();
+    os << " " << p->GetFullName();
   }
   if (type == PORT_CONNECTION || type == PORT_CONNECTION_TEMPLATE) {
     if (!is_first) {
       os << ", ";
     }
-    os << "." << p->GetName() << "(";
+    os << "." << p->GetFullName() << "(";
     if (type == PORT_CONNECTION) {
-      os << p->GetName();
+      os << p->GetFullName();
     }
     os << ")";
   }
@@ -96,7 +96,7 @@ void PortSet::OutputFixedValueAssign(Port *p, ostream &os) const {
   if (v < 0) {
     return;
   }
-  os << "  assign " << p->GetName() << " = " << v << ";\n";
+  os << "  assign " << p->GetFullName() << " = " << v << ";\n";
 }
 
 const string &PortSet::DirectionPort(Port::PortType type) {

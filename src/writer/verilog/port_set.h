@@ -29,6 +29,7 @@ public:
   ~PortSet();
 
   Port *AddPort(const string &name, enum Port::PortType type, int width);
+  // e.g. "m00_" + "AWADDR".
   Port *AddPrefixedPort(const string &prefix, const string &name,
 			enum Port::PortType type, int width);
   void Output(enum OutputType type, ostream &os) const;
