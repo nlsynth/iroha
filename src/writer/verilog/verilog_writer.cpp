@@ -18,8 +18,8 @@ namespace writer {
 namespace verilog {
 
 VerilogWriter::VerilogWriter(const IDesign *design, const Connection &conn,
-			     bool debug, ostream &os)
-  : design_(design), conn_(conn), os_(os), debug_(debug),
+			     const string &flavor, bool debug, ostream &os)
+  : design_(design), conn_(conn), flavor_(flavor), debug_(debug), os_(os),
     embedded_modules_(new EmbeddedModules), with_self_contained_(false),
     output_vcd_(false), names_root_(new Names(nullptr)),
     reset_polarity_(false) {
@@ -190,7 +190,7 @@ void VerilogWriter::WriteShellModule(const Module *mod) {
 
   os_ << "\n// NOTE: Please copy the follwoing line to your design.\n"
       << "// " << shell_module_name_ << " " << shell_module_name_ << "_inst(";
-  ports->Output(PortSet::PORT_CONNECTION_TEMPLATE, os_);
+  ports->OutputWithFlavor(PortSet::PORT_CONNECTION_TEMPLATE, flavor_, os_);
   os_ << ");\n";
   os_ << "// NOTE: This can be used by your script to auto generate the instantiation and connections.\n"
       << "// :connection: " << shell_module_name_ << ":" << shell_module_name_ << "_inst ";

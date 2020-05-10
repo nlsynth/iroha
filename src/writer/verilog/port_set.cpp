@@ -41,54 +41,74 @@ const string &PortSet::GetReset() const {
 }
 
 void PortSet::Output(enum OutputType type, ostream &os) const {
+  OutputWithFlavor(type, "", os);
+}
+
+void PortSet::OutputWithFlavor(enum OutputType type, const string &flavor,
+			       ostream &os) const {
   bool is_first = true;
   for (Port *p : ports_) {
-    OutputPort(p, type, is_first, os);
+    OutputPort(p, type, is_first, flavor, os);
     is_first = false;
   }
 }
 
 void PortSet::OutputPort(Port *p, enum OutputType type, bool is_first,
-			 ostream &os) const {
+			 const string &flavor, ostream &os) const {
   if (type == FIXED_VALUE_ASSIGN) {
     OutputFixedValueAssign(p, os);
-    return;
   }
   if (type == PORT_CONNECTION_DATA) {
-    if (!is_first) {
-      os << ",";
-    }
-    os << DirectionPort(p->GetType()) << ":" << p->GetWidth() << ":"
-       << p->GetPrefix() << ":" << p->GetName();
-    return;
+    OutputConnectionData(p, is_first, os);
   }
   if (type == PORT_MODULE_HEAD || type == PORT_MODULE_HEAD_DIRECTION) {
-    if (is_first) {
-      os << "\n";
-    } else {
-      os << ",\n";
-    }
-    Port::PortType port_type = p->GetType();
-    os << "  " << DirectionPort(port_type);
-    // omitted for PORT_MODULE_HEAD_DIRECTION
-    if (type == PORT_MODULE_HEAD && port_type == Port::OUTPUT) {
-      os << " reg";
-    }
-    if (p->GetWidth() > 0) {
-      os << " [" << (p->GetWidth() - 1) << ":0]";
-    }
-    os << " " << p->GetFullName();
+    OutputModuleHead(p, type, is_first, os);
   }
   if (type == PORT_CONNECTION || type == PORT_CONNECTION_TEMPLATE) {
-    if (!is_first) {
-      os << ", ";
-    }
-    os << "." << p->GetFullName() << "(";
-    if (type == PORT_CONNECTION) {
-      os << p->GetFullName();
-    }
-    os << ")";
+    OutputConnection(p, type, is_first, flavor, os);
   }
+}
+
+void PortSet::OutputConnectionData(Port *p, bool is_first, ostream &os) const {
+  if (!is_first) {
+    os << ",";
+  }
+  os << DirectionPort(p->GetType()) << ":" << p->GetWidth() << ":"
+     << p->GetPrefix() << ":" << p->GetName();
+}
+
+void PortSet::OutputConnection(Port *p, enum OutputType type, bool is_first,
+			       const string &flavor, ostream &os) const {
+  if (!is_first) {
+    os << ", ";
+  }
+  os << "." << p->GetFullName() << "(";
+  if (type == PORT_CONNECTION) {
+    os << p->GetFullName();
+  }
+  if (type == PORT_CONNECTION_TEMPLATE) {
+    // WIP.
+  }
+  os << ")";
+}
+
+void PortSet::OutputModuleHead(Port *p, enum OutputType type, bool is_first,
+			       ostream &os) const {
+  if (is_first) {
+    os << "\n";
+  } else {
+    os << ",\n";
+  }
+  Port::PortType port_type = p->GetType();
+  os << "  " << DirectionPort(port_type);
+  // omitted for PORT_MODULE_HEAD_DIRECTION
+  if (type == PORT_MODULE_HEAD && port_type == Port::OUTPUT) {
+    os << " reg";
+  }
+  if (p->GetWidth() > 0) {
+    os << " [" << (p->GetWidth() - 1) << ":0]";
+  }
+  os << " " << p->GetFullName();
 }
 
 void PortSet::OutputFixedValueAssign(Port *p, ostream &os) const {

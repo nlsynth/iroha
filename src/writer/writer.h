@@ -16,6 +16,7 @@ public:
   virtual void OutputShellModule(bool b, bool self_contained,
 				 bool vcd) override;
   virtual void SetOutputConfig(const string &root,
+			       const string &flavor,
 			       const string &marker,
 			       bool debug) override;
 
@@ -33,6 +34,7 @@ private:
   bool output_self_contained_;
   bool output_vcd_;
   string output_marker_;
+  string flavor_;
   bool debug_;
   string root_dir_;
 };

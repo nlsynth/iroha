@@ -45,7 +45,7 @@ bool Writer::Write(const string &fn) {
   if (language_ == "verilog") {
     Connection conn(design_);
     conn.Build();
-    verilog::VerilogWriter writer(design_, conn, debug_, *os);
+    verilog::VerilogWriter writer(design_, conn, flavor_, debug_, *os);
     if (!shell.empty()) {
       writer.SetShellModuleName(shell, output_self_contained_, output_vcd_);
     }
@@ -78,10 +78,12 @@ void Writer::OutputShellModule(bool b, bool self_contained, bool vcd) {
   output_vcd_ = vcd;
 }
 
-void Writer::SetOutputConfig(const string &root, const string &marker,
+void Writer::SetOutputConfig(const string &root, const string &flavor,
+			     const string &marker,
 			     bool debug) {
   root_dir_ = root;
   output_marker_ = marker;
+  flavor_ = flavor;
   debug_ = debug;
 }
 

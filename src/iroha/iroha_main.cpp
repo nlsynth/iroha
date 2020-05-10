@@ -22,6 +22,7 @@ void printUsage() {
 	    << "  -k Don't validate ids and names\n"
 	    << "  --output_marker=[marker]\n"
 	    << "  --root=[root dir]\n"
+	    << "  --flavor=[flavor]\n"
 	    << "  -opt [optimizer names (comma separated)]\n";
   std::cout << "    available optimizers: ";
   vector<string> phases = Iroha::GetOptimizerPhaseNames();
@@ -59,6 +60,7 @@ int main(int argc, char **argv) {
   string debug_dump;
   string output_marker;
   string root_dir;
+  string flavor;
   vector<string> opts;
   vector<string> inc_paths;
 
@@ -144,6 +146,14 @@ int main(int argc, char **argv) {
       }
       continue;
     }
+    if (tokens[0] == "--flavor") {
+      if (tokens.size() == 1) {
+	flavor = getFlagValue(argc, argv, &i);
+      } else {
+	flavor = tokens[1];
+      }
+      continue;
+    }
     // The name can be "-".
     files.push_back(arg);
   }
@@ -180,8 +190,9 @@ int main(int argc, char **argv) {
       cerr << "Failed to optimize the design: " << fn << "\n";
     }
     WriterAPI *writer = Iroha::CreateWriter(design);
-    if (!output_marker.empty() || !root_dir.empty() || debugWriter) {
-      writer->SetOutputConfig(root_dir, output_marker, debugWriter);
+    if (!output_marker.empty() || !root_dir.empty() || !flavor.empty() ||
+	debugWriter) {
+      writer->SetOutputConfig(root_dir, flavor, output_marker, debugWriter);
     }
     if (shell || selfShell) {
       if (!output.empty()) {

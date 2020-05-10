@@ -33,13 +33,20 @@ public:
   Port *AddPrefixedPort(const string &prefix, const string &name,
 			enum Port::PortType type, int width);
   void Output(enum OutputType type, ostream &os) const;
+  void OutputWithFlavor(enum OutputType type, const string &flavor,
+			ostream &os) const;
   const string &GetClk() const;
   const string &GetReset() const;
 
 private:
   void OutputPort(Port *p, enum OutputType type, bool is_first,
-		  ostream &os) const;
+		  const string &flavor, ostream &os) const;
   void OutputFixedValueAssign(Port *port, ostream &os) const;
+  void OutputConnectionData(Port *p, bool is_first, ostream &os) const;
+  void OutputModuleHead(Port *p, enum OutputType type, bool is_first,
+			ostream &os) const;
+  void OutputConnection(Port *p, enum OutputType type, bool is_first,
+			const string &flavor, ostream &os) const;
   static const string &DirectionPort(Port::PortType type);
 
   vector<Port *> ports_;
