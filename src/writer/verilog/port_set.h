@@ -48,6 +48,7 @@ private:
   void OutputConnection(Port *p, enum OutputType type, bool is_first,
 			const string &flavor, ostream &os) const;
   static const string &DirectionPort(Port::PortType type);
+  string VivadoPortWireName(Port *p) const;
 
   vector<Port *> ports_;
   string clk_;

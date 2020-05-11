@@ -142,6 +142,7 @@ void ChannelGenerator::DoAddPort(const string &name, int width, bool is_input,
     prefix = cfg_.prefix;
   }
   Port *port = ports_->AddPrefixedPort(prefix, name, t, width);
+  port->SetIsAxi(true);
   if (type_ == CONTROLLER_PORTS_AND_REG_INITIALS &&
       t == Port::OUTPUT_WIRE && is_fixed_output) {
     port->SetFixedValue(fixed_value);

@@ -31,6 +31,8 @@ public:
   int GetWidth();
   void SetFixedValue(int default_value);
   int GetFixedValue() const;
+  void SetIsAxi(bool is_axi);
+  bool GetIsAxi();
 
 private:
   string prefix_;
@@ -41,6 +43,7 @@ private:
   string comment_;
   // valid if non negative.
   int fixed_value_;
+  bool is_axi_;
 };
 
 }  // namespace verilog

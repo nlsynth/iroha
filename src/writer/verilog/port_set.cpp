@@ -3,6 +3,8 @@
 #include "writer/verilog/port.h"
 #include "iroha/stl_util.h"
 
+#include <ctype.h>
+
 static const string kInput = "input";
 static const string kOutput = "output";
 
@@ -87,7 +89,11 @@ void PortSet::OutputConnection(Port *p, enum OutputType type, bool is_first,
     os << p->GetFullName();
   }
   if (type == PORT_CONNECTION_TEMPLATE) {
-    // WIP.
+    if (flavor == "vivado-axi") {
+      if (p->GetIsAxi()) {
+	os << VivadoPortWireName(p);
+      }
+    }
   }
   os << ")";
 }
@@ -126,6 +132,18 @@ const string &PortSet::DirectionPort(Port::PortType type) {
   } else {
     return kOutput;
   }
+}
+
+string PortSet::VivadoPortWireName(Port *p) const {
+  string n = p->GetName();
+  // To lower.
+  char buf[n.size() + 1];
+  buf[n.size()] = 0;
+  for (int i = 0; i < n.size(); ++i) {
+    char c = (n.c_str())[i];
+    buf[i] = tolower(c);
+  }
+  return p->GetPrefix() + "axi_" + string(buf);
 }
 
 }  // namespace verilog
