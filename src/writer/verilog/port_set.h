@@ -24,6 +24,7 @@ public:
     PORT_CONNECTION_DATA,
     // Assigns a fixed value if specified "assign name = v;".
     FIXED_VALUE_ASSIGN,
+    AXI_USER_ASSIGN_TEMPLATE,
   };
 
   ~PortSet();
@@ -49,6 +50,9 @@ private:
 			const string &flavor, ostream &os) const;
   static const string &DirectionPort(Port::PortType type);
   string VivadoPortWireName(Port *p) const;
+  static bool IsVivadoAxiFlavor(const string &flavor);
+  static bool IsAxiUserOutput(Port *p);
+  static bool IsAxiUserInput(Port *p);
 
   vector<Port *> ports_;
   string clk_;

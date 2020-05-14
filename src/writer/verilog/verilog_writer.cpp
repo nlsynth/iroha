@@ -192,6 +192,9 @@ void VerilogWriter::WriteShellModule(const Module *mod) {
       << "// " << shell_module_name_ << " " << shell_module_name_ << "_inst(";
   ports->OutputWithFlavor(PortSet::PORT_CONNECTION_TEMPLATE, flavor_, os_);
   os_ << ");\n";
+  os_ << "//";
+  ports->OutputWithFlavor(PortSet::AXI_USER_ASSIGN_TEMPLATE, flavor_, os_);
+  os_ << "\n";
   os_ << "// NOTE: This can be used by your script to auto generate the instantiation and connections.\n"
       << "// :connection: " << shell_module_name_ << ":" << shell_module_name_ << "_inst ";
   ports->Output(PortSet::PORT_CONNECTION_DATA, os_);

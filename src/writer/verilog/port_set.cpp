@@ -69,6 +69,13 @@ void PortSet::OutputPort(Port *p, enum OutputType type, bool is_first,
   if (type == PORT_CONNECTION || type == PORT_CONNECTION_TEMPLATE) {
     OutputConnection(p, type, is_first, flavor, os);
   }
+  if (type == AXI_USER_ASSIGN_TEMPLATE) {
+    if (IsVivadoAxiFlavor(flavor)) {
+      if (IsAxiUserOutput(p)) {
+	os << " assign " << VivadoPortWireName(p) << " = 0;";
+      }
+    }
+  }
 }
 
 void PortSet::OutputConnectionData(Port *p, bool is_first, ostream &os) const {
@@ -89,8 +96,14 @@ void PortSet::OutputConnection(Port *p, enum OutputType type, bool is_first,
     os << p->GetFullName();
   }
   if (type == PORT_CONNECTION_TEMPLATE) {
-    if (flavor == "vivado-axi") {
-      if (p->GetIsAxi()) {
+    if (p->GetIsAxi() && IsVivadoAxiFlavor(flavor)) {
+      if (IsAxiUserInput(p)) {
+	int w = p->GetWidth();
+	if (w == 0) {
+	  w = 1;
+	}
+	os << w << "'b0";
+      } else if (!IsAxiUserOutput(p)) {
 	os << VivadoPortWireName(p);
       }
     }
@@ -144,6 +157,18 @@ string PortSet::VivadoPortWireName(Port *p) const {
     buf[i] = tolower(c);
   }
   return p->GetPrefix() + "axi_" + string(buf);
+}
+
+bool PortSet::IsVivadoAxiFlavor(const string &flavor) {
+  return (flavor == "vivado-axi");
+}
+
+bool PortSet::IsAxiUserOutput(Port *p) {
+  return (p->GetIsAxiUser() && DirectionPort(p->GetType()) == kOutput);
+}
+
+bool PortSet::IsAxiUserInput(Port *p) {
+  return (p->GetIsAxiUser() && DirectionPort(p->GetType()) == kInput);
 }
 
 }  // namespace verilog
