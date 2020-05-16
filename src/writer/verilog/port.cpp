@@ -7,7 +7,7 @@ namespace verilog {
 Port::Port(const string &prefix, const string &name, enum PortType type,
 	   int width)
   : prefix_(prefix), name_(name), full_name_(prefix + name), type_(type),
-    width_(width), fixed_value_(-1), is_axi_(false) {
+    width_(width), axi_addr_width_(0), fixed_value_(-1), is_axi_(false) {
 }
 
 Port::~Port() {
@@ -51,6 +51,14 @@ void Port::SetIsAxi(bool is_axi) {
 
 bool Port::GetIsAxi() {
   return is_axi_;
+}
+
+void Port::SetAxiAddrWidth(int axi_addr_width) {
+  axi_addr_width_ = axi_addr_width;
+}
+
+int Port::GetAxiAddrWidth() {
+  return axi_addr_width_;
 }
 
 }  // namespace verilog

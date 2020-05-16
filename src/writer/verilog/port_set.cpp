@@ -103,7 +103,12 @@ void PortSet::OutputConnection(Port *p, enum OutputType type, bool is_first,
 	  w = 1;
 	}
 	os << w << "'b0";
-      } else if (!IsAxiUserOutput(p)) {
+      } else if (IsAxiAddrInput(p)) {
+	int w = 32 - p->GetAxiAddrWidth();
+	os << "{" << w << "'b0, " << VivadoPortWireName(p) << "}";
+      } else if (IsAxiUserOutput(p)) {
+	// outputs nothing.
+      } else {
 	os << VivadoPortWireName(p);
       }
     }
@@ -177,6 +182,20 @@ bool PortSet::IsAxiUser(Port *p) {
   }
   const string &name = p->GetName();
   if (string(name.c_str() + name.size() - 4) == "USER") {
+    return true;
+  }
+  return false;
+}
+
+bool PortSet::IsAxiAddrInput(Port *p) {
+  if (!p->GetIsAxi()) {
+    return false;
+  }
+  if (DirectionPort(p->GetType()) != kInput) {
+    return false;
+  }
+  const string &name = p->GetName();
+  if (string(name.c_str() + name.size() - 4) == "ADDR") {
     return true;
   }
   return false;

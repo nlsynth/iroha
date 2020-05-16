@@ -53,6 +53,7 @@ private:
   static bool IsVivadoAxiFlavor(const string &flavor);
   static bool IsAxiUserOutput(Port *p);
   static bool IsAxiUserInput(Port *p);
+  static bool IsAxiAddrInput(Port *p);
   static bool IsAxiUser(Port *p);
 
   vector<Port *> ports_;

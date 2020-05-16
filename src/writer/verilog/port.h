@@ -33,6 +33,8 @@ public:
   int GetFixedValue() const;
   void SetIsAxi(bool is_axi);
   bool GetIsAxi();
+  void SetAxiAddrWidth(int axi_addr_width);
+  int GetAxiAddrWidth();
 
 private:
   string prefix_;
@@ -40,6 +42,7 @@ private:
   string full_name_;
   enum PortType type_;
   int width_;
+  int axi_addr_width_;
   string comment_;
   // valid if non negative.
   int fixed_value_;

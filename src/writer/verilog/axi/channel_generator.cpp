@@ -33,7 +33,10 @@ void ChannelGenerator::GenerateChannel(bool r, bool w) {
 }
 
 void ChannelGenerator::GenReadChannel() {
-  AddPort("ARADDR", cfg_.axi_addr_width, false, -1, false);
+  Port *p = AddPort("ARADDR", cfg_.axi_addr_width, false, -1, false);
+  if (p != nullptr) {
+    p->SetAxiAddrWidth(cfg_.sram_addr_width);
+  }
   AddPort("ARVALID", 0, false, -1, false);
   AddPort("ARREADY", 0, true, -1, true);
   AddPort("ARLEN", 8, false, -1, false);
@@ -55,7 +58,10 @@ void ChannelGenerator::GenReadChannel() {
 }
 
 void ChannelGenerator::GenWriteChannel() {
-  AddPort("AWADDR", cfg_.axi_addr_width, false, -1, false);
+  Port *p = AddPort("AWADDR", cfg_.axi_addr_width, false, -1, false);
+  if (p != nullptr) {
+    p->SetAxiAddrWidth(cfg_.sram_addr_width);
+  }
   AddPort("AWVALID", 0, false, -1, false);
   AddPort("AWREADY", 0, true, -1, true);
   AddPort("AWLEN", 8, false, -1, false);
@@ -80,8 +86,9 @@ void ChannelGenerator::GenWriteChannel() {
   AddPort("BRESP", 2, true, -1, false);
 }
 
-void ChannelGenerator::AddPort(const string &name, int width, bool dir_s2m,
-			       int fixed_value, bool drive_from_shell) {
+Port *ChannelGenerator::AddPort(const string &name, int width, bool dir_s2m,
+				int fixed_value, bool drive_from_shell) {
+  Port *port = nullptr;
   // This method is used to add a port to either user's modules or
   // controller module.
   bool is_input = false;
@@ -93,7 +100,7 @@ void ChannelGenerator::AddPort(const string &name, int width, bool dir_s2m,
   bool is_fixed_output = (fixed_value >= 0) && !is_input;
   if (type_ == CONTROLLER_PORTS_AND_REG_INITIALS ||
       type_ == PORTS_TO_EXT_AND_CONNECTIONS) {
-    DoAddPort(name, width, is_input, is_fixed_output, fixed_value);
+    port = DoAddPort(name, width, is_input, is_fixed_output, fixed_value);
   }
   // On the controller instantiation. Owner of the controller.
   if (type_ == PORTS_TO_EXT_AND_CONNECTIONS &&
@@ -122,11 +129,12 @@ void ChannelGenerator::AddPort(const string &name, int width, bool dir_s2m,
       type_ == SHELL_PORT_CONNECTION) {
     WriteShellConnection(name, width, is_input, drive_from_shell);
   }
+  return port;
 }
 
-void ChannelGenerator::DoAddPort(const string &name, int width, bool is_input,
-				 bool is_fixed_output,
-				 int fixed_value) {
+Port *ChannelGenerator::DoAddPort(const string &name, int width, bool is_input,
+				  bool is_fixed_output,
+				  int fixed_value) {
   Port::PortType t;
   if (is_input) {
     t = Port::INPUT;
@@ -147,6 +155,7 @@ void ChannelGenerator::DoAddPort(const string &name, int width, bool is_input,
       t == Port::OUTPUT_WIRE && is_fixed_output) {
     port->SetFixedValue(fixed_value);
   }
+  return port;
 }
 
 void ChannelGenerator::MayAddInitialRegValue(const string &name, int width,

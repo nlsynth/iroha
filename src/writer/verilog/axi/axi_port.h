@@ -21,6 +21,7 @@ public:
     return sram_addr_width - 1;
   }
 
+  // 32 or 64.
   int axi_addr_width;
   int sram_addr_width;
   int data_width;
