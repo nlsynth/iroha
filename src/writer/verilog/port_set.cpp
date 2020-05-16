@@ -164,11 +164,22 @@ bool PortSet::IsVivadoAxiFlavor(const string &flavor) {
 }
 
 bool PortSet::IsAxiUserOutput(Port *p) {
-  return (p->GetIsAxiUser() && DirectionPort(p->GetType()) == kOutput);
+  return (IsAxiUser(p) && DirectionPort(p->GetType()) == kOutput);
 }
 
 bool PortSet::IsAxiUserInput(Port *p) {
-  return (p->GetIsAxiUser() && DirectionPort(p->GetType()) == kInput);
+  return (IsAxiUser(p) && DirectionPort(p->GetType()) == kInput);
+}
+
+bool PortSet::IsAxiUser(Port *p) {
+  if (!p->GetIsAxi()) {
+    return false;
+  }
+  const string &name = p->GetName();
+  if (string(name.c_str() + name.size() - 4) == "USER") {
+    return true;
+  }
+  return false;
 }
 
 }  // namespace verilog

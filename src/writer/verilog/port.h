@@ -33,7 +33,6 @@ public:
   int GetFixedValue() const;
   void SetIsAxi(bool is_axi);
   bool GetIsAxi();
-  bool GetIsAxiUser();
 
 private:
   string prefix_;
@@ -45,7 +44,6 @@ private:
   // valid if non negative.
   int fixed_value_;
   bool is_axi_;
-  bool is_axi_user_;
 };
 
 }  // namespace verilog
