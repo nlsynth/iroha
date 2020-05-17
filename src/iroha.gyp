@@ -227,6 +227,8 @@
       'sources': [
         'numeric/numeric_manager.cpp',
         'numeric/numeric_manager.h',
+        'numeric/numeric.cpp',
+        'numeric/numeric.h',
         'numeric/numeric_op.cpp',
         'numeric/numeric_op.h',
         'numeric/numeric_type.cpp',

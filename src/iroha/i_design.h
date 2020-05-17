@@ -3,7 +3,7 @@
 #define _iroha_i_design_h_
 
 #include "iroha/common.h"
-#include "numeric/numeric_type.h"
+#include "numeric/numeric.h"
 
 namespace iroha {
 

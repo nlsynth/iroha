@@ -1,5 +1,6 @@
 #include "numeric/numeric_op.h"
 
+#include "numeric/numeric.h"
 #include "numeric/wide_op.h"
 
 namespace iroha {
