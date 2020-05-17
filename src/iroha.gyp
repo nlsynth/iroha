@@ -81,6 +81,7 @@
         'iroha/iroha_main.h',
         'iroha/logging.cpp',
         'iroha/logging.h',
+        'iroha/numeric.h',
         'iroha/object_pool.h',
         'iroha/opt_api.h',
         'iroha/util.cpp',
