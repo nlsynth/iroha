@@ -3,6 +3,7 @@
 #define _numeric_numeric_op_h_
 
 #include "numeric/numeric_type.h"
+#include "numeric/numeric_value.h"
 
 namespace iroha {
 

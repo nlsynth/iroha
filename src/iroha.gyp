@@ -233,6 +233,8 @@
         'numeric/numeric_op.h',
         'numeric/numeric_type.cpp',
         'numeric/numeric_type.h',
+        'numeric/numeric_value.cpp',
+        'numeric/numeric_value.h',
         'numeric/wide_op.cpp',
         'numeric/wide_op.h',
       ],
