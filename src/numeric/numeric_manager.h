@@ -3,7 +3,7 @@
 #define _numeric_numeric_manager_h_
 
 #include "numeric/numeric.h"
-#include "numeric/numeric_type.h"
+#include "numeric/numeric_width.h"
 
 #include <set>
 

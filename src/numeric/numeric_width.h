@@ -1,6 +1,6 @@
 // -*- C++ -*-
-#ifndef _numeric_numeric_type_h_
-#define _numeric_numeric_type_h_
+#ifndef _numeric_numeric_width_h_
+#define _numeric_numeric_width_h_
 
 #include <cstdint>
 #include <string>
@@ -52,4 +52,4 @@ private:
 
 }  // namespace iroha
 
-#endif  // _numeric_numeric_type_h_
+#endif  // _numeric_numeric_width_h_

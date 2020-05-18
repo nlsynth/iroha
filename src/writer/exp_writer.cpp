@@ -5,7 +5,7 @@
 #include "iroha/logging.h"
 #include "iroha/resource_class.h"
 #include "iroha/resource_params.h"
-#include "numeric/numeric_type.h"
+#include "numeric/numeric.h"
 
 namespace iroha {
 namespace writer {

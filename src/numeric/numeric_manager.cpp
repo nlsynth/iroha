@@ -3,7 +3,7 @@
 // This class manages storage of extra wide values.
 // Multiple instances can represent different units of GCs (multiple VMs in).
 
-#include "numeric/numeric_type.h"
+#include "numeric/numeric_width.h"
 #include "iroha/stl_util.h"
 
 namespace iroha {

@@ -2,8 +2,8 @@
 #ifndef _numeric_wide_op_h_
 #define _numeric_wide_op_h_
 
-#include "numeric/numeric_type.h"
 #include "numeric/numeric_op.h"
+#include "numeric/numeric_width.h"
 
 namespace iroha {
 

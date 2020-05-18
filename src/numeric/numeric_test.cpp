@@ -1,7 +1,7 @@
 #include "numeric/numeric.h"
-#include "numeric/numeric_type.h"
 #include "numeric/numeric_op.h"
 #include "numeric/numeric_value.h"
+#include "numeric/numeric_width.h"
 #include "numeric/wide_op.h"
 
 #include "iroha/test_util.h"
