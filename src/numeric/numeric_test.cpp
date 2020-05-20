@@ -1,4 +1,5 @@
 #include "numeric/numeric.h"
+#include "numeric/numeric_literal.h"
 #include "numeric/numeric_op.h"
 #include "numeric/numeric_value.h"
 #include "numeric/numeric_width.h"
@@ -172,6 +173,19 @@ void Eq() {
   ASSERT(!Op::Eq(n1.type_, n1.GetArray(), n2.GetArray()));
 }
 
+void Literal() {
+  NumericLiteral nl;
+  nl = nl.Parse("123");
+  ASSERT(nl.value == 123);
+  ASSERT(nl.width < 0);
+  nl = nl.Parse("0b1010");
+  ASSERT(nl.value == 10);
+  ASSERT(nl.width == 4);
+  nl = nl.Parse("0xa0");
+  ASSERT(nl.value == 160);
+  ASSERT(nl.width < 0);
+}
+
 int main(int argc, char **argv) {
   cout << "sizeof(width)=" << sizeof(NumericWidth) << "\n";
   cout << "sizeof(numeric)=" << sizeof(Numeric) << "\n";
@@ -183,6 +197,7 @@ int main(int argc, char **argv) {
   ExtraWide();
   Set();
   Eq();
+  Literal();
 
   return 0;
 }
