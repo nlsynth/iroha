@@ -7,21 +7,32 @@ namespace iroha {
 NumericLiteral NumericLiteral::Parse(const std::string &token) {
   const char *t = token.c_str();
   iroha::NumericLiteral nl;
+  nl.has_error = false;
   nl.width = -1;
   if (t[0] == '0') {
     if (t[1] == 'x') {
       uint64_t num;
-      sscanf(t, "%llx", (long long unsigned int *)&num);
+      if (sscanf(t, "%llx", (long long unsigned int *)&num) != 1) {
+	nl.has_error = true;
+      }
       nl.value = num;
       return nl;
     }
     if (t[1] == 'b') {
       nl.value = Parse0b(token);
       nl.width = token.size() - 2;
+      if (nl.width >= 64) {
+	nl.has_error = true;
+      }
       return nl;
     }
   }
-  nl.value = atoll(t);
+  try {
+    nl.value = std::stoull(token, nullptr, 10);
+  } catch (...) {
+    nl.value = 0;
+    nl.has_error = true;
+  }
   return nl;
 }
 

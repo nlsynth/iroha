@@ -12,6 +12,7 @@ struct NumericLiteral {
   uint64_t value;
   // non negative if defined.
   int width;
+  bool has_error;
 
   static NumericLiteral Parse(const std::string &token);
 

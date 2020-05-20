@@ -174,6 +174,7 @@ void Eq() {
 }
 
 void Literal() {
+  TEST_CASE("Literal");
   NumericLiteral nl;
   nl = nl.Parse("123");
   ASSERT(nl.value == 123);
@@ -184,6 +185,12 @@ void Literal() {
   nl = nl.Parse("0xa0");
   ASSERT(nl.value == 160);
   ASSERT(nl.width < 0);
+  nl = nl.Parse("xyz");
+  ASSERT(nl.has_error);
+  nl = nl.Parse("999888777666555444333222111000");
+  ASSERT(nl.has_error);
+  nl = nl.Parse("998877665544332211");
+  ASSERT(!nl.has_error);
 }
 
 int main(int argc, char **argv) {
