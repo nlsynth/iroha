@@ -7,12 +7,17 @@
 
 namespace iroha {
 
+class Numeric;
+class NumericManager;
+
 // This struct can be a part of YYSTYPE union.
 struct NumericLiteral {
   uint64_t value;
   // non negative if defined.
   int width;
   bool has_error;
+
+  void ToNumeric(NumericManager *mgr, Numeric *numeric);
 
   static NumericLiteral Parse(const std::string &token);
 

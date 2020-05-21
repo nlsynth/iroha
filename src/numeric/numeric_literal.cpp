@@ -1,5 +1,8 @@
 #include "numeric/numeric_literal.h"
 
+#include "numeric/numeric.h"
+#include "numeric/numeric_op.h"
+
 #include <stdlib.h>
 
 namespace iroha {
@@ -46,6 +49,14 @@ uint64_t NumericLiteral::Parse0b(const std::string &token) {
     }
   }
   return u;
+}
+
+void NumericLiteral::ToNumeric(NumericManager *mgr, Numeric *numeric) {
+  iroha::Op::MakeConst0(value, numeric->GetMutableArray());
+  if (width > -1) {
+    numeric->type_.SetWidth(width);
+  }
+  iroha::Numeric::MayExpandStorage(mgr, numeric);
 }
 
 }  // namespace iroha
