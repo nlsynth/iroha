@@ -23,6 +23,7 @@ struct NumericLiteral {
 
 private:
   static uint64_t Parse0b(const std::string &token);
+  static std::string RemoveUnderscore(const std::string &s);
 };
 
 }  // namespace iroha

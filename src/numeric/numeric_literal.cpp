@@ -1,17 +1,21 @@
 #include "numeric/numeric_literal.h"
 
+#include "iroha/base/util.h"
 #include "numeric/numeric.h"
 #include "numeric/numeric_op.h"
 
 #include <stdlib.h>
 
+using std::string;
+
 namespace iroha {
 
 NumericLiteral NumericLiteral::Parse(const std::string &token) {
-  const char *t = token.c_str();
+  string tt = RemoveUnderscore(token);
+  const char *t = tt.c_str();
   iroha::NumericLiteral nl;
   nl.has_error = false;
-  nl.width = -1;
+  nl.width = - 1;
   if (t[0] == '0') {
     if (t[1] == 'x') {
       uint64_t num;
@@ -22,8 +26,8 @@ NumericLiteral NumericLiteral::Parse(const std::string &token) {
       return nl;
     }
     if (t[1] == 'b') {
-      nl.value = Parse0b(token);
-      nl.width = token.size() - 2;
+      nl.value = Parse0b(tt);
+      nl.width = tt.size() - 2;
       if (nl.width >= 64) {
 	nl.has_error = true;
       }
@@ -31,7 +35,7 @@ NumericLiteral NumericLiteral::Parse(const std::string &token) {
     }
   }
   try {
-    nl.value = std::stoull(token, nullptr, 10);
+    nl.value = std::stoull(tt, nullptr, 10);
   } catch (...) {
     nl.value = 0;
     nl.has_error = true;
@@ -57,6 +61,12 @@ void NumericLiteral::ToNumeric(NumericManager *mgr, Numeric *numeric) {
     numeric->type_.SetWidth(width);
   }
   iroha::Numeric::MayExpandStorage(mgr, numeric);
+}
+
+std::string NumericLiteral::RemoveUnderscore(const std::string &s) {
+  vector<string> c;
+  Util::SplitStringUsing(s, "_", &c);
+  return Util::Join(c, "");
 }
 
 }  // namespace iroha

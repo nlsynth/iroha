@@ -179,7 +179,7 @@ void Literal() {
   nl = nl.Parse("123");
   ASSERT(nl.value == 123);
   ASSERT(nl.width < 0);
-  nl = nl.Parse("0b1010");
+  nl = nl.Parse("0b10_10");
   ASSERT(nl.value == 10);
   ASSERT(nl.width == 4);
   nl = nl.Parse("0xa0");
@@ -190,6 +190,9 @@ void Literal() {
   nl = nl.Parse("999888777666555444333222111000");
   ASSERT(nl.has_error);
   nl = nl.Parse("998877665544332211");
+  ASSERT(!nl.has_error);
+  nl = nl.Parse("99_88_77");
+  ASSERT(nl.value == 998877);
   ASSERT(!nl.has_error);
 }
 
