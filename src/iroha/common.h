@@ -2,7 +2,7 @@
 #ifndef _iroha_common_h_
 #define _iroha_common_h_
 
-#include "iroha/util.h"
+#include "iroha/base/util.h"
 
 #include <cstdint>
 #include <iostream>

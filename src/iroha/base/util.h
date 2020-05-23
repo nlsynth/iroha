@@ -1,6 +1,6 @@
 // -*- C++ -*-
-#ifndef _iroha_util_h_
-#define _iroha_util_h_
+#ifndef _iroha_base_util_h_
+#define _iroha_base_util_h_
 
 #include <string>
 #include <vector>
@@ -30,4 +30,4 @@ public:
 
 }  // namespace iroha
 
-#endif  // _iroha_util_h_
+#endif  // _iroha_base_util_h_

@@ -1,4 +1,4 @@
-#include "iroha/util.h"
+#include "iroha/base/util.h"
 
 #include <algorithm>
 #include <string.h>

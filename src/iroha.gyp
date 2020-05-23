@@ -84,8 +84,6 @@
         'iroha/numeric.h',
         'iroha/object_pool.h',
         'iroha/opt_api.h',
-        'iroha/util.cpp',
-        'iroha/util.h',
         'iroha/resource_class.cpp',
         'iroha/resource_class.h',
         'iroha/resource_params.cpp',
@@ -213,6 +211,7 @@
         'writer/writer.h',
       ],
       'dependencies': [
+        ':base',
         ':numeric',
         ':verilog_writer'
       ],
@@ -239,6 +238,9 @@
         'numeric/numeric_width.h',
         'numeric/wide_op.cpp',
         'numeric/wide_op.h',
+      ],
+      'dependencies': [
+        ':base',
       ],
     },
     {
@@ -354,6 +356,18 @@
         'writer/verilog/wire/wire_set.h',
       ],
       'dependencies': [
+      ],
+    },
+    {
+      'target_name': 'base',
+      'product_name': 'base',
+      'type': 'static_library',
+      'include_dirs': [
+        './',
+      ],
+      'sources': [
+        'iroha/base/util.cpp',
+        'iroha/base/util.h',
       ],
     },
   ]
