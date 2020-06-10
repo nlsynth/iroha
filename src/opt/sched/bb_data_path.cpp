@@ -6,7 +6,7 @@
 #include "opt/debug_annotation.h"
 #include "opt/delay_info.h"
 #include "opt/sched/path_node.h"
-#include "opt/sched/virtual_resource.h"
+#include "opt/sched/virtual_resource_set.h"
 
 namespace iroha {
 namespace opt {

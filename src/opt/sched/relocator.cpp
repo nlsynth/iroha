@@ -12,6 +12,7 @@
 #include "opt/sched/resource_entry.h"
 #include "opt/sched/resource_replica_assigner.h"
 #include "opt/sched/virtual_resource.h"
+#include "opt/sched/virtual_resource_set.h"
 
 namespace iroha {
 namespace opt {

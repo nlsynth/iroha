@@ -169,6 +169,8 @@
         'opt/sched/table_scheduler.h',
         'opt/sched/virtual_resource.cpp',
         'opt/sched/virtual_resource.h',
+        'opt/sched/virtual_resource_set.cpp',
+        'opt/sched/virtual_resource_set.h',
         'opt/sched/wire_plan.cpp',
         'opt/sched/wire_plan.h',
         'opt/ssa/phi_builder.cpp',

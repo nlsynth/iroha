@@ -8,6 +8,7 @@
 #include "opt/sched/resource_conflict_tracker.h"
 #include "opt/sched/resource_entry.h"
 #include "opt/sched/virtual_resource.h"
+#include "opt/sched/virtual_resource_set.h"
 
 namespace iroha {
 namespace opt {

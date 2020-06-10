@@ -1,6 +1,6 @@
 // -*- C++ -*-
-#ifndef _opt_sched_virtual_resource_h
-#define _opt_sched_virtual_resource_h
+#ifndef _opt_sched_virtual_resource_h_
+#define _opt_sched_virtual_resource_h_
 
 #include "opt/sched/common.h"
 
@@ -24,24 +24,6 @@ private:
   IInsn *insn_;
   ResourceEntry *res_;
   int replica_index_;
-};
-
-// Per table. Managed by DataPathSet.
-class VirtualResourceSet {
-public:
-  VirtualResourceSet(ITable *tab);
-  ~VirtualResourceSet();
-
-  VirtualResource *GetFromInsn(IInsn *insn);
-  void BuildDefaultBinding();
-  void PrepareReplicas();
-  map<IResource *, ResourceEntry *> &GetResourceEntries();
-  map<IInsn *, VirtualResource *> &GetVirtualResources();
-
-private:
-  ITable *tab_;
-  map<IInsn *, VirtualResource *> raw_resources_;
-  map<IResource *, ResourceEntry *> default_resource_entries_;
 };
 
 }  // namespace sched

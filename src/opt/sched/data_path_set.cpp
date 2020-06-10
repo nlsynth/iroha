@@ -5,7 +5,7 @@
 #include "iroha/stl_util.h"
 #include "opt/bb_set.h"
 #include "opt/sched/bb_data_path.h"
-#include "opt/sched/virtual_resource.h"
+#include "opt/sched/virtual_resource_set.h"
 
 namespace iroha {
 namespace opt {
