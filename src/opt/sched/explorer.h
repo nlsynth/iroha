@@ -16,11 +16,13 @@ public:
   bool MaySetNextAllocationPlan();
 
 private:
-  bool MayResolveCongestion();
+  // Avoids too large muxes for resources.
+  bool MayResolveTooManyResourceUses();
   bool ExploreNewPlan();
   bool SetNewPlan(WirePlan *wp);
-  int GetRate(ResourceEntry *re, int num_replicas,
-	      const map<ResourceEntry *, int> &usage);
+  int GetUsageRate(ResourceEntry *re, int num_replicas,
+		   const map<ResourceEntry *, int> &usage);
+  bool HadSufficientImprovement();
 
   WirePlanSet *wps_;
 };

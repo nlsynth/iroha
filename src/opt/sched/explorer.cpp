@@ -17,17 +17,18 @@ void Explorer::SetInitialAllocation() {
 }
 
 bool Explorer::MaySetNextAllocationPlan() {
-  // Tries on current plan.
-  bool congested = MayResolveCongestion();
-  if (congested) {
+  // Fixes too many resource uses if current plan has them.
+  bool has_update = MayResolveTooManyResourceUses();
+  if (has_update) {
     WirePlan *wp = wps_->GetLatestPlan(0);
     wp->SetScore(0);
     return true;
   }
+  // Otherwise proceed to standard exploration.
   return ExploreNewPlan();
 }
 
-bool Explorer::MayResolveCongestion() {
+bool Explorer::MayResolveTooManyResourceUses() {
   WirePlan *wp = wps_->GetLatestPlan(0);
   if (wp == nullptr) {
     return false;
@@ -43,6 +44,8 @@ bool Explorer::MayResolveCongestion() {
     }
     int usage_count = p.second;
     int replicas = re->GetNumReplicas();
+    // Avoids too many usage of same resource.
+    // (Use very conservative value for now)
     const int kMaxUsage = 2;
     if (replicas * kMaxUsage < usage_count) {
       has_update = true;
@@ -53,6 +56,14 @@ bool Explorer::MayResolveCongestion() {
 }
 
 bool Explorer::ExploreNewPlan() {
+  if (!HadSufficientImprovement()) {
+    return false;
+  }
+  WirePlan *last = wps_->GetLatestPlan(0);
+  return SetNewPlan(last);
+}
+
+bool Explorer::HadSufficientImprovement() {
   WirePlan *last = wps_->GetLatestPlan(0);
   WirePlan *second_last = wps_->GetLatestPlan(1);
   if (second_last != nullptr) {
@@ -63,30 +74,32 @@ bool Explorer::ExploreNewPlan() {
       return false;
     }
   }
-  return SetNewPlan(last);
+  return true;
 }
 
 bool Explorer::SetNewPlan(WirePlan *wp) {
   AllocationPlan alloc_plan = wp->GetAllocationPlan();
   ResourceConflictTracker *conflict_tracker = wp->GetConflictTracker();
   auto &usage = conflict_tracker->GetUsageCount();
-  int max_rate = 0;
+  int max_usage_rate = 0;
+  // Finds the most used resource.
   for (auto p : alloc_plan.num_replicas_) {
     ResourceEntry *re = p.first;
     int num_replicas = p.second;
-    int rate = GetRate(re, num_replicas, usage);
-    if (rate > max_rate) {
-      max_rate = rate;
+    int rate = GetUsageRate(re, num_replicas, usage);
+    if (rate > max_usage_rate) {
+      max_usage_rate = rate;
     }
   }
-  if (max_rate <= 1) {
+  if (max_usage_rate <= 1) {
     return false;
   }
+  // Allocates more replicas.
   for (auto p : alloc_plan.num_replicas_) {
     ResourceEntry *re = p.first;
     int num_replicas = p.second;
-    int rate = GetRate(re, num_replicas, usage);
-    if (rate == max_rate) {
+    int rate = GetUsageRate(re, num_replicas, usage);
+    if (rate == max_usage_rate) {
       p.second++;
     }
   }
@@ -94,8 +107,8 @@ bool Explorer::SetNewPlan(WirePlan *wp) {
   return true;
 }
 
-int Explorer::GetRate(ResourceEntry *re, int num_replicas,
-		      const map<ResourceEntry *, int> &usage) {
+int Explorer::GetUsageRate(ResourceEntry *re, int num_replicas,
+			   const map<ResourceEntry *, int> &usage) {
   if (num_replicas == 0) {
     return 0;
   }
