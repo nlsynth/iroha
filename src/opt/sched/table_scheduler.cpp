@@ -12,7 +12,6 @@
 #include "opt/sched/bb_data_path.h"
 #include "opt/sched/data_path_set.h"
 #include "opt/sched/explorer.h"
-#include "opt/sched/plan_evaluator.h"
 #include "opt/sched/relocator.h"
 #include "opt/sched/resource_conflict_tracker.h"
 #include "opt/sched/wire_plan.h"
@@ -79,7 +78,6 @@ bool TableScheduler::Perform() {
 }
 
 void TableScheduler::IterateScheduling() {
-  PlanEvaluator ev(data_path_set_.get());
   WirePlanSet wps;
   Explorer explorer(&wps);
   explorer.SetInitialAllocation();
@@ -88,7 +86,7 @@ void TableScheduler::IterateScheduling() {
     SchedulerCore sch(data_path_set_.get(), delay_info_);
     sch.Schedule();
     auto *conflict_tracker = sch.AcquireConflictTracker();
-    wps.SaveCurrentSchedulingPlan(data_path_set_.get(), conflict_tracker, &ev);
+    wps.SaveCurrentSchedulingPlan(data_path_set_.get(), conflict_tracker);
 
     if (annotation_->IsEnabled()) {
       annotation_->StartSubSection("sched", false);

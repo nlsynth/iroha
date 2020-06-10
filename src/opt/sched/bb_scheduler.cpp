@@ -105,7 +105,7 @@ bool BBScheduler::ScheduleNode(PathNode *n) {
 }
 
 int BBScheduler::GetMinStIndex(PathNode *n) {
-  // Checks if all preceding nodes (W->W, W->R, R->W) are scheduled.
+  // Checks if all preceding nodes (W->W, W->R, R->W, DEP) are scheduled.
   for (auto &s : n->source_edges_) {
     PathEdge *edge = s.second;
     PathNode *source_node = edge->GetSourceNode();

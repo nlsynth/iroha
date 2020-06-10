@@ -10,14 +10,12 @@ namespace sched {
 
 class PlanEvaluator {
 public:
-  PlanEvaluator(DataPathSet *dps);
-
+  // Returns the score of the plan (lower is better).
+  // The score is an estimation of execution time from profiling data.
   long Evaluate(WirePlan *plan);
 
 private:
   int GetBBSize(BBWirePlan *bb_plan);
-
-  DataPathSet *dps_;
 };
 
 }  // namespace sched

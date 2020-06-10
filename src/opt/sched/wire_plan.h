@@ -49,8 +49,7 @@ public:
   ~WirePlanSet();
 
   void SaveCurrentSchedulingPlan(DataPathSet *dps,
-				 ResourceConflictTracker *conflicts,
-				 PlanEvaluator *ev);
+				 ResourceConflictTracker *conflicts);
   void ApplyBest();
 
   WirePlan *GetLatestPlan(int nth);

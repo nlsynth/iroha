@@ -102,11 +102,12 @@ WirePlanSet::~WirePlanSet() {
 }
 
 void WirePlanSet::SaveCurrentSchedulingPlan(DataPathSet *dps,
-					    ResourceConflictTracker *conflicts,
-					    PlanEvaluator *ev) {
+					    ResourceConflictTracker *conflicts) {
   WirePlan *wp = new WirePlan(dps, conflicts);
   wp->Save();
-  wp->SetScore(ev->Evaluate(wp));
+  PlanEvaluator ev;
+  long score = ev.Evaluate(wp);
+  wp->SetScore(score);
   plans_.push_back(wp);
 }
 

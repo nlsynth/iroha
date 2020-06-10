@@ -11,9 +11,6 @@ namespace iroha {
 namespace opt {
 namespace sched {
 
-PlanEvaluator::PlanEvaluator(DataPathSet *dps) : dps_(dps) {
-}
-
 long PlanEvaluator::Evaluate(WirePlan *plan) {
   long score = 0;
   auto &bb_plans = plan->GetBBWirePlans();
