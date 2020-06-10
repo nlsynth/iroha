@@ -103,7 +103,7 @@ bool Explorer::SetNewPlan(WirePlan *wp) {
       p.second++;
     }
   }
-  alloc_plan.Restore();
+  alloc_plan.RestoreNumReplicas();
   return true;
 }
 

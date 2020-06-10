@@ -65,6 +65,7 @@ const char *PathEdge::TypeName(PathEdgeType type) {
   case PathEdgeType::WRITE_READ: return "W_R";
   case PathEdgeType::WRITE_WRITE: return "W_W";
   case PathEdgeType::READ_WRITE: return "R_W";
+  case PathEdgeType::INSN_DEP: return "DEP";
   default:;
   }
   return "INVALID";

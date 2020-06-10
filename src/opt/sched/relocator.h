@@ -8,6 +8,7 @@ namespace iroha {
 namespace opt {
 namespace sched {
 
+// Relocates insns by schedling decisions.
 class Relocator {
 public:
   Relocator(DataPathSet *data_path_set);

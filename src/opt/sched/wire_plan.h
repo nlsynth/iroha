@@ -10,7 +10,7 @@ namespace sched {
 
 class AllocationPlan {
 public:
-  void Restore();
+  void RestoreNumReplicas();
 
   map<ResourceEntry *, int> num_replicas_;
 };

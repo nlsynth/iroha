@@ -14,7 +14,7 @@ namespace iroha {
 namespace opt {
 namespace sched {
 
-void AllocationPlan::Restore() {
+void AllocationPlan::RestoreNumReplicas() {
   for (auto &p : num_replicas_) {
     ResourceEntry *rent = p.first;
     int num = p.second;
