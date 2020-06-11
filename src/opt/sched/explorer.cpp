@@ -78,6 +78,7 @@ bool Explorer::HadSufficientImprovement() {
 }
 
 bool Explorer::SetNewPlan(WirePlan *wp) {
+  // Takes a local copy of the alloc_plan and try some improvements.
   AllocationPlan alloc_plan = wp->GetAllocationPlan();
   ResourceConflictTracker *conflict_tracker = wp->GetConflictTracker();
   auto &usage = conflict_tracker->GetUsageCount();
@@ -103,6 +104,7 @@ bool Explorer::SetNewPlan(WirePlan *wp) {
       p.second++;
     }
   }
+  // Updates on ResourceEntry-s.
   alloc_plan.RestoreNumReplicas();
   return true;
 }

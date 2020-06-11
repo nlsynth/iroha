@@ -9,6 +9,7 @@ namespace opt {
 namespace sched {
 
 // Allocated for per insn.
+// Multiple VirtualResource-s share a ResourceEntry.
 class VirtualResource {
 public:
   VirtualResource(VirtualResourceSet *vrset, IInsn *insn);
