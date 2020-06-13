@@ -31,7 +31,7 @@ void Relocator::Relocate() {
   ResourceReplicaAssigner assigner(data_path_set_);
   assigner.Perform();
   // Move insns and may update IResource.
-  auto &paths = data_path_set_->GetPaths();
+  auto &paths = data_path_set_->GetBBPaths();
   for (auto &p : paths) {
     RelocateInsnsForDataPath(p.second);
   }
@@ -71,7 +71,8 @@ void Relocator::RelocateInsn(PathNode *node, vector<IState *> *states) {
   }
 }
 
-void Relocator::RelocateTransitionInsns(BBDataPath *dp, vector<IState *> *states) {
+void Relocator::RelocateTransitionInsns(BBDataPath *dp,
+					vector<IState *> *states) {
   BB *bb = dp->GetBB();
   auto &nodes = dp->GetNodes();
   int max_st = 0;
@@ -93,6 +94,9 @@ void Relocator::RelocateTransitionInsns(BBDataPath *dp, vector<IState *> *states
     PathNode *n = p.second;
     if (n->IsTransition()) {
       int st_index = n->GetFinalStIndex();
+      if (st_index < 0) {
+	continue;
+      }
       states->at(st_index)->insns_.push_back(n->GetInsn());
     }
   }
@@ -128,6 +132,9 @@ void Relocator::RewirePaths(BBDataPath *dp, vector<IState *> *states) {
   auto &nodes = dp->GetNodes();
   for (auto &p : nodes) {
     PathNode *src_node = p.second;
+    if (src_node->GetFinalStIndex() < 0) {
+      continue;
+    }
     RewirePathsNode(src_node, states);
   }
 }

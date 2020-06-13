@@ -16,7 +16,7 @@ public:
   void Build(BBSet *bbs);
   void SetDelay(DelayInfo *dinfo);
   void Dump(DebugAnnotation *an);
-  map<int, BBDataPath *> &GetPaths();
+  map<int, BBDataPath *> &GetBBPaths();
   BBSet *GetBBSet();
   VirtualResourceSet *GetVirtualResourceSet();
 

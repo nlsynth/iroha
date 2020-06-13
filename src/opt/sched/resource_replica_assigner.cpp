@@ -14,7 +14,7 @@ ResourceReplicaAssigner::ResourceReplicaAssigner(DataPathSet *dps) : dps_(dps) {
 }
 
 void ResourceReplicaAssigner::Perform() {
-  auto &paths = dps_->GetPaths();
+  auto &paths = dps_->GetBBPaths();
   for (auto p : paths) {
     BBDataPath *dp = p.second;
     PerformBB(dp);

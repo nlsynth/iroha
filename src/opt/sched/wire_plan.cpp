@@ -24,7 +24,7 @@ void AllocationPlan::RestoreNumReplicas() {
 
 WirePlan::WirePlan(DataPathSet *dps, ResourceConflictTracker *conflict_tracker)
   : dps_(dps), conflict_tracker_(conflict_tracker), score_(0) {
-  auto &paths = dps->GetPaths();
+  auto &paths = dps->GetBBPaths();
   for (auto p : paths) {
     int bb_id = p.first;
     BBDataPath *bb_path = p.second;

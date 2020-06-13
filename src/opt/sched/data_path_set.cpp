@@ -44,7 +44,7 @@ void DataPathSet::Dump(DebugAnnotation *an) {
   }
 }
 
-map<int, BBDataPath *> &DataPathSet::GetPaths() {
+map<int, BBDataPath *> &DataPathSet::GetBBPaths() {
   return data_paths_;
 }
 

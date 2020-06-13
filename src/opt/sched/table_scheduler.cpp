@@ -14,6 +14,7 @@
 #include "opt/sched/explorer.h"
 #include "opt/sched/relocator.h"
 #include "opt/sched/resource_conflict_tracker.h"
+#include "opt/sched/transition_fixup.h"
 #include "opt/sched/wire_plan.h"
 
 namespace iroha {
@@ -64,6 +65,9 @@ bool TableScheduler::Perform() {
 
   IterateScheduling();
 
+  TransitionFixup tf(data_path_set_.get());
+  tf.Perform();
+
   Relocator rel(data_path_set_.get());
   rel.Relocate();
 
@@ -107,7 +111,7 @@ SchedulerCore::~SchedulerCore() {
 }
 
 void SchedulerCore::Schedule() {
-  auto &paths = data_path_set_->GetPaths();
+  auto &paths = data_path_set_->GetBBPaths();
   for (auto &p : paths) {
     BBScheduler sch(p.second, delay_info_, conflict_tracker_.get());
     sch.Schedule();

@@ -163,6 +163,8 @@
 	'opt/sched/resource_tracker.h',
 	'opt/sched/relocator.cpp',
 	'opt/sched/relocator.h',
+	'opt/sched/transition_fixup.cpp',
+	'opt/sched/transition_fixup.h',
         'opt/sched/sched_phase.cpp',
         'opt/sched/sched_phase.h',
         'opt/sched/table_scheduler.cpp',
