@@ -70,7 +70,8 @@ bool ResourceAttr::IsExtAccessResource(IResource *res) {
       resource::IsExtTask(rc) ||
       resource::IsExtTaskDone(rc) ||
       resource::IsExtTaskCall(rc) ||
-      resource::IsExtTaskWait(rc)) {
+      resource::IsExtTaskWait(rc) ||
+      resource::IsSharedRegExtWriter(rc)) {
     return true;
   }
   if (resource::IsArray(rc) && res->GetArray() != nullptr &&
