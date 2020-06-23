@@ -73,8 +73,10 @@ void SelfShell::WritePortConnection(ostream &os) {
     os << ", ." << v << "(" << v << ")";
   }
   for (IResource *res : ext_task_call_) {
-    string req_ready = ExtTask::ReqReadyPin(res);
-    os << ", ." << req_ready << "(" << req_ready << ")";
+    if (res->GetParams()->GetEmbeddedModuleFileName().empty()) {
+      string req_ready = ExtTask::ReqReadyPin(res);
+      os << ", ." << req_ready << "(" << req_ready << ")";
+    }
   }
   for (IResource *res : ext_task_wait_) {
     string res_valid = ExtTask::ResValidPin(res->GetParentResource());
