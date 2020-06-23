@@ -22,7 +22,11 @@ void Ticker::BuildResource() {
   ostream &is = tab_.InitialValueSectionStream();
   is << "      " << n << " <= 0;\n";
   ostream &ss = tab_.StateOutputSectionStream();
-  ss << "      " << n << " <= " << n << " + 1;\n";
+  ss << "      " << n << " <= " << n << " + 1";
+  if (HasDecrement()) {
+    ss << " - " << BuildDecrement();
+  }
+  ss << ";\n";
 }
 
 void Ticker::BuildInsn(IInsn *insn, State *st) {
@@ -40,6 +44,31 @@ void Ticker::BuildInsn(IInsn *insn, State *st) {
 string Ticker::TickerName() {
   return "ticker_" + Util::Itoa(res_.GetTable()->GetId()) + "_" +
     Util::Itoa(res_.GetId());
+}
+
+bool Ticker::HasDecrement() {
+  map<IState *, IInsn *> callers;
+  CollectResourceCallers("*", &callers);
+  for (auto it : callers) {
+    IInsn *insn = it.second;
+    if (insn->inputs_.size() > 0) {
+      return true;
+    }
+  }
+  return false;
+}
+
+string Ticker::BuildDecrement() {
+  map<IState *, IInsn *> allCallers;
+  CollectResourceCallers("*", &allCallers);
+  map<IState *, IInsn *> callers;
+  for (auto it : allCallers) {
+    IInsn *insn = it.second;
+    if (insn->inputs_.size() > 0) {
+      callers[it.first] = insn;
+    }
+  }
+  return SelectValueByStateWithCallers(callers, "0");
 }
 
 }  // namespace verilog

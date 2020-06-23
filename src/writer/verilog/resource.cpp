@@ -273,10 +273,9 @@ string Resource::JoinStatesWithSubState(const map<IState *, IInsn *> &sts,
   return Util::Join(conds, " || ");
 }
 
-string Resource::SelectValueByState(const string &default_value) {
+string Resource::SelectValueByStateWithCallers(const map<IState *, IInsn *> &callers,
+					       const string &default_value) {
   string v = default_value;
-  map<IState *, IInsn *> callers;
-  CollectResourceCallers("", &callers);
   for (auto &c : callers) {
     IState *st = c.first;
     IInsn *insn = c.second;
@@ -289,6 +288,12 @@ string Resource::SelectValueByState(const string &default_value) {
     }
   }
   return v;
+}
+
+string Resource::SelectValueByState(const string &default_value) {
+  map<IState *, IInsn *> callers;
+  CollectResourceCallers("", &callers);
+  return SelectValueByStateWithCallers(callers, default_value);
 }
 
 void Resource::AddPortToTop(const string &port, bool is_output,

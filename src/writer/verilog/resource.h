@@ -40,6 +40,8 @@ protected:
   void WriteStateUnion(const map<IState *, IInsn *> &callers,
 		       ostream &os);
   string SelectValueByState(const string &default_value);
+  string SelectValueByStateWithCallers(const map<IState *, IInsn *> &callers,
+				       const string &default_value);
   void AddPortToTop(const string &port, bool is_output, bool from_embedded,
 		    int width);
   void BuildEmbeddedModule(const string &connection);

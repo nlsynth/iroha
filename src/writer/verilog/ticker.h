@@ -17,6 +17,8 @@ public:
 
 private:
   string TickerName();
+  string BuildDecrement();
+  bool HasDecrement();
 };
 
 }  // namespace verilog
