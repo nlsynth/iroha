@@ -100,8 +100,9 @@ void Relocator::RelocateTransitionInsns(BBDataPath *dp,
       states->at(st_index)->insns_.push_back(n->GetInsn());
     }
   }
+  int ssize = max_st + 1;
   // Adjust transition targets and conditions.
-  if (bb->states_.size() < states->size()) {
+  if (bb->states_.size() < ssize) {
     //
     // 0th state shouldn't be touched becaused other BBs may reference it.
     // 0 1 ... bb->size()

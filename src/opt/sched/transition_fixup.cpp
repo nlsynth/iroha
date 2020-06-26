@@ -35,7 +35,7 @@ void TransitionFixup::ProcessBB(BBDataPath *bbp) {
       }
     }
   }
-  if (max_tr <= max_non_tr || max_non_tr <= 0) {
+  if (max_tr <= max_non_tr || max_non_tr < 0) {
     return;
   }
   for (auto &n : nodes) {
@@ -48,7 +48,6 @@ void TransitionFixup::ProcessBB(BBDataPath *bbp) {
       node->SetFinalStIndex(max_non_tr);
     } else if (idx >= max_non_tr) {
       node->SetFinalStIndex(-1);
-      // WIP. kill it.
     }
   }
 }
