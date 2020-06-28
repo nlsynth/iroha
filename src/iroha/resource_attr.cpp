@@ -1,4 +1,4 @@
-#include "design/resource_attr.h"
+#include "iroha/resource_attr.h"
 
 #include "iroha/i_design.h"
 #include "iroha/insn_operands.h"

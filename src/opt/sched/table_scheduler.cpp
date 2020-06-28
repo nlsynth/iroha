@@ -1,8 +1,8 @@
 #include "opt/sched/table_scheduler.h"
 
-#include "design/resource_attr.h"
 #include "design/validator.h"
 #include "iroha/i_design.h"
+#include "iroha/resource_attr.h"
 #include "iroha/resource_class.h"
 #include "iroha/resource_params.h"
 #include "opt/bb_set.h"

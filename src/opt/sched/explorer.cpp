@@ -1,6 +1,6 @@
 #include "opt/sched/explorer.h"
 
-#include "design/resource_attr.h"
+#include "iroha/resource_attr.h"
 #include "opt/sched/resource_conflict_tracker.h"
 #include "opt/sched/resource_entry.h"
 #include "opt/sched/wire_plan.h"

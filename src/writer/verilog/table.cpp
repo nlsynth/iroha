@@ -1,8 +1,8 @@
 #include "writer/verilog/table.h"
 
-#include "design/resource_attr.h"
 #include "iroha/i_design.h"
 #include "iroha/logging.h"
+#include "iroha/resource_attr.h"
 #include "iroha/resource_class.h"
 #include "iroha/resource_params.h"
 #include "iroha/stl_util.h"

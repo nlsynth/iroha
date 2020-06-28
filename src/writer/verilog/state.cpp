@@ -1,9 +1,9 @@
 #include "writer/verilog/state.h"
 
 #include "design/design_util.h"
-#include "design/resource_attr.h"
 #include "iroha/i_design.h"
 #include "iroha/logging.h"
+#include "iroha/resource_attr.h"
 #include "iroha/resource_class.h"
 #include "writer/module_template.h"
 #include "writer/verilog/ext_task.h"

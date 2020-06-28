@@ -1,7 +1,7 @@
 #include "writer/verilog/dataflow_table.h"
 
-#include "design/resource_attr.h"
 #include "iroha/i_design.h"
+#include "iroha/resource_attr.h"
 #include "writer/module_template.h"
 #include "writer/verilog/dataflow_state.h"
 #include "writer/verilog/insn_writer.h"

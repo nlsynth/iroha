@@ -1,7 +1,7 @@
 #include "opt/sched/bb_scheduler.h"
 
-#include "design/resource_attr.h"
 #include "iroha/i_design.h"
+#include "iroha/resource_attr.h"
 #include "iroha/resource_class.h"
 #include "opt/bb_set.h"
 #include "opt/delay_info.h"

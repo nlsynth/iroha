@@ -1,7 +1,7 @@
 #include "opt/clean/unused_resource.h"
 
-#include "design/resource_attr.h"
 #include "iroha/i_design.h"
+#include "iroha/resource_attr.h"
 
 namespace iroha {
 namespace opt {

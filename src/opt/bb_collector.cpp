@@ -1,8 +1,8 @@
 #include "opt/bb_collector.h"
 
 #include "design/design_util.h"
-#include "design/resource_attr.h"
 #include "iroha/i_design.h"
+#include "iroha/resource_attr.h"
 #include "opt/bb_set.h"
 #include "opt/debug_annotation.h"
 #include "opt/opt_util.h"

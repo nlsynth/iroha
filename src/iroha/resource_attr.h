@@ -1,6 +1,6 @@
 // -*- C++ -*-
-#ifndef _design_resource_attr_h_
-#define _design_resource_attr_h_
+#ifndef _iroha_resource_attr_h_
+#define _iroha_resource_attr_h_
 
 #include "iroha/common.h"
 
@@ -20,4 +20,4 @@ public:
 
 }  // namespace iroha
 
-#endif  // _design_resource_attr_h_
+#endif  // _iroha_resource_attr_h_
