@@ -24,6 +24,8 @@ public:
   vector<IResource *> shared_reg_children_;
   vector<IResource *> fifo_readers_;
   vector<IResource *> fifo_writers_;
+  vector<IResource *> ext_input_accessors_;
+  vector<IResource *> ext_output_accessors_;
   vector<IResource *> study_accessors_;
 };
 
@@ -55,6 +57,7 @@ private:
   void ProcessSharedRegAccessors(ITable *tab);
   void ProcessSharedMemoryAccessors(ITable *tab);
   void ProcessFifoAccessors(ITable *tab);
+  void ProcessExtIOAccessors(ITable *tab);
   void ProcessStudyAccessors(ITable *tab);
   AccessorInfo *FindAccessorInfo(const IResource *res);
 

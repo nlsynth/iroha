@@ -47,6 +47,8 @@ void Connection::ProcessTable(ITable *tab) {
   ProcessSharedMemoryAccessors(tab);
   // fifo
   ProcessFifoAccessors(tab);
+  // ext-input, ext-output
+  ProcessExtIOAccessors(tab);
   // study
   ProcessStudyAccessors(tab);
 }
@@ -114,6 +116,24 @@ void Connection::ProcessFifoAccessors(ITable *tab) {
     }
     if (resource::IsDataFlowIn(*rc)) {
       ai->fifo_readers_.push_back(res);
+    }
+  }
+}
+
+void Connection::ProcessExtIOAccessors(ITable *tab) {
+  for (IResource *res : tab->resources_) {
+    IResource *p = res->GetParentResource();
+    if (p == nullptr) {
+      continue;
+    }
+    auto *rc = res->GetClass();
+    if (resource::IsExtInput(*rc)) {
+      auto *ai = FindAccessorInfo(p);
+      ai->ext_input_accessors_.push_back(res);
+    }
+    if (resource::IsExtOutput(*rc)) {
+      auto *ai = FindAccessorInfo(p);
+      ai->ext_output_accessors_.push_back(res);
     }
   }
 }
