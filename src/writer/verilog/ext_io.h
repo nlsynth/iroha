@@ -19,6 +19,7 @@ public:
 private:
   void BuildExtInputInsn(IInsn *insn);
   void BuildExtOutputInsn(IInsn *insn, State *st);
+  void BuildPeekExtOutputInsn(IInsn *insn);
   void BuildExtInputResource();
   void BuildExtOutputResource();
   void BuildBufRegChain(const string &port, int width);
