@@ -13,6 +13,7 @@
 #include "writer/verilog/embed.h"
 #include "writer/verilog/ext_combinational.h"
 #include "writer/verilog/ext_io.h"
+#include "writer/verilog/ext_io_accessor.h"
 #include "writer/verilog/ext_task.h"
 #include "writer/verilog/ext_task_call.h"
 #include "writer/verilog/fifo.h"
@@ -63,6 +64,10 @@ Resource *Resource::Create(const IResource &res, const Table &table) {
   if (resource::IsExtInput(*klass) ||
       resource::IsExtOutput(*klass)) {
     return new ExtIO(res, table);
+  }
+  if (resource::IsExtInputAccessor(*klass) ||
+      resource::IsExtOutputAccessor(*klass)) {
+    return new ExtIOAccessor(res, table);
   }
   if (resource::IsSharedReg(*klass)) {
     return new SharedReg(res, table);

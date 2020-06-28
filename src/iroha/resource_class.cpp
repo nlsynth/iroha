@@ -79,6 +79,14 @@ bool IsExtOutput(const IResourceClass &rc) {
   return (rc.GetName() == kExtOutput);
 }
 
+bool IsExtInputAccessor(const IResourceClass &rc) {
+  return (rc.GetName() == kExtInputAccessor);
+}
+
+bool IsExtOutputAccessor(const IResourceClass &rc) {
+  return (rc.GetName() == kExtOutputAccessor);
+}
+
 bool IsExtCombinational(const IResourceClass &rc) {
   return (rc.GetName() == kExtCombinational);
 }
@@ -211,6 +219,8 @@ void InstallResourceClasses(IDesign *design) {
   InstallResource(design, resource::kTransition, true);
   InstallResource(design, resource::kExtInput, true);
   InstallResource(design, resource::kExtOutput, true);
+  InstallResource(design, resource::kExtInputAccessor, true);
+  InstallResource(design, resource::kExtOutputAccessor, true);
   InstallResource(design, resource::kExtCombinational, true);
   InstallResource(design, resource::kSharedReg, true);
   InstallResource(design, resource::kSharedRegReader, true);

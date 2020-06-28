@@ -289,6 +289,8 @@
         'writer/verilog/ext_combinational.h',
         'writer/verilog/ext_io.cpp',
         'writer/verilog/ext_io.h',
+        'writer/verilog/ext_io_accessor.cpp',
+        'writer/verilog/ext_io_accessor.h',
         'writer/verilog/ext_task_call.cpp',
         'writer/verilog/ext_task_call.h',
         'writer/verilog/ext_task.cpp',

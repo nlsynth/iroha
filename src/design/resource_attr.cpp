@@ -63,7 +63,9 @@ bool ResourceAttr::IsMultiCycleInsn(IInsn *insn) {
 bool ResourceAttr::IsExtAccessResource(IResource *res) {
   IResourceClass &rc = *(res->GetClass());
   if (resource::IsExtInput(rc) ||
+      resource::IsExtInputAccessor(rc) ||
       resource::IsExtOutput(rc) ||
+      resource::IsExtOutputAccessor(rc) ||
       resource::IsAxiMasterPort(rc) ||
       resource::IsAxiSlavePort(rc) ||
       resource::IsSramIf(rc) ||
