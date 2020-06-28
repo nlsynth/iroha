@@ -17,7 +17,6 @@
 #include "opt/phase.h"
 #include "opt/pipeline/pipeline_phase.h"
 #include "opt/sched/sched_phase.h"
-#include "opt/simple_bb_merge.h"
 #include "opt/ssa/ssa.h"
 #include "opt/study.h"
 #include "opt/unroll/unroll_phase.h"
@@ -52,7 +51,6 @@ void Optimizer::Init() {
 		&clean::CleanPseudoResourcePhase::Create);
   RegisterPhase("constant_propagation",
 		&constant::ConstantPropagation::Create);
-  RegisterPhase("simple_bb_merge", &SimpleBBMerge::Create);
   RegisterPhase("ssa_convert", &ssa::SSAConverterPhase::Create);
   RegisterPhase("phi_cleaner", &ssa::PhiCleanerPhase::Create);
   RegisterPhase("alloc_resource", &sched::SchedPhase::Create);

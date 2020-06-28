@@ -174,8 +174,6 @@
         'opt/sched/virtual_resource_set.h',
         'opt/sched/wire_plan.cpp',
         'opt/sched/wire_plan.h',
-        'opt/simple_bb_merge.cpp',
-        'opt/simple_bb_merge.h',
         'opt/ssa/phi_builder.cpp',
         'opt/ssa/phi_builder.h',
         'opt/ssa/phi_cleaner.cpp',
