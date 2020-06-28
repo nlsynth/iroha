@@ -161,7 +161,8 @@ void ExtIO::CollectNames(Names *names) {
 }
 
 string ExtIO::BufRegName(const string &output_port, int stage) {
-  return output_port + "_buf" + Util::Itoa(stage) + "of" + Util::Itoa(distance_);
+  return output_port + "_buf" + Util::Itoa(stage) + "of" +
+    Util::Itoa(distance_);
 }
 
 void ExtIO::BuildPeekExtOutputInsn(IInsn *insn) {
@@ -171,7 +172,13 @@ void ExtIO::BuildPeekExtOutputInsn(IInsn *insn) {
   int width;
   params->GetExtOutputPort(&output_port, &width);
   ws << "  assign " << InsnWriter::InsnOutputWireName(*insn, 0)
-     << "  = " << output_port << ";\n";
+     << "  = ";
+  if (distance_ > 0) {
+    ws << BufRegName(output_port, distance_ - 1);
+  } else {
+    ws << output_port;
+  }
+  ws << ";\n";
 }
 
 }  // namespace verilog
