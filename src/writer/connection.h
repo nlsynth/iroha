@@ -46,6 +46,8 @@ public:
   const vector<IResource *> &GetSharedMemoryPort1Accessors(const IResource *res) const;
   const vector<IResource *> &GetFifoWriters(const IResource *res) const;
   const vector<IResource *> &GetFifoReaders(const IResource *res) const;
+  const vector<IResource *> &GetExtInputAccessors(const IResource *res) const;
+  const vector<IResource *> &GetExtOutputAccessors(const IResource *res) const;
   const vector<IResource *> &GetStudyAccessors(const IResource *res) const;
 
   static const IModule *GetCommonRoot(const IModule *m1, const IModule *m2);

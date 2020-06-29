@@ -3,6 +3,7 @@
 #include "iroha/i_design.h"
 #include "iroha/resource_class.h"
 #include "iroha/resource_params.h"
+#include "writer/connection.h"
 #include "writer/module_template.h"
 #include "writer/names.h"
 #include "writer/verilog/module.h"
@@ -10,6 +11,8 @@
 #include "writer/verilog/state.h"
 #include "writer/verilog/insn_writer.h"
 #include "writer/verilog/table.h"
+#include "writer/verilog/wire/accessor_info.h"
+#include "writer/verilog/wire/wire_set.h"
 
 namespace iroha {
 namespace writer {
@@ -44,11 +47,23 @@ void ExtIO::BuildExtInputResource() {
   params->GetExtInputPort(&input_port, &width);
   AddPortToTop(input_port, false, false, width);
   BuildBufRegChain(input_port, width);
+  string input_src = InputRegName(res_);
   if (distance_ > 0) {
     ostream &ss = tab_.StateOutputSectionStream();
-    ss << "      " << BufRegName(input_port, distance_ - 1)
+    ss << "      " << input_src
        << " <= "
        << input_port << ";\n";
+  }
+  auto &conn = tab_.GetModule()->GetConnection();
+  const vector<IResource *> &acs = conn.GetExtInputAccessors(&res_);
+  if (acs.size() > 0) {
+    wire::WireSet *ws = new wire::WireSet(*this, input_src);
+    for (auto *ac : acs) {
+      wire::AccessorInfo *ainfo = ws->AddAccessor(ac);
+      ainfo->SetDistance(ac->GetParams()->GetDistance());
+      ainfo->AddSignal("r", wire::AccessorSignalType::ACCESSOR_READ_ARG, width);
+    }
+    ws->Build();
   }
 }
 
@@ -161,8 +176,7 @@ void ExtIO::CollectNames(Names *names) {
 }
 
 string ExtIO::BufRegName(const string &output_port, int stage) {
-  return output_port + "_buf" + Util::Itoa(stage) + "of" +
-    Util::Itoa(distance_);
+  return BufRegNameWithDistance(output_port, distance_, stage);
 }
 
 void ExtIO::BuildPeekExtOutputInsn(IInsn *insn) {
@@ -179,6 +193,23 @@ void ExtIO::BuildPeekExtOutputInsn(IInsn *insn) {
     ws << output_port;
   }
   ws << ";\n";
+}
+
+string ExtIO::InputRegName(const IResource &res) {
+  auto *params = res.GetParams();
+  string input_port;
+  int width;
+  params->GetExtInputPort(&input_port, &width);
+  int distance = params->GetDistance();
+  if (distance == 0) {
+    return input_port;
+  }
+  return BufRegNameWithDistance(input_port, distance, distance - 1);
+}
+
+string ExtIO::BufRegNameWithDistance(const string &port,
+				     int distance, int stage) {
+  return port + "_buf" + Util::Itoa(stage) + "of" + Util::Itoa(distance);
 }
 
 }  // namespace verilog

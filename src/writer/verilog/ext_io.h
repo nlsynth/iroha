@@ -16,6 +16,10 @@ public:
   virtual void BuildInsn(IInsn *insn, State *st) override;
   virtual void CollectNames(Names *names) override;
 
+  static string InputRegName(const IResource &res);
+  static string BufRegNameWithDistance(const string &port, int distance,
+				       int stage);
+
 private:
   void BuildExtInputInsn(IInsn *insn);
   void BuildExtOutputInsn(IInsn *insn, State *st);

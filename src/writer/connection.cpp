@@ -126,7 +126,7 @@ void Connection::ProcessExtIOAccessors(ITable *tab) {
     if (p == nullptr) {
       continue;
     }
-    auto *rc = res->GetClass();
+    auto *rc = p->GetClass();
     if (resource::IsExtInput(*rc)) {
       auto *ai = FindAccessorInfo(p);
       ai->ext_input_accessors_.push_back(res);
@@ -210,6 +210,16 @@ const vector<IResource *> &Connection::GetFifoWriters(const IResource *res) cons
 const vector<IResource *> &Connection::GetFifoReaders(const IResource *res) const {
   const auto *ai = GetAccessorInfo(res);
   return ai->fifo_readers_;
+}
+
+const vector<IResource *> &Connection::GetExtInputAccessors(const IResource *res) const {
+  const auto *ai = GetAccessorInfo(res);
+  return ai->ext_input_accessors_;
+}
+
+const vector<IResource *> &Connection::GetExtOutputAccessors(const IResource *res) const {
+  const auto *ai = GetAccessorInfo(res);
+  return ai->ext_output_accessors_;
 }
 
 const vector<IResource *> &Connection::GetStudyAccessors(const IResource *res) const {
