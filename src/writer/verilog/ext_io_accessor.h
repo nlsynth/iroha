@@ -15,6 +15,10 @@ public:
   virtual void BuildResource() override;
   virtual void BuildInsn(IInsn *insn, State *st) override;
   virtual void CollectNames(Names *names) override;
+
+  static bool UseOutput(const IResource *accessor);
+  static bool UsePeek(const IResource *accessor);
+  static void OutputFeature(const IResource *accessor, bool *o, bool *p);
 };
 
 }  // namespace verilog

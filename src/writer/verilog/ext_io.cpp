@@ -6,6 +6,7 @@
 #include "writer/connection.h"
 #include "writer/module_template.h"
 #include "writer/names.h"
+#include "writer/verilog/ext_io_accessor.h"
 #include "writer/verilog/module.h"
 #include "writer/verilog/port.h"
 #include "writer/verilog/state.h"
@@ -90,6 +91,32 @@ void ExtIO::BuildExtOutputResource() {
        << BufRegName(output_port, 0);
     ss << ";\n";
   }
+  BuildExtOutputAccessor();
+}
+
+void ExtIO::BuildExtOutputAccessor() {
+  auto *params = res_.GetParams();
+  string output_port;
+  int width;
+  params->GetExtInputPort(&output_port, &width);
+
+  auto &conn = tab_.GetModule()->GetConnection();
+  const vector<IResource *> &acs = conn.GetExtOutputAccessors(&res_);
+  string output = OutputRegName(res_);
+  wire::WireSet *ws = new wire::WireSet(*this, output);
+  for (auto *ac : acs) {
+    wire::AccessorInfo *ainfo = ws->AddAccessor(ac);
+    ainfo->SetDistance(ac->GetParams()->GetDistance());
+    if (ExtIOAccessor::UseOutput(ac)) {
+      ainfo->AddSignal("w", wire::AccessorSignalType::ACCESSOR_WRITE_ARG,
+		       width);
+    }
+    if (ExtIOAccessor::UsePeek(ac)) {
+      ainfo->AddSignal("p", wire::AccessorSignalType::ACCESSOR_READ_ARG,
+		       width);
+    }
+  }
+  ws->Build();
 }
 
 void ExtIO::BuildBufRegChain(const string &port, int width) {
@@ -147,16 +174,8 @@ void ExtIO::BuildExtOutputInsn(IInsn *insn, State *st) {
     // The code is generated in BuildResource()
     return;
   }
-  auto *params = res_.GetParams();
-  string output_port;
-  int width;
-  params->GetExtOutputPort(&output_port, &width);
   ostream &os = st->StateTransitionSectionStream();
-  if (distance_ == 0) {
-    os << "      " << output_port;
-  } else {
-    os << "          " << BufRegName(output_port, distance_ - 1);
-  }
+  os << "      " << OutputRegName(res_);
   os << " <= "
      << InsnWriter::RegisterValue(*insn->inputs_[0], tab_.GetNames());
   os << ";\n";
@@ -180,19 +199,9 @@ string ExtIO::BufRegName(const string &output_port, int stage) {
 }
 
 void ExtIO::BuildPeekExtOutputInsn(IInsn *insn) {
-  auto *params = res_.GetParams();
   ostream &ws = tab_.InsnWireValueSectionStream();
-  string output_port;
-  int width;
-  params->GetExtOutputPort(&output_port, &width);
   ws << "  assign " << InsnWriter::InsnOutputWireName(*insn, 0)
-     << "  = ";
-  if (distance_ > 0) {
-    ws << BufRegName(output_port, distance_ - 1);
-  } else {
-    ws << output_port;
-  }
-  ws << ";\n";
+     << "  = " << OutputRegName(res_) << ";\n";
 }
 
 string ExtIO::InputRegName(const IResource &res) {
@@ -205,6 +214,18 @@ string ExtIO::InputRegName(const IResource &res) {
     return input_port;
   }
   return BufRegNameWithDistance(input_port, distance, distance - 1);
+}
+
+string ExtIO::OutputRegName(const IResource &res) {
+  auto *params = res.GetParams();
+  string output_port;
+  int width;
+  params->GetExtOutputPort(&output_port, &width);
+  int distance = params->GetDistance();
+  if (distance == 0) {
+    return output_port;
+  }
+  return BufRegNameWithDistance(output_port, distance, distance - 1);
 }
 
 string ExtIO::BufRegNameWithDistance(const string &port,

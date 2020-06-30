@@ -17,6 +17,7 @@ public:
   virtual void CollectNames(Names *names) override;
 
   static string InputRegName(const IResource &res);
+  static string OutputRegName(const IResource &res);
   static string BufRegNameWithDistance(const string &port, int distance,
 				       int stage);
 
@@ -26,6 +27,7 @@ private:
   void BuildPeekExtOutputInsn(IInsn *insn);
   void BuildExtInputResource();
   void BuildExtOutputResource();
+  void BuildExtOutputAccessor();
   void BuildBufRegChain(const string &port, int width);
   string BufRegName(const string &output_port, int stage);
 
