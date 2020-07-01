@@ -18,6 +18,12 @@ public:
 
   static bool UseOutput(const IResource *accessor);
   static bool UsePeek(const IResource *accessor);
+
+private:
+  void BuildOutputResource();
+  void CollectOutputCallers(map<IState *, IInsn *> *callers);
+  string GetName();
+
   static void OutputFeature(const IResource *accessor, bool *o, bool *p);
 };
 

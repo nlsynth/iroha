@@ -110,6 +110,8 @@ void ExtIO::BuildExtOutputAccessor() {
     if (ExtIOAccessor::UseOutput(ac)) {
       ainfo->AddSignal("w", wire::AccessorSignalType::ACCESSOR_WRITE_ARG,
 		       width);
+      ainfo->AddSignal("wen", wire::AccessorSignalType::ACCESSOR_NOTIFY_PARENT,
+		       0);
     }
     if (ExtIOAccessor::UsePeek(ac)) {
       ainfo->AddSignal("p", wire::AccessorSignalType::ACCESSOR_READ_ARG,

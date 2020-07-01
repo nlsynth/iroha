@@ -17,6 +17,42 @@ ExtIOAccessor::ExtIOAccessor(const IResource &res, const Table &table)
 }
 
 void ExtIOAccessor::BuildResource() {
+  auto *klass = res_.GetClass();
+  if (resource::IsExtInputAccessor(*klass)) {
+    BuildOutputResource();
+  }
+}
+
+void ExtIOAccessor::BuildOutputResource() {
+  map<IState *, IInsn *> callers;
+  CollectOutputCallers(&callers);
+  string rn = GetName();
+  ostream &rvs = tab_.ResourceValueSectionStream();
+  rvs << "  assign " << wire::Names::AccessorWire(rn, &res_, "wen") << " = ";
+  WriteStateUnion(callers, rvs);
+  rvs << ";\n";
+  rvs << "  assign " << wire::Names::AccessorWire(rn, &res_, "w") << " = ";
+  string v;
+  for (auto &p : callers) {
+    if (v.empty()) {
+      v = InsnWriter::InsnSpecificWireName(*(p.second));
+    } else {
+      v = "(" + tab_.GetStateCondition(p.first) + ") ? " +
+	InsnWriter::InsnSpecificWireName(*(p.second)) + " : (" + v + ")";
+    }
+  }
+  rvs << v << ";\n";
+}
+
+void ExtIOAccessor::CollectOutputCallers(map<IState *, IInsn *> *callers) {
+  map<IState *, IInsn *> all_callers;
+  CollectResourceCallers("", &all_callers);
+  for (auto it : all_callers) {
+    IInsn *insn = it.second;
+    if (insn->outputs_.size() > 0) {
+      (*callers)[it.first] = it.second;
+    }
+  }
 }
 
 void ExtIOAccessor::BuildInsn(IInsn *insn, State *st) {
@@ -63,6 +99,16 @@ void ExtIOAccessor::OutputFeature(const IResource *accessor, bool *o, bool *p) {
     if (insn->outputs_.size() > 0) {
       *p = true;
     }
+  }
+}
+
+string ExtIOAccessor::GetName() {
+  IResource *parent = res_.GetParentResource();
+  auto *klass = parent->GetClass();
+  if (resource::IsExtOutput(*klass)) {
+    return ExtIO::OutputRegName(*parent);
+  } else {
+    return ExtIO::InputRegName(*parent);
   }
 }
 
