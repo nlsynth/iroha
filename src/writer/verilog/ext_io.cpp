@@ -75,12 +75,8 @@ void ExtIO::BuildExtOutputResource() {
   params->GetExtOutputPort(&output_port, &width);
   ostream &ss = tab_.StateOutputSectionStream();
   if (has_default_output_value_) {
-    ss << "      ";
-    if (distance_ == 0) {
-      ss << output_port;
-    } else {
-      ss << BufRegName(output_port, distance_ - 1);
-    }
+    ss << "      "
+       << OutputRegName(res_);
     ss << " <= "
        << SelectValueByState(Util::Itoa(default_output_value_)) << ";\n";
   }
