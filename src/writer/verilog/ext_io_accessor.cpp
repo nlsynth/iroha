@@ -57,13 +57,20 @@ void ExtIOAccessor::CollectOutputCallers(map<IState *, IInsn *> *callers) {
 
 void ExtIOAccessor::BuildInsn(IInsn *insn, State *st) {
   auto *klass = res_.GetClass();
+  IResource *parent = res_.GetParentResource();
+  ostream &ws = tab_.InsnWireValueSectionStream();
   if (resource::IsExtInputAccessor(*klass)) {
-    ostream &ws = tab_.InsnWireValueSectionStream();
-    IResource *parent = res_.GetParentResource();
     string rn = ExtIO::InputRegName(*parent);
     ws << "  assign "
        << InsnWriter::InsnOutputWireName(*insn, 0)
        << " = " << wire::Names::AccessorWire(rn, &res_, "r") << ";\n";
+  }
+  if (resource::IsExtOutputAccessor(*klass) &&
+      insn->outputs_.size() > 0) {
+    string rn = ExtIO::OutputRegName(*parent);
+    ws << "  assign "
+       << InsnWriter::InsnOutputWireName(*insn, 0)
+       << " = " << wire::Names::AccessorWire(rn, &res_, "p") << ";\n";
   }
 }
 
