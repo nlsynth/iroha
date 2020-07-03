@@ -21,12 +21,17 @@ namespace verilog {
 
 ExtIO::ExtIO(const IResource &res, const Table &table)
   : Resource(res, table), has_default_output_value_(false),
-    default_output_value_(0) {
+    default_output_value_(0), has_accessor_output_(false) {
   auto *klass = res.GetClass();
   auto *params = res.GetParams();
   if (resource::IsExtOutput(*klass)) {
     has_default_output_value_ =
       params->GetDefaultValue(&default_output_value_);
+    auto &conn = tab_.GetModule()->GetConnection();
+    const vector<IResource *> &acs = conn.GetExtInputAccessors(&res_);
+    for (auto *ac : acs) {
+      has_accessor_output_ |= ExtIOAccessor::UseOutput(ac);
+    }
   }
   distance_ = params->GetDistance();
 }
@@ -74,11 +79,19 @@ void ExtIO::BuildExtOutputResource() {
   int width;
   params->GetExtOutputPort(&output_port, &width);
   ostream &ss = tab_.StateOutputSectionStream();
-  if (has_default_output_value_) {
+  if (has_accessor_output_ || has_default_output_value_) {
+    string rn = OutputRegName(res_);
+    string v = rn;
+    if (has_default_output_value_) {
+      v = Util::Itoa(default_output_value_);
+    }
+    if (has_accessor_output_) {
+      v = wire::Names::ResourceWire(rn, "wen") + " ? " + wire::Names::ResourceWire(rn, "wen") + " : " + v;
+    }
     ss << "      "
        << OutputRegName(res_);
     ss << " <= "
-       << SelectValueByState(Util::Itoa(default_output_value_)) << ";\n";
+       << SelectValueByState(v) << ";\n";
   }
   AddPortToTop(output_port, true, false, width);
   BuildBufRegChain(output_port, width);
@@ -168,7 +181,8 @@ void ExtIO::BuildExtOutputInsn(IInsn *insn, State *st) {
     BuildPeekExtOutputInsn(insn);
     return;
   }
-  if (has_default_output_value_) {
+  auto &conn = tab_.GetModule()->GetConnection();
+  if (has_accessor_output_ || has_default_output_value_) {
     // The code is generated in BuildResource()
     return;
   }

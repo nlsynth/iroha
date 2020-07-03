@@ -33,6 +33,7 @@ private:
 
   bool has_default_output_value_;
   int default_output_value_;
+  bool has_accessor_output_;
   int distance_;
 };
 
