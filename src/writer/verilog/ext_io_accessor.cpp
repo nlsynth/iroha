@@ -27,6 +27,9 @@ void ExtIOAccessor::BuildResource() {
 void ExtIOAccessor::BuildOutputResource() {
   map<IState *, IInsn *> callers;
   CollectOutputCallers(&callers);
+  if (callers.size() == 0) {
+    return;
+  }
   string rn = GetName();
   ostream &rvs = tab_.ResourceValueSectionStream();
   rvs << "  assign " << wire::Names::AccessorWire(rn, &res_, "wen") << " = ";
