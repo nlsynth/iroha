@@ -73,8 +73,10 @@ void ExtIOAccessor::BuildInsn(IInsn *insn, State *st) {
     ws << "  wire " << Table::WidthSpec(width)
        << InsnWriter::InsnSpecificWireName(*insn) << ";\n";
     ws << "  assign "
-       << InsnWriter::InsnOutputWireName(*insn, 0)
-       << " = " << wire::Names::AccessorWire(rn, &res_, "w") << ";\n";
+       << InsnWriter::InsnSpecificWireName(*insn)
+       << " = "
+       << InsnWriter::RegisterValue(*insn->inputs_[0], tab_.GetNames())
+       << ";\n";
   }
 }
 
