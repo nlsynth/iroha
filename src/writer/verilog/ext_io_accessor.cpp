@@ -71,6 +71,7 @@ void ExtIOAccessor::BuildInsn(IInsn *insn, State *st) {
   }
   if (resource::IsExtOutputAccessor(*klass) &&
       insn->inputs_.size() > 0) {
+    // output.
     string rn = ExtIO::OutputRegName(*parent);
     int width = res_.GetParentResource()->GetParams()->GetWidth();
     ws << "  wire " << Table::WidthSpec(width)
@@ -80,6 +81,13 @@ void ExtIOAccessor::BuildInsn(IInsn *insn, State *st) {
        << " = "
        << InsnWriter::RegisterValue(*insn->inputs_[0], tab_.GetNames())
        << ";\n";
+  }
+  if (resource::IsExtOutputAccessor(*klass) &&
+      insn->outputs_.size() > 0) {
+    // peek.
+    string rn = ExtIO::OutputRegName(*parent);
+    ws << "  assign " << InsnWriter::InsnOutputWireName(*insn, 0)
+       << " = " << wire::Names::AccessorWire(rn, &res_, "p") << ";\n";
   }
 }
 

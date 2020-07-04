@@ -133,6 +133,15 @@ void ExtIO::BuildExtOutputAccessor() {
     }
   }
   ws->Build();
+  bool has_peek = false;
+  for (auto *ac : acs) {
+    has_peek |= ExtIOAccessor::UsePeek(ac);
+  }
+  if (has_peek) {
+    ostream &rvs = tab_.ResourceValueSectionStream();
+    rvs << "  assign " << wire::Names::ResourceWire(output, "p") << " = "
+	<< output << ";\n";
+  }
 }
 
 void ExtIO::BuildBufRegChain(const string &port, int width) {
