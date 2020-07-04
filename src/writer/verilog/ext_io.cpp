@@ -28,7 +28,7 @@ ExtIO::ExtIO(const IResource &res, const Table &table)
     has_default_output_value_ =
       params->GetDefaultValue(&default_output_value_);
     auto &conn = tab_.GetModule()->GetConnection();
-    const vector<IResource *> &acs = conn.GetExtInputAccessors(&res_);
+    const vector<IResource *> &acs = conn.GetExtOutputAccessors(&res_);
     for (auto *ac : acs) {
       has_accessor_output_ |= ExtIOAccessor::UseOutput(ac);
     }
@@ -90,7 +90,8 @@ void ExtIO::BuildExtOutputResource() {
       v = Util::Itoa(default_output_value_);
     }
     if (has_accessor_output_) {
-      v = wire::Names::ResourceWire(rn, "wen") + " ? " + wire::Names::ResourceWire(rn, "wen") + " : " + v;
+      v = wire::Names::ResourceWire(rn, "wen") + " ? " +
+	wire::Names::ResourceWire(rn, "w") + " : " + v;
     }
     ss << "      "
        << OutputRegName(res_);
@@ -185,7 +186,6 @@ void ExtIO::BuildExtOutputInsn(IInsn *insn, State *st) {
     BuildPeekExtOutputInsn(insn);
     return;
   }
-  auto &conn = tab_.GetModule()->GetConnection();
   if (has_accessor_output_ || has_default_output_value_) {
     // The code is generated in BuildResource()
     return;

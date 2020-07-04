@@ -49,7 +49,7 @@ void ExtIOAccessor::CollectOutputCallers(map<IState *, IInsn *> *callers) {
   CollectResourceCallers("", &all_callers);
   for (auto it : all_callers) {
     IInsn *insn = it.second;
-    if (insn->outputs_.size() > 0) {
+    if (insn->inputs_.size() > 0) {
       (*callers)[it.first] = it.second;
     }
   }
