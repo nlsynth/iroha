@@ -3,6 +3,7 @@
 #include "design/design_util.h"
 #include "iroha/i_design.h"
 #include "iroha/resource_class.h"
+#include "iroha/resource_params.h"
 #include "writer/verilog/ext_io.h"
 #include "writer/verilog/insn_writer.h"
 #include "writer/verilog/table.h"
@@ -66,11 +67,14 @@ void ExtIOAccessor::BuildInsn(IInsn *insn, State *st) {
        << " = " << wire::Names::AccessorWire(rn, &res_, "r") << ";\n";
   }
   if (resource::IsExtOutputAccessor(*klass) &&
-      insn->outputs_.size() > 0) {
+      insn->inputs_.size() > 0) {
     string rn = ExtIO::OutputRegName(*parent);
+    int width = res_.GetParentResource()->GetParams()->GetWidth();
+    ws << "  wire " << Table::WidthSpec(width)
+       << InsnWriter::InsnSpecificWireName(*insn) << ";\n";
     ws << "  assign "
        << InsnWriter::InsnOutputWireName(*insn, 0)
-       << " = " << wire::Names::AccessorWire(rn, &res_, "p") << ";\n";
+       << " = " << wire::Names::AccessorWire(rn, &res_, "w") << ";\n";
   }
 }
 
