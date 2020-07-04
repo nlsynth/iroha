@@ -18,7 +18,7 @@ ExtIOAccessor::ExtIOAccessor(const IResource &res, const Table &table)
 
 void ExtIOAccessor::BuildResource() {
   auto *klass = res_.GetClass();
-  if (resource::IsExtInputAccessor(*klass)) {
+  if (resource::IsExtOutputAccessor(*klass)) {
     BuildOutputResource();
   }
 }
