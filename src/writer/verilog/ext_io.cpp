@@ -63,6 +63,10 @@ void ExtIO::BuildExtInputResource() {
   auto &conn = tab_.GetModule()->GetConnection();
   const vector<IResource *> &acs = conn.GetExtInputAccessors(&res_);
   if (acs.size() > 0) {
+    string rn = InputRegName(res_);
+    ostream &rvs = tab_.ResourceValueSectionStream();
+    rvs << "  assign " << wire::Names::ResourceWire(rn, "r") << " = "
+	<< input_src << ";\n";
     wire::WireSet *ws = new wire::WireSet(*this, input_src);
     for (auto *ac : acs) {
       wire::AccessorInfo *ainfo = ws->AddAccessor(ac);
