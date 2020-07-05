@@ -74,9 +74,18 @@ string ExtTask::DataPin(const IResource *res, int nth) {
 string ExtTask::PinName(const IResource *res, const string &name) {
   if (res != nullptr) {
     const string &prefix = res->GetParams()->GetExtTaskName();
-    if (!prefix.empty()) {
-      return res->GetParams()->GetExtTaskName() + "_" + name;
+    string suffix;
+    auto *klass = res->GetClass();
+    // Internal. Neither ext-task nor ext stub (non embedded).
+    if (!resource::IsExtTask(*klass) &&
+	!(resource::IsExtTaskCall(*klass) && !prefix.empty())) {
+      suffix = "_" + Util::Itoa(res->GetTable()->GetId()) + "_"
+	+ Util::Itoa(res->GetId());
     }
+    if (!prefix.empty()) {
+      return prefix + "_" + name + suffix;
+    }
+    return name + suffix;
   }
   return name;
 }
