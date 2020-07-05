@@ -82,15 +82,15 @@ bool TableScheduler::Perform() {
 }
 
 void TableScheduler::IterateScheduling() {
-  WirePlanSet wps;
-  Explorer explorer(&wps);
+  Explorer explorer;
   explorer.SetInitialAllocation();
+  WirePlanSet *wps = explorer.GetWirePlanSet();
 
   do {
     SchedulerCore sch(data_path_set_.get(), delay_info_);
     sch.Schedule();
     auto *conflict_tracker = sch.AcquireConflictTracker();
-    wps.SaveCurrentSchedulingPlan(data_path_set_.get(), conflict_tracker);
+    wps->SaveCurrentSchedulingPlan(data_path_set_.get(), conflict_tracker);
 
     if (annotation_->IsEnabled()) {
       annotation_->StartSubSection("sched", false);
@@ -99,7 +99,7 @@ void TableScheduler::IterateScheduling() {
     }
   } while (explorer.MaySetNextAllocationPlan());
 
-  wps.ApplyBest();
+  wps->ApplyBest();
 }
 
 SchedulerCore::SchedulerCore(DataPathSet *data_path_set, DelayInfo *delay_info)

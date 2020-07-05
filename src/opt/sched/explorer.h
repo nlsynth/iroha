@@ -10,10 +10,12 @@ namespace sched {
 
 class Explorer {
 public:
-  Explorer(WirePlanSet *wps);
+  Explorer();
+  ~Explorer();
 
   void SetInitialAllocation();
   bool MaySetNextAllocationPlan();
+  WirePlanSet *GetWirePlanSet();
 
 private:
   // Avoids too large muxes for resources.
@@ -24,7 +26,7 @@ private:
 		   const map<ResourceEntry *, int> &usage);
   bool HadSufficientImprovement();
 
-  WirePlanSet *wps_;
+  std::unique_ptr<WirePlanSet> wps_;
 };
 
 }  // namespace sched

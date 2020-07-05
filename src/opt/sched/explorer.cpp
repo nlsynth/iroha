@@ -9,7 +9,10 @@ namespace iroha {
 namespace opt {
 namespace sched {
 
-Explorer::Explorer(WirePlanSet *wps) : wps_(wps) {
+Explorer::Explorer() : wps_(new WirePlanSet) {
+}
+
+Explorer::~Explorer() {
 }
 
 void Explorer::SetInitialAllocation() {
@@ -26,6 +29,10 @@ bool Explorer::MaySetNextAllocationPlan() {
   }
   // Otherwise proceed to standard exploration.
   return ExploreNewPlan();
+}
+
+WirePlanSet *Explorer::GetWirePlanSet() {
+  return wps_.get();
 }
 
 bool Explorer::MayResolveTooManyResourceUses() {
