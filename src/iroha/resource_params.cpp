@@ -429,4 +429,12 @@ void ResourceParams::SetLoopUnroll(int unroll) {
   return values_->SetIntParam(resource::kLoopUnroll, unroll);
 }
 
+bool ResourceParams::GetIsPipeline() {
+  return values_->GetBoolParam(resource::kPipeline, false);
+}
+
+void ResourceParams::SetIsPipeline(bool pipeline) {
+  values_->SetBoolParam(resource::kPipeline, pipeline);
+}
+
 }  // namespace iroha

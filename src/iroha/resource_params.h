@@ -38,6 +38,7 @@ const char kDistance[] = "DISTANCE";
 const char kWenSuffix[] = "WEN";
 const char kNotifySuffix[] = "NOTIFY";
 const char kPutSuffix[] = "PUT";
+const char kPipeline[] = "PIPELINE";
 const char kLoopUnroll[] = "LOOP-UNROLL";
 }  // namespace resource
 
@@ -120,6 +121,8 @@ public:
   // for register
   int GetLoopUnroll();
   void SetLoopUnroll(int unroll);
+  bool GetIsPipeline();
+  void SetIsPipeline(bool pipeline);
 
 private:
   resource::ResourceParamValueSet *values_;
