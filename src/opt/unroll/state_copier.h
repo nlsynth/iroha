@@ -6,13 +6,14 @@
 
 namespace iroha {
 namespace opt {
-namespace unroll {
-
+namespace loop {
 class LoopBlock;
+};
+namespace unroll {
 
 class StateCopier {
 public:
-  StateCopier(ITable *tab, LoopBlock *lb, bool is_head);
+  StateCopier(ITable *tab, loop::LoopBlock *lb, bool is_head);
 
   void Copy();
   IState *GetInitialState();
@@ -22,7 +23,7 @@ private:
   void CopyState(IState *st);
 
   ITable *tab_;
-  LoopBlock *lb_;
+  loop::LoopBlock *lb_;
   bool is_head_;
   IState *continue_st_;
 

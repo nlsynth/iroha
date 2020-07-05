@@ -1,13 +1,13 @@
 #include "opt/unroll/state_copier.h"
 
 #include "iroha/i_design.h"
-#include "opt/unroll/loop_block.h"
+#include "opt/loop/loop_block.h"
 
 namespace iroha {
 namespace opt {
 namespace unroll {
 
-StateCopier::StateCopier(ITable *tab, LoopBlock *lb, bool is_head)
+StateCopier::StateCopier(ITable *tab, loop::LoopBlock *lb, bool is_head)
   : tab_(tab), lb_(lb), is_head_(is_head), continue_st_(nullptr) {
 }
 

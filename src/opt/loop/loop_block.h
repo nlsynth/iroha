@@ -1,12 +1,12 @@
 // -*- C++ -*-
-#ifndef _opt_unroll_loop_block_h_
-#define _opt_unroll_loop_block_h_
+#ifndef _opt_loop_loop_block_h_
+#define _opt_loop_loop_block_h_
 
 #include "opt/common.h"
 
 namespace iroha {
 namespace opt {
-namespace unroll {
+namespace loop {
 
 // Loop states *.
 //   (Sa) Sets initial value
@@ -45,8 +45,8 @@ private:
   vector<IState *> states_;
 };
 
-}  // namespace unroll
+}  // namespace loop
 }  // namespace opt
 }  // namespace iroha
 
-#endif  // _opt_unroll_loop_block_h_
+#endif  // _opt_loop_loop_block_h_

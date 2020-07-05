@@ -1,4 +1,4 @@
-#include "opt/unroll/loop_block.h"
+#include "opt/loop/loop_block.h"
 
 #include "design/design_util.h"
 #include "iroha/resource_class.h"
@@ -7,7 +7,7 @@
 
 namespace iroha {
 namespace opt {
-namespace unroll {
+namespace loop {
 
 LoopBlock::LoopBlock(ITable *tab, IRegister *reg)
   : tab_(tab), reg_(reg), initial_assign_st_(nullptr), compare_st_(nullptr),
@@ -148,6 +148,6 @@ IInsn *LoopBlock::GetBranchInsn() {
   return branch_insn_;
 }
 
-}  // namespace unroll
+}  // namespace loop
 }  // namespace opt
 }  // namespace iroha

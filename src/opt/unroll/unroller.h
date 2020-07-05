@@ -6,14 +6,16 @@
 
 namespace iroha {
 namespace opt {
+namespace loop {
+class LoopBlock;
+}  // namespace loop
 namespace unroll {
 
-class LoopBlock;
 class StateCopier;
 
 class Unroller {
 public:
-  Unroller(ITable *tab, LoopBlock *lb, int unroll_count);
+  Unroller(ITable *tab, loop::LoopBlock *lb, int unroll_count);
 
   bool Unroll();
 
@@ -22,7 +24,7 @@ private:
   void Reconnect();
 
   ITable *tab_;
-  LoopBlock *lb_;
+  loop::LoopBlock *lb_;
   int unroll_count_;
   std::unique_ptr<vector<StateCopier *> > copiers_;
 };

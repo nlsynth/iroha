@@ -2,7 +2,7 @@
 
 #include "iroha/i_design.h"
 #include "iroha/resource_params.h"
-#include "opt/unroll/loop_block.h"
+#include "opt/loop/loop_block.h"
 #include "opt/unroll/unroller.h"
 
 namespace iroha {
@@ -27,7 +27,7 @@ bool UnrollPhase::ApplyForTable(const string &key, ITable *table) {
       // 1 for no unroll. 0 for auto (TBD).
       continue;
     }
-    LoopBlock lb(table, reg);
+    loop::LoopBlock lb(table, reg);
     if (!lb.Build()) {
       continue;
     }
