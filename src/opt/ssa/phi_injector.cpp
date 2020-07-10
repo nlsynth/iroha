@@ -126,14 +126,14 @@ void PhiInjector::PropagatePHIforBB(PhiInjector::PerRegister *pr,
 
 void PhiInjector::CommitPHIInsn() {
   // Allocate states for new PHI insns.
-  set<BB *> bbs;
+  set<BB *> bbs_with_phi;
   for (auto it : reg_phis_map_) {
     PerRegister *pr = it.second;
     for (BB *bb : pr->phi_bbs_) {
-      bbs.insert(bb);
+      bbs_with_phi.insert(bb);
     }
   }
-  for (BB *bb : bbs) {
+  for (BB *bb : bbs_with_phi) {
     PrependState(bb);
   }
   // Order regs in reg_phis_map_
@@ -157,6 +157,7 @@ void PhiInjector::CommitPHIInsn() {
 void PhiInjector::PrependState(BB *bb) {
   IState *head_st = bb->states_[0];
   ITable *tab = head_st->GetTable();
+  // Finds the iterator *belongs to the table*
   auto it = tab->states_.begin();
   for (; it != tab->states_.end(); ++it) {
     if (*it == head_st) {
@@ -170,9 +171,11 @@ void PhiInjector::PrependState(BB *bb) {
   tab->states_.insert(it, second_st);
   // Updates transitions.
   IInsn *head_tr_insn = DesignUtil::GetTransitionInsn(head_st);
-  IInsn *second_tr_insn = DesignUtil::GetTransitionInsn(second_st);
   if (bb->states_.size() == 1) {
-    second_tr_insn->target_states_ = head_tr_insn->target_states_;
+    if (head_tr_insn->target_states_.size() > 0) {
+      IInsn *second_tr_insn = DesignUtil::GetTransitionInsn(second_st);
+      second_tr_insn->target_states_ = head_tr_insn->target_states_;
+    }
     head_tr_insn->target_states_.clear();
     DesignTool::AddNextState(head_st, second_st);
   } else {

@@ -2,6 +2,7 @@
 
 #include "design/design_util.h"
 #include "iroha/i_design.h"
+#include "iroha/logging.h"
 
 namespace iroha {
 namespace opt {
@@ -83,6 +84,7 @@ IState *OptUtil::GetOneNextState(IState *cur) {
   if (tr_insn->target_states_.size() > 1) {
     return nullptr;
   }
+  CHECK(tr_insn->target_states_.size() != 0);
   return tr_insn->target_states_[0];
 }
 
