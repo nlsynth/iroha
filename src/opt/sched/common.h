@@ -20,6 +20,8 @@ class PlanEvaluator;
 class ResourceConflictTracker;
 class ResourceEntry;
 class ResourceShare;
+class SchedBlock;
+class SchedBlockSet;
 class VirtualResource;
 class VirtualResourceSet;
 class WirePlan;

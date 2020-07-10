@@ -5,6 +5,7 @@
 #include "iroha/stl_util.h"
 #include "opt/bb_set.h"
 #include "opt/sched/bb_data_path.h"
+#include "opt/sched/sched_block.h"
 #include "opt/sched/virtual_resource_set.h"
 
 namespace iroha {
@@ -21,7 +22,9 @@ DataPathSet::~DataPathSet() {
 void DataPathSet::Build(BBSet *bset) {
   vres_set_.reset(new VirtualResourceSet(bset->GetTable()));
   bbs_ = bset;
-  for (BB *bb : bbs_->bbs_) {
+  sbs_.reset(new SchedBlockSet(bset));
+  for (SchedBlock *sb : sbs_->fbs_) {
+    BB *bb = sb->bb_;
     BBDataPath *dp = new BBDataPath(bb, vres_set_.get());
     data_paths_[bb->bb_id_] = dp;
     dp->Build();

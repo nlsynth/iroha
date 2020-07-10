@@ -22,6 +22,7 @@ public:
 
 private:
   BBSet *bbs_;
+  std::unique_ptr<SchedBlockSet> sbs_;
   // bb_id to BBDataPath.
   map<int, BBDataPath *> data_paths_;
   std::unique_ptr<VirtualResourceSet> vres_set_;
