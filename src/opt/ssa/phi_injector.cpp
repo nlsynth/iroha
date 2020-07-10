@@ -175,6 +175,8 @@ void PhiInjector::PrependState(BB *bb) {
     if (head_tr_insn->target_states_.size() > 0) {
       IInsn *second_tr_insn = DesignUtil::GetTransitionInsn(second_st);
       second_tr_insn->target_states_ = head_tr_insn->target_states_;
+      second_tr_insn->inputs_ = head_tr_insn->inputs_;
+      head_tr_insn->inputs_.clear();
     }
     head_tr_insn->target_states_.clear();
     DesignTool::AddNextState(head_st, second_st);
