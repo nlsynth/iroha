@@ -134,6 +134,10 @@ IRegister *PhiBuilder::FindVersionedReg(RegDef *reg_def) {
     reg = new IRegister(table_, reg_def->reg->GetName() + "_v" +
 			Util::Itoa(version));
     reg->value_type_ = reg_def->reg->value_type_;
+    if (reg_def->reg->HasInitialValue()) {
+      Numeric n = reg_def->reg->GetInitialValue();
+      reg->SetInitialValue(n);
+    }
     table_->registers_.push_back(reg);
     pr->versions_[version] = reg;
   }
