@@ -192,6 +192,10 @@ void IRegister::SetInitialValue(Numeric &value) {
   value_type_ = IValueType::FromNumericWidth(value.type_);
 }
 
+void IRegister::ClearInitialValue() {
+  has_initial_value_ = false;
+}
+
 const Numeric &IRegister::GetInitialValue() const {
   return initial_value_;
 }

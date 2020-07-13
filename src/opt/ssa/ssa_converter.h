@@ -16,6 +16,8 @@ public:
   void Perform();
 
 private:
+  void InjectInitialValueAssigns();
+
   ITable *table_;
   DebugAnnotation *annotation_;
 };

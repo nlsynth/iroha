@@ -24,6 +24,7 @@ SSAConverter::~SSAConverter() {
 }
 
 void SSAConverter::Perform() {
+  InjectInitialValueAssigns();
   // PhiInjector injects just phi insns and their output register.
   // PhiBuilder updates affected registers.
   PhiInjector injector(table_, annotation_);
@@ -31,6 +32,35 @@ void SSAConverter::Perform() {
 
   PhiBuilder phi_builder(table_, annotation_);
   phi_builder.Perform();
+}
+
+void SSAConverter::InjectInitialValueAssigns() {
+  // Change initial value of IRegister to explicit value assign in order
+  // not to violate SSA premise.
+  IResource *assign = DesignTool::GetOneResource(table_, resource::kSet);
+  IState *initial_st = table_->GetInitialState();
+  vector<IRegister *> new_regs;
+  for (IRegister *reg : table_->registers_) {
+    if (reg->IsConst()) {
+      continue;
+    }
+    if (!reg->HasInitialValue()) {
+      continue;
+    }
+    IInsn *insn = new IInsn(assign);
+    IRegister *ini_reg = new IRegister(table_, reg->GetName() + "_ini");
+    Numeric n = reg->GetInitialValue();
+    ini_reg->SetInitialValue(n);
+    ini_reg->SetConst(true);
+    new_regs.push_back(ini_reg);
+    insn->inputs_.push_back(ini_reg);
+    insn->outputs_.push_back(reg);
+    initial_st->insns_.push_back(insn);
+    reg->ClearInitialValue();
+  }
+  for (IRegister *reg : new_regs) {
+    table_->registers_.push_back(reg);
+  }
 }
 
 }  // namespace ssa

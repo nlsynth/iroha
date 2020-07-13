@@ -134,13 +134,6 @@ IRegister *PhiBuilder::FindVersionedReg(RegDef *reg_def) {
     reg = new IRegister(table_, reg_def->reg->GetName() + "_v" +
 			Util::Itoa(version));
     reg->value_type_ = reg_def->reg->value_type_;
-    if (reg_def->reg->HasInitialValue()) {
-      // TODO: As this may violate the premise of SSA.
-      // Make initial value assignment explicit one assign insn and then apply
-      // SSA conversion. Then remove this part.
-      Numeric n = reg_def->reg->GetInitialValue();
-      reg->SetInitialValue(n);
-    }
     table_->registers_.push_back(reg);
     pr->versions_[version] = reg;
   }

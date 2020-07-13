@@ -114,6 +114,7 @@ public:
   void SetName(const string &name);
 
   void SetInitialValue(Numeric &value);
+  void ClearInitialValue();
   const Numeric &GetInitialValue() const;
   bool HasInitialValue() const;
   void SetConst(bool c);
