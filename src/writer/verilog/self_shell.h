@@ -18,6 +18,7 @@ public:
 
 private:
   void ProcessModule(IModule *mod);
+  void GenConnection(const string &sig, ostream &os);
 
   const IDesign *design_;
   const PortSet *ports_;
@@ -27,6 +28,7 @@ private:
   vector<IResource *> ext_task_entry_;
   vector<IResource *> ext_task_call_;
   vector<IResource *> ext_task_wait_;
+  vector<IResource *> ext_ram_;
 };
 
 }  // namespace verilog

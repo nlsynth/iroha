@@ -3,6 +3,7 @@
 #include "iroha/i_design.h"
 #include "iroha/resource_class.h"
 #include "iroha/resource_params.h"
+#include "writer/verilog/array.h"
 #include "writer/verilog/axi/axi_shell.h"
 #include "writer/verilog/ext_task.h"
 #include "writer/verilog/table.h"
@@ -54,6 +55,18 @@ void SelfShell::WriteWireDecl(ostream &os) {
 	 << "  assign " << d << " = 0;\n";
     }
   }
+  for (IResource *res : ext_ram_) {
+    IArray *arr = res->GetArray();
+    int data_width = arr->GetDataType().GetWidth();
+    os << "  wire "
+       << Table::WidthSpec(arr->GetAddressWidth())
+       << ArrayResource::SigName(*res, "addr") << ";\n";
+    os << "  wire " << Table::WidthSpec(data_width)
+       << ArrayResource::SigName(*res, "rdata") << ";\n";
+    os << "  wire " << Table::WidthSpec(data_width)
+       << ArrayResource::SigName(*res, "wdata") << ";\n";
+    os << "  wire " << ArrayResource::SigName(*res, "wdata_en") << ";\n";
+  }
 }
 
 void SelfShell::WritePortConnection(ostream &os) {
@@ -66,26 +79,36 @@ void SelfShell::WritePortConnection(ostream &os) {
     string input_port;
     int width;
     params->GetExtInputPort(&input_port, &width);
-    os << ", ." << input_port << "(" << input_port << ")";
+    GenConnection(input_port, os);
   }
   for (IResource *res : ext_task_entry_) {
     string v = ExtTask::ReqValidPin(res);
-    os << ", ." << v << "(" << v << ")";
+    GenConnection(v, os);
   }
   for (IResource *res : ext_task_call_) {
     if (res->GetParams()->GetEmbeddedModuleFileName().empty()) {
       string req_ready = ExtTask::ReqReadyPin(res);
-      os << ", ." << req_ready << "(" << req_ready << ")";
+      GenConnection(req_ready, os);
     }
   }
   for (IResource *res : ext_task_wait_) {
     string res_valid = ExtTask::ResValidPin(res->GetParentResource());
-    os << ", ." << res_valid << "(" << res_valid << ")";
+    GenConnection(res_valid, os);
     for (int i = 0; i < res->output_types_.size(); ++i) {
       string d = ExtTask::DataPin(res, i);
-      os << ", ." << d << "(" << d << ")";
+      GenConnection(d, os);
     }
   }
+  for (IResource *res : ext_ram_) {
+    GenConnection(ArrayResource::SigName(*res, "addr"), os);
+    GenConnection(ArrayResource::SigName(*res, "rdata"), os);
+    GenConnection(ArrayResource::SigName(*res, "wdata"), os);
+    GenConnection(ArrayResource::SigName(*res, "wdata_en"), os);
+  }
+}
+
+void SelfShell::GenConnection(const string &sig, ostream &os) {
+  os << ", ." << sig << "(" << sig << ")";
 }
 
 void SelfShell::WriteShellFSM(ostream &os) {
@@ -114,6 +137,12 @@ void SelfShell::ProcessModule(IModule *mod) {
       }
       if (resource::IsExtTaskWait(*klass)) {
 	ext_task_wait_.push_back(res);
+      }
+      if (resource::IsArray(*klass)) {
+	IArray *ar = res->GetArray();
+	if (ar != nullptr && ar->IsExternal()) {
+	  ext_ram_.push_back(res);
+	}
       }
     }
   }
