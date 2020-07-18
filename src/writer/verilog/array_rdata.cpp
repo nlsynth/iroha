@@ -21,9 +21,8 @@ void ArrayRDataResource::BuildInsn(IInsn *insn, State *st) {
   // Similar to ArrayResource::BuildInsn().
   ostream &ws = tab_.InsnWireValueSectionStream();
   IResource *res = res_.GetParentResource();
-  IArray *arr = res->GetArray();
   ws << "  assign " << InsnWriter::InsnOutputWireName(*insn, 0)
-     << " = " << ArrayResource::SigName(*res, arr, "rdata") << ";\n";
+     << " = " << ArrayResource::SigName(*res, "rdata") << ";\n";
 }
 
 }  // namespace verilog

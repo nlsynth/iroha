@@ -109,11 +109,12 @@ void ArrayResource::BuildSRAMWrite() {
 }
 
 string ArrayResource::SigName(const string &sig) {
-  return SigName(res_, res_.GetArray(), sig);
+  return SigName(res_, sig);
 }
 
-string ArrayResource::SigName(const IResource &res, IArray *array,
+string ArrayResource::SigName(const IResource &res,
 			      const string &sig) {
+  IArray *array = res.GetArray();
   string res_id;
   if (array->IsExternal()) {
     string prefix = res.GetParams()->GetPortNamePrefix();
