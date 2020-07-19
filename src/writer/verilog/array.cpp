@@ -68,10 +68,10 @@ void ArrayResource::BuildExternalSRAM() {
   auto *ports = tab_.GetPortSet();
   IArray *array = res_.GetArray();
   int data_width = array->GetDataType().GetWidth();
-  ports->AddPort(SigName("addr"), Port::OUTPUT, array->GetAddressWidth());
-  ports->AddPort(SigName("rdata"), Port::INPUT, data_width);
-  ports->AddPort(SigName("wdata"), Port::OUTPUT, data_width);
-  ports->AddPort(SigName("wdata_en"), Port::OUTPUT, 0);
+  AddPortToTop(SigName("addr"), true, false, array->GetAddressWidth());
+  AddPortToTop(SigName("rdata"), false, false, data_width);
+  AddPortToTop(SigName("wdata"), true, false, data_width);
+  AddPortToTop(SigName("wdata_en"), true, false, 0);
   BuildSRAMWrite();
 }
 
