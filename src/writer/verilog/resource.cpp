@@ -10,7 +10,7 @@
 #include "writer/verilog/axi/master_port.h"
 #include "writer/verilog/axi/slave_port.h"
 #include "writer/verilog/dataflow_in.h"
-#include "writer/verilog/embed.h"
+#include "writer/verilog/embedded_modules.h"
 #include "writer/verilog/ext_combinational.h"
 #include "writer/verilog/ext_io.h"
 #include "writer/verilog/ext_io_accessor.h"

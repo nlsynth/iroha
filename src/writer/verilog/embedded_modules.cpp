@@ -1,4 +1,4 @@
-#include "writer/verilog/embed.h"
+#include "writer/verilog/embedded_modules.h"
 
 #include "iroha/i_design.h"
 #include "iroha/logging.h"

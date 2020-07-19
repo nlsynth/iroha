@@ -6,7 +6,7 @@
 #include "iroha/resource_params.h"
 #include "iroha/stl_util.h"
 #include "writer/names.h"
-#include "writer/verilog/embed.h"
+#include "writer/verilog/embedded_modules.h"
 #include "writer/verilog/internal_sram.h"
 #include "writer/verilog/module.h"
 #include "writer/verilog/port.h"

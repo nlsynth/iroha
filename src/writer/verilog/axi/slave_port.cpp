@@ -3,7 +3,7 @@
 #include "iroha/i_design.h"
 #include "writer/module_template.h"
 #include "writer/verilog/axi/slave_controller.h"
-#include "writer/verilog/embed.h"
+#include "writer/verilog/embedded_modules.h"
 #include "writer/verilog/insn_writer.h"
 #include "writer/verilog/module.h"
 #include "writer/verilog/port.h"

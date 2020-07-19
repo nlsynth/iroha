@@ -1,6 +1,6 @@
 // -*- C++ -*-
-#ifndef _writer_verilog_embed_h_
-#define _writer_verilog_embed_h_
+#ifndef _writer_verilog_embedded_modules_h_
+#define _writer_verilog_embedded_modules_h_
 
 #include "writer/verilog/common.h"
 #include "writer/verilog/resource.h"
@@ -45,4 +45,4 @@ private:
 }  // namespace writer
 }  // namespace iroha
 
-#endif  // _writer_verilog_embed_h_
+#endif  // _writer_verilog_embedded_modules_h_

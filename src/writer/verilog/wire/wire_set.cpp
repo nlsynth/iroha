@@ -4,7 +4,7 @@
 #include "iroha/stl_util.h"
 #include "iroha/logging.h"
 #include "writer/module_template.h"
-#include "writer/verilog/embed.h"
+#include "writer/verilog/embedded_modules.h"
 #include "writer/verilog/module.h"
 #include "writer/verilog/port.h"
 #include "writer/verilog/port_set.h"

@@ -2,7 +2,7 @@
 
 #include "iroha/i_design.h"
 #include "writer/module_template.h"
-#include "writer/verilog/embed.h"
+#include "writer/verilog/embedded_modules.h"
 #include "writer/verilog/internal_sram.h"
 #include "writer/verilog/module.h"
 #include "writer/verilog/port.h"
