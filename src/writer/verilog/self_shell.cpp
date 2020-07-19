@@ -5,7 +5,10 @@
 #include "iroha/resource_params.h"
 #include "writer/verilog/array.h"
 #include "writer/verilog/axi/axi_shell.h"
+#include "writer/verilog/embedded_modules.h"
 #include "writer/verilog/ext_task.h"
+#include "writer/verilog/internal_sram.h"
+#include "writer/verilog/port_set.h"
 #include "writer/verilog/table.h"
 
 namespace iroha {
@@ -67,6 +70,24 @@ void SelfShell::WriteWireDecl(ostream &os) {
     os << "  wire " << Table::WidthSpec(data_width)
        << ArrayResource::SigName(*res, "wdata") << ";\n";
     os << "  wire " << ArrayResource::SigName(*res, "wdata_en") << ";\n";
+
+    InternalSRAM *sram =
+      embedded_modules_->RequestInternalSRAM(*arr, 1, reset_polarity_);
+    string inst = "_" + Util::Itoa(res->GetTable()->GetModule()->GetId()) +
+      "_" + Util::Itoa(res->GetTable()->GetId()) + "_" +
+      Util::Itoa(res->GetId());
+    os << "  " << sram->GetModuleName() << " " << sram->GetModuleName()
+       << inst  << "(" << ".clk(" << ports_->GetClk() << ")"
+       << ", ." << sram->GetResetPinName() << "(" << ports_->GetReset() << ")"
+       << ", ." << sram->GetAddrPin(0) << "("
+       << ArrayResource::SigName(*res, "addr") << ")"
+       << ", ." << sram->GetRdataPin(0) << "("
+       << ArrayResource::SigName(*res, "rdata") << ")"
+       << ", ." << sram->GetWdataPin(0) << "("
+       << ArrayResource::SigName(*res, "wdata") << ")"
+       << ", ." << sram->GetWenPin(0) << "("
+       << ArrayResource::SigName(*res, "wdata_en") << ")"
+       << ");\n";
   }
 }
 

@@ -20,6 +20,10 @@ public:
   InternalSRAM *RequestInternalSRAM(const Module &mod,
 				    const IArray &arr,
 				    int num_ports);
+  // This version is for SelfShell (not related a specific Module).
+  InternalSRAM *RequestInternalSRAM(const IArray &arr,
+				    int num_ports,
+				    bool reset_polarity);
   // Called from MasterPort::BuildResource()
   void RequestAxiMasterController(const IResource *axi_port);
   // Called from SlavePort::BuildResource()

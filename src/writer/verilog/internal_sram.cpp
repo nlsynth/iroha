@@ -47,7 +47,12 @@ void InternalSRAM::Write(ostream &os) {
 }
 
 void InternalSRAM::WriteInternal(ostream &os) {
-  int array_size = 1 << array_->GetAddressWidth();
+  int aw = array_->GetAddressWidth();
+  if (aw > 10 && array_->IsExternal()) {
+    // Truncate to reasonable amount for simulation.
+    aw = 10;
+  }
+  int array_size = 1 << aw;
   os << "  reg " << DataWidthSpec()
      << "data [0:" << (array_size - 1) << "];\n\n";
   for (int p = 0; p < num_ports_; ++p) {

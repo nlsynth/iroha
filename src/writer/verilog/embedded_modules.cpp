@@ -123,7 +123,14 @@ bool EmbeddedModules::CopyFile(const string &fn, const string &rst,
 InternalSRAM *EmbeddedModules::RequestInternalSRAM(const Module &mod,
 						   const IArray &arr,
 						   int num_ports) {
-  InternalSRAM *sram = new InternalSRAM(arr, num_ports, mod.GetResetPolarity());
+  return RequestInternalSRAM(arr, num_ports, mod.GetResetPolarity());
+
+}
+
+InternalSRAM *EmbeddedModules::RequestInternalSRAM(const IArray &arr,
+						   int num_ports,
+						   bool reset_polarity) {
+  InternalSRAM *sram = new InternalSRAM(arr, num_ports, reset_polarity);
   srams_.push_back(sram);
   return sram;
 }
