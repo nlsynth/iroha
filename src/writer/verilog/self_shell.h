@@ -10,7 +10,8 @@ namespace verilog {
 
 class SelfShell {
 public:
-  SelfShell(const IDesign *design, const PortSet *ports, bool reset_polarity);
+  SelfShell(const IDesign *design, const PortSet *ports, bool reset_polarity,
+	    EmbeddedModules *embedded_modules);
 
   void WriteWireDecl(ostream &os);
   void WritePortConnection(ostream &os);
@@ -23,6 +24,7 @@ private:
   const IDesign *design_;
   const PortSet *ports_;
   bool reset_polarity_;
+  EmbeddedModules *embedded_modules_;
   vector<IResource *> axi_;
   vector<IResource *> ext_input_;
   vector<IResource *> ext_task_entry_;

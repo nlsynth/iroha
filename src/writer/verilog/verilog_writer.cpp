@@ -53,10 +53,6 @@ bool VerilogWriter::Write() {
   PrepareModulesRec(root);
   ResolveResetPolarity(root);
   BuildModules(root);
-  if (!embedded_modules_->Write(GetResetPolarity(), os_)) {
-    LOG(ERROR) << "Failed to write embedded modules.";
-    return false;
-  }
   // * MODULE-NAME-PREFIX is specified.
   //  prefix_rawName
   // * Not specifed.
@@ -71,6 +67,10 @@ bool VerilogWriter::Write() {
   if (!shell_module_name_.empty()) {
     Module *root_mod = modules_[root];
     WriteShellModule(root_mod);
+  }
+  if (!embedded_modules_->Write(GetResetPolarity(), os_)) {
+    LOG(ERROR) << "Failed to write embedded modules.";
+    return false;
   }
   STLDeleteSecondElements(&modules_);
   return true;
@@ -159,7 +159,8 @@ void VerilogWriter::WriteShellModule(const Module *mod) {
   }
   std::unique_ptr<SelfShell> shell;
   if (with_self_contained_) {
-    shell.reset(new SelfShell(design_, ports, reset_polarity_));
+    shell.reset(new SelfShell(design_, ports, reset_polarity_,
+			      embedded_modules_.get()));
     shell->WriteWireDecl(os_);
   }
   string name = mod->GetName();

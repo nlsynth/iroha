@@ -13,8 +13,9 @@ namespace writer {
 namespace verilog {
 
 SelfShell::SelfShell(const IDesign *design, const PortSet *ports,
-		     bool reset_polarity)
-  : design_(design), ports_(ports), reset_polarity_(reset_polarity) {
+		     bool reset_polarity, EmbeddedModules *embedded_modules)
+  : design_(design), ports_(ports), reset_polarity_(reset_polarity),
+    embedded_modules_(embedded_modules) {
   for (IModule *mod : design->modules_) {
     ProcessModule(mod);
   }
