@@ -8,11 +8,11 @@ namespace iroha {
 namespace writer {
 namespace verilog {
 
-InternalSRAM::InternalSRAM(const Module &mod, const IArray &array,
-			   int num_ports)
-  : mod_(mod), num_ports_(num_ports) {
+InternalSRAM::InternalSRAM(const IArray &array, int num_ports,
+			   bool reset_polarity)
+  : num_ports_(num_ports) {
   CHECK(num_ports == 1 || num_ports == 2);
-  reset_polarity_ = mod_.GetResetPolarity();
+  reset_polarity_ = reset_polarity;
   // Take a copy.
   array_.reset(new IArray(array));
 }

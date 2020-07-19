@@ -8,6 +8,7 @@
 #include "writer/verilog/axi/master_port.h"
 #include "writer/verilog/axi/slave_port.h"
 #include "writer/verilog/internal_sram.h"
+#include "writer/verilog/module.h"
 #include "writer/verilog/wire/mux.h"
 #include "writer/verilog/wire/wire_set.h"
 
@@ -122,7 +123,7 @@ bool EmbeddedModules::CopyFile(const string &fn, const string &rst,
 InternalSRAM *EmbeddedModules::RequestInternalSRAM(const Module &mod,
 						   const IArray &arr,
 						   int num_ports) {
-  InternalSRAM *sram = new InternalSRAM(mod, arr, num_ports);
+  InternalSRAM *sram = new InternalSRAM(arr, num_ports, mod.GetResetPolarity());
   srams_.push_back(sram);
   return sram;
 }

@@ -11,8 +11,7 @@ namespace verilog {
 class InternalSRAM {
 public:
   // Creates copy of the array.
-  InternalSRAM(const Module &mod, const IArray &array,
-	       int num_ports);
+  InternalSRAM(const IArray &array, int num_ports, bool reset_polarity);
   ~InternalSRAM();
 
   void Write(ostream &os);
@@ -34,7 +33,6 @@ private:
   string GenWen(int p);
   string MaybePortPrefix(int port) const;
 
-  const Module &mod_;
   unique_ptr<IArray> array_;
   int num_ports_;
   bool reset_polarity_;
