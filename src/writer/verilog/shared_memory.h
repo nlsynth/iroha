@@ -33,6 +33,7 @@ public:
 private:
   void BuildMemoryResource();
   void BuildMemoryInstance();
+  void FixupWen(const string &wen_wire, const string &wen);
   void BuildExternalMemoryConnection();
   void BuildAccessWireAll(vector<const IResource *> &acccessors);
   void BuildAck();

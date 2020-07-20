@@ -76,12 +76,10 @@ void SharedMemory::BuildExternalMemoryConnection() {
      << ";\n";
   rs << "  assign sram_wdata = " << wire::Names::ResourceWire(rn, "wdata")
      << ";\n";
-  rs << "  assign sram_wdata_en = " << wire::Names::ResourceWire(rn, "wen")
-     << ";\n";
   rs << "  assign " << wire::Names::ResourceWire(rn, "rdata")
      << " = sram_rdata;\n";
 
-  // WIP: Apply same tweak to wen as BuildMemoryInstance() does.
+  FixupWen(wire::Names::ResourceWire(rn, "wen"), "sram_wdata_en");
 }
 
 void SharedMemory::BuildMemoryInstance() {
@@ -105,22 +103,9 @@ void SharedMemory::BuildMemoryInstance() {
   string addr_wire = wire::Names::ResourceWire(rn, "addr");
   string rdata_wire = wire::Names::ResourceWire(rn, "rdata");
   string wdata_wire = wire::Names::ResourceWire(rn, "wdata");
-  // Deassert wen in the ack cycle.
-  // Asserting Wen 2 cycles might not cause any problems, but
-  // avoiding this to make waveforms clean.
-  string wen_wire = wire::Names::ResourceWire(rn, "wen");
-  ostream &rs = tab_.ResourceSectionStream();
   string wen = MemoryWenPin(res_, 0, nullptr);
-  string wen_reg = MemoryWenReg(res_, 0);
-  rs << "  wire " << wen << ";\n";
-  tab_.AddReg(wen_reg, 0);
-  ostream &is = tab_.InitialValueSectionStream();
-  is << "      " << wen_reg << " <= 0;\n";
-  ostream &ss = tab_.StateOutputSectionStream();
-  ss << "      " << wen_reg << " <= " << wen << ";\n";
-  ostream &rvs = tab_.ResourceValueSectionStream();
-  rvs << "  assign " << wen << " = "
-      << wen_wire << " && !" << wen_reg << ";\n";
+  FixupWen(wire::Names::ResourceWire(rn, "wen"), wen);
+
   es << "  " << name << " " << inst << "("
      << ".clk(" << ports->GetClk() << ")"
      << ", ." << sram->GetResetPinName() << "(" << ports->GetReset() << ")"
@@ -140,6 +125,7 @@ void SharedMemory::BuildMemoryInstance() {
        << MemoryWenPin(res_, 1, nullptr) << ")";
   }
   es <<");\n";
+  ostream &rs = tab_.ResourceSectionStream();
   if (num_ports == 2) {
     rs << "  wire " << sram->AddressWidthSpec() << " "
        << MemoryAddrPin(res_, 1, nullptr) << ";\n";
@@ -149,6 +135,23 @@ void SharedMemory::BuildMemoryInstance() {
        << MemoryWdataPin(res_, 1, nullptr) << ";\n";
     rs << "  wire " << MemoryWenPin(res_, 1, nullptr) << ";\n";
   }
+}
+
+void SharedMemory::FixupWen(const string &wen_wire, const string &wen) {
+  // Deassert wen in the ack cycle.
+  // Asserting Wen 2 cycles might not cause any problems, but
+  // avoiding this to make waveforms clean.
+  ostream &rs = tab_.ResourceSectionStream();
+  string wen_reg = MemoryWenReg(res_, 0);
+  rs << "  wire " << wen << ";\n";
+  tab_.AddReg(wen_reg, 0);
+  ostream &is = tab_.InitialValueSectionStream();
+  is << "      " << wen_reg << " <= 0;\n";
+  ostream &ss = tab_.StateOutputSectionStream();
+  ss << "      " << wen_reg << " <= " << wen << ";\n";
+  ostream &rvs = tab_.ResourceValueSectionStream();
+  rvs << "  assign " << wen << " = "
+      << wen_wire << " && !" << wen_reg << ";\n";
 }
 
 void SharedMemory::BuildAccessWireAll(vector<const IResource *> &accessors) {
