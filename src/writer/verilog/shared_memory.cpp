@@ -64,18 +64,24 @@ void SharedMemory::BuildAck() {
 
 void SharedMemory::BuildExternalMemoryConnection() {
   IArray *array = res_.GetArray();
-  auto *ports = tab_.GetPortSet();
-  ports->AddPort("sram_addr", Port::OUTPUT_WIRE, array->GetAddressWidth());
-  ports->AddPort("sram_wdata", Port::OUTPUT_WIRE,
-		 array->GetDataType().GetWidth());
-  ports->AddPort("sram_wdata_en", Port::OUTPUT_WIRE, 0);
-  ports->AddPort("sram_rdata", Port::INPUT, array->GetAddressWidth());
+  AddPortToTop("sram_addr", true, true, array->GetAddressWidth());
+  AddPortToTop("sram_wdata", true, true,
+	       array->GetDataType().GetWidth());
+  AddPortToTop("sram_wdata_en", true, true, 0);
+  AddPortToTop("sram_rdata", false, false, array->GetDataType().GetWidth());
 
   ostream &rs = tab_.ResourceSectionStream();
-  rs << "  assign sram_addr = " << MemoryAddrPin(res_, 0, nullptr) << ";\n";
-  rs << "  assign sram_wdata = " << MemoryWdataPin(res_, 0, nullptr) << ";\n";
-  rs << "  assign sram_wdata_en = " << MemoryWenPin(res_, 0, nullptr) << ";\n";
-  rs << "  assign " << MemoryRdataPin(res_, 0) << " = sram_rdata;\n";
+  string rn = SharedMemory::GetName(res_);
+  rs << "  assign sram_addr = " << wire::Names::ResourceWire(rn, "addr")
+     << ";\n";
+  rs << "  assign sram_wdata = " << wire::Names::ResourceWire(rn, "wdata")
+     << ";\n";
+  rs << "  assign sram_wdata_en = " << wire::Names::ResourceWire(rn, "wen")
+     << ";\n";
+  rs << "  assign " << wire::Names::ResourceWire(rn, "rdata")
+     << " = sram_rdata;\n";
+
+  // WIP: Apply same tweak to wen as BuildMemoryInstance() does.
 }
 
 void SharedMemory::BuildMemoryInstance() {
