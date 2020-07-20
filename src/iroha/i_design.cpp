@@ -81,6 +81,10 @@ bool IArray::IsExternal() const {
   return is_external_;
 }
 
+void IArray::SetExternal(bool is_external) {
+  is_external_ = is_external;
+}
+
 bool IArray::IsRam() const {
   return is_ram_;
 }

@@ -62,6 +62,7 @@ public:
   int GetAddressWidth() const;
   const IValueType &GetDataType() const;
   bool IsExternal() const;
+  void SetExternal(bool is_external);
   bool IsRam() const;
   void SetArrayImage(IArrayImage *image);
   IArrayImage *GetArrayImage() const;
