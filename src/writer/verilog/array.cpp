@@ -65,7 +65,6 @@ void ArrayResource::BuildMemInsn(IInsn *insn, State *st) {
 }
 
 void ArrayResource::BuildExternalSRAM() {
-  auto *ports = tab_.GetPortSet();
   IArray *array = res_.GetArray();
   int data_width = array->GetDataType().GetWidth();
   AddPortToTop(SigName("addr"), true, false, array->GetAddressWidth());
