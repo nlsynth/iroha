@@ -117,7 +117,7 @@ bool ResourceAttr::IsDuplicatableResource(IResource *res) {
 
 bool ResourceAttr::IsOrderedResource(IResource *res) {
   IResourceClass &rc = *(res->GetClass());
-  if (resource::IsArray(rc) || resource::IsSharedMemoryReplica(rc)) {
+  if (resource::IsArray(rc) || resource::IsSharedMemoryReplica(rc) || resource::IsTicker(rc)) {
     return true;
   }
   return false;
