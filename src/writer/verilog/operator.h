@@ -12,6 +12,7 @@ namespace verilog {
 class Operator : public Resource {
 public:
   Operator(const IResource &res, const Table &table);
+  virtual ~Operator() {};
 
   virtual void BuildResource() override;
   virtual void BuildInsn(IInsn *insn, State *st) override;

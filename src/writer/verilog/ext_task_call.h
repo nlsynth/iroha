@@ -11,6 +11,7 @@ namespace verilog {
 class ExtTaskCall : public Resource {
 public:
   ExtTaskCall(const IResource &res, const Table &table);
+  virtual ~ExtTaskCall() {};
 
   virtual void BuildResource();
   virtual void BuildInsn(IInsn *insn, State *st);

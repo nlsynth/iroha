@@ -11,6 +11,7 @@ namespace verilog {
 class Ticker : public Resource {
 public:
   Ticker(const IResource &res, const Table &table);
+  virtual ~Ticker() {};
 
   virtual void BuildResource() override;
   virtual void BuildInsn(IInsn *insn, State *st) override;

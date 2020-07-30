@@ -11,6 +11,7 @@ namespace verilog {
 class SharedRegExtWriter : public Resource {
 public:
   SharedRegExtWriter(const IResource &res, const Table &table);
+  virtual ~SharedRegExtWriter() {};
 
   virtual void BuildResource() override;
   virtual void BuildInsn(IInsn *insn, State *st) override;

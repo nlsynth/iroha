@@ -11,6 +11,7 @@ namespace verilog {
 class SharedRegAccessor : public Resource {
 public:
   SharedRegAccessor(const IResource &res, const Table &table);
+  virtual ~SharedRegAccessor() {};
 
   virtual void BuildResource() override;
   virtual void BuildInsn(IInsn *insn, State *st) override;

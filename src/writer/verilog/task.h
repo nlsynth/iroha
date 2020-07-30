@@ -11,6 +11,8 @@ namespace verilog {
 class Task : public Resource {
 public:
   Task(const IResource &res, const Table &table);
+  virtual ~Task() {};
+
   virtual void BuildResource();
   virtual void BuildInsn(IInsn *insn, State *st);
 

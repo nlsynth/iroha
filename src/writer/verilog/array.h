@@ -12,6 +12,7 @@ namespace verilog {
 class ArrayResource : public Resource {
 public:
   ArrayResource(const IResource &res, const Table &table);
+  virtual ~ArrayResource() {};
 
   virtual void BuildResource() override;
   virtual void BuildInsn(IInsn *insn, State *st) override;

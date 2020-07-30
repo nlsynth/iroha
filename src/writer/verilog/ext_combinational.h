@@ -11,6 +11,7 @@ namespace verilog {
 class ExtCombinational : public Resource {
 public:
   ExtCombinational(const IResource &res, const Table &table);
+  virtual ~ExtCombinational() {};
 
   virtual void BuildResource() override;
   virtual void BuildInsn(IInsn *insn, State *st) override;

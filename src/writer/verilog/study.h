@@ -12,6 +12,7 @@ namespace verilog {
 class Study : public Resource {
 public:
   Study(const IResource &res, const Table &table);
+  virtual ~Study() {};
 
   virtual void BuildResource() override;
   virtual void BuildInsn(IInsn *insn, State *st) override;

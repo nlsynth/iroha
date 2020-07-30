@@ -11,6 +11,7 @@ namespace verilog {
 class ExtIOAccessor : public Resource {
 public:
   ExtIOAccessor(const IResource &res, const Table &table);
+  virtual ~ExtIOAccessor() {};
 
   virtual void BuildResource() override;
   virtual void BuildInsn(IInsn *insn, State *st) override;

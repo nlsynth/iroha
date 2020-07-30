@@ -12,6 +12,7 @@ namespace verilog {
 class Fifo : public Resource {
 public:
   Fifo(const IResource &res, const Table &table);
+  virtual ~Fifo() {};
 
   virtual void BuildResource() override;
   virtual void BuildInsn(IInsn *insn, State *st) override;

@@ -11,6 +11,7 @@ namespace verilog {
 class SharedMemoryAccessor : public Resource {
 public:
   SharedMemoryAccessor(const IResource &res, const Table &table);
+  virtual ~SharedMemoryAccessor() {};
 
   virtual void BuildResource() override;
   virtual void BuildInsn(IInsn *insn, State *st) override;

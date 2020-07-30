@@ -11,6 +11,7 @@ namespace verilog {
 class ExtTask : public Resource {
 public:
   ExtTask(const IResource &res, const Table &table);
+  virtual ~ExtTask() {};
 
   static bool IsExtTask(const Table &table);
   static string TaskReadyPin(const Table &table);

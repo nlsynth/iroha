@@ -11,6 +11,8 @@ namespace verilog {
 class DataFlowIn : public Resource {
 public:
   DataFlowIn(const IResource &res, const Table &table);
+  virtual ~DataFlowIn() {};
+
   virtual void BuildResource();
   virtual void BuildInsn(IInsn *insn, State *st);
 };
