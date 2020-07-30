@@ -37,6 +37,7 @@
 #include "writer/verilog/task.h"
 #include "writer/verilog/task_call.h"
 #include "writer/verilog/ticker.h"
+#include "writer/verilog/ticker_accessor.h"
 
 #include <set>
 
@@ -126,6 +127,9 @@ Resource *Resource::Create(const IResource &res, const Table &table) {
   }
   if (resource::IsTicker(*klass)) {
     return new Ticker(res, table);
+  }
+  if (resource::IsTickerAccessor(*klass)) {
+    return new TickerAccessor(res, table);
   }
   if (resource::IsDataFlowIn(*klass)) {
     return new DataFlowIn(res, table);

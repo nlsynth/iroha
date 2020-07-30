@@ -345,6 +345,8 @@
         'writer/verilog/task_call.h',
         'writer/verilog/ticker.cpp',
         'writer/verilog/ticker.h',
+        'writer/verilog/ticker_accessor.cpp',
+        'writer/verilog/ticker_accessor.h',
         'writer/verilog/verilog_writer.cpp',
         'writer/verilog/verilog_writer.h',
         'writer/verilog/wire/accessor_info.cpp',
