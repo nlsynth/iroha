@@ -1,11 +1,15 @@
 #include "writer/verilog/ticker.h"
 
 #include "iroha/i_design.h"
+#include "iroha/resource_params.h"
+#include "writer/connection.h"
 #include "writer/module_template.h"
 #include "writer/verilog/insn_writer.h"
 #include "writer/verilog/state.h"
 #include "writer/verilog/table.h"
 #include "writer/verilog/module.h"
+#include "writer/verilog/wire/accessor_info.h"
+#include "writer/verilog/wire/wire_set.h"
 
 namespace iroha {
 namespace writer {
@@ -27,6 +31,7 @@ void Ticker::BuildResource() {
     ss << " - " << BuildDecrement();
   }
   ss << ";\n";
+  BuildAccessorWire();
 }
 
 void Ticker::BuildInsn(IInsn *insn, State *st) {
@@ -42,8 +47,12 @@ void Ticker::BuildInsn(IInsn *insn, State *st) {
 }
 
 string Ticker::TickerName() {
-  return "ticker_" + Util::Itoa(res_.GetTable()->GetId()) + "_" +
-    Util::Itoa(res_.GetId());
+  return TickerName(res_);
+}
+
+string Ticker::TickerName(const IResource &res) {
+  return "ticker_" + Util::Itoa(res.GetTable()->GetId()) + "_" +
+    Util::Itoa(res.GetId());
 }
 
 bool Ticker::HasDecrement() {
@@ -69,6 +78,25 @@ string Ticker::BuildDecrement() {
     }
   }
   return SelectValueByStateWithCallers(callers, "0");
+}
+
+void Ticker::BuildAccessorWire() {
+  auto &conn = tab_.GetModule()->GetConnection();
+  const vector<IResource *> &acs = conn.GetTickerAccessors(&res_);
+  if (acs.size() == 0) {
+    return;
+  }
+  string rn = TickerName();
+  ostream &rvs = tab_.ResourceValueSectionStream();
+  rvs << "  assign " << wire::Names::ResourceWire(rn, "c") << " = "
+      << TickerName() << ";\n";
+  wire::WireSet *ws = new wire::WireSet(*this, rn);
+  for (auto *ac : acs) {
+    wire::AccessorInfo *ainfo = ws->AddAccessor(ac);
+    ainfo->SetDistance(ac->GetParams()->GetDistance());
+    ainfo->AddSignal("c", wire::AccessorSignalType::ACCESSOR_READ_ARG, 32);
+  }
+  ws->Build();
 }
 
 }  // namespace verilog

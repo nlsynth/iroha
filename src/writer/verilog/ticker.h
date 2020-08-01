@@ -16,10 +16,13 @@ public:
   virtual void BuildResource() override;
   virtual void BuildInsn(IInsn *insn, State *st) override;
 
+  static string TickerName(const IResource &res);
+
 private:
   string TickerName();
   string BuildDecrement();
   bool HasDecrement();
+  void BuildAccessorWire();
 };
 
 }  // namespace verilog
