@@ -26,6 +26,7 @@ public:
   vector<IResource *> fifo_writers_;
   vector<IResource *> ext_input_accessors_;
   vector<IResource *> ext_output_accessors_;
+  vector<IResource *> ticker_accessors_;
   vector<IResource *> study_accessors_;
 };
 
@@ -48,6 +49,7 @@ public:
   const vector<IResource *> &GetFifoReaders(const IResource *res) const;
   const vector<IResource *> &GetExtInputAccessors(const IResource *res) const;
   const vector<IResource *> &GetExtOutputAccessors(const IResource *res) const;
+  const vector<IResource *> &GetTickerAccessors(const IResource *res) const;
   const vector<IResource *> &GetStudyAccessors(const IResource *res) const;
 
   static const IModule *GetCommonRoot(const IModule *m1, const IModule *m2);
@@ -60,6 +62,7 @@ private:
   void ProcessSharedMemoryAccessors(ITable *tab);
   void ProcessFifoAccessors(ITable *tab);
   void ProcessExtIOAccessors(ITable *tab);
+  void ProcessTickerAccessors(ITable *tab);
   void ProcessStudyAccessors(ITable *tab);
   AccessorInfo *FindAccessorInfo(const IResource *res);
 

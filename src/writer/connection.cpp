@@ -49,6 +49,8 @@ void Connection::ProcessTable(ITable *tab) {
   ProcessFifoAccessors(tab);
   // ext-input, ext-output
   ProcessExtIOAccessors(tab);
+  // ticker
+  ProcessTickerAccessors(tab);
   // study
   ProcessStudyAccessors(tab);
 }
@@ -138,6 +140,18 @@ void Connection::ProcessExtIOAccessors(ITable *tab) {
   }
 }
 
+void Connection::ProcessTickerAccessors(ITable *tab) {
+  for (IResource *res : tab->resources_) {
+    IResource *p = res->GetParentResource();
+    if (p == nullptr ||
+	!resource::IsTicker(*(p->GetClass()))) {
+      continue;
+    }
+    auto *ai = FindAccessorInfo(p);
+    ai->ticker_accessors_.push_back(res);
+  }
+}
+
 void Connection::ProcessStudyAccessors(ITable *tab) {
   for (IResource *res : tab->resources_) {
     IResource *p = res->GetParentResource();
@@ -220,6 +234,11 @@ const vector<IResource *> &Connection::GetExtInputAccessors(const IResource *res
 const vector<IResource *> &Connection::GetExtOutputAccessors(const IResource *res) const {
   const auto *ai = GetAccessorInfo(res);
   return ai->ext_output_accessors_;
+}
+
+const vector<IResource *> &Connection::GetTickerAccessors(const IResource *res) const {
+  const auto *ai = GetAccessorInfo(res);
+  return ai->ticker_accessors_;
 }
 
 const vector<IResource *> &Connection::GetStudyAccessors(const IResource *res) const {
