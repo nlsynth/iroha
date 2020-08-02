@@ -20,8 +20,10 @@ public:
 
 private:
   string TickerName();
-  string BuildDecrement();
-  bool HasDecrement();
+  string BuildSelfDecrement();
+  string BuildAccessorDecrement();
+  bool HasSelfDecrement();
+  bool HasAccessorDecrement();
   void BuildAccessorWire();
 };
 

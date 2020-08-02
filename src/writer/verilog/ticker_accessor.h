@@ -16,7 +16,10 @@ public:
   virtual void BuildResource() override;
   virtual void BuildInsn(IInsn *insn, State *st) override;
 
+  static bool UseDecrement(const IResource *accessor);
+
 private:
+  void CollectDecrementCallers(map<IState *, IInsn *> *callers);
 };
 
 }  // namespace verilog

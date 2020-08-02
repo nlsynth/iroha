@@ -7,6 +7,7 @@
 #include "writer/verilog/insn_writer.h"
 #include "writer/verilog/state.h"
 #include "writer/verilog/table.h"
+#include "writer/verilog/ticker_accessor.h"
 #include "writer/verilog/module.h"
 #include "writer/verilog/wire/accessor_info.h"
 #include "writer/verilog/wire/wire_set.h"
@@ -27,8 +28,11 @@ void Ticker::BuildResource() {
   is << "      " << n << " <= 0;\n";
   ostream &ss = tab_.StateOutputSectionStream();
   ss << "      " << n << " <= " << n << " + 1";
-  if (HasDecrement()) {
-    ss << " - " << BuildDecrement();
+  if (HasSelfDecrement()) {
+    ss << " - " << BuildSelfDecrement();
+  }
+  if (HasAccessorDecrement()) {
+    ss << " - " << BuildAccessorDecrement();
   }
   ss << ";\n";
   BuildAccessorWire();
@@ -55,7 +59,7 @@ string Ticker::TickerName(const IResource &res) {
     Util::Itoa(res.GetId());
 }
 
-bool Ticker::HasDecrement() {
+bool Ticker::HasSelfDecrement() {
   map<IState *, IInsn *> callers;
   CollectResourceCallers("*", &callers);
   for (auto it : callers) {
@@ -67,7 +71,18 @@ bool Ticker::HasDecrement() {
   return false;
 }
 
-string Ticker::BuildDecrement() {
+bool Ticker::HasAccessorDecrement() {
+  auto &conn = tab_.GetModule()->GetConnection();
+  const vector<IResource *> &acs = conn.GetTickerAccessors(&res_);
+  for (auto *ac : acs) {
+    if (TickerAccessor::UseDecrement(ac)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+string Ticker::BuildSelfDecrement() {
   map<IState *, IInsn *> allCallers;
   CollectResourceCallers("*", &allCallers);
   map<IState *, IInsn *> callers;
@@ -78,6 +93,12 @@ string Ticker::BuildDecrement() {
     }
   }
   return SelectValueByStateWithCallers(callers, "0");
+}
+
+string Ticker::BuildAccessorDecrement() {
+  string rn = TickerName();
+  return "(" + wire::Names::ResourceWire(rn, "wen") + " ? " +
+    wire::Names::ResourceWire(rn, "w") + " : 0)";
 }
 
 void Ticker::BuildAccessorWire() {
@@ -95,6 +116,12 @@ void Ticker::BuildAccessorWire() {
     wire::AccessorInfo *ainfo = ws->AddAccessor(ac);
     ainfo->SetDistance(ac->GetParams()->GetDistance());
     ainfo->AddSignal("c", wire::AccessorSignalType::ACCESSOR_READ_ARG, 32);
+    if (TickerAccessor::UseDecrement(ac)) {
+      ainfo->AddSignal("w", wire::AccessorSignalType::ACCESSOR_WRITE_ARG,
+		       32);
+      ainfo->AddSignal("wen", wire::AccessorSignalType::ACCESSOR_NOTIFY_PARENT,
+		       0);
+    }
   }
   ws->Build();
 }
