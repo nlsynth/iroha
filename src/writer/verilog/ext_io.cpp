@@ -109,13 +109,16 @@ void ExtIO::BuildExtOutputResource() {
 }
 
 void ExtIO::BuildExtOutputAccessor() {
+  auto &conn = tab_.GetModule()->GetConnection();
+  const vector<IResource *> &acs = conn.GetExtOutputAccessors(&res_);
+  if (acs.size() == 0) {
+    return;
+  }
   auto *params = res_.GetParams();
   string output_port;
   int width;
   params->GetExtInputPort(&output_port, &width);
 
-  auto &conn = tab_.GetModule()->GetConnection();
-  const vector<IResource *> &acs = conn.GetExtOutputAccessors(&res_);
   string output = OutputRegName(res_);
   wire::WireSet *ws = new wire::WireSet(*this, output);
   for (auto *ac : acs) {
