@@ -1,23 +1,20 @@
 #include "writer/connection.h"
 
+#include <set>
+
 #include "design/design_util.h"
 #include "iroha/i_design.h"
+#include "iroha/logging.h"
 #include "iroha/resource_class.h"
 #include "iroha/resource_params.h"
-#include "iroha/logging.h"
 #include "iroha/stl_util.h"
-
-#include <set>
 
 namespace iroha {
 namespace writer {
 
-Connection::Connection(const IDesign *design) : design_(design) {
-}
+Connection::Connection(const IDesign *design) : design_(design) {}
 
-Connection::~Connection() {
-  STLDeleteSecondElements(&accessors_);
-}
+Connection::~Connection() { STLDeleteSecondElements(&accessors_); }
 
 void Connection::Build() {
   for (auto *mod : design_->modules_) {
@@ -30,13 +27,11 @@ void Connection::Build() {
 void Connection::ProcessTable(ITable *tab) {
   // task
   vector<IResource *> task_callers;
-  DesignUtil::FindResourceByClassName(tab, resource::kTaskCall,
-				      &task_callers);
+  DesignUtil::FindResourceByClassName(tab, resource::kTaskCall, &task_callers);
   for (IResource *caller : task_callers) {
     vector<IResource *> res;
     DesignUtil::FindResourceByClassName(caller->GetCalleeTable(),
-					resource::kTask,
-					&res);
+                                        resource::kTask, &res);
     CHECK(res.size() == 1);
     auto *ai = FindAccessorInfo(res[0]);
     ai->task_callers_.push_back(caller);
@@ -58,8 +53,7 @@ void Connection::ProcessTable(ITable *tab) {
 void Connection::ProcessSharedRegAccessors(ITable *tab) {
   for (IResource *res : tab->resources_) {
     IResource *p = res->GetParentResource();
-    if (p == nullptr ||
-	!resource::IsSharedReg(*(p->GetClass()))) {
+    if (p == nullptr || !resource::IsSharedReg(*(p->GetClass()))) {
       continue;
     }
     auto *ai = FindAccessorInfo(p);
@@ -85,17 +79,16 @@ void Connection::ProcessSharedMemoryAccessors(ITable *tab) {
     auto *rc = res->GetClass();
     auto *params = res->GetParams();
     if (resource::IsSharedMemoryReader(*rc) ||
-	resource::IsSharedMemoryWriter(*rc)) {
+        resource::IsSharedMemoryWriter(*rc)) {
       ai->shared_memory_accessors_.push_back(res);
     }
-    if (resource::IsAxiMasterPort(*rc) ||
-	resource::IsAxiSlavePort(*rc) ||
-	resource::IsSramIf(*rc)) {
+    if (resource::IsAxiMasterPort(*rc) || resource::IsAxiSlavePort(*rc) ||
+        resource::IsSramIf(*rc)) {
       if (params->GetSramPortIndex() == "0") {
-	ai->shared_memory_accessors_.push_back(res);
+        ai->shared_memory_accessors_.push_back(res);
       } else {
-	// Exclusive access only by a DMAC.
-	ai->shared_memory_port1_accessors_.push_back(res);
+        // Exclusive access only by a DMAC.
+        ai->shared_memory_port1_accessors_.push_back(res);
       }
     }
   }
@@ -104,8 +97,7 @@ void Connection::ProcessSharedMemoryAccessors(ITable *tab) {
 void Connection::ProcessFifoAccessors(ITable *tab) {
   for (IResource *res : tab->resources_) {
     IResource *p = res->GetParentResource();
-    if (p == nullptr ||
-	!resource::IsFifo(*(p->GetClass()))) {
+    if (p == nullptr || !resource::IsFifo(*(p->GetClass()))) {
       continue;
     }
     auto *ai = FindAccessorInfo(p);
@@ -143,8 +135,7 @@ void Connection::ProcessExtIOAccessors(ITable *tab) {
 void Connection::ProcessTickerAccessors(ITable *tab) {
   for (IResource *res : tab->resources_) {
     IResource *p = res->GetParentResource();
-    if (p == nullptr ||
-	!resource::IsTicker(*(p->GetClass()))) {
+    if (p == nullptr || !resource::IsTicker(*(p->GetClass()))) {
       continue;
     }
     auto *ai = FindAccessorInfo(p);
@@ -155,8 +146,7 @@ void Connection::ProcessTickerAccessors(ITable *tab) {
 void Connection::ProcessStudyAccessors(ITable *tab) {
   for (IResource *res : tab->resources_) {
     IResource *p = res->GetParentResource();
-    if (p == nullptr ||
-	!resource::IsStudy(*(p->GetClass()))) {
+    if (p == nullptr || !resource::IsStudy(*(p->GetClass()))) {
       continue;
     }
     auto *ai = FindAccessorInfo(p);
@@ -172,8 +162,7 @@ const AccessorInfo *Connection::GetAccessorInfo(const IResource *res) const {
   return it->second;
 }
 
-const IModule *Connection::GetCommonRoot(const IModule *m1,
-					 const IModule *m2) {
+const IModule *Connection::GetCommonRoot(const IModule *m1, const IModule *m2) {
   set<const IModule *> parents;
   for (auto *m = m1; m != nullptr; m = m->GetParentModule()) {
     parents.insert(m);
@@ -186,72 +175,87 @@ const IModule *Connection::GetCommonRoot(const IModule *m1,
   return nullptr;
 }
 
-const vector<IResource *> &Connection::GetSharedRegReaders(const IResource *res) const {
+const vector<IResource *> &Connection::GetSharedRegReaders(
+    const IResource *res) const {
   const auto *ai = GetAccessorInfo(res);
   return ai->shared_reg_readers_;
 }
 
-const vector<IResource *> &Connection::GetSharedRegWriters(const IResource *res) const {
+const vector<IResource *> &Connection::GetSharedRegWriters(
+    const IResource *res) const {
   const auto *ai = GetAccessorInfo(res);
   return ai->shared_reg_writers_;
 }
 
-const vector<IResource *> &Connection::GetSharedRegExtWriters(const IResource *res) const {
+const vector<IResource *> &Connection::GetSharedRegExtWriters(
+    const IResource *res) const {
   const auto *ai = GetAccessorInfo(res);
   return ai->shared_reg_ext_writers_;
 }
 
-const vector<IResource *> &Connection::GetSharedRegChildren(const IResource *res) const {
+const vector<IResource *> &Connection::GetSharedRegChildren(
+    const IResource *res) const {
   const auto *ai = GetAccessorInfo(res);
   return ai->shared_reg_children_;
 }
-  
-const vector<IResource *> &Connection::GetSharedMemoryAccessors(const IResource *res) const {
+
+const vector<IResource *> &Connection::GetSharedMemoryAccessors(
+    const IResource *res) const {
   const auto *ai = GetAccessorInfo(res);
   return ai->shared_memory_accessors_;
 }
 
-const vector<IResource *> &Connection::GetSharedMemoryPort1Accessors(const IResource *res) const {
+const vector<IResource *> &Connection::GetSharedMemoryPort1Accessors(
+    const IResource *res) const {
   const auto *ai = GetAccessorInfo(res);
   return ai->shared_memory_port1_accessors_;
 }
 
-const vector<IResource *> &Connection::GetFifoWriters(const IResource *res) const {
+const vector<IResource *> &Connection::GetFifoWriters(
+    const IResource *res) const {
   const auto *ai = GetAccessorInfo(res);
   return ai->fifo_writers_;
 }
 
-const vector<IResource *> &Connection::GetFifoReaders(const IResource *res) const {
+const vector<IResource *> &Connection::GetFifoReaders(
+    const IResource *res) const {
   const auto *ai = GetAccessorInfo(res);
   return ai->fifo_readers_;
 }
 
-const vector<IResource *> &Connection::GetExtInputAccessors(const IResource *res) const {
+const vector<IResource *> &Connection::GetExtInputAccessors(
+    const IResource *res) const {
   const auto *ai = GetAccessorInfo(res);
   return ai->ext_input_accessors_;
 }
 
-const vector<IResource *> &Connection::GetExtOutputAccessors(const IResource *res) const {
+const vector<IResource *> &Connection::GetExtOutputAccessors(
+    const IResource *res) const {
   const auto *ai = GetAccessorInfo(res);
   return ai->ext_output_accessors_;
 }
 
-const vector<IResource *> &Connection::GetTickerAccessors(const IResource *res) const {
+const vector<IResource *> &Connection::GetTickerAccessors(
+    const IResource *res) const {
   const auto *ai = GetAccessorInfo(res);
   return ai->ticker_accessors_;
 }
 
-const vector<IResource *> &Connection::GetStudyAccessors(const IResource *res) const {
+const vector<IResource *> &Connection::GetStudyAccessors(
+    const IResource *res) const {
   const auto *ai = GetAccessorInfo(res);
   return ai->study_accessors_;
 }
 
-const vector<IResource *> &Connection::GetTaskCallers(const IResource *res) const {
+const vector<IResource *> &Connection::GetTaskCallers(
+    const IResource *res) const {
   const auto *ai = GetAccessorInfo(res);
   return ai->task_callers_;
 }
 
-const vector<IResource *> *Connection::GetResourceVector(const map<const IResource *, vector<IResource *>> &m, const IResource *res) const {
+const vector<IResource *> *Connection::GetResourceVector(
+    const map<const IResource *, vector<IResource *>> &m,
+    const IResource *res) const {
   auto it = m.find(res);
   if (it != m.end() && it->second.size() > 0) {
     return &(it->second);
