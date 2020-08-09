@@ -31,6 +31,7 @@ private:
   vector<IResource *> ext_task_call_;
   vector<IResource *> ext_task_wait_;
   vector<IResource *> ext_ram_;
+  vector<IResource *> sram_if_;
 };
 
 }  // namespace verilog

@@ -17,6 +17,9 @@ public:
   virtual void BuildInsn(IInsn *insn, State *st) override;
   virtual void CollectNames(Names *names) override;
 
+  // for self shell.
+  static string WenPort(IResource *res);
+
 private:
   void AddPorts(Module *mod);
   string AckReg();

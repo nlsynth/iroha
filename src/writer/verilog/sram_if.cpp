@@ -91,6 +91,12 @@ string SramIf::NotifyReg() {
   return prefix + "notify";
 }
 
+string SramIf::WenPort(IResource *res) {
+  string prefix = res->GetParams()->GetPortNamePrefix();
+  return prefix + "wen";
+}
+
+
 }  // namespace verilog
 }  // namespace writer
 }  // namespace iroha

@@ -8,6 +8,7 @@
 #include "writer/verilog/embedded_modules.h"
 #include "writer/verilog/ext_task.h"
 #include "writer/verilog/internal_sram.h"
+#include "writer/verilog/sram_if.h"
 #include "writer/verilog/port_set.h"
 #include "writer/verilog/table.h"
 
@@ -54,9 +55,9 @@ void SelfShell::WriteWireDecl(ostream &os) {
     for (int i = 0; i < res->output_types_.size(); ++i) {
       string d = ExtTask::DataPin(res, i);
       os << "  wire "
-	 << Table::WidthSpec(res->output_types_[i].GetWidth())
-	 << d << ";\n"
-	 << "  assign " << d << " = 0;\n";
+	      << Table::WidthSpec(res->output_types_[i].GetWidth())
+	      << d << ";\n"
+	      << "  assign " << d << " = 0;\n";
     }
   }
   for (IResource *res : ext_ram_) {
@@ -88,6 +89,10 @@ void SelfShell::WriteWireDecl(ostream &os) {
        << ", ." << sram->GetWenPin(0) << "("
        << ArrayResource::SigName(*res, "wdata_en") << ")"
        << ");\n";
+  }
+  for (IResource *res : sram_if_) {
+    os << "  wire " << SramIf::WenPort(res) << ";\n";
+    os << "  assign " << SramIf::WenPort(res) << " = 0;\n";
   }
 }
 
@@ -127,6 +132,9 @@ void SelfShell::WritePortConnection(ostream &os) {
     GenConnection(ArrayResource::SigName(*res, "wdata"), os);
     GenConnection(ArrayResource::SigName(*res, "wdata_en"), os);
   }
+  for (IResource *res : sram_if_) {
+    GenConnection(SramIf::WenPort(res), os);
+  }
 }
 
 void SelfShell::GenConnection(const string &sig, ostream &os) {
@@ -145,26 +153,29 @@ void SelfShell::ProcessModule(IModule *mod) {
     for (IResource *res : tab->resources_) {
       auto *klass = res->GetClass();
       if (resource::IsAxiMasterPort(*klass) ||
-	  resource::IsAxiSlavePort(*klass)) {
-	axi_.push_back(res);
+      resource::IsAxiSlavePort(*klass)) {
+        axi_.push_back(res);
       }
       if (resource::IsExtInput(*klass)) {
-	ext_input_.push_back(res);
+        ext_input_.push_back(res);
       }
       if (resource::IsExtTask(*klass)) {
-	ext_task_entry_.push_back(res);
+        ext_task_entry_.push_back(res);
       }
       if (resource::IsExtTaskCall(*klass)) {
-	ext_task_call_.push_back(res);
+        ext_task_call_.push_back(res);
       }
       if (resource::IsExtTaskWait(*klass)) {
-	ext_task_wait_.push_back(res);
+        ext_task_wait_.push_back(res);
       }
       if (resource::IsArray(*klass)) {
-	IArray *ar = res->GetArray();
-	if (ar != nullptr && ar->IsExternal()) {
-	  ext_ram_.push_back(res);
-	}
+	      IArray *ar = res->GetArray();
+	      if (ar != nullptr && ar->IsExternal()) {
+	        ext_ram_.push_back(res);
+	      }
+      }
+      if (resource::IsSramIf(*klass)) {
+        sram_if_.push_back(res);
       }
     }
   }
