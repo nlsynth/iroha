@@ -149,6 +149,7 @@ void VerilogWriter::BuildChildModuleSection() {
 
 void VerilogWriter::WriteShellModule(const Module *mod) {
   const PortSet *ports = mod->GetPortSet();
+  os_ << "`ifndef STRIP_SHELL\n";
   os_ << "module " << shell_module_name_ << "(";
   if (!with_self_contained_) {
     ports->Output(PortSet::PORT_MODULE_HEAD_DIRECTION, os_);
@@ -188,6 +189,7 @@ void VerilogWriter::WriteShellModule(const Module *mod) {
 	<< "  end\n";
   }
   os_ << "\nendmodule  // " << shell_module_name_ << "\n";
+  os_ << "`endif  // STRIP_SHELL\n";
 
   os_ << "\n// NOTE: Please copy the follwoing line to your design.\n"
       << "// " << shell_module_name_ << " " << shell_module_name_ << "_inst(";
