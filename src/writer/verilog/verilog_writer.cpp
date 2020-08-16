@@ -187,7 +187,7 @@ void VerilogWriter::WriteShellModule(const Module *mod) {
 	<< "    $dumpvars(0, " << name << "_inst);\n"
 	<< "  end\n";
   }
-  os_ << "\nendmodule\n";
+  os_ << "\nendmodule  // " << shell_module_name_ << "\n";
 
   os_ << "\n// NOTE: Please copy the follwoing line to your design.\n"
       << "// " << shell_module_name_ << " " << shell_module_name_ << "_inst(";
