@@ -10,6 +10,15 @@
 #include <string>
 #include <vector>
 
+// Dummy defines for VERSION and PACKAGE to silent VSCode.
+#ifndef VERSION
+#define VERSION "0.0.0-undefined"
+#endif
+
+#ifndef PACKAGE
+#define PACKAGE "iroha-undefined"
+#endif
+
 using namespace std;
 
 namespace iroha {
