@@ -34,6 +34,7 @@ public:
   // Manages storage for big number.
   static NumericManager *DefaultManager();
   static NumericManager *CreateManager();
+  static void ReleaseDefaultManager();
   static void DeleteManager(NumericManager *mgr);
   static void CopyValue(const Numeric &src, NumericManager *mgr, Numeric *dst);
   static void CopyValueWithWidth(const NumericValue &src_value,

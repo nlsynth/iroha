@@ -73,7 +73,15 @@ NumericManager *Numeric::CreateManager() {
   return new NumericManager;
 }
 
+void Numeric::ReleaseDefaultManager() {
+  DeleteManager(nullptr);
+}
+
 void Numeric::DeleteManager(NumericManager *mgr) {
+  if (mgr == nullptr) {
+    mgr = default_manager;
+    default_manager = nullptr;
+  }
   delete mgr;
 }
 
