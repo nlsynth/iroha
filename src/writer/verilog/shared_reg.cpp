@@ -57,7 +57,7 @@ SharedReg::SharedReg(const IResource &res, const Table &table)
   if (writers_.size() > 0 || has_default_value_) {
     need_write_arbitration_ = true;
   }
-  GetOptions(&use_notify_, &use_mailbox_);
+  GetOptions(&use_notify_, &has_notifyer_, &use_mailbox_);
 }
 
 void SharedReg::BuildResource() {
@@ -110,7 +110,7 @@ void SharedReg::BuildResource() {
     }
     string rn = GetNameRW(res_, true);
     string en = wire::Names::ResourceWire(rn, "wen");
-    if (use_notify_) {
+    if (has_notifyer_) {
       en += " | " + wire::Names::ResourceWire(rn, "notify");
     }
     if (use_mailbox_) {
@@ -166,8 +166,12 @@ void SharedReg::BuildNotifier() {
   os << "      " << RegNotifierName(res_)
      << " <= ";
   string wrn = GetNameRW(res_, true);
-  os << wire::Names::ResourceWire(wrn, "notify")
-     << ";\n";
+  if (has_notifyer_) {
+    os << wire::Names::ResourceWire(wrn, "notify");
+  } else {
+    os << "0";
+  }
+  os << ";\n";
   ostream &is = tab_.InitialValueSectionStream();
   is << "      " << RegNotifierName(res_) << " <= 0;\n";
   if (readers_.size() > 0) {
@@ -299,9 +303,10 @@ void SharedReg::BuildAccessorWireW() {
   ws->Build();
 }
 
-void SharedReg::GetOptions(bool *use_notify, bool *use_mailbox) {
+void SharedReg::GetOptions(bool *use_notify, bool *has_notifyer, bool *use_mailbox) {
   *use_notify = false;
   *use_mailbox = false;
+  *has_notifyer = false;
   for (auto *reader : readers_) {
     if (resource::IsDataFlowIn(*(reader->GetClass()))) {
       *use_notify |= true;
@@ -321,6 +326,7 @@ void SharedReg::GetOptions(bool *use_notify, bool *use_mailbox) {
       SharedRegAccessor::GetAccessorFeatures(writer, &n, &m);
     }
     *use_notify |= n;
+    *has_notifyer |= n;
     *use_mailbox |= m;
   }
 }

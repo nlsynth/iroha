@@ -33,7 +33,7 @@ public:
 private:
   void BuildAccessorWireR();
   void BuildAccessorWireW();
-  void GetOptions(bool *use_notify, bool *use_mailbox);
+  void GetOptions(bool *use_notify, bool *has_notifyer, bool *use_mailbox);
   void BuildMailbox();
   void BuildNotifier();
 
@@ -45,6 +45,8 @@ private:
   vector<IResource *> writers_;
   bool need_write_arbitration_;
   bool use_notify_;
+  // If writer actually exists.
+  bool has_notifyer_;
   bool use_mailbox_;
 };
 
