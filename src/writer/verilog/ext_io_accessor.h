@@ -22,6 +22,7 @@ public:
 
 private:
   void BuildOutputResource();
+  void BuildInputResource();
   void CollectOutputCallers(map<IState *, IInsn *> *callers);
   string GetName();
 

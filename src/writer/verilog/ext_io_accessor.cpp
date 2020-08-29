@@ -2,10 +2,12 @@
 
 #include "design/design_util.h"
 #include "iroha/i_design.h"
+#include "iroha/insn_operands.h"
 #include "iroha/resource_class.h"
 #include "iroha/resource_params.h"
 #include "writer/verilog/ext_io.h"
 #include "writer/verilog/insn_writer.h"
+#include "writer/verilog/state.h"
 #include "writer/verilog/table.h"
 #include "writer/verilog/wire/wire_set.h"
 
@@ -21,6 +23,9 @@ void ExtIOAccessor::BuildResource() {
   auto *klass = res_.GetClass();
   if (resource::IsExtOutputAccessor(*klass)) {
     BuildOutputResource();
+  }
+  if (resource::IsExtInputAccessor(*klass)) {
+    BuildInputResource();
   }
 }
 
@@ -48,6 +53,22 @@ void ExtIOAccessor::BuildOutputResource() {
   rvs << v << ";\n";
 }
 
+void ExtIOAccessor::BuildInputResource() {
+  map<IState *, IInsn *> callers;
+  CollectResourceCallers("wait", &callers);
+  if (callers.size() == 0) {
+    return;
+  }
+  ostream &rs = tab_.ResourceSectionStream();
+  IResource *parent = res_.GetParentResource();
+  string rn = ExtIO::InputRegName(*parent);
+  string aw = wire::Names::AccessorWire(rn, &res_, "r");
+  int width = parent->GetParams()->GetWidth();
+  rs << "  reg " << Table::WidthSpec(width) << aw << "_prev;\n";
+  ostream &ss = tab_.StateOutputSectionStream();
+  ss << "      " << aw << "_prev <= " << aw << ";\n";
+}
+
 void ExtIOAccessor::CollectOutputCallers(map<IState *, IInsn *> *callers) {
   map<IState *, IInsn *> all_callers;
   CollectResourceCallers("", &all_callers);
@@ -65,9 +86,21 @@ void ExtIOAccessor::BuildInsn(IInsn *insn, State *st) {
   ostream &ws = tab_.InsnWireValueSectionStream();
   if (resource::IsExtInputAccessor(*klass)) {
     string rn = ExtIO::InputRegName(*parent);
+    string aw = wire::Names::AccessorWire(rn, &res_, "r");
     ws << "  assign "
        << InsnWriter::InsnOutputWireName(*insn, 0)
-       << " = " << wire::Names::AccessorWire(rn, &res_, "r") << ";\n";
+       << " = " << aw << ";\n";
+    if (insn->GetOperand() == operand::kWait) {
+      ostream &os = st->StateBodySectionStream();
+      string st_name = InsnWriter::MultiCycleStateName(*(insn->GetResource()));
+      static const char I[] = "          ";
+      os << I << "if (" << st_name << " == 0) begin\n"
+         << I << "  if (" << aw << " != " << aw << "_prev) begin\n"
+         << I << "    " << st_name << " <= 3;\n"
+         << I << "  end\n"
+         << I << "end\n";
+
+    }
   }
   if (resource::IsExtOutputAccessor(*klass) &&
       insn->inputs_.size() > 0) {
