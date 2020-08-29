@@ -1,6 +1,8 @@
 #include "writer/verilog/ext_io.h"
 
+#include "design/design_util.h"
 #include "iroha/i_design.h"
+#include "iroha/insn_operands.h"
 #include "iroha/resource_class.h"
 #include "iroha/resource_params.h"
 #include "writer/connection.h"
@@ -60,6 +62,21 @@ void ExtIO::BuildExtInputResource() {
        << " <= "
        << input_port << ";\n";
   }
+  // prev value for wait.
+  bool has_wait = false;
+  vector<IInsn *> insns = DesignUtil::GetInsnsByResource(&res_);
+  for (IInsn *insn : insns) {
+    if (insn->GetOperand() == operand::kWait) {
+      has_wait = true;
+    }
+  }
+  if (has_wait) {
+    ostream &rs = tab_.ResourceSectionStream();
+    rs << "  reg " << Table::WidthSpec(width) << PrevInputRegName(input_src) << ";\n";
+    ostream &ss = tab_.StateOutputSectionStream();
+    ss << "      " << PrevInputRegName(input_src) << " <= " << InputWireName(input_src) << ";\n";
+  }
+  // wires to accessors.
   auto &conn = tab_.GetModule()->GetConnection();
   const vector<IResource *> &acs = conn.GetExtInputAccessors(&res_);
   if (acs.size() > 0) {
@@ -75,6 +92,18 @@ void ExtIO::BuildExtInputResource() {
     }
     ws->Build();
   }
+}
+
+string ExtIO::InputWireName(const string &input_port) {
+  if (distance_ > 0) {
+    return BufRegName(input_port, 0);
+  } else {
+    return input_port;
+  }
+}
+
+string ExtIO::PrevInputRegName(const string &input_port) {
+  return InputWireName(input_port) + "_prev";
 }
 
 void ExtIO::BuildExtOutputResource() {
@@ -171,25 +200,30 @@ void ExtIO::BuildBufRegChain(const string &port, int width) {
 void ExtIO::BuildInsn(IInsn *insn, State *st) {
   auto *klass = res_.GetClass();
   if (resource::IsExtInput(*klass)) {
-    BuildExtInputInsn(insn);
+    BuildExtInputInsn(insn, st);
   }
   if (resource::IsExtOutput(*klass)) {
     BuildExtOutputInsn(insn, st);
   }
 }
 
-void ExtIO::BuildExtInputInsn(IInsn *insn) {
+void ExtIO::BuildExtInputInsn(IInsn *insn, State *st) {
   auto *params = res_.GetParams();
   string input_port;
   int width;
   params->GetExtInputPort(&input_port, &width);
   ostream &ws = tab_.InsnWireValueSectionStream();
   ws << "  assign " << InsnWriter::InsnOutputWireName(*insn, 0)
-     << " = ";
-  if (distance_ > 0) {
-    ws << BufRegName(input_port, 0) << ";\n";
-  } else {
-    ws << input_port << ";\n";
+     << " = " << InputWireName(input_port) << ";\n";
+  if (insn->GetOperand() == operand::kWait) {
+    ostream &os = st->StateBodySectionStream();
+    string st_name = InsnWriter::MultiCycleStateName(*(insn->GetResource()));
+    static const char I[] = "          ";
+    os << I << "if (" << st_name << " == 0) begin\n"
+       << I << "  if (" << input_port << " != " << PrevInputRegName(input_port) << ") begin\n"
+       << I << "    " << st_name << " <= 3;\n"
+       << I << "  end\n"
+       << I << "end\n";
   }
 }
 

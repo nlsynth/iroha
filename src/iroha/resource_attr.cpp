@@ -42,13 +42,16 @@ bool ResourceAttr::IsMultiCycleInsn(IInsn *insn) {
       resource::IsFifoReader(rc)) {
     return true;
   }
+  if ((resource::IsExtInput(rc) || resource::IsExtInputAccessor(rc)) && insn->GetOperand() == operand::kWait) {
+    return true;
+  }
   if (resource::IsFifoWriter(rc) &&
       insn->GetOperand() != operand::kNoWait) {
     return true;
   }
   if (resource::IsSharedRegReader(rc)) {
     if (insn->GetOperand() == operand::kWaitNotify ||
-	insn->GetOperand() == operand::kGetMailbox) {
+    insn->GetOperand() == operand::kGetMailbox) {
       return true;
     }
   }

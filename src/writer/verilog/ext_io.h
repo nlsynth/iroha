@@ -19,11 +19,10 @@ public:
 
   static string InputRegName(const IResource &res);
   static string OutputRegName(const IResource &res);
-  static string BufRegNameWithDistance(const string &port, int distance,
-				       int stage);
+  static string BufRegNameWithDistance(const string &port, int distance, int stage);
 
 private:
-  void BuildExtInputInsn(IInsn *insn);
+  void BuildExtInputInsn(IInsn *insn, State *st);
   void BuildExtOutputInsn(IInsn *insn, State *st);
   void BuildPeekExtOutputInsn(IInsn *insn);
   void BuildExtInputResource();
@@ -31,6 +30,8 @@ private:
   void BuildExtOutputAccessor();
   void BuildBufRegChain(const string &port, int width);
   string BufRegName(const string &output_port, int stage);
+  string InputWireName(const string &input_port);
+  string PrevInputRegName(const string &input_port);
 
   bool has_default_output_value_;
   int default_output_value_;
