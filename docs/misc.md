@@ -1,3 +1,11 @@
+debugging optimizer
+
+    $ ./iroha a.iroha -d /tmp/a -opt clean
+
+
+
+* Folliowing code was from Sythesijer. We used it to prototype iroha.
+
 (MODULE Test001 % クラス名
   (VARIABLES % メンバ変数
     (CONSTANT INT constant_00000 0)
