@@ -58,7 +58,7 @@ void Optimizer::Init() {
   CompoundPass::Init();
 }
 
-vector<string> Optimizer::GetPhaseNames() {
+vector<string> Optimizer::GetPassNames() {
   vector<string> names;
   for (auto it : passes_) {
     names.push_back(it.first);
@@ -82,7 +82,7 @@ bool Optimizer::ApplyPass(const string &name) {
   pass->SetOptimizer(this);
   auto *annotation = design_->GetDebugAnnotation();
   pass->SetAnnotation(annotation);
-  annotation->StartPhase(name);
+  annotation->StartPass(name);
   bool isOk = pass->Apply(design_);
   if (isOk) {
     Validator::Validate(design_);

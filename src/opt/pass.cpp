@@ -50,7 +50,7 @@ void Pass::OutputPassHeader(const string &msg) {
     return;
   }
   ostream &os = annotation_->GetDumpStream();
-  os << "<h1> Phase: " << msg << "</h1>\n";
+  os << "<h1> Pass: " << msg << "</h1>\n";
 }
 
 }  // namespace opt

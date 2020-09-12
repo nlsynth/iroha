@@ -8,11 +8,11 @@ namespace iroha {
 namespace opt {
 namespace sched {
 
-// Represents a resource type during this phase.
+// Represents a resource type during this pass.
 // Multiple VirtualResource can points to this.
 // Owned by VirtualResourceSet.
 class ResourceEntry {
-public:
+ public:
   ResourceEntry(IResource *res);
 
   IResource *GetResource();
@@ -21,7 +21,7 @@ public:
   void PrepareReplicas();
   IResource *GetNthReplica(int nth);
 
-private:
+ private:
   // Template resource.
   IResource *res_;
   // replicas_[0] = res_

@@ -17,7 +17,7 @@ class Optimizer : public OptAPI {
   ~Optimizer();
 
   static void Init();
-  static vector<string> GetPhaseNames();
+  static vector<string> GetPassNames();
   static void RegisterPass(const string &name, function<Pass *()> factory);
 
   virtual bool ApplyPass(const string &name) override;

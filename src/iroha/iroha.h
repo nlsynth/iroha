@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
-// Copyright (c) 2015-2020, Yusuke Tabata (tabata.yusuke@gmail.com) and the team.
-// All rights reserved.
+// Copyright (c) 2015-2020, Yusuke Tabata (tabata.yusuke@gmail.com) and the
+// team. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
@@ -46,13 +46,13 @@ namespace iroha {
 
 // High level APIs and factory methods.
 class Iroha {
-public:
+ public:
   static void Init();
   static void SetImportPaths(const vector<string> &paths);
   static IDesign *ReadDesignFromFile(const string &fn);
   static WriterAPI *CreateWriter(IDesign *design);
   static OptAPI *CreateOptimizer(IDesign *design);
-  static vector<string> GetOptimizerPhaseNames();
+  static vector<string> GetOptimizerPassNames();
 };
 
 }  // namespace iroha

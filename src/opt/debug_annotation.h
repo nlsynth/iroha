@@ -2,18 +2,18 @@
 #ifndef _opt_debug_annotation_h_
 #define _opt_debug_annotation_h_
 
-#include "iroha/common.h"
-
-#include <sstream>
 #include <map>
 #include <set>
+#include <sstream>
+
+#include "iroha/common.h"
 
 namespace iroha {
 namespace opt {
 
 // Per design object to store debug strings.
 class DebugAnnotation {
-public:
+ public:
   DebugAnnotation();
   ~DebugAnnotation();
 
@@ -21,9 +21,9 @@ public:
   void Enable();
   // Called at the end.
   void WriteToFiles(const string &baseFn);
-  // Called at beginning of each phase.
-  void StartPhase(const string &name);
-  // Dump into a separate file from the main output from the phase.
+  // Called at beginning of each pass.
+  void StartPass(const string &name);
+  // Dump into a separate file from the main output from the pass.
   void StartSubSection(const string &section, bool isHtml);
   void ClearSubSection();
   // Called by optimizers.
@@ -39,11 +39,11 @@ public:
   string GetStateAnnotation(const IState *st) const;
   int GetStateColorIndex(const IState *st) const;
 
-private:
+ private:
   void UpdateFileName(bool isHtml);
 
   bool enabled_;
-  string phase_name_;
+  string pass_name_;
   string section_name_;
   string file_name_;
   map<string, ostringstream> dump_;

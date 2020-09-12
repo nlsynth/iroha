@@ -27,12 +27,12 @@ void printUsage() {
       << "  --flavor=[flavor]\n"
       << "  -opt [optimizer names (comma separated)]\n";
   std::cout << "    available optimizers: ";
-  vector<string> phases = Iroha::GetOptimizerPhaseNames();
-  for (size_t i = 0; i < phases.size(); ++i) {
+  vector<string> passes = Iroha::GetOptimizerPassNames();
+  for (size_t i = 0; i < passes.size(); ++i) {
     if (i > 0) {
       std::cout << ",";
     }
-    std::cout << phases[i];
+    std::cout << passes[i];
   }
   std::cout << "\n";
 }

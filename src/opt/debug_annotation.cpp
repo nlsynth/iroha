@@ -1,26 +1,20 @@
 #include "opt/debug_annotation.h"
 
+#include <fstream>
+
 #include "iroha/i_design.h"
 #include "writer/writer.h"
-
-#include <fstream>
 
 namespace iroha {
 namespace opt {
 
-DebugAnnotation::DebugAnnotation() : enabled_(false) {
-}
+DebugAnnotation::DebugAnnotation() : enabled_(false) {}
 
-DebugAnnotation::~DebugAnnotation() {
-}
+DebugAnnotation::~DebugAnnotation() {}
 
-void DebugAnnotation::Enable() {
-  enabled_ = true;
-}
+void DebugAnnotation::Enable() { enabled_ = true; }
 
-bool DebugAnnotation::IsEnabled() {
-  return enabled_;
-}
+bool DebugAnnotation::IsEnabled() { return enabled_; }
 
 void DebugAnnotation::WriteToFiles(const string &baseFn) {
   for (auto &p : dump_) {
@@ -60,13 +54,9 @@ void DebugAnnotation::DumpIntermediateTable(const ITable *tab) {
   writer::Writer::DumpTable(tab, dump_[file_name_]);
 }
 
-ostream &DebugAnnotation::GetDumpStream() {
-  return dump_[file_name_];
-}
+ostream &DebugAnnotation::GetDumpStream() { return dump_[file_name_]; }
 
-ostream &DebugAnnotation::Table(const ITable *tab) {
-  return table_[tab];
-}
+ostream &DebugAnnotation::Table(const ITable *tab) { return table_[tab]; }
 
 string DebugAnnotation::GetTableAnnotation(const ITable *tab) const {
   auto it = table_.find(tab);
@@ -76,9 +66,7 @@ string DebugAnnotation::GetTableAnnotation(const ITable *tab) const {
   return it->second.str();
 }
 
-ostream &DebugAnnotation::State(const IState *st) {
-  return state_[st];
-}
+ostream &DebugAnnotation::State(const IState *st) { return state_[st]; }
 
 void DebugAnnotation::SetStateColorIndex(const IState *st, int idx) {
   state_color_[st] = idx;
@@ -100,8 +88,8 @@ int DebugAnnotation::GetStateColorIndex(const IState *st) const {
   return p->second;
 }
 
-void DebugAnnotation::StartPhase(const string &name) {
-  phase_name_ = name;
+void DebugAnnotation::StartPass(const string &name) {
+  pass_name_ = name;
   section_name_ = "";
   UpdateFileName(true);
   table_.clear();
@@ -119,7 +107,7 @@ void DebugAnnotation::ClearSubSection() {
 }
 
 void DebugAnnotation::UpdateFileName(bool isHtml) {
-  file_name_ = phase_name_;
+  file_name_ = pass_name_;
   if (!section_name_.empty()) {
     file_name_ += "." + section_name_;
   }
