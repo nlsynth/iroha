@@ -1,6 +1,6 @@
 // -*- C++ -*-
-#ifndef _opt_unroll_unroll_phase_h_
-#define _opt_unroll_unroll_phase_h_
+#ifndef _opt_unroll_unroll_pass_h_
+#define _opt_unroll_unroll_pass_h_
 
 #include "opt/pass.h"
 
@@ -8,9 +8,9 @@ namespace iroha {
 namespace opt {
 namespace unroll {
 
-class UnrollPhase : public Pass {
+class UnrollPass : public Pass {
  public:
-  virtual ~UnrollPhase();
+  virtual ~UnrollPass();
 
   static Pass *Create();
 
@@ -22,4 +22,4 @@ class UnrollPhase : public Pass {
 }  // namespace opt
 }  // namespace iroha
 
-#endif  // _opt_unroll_unroll_phase_h_
+#endif  // _opt_unroll_unroll_pass_h_

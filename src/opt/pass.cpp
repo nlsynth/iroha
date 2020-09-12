@@ -19,7 +19,7 @@ void Pass::SetAnnotation(DebugAnnotation *annotation) {
 }
 
 bool Pass::Apply(IDesign *design) {
-  OutputPhaseHeader(name_);
+  OutputPassHeader(name_);
   return ApplyForDesign(design);
 }
 
@@ -45,7 +45,7 @@ bool Pass::ApplyForModule(const string &key, IModule *module) {
 
 bool Pass::ApplyForTable(const string &key, ITable *table) { return true; }
 
-void Pass::OutputPhaseHeader(const string &msg) {
+void Pass::OutputPassHeader(const string &msg) {
   if (!annotation_->IsEnabled()) {
     return;
   }

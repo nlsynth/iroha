@@ -7,9 +7,9 @@
 namespace iroha {
 
 class OptAPI {
-public:
+ public:
   virtual ~OptAPI();
-  virtual bool ApplyPhase(const string &name) = 0;
+  virtual bool ApplyPass(const string &name) = 0;
   virtual void EnableDebugAnnotation() = 0;
   virtual void DumpIntermediateToFiles(const string &fn) = 0;
 };

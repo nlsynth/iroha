@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// Pre-defined phase sets.
+// Pre-defined pass sets.
 //
 #ifndef _opt_compound_h_
 #define _opt_compound_h_
@@ -10,9 +10,9 @@
 namespace iroha {
 namespace opt {
 
-class CompoundPhase : public Pass {
+class CompoundPass : public Pass {
  public:
-  virtual ~CompoundPhase();
+  virtual ~CompoundPass();
 
   static void Init();
   static Pass *Create();

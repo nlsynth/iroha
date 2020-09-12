@@ -28,7 +28,7 @@ class Pass {
   virtual bool ApplyForTable(const string &key, ITable *table);
 
   bool ApplyForAllModules(const string &key, IDesign *design);
-  void OutputPhaseHeader(const string &msg);
+  void OutputPassHeader(const string &msg);
 
   Optimizer *optimizer_;
   // Optimizers can assume this is not null.

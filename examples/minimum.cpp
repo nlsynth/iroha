@@ -20,7 +20,7 @@ IDesign *build_design() {
   IRegister *src = DesignTool::AllocConstNum(table, 32, 123);
   insn->inputs_.push_back(src);
   insn->outputs_.push_back(dst);
-  
+
   st1->insns_.push_back(insn);
 
   table->SetInitialState(st1);
@@ -36,7 +36,7 @@ int main(int argc, char **argv) {
   IDesign *design = build_design();
 
   OptAPI *opt = Iroha::CreateOptimizer(design);
-  opt->ApplyPhase("a_phase");
+  opt->ApplyPass("a_phase");
 
   iroha::WriterAPI *writer = Iroha::CreateWriter(design);
   // Use S-Expression.

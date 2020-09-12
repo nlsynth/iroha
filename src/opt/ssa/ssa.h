@@ -8,9 +8,9 @@ namespace iroha {
 namespace opt {
 namespace ssa {
 
-class SSAConverterPhase : public Pass {
+class SSAConverterPass : public Pass {
  public:
-  virtual ~SSAConverterPhase();
+  virtual ~SSAConverterPass();
 
   static Pass *Create();
 
@@ -18,9 +18,9 @@ class SSAConverterPhase : public Pass {
   virtual bool ApplyForTable(const string &key, ITable *table);
 };
 
-class PhiCleanerPhase : public Pass {
+class PhiCleanerPass : public Pass {
  public:
-  virtual ~PhiCleanerPhase();
+  virtual ~PhiCleanerPass();
 
   static Pass *Create();
 

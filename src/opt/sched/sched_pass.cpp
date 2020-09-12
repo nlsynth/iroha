@@ -1,4 +1,4 @@
-#include "opt/sched/sched_phase.h"
+#include "opt/sched/sched_pass.h"
 
 #include "iroha/i_design.h"
 #include "iroha/resource_params.h"
@@ -11,11 +11,11 @@ namespace iroha {
 namespace opt {
 namespace sched {
 
-SchedPhase::~SchedPhase() {}
+SchedPass::~SchedPass() {}
 
-Pass *SchedPhase::Create() { return new SchedPhase(); }
+Pass *SchedPass::Create() { return new SchedPass(); }
 
-bool SchedPhase::ApplyForDesign(IDesign *design) {
+bool SchedPass::ApplyForDesign(IDesign *design) {
   if (!profile::Profile::HasProfile(design)) {
     profile::Profile::FillFakeProfile(design);
   }
@@ -25,7 +25,7 @@ bool SchedPhase::ApplyForDesign(IDesign *design) {
   return Pass::ApplyForDesign(design);
 }
 
-bool SchedPhase::ApplyForTable(const string &key, ITable *table) {
+bool SchedPass::ApplyForTable(const string &key, ITable *table) {
   TableScheduler sched(table, delay_info_.get(), annotation_);
   return sched.Perform();
 }

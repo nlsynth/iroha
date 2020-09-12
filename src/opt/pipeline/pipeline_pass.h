@@ -1,6 +1,6 @@
 // -*- C++ -*-
-#ifndef _opt_pipeline_pipeline_phase_h_
-#define _opt_pipeline_pipeline_phase_h_
+#ifndef _opt_pipeline_pipeline_pass_h_
+#define _opt_pipeline_pipeline_pass_h_
 
 #include "opt/pass.h"
 
@@ -8,9 +8,9 @@ namespace iroha {
 namespace opt {
 namespace pipeline {
 
-class PipelinePhase : public Pass {
+class PipelinePass : public Pass {
  public:
-  virtual ~PipelinePhase();
+  virtual ~PipelinePass();
 
   static Pass *Create();
 
@@ -22,4 +22,4 @@ class PipelinePhase : public Pass {
 }  // namespace opt
 }  // namespace iroha
 
-#endif  // _opt_unroll_unroll_phase_h_
+#endif  // _opt_unroll_pipeline_pass_h_

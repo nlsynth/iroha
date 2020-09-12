@@ -1,6 +1,6 @@
 // -*- C++ -*-
-#ifndef _opt_sched_sched_phase_h_
-#define _opt_sched_sched_phase_h_
+#ifndef _opt_sched_sched_pass_h_
+#define _opt_sched_sched_pass_h_
 
 #include "opt/common.h"
 #include "opt/pass.h"
@@ -9,9 +9,9 @@ namespace iroha {
 namespace opt {
 namespace sched {
 
-class SchedPhase : public Pass {
+class SchedPass : public Pass {
  public:
-  virtual ~SchedPhase();
+  virtual ~SchedPass();
 
   static Pass *Create();
 
@@ -26,4 +26,4 @@ class SchedPhase : public Pass {
 }  // namespace opt
 }  // namespace iroha
 
-#endif  // _opt_sched_sched_phase_h_
+#endif  // _opt_sched_sched_pass_h_

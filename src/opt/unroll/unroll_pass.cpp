@@ -1,4 +1,4 @@
-#include "opt/unroll/unroll_phase.h"
+#include "opt/unroll/unroll_pass.h"
 
 #include "iroha/i_design.h"
 #include "iroha/resource_params.h"
@@ -9,11 +9,11 @@ namespace iroha {
 namespace opt {
 namespace unroll {
 
-UnrollPhase::~UnrollPhase() {}
+UnrollPass::~UnrollPass() {}
 
-Pass *UnrollPhase::Create() { return new UnrollPhase(); }
+Pass *UnrollPass::Create() { return new UnrollPass(); }
 
-bool UnrollPhase::ApplyForTable(const string &key, ITable *table) {
+bool UnrollPass::ApplyForTable(const string &key, ITable *table) {
   for (IRegister *reg : table->registers_) {
     auto *params = reg->GetParams(false);
     if (params == nullptr) {

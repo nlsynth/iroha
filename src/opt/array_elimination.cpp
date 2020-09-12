@@ -1,4 +1,4 @@
-// array_elimination phase changes an array into a set of registers if
+// array_elimination pass changes an array into a set of registers if
 // all indexes are constant.
 #include "opt/array_elimination.h"
 

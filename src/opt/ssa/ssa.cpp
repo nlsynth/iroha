@@ -7,21 +7,21 @@ namespace iroha {
 namespace opt {
 namespace ssa {
 
-SSAConverterPhase::~SSAConverterPhase() {}
+SSAConverterPass::~SSAConverterPass() {}
 
-Pass *SSAConverterPhase::Create() { return new SSAConverterPhase(); }
+Pass *SSAConverterPass::Create() { return new SSAConverterPass(); }
 
-bool SSAConverterPhase::ApplyForTable(const string &key, ITable *table) {
+bool SSAConverterPass::ApplyForTable(const string &key, ITable *table) {
   SSAConverter converter(table, annotation_);
   converter.Perform();
   return true;
 }
 
-PhiCleanerPhase::~PhiCleanerPhase() {}
+PhiCleanerPass::~PhiCleanerPass() {}
 
-Pass *PhiCleanerPhase::Create() { return new PhiCleanerPhase(); }
+Pass *PhiCleanerPass::Create() { return new PhiCleanerPass(); }
 
-bool PhiCleanerPhase::ApplyForTable(const string &key, ITable *table) {
+bool PhiCleanerPass::ApplyForTable(const string &key, ITable *table) {
   PhiCleaner cleaner(table, annotation_);
   cleaner.Perform();
   return true;

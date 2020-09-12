@@ -1,29 +1,31 @@
 #include "iroha/iroha_main.h"
 
-#include "iroha/iroha.h"
-
 #include <iostream>
+
+#include "iroha/iroha.h"
 
 namespace iroha {
 
 void printUsage() {
-  std::cout << " Iroha frontend: " << PACKAGE << "-" << VERSION << "\n"
-	    << " [OPTION]... [FILE]...\n"
-	    << "  Read standard input when FILE is -\n\n"
-	    << "  -s Generate shell module\n"
-	    << "  -S Generate self contained (with clock and reset) shell module\n"
-	    << "  -vcd Output vcd (-s or -S should be specified)\n"
-	    << "  -v Output Verilog\n"
-	    << "  -I Set import paths (comma separated. can have multiple -I options)\n"
-	    << "  -h Output HTML\n"
-	    << "  -dot Output Dot (graphviz)\n"
-	    << "  -o [fn] output to the file name\n"
-	    << "  -d Debug dump\n"
-	    << "  -k Don't validate ids and names\n"
-	    << "  --output_marker=[marker]\n"
-	    << "  --root=[root dir]\n"
-	    << "  --flavor=[flavor]\n"
-	    << "  -opt [optimizer names (comma separated)]\n";
+  std::cout
+      << " Iroha frontend: " << PACKAGE << "-" << VERSION << "\n"
+      << " [OPTION]... [FILE]...\n"
+      << "  Read standard input when FILE is -\n\n"
+      << "  -s Generate shell module\n"
+      << "  -S Generate self contained (with clock and reset) shell module\n"
+      << "  -vcd Output vcd (-s or -S should be specified)\n"
+      << "  -v Output Verilog\n"
+      << "  -I Set import paths (comma separated. can have multiple -I "
+         "options)\n"
+      << "  -h Output HTML\n"
+      << "  -dot Output Dot (graphviz)\n"
+      << "  -o [fn] output to the file name\n"
+      << "  -d Debug dump\n"
+      << "  -k Don't validate ids and names\n"
+      << "  --output_marker=[marker]\n"
+      << "  --root=[root dir]\n"
+      << "  --flavor=[flavor]\n"
+      << "  -opt [optimizer names (comma separated)]\n";
   std::cout << "    available optimizers: ";
   vector<string> phases = Iroha::GetOptimizerPhaseNames();
   for (size_t i = 0; i < phases.size(); ++i) {
@@ -119,7 +121,7 @@ int main(int argc, char **argv) {
       vector<string> paths;
       iroha::Util::SplitStringUsing(inc, ",", &paths);
       for (auto &p : paths) {
-	inc_paths.push_back(p);
+        inc_paths.push_back(p);
       }
       continue;
     }
@@ -132,25 +134,25 @@ int main(int argc, char **argv) {
     iroha::Util::SplitStringUsing(arg, "=", &tokens);
     if (tokens[0] == "--output_marker") {
       if (tokens.size() == 1) {
-	output_marker = getFlagValue(argc, argv, &i);
+        output_marker = getFlagValue(argc, argv, &i);
       } else {
-	output_marker = tokens[1];
+        output_marker = tokens[1];
       }
       continue;
     }
     if (tokens[0] == "--root") {
       if (tokens.size() == 1) {
-	root_dir = getFlagValue(argc, argv, &i);
+        root_dir = getFlagValue(argc, argv, &i);
       } else {
-	root_dir = tokens[1];
+        root_dir = tokens[1];
       }
       continue;
     }
     if (tokens[0] == "--flavor") {
       if (tokens.size() == 1) {
-	flavor = getFlagValue(argc, argv, &i);
+        flavor = getFlagValue(argc, argv, &i);
       } else {
-	flavor = tokens[1];
+        flavor = tokens[1];
       }
       continue;
     }
@@ -181,9 +183,9 @@ int main(int argc, char **argv) {
       optimizer->EnableDebugAnnotation();
     }
     bool has_opt_err = false;
-    for (string &phase : opts) {
-      if (!optimizer->ApplyPhase(phase)) {
-	has_opt_err = true;
+    for (string &pass : opts) {
+      if (!optimizer->ApplyPass(pass)) {
+        has_opt_err = true;
       }
     }
     if (has_opt_err) {
@@ -191,12 +193,12 @@ int main(int argc, char **argv) {
     }
     WriterAPI *writer = Iroha::CreateWriter(design);
     if (!output_marker.empty() || !root_dir.empty() || !flavor.empty() ||
-	debugWriter) {
+        debugWriter) {
       writer->SetOutputConfig(root_dir, flavor, output_marker, debugWriter);
     }
     if (shell || selfShell) {
       if (!output.empty()) {
-	writer->OutputShellModule(true, selfShell, vcd);
+        writer->OutputShellModule(true, selfShell, vcd);
       }
     }
     if (verilog) {

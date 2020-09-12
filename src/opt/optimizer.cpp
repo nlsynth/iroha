@@ -15,18 +15,18 @@
 #include "opt/constant/constant_propagation.h"
 #include "opt/debug_annotation.h"
 #include "opt/pass.h"
-#include "opt/pipeline/pipeline_phase.h"
-#include "opt/sched/sched_phase.h"
+#include "opt/pipeline/pipeline_pass.h"
+#include "opt/sched/sched_pass.h"
 #include "opt/ssa/ssa.h"
 #include "opt/study.h"
-#include "opt/unroll/unroll_phase.h"
+#include "opt/unroll/unroll_pass.h"
 #include "platform/platform.h"
 #include "platform/platform_db.h"
 
 namespace iroha {
 namespace opt {
 
-map<string, function<Pass *()> > Optimizer::phases_;
+map<string, function<Pass *()> > Optimizer::passes_;
 
 Optimizer::Optimizer(IDesign *design) : design_(design) {
   design_->SetDebugAnnotation(new DebugAnnotation);
@@ -48,32 +48,32 @@ void Optimizer::Init() {
   RegisterPass("clean_pseudo_resource",
                &clean::CleanPseudoResourcePhase::Create);
   RegisterPass("constant_propagation", &constant::ConstantPropagation::Create);
-  RegisterPass("ssa_convert", &ssa::SSAConverterPhase::Create);
-  RegisterPass("phi_cleaner", &ssa::PhiCleanerPhase::Create);
-  RegisterPass("alloc_resource", &sched::SchedPhase::Create);
-  RegisterPass("wire_insn", &sched::SchedPhase::Create);
-  RegisterPass("pipeline", &pipeline::PipelinePhase::Create);
-  RegisterPass("unroll", &unroll::UnrollPhase::Create);
+  RegisterPass("ssa_convert", &ssa::SSAConverterPass::Create);
+  RegisterPass("phi_cleaner", &ssa::PhiCleanerPass::Create);
+  RegisterPass("alloc_resource", &sched::SchedPass::Create);
+  RegisterPass("wire_insn", &sched::SchedPass::Create);
+  RegisterPass("pipeline", &pipeline::PipelinePass::Create);
+  RegisterPass("unroll", &unroll::UnrollPass::Create);
   RegisterPass("study", &Study::Create);
-  CompoundPhase::Init();
+  CompoundPass::Init();
 }
 
 vector<string> Optimizer::GetPhaseNames() {
   vector<string> names;
-  for (auto it : phases_) {
+  for (auto it : passes_) {
     names.push_back(it.first);
   }
   return names;
 }
 
 void Optimizer::RegisterPass(const string &name, function<Pass *()> factory) {
-  phases_[name] = factory;
+  passes_[name] = factory;
 }
 
-bool Optimizer::ApplyPhase(const string &name) {
-  auto it = phases_.find(name);
-  if (it == phases_.end()) {
-    LOG(USER) << "Unknown optimization phase: " << name;
+bool Optimizer::ApplyPass(const string &name) {
+  auto it = passes_.find(name);
+  if (it == passes_.end()) {
+    LOG(USER) << "Unknown optimization pass: " << name;
     return false;
   }
   auto factory = it->second;

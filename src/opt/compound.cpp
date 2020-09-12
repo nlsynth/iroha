@@ -5,21 +5,21 @@
 namespace iroha {
 namespace opt {
 
-CompoundPhase::~CompoundPhase() {}
+CompoundPass::~CompoundPass() {}
 
-Pass *CompoundPhase::Create() { return new CompoundPhase(); }
+Pass *CompoundPass::Create() { return new CompoundPass(); }
 
-void CompoundPhase::Init() {
-  Optimizer::RegisterPass("clean", &CompoundPhase::Create);
+void CompoundPass::Init() {
+  Optimizer::RegisterPass("clean", &CompoundPass::Create);
 }
 
-bool CompoundPhase::ApplyForDesign(IDesign *design) {
+bool CompoundPass::ApplyForDesign(IDesign *design) {
   if (name_ == "clean") {
-    return optimizer_->ApplyPhase("clean_unused_resource") &&
-           optimizer_->ApplyPhase("clean_unused_register") &&
-           optimizer_->ApplyPhase("clean_empty_state") &&
-           optimizer_->ApplyPhase("clean_unreachable_state") &&
-           optimizer_->ApplyPhase("clean_empty_table");
+    return optimizer_->ApplyPass("clean_unused_resource") &&
+           optimizer_->ApplyPass("clean_unused_register") &&
+           optimizer_->ApplyPass("clean_empty_state") &&
+           optimizer_->ApplyPass("clean_unreachable_state") &&
+           optimizer_->ApplyPass("clean_empty_table");
   }
   return false;
 }
