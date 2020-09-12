@@ -8,21 +8,21 @@ namespace iroha {
 namespace opt {
 namespace ssa {
 
-class SSAConverterPhase : public Phase {
+class SSAConverterPhase : public Pass {
  public:
   virtual ~SSAConverterPhase();
 
-  static Phase *Create();
+  static Pass *Create();
 
  private:
   virtual bool ApplyForTable(const string &key, ITable *table);
 };
 
-class PhiCleanerPhase : public Phase {
+class PhiCleanerPhase : public Pass {
  public:
   virtual ~PhiCleanerPhase();
 
-  static Phase *Create();
+  static Pass *Create();
 
  private:
   virtual bool ApplyForTable(const string &key, ITable *table);

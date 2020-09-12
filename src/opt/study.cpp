@@ -4,13 +4,9 @@
 namespace iroha {
 namespace opt {
 
-Study::~Study() {
-}
+Study::~Study() {}
 
-Phase *Study::Create() {
-  return new Study();
-}
+Pass *Study::Create() { return new Study(); }
 
 }  // namespace opt
 }  // namespace iroha
-

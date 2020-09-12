@@ -26,7 +26,7 @@
 namespace iroha {
 namespace opt {
 
-map<string, function<Phase *()> > Optimizer::phases_;
+map<string, function<Pass *()> > Optimizer::phases_;
 
 Optimizer::Optimizer(IDesign *design) : design_(design) {
   design_->SetDebugAnnotation(new DebugAnnotation);
@@ -36,25 +36,25 @@ Optimizer::Optimizer(IDesign *design) : design_(design) {
 Optimizer::~Optimizer() {}
 
 void Optimizer::Init() {
-  RegisterPhase("array_elimination", &ArrayElimination::Create);
-  RegisterPhase("array_split_rdata", &ArraySplitRData::Create);
-  RegisterPhase("clean_empty_state", &clean::CleanEmptyStatePhase::Create);
-  RegisterPhase("clean_empty_table", &clean::CleanEmptyTablePhase::Create);
-  RegisterPhase("clean_unreachable_state",
-                &clean::CleanUnreachableStatePhase::Create);
-  RegisterPhase("clean_unused_register", &clean::CleanUnusedRegPhase::Create);
-  RegisterPhase("clean_unused_resource",
-                &clean::CleanUnusedResourcePhase::Create);
-  RegisterPhase("clean_pseudo_resource",
-                &clean::CleanPseudoResourcePhase::Create);
-  RegisterPhase("constant_propagation", &constant::ConstantPropagation::Create);
-  RegisterPhase("ssa_convert", &ssa::SSAConverterPhase::Create);
-  RegisterPhase("phi_cleaner", &ssa::PhiCleanerPhase::Create);
-  RegisterPhase("alloc_resource", &sched::SchedPhase::Create);
-  RegisterPhase("wire_insn", &sched::SchedPhase::Create);
-  RegisterPhase("pipeline", &pipeline::PipelinePhase::Create);
-  RegisterPhase("unroll", &unroll::UnrollPhase::Create);
-  RegisterPhase("study", &Study::Create);
+  RegisterPass("array_elimination", &ArrayElimination::Create);
+  RegisterPass("array_split_rdata", &ArraySplitRData::Create);
+  RegisterPass("clean_empty_state", &clean::CleanEmptyStatePhase::Create);
+  RegisterPass("clean_empty_table", &clean::CleanEmptyTablePhase::Create);
+  RegisterPass("clean_unreachable_state",
+               &clean::CleanUnreachableStatePhase::Create);
+  RegisterPass("clean_unused_register", &clean::CleanUnusedRegPhase::Create);
+  RegisterPass("clean_unused_resource",
+               &clean::CleanUnusedResourcePhase::Create);
+  RegisterPass("clean_pseudo_resource",
+               &clean::CleanPseudoResourcePhase::Create);
+  RegisterPass("constant_propagation", &constant::ConstantPropagation::Create);
+  RegisterPass("ssa_convert", &ssa::SSAConverterPhase::Create);
+  RegisterPass("phi_cleaner", &ssa::PhiCleanerPhase::Create);
+  RegisterPass("alloc_resource", &sched::SchedPhase::Create);
+  RegisterPass("wire_insn", &sched::SchedPhase::Create);
+  RegisterPass("pipeline", &pipeline::PipelinePhase::Create);
+  RegisterPass("unroll", &unroll::UnrollPhase::Create);
+  RegisterPass("study", &Study::Create);
   CompoundPhase::Init();
 }
 
@@ -66,7 +66,7 @@ vector<string> Optimizer::GetPhaseNames() {
   return names;
 }
 
-void Optimizer::RegisterPhase(const string &name, function<Phase *()> factory) {
+void Optimizer::RegisterPass(const string &name, function<Pass *()> factory) {
   phases_[name] = factory;
 }
 
@@ -77,13 +77,13 @@ bool Optimizer::ApplyPhase(const string &name) {
     return false;
   }
   auto factory = it->second;
-  unique_ptr<Phase> phase(factory());
-  phase->SetName(name);
-  phase->SetOptimizer(this);
+  unique_ptr<Pass> pass(factory());
+  pass->SetName(name);
+  pass->SetOptimizer(this);
   auto *annotation = design_->GetDebugAnnotation();
-  phase->SetAnnotation(annotation);
+  pass->SetAnnotation(annotation);
   annotation->StartPhase(name);
-  bool isOk = phase->Apply(design_);
+  bool isOk = pass->Apply(design_);
   if (isOk) {
     Validator::Validate(design_);
   }

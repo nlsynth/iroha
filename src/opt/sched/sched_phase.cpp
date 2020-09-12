@@ -11,12 +11,9 @@ namespace iroha {
 namespace opt {
 namespace sched {
 
-SchedPhase::~SchedPhase() {
-}
+SchedPhase::~SchedPhase() {}
 
-Phase *SchedPhase::Create() {
-  return new SchedPhase();
-}
+Pass *SchedPhase::Create() { return new SchedPhase(); }
 
 bool SchedPhase::ApplyForDesign(IDesign *design) {
   if (!profile::Profile::HasProfile(design)) {
@@ -25,7 +22,7 @@ bool SchedPhase::ApplyForDesign(IDesign *design) {
   profile::Profile::NormalizeProfile(design);
   int max_delay = design->GetParams()->GetMaxDelayPs();
   delay_info_.reset(DelayInfo::Create(optimizer_->GetPlatformDB(), max_delay));
-  return Phase::ApplyForDesign(design);
+  return Pass::ApplyForDesign(design);
 }
 
 bool SchedPhase::ApplyForTable(const string &key, ITable *table) {

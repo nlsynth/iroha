@@ -18,7 +18,7 @@ class Optimizer : public OptAPI {
 
   static void Init();
   static vector<string> GetPhaseNames();
-  static void RegisterPhase(const string &name, function<Phase *()> factory);
+  static void RegisterPass(const string &name, function<Pass *()> factory);
 
   virtual bool ApplyPhase(const string &name) override;
   virtual void EnableDebugAnnotation() override;
@@ -30,7 +30,7 @@ class Optimizer : public OptAPI {
   IDesign *design_;
   std::unique_ptr<platform::PlatformDB> platform_db_;
 
-  static map<string, function<Phase *()> > phases_;
+  static map<string, function<Pass *()> > phases_;
 };
 
 }  // namespace opt

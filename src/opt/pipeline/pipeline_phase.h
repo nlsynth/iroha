@@ -8,11 +8,11 @@ namespace iroha {
 namespace opt {
 namespace pipeline {
 
-class PipelinePhase : public Phase {
+class PipelinePhase : public Pass {
  public:
   virtual ~PipelinePhase();
 
-  static Phase *Create();
+  static Pass *Create();
 
  private:
   virtual bool ApplyForTable(const string &key, ITable *table);

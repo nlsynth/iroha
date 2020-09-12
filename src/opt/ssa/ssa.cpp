@@ -1,18 +1,15 @@
 #include "opt/ssa/ssa.h"
 
-#include "opt/ssa/ssa_converter.h"
 #include "opt/ssa/phi_cleaner.h"
+#include "opt/ssa/ssa_converter.h"
 
 namespace iroha {
 namespace opt {
 namespace ssa {
 
-SSAConverterPhase::~SSAConverterPhase() {
-}
+SSAConverterPhase::~SSAConverterPhase() {}
 
-Phase *SSAConverterPhase::Create() {
-  return new SSAConverterPhase();
-}
+Pass *SSAConverterPhase::Create() { return new SSAConverterPhase(); }
 
 bool SSAConverterPhase::ApplyForTable(const string &key, ITable *table) {
   SSAConverter converter(table, annotation_);
@@ -20,12 +17,9 @@ bool SSAConverterPhase::ApplyForTable(const string &key, ITable *table) {
   return true;
 }
 
-PhiCleanerPhase::~PhiCleanerPhase() {
-}
+PhiCleanerPhase::~PhiCleanerPhase() {}
 
-Phase *PhiCleanerPhase::Create() {
-  return new PhiCleanerPhase();
-}
+Pass *PhiCleanerPhase::Create() { return new PhiCleanerPhase(); }
 
 bool PhiCleanerPhase::ApplyForTable(const string &key, ITable *table) {
   PhiCleaner cleaner(table, annotation_);

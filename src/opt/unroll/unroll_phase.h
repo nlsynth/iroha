@@ -8,11 +8,11 @@ namespace iroha {
 namespace opt {
 namespace unroll {
 
-class UnrollPhase : public Phase {
+class UnrollPhase : public Pass {
  public:
   virtual ~UnrollPhase();
 
-  static Phase *Create();
+  static Pass *Create();
 
  private:
   virtual bool ApplyForTable(const string &key, ITable *table);

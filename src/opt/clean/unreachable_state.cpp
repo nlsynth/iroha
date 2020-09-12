@@ -7,19 +7,18 @@ namespace iroha {
 namespace opt {
 namespace clean {
 
-CleanUnreachableStatePhase::~CleanUnreachableStatePhase() {
-}
+CleanUnreachableStatePhase::~CleanUnreachableStatePhase() {}
 
-Phase *CleanUnreachableStatePhase::Create() {
+Pass *CleanUnreachableStatePhase::Create() {
   return new CleanUnreachableStatePhase();
 }
 
 bool CleanUnreachableStatePhase::ApplyForTable(const string &key,
-					       ITable *table) {
+                                               ITable *table) {
   set<IState *> reachables;
   OptUtil::CollectReachableStates(table, &reachables);
   vector<IState *> reachable_states;
-  for (IState *st :table->states_) {
+  for (IState *st : table->states_) {
     if (reachables.find(st) != reachables.end()) {
       reachable_states.push_back(st);
     }
@@ -27,7 +26,7 @@ bool CleanUnreachableStatePhase::ApplyForTable(const string &key,
   table->states_ = reachable_states;
   return true;
 }
-  
+
 }  // namespace clean
 }  // namespace opt
 }  // namespace iroha

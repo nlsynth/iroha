@@ -9,12 +9,9 @@
 namespace iroha {
 namespace opt {
 
-ArrayElimination::~ArrayElimination() {
-}
+ArrayElimination::~ArrayElimination() {}
 
-Phase *ArrayElimination::Create() {
-  return new ArrayElimination();
-}
+Pass *ArrayElimination::Create() { return new ArrayElimination(); }
 
 bool ArrayElimination::ApplyForTable(const string &key, ITable *table) {
   set<IResource *> mems;
@@ -24,7 +21,7 @@ bool ArrayElimination::ApplyForTable(const string &key, ITable *table) {
     if (resource::IsArray(*klass)) {
       IArray *array = res->GetArray();
       if (array->IsExternal()) {
-	continue;
+        continue;
       }
       mems.insert(res);
     }
@@ -34,11 +31,11 @@ bool ArrayElimination::ApplyForTable(const string &key, ITable *table) {
     for (IInsn *insn : st->insns_) {
       IResource *res = insn->GetResource();
       if (mems.find(res) == mems.end()) {
-	continue;
+        continue;
       }
       IRegister *index = insn->inputs_[0];
       if (!index->IsConst()) {
-	mems.erase(res);
+        mems.erase(res);
       }
     }
   }
@@ -50,20 +47,20 @@ bool ArrayElimination::ApplyForTable(const string &key, ITable *table) {
     for (IInsn *insn : st->insns_) {
       IResource *res = insn->GetResource();
       if (mems.find(res) == mems.end()) {
-	continue;
+        continue;
       }
       orig_insns.insert(insn);
       IRegister *index = insn->inputs_[0];
       IRegister *reg = GetRegister(res, index);
       IInsn *assign_insn = new IInsn(assign);
       if (insn->inputs_.size() == 1) {
-	// read
-	assign_insn->inputs_.push_back(reg);
-	assign_insn->outputs_.push_back(insn->outputs_[0]);
+        // read
+        assign_insn->inputs_.push_back(reg);
+        assign_insn->outputs_.push_back(insn->outputs_[0]);
       } else {
-	// write
-	assign_insn->inputs_.push_back(insn->inputs_[1]);
-	assign_insn->outputs_.push_back(reg);
+        // write
+        assign_insn->inputs_.push_back(insn->inputs_[1]);
+        assign_insn->outputs_.push_back(reg);
       }
       new_insns.push_back(assign_insn);
     }
@@ -76,7 +73,7 @@ bool ArrayElimination::ApplyForTable(const string &key, ITable *table) {
     vector<IInsn *> insns;
     for (IInsn *insn : st->insns_) {
       if (orig_insns.find(insn) == orig_insns.end()) {
-	insns.push_back(insn);
+        insns.push_back(insn);
       }
     }
     st->insns_ = insns;
@@ -85,8 +82,7 @@ bool ArrayElimination::ApplyForTable(const string &key, ITable *table) {
 }
 
 IRegister *ArrayElimination::GetRegister(IResource *array_res,
-					 IRegister *index_reg) {
-
+                                         IRegister *index_reg) {
   int idx = index_reg->GetInitialValue().GetValue0();
   auto key = make_tuple(array_res, idx);
   auto it = fixed_regs_.find(key);

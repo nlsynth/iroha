@@ -8,12 +8,9 @@ namespace iroha {
 namespace opt {
 namespace constant {
 
-ConstantPropagation::~ConstantPropagation() {
-}
+ConstantPropagation::~ConstantPropagation() {}
 
-Phase *ConstantPropagation::Create() {
-  return new ConstantPropagation();
-}
+Pass *ConstantPropagation::Create() { return new ConstantPropagation(); }
 
 bool ConstantPropagation::ApplyForTable(const string &key, ITable *table) {
   IResource *assign = DesignTool::GetOneResource(table, resource::kSet);
@@ -27,7 +24,7 @@ bool ConstantPropagation::ApplyForTable(const string &key, ITable *table) {
   for (IState *st : table->states_) {
     for (IInsn *insn : st->insns_) {
       if (insn->GetResource() == assign) {
-	dst_to_src[insn->outputs_[0]] = insn->inputs_[0];
+        dst_to_src[insn->outputs_[0]] = insn->inputs_[0];
       }
     }
   }
@@ -35,11 +32,11 @@ bool ConstantPropagation::ApplyForTable(const string &key, ITable *table) {
   for (IState *st : table->states_) {
     for (IInsn *insn : st->insns_) {
       for (int i = 0; i < insn->inputs_.size(); ++i) {
-	IRegister *src = insn->inputs_[i];
-	auto it = dst_to_src.find(src);
-	if (it != dst_to_src.end()) {
-	  insn->inputs_[i] = it->second;
-	}
+        IRegister *src = insn->inputs_[i];
+        auto it = dst_to_src.find(src);
+        if (it != dst_to_src.end()) {
+          insn->inputs_[i] = it->second;
+        }
       }
     }
   }

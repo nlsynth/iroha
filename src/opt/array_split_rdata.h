@@ -7,11 +7,11 @@
 namespace iroha {
 namespace opt {
 
-class ArraySplitRData : public Phase {
+class ArraySplitRData : public Pass {
  public:
   virtual ~ArraySplitRData();
 
-  static Phase *Create();
+  static Pass *Create();
 
  private:
   virtual bool ApplyForTable(const string &key, ITable *table);

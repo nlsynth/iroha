@@ -8,11 +8,11 @@ namespace iroha {
 namespace opt {
 namespace clean {
 
-class CleanUnusedResourcePhase : public Phase {
+class CleanUnusedResourcePhase : public Pass {
  public:
   virtual ~CleanUnusedResourcePhase();
 
-  static Phase *Create();
+  static Pass *Create();
 
  private:
   virtual bool ApplyForDesign(IDesign *design);

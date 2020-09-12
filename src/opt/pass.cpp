@@ -6,28 +6,28 @@
 namespace iroha {
 namespace opt {
 
-Phase::Phase() : optimizer_(nullptr), annotation_(nullptr) {}
+Pass::Pass() : optimizer_(nullptr), annotation_(nullptr) {}
 
-Phase::~Phase() {}
+Pass::~Pass() {}
 
-void Phase::SetName(const string &name) { name_ = name; }
+void Pass::SetName(const string &name) { name_ = name; }
 
-void Phase::SetOptimizer(Optimizer *opt) { optimizer_ = opt; }
+void Pass::SetOptimizer(Optimizer *opt) { optimizer_ = opt; }
 
-void Phase::SetAnnotation(DebugAnnotation *annotation) {
+void Pass::SetAnnotation(DebugAnnotation *annotation) {
   annotation_ = annotation;
 }
 
-bool Phase::Apply(IDesign *design) {
+bool Pass::Apply(IDesign *design) {
   OutputPhaseHeader(name_);
   return ApplyForDesign(design);
 }
 
-bool Phase::ApplyForDesign(IDesign *design) {
+bool Pass::ApplyForDesign(IDesign *design) {
   return ApplyForAllModules("", design);
 }
 
-bool Phase::ApplyForAllModules(const string &key, IDesign *design) {
+bool Pass::ApplyForAllModules(const string &key, IDesign *design) {
   bool all_ok = true;
   for (auto *mod : design->modules_) {
     all_ok &= ApplyForModule(key, mod);
@@ -35,7 +35,7 @@ bool Phase::ApplyForAllModules(const string &key, IDesign *design) {
   return all_ok;
 }
 
-bool Phase::ApplyForModule(const string &key, IModule *module) {
+bool Pass::ApplyForModule(const string &key, IModule *module) {
   bool all_ok = true;
   for (auto *table : module->tables_) {
     all_ok &= ApplyForTable(key, table);
@@ -43,9 +43,9 @@ bool Phase::ApplyForModule(const string &key, IModule *module) {
   return all_ok;
 }
 
-bool Phase::ApplyForTable(const string &key, ITable *table) { return true; }
+bool Pass::ApplyForTable(const string &key, ITable *table) { return true; }
 
-void Phase::OutputPhaseHeader(const string &msg) {
+void Pass::OutputPhaseHeader(const string &msg) {
   if (!annotation_->IsEnabled()) {
     return;
   }

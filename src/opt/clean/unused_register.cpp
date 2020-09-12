@@ -6,22 +6,19 @@ namespace iroha {
 namespace opt {
 namespace clean {
 
-CleanUnusedRegPhase::~CleanUnusedRegPhase() {
-}
+CleanUnusedRegPhase::~CleanUnusedRegPhase() {}
 
-Phase *CleanUnusedRegPhase::Create() {
-  return new CleanUnusedRegPhase();
-}
+Pass *CleanUnusedRegPhase::Create() { return new CleanUnusedRegPhase(); }
 
 bool CleanUnusedRegPhase::ApplyForTable(const string &key, ITable *table) {
   set<IRegister *> regs;
   for (IState *st : table->states_) {
     for (IInsn *insn : st->insns_) {
       for (IRegister *reg : insn->inputs_) {
-	regs.insert(reg);
+        regs.insert(reg);
       }
       for (IRegister *reg : insn->outputs_) {
-	regs.insert(reg);
+        regs.insert(reg);
       }
     }
   }

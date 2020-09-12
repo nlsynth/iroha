@@ -7,12 +7,9 @@ namespace iroha {
 namespace opt {
 namespace clean {
 
-CleanEmptyTablePhase::~CleanEmptyTablePhase() {
-}
+CleanEmptyTablePhase::~CleanEmptyTablePhase() {}
 
-Phase *CleanEmptyTablePhase::Create() {
-  return new CleanEmptyTablePhase();
-}
+Pass *CleanEmptyTablePhase::Create() { return new CleanEmptyTablePhase(); }
 
 bool CleanEmptyTablePhase::ApplyForDesign(IDesign *design) {
   bool ok = ApplyForAllModules("scan", design);
@@ -24,7 +21,7 @@ bool CleanEmptyTablePhase::ApplyForDesign(IDesign *design) {
 
 bool CleanEmptyTablePhase::ApplyForModule(const string &key, IModule *module) {
   if (key == "scan") {
-    return Phase::ApplyForModule("", module);
+    return Pass::ApplyForModule("", module);
   }
   vector<ITable *> tables;
   for (auto *table : module->tables_) {

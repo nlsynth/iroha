@@ -9,11 +9,11 @@ namespace iroha {
 namespace opt {
 namespace sched {
 
-class SchedPhase : public Phase {
+class SchedPhase : public Pass {
  public:
   virtual ~SchedPhase();
 
-  static Phase *Create();
+  static Pass *Create();
 
  private:
   virtual bool ApplyForDesign(IDesign *design);

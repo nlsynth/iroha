@@ -4,12 +4,9 @@ namespace iroha {
 namespace opt {
 namespace pipeline {
 
-PipelinePhase::~PipelinePhase() {
-}
+PipelinePhase::~PipelinePhase() {}
 
-Phase *PipelinePhase::Create() {
-  return new PipelinePhase();
-}
+Pass *PipelinePhase::Create() { return new PipelinePhase(); }
 
 bool PipelinePhase::ApplyForTable(const string &key, ITable *table) {
   return true;

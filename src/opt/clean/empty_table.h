@@ -11,10 +11,10 @@ namespace iroha {
 namespace opt {
 namespace clean {
 
-class CleanEmptyTablePhase : public Phase {
+class CleanEmptyTablePhase : public Pass {
  public:
   virtual ~CleanEmptyTablePhase();
-  static Phase *Create();
+  static Pass *Create();
 
  private:
   virtual bool ApplyForDesign(IDesign *design);

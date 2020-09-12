@@ -11,11 +11,11 @@ namespace iroha {
 namespace opt {
 namespace clean {
 
-class CleanUnreachableStatePhase : public Phase {
+class CleanUnreachableStatePhase : public Pass {
  public:
   virtual ~CleanUnreachableStatePhase();
 
-  static Phase *Create();
+  static Pass *Create();
 
  private:
   virtual bool ApplyForTable(const string &key, ITable *table);

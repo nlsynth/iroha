@@ -7,11 +7,11 @@
 namespace iroha {
 namespace opt {
 
-class ArrayElimination : public Phase {
+class ArrayElimination : public Pass {
  public:
   virtual ~ArrayElimination();
 
-  static Phase *Create();
+  static Pass *Create();
 
  private:
   virtual bool ApplyForTable(const string &key, ITable *table);

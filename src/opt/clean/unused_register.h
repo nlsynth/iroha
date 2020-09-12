@@ -8,11 +8,11 @@ namespace iroha {
 namespace opt {
 namespace clean {
 
-class CleanUnusedRegPhase : public Phase {
+class CleanUnusedRegPhase : public Pass {
  public:
   virtual ~CleanUnusedRegPhase();
 
-  static Phase *Create();
+  static Pass *Create();
 
  private:
   virtual bool ApplyForTable(const string &key, ITable *table);

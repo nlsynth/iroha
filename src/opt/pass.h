@@ -7,10 +7,10 @@
 namespace iroha {
 namespace opt {
 
-class Phase {
+class Pass {
  public:
-  Phase();
-  virtual ~Phase();
+  Pass();
+  virtual ~Pass();
 
   // Following 3 methods must be called after the construction.
   void SetName(const string &name);
@@ -21,7 +21,7 @@ class Phase {
 
  protected:
   // Default implementation just traverses modules and tables.
-  // Each phase can implement its own strategies to process modules and tables
+  // Each Pass can implement its own strategies to process modules and tables
   // like skipping or multi pass traversal.
   virtual bool ApplyForDesign(IDesign *design);
   virtual bool ApplyForModule(const string &key, IModule *module);

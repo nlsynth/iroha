@@ -8,20 +8,17 @@ namespace iroha {
 namespace opt {
 namespace clean {
 
-CleanEmptyStatePhase::~CleanEmptyStatePhase() {
-}
+CleanEmptyStatePhase::~CleanEmptyStatePhase() {}
 
-Phase *CleanEmptyStatePhase::Create() {
-  return new CleanEmptyStatePhase();
-}
+Pass *CleanEmptyStatePhase::Create() { return new CleanEmptyStatePhase(); }
 
 bool CleanEmptyStatePhase::ApplyForTable(const string &key, ITable *table) {
   CleanEmptyState shrink(table, annotation_);
   return shrink.Perform();
 }
 
-CleanEmptyState::CleanEmptyState(ITable *table,  DebugAnnotation *annotation)
-  : table_(table), annotation_(annotation) {
+CleanEmptyState::CleanEmptyState(ITable *table, DebugAnnotation *annotation)
+    : table_(table), annotation_(annotation) {
   transition_ = DesignUtil::FindTransitionResource(table);
 }
 
@@ -34,10 +31,10 @@ bool CleanEmptyState::Perform() {
     if (IsEmptyState(st)) {
       IInsn *tr_insn = DesignUtil::FindInsnByResource(st, transition_);
       if (tr_insn == nullptr || tr_insn->target_states_.size() == 0 ||
-	  (tr_insn->target_states_.size() == 1 &&
-	   tr_insn->target_states_[0] == st)) {
-	// skips if this is a terminal state.
-	continue;
+          (tr_insn->target_states_.size() == 1 &&
+           tr_insn->target_states_[0] == st)) {
+        // skips if this is a terminal state.
+        continue;
       }
       dead_st_.insert(st);
     }
@@ -54,11 +51,11 @@ bool CleanEmptyState::Perform() {
       continue;
     }
     for (auto it = tr_insn->target_states_.begin();
-	 it != tr_insn->target_states_.end(); ++it) {
+         it != tr_insn->target_states_.end(); ++it) {
       IState *tst = *it;
       auto jt = dead_to_next.find(tst);
       if (jt != dead_to_next.end()) {
-	*it = jt->second;
+        *it = jt->second;
       }
     }
   }
@@ -70,8 +67,8 @@ bool CleanEmptyState::IsEmptyState(IState *st) {
   for (IInsn *insn : st->insns_) {
     if (insn->GetResource() == transition_) {
       if (insn->target_states_.size() > 1) {
-	// Consider branch as an insn.
-	has_insn = true;
+        // Consider branch as an insn.
+        has_insn = true;
       }
     } else {
       has_insn = true;

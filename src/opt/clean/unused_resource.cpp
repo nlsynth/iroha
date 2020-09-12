@@ -7,16 +7,15 @@ namespace iroha {
 namespace opt {
 namespace clean {
 
-CleanUnusedResourcePhase::~CleanUnusedResourcePhase() {
-}
+CleanUnusedResourcePhase::~CleanUnusedResourcePhase() {}
 
-Phase *CleanUnusedResourcePhase::Create() {
+Pass *CleanUnusedResourcePhase::Create() {
   return new CleanUnusedResourcePhase();
 }
 
 bool CleanUnusedResourcePhase::ApplyForDesign(IDesign *design) {
   return ApplyForAllModules("scan", design) &&
-    ApplyForAllModules("collect", design);
+         ApplyForAllModules("collect", design);
 }
 
 bool CleanUnusedResourcePhase::ApplyForTable(const string &key, ITable *table) {

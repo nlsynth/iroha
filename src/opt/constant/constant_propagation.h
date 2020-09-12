@@ -9,11 +9,11 @@ namespace opt {
 namespace constant {
 
 // This assumes SSA input and actually propagates non constant regs too.
-class ConstantPropagation : public Phase {
+class ConstantPropagation : public Pass {
  public:
   virtual ~ConstantPropagation();
 
-  static Phase *Create();
+  static Pass *Create();
 
  private:
   virtual bool ApplyForTable(const string &key, ITable *table);

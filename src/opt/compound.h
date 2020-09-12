@@ -10,12 +10,12 @@
 namespace iroha {
 namespace opt {
 
-class CompoundPhase : public Phase {
+class CompoundPhase : public Pass {
  public:
   virtual ~CompoundPhase();
 
   static void Init();
-  static Phase *Create();
+  static Pass *Create();
 
  private:
   virtual bool ApplyForDesign(IDesign *design);

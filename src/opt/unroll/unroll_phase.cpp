@@ -9,12 +9,9 @@ namespace iroha {
 namespace opt {
 namespace unroll {
 
-UnrollPhase::~UnrollPhase() {
-}
+UnrollPhase::~UnrollPhase() {}
 
-Phase *UnrollPhase::Create() {
-  return new UnrollPhase();
-}
+Pass *UnrollPhase::Create() { return new UnrollPhase(); }
 
 bool UnrollPhase::ApplyForTable(const string &key, ITable *table) {
   for (IRegister *reg : table->registers_) {

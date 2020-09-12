@@ -10,12 +10,12 @@ namespace opt {
 namespace {
 
 class TableConverter {
-public:
+ public:
   TableConverter(ITable *tab);
 
   void Convert();
 
-private:
+ private:
   IResource *GetRDataResource(IResource *a);
   bool IsArrayRAddress(IInsn *insn);
   bool IsArrayRData(IInsn *insn);
@@ -24,8 +24,7 @@ private:
   map<IResource *, IResource *> array_to_rdata_;
 };
 
-TableConverter::TableConverter(ITable *tab) : tab_(tab) {
-}
+TableConverter::TableConverter(ITable *tab) : tab_(tab) {}
 
 void TableConverter::Convert() {
   map<IResource *, IInsn *> raddr_insn;
@@ -33,11 +32,11 @@ void TableConverter::Convert() {
     vector<IInsn *> new_insns;
     for (IInsn *insn : st->insns_) {
       if (IsArrayRAddress(insn)) {
-	raddr_insn[insn->GetResource()] = insn;
+        raddr_insn[insn->GetResource()] = insn;
       }
       if (!IsArrayRData(insn)) {
-	new_insns.push_back(insn);
-	continue;
+        new_insns.push_back(insn);
+        continue;
       }
       // Replaces insn with rd_insn.
       IResource *rd = GetRDataResource(insn->GetResource());
@@ -58,8 +57,7 @@ bool TableConverter::IsArrayRAddress(IInsn *insn) {
   if (!resource::IsArray(*klass)) {
     return false;
   }
-  if (insn->inputs_.size() == 1 &&
-      insn->outputs_.size() == 0) {
+  if (insn->inputs_.size() == 1 && insn->outputs_.size() == 0) {
     return true;
   }
   return false;
@@ -71,8 +69,7 @@ bool TableConverter::IsArrayRData(IInsn *insn) {
   if (!resource::IsArray(*klass)) {
     return false;
   }
-  if (insn->inputs_.size() == 0 &&
-      insn->outputs_.size() == 1) {
+  if (insn->inputs_.size() == 0 && insn->outputs_.size() == 1) {
     return true;
   }
   return false;
@@ -94,12 +91,9 @@ IResource *TableConverter::GetRDataResource(IResource *a) {
 
 }  // namespace
 
-ArraySplitRData::~ArraySplitRData() {
-}
+ArraySplitRData::~ArraySplitRData() {}
 
-Phase *ArraySplitRData::Create() {
-  return new ArraySplitRData();
-}
+Pass *ArraySplitRData::Create() { return new ArraySplitRData(); }
 
 bool ArraySplitRData::ApplyForTable(const string &key, ITable *table) {
   TableConverter cv(table);

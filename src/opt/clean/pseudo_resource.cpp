@@ -7,10 +7,9 @@ namespace iroha {
 namespace opt {
 namespace clean {
 
-CleanPseudoResourcePhase::~CleanPseudoResourcePhase() {
-}
+CleanPseudoResourcePhase::~CleanPseudoResourcePhase() {}
 
-Phase *CleanPseudoResourcePhase::Create() {
+Pass *CleanPseudoResourcePhase::Create() {
   return new CleanPseudoResourcePhase();
 }
 
@@ -19,7 +18,7 @@ bool CleanPseudoResourcePhase::ApplyForTable(const string &key, ITable *table) {
     vector<IInsn *> real_insns;
     for (IInsn *insn : st->insns_) {
       if (!resource::IsPseudo(*(insn->GetResource()->GetClass()))) {
-	real_insns.push_back(insn);
+        real_insns.push_back(insn);
       }
     }
     st->insns_ = real_insns;

@@ -7,11 +7,11 @@
 namespace iroha {
 namespace opt {
 
-class Study : public Phase {
+class Study : public Pass {
  public:
   virtual ~Study();
 
-  static Phase *Create();
+  static Pass *Create();
 };
 
 }  // namespace opt
