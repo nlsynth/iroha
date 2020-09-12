@@ -8,11 +8,11 @@ namespace iroha {
 namespace opt {
 namespace clean {
 
-CleanEmptyStatePhase::~CleanEmptyStatePhase() {}
+CleanEmptyStatePass::~CleanEmptyStatePass() {}
 
-Pass *CleanEmptyStatePhase::Create() { return new CleanEmptyStatePhase(); }
+Pass *CleanEmptyStatePass::Create() { return new CleanEmptyStatePass(); }
 
-bool CleanEmptyStatePhase::ApplyForTable(const string &key, ITable *table) {
+bool CleanEmptyStatePass::ApplyForTable(const string &key, ITable *table) {
   CleanEmptyState shrink(table, annotation_);
   return shrink.Perform();
 }

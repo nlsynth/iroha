@@ -7,14 +7,14 @@ namespace iroha {
 namespace opt {
 namespace clean {
 
-CleanUnreachableStatePhase::~CleanUnreachableStatePhase() {}
+CleanUnreachableStatePass::~CleanUnreachableStatePass() {}
 
-Pass *CleanUnreachableStatePhase::Create() {
-  return new CleanUnreachableStatePhase();
+Pass *CleanUnreachableStatePass::Create() {
+  return new CleanUnreachableStatePass();
 }
 
-bool CleanUnreachableStatePhase::ApplyForTable(const string &key,
-                                               ITable *table) {
+bool CleanUnreachableStatePass::ApplyForTable(const string &key,
+                                              ITable *table) {
   set<IState *> reachables;
   OptUtil::CollectReachableStates(table, &reachables);
   vector<IState *> reachable_states;

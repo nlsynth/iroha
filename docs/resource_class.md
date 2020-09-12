@@ -139,7 +139,7 @@ Pseudo resources are resources which can't be translated into synthesizable RTL.
 
 Pseudo insn can be used inside frontend and optimization passes.
 
-Other passes may not be able to accept a design with pseudo resource and insns using it, so it is recommended to remove pseudo resource at some phase.
+Other passes may not be able to accept a design with pseudo resource and insns using it, so it is recommended to remove pseudo resource at some pass.
 
 #### phi
 

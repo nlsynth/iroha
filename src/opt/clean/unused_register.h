@@ -8,9 +8,9 @@ namespace iroha {
 namespace opt {
 namespace clean {
 
-class CleanUnusedRegPhase : public Pass {
+class CleanUnusedRegPass : public Pass {
  public:
-  virtual ~CleanUnusedRegPhase();
+  virtual ~CleanUnusedRegPass();
 
   static Pass *Create();
 

@@ -76,7 +76,7 @@ Please read src/iroha/iroha.h, src/iroha/iroha_main.cpp examples/ for more detai
 * P2: Allow multiple embedded module instances.
 * Usability: Document
 * Usability: More debug output from optimizers.
-* Usability: Export optimizer API so that users can add own phase
+* Usability: Export optimizer API so that users can add own pass
 * Dev: Migrate from unmaintained gyp build.
 * Q: Do we need instance/module separation?
 * AXI: Allow or fail to attach both master/slave to an array.

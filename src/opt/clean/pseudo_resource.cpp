@@ -7,13 +7,13 @@ namespace iroha {
 namespace opt {
 namespace clean {
 
-CleanPseudoResourcePhase::~CleanPseudoResourcePhase() {}
+CleanPseudoResourcePass::~CleanPseudoResourcePass() {}
 
-Pass *CleanPseudoResourcePhase::Create() {
-  return new CleanPseudoResourcePhase();
+Pass *CleanPseudoResourcePass::Create() {
+  return new CleanPseudoResourcePass();
 }
 
-bool CleanPseudoResourcePhase::ApplyForTable(const string &key, ITable *table) {
+bool CleanPseudoResourcePass::ApplyForTable(const string &key, ITable *table) {
   for (IState *st : table->states_) {
     vector<IInsn *> real_insns;
     for (IInsn *insn : st->insns_) {

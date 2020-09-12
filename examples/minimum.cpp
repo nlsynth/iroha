@@ -36,7 +36,7 @@ int main(int argc, char **argv) {
   IDesign *design = build_design();
 
   OptAPI *opt = Iroha::CreateOptimizer(design);
-  opt->ApplyPass("a_phase");
+  opt->ApplyPass("a_pass");
 
   iroha::WriterAPI *writer = Iroha::CreateWriter(design);
   // Use S-Expression.

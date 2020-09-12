@@ -11,9 +11,9 @@ namespace iroha {
 namespace opt {
 namespace clean {
 
-class CleanUnreachableStatePhase : public Pass {
+class CleanUnreachableStatePass : public Pass {
  public:
-  virtual ~CleanUnreachableStatePhase();
+  virtual ~CleanUnreachableStatePass();
 
   static Pass *Create();
 

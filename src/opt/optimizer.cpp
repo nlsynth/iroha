@@ -38,15 +38,15 @@ Optimizer::~Optimizer() {}
 void Optimizer::Init() {
   RegisterPass("array_elimination", &ArrayElimination::Create);
   RegisterPass("array_split_rdata", &ArraySplitRData::Create);
-  RegisterPass("clean_empty_state", &clean::CleanEmptyStatePhase::Create);
-  RegisterPass("clean_empty_table", &clean::CleanEmptyTablePhase::Create);
+  RegisterPass("clean_empty_state", &clean::CleanEmptyStatePass::Create);
+  RegisterPass("clean_empty_table", &clean::CleanEmptyTablePass::Create);
   RegisterPass("clean_unreachable_state",
-               &clean::CleanUnreachableStatePhase::Create);
-  RegisterPass("clean_unused_register", &clean::CleanUnusedRegPhase::Create);
+               &clean::CleanUnreachableStatePass::Create);
+  RegisterPass("clean_unused_register", &clean::CleanUnusedRegPass::Create);
   RegisterPass("clean_unused_resource",
-               &clean::CleanUnusedResourcePhase::Create);
+               &clean::CleanUnusedResourcePass::Create);
   RegisterPass("clean_pseudo_resource",
-               &clean::CleanPseudoResourcePhase::Create);
+               &clean::CleanPseudoResourcePass::Create);
   RegisterPass("constant_propagation", &constant::ConstantPropagation::Create);
   RegisterPass("ssa_convert", &ssa::SSAConverterPass::Create);
   RegisterPass("phi_cleaner", &ssa::PhiCleanerPass::Create);

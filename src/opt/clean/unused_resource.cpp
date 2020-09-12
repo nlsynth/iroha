@@ -7,18 +7,18 @@ namespace iroha {
 namespace opt {
 namespace clean {
 
-CleanUnusedResourcePhase::~CleanUnusedResourcePhase() {}
+CleanUnusedResourcePass::~CleanUnusedResourcePass() {}
 
-Pass *CleanUnusedResourcePhase::Create() {
-  return new CleanUnusedResourcePhase();
+Pass *CleanUnusedResourcePass::Create() {
+  return new CleanUnusedResourcePass();
 }
 
-bool CleanUnusedResourcePhase::ApplyForDesign(IDesign *design) {
+bool CleanUnusedResourcePass::ApplyForDesign(IDesign *design) {
   return ApplyForAllModules("scan", design) &&
          ApplyForAllModules("collect", design);
 }
 
-bool CleanUnusedResourcePhase::ApplyForTable(const string &key, ITable *table) {
+bool CleanUnusedResourcePass::ApplyForTable(const string &key, ITable *table) {
   if (key == "scan") {
     return ScanTable(table);
   }
@@ -28,7 +28,7 @@ bool CleanUnusedResourcePhase::ApplyForTable(const string &key, ITable *table) {
   return true;
 }
 
-bool CleanUnusedResourcePhase::ScanTable(ITable *table) {
+bool CleanUnusedResourcePass::ScanTable(ITable *table) {
   for (IState *st : table->states_) {
     for (IInsn *insn : st->insns_) {
       IResource *res = insn->GetResource();
@@ -43,7 +43,7 @@ bool CleanUnusedResourcePhase::ScanTable(ITable *table) {
   return true;
 }
 
-void CleanUnusedResourcePhase::MarkResource(IResource *res) {
+void CleanUnusedResourcePass::MarkResource(IResource *res) {
   if (res == nullptr) {
     return;
   }
@@ -62,7 +62,7 @@ void CleanUnusedResourcePhase::MarkResource(IResource *res) {
   }
 }
 
-bool CleanUnusedResourcePhase::CollectResource(ITable *table) {
+bool CleanUnusedResourcePass::CollectResource(ITable *table) {
   vector<IResource *> new_resources;
   for (IResource *res : table->resources_) {
     if (used_resources_.find(res) != used_resources_.end()) {

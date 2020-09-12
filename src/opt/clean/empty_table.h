@@ -11,9 +11,9 @@ namespace iroha {
 namespace opt {
 namespace clean {
 
-class CleanEmptyTablePhase : public Pass {
+class CleanEmptyTablePass : public Pass {
  public:
-  virtual ~CleanEmptyTablePhase();
+  virtual ~CleanEmptyTablePass();
   static Pass *Create();
 
  private:

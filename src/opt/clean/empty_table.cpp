@@ -7,11 +7,11 @@ namespace iroha {
 namespace opt {
 namespace clean {
 
-CleanEmptyTablePhase::~CleanEmptyTablePhase() {}
+CleanEmptyTablePass::~CleanEmptyTablePass() {}
 
-Pass *CleanEmptyTablePhase::Create() { return new CleanEmptyTablePhase(); }
+Pass *CleanEmptyTablePass::Create() { return new CleanEmptyTablePass(); }
 
-bool CleanEmptyTablePhase::ApplyForDesign(IDesign *design) {
+bool CleanEmptyTablePass::ApplyForDesign(IDesign *design) {
   bool ok = ApplyForAllModules("scan", design);
   if (!ok) {
     return false;
@@ -19,7 +19,7 @@ bool CleanEmptyTablePhase::ApplyForDesign(IDesign *design) {
   return ApplyForAllModules("process", design);
 }
 
-bool CleanEmptyTablePhase::ApplyForModule(const string &key, IModule *module) {
+bool CleanEmptyTablePass::ApplyForModule(const string &key, IModule *module) {
   if (key == "scan") {
     return Pass::ApplyForModule("", module);
   }
@@ -33,11 +33,11 @@ bool CleanEmptyTablePhase::ApplyForModule(const string &key, IModule *module) {
   return true;
 }
 
-bool CleanEmptyTablePhase::ApplyForTable(const string &key, ITable *table) {
+bool CleanEmptyTablePass::ApplyForTable(const string &key, ITable *table) {
   return true;
 }
 
-bool CleanEmptyTablePhase::IsEmpty(ITable *tab) {
+bool CleanEmptyTablePass::IsEmpty(ITable *tab) {
   for (IResource *res : tab->resources_) {
     if (!resource::IsTransition(*(res->GetClass()))) {
       return false;
