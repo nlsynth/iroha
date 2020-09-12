@@ -2,13 +2,13 @@
 #ifndef _opt_study_h_
 #define _opt_study_h_
 
-#include "opt/phase.h"
+#include "opt/pass.h"
 
 namespace iroha {
 namespace opt {
 
 class Study : public Phase {
-public:
+ public:
   virtual ~Study();
 
   static Phase *Create();

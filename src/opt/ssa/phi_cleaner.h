@@ -2,24 +2,25 @@
 #ifndef _opt_ssa_phi_cleaner_h_
 #define _opt_ssa_phi_cleaner_h_
 
-#include "opt/phase.h"
+#include "opt/pass.h"
 
 namespace iroha {
 namespace opt {
 namespace ssa {
 
 class PhiCleaner {
-public:
+ public:
   PhiCleaner(ITable *table, DebugAnnotation *annotation);
   ~PhiCleaner();
 
   void Perform();
 
-private:
+ private:
   void ProcessBB(BB *bb);
-  void ProcessInsn(map<IRegister *, RegDef *> *last_defs, IState *st, IInsn *insn);
+  void ProcessInsn(map<IRegister *, RegDef *> *last_defs, IState *st,
+                   IInsn *insn);
   void EmitSelector(map<IRegister *, RegDef *> *last_defs, IState *st,
-		    IInsn *phi_insn);
+                    IInsn *phi_insn);
 
   ITable *table_;
   DebugAnnotation *annotation_;

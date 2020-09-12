@@ -2,7 +2,7 @@
 #ifndef _opt_constant_constant_propagation_h_
 #define _opt_constant_constant_propagation_h_
 
-#include "opt/phase.h"
+#include "opt/pass.h"
 
 namespace iroha {
 namespace opt {
@@ -10,12 +10,12 @@ namespace constant {
 
 // This assumes SSA input and actually propagates non constant regs too.
 class ConstantPropagation : public Phase {
-public:
+ public:
   virtual ~ConstantPropagation();
 
   static Phase *Create();
 
-private:
+ private:
   virtual bool ApplyForTable(const string &key, ITable *table);
 };
 
@@ -23,4 +23,4 @@ private:
 }  // namespace opt
 }  // namespace iroha
 
-#endif // _opt_constant_constant_propagation_h_
+#endif  // _opt_constant_constant_propagation_h_

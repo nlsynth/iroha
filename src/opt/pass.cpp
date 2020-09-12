@@ -1,4 +1,4 @@
-#include "opt/phase.h"
+#include "opt/pass.h"
 
 #include "iroha/i_design.h"
 #include "opt/debug_annotation.h"
@@ -6,19 +6,13 @@
 namespace iroha {
 namespace opt {
 
-Phase::Phase() : optimizer_(nullptr), annotation_(nullptr) {
-}
+Phase::Phase() : optimizer_(nullptr), annotation_(nullptr) {}
 
-Phase::~Phase() {
-}
+Phase::~Phase() {}
 
-void Phase::SetName(const string &name) {
-  name_ = name;
-}
+void Phase::SetName(const string &name) { name_ = name; }
 
-void Phase::SetOptimizer(Optimizer *opt) {
-  optimizer_ = opt;
-}
+void Phase::SetOptimizer(Optimizer *opt) { optimizer_ = opt; }
 
 void Phase::SetAnnotation(DebugAnnotation *annotation) {
   annotation_ = annotation;
@@ -49,9 +43,7 @@ bool Phase::ApplyForModule(const string &key, IModule *module) {
   return all_ok;
 }
 
-bool Phase::ApplyForTable(const string &key, ITable *table) {
-  return true;
-}
+bool Phase::ApplyForTable(const string &key, ITable *table) { return true; }
 
 void Phase::OutputPhaseHeader(const string &msg) {
   if (!annotation_->IsEnabled()) {

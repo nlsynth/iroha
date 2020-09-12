@@ -2,19 +2,19 @@
 #ifndef _opt_clean_pseudo_resource_h_
 #define _opt_clean_pseudo_resource_h_
 
-#include "opt/phase.h"
+#include "opt/pass.h"
 
 namespace iroha {
 namespace opt {
 namespace clean {
 
 class CleanPseudoResourcePhase : public Phase {
-public:
+ public:
   virtual ~CleanPseudoResourcePhase();
 
   static Phase *Create();
 
-private:
+ private:
   virtual bool ApplyForTable(const string &key, ITable *table);
 };
 

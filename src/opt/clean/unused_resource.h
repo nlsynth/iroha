@@ -2,19 +2,19 @@
 #ifndef _opt_clean_unused_resource_h_
 #define _opt_clean_unused_resource_h_
 
-#include "opt/phase.h"
+#include "opt/pass.h"
 
 namespace iroha {
 namespace opt {
 namespace clean {
 
 class CleanUnusedResourcePhase : public Phase {
-public:
+ public:
   virtual ~CleanUnusedResourcePhase();
 
   static Phase *Create();
 
-private:
+ private:
   virtual bool ApplyForDesign(IDesign *design);
   virtual bool ApplyForTable(const string &key, ITable *table);
 
@@ -31,4 +31,3 @@ private:
 }  // namespace iroha
 
 #endif  // _opt_clean_unused_resource_h_
-

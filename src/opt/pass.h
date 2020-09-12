@@ -1,6 +1,6 @@
 // -*- C++ -*-
-#ifndef _opt_phase_h_
-#define _opt_phase_h_
+#ifndef _opt_pass_h_
+#define _opt_pass_h_
 
 #include "opt/common.h"
 
@@ -8,7 +8,7 @@ namespace iroha {
 namespace opt {
 
 class Phase {
-public:
+ public:
   Phase();
   virtual ~Phase();
 
@@ -19,7 +19,7 @@ public:
 
   bool Apply(IDesign *design);
 
-protected:
+ protected:
   // Default implementation just traverses modules and tables.
   // Each phase can implement its own strategies to process modules and tables
   // like skipping or multi pass traversal.
@@ -39,4 +39,4 @@ protected:
 }  // namespace opt
 }  // namespace iroha
 
-#endif  // _opt_phase_h_
+#endif  // _opt_pass_h_

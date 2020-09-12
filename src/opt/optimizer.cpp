@@ -7,14 +7,14 @@
 #include "opt/array_split_rdata.h"
 #include "opt/clean/empty_state.h"
 #include "opt/clean/empty_table.h"
-#include "opt/clean/unreachable_state.h"
 #include "opt/clean/pseudo_resource.h"
+#include "opt/clean/unreachable_state.h"
 #include "opt/clean/unused_register.h"
 #include "opt/clean/unused_resource.h"
-#include "opt/constant/constant_propagation.h"
 #include "opt/compound.h"
+#include "opt/constant/constant_propagation.h"
 #include "opt/debug_annotation.h"
-#include "opt/phase.h"
+#include "opt/pass.h"
 #include "opt/pipeline/pipeline_phase.h"
 #include "opt/sched/sched_phase.h"
 #include "opt/ssa/ssa.h"
@@ -33,8 +33,7 @@ Optimizer::Optimizer(IDesign *design) : design_(design) {
   platform_db_.reset(platform::Platform::CreatePlatformDB(design));
 }
 
-Optimizer::~Optimizer() {
-}
+Optimizer::~Optimizer() {}
 
 void Optimizer::Init() {
   RegisterPhase("array_elimination", &ArrayElimination::Create);
@@ -42,15 +41,13 @@ void Optimizer::Init() {
   RegisterPhase("clean_empty_state", &clean::CleanEmptyStatePhase::Create);
   RegisterPhase("clean_empty_table", &clean::CleanEmptyTablePhase::Create);
   RegisterPhase("clean_unreachable_state",
-		&clean::CleanUnreachableStatePhase::Create);
-  RegisterPhase("clean_unused_register",
-		&clean::CleanUnusedRegPhase::Create);
+                &clean::CleanUnreachableStatePhase::Create);
+  RegisterPhase("clean_unused_register", &clean::CleanUnusedRegPhase::Create);
   RegisterPhase("clean_unused_resource",
-		&clean::CleanUnusedResourcePhase::Create);
+                &clean::CleanUnusedResourcePhase::Create);
   RegisterPhase("clean_pseudo_resource",
-		&clean::CleanPseudoResourcePhase::Create);
-  RegisterPhase("constant_propagation",
-		&constant::ConstantPropagation::Create);
+                &clean::CleanPseudoResourcePhase::Create);
+  RegisterPhase("constant_propagation", &constant::ConstantPropagation::Create);
   RegisterPhase("ssa_convert", &ssa::SSAConverterPhase::Create);
   RegisterPhase("phi_cleaner", &ssa::PhiCleanerPhase::Create);
   RegisterPhase("alloc_resource", &sched::SchedPhase::Create);
@@ -69,8 +66,7 @@ vector<string> Optimizer::GetPhaseNames() {
   return names;
 }
 
-void Optimizer::RegisterPhase(const string &name,
-			      function<Phase *()> factory) {
+void Optimizer::RegisterPhase(const string &name, function<Phase *()> factory) {
   phases_[name] = factory;
 }
 
@@ -99,9 +95,7 @@ void Optimizer::EnableDebugAnnotation() {
   an->Enable();
 }
 
-platform::PlatformDB *Optimizer::GetPlatformDB() {
-  return platform_db_.get();
-}
+platform::PlatformDB *Optimizer::GetPlatformDB() { return platform_db_.get(); }
 
 void Optimizer::DumpIntermediateToFiles(const string &fn) {
   if (fn.empty()) {

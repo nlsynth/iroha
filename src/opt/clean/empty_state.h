@@ -5,28 +5,28 @@
 #ifndef _opt_clean_empty_state_h_
 #define _opt_clean_empty_state_h_
 
-#include "opt/phase.h"
+#include "opt/pass.h"
 
 namespace iroha {
 namespace opt {
 namespace clean {
 
 class CleanEmptyStatePhase : public Phase {
-public:
+ public:
   virtual ~CleanEmptyStatePhase();
 
   static Phase *Create();
 
-private:
+ private:
   virtual bool ApplyForTable(const string &key, ITable *table);
 };
 
 class CleanEmptyState {
-public:
-  CleanEmptyState(ITable *table,  DebugAnnotation *annotation);
+ public:
+  CleanEmptyState(ITable *table, DebugAnnotation *annotation);
   bool Perform();
 
-private:
+ private:
   IState *GetNextIfDead(IState *st);
   bool IsEmptyState(IState *st);
 

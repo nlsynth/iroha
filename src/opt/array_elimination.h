@@ -2,18 +2,18 @@
 #ifndef _opt_array_elimination_h_
 #define _opt_array_elimination_h_
 
-#include "opt/phase.h"
+#include "opt/pass.h"
 
 namespace iroha {
 namespace opt {
 
 class ArrayElimination : public Phase {
-public:
+ public:
   virtual ~ArrayElimination();
 
   static Phase *Create();
 
-private:
+ private:
   virtual bool ApplyForTable(const string &key, ITable *table);
 
   IRegister *GetRegister(IResource *array_res, IRegister *index_reg);
@@ -23,4 +23,4 @@ private:
 }  // namespace opt
 }  // namespace iroha
 
-#endif //  _opt_array_elimination_h_
+#endif  //  _opt_array_elimination_h_

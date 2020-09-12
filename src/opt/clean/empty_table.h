@@ -5,18 +5,18 @@
 #ifndef _opt_clean_empty_table_h_
 #define _opt_clean_empty_table_h_
 
-#include "opt/phase.h"
+#include "opt/pass.h"
 
 namespace iroha {
 namespace opt {
 namespace clean {
 
 class CleanEmptyTablePhase : public Phase {
-public:
+ public:
   virtual ~CleanEmptyTablePhase();
   static Phase *Create();
 
-private:
+ private:
   virtual bool ApplyForDesign(IDesign *design);
   virtual bool ApplyForModule(const string &key, IModule *module);
   virtual bool ApplyForTable(const string &key, ITable *table);

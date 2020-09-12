@@ -5,19 +5,19 @@
 #ifndef _opt_compound_h_
 #define _opt_compound_h_
 
-#include "opt/phase.h"
+#include "opt/pass.h"
 
 namespace iroha {
 namespace opt {
 
 class CompoundPhase : public Phase {
-public:
+ public:
   virtual ~CompoundPhase();
 
   static void Init();
   static Phase *Create();
 
-private:
+ private:
   virtual bool ApplyForDesign(IDesign *design);
 };
 

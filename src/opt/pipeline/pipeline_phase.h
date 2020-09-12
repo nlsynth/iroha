@@ -2,19 +2,19 @@
 #ifndef _opt_pipeline_pipeline_phase_h_
 #define _opt_pipeline_pipeline_phase_h_
 
-#include "opt/phase.h"
+#include "opt/pass.h"
 
 namespace iroha {
 namespace opt {
 namespace pipeline {
 
 class PipelinePhase : public Phase {
-public:
+ public:
   virtual ~PipelinePhase();
 
   static Phase *Create();
 
-private:
+ private:
   virtual bool ApplyForTable(const string &key, ITable *table);
 };
 

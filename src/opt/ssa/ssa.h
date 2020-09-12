@@ -2,27 +2,29 @@
 #ifndef _opt_ssa_ssa_h_
 #define _opt_ssa_ssa_h_
 
-#include "opt/phase.h"
+#include "opt/pass.h"
 
 namespace iroha {
 namespace opt {
 namespace ssa {
 
 class SSAConverterPhase : public Phase {
-public:
+ public:
   virtual ~SSAConverterPhase();
 
   static Phase *Create();
-private:
+
+ private:
   virtual bool ApplyForTable(const string &key, ITable *table);
 };
 
 class PhiCleanerPhase : public Phase {
-public:
+ public:
   virtual ~PhiCleanerPhase();
 
   static Phase *Create();
-private:
+
+ private:
   virtual bool ApplyForTable(const string &key, ITable *table);
 };
 

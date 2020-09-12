@@ -2,19 +2,19 @@
 #ifndef _opt_unroll_unroll_phase_h_
 #define _opt_unroll_unroll_phase_h_
 
-#include "opt/phase.h"
+#include "opt/pass.h"
 
 namespace iroha {
 namespace opt {
 namespace unroll {
 
 class UnrollPhase : public Phase {
-public:
+ public:
   virtual ~UnrollPhase();
 
   static Phase *Create();
 
-private:
+ private:
   virtual bool ApplyForTable(const string &key, ITable *table);
 };
 
