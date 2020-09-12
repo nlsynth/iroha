@@ -8,32 +8,29 @@ namespace iroha {
 namespace opt {
 
 class DominatorTreeBuilder {
-public:
-  DominatorTreeBuilder(BBSet *bset,
-		       DebugAnnotation *an);
+ public:
+  DominatorTreeBuilder(BBSet *bset, OptimizerLog *an);
   ~DominatorTreeBuilder();
 
   DominatorTree *Create();
 
-private:
+ private:
   class DominatorInfo {
-  public:
-    DominatorInfo(BB *bb) : bb_(bb) {
-    }
+   public:
+    DominatorInfo(BB *bb) : bb_(bb) {}
     BB *bb_;
     set<DominatorInfo *> dominators_;
     set<DominatorInfo *> frontiers_;
     set<DominatorInfo *> pred_;
   };
   void CalculateDominator();
-  void Union(set<DominatorInfo *> &s1,
-             set<DominatorInfo *> &s2,
+  void Union(set<DominatorInfo *> &s1, set<DominatorInfo *> &s2,
              set<DominatorInfo *> *d);
   void CalculateFrontier();
 
   ITable *table_;
   BBSet *bset_;
-  DebugAnnotation *annotation_;
+  OptimizerLog *opt_log_;
   map<BB *, DominatorInfo *> dom_info_;
 };
 

@@ -3,14 +3,13 @@
 #include "iroha/i_design.h"
 #include "opt/bb_set.h"
 #include "opt/data_flow.h"
-#include "opt/debug_annotation.h"
+#include "opt/optimizer_log.h"
 
 namespace iroha {
 namespace opt {
 
-DataFlowCollector::DataFlowCollector(BBSet *bbs, DebugAnnotation *annotation)
-  : bbs_(bbs), annotation_(annotation) {
-}
+DataFlowCollector::DataFlowCollector(BBSet *bbs, OptimizerLog *opt_log)
+    : bbs_(bbs), opt_log_(opt_log) {}
 
 DataFlow *DataFlowCollector::Create() {
   for (auto *bb : bbs_->bbs_) {
@@ -27,18 +26,18 @@ DataFlow *DataFlowCollector::Create() {
   }
   CollectReaches();
   CopyReaches();
-  if (annotation_->IsEnabled()) {
-    Annotate(annotation_->Table(bbs_->GetTable()));
+  if (opt_log_->IsEnabled()) {
+    Log(opt_log_->Table(bbs_->GetTable()));
   }
   return df_;
 }
 
-void DataFlowCollector::Annotate(ostream &os) {
+void DataFlowCollector::Log(ostream &os) {
   for (auto p : bb_info_) {
     os << "bb:" << p.first->bb_id_ << "<br>\n";
     for (auto *reg_def : p.second->reaches_) {
       os << " def: insn:" << reg_def->insn->GetId()
-	 << " reg: " << reg_def->reg->GetName() << "<br>\n";
+         << " reg: " << reg_def->reg->GetName() << "<br>\n";
     }
   }
 }
@@ -48,18 +47,18 @@ void DataFlowCollector::CollectDefs(BBInfo *info) {
     for (IInsn *insn : st->insns_) {
       int nth_output = 0;
       for (IRegister *oreg : insn->outputs_) {
-	if (!(oreg->IsConst() || oreg->IsStateLocal())) {
-	  // Normal register.
-	  RegDef *reg_def = new RegDef;
-	  reg_def->reg = oreg;
-	  reg_def->insn = insn;
-	  reg_def->output_index = nth_output;
-	  reg_def->st = st;
-	  reg_def->bb = info->bb_;
-	  df_->all_defs_.push_back(reg_def);
-	  info->last_defs_[oreg] = reg_def;
-	}
-	++nth_output;
+        if (!(oreg->IsConst() || oreg->IsStateLocal())) {
+          // Normal register.
+          RegDef *reg_def = new RegDef;
+          reg_def->reg = oreg;
+          reg_def->insn = insn;
+          reg_def->output_index = nth_output;
+          reg_def->st = st;
+          reg_def->bb = info->bb_;
+          df_->all_defs_.push_back(reg_def);
+          info->last_defs_[oreg] = reg_def;
+        }
+        ++nth_output;
       }
     }
   }
@@ -85,12 +84,12 @@ void DataFlowCollector::CollectReaches() {
       BBInfo *info = p.second;
       set<RegDef *> temp;
       for (BB *prev_bb : info->bb_->prev_bbs_) {
-	BBInfo *prev_bb_info = bb_info_[prev_bb];
-	CollectPropagates(prev_bb_info, &temp);
+        BBInfo *prev_bb_info = bb_info_[prev_bb];
+        CollectPropagates(prev_bb_info, &temp);
       }
       if (temp.size() > info->reaches_.size()) {
-	changed = true;
-	info->reaches_ = temp;
+        changed = true;
+        info->reaches_ = temp;
       }
     }
   } while (changed);
@@ -106,7 +105,7 @@ void DataFlowCollector::CopyReaches() {
 }
 
 void DataFlowCollector::CollectPropagates(BBInfo *prev_bb_info,
-					  set<RegDef *> *prop) {
+                                          set<RegDef *> *prop) {
   // DEF(P)
   for (auto e : prev_bb_info->last_defs_) {
     prop->insert(e.second);

@@ -9,18 +9,18 @@ namespace opt {
 namespace sched {
 
 class DataPathSet {
-public:
+ public:
   DataPathSet();
   ~DataPathSet();
 
   void Build(BBSet *bbs);
   void SetDelay(DelayInfo *dinfo);
-  void Dump(DebugAnnotation *an);
+  void Dump(OptimizerLog *an);
   map<int, BBDataPath *> &GetBBPaths();
   BBSet *GetBBSet();
   VirtualResourceSet *GetVirtualResourceSet();
 
-private:
+ private:
   BBSet *bbs_;
   std::unique_ptr<SchedBlockSet> sbs_;
   // bb_id to BBDataPath.
@@ -33,4 +33,3 @@ private:
 }  // namespace iroha
 
 #endif  // _opt_sched_data_path_h_
-

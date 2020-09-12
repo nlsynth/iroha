@@ -1,4 +1,4 @@
-#include "opt/debug_annotation.h"
+#include "opt/optimizer_log.h"
 
 #include <fstream>
 
@@ -8,15 +8,15 @@
 namespace iroha {
 namespace opt {
 
-DebugAnnotation::DebugAnnotation() : enabled_(false) {}
+OptimizerLog::OptimizerLog() : enabled_(false) {}
 
-DebugAnnotation::~DebugAnnotation() {}
+OptimizerLog::~OptimizerLog() {}
 
-void DebugAnnotation::Enable() { enabled_ = true; }
+void OptimizerLog::Enable() { enabled_ = true; }
 
-bool DebugAnnotation::IsEnabled() { return enabled_; }
+bool OptimizerLog::IsEnabled() { return enabled_; }
 
-void DebugAnnotation::WriteToFiles(const string &baseFn) {
+void OptimizerLog::WriteToFiles(const string &baseFn) {
   for (auto &p : dump_) {
     const string &suffix = p.first;
     string fn = baseFn + "." + suffix;
@@ -50,15 +50,15 @@ void DebugAnnotation::WriteToFiles(const string &baseFn) {
   writer::Writer::WriteDumpFooter(os);
 }
 
-void DebugAnnotation::DumpIntermediateTable(const ITable *tab) {
+void OptimizerLog::DumpIntermediateTable(const ITable *tab) {
   writer::Writer::DumpTable(tab, dump_[file_name_]);
 }
 
-ostream &DebugAnnotation::GetDumpStream() { return dump_[file_name_]; }
+ostream &OptimizerLog::GetDumpStream() { return dump_[file_name_]; }
 
-ostream &DebugAnnotation::Table(const ITable *tab) { return table_[tab]; }
+ostream &OptimizerLog::Table(const ITable *tab) { return table_[tab]; }
 
-string DebugAnnotation::GetTableAnnotation(const ITable *tab) const {
+string OptimizerLog::GetTableAnnotation(const ITable *tab) const {
   auto it = table_.find(tab);
   if (it == table_.end()) {
     return string();
@@ -66,13 +66,13 @@ string DebugAnnotation::GetTableAnnotation(const ITable *tab) const {
   return it->second.str();
 }
 
-ostream &DebugAnnotation::State(const IState *st) { return state_[st]; }
+ostream &OptimizerLog::State(const IState *st) { return state_[st]; }
 
-void DebugAnnotation::SetStateColorIndex(const IState *st, int idx) {
+void OptimizerLog::SetStateColorIndex(const IState *st, int idx) {
   state_color_[st] = idx;
 }
 
-string DebugAnnotation::GetStateAnnotation(const IState *st) const {
+string OptimizerLog::GetStateAnnotation(const IState *st) const {
   auto it = state_.find(st);
   if (it == state_.end()) {
     return string();
@@ -80,7 +80,7 @@ string DebugAnnotation::GetStateAnnotation(const IState *st) const {
   return it->second.str();
 }
 
-int DebugAnnotation::GetStateColorIndex(const IState *st) const {
+int OptimizerLog::GetStateColorIndex(const IState *st) const {
   auto p = state_color_.find(st);
   if (p == state_color_.end()) {
     return 0;
@@ -88,7 +88,7 @@ int DebugAnnotation::GetStateColorIndex(const IState *st) const {
   return p->second;
 }
 
-void DebugAnnotation::StartPass(const string &name) {
+void OptimizerLog::StartPass(const string &name) {
   pass_name_ = name;
   section_name_ = "";
   UpdateFileName(true);
@@ -96,17 +96,17 @@ void DebugAnnotation::StartPass(const string &name) {
   state_.clear();
 }
 
-void DebugAnnotation::StartSubSection(const string &section, bool isHtml) {
+void OptimizerLog::StartSubSection(const string &section, bool isHtml) {
   section_name_ = section;
   UpdateFileName(isHtml);
 }
 
-void DebugAnnotation::ClearSubSection() {
+void OptimizerLog::ClearSubSection() {
   section_name_.clear();
   UpdateFileName(false);
 }
 
-void DebugAnnotation::UpdateFileName(bool isHtml) {
+void OptimizerLog::UpdateFileName(bool isHtml) {
   file_name_ = pass_name_;
   if (!section_name_.empty()) {
     file_name_ += "." + section_name_;

@@ -6,12 +6,10 @@
 namespace iroha {
 namespace opt {
 
-DataFlow::~DataFlow() {
-  STLDeleteValues(&all_defs_);
-}
+DataFlow::~DataFlow() { STLDeleteValues(&all_defs_); }
 
-DataFlow *DataFlow::Create(BBSet *bbs, DebugAnnotation *annotation) {
-  DataFlowCollector collector(bbs, annotation);
+DataFlow *DataFlow::Create(BBSet *bbs, OptimizerLog *opt_log) {
+  DataFlowCollector collector(bbs, opt_log);
   return collector.Create();
 }
 

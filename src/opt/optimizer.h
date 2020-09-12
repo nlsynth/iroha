@@ -21,7 +21,7 @@ class Optimizer : public OptAPI {
   static void RegisterPass(const string &name, function<Pass *()> factory);
 
   virtual bool ApplyPass(const string &name) override;
-  virtual void EnableDebugAnnotation() override;
+  virtual void EnableOptimizerLog() override;
   virtual void DumpIntermediateToFiles(const string &fn) override;
 
   platform::PlatformDB *GetPlatformDB();

@@ -23,7 +23,7 @@ class CleanEmptyStatePass : public Pass {
 
 class CleanEmptyState {
  public:
-  CleanEmptyState(ITable *table, DebugAnnotation *annotation);
+  CleanEmptyState(ITable *table, OptimizerLog *opt_log);
   bool Perform();
 
  private:
@@ -31,7 +31,7 @@ class CleanEmptyState {
   bool IsEmptyState(IState *st);
 
   ITable *table_;
-  DebugAnnotation *annotation_;
+  OptimizerLog *opt_log_;
   IResource *transition_;
   set<IState *> dead_st_;
 };

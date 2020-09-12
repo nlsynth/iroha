@@ -14,19 +14,17 @@ namespace iroha {
 namespace opt {
 namespace ssa {
 
-PhiInjector::PhiInjector(ITable *table, DebugAnnotation *annotation)
-  : table_(table), annotation_(annotation), phi_(nullptr) {
-}
+PhiInjector::PhiInjector(ITable *table, OptimizerLog *opt_log)
+    : table_(table), opt_log_(opt_log), phi_(nullptr) {}
 
-PhiInjector::~PhiInjector() {
-}
+PhiInjector::~PhiInjector() {}
 
 void PhiInjector::Perform() {
   phi_ = DesignTool::GetOneResource(table_, resource::kPhi);
   tr_ = DesignUtil::FindTransitionResource(table_);
-  bset_.reset(BBSet::Create(table_, false, annotation_));
-  data_flow_.reset(DataFlow::Create(bset_.get(), annotation_));
-  dom_tree_.reset(DominatorTree::Create(bset_.get(), annotation_));
+  bset_.reset(BBSet::Create(table_, false, opt_log_));
+  data_flow_.reset(DataFlow::Create(bset_.get(), opt_log_));
+  dom_tree_.reset(DominatorTree::Create(bset_.get(), opt_log_));
 
   // Insert PHIs.
   CollectSingularRegister();
@@ -52,21 +50,21 @@ void PhiInjector::CollectSingularRegister() {
     }
     for (IState *st : bb->states_) {
       for (auto *insn : st->insns_) {
-	for (auto *ireg : insn->inputs_) {
-	  set<IInsn *> &s = local_define_insns[ireg];
-	  for (auto *local_insn : s) {
-	    define_insns[ireg].insert(local_insn);
-	  }
-	}
+        for (auto *ireg : insn->inputs_) {
+          set<IInsn *> &s = local_define_insns[ireg];
+          for (auto *local_insn : s) {
+            define_insns[ireg].insert(local_insn);
+          }
+        }
       }
       // update write insns.
       for (IInsn *insn : st->insns_) {
-	for (IRegister *oreg : insn->outputs_) {
-	  // overwrite by this 1 assignment insn.
-	  set<IInsn *> s;
-	  s.insert(insn);
-	  local_define_insns[oreg] = s;
-	}
+        for (IRegister *oreg : insn->outputs_) {
+          // overwrite by this 1 assignment insn.
+          set<IInsn *> s;
+          s.insert(insn);
+          local_define_insns[oreg] = s;
+        }
       }
     }
   }
@@ -85,7 +83,7 @@ void PhiInjector::CollectOriginalDefs() {
     data_flow_->GetReachDefs(bb, &reach_defs);
     for (RegDef *reg_def : reach_defs) {
       if (singular_regs_.find(reg_def->reg) != singular_regs_.end()) {
-	continue;
+        continue;
       }
       PerRegister *pr = GetPerRegister(reg_def->reg);
       pr->original_defs_.insert(reg_def);
@@ -109,14 +107,13 @@ void PhiInjector::PropagatePHIs() {
     do {
       num_phis = pr->phi_bbs_.size();
       for (BB *bb : pr->phi_bbs_) {
-	PropagatePHIforBB(pr, bb);
+        PropagatePHIforBB(pr, bb);
       }
     } while (num_phis != pr->phi_bbs_.size());
   }
 }
 
-void PhiInjector::PropagatePHIforBB(PhiInjector::PerRegister *pr,
-				     BB *bb) {
+void PhiInjector::PropagatePHIforBB(PhiInjector::PerRegister *pr, BB *bb) {
   vector<BB *> frontier;
   dom_tree_->GetFrontier(bb, &frontier);
   for (BB *bb : frontier) {
@@ -185,9 +182,9 @@ void PhiInjector::PrependState(BB *bb) {
     // second.
     // states_[1]
     for (auto jt = head_tr_insn->target_states_.begin();
-	 jt != head_tr_insn->target_states_.end(); ++jt) {
+         jt != head_tr_insn->target_states_.end(); ++jt) {
       if ((*jt) == bb->states_[1]) {
-	*jt = second_st;
+        *jt = second_st;
       }
     }
     DesignTool::AddNextState(second_st, bb->states_[1]);
@@ -198,9 +195,9 @@ void PhiInjector::PrependState(BB *bb) {
     again = false;
     for (IInsn *insn : head_st->insns_) {
       if (insn->GetResource() != tr_) {
-	again = true;
-	DesignTool::MoveInsn(insn, head_st, second_st);
-	break;
+        again = true;
+        DesignTool::MoveInsn(insn, head_st, second_st);
+        break;
       }
     }
   }

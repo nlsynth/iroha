@@ -5,8 +5,7 @@
 namespace iroha {
 namespace opt {
 
-DominatorTree *DominatorTree::Create(BBSet *bset,
-				     DebugAnnotation *an) {
+DominatorTree *DominatorTree::Create(BBSet *bset, OptimizerLog *an) {
   DominatorTreeBuilder builder(bset, an);
   return builder.Create();
 }

@@ -8,13 +8,13 @@ namespace iroha {
 namespace opt {
 
 class DataFlowCollector {
-public:
-  DataFlowCollector(BBSet *bbs, DebugAnnotation *annotation);
+ public:
+  DataFlowCollector(BBSet *bbs, OptimizerLog *opt_log);
   DataFlow *Create();
 
-private:
+ private:
   class BBInfo {
-  public:
+   public:
     BB *bb_;
     map<IRegister *, RegDef *> last_defs_;
     vector<RegDef *> kills_;
@@ -25,11 +25,11 @@ private:
   void CollectReaches();
   void CollectPropagates(BBInfo *prev_bb_info, set<RegDef *> *prop);
   void CopyReaches();
-  void Annotate(ostream &os);
+  void Log(ostream &os);
   map<BB *, BBInfo *> bb_info_;
   BBSet *bbs_;
   DataFlow *df_;
-  DebugAnnotation *annotation_;
+  OptimizerLog *opt_log_;
 };
 
 }  // namespace opt

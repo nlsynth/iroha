@@ -7,13 +7,13 @@
 namespace iroha {
 
 namespace opt {
-class DebugAnnotation;
+class OptimizerLog;
 }  // namespace opt
 
 namespace writer {
 
 class HtmlWriter {
-public:
+ public:
   HtmlWriter(const IDesign *design, ostream &os);
 
   void Write();
@@ -21,7 +21,7 @@ public:
   static void WriteHeader(ostream &os);
   static void WriteFooter(ostream &os);
 
-private:
+ private:
   void WriteModule(const IModule &mod);
   void WriteTable(const ITable &tab);
   void WriteTableStates(const ITable &tab);
@@ -35,7 +35,7 @@ private:
 
   const IDesign *design_;
   ostream &os_;
-  const opt::DebugAnnotation *annotation_;
+  const opt::OptimizerLog *opt_log_;
 };
 
 }  // namespace writer

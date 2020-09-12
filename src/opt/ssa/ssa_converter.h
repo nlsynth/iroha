@@ -9,17 +9,17 @@ namespace opt {
 namespace ssa {
 
 class SSAConverter {
-public:
-  SSAConverter(ITable *table, DebugAnnotation *annotation);
+ public:
+  SSAConverter(ITable *table, OptimizerLog *opt_log);
   ~SSAConverter();
 
   void Perform();
 
-private:
+ private:
   void InjectInitialValueAssigns();
 
   ITable *table_;
-  DebugAnnotation *annotation_;
+  OptimizerLog *opt_log_;
 };
 
 }  // namespace ssa

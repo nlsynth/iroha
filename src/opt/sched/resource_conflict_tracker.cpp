@@ -1,7 +1,7 @@
 #include "opt/sched/resource_conflict_tracker.h"
 
 #include "iroha/i_design.h"
-#include "opt/debug_annotation.h"
+#include "opt/optimizer_log.h"
 #include "opt/sched/path_node.h"
 #include "opt/sched/resource_entry.h"
 #include "opt/sched/virtual_resource.h"
@@ -10,8 +10,7 @@ namespace iroha {
 namespace opt {
 namespace sched {
 
-ResourceConflictTracker::~ResourceConflictTracker() {
-}
+ResourceConflictTracker::~ResourceConflictTracker() {}
 
 void ResourceConflictTracker::AddUsage(PathNode *node, bool had_conflict) {
   if (node->IsTransition()) {
@@ -26,7 +25,7 @@ void ResourceConflictTracker::AddUsage(PathNode *node, bool had_conflict) {
   }
 }
 
-void ResourceConflictTracker::Dump(DebugAnnotation *an) {
+void ResourceConflictTracker::Dump(OptimizerLog *an) {
   ostream &os = an->GetDumpStream();
   os << "Resource conflicts\n"
      << "# class id replica count conflict\n";
@@ -35,12 +34,8 @@ void ResourceConflictTracker::Dump(DebugAnnotation *an) {
     int count = p.second;
     int conflict = conflict_count_[rent];
     IResource *ires = rent->GetResource();
-    os << ires->GetClass()->GetName() << " "
-       << ires->GetId() << " "
-       << rent->GetNumReplicas() << " "
-       << count << " "
-       << conflict
-       << "\n";
+    os << ires->GetClass()->GetName() << " " << ires->GetId() << " "
+       << rent->GetNumReplicas() << " " << count << " " << conflict << "\n";
   }
 }
 

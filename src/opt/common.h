@@ -2,10 +2,10 @@
 #ifndef _opt_common_h_
 #define _opt_common_h_
 
-#include "iroha/common.h"
-
-#include <set>
 #include <map>
+#include <set>
+
+#include "iroha/common.h"
 
 namespace iroha {
 namespace opt {
@@ -13,7 +13,7 @@ namespace opt {
 class BB;
 class BBSet;
 class DataFlow;
-class DebugAnnotation;
+class OptimizerLog;
 class DominatorTree;
 class DelayInfo;
 class Optimizer;

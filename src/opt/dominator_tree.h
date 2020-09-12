@@ -8,9 +8,8 @@ namespace iroha {
 namespace opt {
 
 class DominatorTree {
-public:
-  static DominatorTree *Create(BBSet *bset,
-			       DebugAnnotation *an);
+ public:
+  static DominatorTree *Create(BBSet *bset, OptimizerLog *an);
   void GetFrontier(BB *bb, vector<BB *> *s);
 
   map<BB *, vector<BB *> > frontiers_;

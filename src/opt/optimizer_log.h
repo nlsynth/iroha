@@ -1,6 +1,6 @@
 // -*- C++ -*-
-#ifndef _opt_debug_annotation_h_
-#define _opt_debug_annotation_h_
+#ifndef _opt_optimizer_log_h_
+#define _opt_optimizer_log_h_
 
 #include <map>
 #include <set>
@@ -12,10 +12,10 @@ namespace iroha {
 namespace opt {
 
 // Per design object to store debug strings.
-class DebugAnnotation {
+class OptimizerLog {
  public:
-  DebugAnnotation();
-  ~DebugAnnotation();
+  OptimizerLog();
+  ~OptimizerLog();
 
   // Called once at the start.
   void Enable();
@@ -57,4 +57,4 @@ class DebugAnnotation {
 }  // namespace opt
 }  // namespace iroha
 
-#endif  // _opt_debug_annotation_h_
+#endif  // _opt_optimizer_log_h_

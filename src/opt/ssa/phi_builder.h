@@ -9,19 +9,19 @@ namespace opt {
 namespace ssa {
 
 class PhiBuilder {
-public:
-  PhiBuilder(ITable *tab, DebugAnnotation *annotation);
+ public:
+  PhiBuilder(ITable *tab, OptimizerLog *opt_log);
   ~PhiBuilder();
   void Perform();
 
-private:
+ private:
   class PHI {
-  public:
+   public:
     IInsn *insn_;
     set<RegDef *> defs_;
   };
   class PerRegister {
-  public:
+   public:
     map<int, IRegister *> versions_;
   };
 
@@ -29,13 +29,13 @@ private:
   void UpdatePHIInputs(PHI *phi);
   void UpdateVersionsForBB(BB *bb);
   void UpdateVersionsForInsn(map<IRegister *, RegDef *> *reg_to_last_def,
-			     IInsn *insn);
+                             IInsn *insn);
   // For versioning.
   int GetVersionFromDefInfo(RegDef *reg_def);
   IRegister *FindVersionedReg(RegDef *reg_def);
 
   ITable *table_;
-  DebugAnnotation *annotation_;
+  OptimizerLog *opt_log_;
   IResource *phi_;
   unique_ptr<BBSet> bset_;
   unique_ptr<DataFlow> data_flow_;

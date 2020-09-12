@@ -9,19 +9,17 @@ namespace iroha {
 namespace opt {
 namespace ssa {
 
-PhiCleaner::PhiCleaner(ITable *table, DebugAnnotation *annotation)
-  : table_(table), annotation_(annotation), nth_sel_(0) {
-}
+PhiCleaner::PhiCleaner(ITable *table, OptimizerLog *opt_log)
+    : table_(table), opt_log_(opt_log), nth_sel_(0) {}
 
-PhiCleaner::~PhiCleaner() {
-}
+PhiCleaner::~PhiCleaner() {}
 
 void PhiCleaner::Perform() {
   phi_ = DesignTool::GetOneResource(table_, resource::kPhi);
   sel_ = DesignTool::GetOneResource(table_, resource::kSelect);
   assign_ = DesignTool::GetOneResource(table_, resource::kSet);
-  bset_.reset(BBSet::Create(table_, false, annotation_));
-  data_flow_.reset(DataFlow::Create(bset_.get(), annotation_));
+  bset_.reset(BBSet::Create(table_, false, opt_log_));
+  data_flow_.reset(DataFlow::Create(bset_.get(), opt_log_));
 
   for (RegDef *reg_def : data_flow_->all_defs_) {
     reg_def_map_[reg_def->insn].insert(reg_def);
@@ -48,14 +46,14 @@ void PhiCleaner::ProcessBB(BB *bb) {
   }
 }
 
-void PhiCleaner::ProcessInsn(map<IRegister *, RegDef *> *last_defs,
-			     IState *st, IInsn *insn) {
+void PhiCleaner::ProcessInsn(map<IRegister *, RegDef *> *last_defs, IState *st,
+                             IInsn *insn) {
   for (IRegister *reg : insn->outputs_) {
     set<RegDef *> &defs = reg_def_map_[insn];
     RegDef *reg_def = nullptr;
     for (RegDef *d : defs) {
       if (d->reg == reg) {
-	reg_def = d;
+        reg_def = d;
       }
     }
     (*last_defs)[reg] = reg_def;
@@ -75,8 +73,8 @@ void PhiCleaner::ProcessInsn(map<IRegister *, RegDef *> *last_defs,
   DesignTool::EraseInsn(st, insn);
 }
 
-void PhiCleaner::EmitSelector(map<IRegister *, RegDef *> *last_defs,
-			      IState *st, IInsn *phi_insn) {
+void PhiCleaner::EmitSelector(map<IRegister *, RegDef *> *last_defs, IState *st,
+                              IInsn *phi_insn) {
   // Condition reg for each BB.
   IRegister *cond_reg = new IRegister(table_, "cond_" + Util::Itoa(nth_sel_));
   table_->registers_.push_back(cond_reg);

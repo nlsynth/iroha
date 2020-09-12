@@ -1,17 +1,15 @@
 #include "opt/dominator_tree_builder.h"
 
-#include "iroha/stl_util.h"
 #include "iroha/logging.h"
-#include "opt/dominator_tree.h"
+#include "iroha/stl_util.h"
 #include "opt/bb_set.h"
+#include "opt/dominator_tree.h"
 
 namespace iroha {
 namespace opt {
 
-DominatorTreeBuilder::DominatorTreeBuilder(BBSet *bset,
-					   DebugAnnotation *an)
-  : bset_(bset), annotation_(an) {
-}
+DominatorTreeBuilder::DominatorTreeBuilder(BBSet *bset, OptimizerLog *an)
+    : bset_(bset), opt_log_(an) {}
 
 DominatorTreeBuilder::~DominatorTreeBuilder() {
   STLDeleteSecondElements(&dom_info_);
@@ -43,7 +41,7 @@ void DominatorTreeBuilder::CalculateDominator() {
       di->dominators_.insert(di);
     } else {
       for (auto jt : dom_info_) {
-	di->dominators_.insert(jt.second);
+        di->dominators_.insert(jt.second);
       }
     }
     // Sets pred blocks' info.
@@ -79,8 +77,8 @@ void DominatorTreeBuilder::CalculateDominator() {
 }
 
 void DominatorTreeBuilder::Union(set<DominatorInfo *> &s1,
-				 set<DominatorInfo *> &s2,
-				 set<DominatorInfo *> *d) {
+                                 set<DominatorInfo *> &s2,
+                                 set<DominatorInfo *> *d) {
   for (auto *di1 : s1) {
     if (s2.find(di1) != s2.end()) {
       d->insert(di1);
@@ -92,13 +90,13 @@ void DominatorTreeBuilder::CalculateFrontier() {
   for (auto it : dom_info_) {
     DominatorInfo *cur_di = it.second;
     for (BB *bb : cur_di->bb_->next_bbs_) {
-     DominatorInfo *next_di = dom_info_[bb];
-     for (DominatorInfo *di : cur_di->dominators_) {
-       if (next_di->dominators_.find(di) == next_di->dominators_.end()) {
-         di->frontiers_.insert(next_di);
-       }
-     }
-   }
+      DominatorInfo *next_di = dom_info_[bb];
+      for (DominatorInfo *di : cur_di->dominators_) {
+        if (next_di->dominators_.find(di) == next_di->dominators_.end()) {
+          di->frontiers_.insert(next_di);
+        }
+      }
+    }
   }
 }
 

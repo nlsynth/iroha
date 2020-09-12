@@ -16,21 +16,19 @@ namespace iroha {
 namespace opt {
 namespace ssa {
 
-SSAConverter::SSAConverter(ITable *table, DebugAnnotation *annotation)
-  : table_(table), annotation_(annotation) {
-}
+SSAConverter::SSAConverter(ITable *table, OptimizerLog *opt_log)
+    : table_(table), opt_log_(opt_log) {}
 
-SSAConverter::~SSAConverter() {
-}
+SSAConverter::~SSAConverter() {}
 
 void SSAConverter::Perform() {
   InjectInitialValueAssigns();
   // PhiInjector injects just phi insns and their output register.
   // PhiBuilder updates affected registers.
-  PhiInjector injector(table_, annotation_);
+  PhiInjector injector(table_, opt_log_);
   injector.Perform();
 
-  PhiBuilder phi_builder(table_, annotation_);
+  PhiBuilder phi_builder(table_, opt_log_);
   phi_builder.Perform();
 }
 

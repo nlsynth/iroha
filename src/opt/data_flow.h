@@ -8,7 +8,7 @@ namespace iroha {
 namespace opt {
 
 class RegDef {
-public:
+ public:
   IRegister *reg;
   IInsn *insn;
   int output_index;
@@ -17,9 +17,9 @@ public:
 };
 
 class DataFlow {
-public:
+ public:
   ~DataFlow();
-  static DataFlow *Create(BBSet *bbs, DebugAnnotation *annotation);
+  static DataFlow *Create(BBSet *bbs, OptimizerLog *opt_log);
 
   void GetReachDefs(BB *bb, vector<RegDef *> *defs);
 

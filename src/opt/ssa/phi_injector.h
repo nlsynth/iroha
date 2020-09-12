@@ -9,15 +9,15 @@ namespace opt {
 namespace ssa {
 
 class PhiInjector {
-public:
-  PhiInjector(ITable *table, DebugAnnotation *annotation);
+ public:
+  PhiInjector(ITable *table, OptimizerLog *opt_log);
   ~PhiInjector();
 
   void Perform();
 
-  private:
+ private:
   class PerRegister {
-  public:
+   public:
     set<RegDef *> original_defs_;
     set<BB *> phi_bbs_;
   };
@@ -31,7 +31,7 @@ public:
   void PrependState(BB *bb);
 
   ITable *table_;
-  DebugAnnotation *annotation_;
+  OptimizerLog *opt_log_;
   IResource *phi_;
   IResource *tr_;
   unique_ptr<BBSet> bset_;

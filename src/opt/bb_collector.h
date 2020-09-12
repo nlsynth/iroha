@@ -10,15 +10,14 @@ namespace opt {
 
 class BB;
 class BBSet;
-class DebugAnnotation;
+class OptimizerLog;
 
 class BBCollector {
-public:
-  BBCollector(ITable *table, bool splitMultiCycle,
-	      DebugAnnotation *annotation);
+ public:
+  BBCollector(ITable *table, bool splitMultiCycle, OptimizerLog *opt_log);
   BBSet *Create();
 
-private:
+ private:
   // Collect BBs.
   void CollectEntries();
   void CollectBBsFromEntry(IState *entry_st);
@@ -26,11 +25,11 @@ private:
   // Additional info.
   void SetStateBBMap();
   void SetBBTransition();
-  void Annotate();
+  void Log();
 
   ITable *table_;
   bool splitMultiCycle_;
-  DebugAnnotation *annotation_;
+  OptimizerLog *opt_log_;
   BBSet *bset_;
   IResource *tr_;
   set<IState *> bb_entries_;

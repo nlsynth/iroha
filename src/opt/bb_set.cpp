@@ -1,10 +1,10 @@
 #include "opt/bb_set.h"
 
-#include "opt/bb_collector.h"
-#include "opt/debug_annotation.h"
-#include "iroha/stl_util.h"
-
 #include <algorithm>
+
+#include "iroha/stl_util.h"
+#include "opt/bb_collector.h"
+#include "opt/optimizer_log.h"
 
 namespace {
 struct LessBBP {
@@ -17,19 +17,15 @@ struct LessBBP {
 namespace iroha {
 namespace opt {
 
-BB::BB() : bb_id_(-1) {
-}
+BB::BB() : bb_id_(-1) {}
 
-BBSet::BBSet(ITable *table) : initial_bb_(nullptr), table_(table) {
-}
+BBSet::BBSet(ITable *table) : initial_bb_(nullptr), table_(table) {}
 
-BBSet::~BBSet() {
-  STLDeleteValues(&bbs_);
-}
+BBSet::~BBSet() { STLDeleteValues(&bbs_); }
 
 BBSet *BBSet::Create(ITable *table, bool splitMultiCycle,
-		     DebugAnnotation *annotation) {
-  BBCollector collector(table, splitMultiCycle, annotation);
+                     OptimizerLog *opt_log) {
+  BBCollector collector(table, splitMultiCycle, opt_log);
   return collector.Create();
 }
 
@@ -41,21 +37,19 @@ void BBSet::SortBBs(const set<BB *> &input, vector<BB *> *sorted) {
   sort(sorted->begin(), sorted->end(), LessBBP());
 }
 
-void BBSet::Annotate(DebugAnnotation *annotation) {
+void BBSet::Log(OptimizerLog *opt_log) {
   for (int i = 0; i < bbs_.size(); ++i) {
     int id = bbs_[i]->bb_id_;
     int idx = 0;
     for (IState *st : bbs_[i]->states_) {
-      annotation->State(st) << "bb:" << id << ":" << idx;
-      annotation->SetStateColorIndex(st, i);
+      opt_log->State(st) << "bb:" << id << ":" << idx;
+      opt_log->SetStateColorIndex(st, i);
       ++idx;
     }
   }
 }
 
-ITable *BBSet::GetTable() const {
-  return table_;
-}
+ITable *BBSet::GetTable() const { return table_; }
 
 }  // namespace opt
 }  // namespace iroha

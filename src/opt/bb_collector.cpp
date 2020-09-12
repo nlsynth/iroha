@@ -4,16 +4,18 @@
 #include "iroha/i_design.h"
 #include "iroha/resource_attr.h"
 #include "opt/bb_set.h"
-#include "opt/debug_annotation.h"
 #include "opt/opt_util.h"
+#include "opt/optimizer_log.h"
 
 namespace iroha {
 namespace opt {
 
 BBCollector::BBCollector(ITable *table, bool splitMultiCycle,
-			 DebugAnnotation *annotation)
-  : table_(table), splitMultiCycle_(splitMultiCycle),
-    annotation_(annotation), bset_(new BBSet(table)) {
+                         OptimizerLog *opt_log)
+    : table_(table),
+      splitMultiCycle_(splitMultiCycle),
+      opt_log_(opt_log),
+      bset_(new BBSet(table)) {
   tr_ = DesignUtil::FindTransitionResource(table_);
 }
 
@@ -29,8 +31,8 @@ BBSet *BBCollector::Create() {
   if (initial_st != nullptr) {
     bset_->initial_bb_ = bset_->state_to_bb_[initial_st];
   }
-  if (annotation_->IsEnabled()) {
-    Annotate();
+  if (opt_log_->IsEnabled()) {
+    Log();
   }
   return bset_;
 }
@@ -43,17 +45,17 @@ void BBCollector::CollectEntries() {
     bool nextIsEntry = false;
     if (splitMultiCycle_) {
       if (ResourceAttr::NumMultiCycleInsn(st)) {
-	bb_entries_.insert(st);
-	nextIsEntry = true;
+        bb_entries_.insert(st);
+        nextIsEntry = true;
       }
     }
     TransitionInfo &ti = transition_info_[st];
     if (nextIsEntry || ti.nr_branch_ > 1) {
       IInsn *tr_insn = DesignUtil::FindInsnByResource(st, tr_);
       if (tr_insn != nullptr) {
-	for (IState *target_st : tr_insn->target_states_) {
-	  bb_entries_.insert(target_st);
-	}
+        for (IState *target_st : tr_insn->target_states_) {
+          bb_entries_.insert(target_st);
+        }
       }
     }
     if (ti.nr_join_ > 1) {
@@ -73,14 +75,14 @@ void BBCollector::CollectBBsFromEntry(IState *entry_st) {
       IState *next_st = target_st;
       TransitionInfo &target_ti = transition_info_[target_st];
       if (target_ti.nr_join_ > 1) {
-	// multiple incoming path
-	next_st = nullptr;
+        // multiple incoming path
+        next_st = nullptr;
       }
       if (bb_entries_.find(next_st) != bb_entries_.end()) {
-	next_st = nullptr;
+        next_st = nullptr;
       }
       if (targets_seen.find(next_st) != targets_seen.end()) {
-	continue;
+        continue;
       }
       targets_seen.insert(next_st);
       CollectBB(entry_st, next_st);
@@ -102,7 +104,7 @@ void BBCollector::CollectBB(IState *entry_st, IState *next_st) {
       break;
     }
     IState *next = OptUtil::GetOneNextState(st);
-    if (next == nullptr|| next == st) {
+    if (next == nullptr || next == st) {
       break;
     }
     st = next;
@@ -124,25 +126,22 @@ void BBCollector::SetBBTransition() {
     for (IState *st : bb->states_) {
       IInsn *tr_insn = DesignUtil::FindInsnByResource(st, tr_);
       if (tr_insn == nullptr) {
-	continue;
+        continue;
       }
       for (IState *target_st : tr_insn->target_states_) {
-	BB *target_bb = bset_->state_to_bb_[target_st];
-	if (target_bb == bb &&
-	    target_st != target_bb->states_[0]) {
-	  // Just a transition in this BB. Ignore it.
-	  continue;
-	}
-	bb->next_bbs_.insert(target_bb);
-	target_bb->prev_bbs_.insert(bb);
+        BB *target_bb = bset_->state_to_bb_[target_st];
+        if (target_bb == bb && target_st != target_bb->states_[0]) {
+          // Just a transition in this BB. Ignore it.
+          continue;
+        }
+        bb->next_bbs_.insert(target_bb);
+        target_bb->prev_bbs_.insert(bb);
       }
     }
   }
 }
 
-void BBCollector::Annotate() {
-  bset_->Annotate(annotation_);
-}
+void BBCollector::Log() { bset_->Log(opt_log_); }
 
 }  // namespace opt
 }  // namespace iroha

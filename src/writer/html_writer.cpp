@@ -1,14 +1,13 @@
 #include "writer/html_writer.h"
 
 #include "iroha/i_design.h"
-#include "opt/debug_annotation.h"
+#include "opt/optimizer_log.h"
 
 namespace iroha {
 namespace writer {
 
 HtmlWriter::HtmlWriter(const IDesign *design, ostream &os)
-  : design_(design), os_(os), annotation_(design->GetDebugAnnotation()) {
-}
+    : design_(design), os_(os), opt_log_(design->GetOptimizerLog()) {}
 
 void HtmlWriter::Write() {
   WriteHeader(os_);
@@ -22,9 +21,7 @@ void HtmlWriter::WriteHeader(ostream &os) {
   os << "<html><head></head><body>\n";
 }
 
-void HtmlWriter::WriteFooter(ostream &os) {
-  os << "</body></html>\n";
-}
+void HtmlWriter::WriteFooter(ostream &os) { os << "</body></html>\n"; }
 
 void HtmlWriter::WriteModule(const IModule &mod) {
   os_ << "<div>\n";
@@ -35,15 +32,13 @@ void HtmlWriter::WriteModule(const IModule &mod) {
   os_ << "</div>\n";
 }
 
-void HtmlWriter::WriteIntermediateTable(const ITable &tab) {
-  WriteTable(tab);
-}
+void HtmlWriter::WriteIntermediateTable(const ITable &tab) { WriteTable(tab); }
 
 void HtmlWriter::WriteTable(const ITable &tab) {
   os_ << "<div>\n"
       << " table: " << tab.GetId() << "<br>\n";
-  if (annotation_) {
-    os_ << " " << annotation_->GetTableAnnotation(&tab) << "\n";
+  if (opt_log_) {
+    os_ << " " << opt_log_->GetTableAnnotation(&tab) << "\n";
   }
   WriteRegisters(tab);
   WriteResources(tab);
@@ -67,19 +62,19 @@ void HtmlWriter::WriteTableStates(const ITable &tab) {
   int in_block_index = 0;
   for (auto *st : tab.states_) {
     in_block_index++;
-    if (annotation_) {
-      int tmp_block_index = annotation_->GetStateColorIndex(st);
+    if (opt_log_) {
+      int tmp_block_index = opt_log_->GetStateColorIndex(st);
       if (tmp_block_index != block_index) {
-	in_block_index = 0;
-	++color_index;
+        in_block_index = 0;
+        ++color_index;
       }
       block_index = tmp_block_index;
     }
     os_ << "    <tr" << StateRowStyle(color_index, in_block_index) << ">\n";
     os_ << "    <td>\n"
-	<< "     " << st->GetId() << "\n";
-    if (annotation_) {
-      os_ << " " << annotation_->GetStateAnnotation(st);
+        << "     " << st->GetId() << "\n";
+    if (opt_log_) {
+      os_ << " " << opt_log_->GetStateAnnotation(st);
     }
     os_ << "    </td>\n";
     map<IResource *, vector<IInsn *> > insns;
@@ -89,7 +84,7 @@ void HtmlWriter::WriteTableStates(const ITable &tab) {
     for (IResource *res : tab.resources_) {
       os_ << "     <td>\n";
       for (IInsn *insn : insns[res]) {
-	WriteInsn(*insn);
+        WriteInsn(*insn);
       }
       os_ << "     </td>\n";
     }
@@ -98,7 +93,7 @@ void HtmlWriter::WriteTableStates(const ITable &tab) {
   os_ << "</table>\n";
 }
 
-void HtmlWriter::WriteInsn(const IInsn &insn){
+void HtmlWriter::WriteInsn(const IInsn &insn) {
   os_ << "    " << insn.GetId() << ":" << insn.GetOperand();
   if (insn.target_states_.size()) {
     for (auto *st : insn.target_states_) {

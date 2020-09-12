@@ -1,12 +1,12 @@
 #include "opt/pass.h"
 
 #include "iroha/i_design.h"
-#include "opt/debug_annotation.h"
+#include "opt/optimizer_log.h"
 
 namespace iroha {
 namespace opt {
 
-Pass::Pass() : optimizer_(nullptr), annotation_(nullptr) {}
+Pass::Pass() : optimizer_(nullptr), opt_log_(nullptr) {}
 
 Pass::~Pass() {}
 
@@ -14,9 +14,7 @@ void Pass::SetName(const string &name) { name_ = name; }
 
 void Pass::SetOptimizer(Optimizer *opt) { optimizer_ = opt; }
 
-void Pass::SetAnnotation(DebugAnnotation *annotation) {
-  annotation_ = annotation;
-}
+void Pass::SetAnnotation(OptimizerLog *opt_log) { opt_log_ = opt_log; }
 
 bool Pass::Apply(IDesign *design) {
   OutputPassHeader(name_);
@@ -46,10 +44,10 @@ bool Pass::ApplyForModule(const string &key, IModule *module) {
 bool Pass::ApplyForTable(const string &key, ITable *table) { return true; }
 
 void Pass::OutputPassHeader(const string &msg) {
-  if (!annotation_->IsEnabled()) {
+  if (!opt_log_->IsEnabled()) {
     return;
   }
-  ostream &os = annotation_->GetDumpStream();
+  ostream &os = opt_log_->GetDumpStream();
   os << "<h1> Pass: " << msg << "</h1>\n";
 }
 

@@ -10,7 +10,7 @@ namespace ssa {
 
 class PhiCleaner {
  public:
-  PhiCleaner(ITable *table, DebugAnnotation *annotation);
+  PhiCleaner(ITable *table, OptimizerLog *opt_log);
   ~PhiCleaner();
 
   void Perform();
@@ -23,7 +23,7 @@ class PhiCleaner {
                     IInsn *phi_insn);
 
   ITable *table_;
-  DebugAnnotation *annotation_;
+  OptimizerLog *opt_log_;
   unique_ptr<BBSet> bset_;
   unique_ptr<DataFlow> data_flow_;
   IResource *phi_;

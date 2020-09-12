@@ -13,7 +13,7 @@
 #include "opt/clean/unused_resource.h"
 #include "opt/compound.h"
 #include "opt/constant/constant_propagation.h"
-#include "opt/debug_annotation.h"
+#include "opt/optimizer_log.h"
 #include "opt/pass.h"
 #include "opt/pipeline/pipeline_pass.h"
 #include "opt/sched/sched_pass.h"
@@ -29,7 +29,7 @@ namespace opt {
 map<string, function<Pass *()> > Optimizer::passes_;
 
 Optimizer::Optimizer(IDesign *design) : design_(design) {
-  design_->SetDebugAnnotation(new DebugAnnotation);
+  design_->SetOptimizerLog(new OptimizerLog);
   platform_db_.reset(platform::Platform::CreatePlatformDB(design));
 }
 
@@ -80,7 +80,7 @@ bool Optimizer::ApplyPass(const string &name) {
   unique_ptr<Pass> pass(factory());
   pass->SetName(name);
   pass->SetOptimizer(this);
-  auto *annotation = design_->GetDebugAnnotation();
+  auto *annotation = design_->GetOptimizerLog();
   pass->SetAnnotation(annotation);
   annotation->StartPass(name);
   bool isOk = pass->Apply(design_);
@@ -90,8 +90,8 @@ bool Optimizer::ApplyPass(const string &name) {
   return isOk;
 }
 
-void Optimizer::EnableDebugAnnotation() {
-  DebugAnnotation *an = design_->GetDebugAnnotation();
+void Optimizer::EnableOptimizerLog() {
+  OptimizerLog *an = design_->GetOptimizerLog();
   an->Enable();
 }
 
@@ -101,7 +101,7 @@ void Optimizer::DumpIntermediateToFiles(const string &fn) {
   if (fn.empty()) {
     return;
   }
-  auto *an = design_->GetDebugAnnotation();
+  auto *an = design_->GetOptimizerLog();
   an->WriteToFiles(fn);
 }
 

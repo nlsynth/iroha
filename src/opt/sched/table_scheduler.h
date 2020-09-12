@@ -9,18 +9,17 @@ namespace opt {
 namespace sched {
 
 class TableScheduler {
-public:
-  TableScheduler(ITable *table, DelayInfo *delay_info,
-		 DebugAnnotation *annotation);
+ public:
+  TableScheduler(ITable *table, DelayInfo *delay_info, OptimizerLog *opt_log);
   virtual ~TableScheduler();
   bool Perform();
 
-private:
+ private:
   void IterateScheduling();
 
   ITable *table_;
   DelayInfo *delay_info_;
-  DebugAnnotation *annotation_;
+  OptimizerLog *opt_log_;
   unique_ptr<BBSet> bset_;
 
   unique_ptr<DataPathSet> data_path_set_;

@@ -180,7 +180,7 @@ int main(int argc, char **argv) {
     std::unique_ptr<IDesign> deleter(design);
     OptAPI *optimizer = Iroha::CreateOptimizer(design);
     if (!debug_dump.empty()) {
-      optimizer->EnableDebugAnnotation();
+      optimizer->EnableOptimizerLog();
     }
     bool has_opt_err = false;
     for (string &pass : opts) {

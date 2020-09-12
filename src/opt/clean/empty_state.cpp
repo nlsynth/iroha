@@ -13,12 +13,12 @@ CleanEmptyStatePass::~CleanEmptyStatePass() {}
 Pass *CleanEmptyStatePass::Create() { return new CleanEmptyStatePass(); }
 
 bool CleanEmptyStatePass::ApplyForTable(const string &key, ITable *table) {
-  CleanEmptyState shrink(table, annotation_);
+  CleanEmptyState shrink(table, opt_log_);
   return shrink.Perform();
 }
 
-CleanEmptyState::CleanEmptyState(ITable *table, DebugAnnotation *annotation)
-    : table_(table), annotation_(annotation) {
+CleanEmptyState::CleanEmptyState(ITable *table, OptimizerLog *opt_log)
+    : table_(table), opt_log_(opt_log) {
   transition_ = DesignUtil::FindTransitionResource(table);
 }
 

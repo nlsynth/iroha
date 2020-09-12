@@ -26,7 +26,7 @@ bool SchedPass::ApplyForDesign(IDesign *design) {
 }
 
 bool SchedPass::ApplyForTable(const string &key, ITable *table) {
-  TableScheduler sched(table, delay_info_.get(), annotation_);
+  TableScheduler sched(table, delay_info_.get(), opt_log_);
   return sched.Perform();
 }
 

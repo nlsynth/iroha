@@ -10,7 +10,7 @@ class OptAPI {
  public:
   virtual ~OptAPI();
   virtual bool ApplyPass(const string &name) = 0;
-  virtual void EnableDebugAnnotation() = 0;
+  virtual void EnableOptimizerLog() = 0;
   virtual void DumpIntermediateToFiles(const string &fn) = 0;
 };
 

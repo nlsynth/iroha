@@ -11,7 +11,7 @@ namespace iroha {
 namespace opt {
 
 class BB {
-public:
+ public:
   BB();
 
   vector<IState *> states_;
@@ -21,22 +21,22 @@ public:
 };
 
 class BBSet {
-public:
+ public:
   BBSet(ITable *table);
   ~BBSet();
 
   static BBSet *Create(ITable *table, bool splitMultiCycle,
-		       DebugAnnotation *annotation);
+                       OptimizerLog *opt_log);
   static void SortBBs(const set<BB *> &input, vector<BB *> *sorted);
 
-  void Annotate(DebugAnnotation *annotation);
+  void Log(OptimizerLog *opt_log);
   ITable *GetTable() const;
 
   vector<BB *> bbs_;
   BB *initial_bb_;
   map<IState *, BB *> state_to_bb_;
 
-private:
+ private:
   ITable *table_;
 };
 

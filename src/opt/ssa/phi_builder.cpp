@@ -6,14 +6,12 @@
 #include "opt/bb_set.h"
 #include "opt/data_flow.h"
 
-
 namespace iroha {
 namespace opt {
 namespace ssa {
 
-PhiBuilder::PhiBuilder(ITable *tab, DebugAnnotation *annotation)
-  : table_(tab), annotation_(annotation), phi_(nullptr) {
-}
+PhiBuilder::PhiBuilder(ITable *tab, OptimizerLog *opt_log)
+    : table_(tab), opt_log_(opt_log), phi_(nullptr) {}
 
 PhiBuilder::~PhiBuilder() {
   STLDeleteValues(&phis_);
@@ -21,8 +19,8 @@ PhiBuilder::~PhiBuilder() {
 }
 
 void PhiBuilder::Perform() {
-  bset_.reset(BBSet::Create(table_, false, annotation_));
-  data_flow_.reset(DataFlow::Create(bset_.get(), annotation_));
+  bset_.reset(BBSet::Create(table_, false, opt_log_));
+  data_flow_.reset(DataFlow::Create(bset_.get(), opt_log_));
   phi_ = DesignTool::GetOneResource(table_, resource::kPhi);
 
   for (BB *bb : bset_->bbs_) {
@@ -87,15 +85,14 @@ void PhiBuilder::UpdateVersionsForBB(BB *bb) {
   }
 }
 
-void
-PhiBuilder::UpdateVersionsForInsn(map<IRegister *, RegDef *> *reg_to_last_def,
-				  IInsn *insn) {
+void PhiBuilder::UpdateVersionsForInsn(
+    map<IRegister *, RegDef *> *reg_to_last_def, IInsn *insn) {
   if (insn->GetResource() != phi_) {
     for (auto it = insn->inputs_.begin(); it != insn->inputs_.end(); ++it) {
       IRegister *ireg = *it;
       if (reg_to_last_def->find(ireg) != reg_to_last_def->end()) {
-	RegDef *reg_def = (*reg_to_last_def)[ireg];
-	*it = FindVersionedReg(reg_def);
+        RegDef *reg_def = (*reg_to_last_def)[ireg];
+        *it = FindVersionedReg(reg_def);
       }
     }
   }
@@ -104,7 +101,7 @@ PhiBuilder::UpdateVersionsForInsn(map<IRegister *, RegDef *> *reg_to_last_def,
     RegDef *reg_def = nullptr;
     for (RegDef *d : defs) {
       if (d->reg == *it) {
-	reg_def = d;
+        reg_def = d;
       }
     }
     (*reg_to_last_def)[reg_def->reg] = reg_def;
@@ -131,8 +128,8 @@ IRegister *PhiBuilder::FindVersionedReg(RegDef *reg_def) {
   int version = GetVersionFromDefInfo(reg_def);
   IRegister *reg = pr->versions_[version];
   if (reg == nullptr) {
-    reg = new IRegister(table_, reg_def->reg->GetName() + "_v" +
-			Util::Itoa(version));
+    reg = new IRegister(table_,
+                        reg_def->reg->GetName() + "_v" + Util::Itoa(version));
     reg->value_type_ = reg_def->reg->value_type_;
     table_->registers_.push_back(reg);
     pr->versions_[version] = reg;

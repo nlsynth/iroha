@@ -6,10 +6,10 @@
 #include "iroha/resource_class.h"
 #include "iroha/resource_params.h"
 #include "opt/bb_set.h"
-#include "opt/debug_annotation.h"
 #include "opt/delay_info.h"
-#include "opt/sched/bb_scheduler.h"
+#include "opt/optimizer_log.h"
 #include "opt/sched/bb_data_path.h"
+#include "opt/sched/bb_scheduler.h"
 #include "opt/sched/data_path_set.h"
 #include "opt/sched/explorer.h"
 #include "opt/sched/relocator.h"
@@ -23,7 +23,7 @@ namespace sched {
 
 // Schedules a DataPathSet (=ITable).
 class SchedulerCore {
-public:
+ public:
   SchedulerCore(DataPathSet *data_path_set, DelayInfo *delay_info);
   ~SchedulerCore();
 
@@ -31,25 +31,24 @@ public:
   // Takes the ownership of the object.
   ResourceConflictTracker *AcquireConflictTracker();
 
-private:
+ private:
   DataPathSet *data_path_set_;
   DelayInfo *delay_info_;
   std::unique_ptr<ResourceConflictTracker> conflict_tracker_;
 };
 
 TableScheduler::TableScheduler(ITable *table, DelayInfo *delay_info,
-			       DebugAnnotation *annotation)
-  : table_(table), delay_info_(delay_info), annotation_(annotation) {
+                               OptimizerLog *opt_log)
+    : table_(table), delay_info_(delay_info), opt_log_(opt_log) {
   data_path_set_.reset(new DataPathSet());
 }
 
-TableScheduler::~TableScheduler() {
-}
+TableScheduler::~TableScheduler() {}
 
 bool TableScheduler::Perform() {
-  bset_.reset(BBSet::Create(table_, true, annotation_));
-  if (annotation_->IsEnabled()) {
-    annotation_->DumpIntermediateTable(table_);
+  bset_.reset(BBSet::Create(table_, true, opt_log_));
+  if (opt_log_->IsEnabled()) {
+    opt_log_->DumpIntermediateTable(table_);
   }
 
   // Assign ids to newly allocated insns.
@@ -57,10 +56,10 @@ bool TableScheduler::Perform() {
 
   data_path_set_->Build(bset_.get());
   data_path_set_->SetDelay(delay_info_);
-  if (annotation_->IsEnabled()) {
-    annotation_->StartSubSection("data_path", false);
-    data_path_set_->Dump(annotation_);
-    annotation_->ClearSubSection();
+  if (opt_log_->IsEnabled()) {
+    opt_log_->StartSubSection("data_path", false);
+    data_path_set_->Dump(opt_log_);
+    opt_log_->ClearSubSection();
   }
 
   IterateScheduling();
@@ -74,8 +73,8 @@ bool TableScheduler::Perform() {
   // Assign ids to newly allocated insns.
   Validator::ValidateTable(table_);
 
-  if (annotation_->IsEnabled()) {
-    annotation_->DumpIntermediateTable(table_);
+  if (opt_log_->IsEnabled()) {
+    opt_log_->DumpIntermediateTable(table_);
   }
 
   return true;
@@ -92,10 +91,10 @@ void TableScheduler::IterateScheduling() {
     auto *conflict_tracker = sch.AcquireConflictTracker();
     wps->SaveCurrentSchedulingPlan(data_path_set_.get(), conflict_tracker);
 
-    if (annotation_->IsEnabled()) {
-      annotation_->StartSubSection("sched", false);
-      conflict_tracker->Dump(annotation_);
-      annotation_->ClearSubSection();
+    if (opt_log_->IsEnabled()) {
+      opt_log_->StartSubSection("sched", false);
+      conflict_tracker->Dump(opt_log_);
+      opt_log_->ClearSubSection();
     }
   } while (explorer.MaySetNextAllocationPlan());
 
@@ -103,12 +102,11 @@ void TableScheduler::IterateScheduling() {
 }
 
 SchedulerCore::SchedulerCore(DataPathSet *data_path_set, DelayInfo *delay_info)
-  : data_path_set_(data_path_set), delay_info_(delay_info) {
+    : data_path_set_(data_path_set), delay_info_(delay_info) {
   conflict_tracker_.reset(new ResourceConflictTracker);
 }
 
-SchedulerCore::~SchedulerCore() {
-}
+SchedulerCore::~SchedulerCore() {}
 
 void SchedulerCore::Schedule() {
   auto &paths = data_path_set_->GetBBPaths();

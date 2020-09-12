@@ -8,7 +8,7 @@
 namespace iroha {
 
 namespace opt {
-class DebugAnnotation;
+class OptimizerLog;
 }  // namespace opt
 
 class OptAPI;
@@ -17,25 +17,25 @@ class WriterAPI;
 // Type of resource.
 // e.g. 'adder' is a resource class and '32 bit adder' is a resource.
 class IResourceClass {
-public:
+ public:
   IResourceClass(const string &name, bool is_exclusive, IDesign *design);
   IDesign *GetDesign();
   bool IsExclusive();
   const string &GetName() const;
 
-private:
+ private:
   const string name_;
   IDesign *design_;
   bool is_exclusive_;
 };
 
 class IValueType : public NumericWidth {
-public:
+ public:
   static IValueType FromNumericWidth(const NumericWidth &w);
 };
 
 class IArrayImage {
-public:
+ public:
   IArrayImage(IDesign *design);
 
   IDesign *GetDesign() const;
@@ -45,16 +45,17 @@ public:
   void SetName(const string &name);
 
   vector<uint64_t> values_;
-private:
+
+ private:
   IDesign *design_;
   int id_;
   string name_;
 };
 
 class IArray {
-public:
+ public:
   IArray(IResource *res, int address_width, const IValueType &data_type,
-	 bool is_external, bool is_ram);
+         bool is_external, bool is_ram);
 
   // This indicates just ownership of the memory. IArray instance can be
   // shared by many IResources.
@@ -67,7 +68,7 @@ public:
   void SetArrayImage(IArrayImage *image);
   IArrayImage *GetArrayImage() const;
 
-private:
+ private:
   IResource *res_;
   int address_width_;
   IValueType data_type_;
@@ -77,7 +78,7 @@ private:
 };
 
 class IResource {
-public:
+ public:
   IResource(ITable *table, IResourceClass *resource_class);
   ~IResource();
   ITable *GetTable() const;
@@ -95,7 +96,7 @@ public:
   vector<IValueType> input_types_;
   vector<IValueType> output_types_;
 
-private:
+ private:
   ITable *table_;
   IResourceClass *resource_class_;
   ResourceParams *params_;
@@ -106,7 +107,7 @@ private:
 };
 
 class IRegister {
-public:
+ public:
   IRegister(ITable *table, const string &name);
   ITable *GetTable() const;
   int GetId() const;
@@ -128,7 +129,7 @@ public:
 
   IValueType value_type_;
 
-private:
+ private:
   ITable *table_;
   string name_;
   int id_;
@@ -140,7 +141,7 @@ private:
 };
 
 class IInsn {
-public:
+ public:
   IInsn(IResource *resource);
 
   IResource *GetResource() const;
@@ -155,7 +156,7 @@ public:
   vector<IState *> target_states_;
   vector<IInsn *> depending_insns_;
 
-private:
+ private:
   IResource *resource_;
   int id_;
   string operand_;
@@ -164,7 +165,7 @@ private:
 // Profiling information for an IState. This object is embedded in
 // the owner IState.
 class IProfile {
-public:
+ public:
   IProfile();
 
   bool valid_;
@@ -176,7 +177,7 @@ public:
 
 // This can be a state in an FSM or a pipeline stage.
 class IState {
-public:
+ public:
   IState(ITable *table);
   ITable *GetTable() const;
   int GetId() const;
@@ -186,7 +187,7 @@ public:
 
   vector<IInsn *> insns_;
 
-private:
+ private:
   ITable *table_;
   int id_;
   IProfile profile_;
@@ -196,7 +197,7 @@ private:
 // execution scheduling.
 // It can mean either a pipeline stage or an FSM.
 class ITable {
-public:
+ public:
   ITable(IModule *module);
   IModule *GetModule() const;
   int GetId() const;
@@ -210,7 +211,7 @@ public:
   vector<IResource *> resources_;
   vector<IRegister *> registers_;
 
-private:
+ private:
   IModule *module_;
   int id_;
   string name_;
@@ -219,7 +220,7 @@ private:
 
 // IModule corresponds to a module in HDL.
 class IModule {
-public:
+ public:
   IModule(IDesign *design, const string &name);
 
   IDesign *GetDesign() const;
@@ -232,7 +233,7 @@ public:
 
   vector<ITable *> tables_;
 
-private:
+ private:
   IDesign *design_;
   int id_;
   string name_;
@@ -243,14 +244,14 @@ private:
 // Represents a whole design including module hierarchy,
 // interfaces, some external stuff, configs and so on.
 class IDesign {
-public:
+ public:
   IDesign();
   ~IDesign();
 
   ResourceParams *GetParams() const;
   ObjectPool *GetObjectPool();
-  void SetDebugAnnotation(opt::DebugAnnotation *annotation);
-  opt::DebugAnnotation *GetDebugAnnotation() const;
+  void SetOptimizerLog(opt::OptimizerLog *opt_log);
+  opt::OptimizerLog *GetOptimizerLog() const;
   OptAPI *GetOptAPI() const;
   void SetOptAPI(OptAPI *opt_api);
   WriterAPI *GetWriterAPI() const;
@@ -265,10 +266,10 @@ public:
   vector<IArrayImage *> array_images_;
   vector<IPlatform *> platforms_;
 
-private:
+ private:
   ObjectPool *objects_;
   ResourceParams *params_;
-  opt::DebugAnnotation *annotation_;
+  opt::OptimizerLog *opt_log_;
 
   unique_ptr<OptAPI> opt_api_;
   unique_ptr<WriterAPI> writer_api_;
