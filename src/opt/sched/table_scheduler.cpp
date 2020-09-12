@@ -48,7 +48,7 @@ TableScheduler::~TableScheduler() {}
 bool TableScheduler::Perform() {
   bset_.reset(BBSet::Create(table_, true, opt_log_));
   if (opt_log_->IsEnabled()) {
-    opt_log_->DumpIntermediateTable(table_);
+    opt_log_->DumpTable(table_);
   }
 
   // Assign ids to newly allocated insns.
@@ -74,7 +74,7 @@ bool TableScheduler::Perform() {
   Validator::ValidateTable(table_);
 
   if (opt_log_->IsEnabled()) {
-    opt_log_->DumpIntermediateTable(table_);
+    opt_log_->DumpTable(table_);
   }
 
   return true;

@@ -11,6 +11,8 @@
 namespace iroha {
 namespace opt {
 
+class OptimizerLogSection;
+
 // Per design object to store debug strings.
 class OptimizerLog {
  public:
@@ -28,7 +30,7 @@ class OptimizerLog {
   void ClearSubSection();
   // Called by optimizers.
   bool IsEnabled();
-  void DumpIntermediateTable(const ITable *tab);
+  void DumpTable(const ITable *tab);
   ostream &GetDumpStream();
   ostream &Table(const ITable *tab);
   ostream &State(const IState *st);
@@ -41,13 +43,13 @@ class OptimizerLog {
 
  private:
   void UpdateFileName(bool isHtml);
+  OptimizerLogSection *GetSection(const string &name);
 
   bool enabled_;
-  string pass_name_;
-  string section_name_;
-  string file_name_;
-  map<string, ostringstream> dump_;
-  set<string> html_sections_;
+  string current_pass_name_;
+  string current_section_name_;
+  string current_file_name_;
+  map<string, OptimizerLogSection *> sections_;
 
   map<const ITable *, ostringstream> table_;
   map<const IState *, ostringstream> state_;

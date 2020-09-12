@@ -81,7 +81,7 @@ bool Optimizer::ApplyPass(const string &name) {
   pass->SetName(name);
   pass->SetOptimizer(this);
   auto *annotation = design_->GetOptimizerLog();
-  pass->SetAnnotation(annotation);
+  pass->SetOptimizerLog(annotation);
   annotation->StartPass(name);
   bool isOk = pass->Apply(design_);
   if (isOk) {

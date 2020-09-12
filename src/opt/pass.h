@@ -15,7 +15,7 @@ class Pass {
   // Following 3 methods must be called after the construction.
   void SetName(const string &name);
   void SetOptimizer(Optimizer *opt);
-  void SetAnnotation(OptimizerLog *opt_log);
+  void SetOptimizerLog(OptimizerLog *opt_log);
 
   bool Apply(IDesign *design);
 

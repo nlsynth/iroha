@@ -14,7 +14,7 @@ void Pass::SetName(const string &name) { name_ = name; }
 
 void Pass::SetOptimizer(Optimizer *opt) { optimizer_ = opt; }
 
-void Pass::SetAnnotation(OptimizerLog *opt_log) { opt_log_ = opt_log; }
+void Pass::SetOptimizerLog(OptimizerLog *opt_log) { opt_log_ = opt_log; }
 
 bool Pass::Apply(IDesign *design) {
   OutputPassHeader(name_);
@@ -37,6 +37,7 @@ bool Pass::ApplyForModule(const string &key, IModule *module) {
   bool all_ok = true;
   for (auto *table : module->tables_) {
     all_ok &= ApplyForTable(key, table);
+    opt_log_->DumpTable(table);
   }
   return all_ok;
 }

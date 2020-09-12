@@ -5,7 +5,6 @@
 #include "iroha/i_design.h"
 #include "iroha/logging.h"
 #include "iroha/resource_class.h"
-#include "opt/bb_set.h"
 #include "opt/data_flow.h"
 #include "opt/dominator_tree.h"
 #include "opt/opt_util.h"

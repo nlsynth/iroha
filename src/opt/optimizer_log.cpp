@@ -3,45 +3,54 @@
 #include <fstream>
 
 #include "iroha/i_design.h"
+#include "iroha/stl_util.h"
 #include "writer/writer.h"
 
 namespace iroha {
 namespace opt {
 
+class OptimizerLogSection {
+ public:
+  OptimizerLogSection() : is_html_(false){};
+
+  ostringstream dump_;
+  bool is_html_;
+};
+
 OptimizerLog::OptimizerLog() : enabled_(false) {}
 
-OptimizerLog::~OptimizerLog() {}
+OptimizerLog::~OptimizerLog() { STLDeleteSecondElements(&sections_); }
 
 void OptimizerLog::Enable() { enabled_ = true; }
 
 bool OptimizerLog::IsEnabled() { return enabled_; }
 
 void OptimizerLog::WriteToFiles(const string &baseFn) {
-  for (auto &p : dump_) {
+  for (auto &p : sections_) {
     const string &suffix = p.first;
     string fn = baseFn + "." + suffix;
-    bool isHtml = (html_sections_.find(suffix) != html_sections_.end());
-    if (isHtml) {
+    OptimizerLogSection *ls = p.second;
+    if (ls->is_html_) {
       fn += ".html";
     }
     ofstream os(fn);
-    if (isHtml) {
+    if (ls->is_html_) {
       writer::Writer::WriteDumpHeader(os);
     }
-    os << p.second.str();
-    if (isHtml) {
+    os << ls->dump_.str();
+    if (ls->is_html_) {
       writer::Writer::WriteDumpFooter(os);
     }
   }
   // Index of generated dump files.
   ofstream os(baseFn + ".html");
   writer::Writer::WriteDumpHeader(os);
-  for (auto &p : dump_) {
+  for (auto &p : sections_) {
     // TODO: Use basename.
     const string &suffix = p.first;
     string linkFn = baseFn + "." + suffix;
-    bool isHtml = (html_sections_.find(suffix) != html_sections_.end());
-    if (isHtml) {
+    OptimizerLogSection *ls = p.second;
+    if (ls->is_html_) {
       linkFn += ".html";
     }
     linkFn = Util::BaseName(linkFn);
@@ -50,11 +59,13 @@ void OptimizerLog::WriteToFiles(const string &baseFn) {
   writer::Writer::WriteDumpFooter(os);
 }
 
-void OptimizerLog::DumpIntermediateTable(const ITable *tab) {
-  writer::Writer::DumpTable(tab, dump_[file_name_]);
+void OptimizerLog::DumpTable(const ITable *tab) {
+  writer::Writer::DumpTable(tab, GetSection(current_file_name_)->dump_);
 }
 
-ostream &OptimizerLog::GetDumpStream() { return dump_[file_name_]; }
+ostream &OptimizerLog::GetDumpStream() {
+  return GetSection(current_file_name_)->dump_;
+}
 
 ostream &OptimizerLog::Table(const ITable *tab) { return table_[tab]; }
 
@@ -89,31 +100,40 @@ int OptimizerLog::GetStateColorIndex(const IState *st) const {
 }
 
 void OptimizerLog::StartPass(const string &name) {
-  pass_name_ = name;
-  section_name_ = "";
+  current_pass_name_ = name;
+  current_section_name_ = "";
   UpdateFileName(true);
   table_.clear();
   state_.clear();
 }
 
 void OptimizerLog::StartSubSection(const string &section, bool isHtml) {
-  section_name_ = section;
+  current_section_name_ = section;
   UpdateFileName(isHtml);
 }
 
 void OptimizerLog::ClearSubSection() {
-  section_name_.clear();
+  current_section_name_.clear();
   UpdateFileName(false);
 }
 
 void OptimizerLog::UpdateFileName(bool isHtml) {
-  file_name_ = pass_name_;
-  if (!section_name_.empty()) {
-    file_name_ += "." + section_name_;
+  current_file_name_ = current_pass_name_;
+  if (!current_section_name_.empty()) {
+    current_file_name_ += "." + current_section_name_;
   }
-  if (isHtml) {
-    html_sections_.insert(file_name_);
+  OptimizerLogSection *ls = GetSection(current_file_name_);
+  ls->is_html_ = isHtml;
+}
+
+OptimizerLogSection *OptimizerLog::GetSection(const string &name) {
+  auto it = sections_.find(name);
+  if (it == sections_.end()) {
+    OptimizerLogSection *s = new OptimizerLogSection();
+    sections_[name] = s;
+    return s;
   }
+  return it->second;
 }
 
 }  // namespace opt
