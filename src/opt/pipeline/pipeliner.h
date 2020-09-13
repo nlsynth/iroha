@@ -20,6 +20,7 @@ class Pipeliner {
  private:
   ITable *tab_;
   loop::LoopBlock *lb_;
+  OptimizerLog *opt_log_;
 };
 
 }  // namespace pipeline

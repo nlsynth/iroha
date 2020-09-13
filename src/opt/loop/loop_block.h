@@ -15,7 +15,7 @@ namespace loop {
 // * (Sd) count += 1, ->Sb
 //   (Se) ..
 class LoopBlock {
-public:
+ public:
   LoopBlock(ITable *tab, IRegister *reg);
 
   bool Build();
@@ -28,7 +28,9 @@ public:
   IInsn *GetCompareInsn();
   IInsn *GetBranchInsn();
 
-private:
+  void Annotate(OptimizerLog *log);
+
+ private:
   void FindInitialAssign(IState *st, IInsn *insn);
   IInsn *CompareResult(IInsn *insn);
   IState *FindTransition(IState *compare_st, IInsn *compare_insn);

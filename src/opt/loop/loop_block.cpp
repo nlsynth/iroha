@@ -1,19 +1,24 @@
 #include "opt/loop/loop_block.h"
 
 #include "design/design_util.h"
-#include "iroha/resource_class.h"
 #include "iroha/i_design.h"
+#include "iroha/resource_class.h"
 #include "opt/opt_util.h"
+#include "opt/optimizer_log.h"
 
 namespace iroha {
 namespace opt {
 namespace loop {
 
 LoopBlock::LoopBlock(ITable *tab, IRegister *reg)
-  : tab_(tab), reg_(reg), initial_assign_st_(nullptr), compare_st_(nullptr),
-    compare_insn_(nullptr), branch_insn_(nullptr),
-    exit_st_(nullptr), loop_count_(0) {
-}
+    : tab_(tab),
+      reg_(reg),
+      initial_assign_st_(nullptr),
+      compare_st_(nullptr),
+      compare_insn_(nullptr),
+      branch_insn_(nullptr),
+      exit_st_(nullptr),
+      loop_count_(0) {}
 
 bool LoopBlock::Build() {
   // Finds
@@ -35,8 +40,8 @@ bool LoopBlock::Build() {
     for (IInsn *insn : st->insns_) {
       compare_insn_ = CompareResult(insn);
       if (compare_insn_ != nullptr) {
-	compare_st_ = st;
-	break;
+        compare_st_ = st;
+        break;
       }
     }
     if (compare_insn_ != nullptr) {
@@ -57,21 +62,16 @@ bool LoopBlock::Build() {
   return true;
 }
 
-int LoopBlock::GetLoopCount() {
-  return loop_count_;
-}
+int LoopBlock::GetLoopCount() { return loop_count_; }
 
-vector<IState *> &LoopBlock::GetStates() {
-  return states_;
-}
+vector<IState *> &LoopBlock::GetStates() { return states_; }
 
 void LoopBlock::FindInitialAssign(IState *st, IInsn *insn) {
   IResourceClass *rc = insn->GetResource()->GetClass();
   if (!resource::IsSet(*rc)) {
     return;
   }
-  if (insn->outputs_.size() != 1 ||
-      insn->inputs_.size() != 1) {
+  if (insn->outputs_.size() != 1 || insn->inputs_.size() != 1) {
     return;
   }
   if (insn->outputs_[0] != reg_) {
@@ -90,8 +90,7 @@ IInsn *LoopBlock::CompareResult(IInsn *insn) {
     return nullptr;
   }
   // CONST >GT> counter
-  if (insn->inputs_[0]->IsConst() &&
-      insn->inputs_[1] == reg_) {
+  if (insn->inputs_[0]->IsConst() && insn->inputs_[1] == reg_) {
     return insn;
   }
   return nullptr;
@@ -104,13 +103,13 @@ IState *LoopBlock::FindTransition(IState *compare_st, IInsn *compare_insn) {
     for (IInsn *insn : st->insns_) {
       IResourceClass *rc = insn->GetResource()->GetClass();
       if (!resource::IsTransition(*rc)) {
-	continue;
+        continue;
       }
       if (insn->inputs_.size() != 1 || (insn->inputs_[0] != compare_reg)) {
-	continue;
+        continue;
       }
       if (insn->target_states_.size() == 2) {
-	return st;
+        return st;
       }
     }
   }
@@ -119,8 +118,7 @@ IState *LoopBlock::FindTransition(IState *compare_st, IInsn *compare_insn) {
 
 void LoopBlock::CollectLoopStates(IState *exit_st, IState *compare_st) {
   set<IState *> sts;
-  OptUtil::CollectReachableStatesWithExclude(tab_, compare_st,
-					     exit_st, &sts);
+  OptUtil::CollectReachableStatesWithExclude(tab_, compare_st, exit_st, &sts);
   for (IState *st : tab_->states_) {
     if (sts.find(st) != sts.end()) {
       states_.push_back(st);
@@ -128,24 +126,24 @@ void LoopBlock::CollectLoopStates(IState *exit_st, IState *compare_st) {
   }
 }
 
-IState *LoopBlock::GetEntryAssignState() {
-  return initial_assign_st_;
-}
+IState *LoopBlock::GetEntryAssignState() { return initial_assign_st_; }
 
-IState *LoopBlock::GetExitState() {
-  return exit_st_;
-}
+IState *LoopBlock::GetExitState() { return exit_st_; }
 
-IState *LoopBlock::GetCompareState() {
-  return compare_st_;
-}
+IState *LoopBlock::GetCompareState() { return compare_st_; }
 
-IInsn *LoopBlock::GetCompareInsn() {
-  return compare_insn_;
-}
+IInsn *LoopBlock::GetCompareInsn() { return compare_insn_; }
 
-IInsn *LoopBlock::GetBranchInsn() {
-  return branch_insn_;
+IInsn *LoopBlock::GetBranchInsn() { return branch_insn_; }
+
+void LoopBlock::Annotate(OptimizerLog *log) {
+  for (IState *st : states_) {
+    ostream &os = log->State(st);
+    os << "*";
+    if (st == compare_st_) {
+      os << "-";
+    }
+  }
 }
 
 }  // namespace loop
