@@ -137,12 +137,14 @@ IInsn *LoopBlock::GetCompareInsn() { return compare_insn_; }
 IInsn *LoopBlock::GetBranchInsn() { return branch_insn_; }
 
 void LoopBlock::Annotate(OptimizerLog *log) {
+  int n = 0;
   for (IState *st : states_) {
     ostream &os = log->State(st);
-    os << "*";
+    os << "*" << n;
     if (st == compare_st_) {
       os << "-";
     }
+    ++n;
   }
 }
 

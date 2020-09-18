@@ -18,9 +18,12 @@ class Pipeliner {
   bool Pipeline();
 
  private:
+  void PlaceState(int pidx, int idx);
+
   ITable *tab_;
   loop::LoopBlock *lb_;
   OptimizerLog *opt_log_;
+  vector<IState *> pipeline_st_;
 };
 
 }  // namespace pipeline
