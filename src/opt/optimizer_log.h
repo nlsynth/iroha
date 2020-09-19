@@ -46,6 +46,7 @@ class OptimizerLog {
   OptimizerLogSection *GetSection(const string &name);
 
   bool enabled_;
+  int current_pass_index_;
   string current_pass_name_;
   string current_section_name_;
   string current_file_name_;

@@ -17,7 +17,7 @@ class OptimizerLogSection {
   bool is_html_;
 };
 
-OptimizerLog::OptimizerLog() : enabled_(false) {}
+OptimizerLog::OptimizerLog() : enabled_(false), current_pass_index_(0) {}
 
 OptimizerLog::~OptimizerLog() { STLDeleteSecondElements(&sections_); }
 
@@ -100,7 +100,12 @@ int OptimizerLog::GetStateColorIndex(const IState *st) const {
 }
 
 void OptimizerLog::StartPass(const string &name) {
-  current_pass_name_ = name;
+  string s = Util::Itoa(current_pass_index_);
+  while (s.length() < 3) {
+    s = "0" + s;
+  }
+  current_pass_name_ = s + name;
+  current_pass_index_++;
   current_section_name_ = "";
   UpdateFileName(true);
   table_.clear();
