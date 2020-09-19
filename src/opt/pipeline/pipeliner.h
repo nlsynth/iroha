@@ -20,6 +20,7 @@ class Pipeliner {
  private:
   void PlaceState(int pidx, int idx);
   void ConnectPipelineState();
+  void ConnectPipeline();
 
   ITable *tab_;
   loop::LoopBlock *lb_;

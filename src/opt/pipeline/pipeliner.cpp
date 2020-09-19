@@ -1,6 +1,7 @@
 #include "opt/pipeline/pipeliner.h"
 
 #include "design/design_tool.h"
+#include "design/design_util.h"
 #include "iroha/i_design.h"
 #include "iroha/resource_class.h"
 #include "opt/loop/loop_block.h"
@@ -39,6 +40,7 @@ bool Pipeliner::Pipeline() {
     }
   }
   ConnectPipelineState();
+  ConnectPipeline();
   return true;
 }
 
@@ -65,6 +67,17 @@ void Pipeliner::ConnectPipelineState() {
     IState *next = pipeline_st_[i + 1];
     DesignTool::AddNextState(cur, next);
   }
+}
+
+void Pipeliner::ConnectPipeline() {
+  // To entry.
+  IState *is = lb_->GetEntryAssignState();
+  IInsn *einsn = DesignUtil::GetTransitionInsn(is);
+  einsn->target_states_[0] = pipeline_st_[0];
+  // From last.
+  IState *lst = pipeline_st_[pipeline_st_.size() - 1];
+  IInsn *linsn = DesignUtil::GetTransitionInsn(lst);
+  linsn->target_states_.push_back(lb_->GetExitState());
 }
 
 }  // namespace pipeline
