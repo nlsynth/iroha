@@ -1,5 +1,6 @@
 #include "opt/pipeline/pipeliner.h"
 
+#include "design/design_tool.h"
 #include "iroha/i_design.h"
 #include "iroha/resource_class.h"
 #include "opt/loop/loop_block.h"
@@ -37,6 +38,7 @@ bool Pipeliner::Pipeline() {
       PlaceState(i + ns - 1, j);
     }
   }
+  ConnectPipelineState();
   return true;
 }
 
@@ -54,6 +56,14 @@ void Pipeliner::PlaceState(int pidx, int lidx) {
     new_insn->inputs_ = insn->inputs_;
     new_insn->outputs_ = insn->outputs_;
     pst->insns_.push_back(new_insn);
+  }
+}
+
+void Pipeliner::ConnectPipelineState() {
+  for (int i = 0; i < pipeline_st_.size() - 1; ++i) {
+    IState *cur = pipeline_st_[i];
+    IState *next = pipeline_st_[i + 1];
+    DesignTool::AddNextState(cur, next);
   }
 }
 
