@@ -12,7 +12,7 @@ namespace opt {
 namespace pipeline {
 
 Pipeliner::Pipeliner(ITable *tab, loop::LoopBlock *lb)
-    : tab_(tab), lb_(lb), opt_log_(nullptr) {
+    : tab_(tab), lb_(lb), opt_log_(nullptr), prologue_st_(nullptr) {
   opt_log_ = tab->GetModule()->GetDesign()->GetOptimizerLog();
 }
 
@@ -23,6 +23,8 @@ bool Pipeliner::Pipeline() {
   os << "Pipeliner " << lb_->GetStates().size() << " states, "
      << lb_->GetLoopCount() << " loop <br/>";
   // prepare states.
+  prologue_st_ = new IState(tab_);
+  tab_->states_.push_back(prologue_st_);
   int plen = ns + (ns - 1);
   for (int i = 0; i < plen; ++i) {
     IState *st = new IState(tab_);
@@ -39,6 +41,7 @@ bool Pipeliner::Pipeline() {
       PlaceState(i + ns - 1, j);
     }
   }
+  SetupCounter();
   ConnectPipelineState();
   ConnectPipeline();
   return true;
@@ -62,6 +65,7 @@ void Pipeliner::PlaceState(int pidx, int lidx) {
 }
 
 void Pipeliner::ConnectPipelineState() {
+  DesignTool::AddNextState(prologue_st_, pipeline_st_[0]);
   for (int i = 0; i < pipeline_st_.size() - 1; ++i) {
     IState *cur = pipeline_st_[i];
     IState *next = pipeline_st_[i + 1];
@@ -73,11 +77,24 @@ void Pipeliner::ConnectPipeline() {
   // To entry.
   IState *is = lb_->GetEntryAssignState();
   IInsn *einsn = DesignUtil::GetTransitionInsn(is);
-  einsn->target_states_[0] = pipeline_st_[0];
+  einsn->target_states_[0] = prologue_st_;
   // From last.
   IState *lst = pipeline_st_[pipeline_st_.size() - 1];
   IInsn *linsn = DesignUtil::GetTransitionInsn(lst);
   linsn->target_states_.push_back(lb_->GetExitState());
+}
+
+void Pipeliner::SetupCounter() {
+  IRegister *orig_counter = lb_->GetRegister();
+  IRegister *counter0 = new IRegister(tab_, orig_counter->GetName() + "ps0");
+  counter0->value_type_ = orig_counter->value_type_;
+  tab_->registers_.push_back(counter0);
+  // WIP. Also populate the counter for later stages.
+  counters_.push_back(counter0);
+  IInsn *insn = new IInsn(DesignUtil::FindAssignResource(tab_));
+  insn->inputs_.push_back(orig_counter);
+  insn->outputs_.push_back(counter0);
+  prologue_st_->insns_.push_back(insn);
 }
 
 }  // namespace pipeline

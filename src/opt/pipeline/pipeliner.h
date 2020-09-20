@@ -21,11 +21,15 @@ class Pipeliner {
   void PlaceState(int pidx, int idx);
   void ConnectPipelineState();
   void ConnectPipeline();
+  void SetupCounter();
 
   ITable *tab_;
   loop::LoopBlock *lb_;
   OptimizerLog *opt_log_;
+  // prologue -> pipeline[0] -> pipeline[1] ...
+  IState *prologue_st_;
   vector<IState *> pipeline_st_;
+  vector<IRegister *> counters_;
 };
 
 }  // namespace pipeline

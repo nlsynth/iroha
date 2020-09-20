@@ -21,6 +21,7 @@ class LoopBlock {
   bool Build();
 
   int GetLoopCount();
+  IRegister *GetRegister();
   vector<IState *> &GetStates();
   IState *GetEntryAssignState();
   IState *GetExitState();

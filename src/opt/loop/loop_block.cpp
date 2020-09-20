@@ -64,6 +64,8 @@ bool LoopBlock::Build() {
 
 int LoopBlock::GetLoopCount() { return loop_count_; }
 
+IRegister *LoopBlock::GetRegister() { return reg_; }
+
 vector<IState *> &LoopBlock::GetStates() { return states_; }
 
 void LoopBlock::FindInitialAssign(IState *st, IInsn *insn) {
