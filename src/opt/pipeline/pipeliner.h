@@ -25,6 +25,7 @@ class Pipeliner {
 
   ITable *tab_;
   loop::LoopBlock *lb_;
+  int interval_;
   OptimizerLog *opt_log_;
   // prologue -> pipeline[0] -> pipeline[1] ...
   IState *prologue_st_;

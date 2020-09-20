@@ -12,7 +12,11 @@ namespace opt {
 namespace pipeline {
 
 Pipeliner::Pipeliner(ITable *tab, loop::LoopBlock *lb)
-    : tab_(tab), lb_(lb), opt_log_(nullptr), prologue_st_(nullptr) {
+    : tab_(tab),
+      lb_(lb),
+      interval_(1),
+      opt_log_(nullptr),
+      prologue_st_(nullptr) {
   opt_log_ = tab->GetModule()->GetDesign()->GetOptimizerLog();
 }
 
@@ -21,11 +25,11 @@ bool Pipeliner::Pipeline() {
   ostream &os = opt_log_->GetDumpStream();
   int ns = lb_->GetStates().size();
   os << "Pipeliner " << lb_->GetStates().size() << " states, "
-     << lb_->GetLoopCount() << " loop <br/>";
+     << lb_->GetLoopCount() << " loop, interval=" << interval_ << " <br/>";
   // prepare states.
   prologue_st_ = new IState(tab_);
   tab_->states_.push_back(prologue_st_);
-  int plen = ns + (ns - 1);
+  int plen = (ns + (ns - 1)) * interval_;
   for (int i = 0; i < plen; ++i) {
     IState *st = new IState(tab_);
     pipeline_st_.push_back(st);
@@ -48,7 +52,7 @@ bool Pipeliner::Pipeline() {
 }
 
 void Pipeliner::PlaceState(int pidx, int lidx) {
-  IState *pst = pipeline_st_[pidx];
+  IState *pst = pipeline_st_[pidx * interval_];
   ostream &os = opt_log_->State(pst);
   os << "[" << lidx << "]";
   IState *lst = lb_->GetStates().at(lidx);
