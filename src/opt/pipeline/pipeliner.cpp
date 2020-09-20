@@ -99,6 +99,21 @@ void Pipeliner::SetupCounter() {
   insn->inputs_.push_back(orig_counter);
   insn->outputs_.push_back(counter0);
   prologue_st_->insns_.push_back(insn);
+  // Increment count0.
+  int llen = lb_->GetStates().size();
+  int cwidth = counter0->value_type_.GetWidth();
+  IResource *adder = DesignUtil::CreateResource(tab_, resource::kAdd);
+  adder->input_types_.push_back(counter0->value_type_);
+  adder->input_types_.push_back(counter0->value_type_);
+  adder->output_types_.push_back(counter0->value_type_);
+  IRegister *one = DesignTool::AllocConstNum(tab_, cwidth, 1);
+  for (int i = 0; i < llen; ++i) {
+    IInsn *add_insn = new IInsn(adder);
+    add_insn->inputs_.push_back(counter0);
+    add_insn->inputs_.push_back(one);
+    add_insn->outputs_.push_back(counter0);
+    pipeline_st_[i * interval_ + (interval_ - 1)]->insns_.push_back(add_insn);
+  }
 }
 
 }  // namespace pipeline
