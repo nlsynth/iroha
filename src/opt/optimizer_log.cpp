@@ -13,6 +13,14 @@ class OptimizerLogSection {
  public:
   OptimizerLogSection() : is_html_(false){};
 
+  string dumpFileName(const string &base, const string &suffix) {
+    string fn = base + "." + suffix;
+    if (is_html_) {
+      fn = fn + ".html";
+    }
+    return fn;
+  }
+
   ostringstream dump_;
   bool is_html_;
 };
@@ -27,12 +35,8 @@ bool OptimizerLog::IsEnabled() { return enabled_; }
 
 void OptimizerLog::WriteToFiles(const string &baseFn) {
   for (auto &p : sections_) {
-    const string &suffix = p.first;
-    string fn = baseFn + "." + suffix;
     OptimizerLogSection *ls = p.second;
-    if (ls->is_html_) {
-      fn += ".html";
-    }
+    string fn = ls->dumpFileName(baseFn, p.first);
     ofstream os(fn);
     if (ls->is_html_) {
       writer::Writer::WriteDumpHeader(os);
@@ -46,13 +50,8 @@ void OptimizerLog::WriteToFiles(const string &baseFn) {
   ofstream os(baseFn + ".html");
   writer::Writer::WriteDumpHeader(os);
   for (auto &p : sections_) {
-    // TODO: Use basename.
-    const string &suffix = p.first;
-    string linkFn = baseFn + "." + suffix;
     OptimizerLogSection *ls = p.second;
-    if (ls->is_html_) {
-      linkFn += ".html";
-    }
+    string linkFn = ls->dumpFileName(baseFn, p.first);
     linkFn = Util::BaseName(linkFn);
     os << "<a href=\"" << linkFn << "\">" << linkFn << "</a>\n";
   }
