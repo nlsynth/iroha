@@ -47,6 +47,7 @@ bool Pipeliner::Pipeline() {
   }
   SetupCounter();
   ConnectPipelineState();
+  SetupExit();
   ConnectPipeline();
   return true;
 }
@@ -114,6 +115,31 @@ void Pipeliner::SetupCounter() {
     add_insn->outputs_.push_back(counter0);
     pipeline_st_[i * interval_ + (interval_ - 1)]->insns_.push_back(add_insn);
   }
+}
+
+void Pipeliner::SetupExit() {
+  int llen = lb_->GetStates().size();
+  IState *st = pipeline_st_[(llen - 1) * interval_ + (interval_ - 1)];
+  IInsn *tr_insn = DesignUtil::GetTransitionInsn(st);
+  tr_insn->target_states_.push_back(st);
+  IRegister *cond = new IRegister(tab_, "cond_ps0");
+  tab_->registers_.push_back(cond);
+  tr_insn->inputs_.push_back(cond);
+
+  IRegister *counter0 = counters_[0];
+  int cwidth = counter0->value_type_.GetWidth();
+  IRegister *max = DesignTool::AllocConstNum(tab_, cwidth, 1);
+  IResource *comparator = DesignUtil::CreateResource(tab_, resource::kGt);
+  comparator->input_types_.push_back(counter0->value_type_);
+  comparator->input_types_.push_back(counter0->value_type_);
+  IValueType o;
+  o.SetWidth(0);
+  comparator->output_types_.push_back(o);
+  IInsn *compare = new IInsn(comparator);
+  compare->outputs_.push_back(cond);
+  compare->inputs_.push_back(max);
+  compare->inputs_.push_back(counter0);
+  st->insns_.push_back(compare);
 }
 
 }  // namespace pipeline

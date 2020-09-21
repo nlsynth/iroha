@@ -22,6 +22,7 @@ class Pipeliner {
   void ConnectPipelineState();
   void ConnectPipeline();
   void SetupCounter();
+  void SetupExit();
 
   ITable *tab_;
   loop::LoopBlock *lb_;
