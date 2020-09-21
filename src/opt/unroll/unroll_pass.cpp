@@ -16,6 +16,7 @@ Pass *UnrollPass::Create() { return new UnrollPass(); }
 
 bool UnrollPass::ApplyForTable(const string &key, ITable *table) {
   int n = 0;
+  vector<IRegister *> loop_regs;
   for (IRegister *reg : table->registers_) {
     auto *params = reg->GetParams(false);
     if (params == nullptr) {
@@ -26,11 +27,16 @@ bool UnrollPass::ApplyForTable(const string &key, ITable *table) {
       // 1 for no unroll. 0 for auto (TBD).
       continue;
     }
+    loop_regs.push_back(reg);
+  }
+  for (IRegister *reg : loop_regs) {
     loop::LoopBlock lb(table, reg);
     if (!lb.Build()) {
       continue;
     }
     ++n;
+    auto *params = reg->GetParams(false);
+    int unroll_count = params->GetLoopUnroll();
     Unroller unroller(table, &lb, unroll_count);
     unroller.Unroll();
   }
