@@ -24,6 +24,7 @@ class Pipeliner {
   void SetupCounter();
   void SetupCounterIncrement();
   void SetupExit();
+  void UpdateCounterRead();
 
   ITable *tab_;
   loop::LoopBlock *lb_;
@@ -33,6 +34,7 @@ class Pipeliner {
   IState *prologue_st_;
   vector<IState *> pipeline_st_;
   vector<IRegister *> counters_;
+  map<IInsn *, int> insn_to_stage_;
 };
 
 }  // namespace pipeline

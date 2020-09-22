@@ -47,6 +47,7 @@ bool Pipeliner::Pipeline() {
   }
   SetupCounter();
   SetupCounterIncrement();
+  UpdateCounterRead();
   ConnectPipelineState();
   SetupExit();
   ConnectPipeline();
@@ -67,6 +68,25 @@ void Pipeliner::PlaceState(int pidx, int lidx) {
     new_insn->inputs_ = insn->inputs_;
     new_insn->outputs_ = insn->outputs_;
     pst->insns_.push_back(new_insn);
+    insn_to_stage_[new_insn] = lidx;
+  }
+}
+
+void Pipeliner::UpdateCounterRead() {
+  IRegister *counter = lb_->GetRegister();
+  for (IState *st : pipeline_st_) {
+    for (IInsn *insn : st->insns_) {
+      auto it = insn_to_stage_.find(insn);
+      if (it == insn_to_stage_.end()) {
+        continue;
+      }
+      int stage = it->second;
+      for (int i = 0; i < insn->inputs_.size(); ++i) {
+        if (insn->inputs_[i] == counter) {
+          insn->inputs_[i] = counters_[stage];
+        }
+      }
+    }
   }
 }
 
