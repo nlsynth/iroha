@@ -46,6 +46,7 @@ bool Pipeliner::Pipeline() {
     }
   }
   SetupCounter();
+  SetupCounterIncrement();
   ConnectPipelineState();
   SetupExit();
   ConnectPipeline();
@@ -90,14 +91,40 @@ void Pipeliner::ConnectPipeline() {
 }
 
 void Pipeliner::SetupCounter() {
+  int llen = lb_->GetStates().size();
   IRegister *orig_counter = lb_->GetRegister();
-  IRegister *counter0 = new IRegister(tab_, orig_counter->GetName() + "ps0");
-  counter0->value_type_ = orig_counter->value_type_;
-  tab_->registers_.push_back(counter0);
-  // WIP. Also populate the counter for later stages.
-  counters_.push_back(counter0);
+  for (int i = 0; i < llen; ++i) {
+    IRegister *counter =
+        new IRegister(tab_, orig_counter->GetName() + "ps" + Util::Itoa(i));
+    counter->value_type_ = orig_counter->value_type_;
+    tab_->registers_.push_back(counter);
+    counters_.push_back(counter);
+  }
+  IResource *assign = DesignUtil::FindAssignResource(tab_);
+  for (int i = 0; i < llen * 2 - 1; ++i) {
+    IState *st = pipeline_st_[i * interval_ + (interval_ - 1)];
+    int start = 0;
+    if (i >= llen) {
+      start = i - llen + 1;
+    }
+    for (int j = start; j <= i; ++j) {
+      if (j + 1 >= counters_.size()) {
+        continue;
+      }
+      IInsn *insn = new IInsn(assign);
+      st->insns_.push_back(insn);
+      insn->inputs_.push_back(counters_[j]);
+      insn->outputs_.push_back(counters_[j + 1]);
+    }
+  }
+}
+
+void Pipeliner::SetupCounterIncrement() {
+  // Assign at the prologue.
   IInsn *insn = new IInsn(DesignUtil::FindAssignResource(tab_));
+  IRegister *orig_counter = lb_->GetRegister();
   insn->inputs_.push_back(orig_counter);
+  IRegister *counter0 = counters_[0];
   insn->outputs_.push_back(counter0);
   prologue_st_->insns_.push_back(insn);
   // Increment count0.

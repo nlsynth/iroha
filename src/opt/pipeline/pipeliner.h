@@ -22,6 +22,7 @@ class Pipeliner {
   void ConnectPipelineState();
   void ConnectPipeline();
   void SetupCounter();
+  void SetupCounterIncrement();
   void SetupExit();
 
   ITable *tab_;
