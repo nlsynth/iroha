@@ -150,12 +150,13 @@ void Pipeliner::SetupExit() {
   IInsn *tr_insn = DesignUtil::GetTransitionInsn(st);
   tr_insn->target_states_.push_back(st);
   IRegister *cond = new IRegister(tab_, "cond_ps0");
+  cond->SetStateLocal(true);
   tab_->registers_.push_back(cond);
   tr_insn->inputs_.push_back(cond);
 
   IRegister *counter0 = counters_[0];
   int cwidth = counter0->value_type_.GetWidth();
-  IRegister *max = DesignTool::AllocConstNum(tab_, cwidth, 1);
+  IRegister *max = DesignTool::AllocConstNum(tab_, cwidth, lb_->GetLoopCount());
   IResource *comparator = DesignUtil::CreateResource(tab_, resource::kGt);
   comparator->input_types_.push_back(counter0->value_type_);
   comparator->input_types_.push_back(counter0->value_type_);
