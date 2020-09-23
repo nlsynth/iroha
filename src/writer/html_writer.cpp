@@ -102,13 +102,20 @@ void HtmlWriter::WriteInsn(const IInsn &insn) {
   }
   os_ << "(";
   for (auto *reg : insn.inputs_) {
-    os_ << " " << reg->GetId();
+    WriteRegisterId(*reg);
   }
   os_ << ") -&gt (";
   for (auto *reg : insn.outputs_) {
-    os_ << " " << reg->GetId();
+    WriteRegisterId(*reg);
   }
   os_ << ")\n";
+}
+
+void HtmlWriter::WriteRegisterId(const IRegister &reg) {
+  os_ << " " << reg.GetId();
+  if (reg.IsStateLocal()) {
+    os_ << "*";
+  }
 }
 
 void HtmlWriter::WriteRegisters(const ITable &tab) {

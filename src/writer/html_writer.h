@@ -28,6 +28,7 @@ class HtmlWriter {
   void WriteInsn(const IInsn &insn);
   void WriteRegisters(const ITable &tab);
   void WriteRegister(const IRegister &reg);
+  void WriteRegisterId(const IRegister &reg);
   void WriteResources(const ITable &tab);
   void WriteResource(const IResource &res);
   void WriteValue(const Numeric &val);
