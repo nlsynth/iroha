@@ -119,6 +119,12 @@ void Pipeliner::SetupCounter() {
     counter->value_type_ = orig_counter->value_type_;
     tab_->registers_.push_back(counter);
     counters_.push_back(counter);
+    IRegister *counter_wire =
+        new IRegister(tab_, orig_counter->GetName() + "psw" + Util::Itoa(i));
+    counter_wire->SetStateLocal(true);
+    counter_wire->value_type_ = orig_counter->value_type_;
+    tab_->registers_.push_back(counter_wire);
+    counter_wires_.push_back(counter_wire);
   }
   IResource *assign = DesignUtil::FindAssignResource(tab_);
   for (int i = 0; i < llen * 2 - 1; ++i) {
@@ -154,13 +160,19 @@ void Pipeliner::SetupCounterIncrement() {
   adder->input_types_.push_back(counter0->value_type_);
   adder->input_types_.push_back(counter0->value_type_);
   adder->output_types_.push_back(counter0->value_type_);
+  IResource *assign = DesignUtil::FindAssignResource(tab_);
   IRegister *one = DesignTool::AllocConstNum(tab_, cwidth, 1);
   for (int i = 0; i < llen; ++i) {
     IInsn *add_insn = new IInsn(adder);
     add_insn->inputs_.push_back(counter0);
     add_insn->inputs_.push_back(one);
-    add_insn->outputs_.push_back(counter0);
+    add_insn->outputs_.push_back(counter_wires_[i]);
     pipeline_st_[i * interval_ + (interval_ - 1)]->insns_.push_back(add_insn);
+    IInsn *wire_to_reg = new IInsn(assign);
+    wire_to_reg->inputs_.push_back(counter_wires_[i]);
+    wire_to_reg->outputs_.push_back(counter0);
+    pipeline_st_[i * interval_ + (interval_ - 1)]->insns_.push_back(
+        wire_to_reg);
   }
 }
 
@@ -186,7 +198,7 @@ void Pipeliner::SetupExit() {
   IInsn *compare = new IInsn(comparator);
   compare->outputs_.push_back(cond);
   compare->inputs_.push_back(max);
-  compare->inputs_.push_back(counter0);
+  compare->inputs_.push_back(counter_wires_[llen - 1]);
   st->insns_.push_back(compare);
 }
 

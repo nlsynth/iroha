@@ -34,6 +34,8 @@ class Pipeliner {
   IState *prologue_st_;
   vector<IState *> pipeline_st_;
   vector<IRegister *> counters_;
+  vector<IRegister *> counter_wires_;
+
   map<IInsn *, int> insn_to_stage_;
 };
 
