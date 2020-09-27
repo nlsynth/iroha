@@ -6,14 +6,13 @@
 
 namespace iroha {
 namespace opt {
-namespace loop {
-class LoopBlock;
-}  // namespace loop
 namespace pipeline {
+
+class StageScheduler;
 
 class Pipeliner {
  public:
-  Pipeliner(ITable *tab, loop::LoopBlock *lb);
+  Pipeliner(ITable *tab, StageScheduler *ssch);
 
   bool Pipeline();
 

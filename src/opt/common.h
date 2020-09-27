@@ -9,6 +9,9 @@
 
 namespace iroha {
 namespace opt {
+namespace loop {
+class LoopBlock;
+}  // namespace loop
 
 class BB;
 class BBSet;

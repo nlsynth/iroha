@@ -1,7 +1,7 @@
 #include "opt/unroll/unroller.h"
 
-#include "design/design_util.h"
 #include "design/design_tool.h"
+#include "design/design_util.h"
 #include "iroha/i_design.h"
 #include "opt/loop/loop_block.h"
 #include "opt/unroll/state_copier.h"
@@ -11,7 +11,7 @@ namespace opt {
 namespace unroll {
 
 Unroller::Unroller(ITable *tab, loop::LoopBlock *lb, int unroll_count)
-  : tab_(tab), lb_(lb), unroll_count_(unroll_count) {
+    : tab_(tab), lb_(lb), unroll_count_(unroll_count) {
   copiers_.reset(new vector<StateCopier *>());
 }
 

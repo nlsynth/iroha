@@ -6,20 +6,17 @@
 
 namespace iroha {
 namespace opt {
-namespace loop {
-class LoopBlock;
-}  // namespace loop
 namespace unroll {
 
 class StateCopier;
 
 class Unroller {
-public:
+ public:
   Unroller(ITable *tab, loop::LoopBlock *lb, int unroll_count);
 
   bool Unroll();
 
-private:
+ private:
   void UnrollOne(bool is_head);
   void Reconnect();
 

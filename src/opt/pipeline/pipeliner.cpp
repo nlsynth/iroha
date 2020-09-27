@@ -6,14 +6,15 @@
 #include "iroha/resource_class.h"
 #include "opt/loop/loop_block.h"
 #include "opt/optimizer_log.h"
+#include "opt/pipeline/stage_scheduler.h"
 
 namespace iroha {
 namespace opt {
 namespace pipeline {
 
-Pipeliner::Pipeliner(ITable *tab, loop::LoopBlock *lb)
+Pipeliner::Pipeliner(ITable *tab, StageScheduler *ssch)
     : tab_(tab),
-      lb_(lb),
+      lb_(ssch->GetLoop()),
       interval_(1),
       opt_log_(nullptr),
       prologue_st_(nullptr) {
