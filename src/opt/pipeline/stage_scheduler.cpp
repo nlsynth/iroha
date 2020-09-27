@@ -1,6 +1,7 @@
 #include "opt/pipeline/stage_scheduler.h"
 
 #include "iroha/i_design.h"
+#include "iroha/resource_class.h"
 #include "opt/loop/loop_block.h"
 
 namespace iroha {
@@ -14,6 +15,16 @@ loop::LoopBlock *StageScheduler::GetLoop() { return lb_; }
 bool StageScheduler::Build() {
   auto &sts = lb_->GetStates();
   for (IState *st : sts) {
+    bool has_non_tr = false;
+    for (IInsn *insn : st->insns_) {
+      IResource *res = insn->GetResource();
+      if (!resource::IsTransition(*(res->GetClass()))) {
+        has_non_tr = true;
+      }
+    }
+    if (!has_non_tr) {
+      continue;
+    }
     MacroStage ms;
     ms.insns_ = st->insns_;
     macro_stages_.push_back(ms);
