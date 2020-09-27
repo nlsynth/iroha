@@ -8,19 +8,27 @@ namespace iroha {
 namespace opt {
 namespace pipeline {
 
+// Certain stage with 0, 1, ... interval -1.
+class MacroStage {
+ public:
+  vector<IInsn *> insns_;
+};
+
 class StageScheduler {
  public:
   StageScheduler(loop::LoopBlock *lb);
 
   bool Build();
   loop::LoopBlock *GetLoop();
-  vector<IState *> GetStates();
   int GetInterval();
-  int GetStageCount();
+  int GetPipelineStageLength();
+  int GetMacroStageCount();
+  MacroStage &GetMacroStage(int s);
 
  private:
   loop::LoopBlock *lb_;
   int interval_;
+  vector<MacroStage> macro_stages_;
 };
 
 }  // namespace pipeline
