@@ -125,13 +125,11 @@ void Pipeliner::SetupCounter() {
   int llen = ssch_->GetMacroStageCount();
   IRegister *orig_counter = lb_->GetRegister();
   for (int i = 0; i < llen; ++i) {
-    IRegister *counter =
-        new IRegister(tab_, orig_counter->GetName() + "ps" + Util::Itoa(i));
+    IRegister *counter = new IRegister(tab_, RegName("ps", i));
     counter->value_type_ = orig_counter->value_type_;
     tab_->registers_.push_back(counter);
     counters_.push_back(counter);
-    IRegister *counter_wire =
-        new IRegister(tab_, orig_counter->GetName() + "psw" + Util::Itoa(i));
+    IRegister *counter_wire = new IRegister(tab_, RegName("psw", i));
     counter_wire->SetStateLocal(true);
     counter_wire->value_type_ = orig_counter->value_type_;
     tab_->registers_.push_back(counter_wire);
@@ -193,7 +191,8 @@ void Pipeliner::SetupExit() {
   IState *st = pipeline_stages_[(llen - 1) * interval_ + (interval_ - 1)];
   IInsn *tr_insn = DesignUtil::GetTransitionInsn(st);
   tr_insn->target_states_.push_back(st);
-  IRegister *cond = new IRegister(tab_, "cond_ps0");
+  IRegister *cond = new IRegister(tab_, RegName("cond_ps", 0));
+  cond->value_type_.SetWidth(0);
   cond->SetStateLocal(true);
   tab_->registers_.push_back(cond);
   tr_insn->inputs_.push_back(cond);
@@ -213,7 +212,10 @@ void Pipeliner::SetupExit() {
   compare->inputs_.push_back(counter_wires_[llen - 1]);
   st->insns_.push_back(compare);
 }
-
+string Pipeliner::RegName(const string &base, int index) {
+  IRegister *orig_counter = lb_->GetRegister();
+  return orig_counter->GetName() + base + Util::Itoa(index);
+}
 }  // namespace pipeline
 }  // namespace opt
 }  // namespace iroha
