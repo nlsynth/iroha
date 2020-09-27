@@ -12,11 +12,15 @@ class StageScheduler {
  public:
   StageScheduler(loop::LoopBlock *lb);
 
-  loop::LoopBlock *GetLoop();
   bool Build();
+  loop::LoopBlock *GetLoop();
+  vector<IState *> GetStates();
+  int GetInterval();
+  int GetStageCount();
 
  private:
   loop::LoopBlock *lb_;
+  int interval_;
 };
 
 }  // namespace pipeline

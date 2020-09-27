@@ -14,8 +14,9 @@ namespace pipeline {
 
 Pipeliner::Pipeliner(ITable *tab, StageScheduler *ssch)
     : tab_(tab),
+      ssch_(ssch),
       lb_(ssch->GetLoop()),
-      interval_(1),
+      interval_(ssch_->GetInterval()),
       opt_log_(nullptr),
       prologue_st_(nullptr) {
   opt_log_ = tab->GetModule()->GetDesign()->GetOptimizerLog();
@@ -24,16 +25,16 @@ Pipeliner::Pipeliner(ITable *tab, StageScheduler *ssch)
 bool Pipeliner::Pipeline() {
   lb_->Annotate(opt_log_);
   ostream &os = opt_log_->GetDumpStream();
-  int ns = lb_->GetStates().size();
-  os << "Pipeliner " << lb_->GetStates().size() << " states, "
+  int ns = ssch_->GetStates().size();
+  os << "Pipeliner " << ssch_->GetStates().size() << " states, "
      << lb_->GetLoopCount() << " loop, interval=" << interval_ << " <br/>";
   // prepare states.
   prologue_st_ = new IState(tab_);
   tab_->states_.push_back(prologue_st_);
-  int plen = (ns + (ns - 1)) * interval_;
+  int plen = ssch_->GetStageCount();
   for (int i = 0; i < plen; ++i) {
     IState *st = new IState(tab_);
-    pipeline_st_.push_back(st);
+    pipeline_stages_.push_back(st);
     tab_->states_.push_back(st);
   }
   for (int i = 0; i < ns; ++i) {
@@ -56,10 +57,10 @@ bool Pipeliner::Pipeline() {
 }
 
 void Pipeliner::PlaceState(int pidx, int lidx) {
-  IState *pst = pipeline_st_[pidx * interval_];
+  IState *pst = pipeline_stages_[pidx * interval_];
   ostream &os = opt_log_->State(pst);
   os << "[" << lidx << "]";
-  IState *lst = lb_->GetStates().at(lidx);
+  IState *lst = ssch_->GetStates().at(lidx);
   for (IInsn *insn : lst->insns_) {
     IResource *res = insn->GetResource();
     if (resource::IsTransition(*(res->GetClass()))) {
@@ -75,7 +76,7 @@ void Pipeliner::PlaceState(int pidx, int lidx) {
 
 void Pipeliner::UpdateCounterRead() {
   IRegister *counter = lb_->GetRegister();
-  for (IState *st : pipeline_st_) {
+  for (IState *st : pipeline_stages_) {
     for (IInsn *insn : st->insns_) {
       auto it = insn_to_stage_.find(insn);
       if (it == insn_to_stage_.end()) {
@@ -92,10 +93,10 @@ void Pipeliner::UpdateCounterRead() {
 }
 
 void Pipeliner::ConnectPipelineState() {
-  DesignTool::AddNextState(prologue_st_, pipeline_st_[0]);
-  for (int i = 0; i < pipeline_st_.size() - 1; ++i) {
-    IState *cur = pipeline_st_[i];
-    IState *next = pipeline_st_[i + 1];
+  DesignTool::AddNextState(prologue_st_, pipeline_stages_[0]);
+  for (int i = 0; i < pipeline_stages_.size() - 1; ++i) {
+    IState *cur = pipeline_stages_[i];
+    IState *next = pipeline_stages_[i + 1];
     DesignTool::AddNextState(cur, next);
   }
 }
@@ -106,13 +107,13 @@ void Pipeliner::ConnectPipeline() {
   IInsn *einsn = DesignUtil::GetTransitionInsn(is);
   einsn->target_states_[0] = prologue_st_;
   // From last.
-  IState *lst = pipeline_st_[pipeline_st_.size() - 1];
+  IState *lst = pipeline_stages_[pipeline_stages_.size() - 1];
   IInsn *linsn = DesignUtil::GetTransitionInsn(lst);
   linsn->target_states_.push_back(lb_->GetExitState());
 }
 
 void Pipeliner::SetupCounter() {
-  int llen = lb_->GetStates().size();
+  int llen = ssch_->GetStates().size();
   IRegister *orig_counter = lb_->GetRegister();
   for (int i = 0; i < llen; ++i) {
     IRegister *counter =
@@ -129,7 +130,7 @@ void Pipeliner::SetupCounter() {
   }
   IResource *assign = DesignUtil::FindAssignResource(tab_);
   for (int i = 0; i < llen * 2 - 1; ++i) {
-    IState *st = pipeline_st_[i * interval_ + (interval_ - 1)];
+    IState *st = pipeline_stages_[i * interval_ + (interval_ - 1)];
     int start = 0;
     if (i >= llen) {
       start = i - llen + 1;
@@ -155,7 +156,7 @@ void Pipeliner::SetupCounterIncrement() {
   insn->outputs_.push_back(counter0);
   prologue_st_->insns_.push_back(insn);
   // Increment count0.
-  int llen = lb_->GetStates().size();
+  int llen = ssch_->GetStates().size();
   int cwidth = counter0->value_type_.GetWidth();
   IResource *adder = DesignUtil::CreateResource(tab_, resource::kAdd);
   adder->input_types_.push_back(counter0->value_type_);
@@ -168,18 +169,19 @@ void Pipeliner::SetupCounterIncrement() {
     add_insn->inputs_.push_back(counter0);
     add_insn->inputs_.push_back(one);
     add_insn->outputs_.push_back(counter_wires_[i]);
-    pipeline_st_[i * interval_ + (interval_ - 1)]->insns_.push_back(add_insn);
+    pipeline_stages_[i * interval_ + (interval_ - 1)]->insns_.push_back(
+        add_insn);
     IInsn *wire_to_reg = new IInsn(assign);
     wire_to_reg->inputs_.push_back(counter_wires_[i]);
     wire_to_reg->outputs_.push_back(counter0);
-    pipeline_st_[i * interval_ + (interval_ - 1)]->insns_.push_back(
+    pipeline_stages_[i * interval_ + (interval_ - 1)]->insns_.push_back(
         wire_to_reg);
   }
 }
 
 void Pipeliner::SetupExit() {
-  int llen = lb_->GetStates().size();
-  IState *st = pipeline_st_[(llen - 1) * interval_ + (interval_ - 1)];
+  int llen = ssch_->GetStates().size();
+  IState *st = pipeline_stages_[(llen - 1) * interval_ + (interval_ - 1)];
   IInsn *tr_insn = DesignUtil::GetTransitionInsn(st);
   tr_insn->target_states_.push_back(st);
   IRegister *cond = new IRegister(tab_, "cond_ps0");
