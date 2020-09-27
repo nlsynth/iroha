@@ -6,6 +6,9 @@
 
 namespace iroha {
 namespace opt {
+namespace loop {
+class LoopBlock;
+}  // namespace loop
 namespace pipeline {
 
 class PipelinePass : public Pass {
@@ -16,6 +19,8 @@ class PipelinePass : public Pass {
 
  private:
   virtual bool ApplyForTable(const string &key, ITable *table);
+
+  bool CheckWriteConflict(loop::LoopBlock *lb);
 };
 
 }  // namespace pipeline

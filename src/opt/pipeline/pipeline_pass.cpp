@@ -33,6 +33,9 @@ bool PipelinePass::ApplyForTable(const string &key, ITable *table) {
     if (!lb.Build()) {
       continue;
     }
+    if (!CheckWriteConflict(&lb)) {
+      continue;
+    }
     StageScheduler ssch(&lb);
     if (!ssch.Build()) {
       continue;
@@ -43,6 +46,22 @@ bool PipelinePass::ApplyForTable(const string &key, ITable *table) {
   }
   ostream &os = opt_log_->GetDumpStream();
   os << "Applied " << n << " pipelining<br/>\n";
+  return true;
+}
+
+bool PipelinePass::CheckWriteConflict(loop::LoopBlock *lb) {
+  set<IRegister *> written_regs;
+  auto &sts = lb->GetStates();
+  for (IState *st : sts) {
+    for (IInsn *insn : st->insns_) {
+      for (IRegister *oreg : insn->outputs_) {
+        if (written_regs.find(oreg) != written_regs.end()) {
+          return false;
+        }
+        written_regs.insert(oreg);
+      }
+    }
+  }
   return true;
 }
 
