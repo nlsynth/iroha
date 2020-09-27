@@ -29,6 +29,7 @@ class LoopBlock {
   IState *GetCompareState();
   IInsn *GetCompareInsn();
   IInsn *GetBranchInsn();
+  IInsn *GetIncrementInsn();
 
   void Annotate(OptimizerLog *log);
 
@@ -37,6 +38,7 @@ class LoopBlock {
   IInsn *CompareResult(IInsn *insn);
   IState *FindTransition(IState *compare_st, IInsn *compare_insn);
   void CollectLoopStates(IState *exit_st, IState *compare_st);
+  void FindIncrementInsn();
 
   ITable *tab_;
   IRegister *reg_;
@@ -45,6 +47,7 @@ class LoopBlock {
   IInsn *compare_insn_;
   IInsn *branch_insn_;
   IState *exit_st_;
+  IInsn *increment_insn_;
   int loop_count_;
   vector<IState *> states_;
 };

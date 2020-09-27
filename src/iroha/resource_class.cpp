@@ -11,21 +11,16 @@ bool IsTransition(const IResourceClass &rc) {
   return (rc.GetName() == kTransition);
 }
 
-bool IsSelect(const IResourceClass &rc) {
-  return (rc.GetName() == kSelect);
-}
+bool IsSelect(const IResourceClass &rc) { return (rc.GetName() == kSelect); }
 
-bool IsGt(const IResourceClass &rc) {
-  return (rc.GetName() == kGt);
-}
+bool IsGt(const IResourceClass &rc) { return (rc.GetName() == kGt); }
 
-bool IsPseudo(const IResourceClass &rc) {
-  return (rc.GetName() == kPseudo);
-}
+bool IsAdd(const IResourceClass &rc) { return (rc.GetName() == kAdd); }
+
+bool IsPseudo(const IResourceClass &rc) { return (rc.GetName() == kPseudo); }
 
 bool IsExclusiveBinOp(const IResourceClass &rc) {
-  return IsNumToNumExclusiveBinOp(rc) ||
-    IsNumToBoolExclusiveBinOp(rc);
+  return IsNumToNumExclusiveBinOp(rc) || IsNumToBoolExclusiveBinOp(rc);
 }
 
 bool IsNumToNumExclusiveBinOp(const IResourceClass &rc) {
@@ -47,25 +42,17 @@ bool IsLightUniOp(const IResourceClass &rc) {
   return (rc.GetName() == kBitInv);
 }
 
-bool IsBitShiftOp(const IResourceClass &rc) {
-  return (rc.GetName() == kShift);
-}
+bool IsBitShiftOp(const IResourceClass &rc) { return (rc.GetName() == kShift); }
 
-bool IsArray(const IResourceClass &rc) {
-  return (rc.GetName() == kArray);
-}
+bool IsArray(const IResourceClass &rc) { return (rc.GetName() == kArray); }
 
 bool IsArrayRData(const IResourceClass &rc) {
   return (rc.GetName() == kArrayRData);
 }
 
-bool IsSet(const IResourceClass &rc) {
-  return (rc.GetName() == kSet);
-}
+bool IsSet(const IResourceClass &rc) { return (rc.GetName() == kSet); }
 
-bool IsBitSel(const IResourceClass &rc) {
-  return (rc.GetName() == kBitSel);
-}
+bool IsBitSel(const IResourceClass &rc) { return (rc.GetName() == kBitSel); }
 
 bool IsBitConcat(const IResourceClass &rc) {
   return (rc.GetName() == kBitConcat);
@@ -123,9 +110,7 @@ bool IsSharedMemoryWriter(const IResourceClass &rc) {
   return (rc.GetName() == kSharedMemoryWriter);
 }
 
-bool IsTask(const IResourceClass &rc) {
-  return (rc.GetName() == kTask);
-}
+bool IsTask(const IResourceClass &rc) { return (rc.GetName() == kTask); }
 
 bool IsTaskCall(const IResourceClass &rc) {
   return (rc.GetName() == kTaskCall);
@@ -143,9 +128,7 @@ bool IsExtFlowResult(const IResourceClass &rc) {
   return (rc.GetName() == kExtFlowResult);
 }
 
-bool IsExtTask(const IResourceClass &rc) {
-  return (rc.GetName() == kExtTask);
-}
+bool IsExtTask(const IResourceClass &rc) { return (rc.GetName() == kExtTask); }
 
 bool IsExtTaskDone(const IResourceClass &rc) {
   return (rc.GetName() == kExtTaskDone);
@@ -167,9 +150,7 @@ bool IsAxiSlavePort(const IResourceClass &rc) {
   return (rc.GetName() == kAxiSlavePort);
 }
 
-bool IsFifo(const IResourceClass &rc) {
-  return (rc.GetName() == kFifo);
-}
+bool IsFifo(const IResourceClass &rc) { return (rc.GetName() == kFifo); }
 
 bool IsFifoReader(const IResourceClass &rc) {
   return (rc.GetName() == kFifoReader);
@@ -179,21 +160,15 @@ bool IsFifoWriter(const IResourceClass &rc) {
   return (rc.GetName() == kFifoWriter);
 }
 
-bool IsSramIf(const IResourceClass &rc) {
-  return (rc.GetName() == kSramIf);
-}
+bool IsSramIf(const IResourceClass &rc) { return (rc.GetName() == kSramIf); }
 
-bool IsTicker(const IResourceClass &rc) {
-  return (rc.GetName() == kTicker);
-}
+bool IsTicker(const IResourceClass &rc) { return (rc.GetName() == kTicker); }
 
 bool IsTickerAccessor(const IResourceClass &rc) {
   return (rc.GetName() == kTickerAccessor);
 }
 
-bool IsStudy(const IResourceClass &rc) {
-  return (rc.GetName() == kStudy);
-}
+bool IsStudy(const IResourceClass &rc) { return (rc.GetName() == kStudy); }
 
 bool IsStudyReader(const IResourceClass &rc) {
   return (rc.GetName() == kStudyReader);
@@ -204,7 +179,7 @@ bool IsStudyWriter(const IResourceClass &rc) {
 }
 
 static void InstallResource(IDesign *design, const string &name,
-			    bool is_exclusive) {
+                            bool is_exclusive) {
   IResourceClass *klass = new IResourceClass(name, is_exclusive, design);
   design->resource_classes_.push_back(klass);
   ObjectPool *pool = design->GetObjectPool();

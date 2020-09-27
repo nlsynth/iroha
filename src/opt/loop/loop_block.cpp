@@ -18,6 +18,7 @@ LoopBlock::LoopBlock(ITable *tab, IRegister *reg)
       compare_insn_(nullptr),
       branch_insn_(nullptr),
       exit_st_(nullptr),
+      increment_insn_(nullptr),
       loop_count_(0) {}
 
 bool LoopBlock::Build() {
@@ -25,7 +26,6 @@ bool LoopBlock::Build() {
   // * Initial 0-value assignment to the index.
   // * Compare with a constant.
   // * Branch to exit or enter the loop.
-  // WIP.
   // * Increment the index.
   for (IState *st : tab_->states_) {
     for (IInsn *insn : st->insns_) {
@@ -59,6 +59,7 @@ bool LoopBlock::Build() {
     return false;
   }
   CollectLoopStates(exit_st_, compare_st_);
+  FindIncrementInsn();
   return true;
 }
 
@@ -86,6 +87,20 @@ void LoopBlock::FindInitialAssign(IState *st, IInsn *insn) {
     return;
   }
   initial_assign_st_ = st;
+}
+
+void LoopBlock::FindIncrementInsn() {
+  for (IState *st : states_) {
+    for (IInsn *insn : st->insns_) {
+      IResourceClass *rc = insn->GetResource()->GetClass();
+      if (resource::IsAdd(*rc)) {
+        if (insn->outputs_[0] == reg_) {
+          increment_insn_ = insn;
+          return;
+        }
+      }
+    }
+  }
 }
 
 IInsn *LoopBlock::CompareResult(IInsn *insn) {
@@ -139,6 +154,8 @@ IState *LoopBlock::GetCompareState() { return compare_st_; }
 IInsn *LoopBlock::GetCompareInsn() { return compare_insn_; }
 
 IInsn *LoopBlock::GetBranchInsn() { return branch_insn_; }
+
+IInsn *LoopBlock::GetIncrementInsn() { return increment_insn_; }
 
 void LoopBlock::Annotate(OptimizerLog *log) {
   int n = 0;
