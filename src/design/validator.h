@@ -2,19 +2,19 @@
 #ifndef _design_validator_h_
 #define _design_validator_h_
 
-#include "iroha/common.h"
-
 #include <set>
+
+#include "iroha/common.h"
 
 namespace iroha {
 
 class Validator {
-public:
+ public:
   static void Validate(IDesign *design);
   static void ValidateTable(ITable *table);
   static void ValidateRegName(IModule *mod);
 
-private:
+ private:
   static void ValidateArrayImageId(IDesign *design);
   static void ValidateModuleId(IDesign *design);
   static void ValidateStateId(ITable *table);

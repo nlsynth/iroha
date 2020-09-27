@@ -1,8 +1,8 @@
 #include "design/design_util.h"
 
 #include "iroha/i_design.h"
-#include "iroha/resource_class.h"
 #include "iroha/logging.h"
+#include "iroha/resource_class.h"
 
 namespace iroha {
 
@@ -11,10 +11,10 @@ IModule *DesignUtil::GetRootModule(const IDesign *design) {
   for (auto *mod : design->modules_) {
     if (mod->GetParentModule() == nullptr) {
       if (root == nullptr) {
-	root = mod;
+        root = mod;
       } else {
-	// Don't allow multiple roots.
-	return nullptr;
+        // Don't allow multiple roots.
+        return nullptr;
       }
     }
   }
@@ -32,7 +32,8 @@ vector<IModule *> DesignUtil::GetChildModules(const IModule *parent) {
   return v;
 }
 
-IResourceClass *DesignUtil::GetTransitionResourceClassFromDesign(IDesign *design) {
+IResourceClass *DesignUtil::GetTransitionResourceClassFromDesign(
+    IDesign *design) {
   for (auto *rc : design->resource_classes_) {
     if (rc->GetName() == resource::kTransition) {
       return rc;
@@ -42,9 +43,8 @@ IResourceClass *DesignUtil::GetTransitionResourceClassFromDesign(IDesign *design
   return nullptr;
 }
 
-void DesignUtil::FindResourceByClassName(ITable *table,
-					 const string &name,
-					 vector<IResource *> *resources) {
+void DesignUtil::FindResourceByClassName(ITable *table, const string &name,
+                                         vector<IResource *> *resources) {
   for (auto *res : table->resources_) {
     if (res->GetClass()->GetName() == name) {
       resources->push_back(res);
@@ -53,13 +53,14 @@ void DesignUtil::FindResourceByClassName(ITable *table,
 }
 
 IResource *DesignUtil::FindOneResourceByClassName(ITable *table,
-						  const string &name) {
+                                                  const string &name) {
   vector<IResource *> resources;
   FindResourceByClassName(table, name, &resources);
   if (resources.size() == 0) {
     return nullptr;
   }
-  CHECK(resources.size() == 1) << "the table has " << resources.size() << " " << name;
+  CHECK(resources.size() == 1)
+      << "the table has " << resources.size() << " " << name;
   return resources[0];
 }
 
@@ -81,7 +82,7 @@ IInsn *DesignUtil::FindInsnByResource(IState *state, IResource *res) {
 }
 
 IResourceClass *DesignUtil::FindResourceClass(IDesign *design,
-					      const string &class_name) {
+                                              const string &class_name) {
   for (auto *rc : design->resource_classes_) {
     if (rc->GetName() == class_name) {
       return rc;
@@ -103,8 +104,8 @@ IResource *DesignUtil::CreateResource(ITable *table, const string &name) {
 
 IInsn *DesignUtil::FindTransitionInsn(IState *st) {
   ITable *table = st->GetTable();
-  IResource *tr = DesignUtil::FindOneResourceByClassName(table,
-							 resource::kTransition);
+  IResource *tr =
+      DesignUtil::FindOneResourceByClassName(table, resource::kTransition);
   return DesignUtil::FindInsnByResource(st, tr);
 }
 
@@ -112,8 +113,8 @@ IInsn *DesignUtil::GetTransitionInsn(IState *st) {
   IInsn *insn = FindTransitionInsn(st);
   if (insn == nullptr) {
     ITable *table = st->GetTable();
-    IResource *tr = DesignUtil::FindOneResourceByClassName(table,
-							   resource::kTransition);
+    IResource *tr =
+        DesignUtil::FindOneResourceByClassName(table, resource::kTransition);
     insn = new IInsn(tr);
     st->insns_.push_back(insn);
   }
@@ -129,7 +130,7 @@ IInsn *DesignUtil::FindTaskEntryInsn(ITable *table) {
 }
 
 IInsn *DesignUtil::FindInitialInsnByClassName(ITable *table,
-					      const string &name) {
+                                              const string &name) {
   IResource *res = FindOneResourceByClassName(table, name);
   if (res != nullptr) {
     return DesignUtil::FindInsnByResource(table->GetInitialState(), res);
@@ -147,7 +148,7 @@ vector<IInsn *> DesignUtil::GetInsnsByResource(const IResource *res) {
   for (IState *st : tab->states_) {
     for (IInsn *insn : st->insns_) {
       if (insn->GetResource() == res) {
-	insns.push_back(insn);
+        insns.push_back(insn);
       }
     }
   }
@@ -167,8 +168,7 @@ bool DesignUtil::IsTerminalState(IState *st) {
   return false;
 }
 
-IResource *DesignUtil::FindResourceById(ITable *tab,
-					int res_id) {
+IResource *DesignUtil::FindResourceById(ITable *tab, int res_id) {
   for (IResource *res : tab->resources_) {
     if (res->GetId() == res_id) {
       return res;

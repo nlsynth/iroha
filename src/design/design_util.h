@@ -7,14 +7,15 @@
 namespace iroha {
 
 class DesignUtil {
-public:
+ public:
   static IModule *GetRootModule(const IDesign *design);
   static vector<IModule *> GetChildModules(const IModule *mod);
   static IResourceClass *GetTransitionResourceClassFromDesign(IDesign *design);
 
   static void FindResourceByClassName(ITable *table, const string &name,
-				      vector<IResource *> *resources);
-  static IResource *FindOneResourceByClassName(ITable *table, const string &name);
+                                      vector<IResource *> *resources);
+  static IResource *FindOneResourceByClassName(ITable *table,
+                                               const string &name);
   static IResource *FindAssignResource(ITable *table);
   static IResource *FindTransitionResource(ITable *table);
   static IInsn *FindInsnByResource(IState *state, IResource *res);
@@ -30,7 +31,7 @@ public:
   static ITable *FindTableById(IModule *mod, int tab_id);
   static IRegister *FindRegisterById(ITable *tab, int reg_id);
 
-private:
+ private:
   static IInsn *FindInitialInsnByClassName(ITable *tab, const string &name);
 };
 

@@ -1,22 +1,22 @@
 #include "design/validator.h"
 
-#include "iroha/i_design.h"
-
 #include <set>
+
+#include "iroha/i_design.h"
 
 namespace iroha {
 
-template<class T>
+template <class T>
 static void ValidateId(vector<T *> &v, set<int> &used_ids) {
   int last_id = 1;
   for (T *t : v) {
     if (t->GetId() < 0) {
       // Use first unused id.
       while (true) {
-	if (used_ids.find(last_id) == used_ids.end()) {
-	  break;
-	}
-	++last_id;
+        if (used_ids.find(last_id) == used_ids.end()) {
+          break;
+        }
+        ++last_id;
       }
       t->SetId(last_id);
       ++last_id;
@@ -24,7 +24,7 @@ static void ValidateId(vector<T *> &v, set<int> &used_ids) {
   }
 }
 
-template<class T>
+template <class T>
 static void ValidateVectorId(vector<T *> &v) {
   set<int> used_ids;
   for (auto *e : v) {
@@ -95,8 +95,8 @@ void Validator::ValidateRegName(IModule *mod) {
     for (auto *reg : tab->registers_) {
       string name = reg->GetName();
       if (name.empty() || names.find(name) != names.end()) {
-	name = GetUniqueName(names, reg);
-	reg->SetName(name);
+        name = GetUniqueName(names, reg);
+        reg->SetName(name);
       }
       names.insert(name);
     }

@@ -10,9 +10,7 @@
 
 namespace iroha {
 
-void DesignTool::Validate(IDesign *design) {
-  Validator::Validate(design);
-}
+void DesignTool::Validate(IDesign *design) { Validator::Validate(design); }
 
 IInsn *DesignTool::AddNextState(IState *cur, IState *next) {
   IInsn *insn = DesignUtil::GetTransitionInsn(cur);
@@ -68,12 +66,11 @@ IResource *DesignTool::GetOneResource(ITable *table, const string &class_name) {
   return res;
 }
 
-IResource *DesignTool::GetBinOpResource(ITable *table,
-					const string &class_name,
-					int width) {
+IResource *DesignTool::GetBinOpResource(ITable *table, const string &class_name,
+                                        int width) {
   for (auto *res : table->resources_) {
     if (res->GetClass()->GetName() == class_name &&
-	res->input_types_[0].GetWidth() == width) {
+        res->input_types_[0].GetWidth() == width) {
       return res;
     }
   }
@@ -94,16 +91,14 @@ IResource *DesignTool::GetBinOpResource(ITable *table,
   return res;
 }
 
-IResource *DesignTool::CreateArrayResource(ITable *table,
-					   int address_width,
-					   int data_width,
-					   bool is_external,
-					   bool is_ram) {
+IResource *DesignTool::CreateArrayResource(ITable *table, int address_width,
+                                           int data_width, bool is_external,
+                                           bool is_ram) {
   IResource *res = DesignUtil::CreateResource(table, resource::kArray);
   IValueType data_type;
   data_type.SetWidth(data_width);
-  IArray *array = new IArray(res, address_width, data_type,
-			     is_external, is_ram);
+  IArray *array =
+      new IArray(res, address_width, data_type, is_external, is_ram);
   res->SetArray(array);
   return res;
 }
@@ -113,18 +108,18 @@ IResource *DesignTool::CreateShifterResource(ITable *table) {
 }
 
 IResource *DesignTool::CreateExtTaskCallResource(ITable *table,
-						 const string &mod_name,
-						 const string &fn) {
+                                                 const string &mod_name,
+                                                 const string &fn) {
   IResource *res = DesignUtil::CreateResource(table, resource::kExtTaskCall);
   res->GetParams()->SetEmbeddedModuleName(mod_name, fn);
   return res;
 }
 
 IResource *DesignTool::CreateExtCombinationalResource(ITable *table,
-						      const string &mod_name,
-						      const string &fn) {
-  IResource *res = DesignUtil::CreateResource(table,
-					      resource::kExtCombinational);
+                                                      const string &mod_name,
+                                                      const string &fn) {
+  IResource *res =
+      DesignUtil::CreateResource(table, resource::kExtCombinational);
   res->GetParams()->SetEmbeddedModuleName(mod_name, fn);
   return res;
 }
@@ -133,8 +128,7 @@ IResource *DesignTool::CreateTaskResource(ITable *table) {
   return DesignUtil::CreateResource(table, resource::kTask);
 }
 
-IResource *DesignTool::CreateTaskCallResource(ITable *table,
-					      ITable *callee) {
+IResource *DesignTool::CreateTaskCallResource(ITable *table, ITable *callee) {
   IResource *res = DesignUtil::CreateResource(table, resource::kTaskCall);
   res->SetCalleeTable(callee);
   return res;
@@ -144,33 +138,32 @@ IResource *DesignTool::CreateDataFlowInResource(ITable *table) {
   return DesignUtil::CreateResource(table, resource::kDataFlowIn);
 }
 
-IResource *DesignTool::CreateSharedRegResource(ITable *table,
-					       int width) {
+IResource *DesignTool::CreateSharedRegResource(ITable *table, int width) {
   IResource *res = DesignUtil::CreateResource(table, resource::kSharedReg);
   res->GetParams()->SetWidth(width);
   return res;
 }
 
 IResource *DesignTool::CreateSharedRegReaderResource(ITable *table,
-						     IResource *reg) {
-  IResource *res = DesignUtil::CreateResource(table,
-					      resource::kSharedRegReader);
+                                                     IResource *reg) {
+  IResource *res =
+      DesignUtil::CreateResource(table, resource::kSharedRegReader);
   res->SetParentResource(reg);
   return res;
 }
 
 IResource *DesignTool::CreateSharedRegWriterResource(ITable *table,
-						     IResource *reg) {
-  IResource *res = DesignUtil::CreateResource(table,
-					      resource::kSharedRegWriter);
+                                                     IResource *reg) {
+  IResource *res =
+      DesignUtil::CreateResource(table, resource::kSharedRegWriter);
   res->SetParentResource(reg);
   return res;
 }
 
 IResource *DesignTool::CreateSharedRegExtWriterResource(ITable *table,
-							IResource *reg) {
-  IResource *res = DesignUtil::CreateResource(table,
-					      resource::kSharedRegExtWriter);
+                                                        IResource *reg) {
+  IResource *res =
+      DesignUtil::CreateResource(table, resource::kSharedRegExtWriter);
   res->SetParentResource(reg);
   return res;
 }
@@ -181,16 +174,16 @@ IResource *DesignTool::CreateFifoResource(ITable *table, int width) {
   return res;
 }
 
-IResource *DesignTool::CreateFifoReaderResource(ITable *table, IResource *fifo) {
-  IResource *res = DesignUtil::CreateResource(table,
-					      resource::kFifoReader);
+IResource *DesignTool::CreateFifoReaderResource(ITable *table,
+                                                IResource *fifo) {
+  IResource *res = DesignUtil::CreateResource(table, resource::kFifoReader);
   res->SetParentResource(fifo);
   return res;
 }
 
-IResource *DesignTool::CreateFifoWriterResource(ITable *table, IResource *fifo) {
-  IResource *res = DesignUtil::CreateResource(table,
-					      resource::kFifoWriter);
+IResource *DesignTool::CreateFifoWriterResource(ITable *table,
+                                                IResource *fifo) {
+  IResource *res = DesignUtil::CreateResource(table, resource::kFifoWriter);
   res->SetParentResource(fifo);
   return res;
 }
@@ -207,15 +200,14 @@ IResource *DesignTool::CopySimpleResource(IResource *res) {
 }
 
 IRegister *DesignTool::AllocRegister(ITable *table, const string &name,
-				     int width) {
+                                     int width) {
   IRegister *reg = new IRegister(table, name);
   reg->value_type_.SetWidth(width);
   table->registers_.push_back(reg);
   return reg;
 }
 
-IRegister *DesignTool::AllocConstNum(ITable *table,
-				     int width, uint64_t value) {
+IRegister *DesignTool::AllocConstNum(ITable *table, int width, uint64_t value) {
   IRegister *reg = new IRegister(table, "");
   Numeric v;
   v.SetValue0(value);
@@ -227,8 +219,7 @@ IRegister *DesignTool::AllocConstNum(ITable *table,
   return reg;
 }
 
-void DesignTool::SetRegisterInitialValue(uint64_t value,
-					 IRegister *reg) {
+void DesignTool::SetRegisterInitialValue(uint64_t value, IRegister *reg) {
   Numeric v;
   v.type_ = reg->value_type_;
   v.SetValue0(value);
@@ -238,7 +229,7 @@ void DesignTool::SetRegisterInitialValue(uint64_t value,
 IInsn *DesignTool::CreateShiftInsn(IRegister *reg, bool to_left, int amount) {
   ITable *table = reg->GetTable();
   IResource *shifter =
-    DesignUtil::FindOneResourceByClassName(table, resource::kShift);
+      DesignUtil::FindOneResourceByClassName(table, resource::kShift);
   IInsn *insn = new IInsn(shifter);
   if (to_left) {
     insn->SetOperand(operand::kLeft);
