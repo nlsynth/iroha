@@ -26,6 +26,8 @@ class StageScheduler {
   MacroStage &GetMacroStage(int s);
 
  private:
+  bool IsBodyInsn(IInsn *insn);
+
   loop::LoopBlock *lb_;
   int interval_;
   vector<MacroStage> macro_stages_;

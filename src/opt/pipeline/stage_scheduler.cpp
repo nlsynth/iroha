@@ -15,18 +15,17 @@ loop::LoopBlock *StageScheduler::GetLoop() { return lb_; }
 bool StageScheduler::Build() {
   auto &sts = lb_->GetStates();
   for (IState *st : sts) {
-    bool has_non_tr = false;
+    vector<IInsn *> body_insns;
     for (IInsn *insn : st->insns_) {
-      IResource *res = insn->GetResource();
-      if (!resource::IsTransition(*(res->GetClass()))) {
-        has_non_tr = true;
+      if (IsBodyInsn(insn)) {
+        body_insns.push_back(insn);
       }
     }
-    if (!has_non_tr) {
+    if (body_insns.size() == 0) {
       continue;
     }
     MacroStage ms;
-    ms.insns_ = st->insns_;
+    ms.insns_ = body_insns;
     macro_stages_.push_back(ms);
   }
   return true;
@@ -41,6 +40,18 @@ int StageScheduler::GetInterval() { return interval_; }
 int StageScheduler::GetPipelineStageLength() {
   int ns = GetMacroStageCount();
   return (2 * ns - 1) * interval_;
+}
+
+bool StageScheduler::IsBodyInsn(IInsn *insn) {
+  IInsn *compare_insn = lb_->GetCompareInsn();
+  if (insn == compare_insn) {
+    return false;
+  }
+  IResource *res = insn->GetResource();
+  if (resource::IsTransition(*(res->GetClass()))) {
+    return false;
+  }
+  return true;
 }
 
 }  // namespace pipeline
