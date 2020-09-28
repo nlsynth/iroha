@@ -40,10 +40,11 @@ const char kNotifySuffix[] = "NOTIFY";
 const char kPutSuffix[] = "PUT";
 const char kPipeline[] = "PIPELINE";
 const char kLoopUnroll[] = "LOOP-UNROLL";
+const char kExperimental[] = "EXPERIMENTAL";
 }  // namespace resource
 
 class ResourceParams {
-public:
+ public:
   ResourceParams();
   ~ResourceParams();
 
@@ -124,7 +125,10 @@ public:
   bool GetIsPipeline();
   void SetIsPipeline(bool pipeline);
 
-private:
+  int GetExperimental();
+  void SetExperimental(int e);
+
+ private:
   resource::ResourceParamValueSet *values_;
 };
 

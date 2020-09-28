@@ -1,9 +1,9 @@
 #include "iroha/resource_params.h"
 
+#include <set>
+
 #include "iroha/logging.h"
 #include "iroha/stl_util.h"
-
-#include <set>
 
 static const string boolToStr(bool b) {
   if (b) {
@@ -17,29 +17,23 @@ namespace iroha {
 namespace resource {
 
 class ResourceParamValue {
-public:
+ public:
   string key_;
-  vector <string> values_;
+  vector<string> values_;
 };
 
 class ResourceParamValueSet {
-public:
-  ~ResourceParamValueSet() {
-    STLDeleteValues(&params_);
-  }
+ public:
+  ~ResourceParamValueSet() { STLDeleteValues(&params_); }
   void Merge(ResourceParamValueSet *src_param_values);
-  ResourceParamValue *GetParam(const string &key,
-			       bool cr,
-			       const string &dflt);
+  ResourceParamValue *GetParam(const string &key, bool cr, const string &dflt);
   ResourceParamValue *LookupParam(const string &key) const;
   vector<string> GetParamKeys() const;
   vector<string> GetValues(const string &key) const;
   void SetValues(const string &key, const vector<string> &values);
-  bool GetBoolParam(const string &key,
-		    bool dflt) const;
+  bool GetBoolParam(const string &key, bool dflt) const;
   void SetBoolParam(const string &key, bool value);
-  string GetStringParam(const string &key,
-			const string &dflt) const;
+  string GetStringParam(const string &key, const string &dflt) const;
   void SetStringParam(const string &key, const string &value);
   int GetIntParam(const string &key, int dflt) const;
   void SetIntParam(const string &key, int value);
@@ -67,9 +61,8 @@ void ResourceParamValueSet::Merge(ResourceParamValueSet *src_param_values) {
   params_ = new_params;
 }
 
-ResourceParamValue *ResourceParamValueSet::GetParam(const string &key,
-						    bool cr,
-						    const string &dflt) {
+ResourceParamValue *ResourceParamValueSet::GetParam(const string &key, bool cr,
+                                                    const string &dflt) {
   ResourceParamValue *p = LookupParam(key);
   if (p != nullptr) {
     return p;
@@ -86,8 +79,8 @@ ResourceParamValue *ResourceParamValueSet::GetParam(const string &key,
   return p;
 }
 
-ResourceParamValue *ResourceParamValueSet::LookupParam(const string &key)
-  const {
+ResourceParamValue *ResourceParamValueSet::LookupParam(
+    const string &key) const {
   for (auto *p : params_) {
     if (p->key_ == key) {
       return p;
@@ -115,13 +108,12 @@ vector<string> ResourceParamValueSet::GetValues(const string &key) const {
 }
 
 void ResourceParamValueSet::SetValues(const string &key,
-				      const vector<string> &values) {
+                                      const vector<string> &values) {
   auto *param = GetParam(key, true, "");
   param->values_ = values;
 }
 
-bool ResourceParamValueSet::GetBoolParam(const string &key,
-					 bool dflt) const {
+bool ResourceParamValueSet::GetBoolParam(const string &key, bool dflt) const {
   ResourceParamValue *p = LookupParam(key);
   if (p == nullptr) {
     return dflt;
@@ -139,7 +131,7 @@ void ResourceParamValueSet::SetBoolParam(const string &key, bool value) {
 }
 
 string ResourceParamValueSet::GetStringParam(const string &key,
-					     const string &dflt) const {
+                                             const string &dflt) const {
   ResourceParamValue *p = LookupParam(key);
   if (p == nullptr) {
     return dflt;
@@ -151,7 +143,7 @@ string ResourceParamValueSet::GetStringParam(const string &key,
 }
 
 void ResourceParamValueSet::SetStringParam(const string &key,
-					   const string &value) {
+                                           const string &value) {
   auto *param = GetParam(key, true, "");
   if (param == nullptr) {
     CHECK(value.empty()) << "param should be non null if value is not empty";
@@ -161,8 +153,7 @@ void ResourceParamValueSet::SetStringParam(const string &key,
   param->values_.push_back(value);
 }
 
-int ResourceParamValueSet::GetIntParam(const string &key,
-				       int dflt) const {
+int ResourceParamValueSet::GetIntParam(const string &key, int dflt) const {
   ResourceParamValue *p = LookupParam(key);
   if (p == nullptr) {
     return dflt;
@@ -182,12 +173,9 @@ void ResourceParamValueSet::SetIntParam(const string &key, int value) {
 }  // namespace resource
 
 ResourceParams::ResourceParams()
-  : values_(new resource::ResourceParamValueSet) {
-}
+    : values_(new resource::ResourceParamValueSet) {}
 
-ResourceParams::~ResourceParams() {
-  delete values_;
-}
+ResourceParams::~ResourceParams() { delete values_; }
 
 void ResourceParams::Merge(ResourceParams *src_params) {
   values_->Merge(src_params->values_);
@@ -202,7 +190,7 @@ vector<string> ResourceParams::GetValues(const string &key) const {
 }
 
 void ResourceParams::SetValues(const string &key,
-			       const vector<string> &values) {
+                               const vector<string> &values) {
   values_->SetValues(key, values);
 }
 
@@ -240,8 +228,7 @@ void ResourceParams::SetResetPolarity(bool p) {
 }
 
 string ResourceParams::GetPlatformFamily() const {
-  return values_->GetStringParam(resource::kPlatformFamily,
-				 "generic-platform");
+  return values_->GetStringParam(resource::kPlatformFamily, "generic-platform");
 }
 
 void ResourceParams::SetPlatformFamily(const string &name) {
@@ -344,7 +331,7 @@ void ResourceParams::SetWidth(int w) {
 }
 
 void ResourceParams::SetEmbeddedModuleName(const string &mod,
-					   const string &fn) {
+                                           const string &fn) {
   values_->SetStringParam(resource::kEmbeddedModule, mod);
   values_->SetStringParam(resource::kEmbeddedModuleFile, fn);
 }
@@ -365,7 +352,8 @@ string ResourceParams::GetEmbeddedModuleReset() const {
   return values_->GetStringParam(resource::kEmbeddedModuleReset, "rst");
 }
 
-void ResourceParams::SetEmbeddedModuleIO(bool is_output, const vector<string> &ports) {
+void ResourceParams::SetEmbeddedModuleIO(bool is_output,
+                                         const vector<string> &ports) {
   if (is_output) {
     SetValues(resource::kEmbeddedModuleOutputs, ports);
   } else {
@@ -435,6 +423,14 @@ bool ResourceParams::GetIsPipeline() {
 
 void ResourceParams::SetIsPipeline(bool pipeline) {
   values_->SetBoolParam(resource::kPipeline, pipeline);
+}
+
+int ResourceParams::GetExperimental() {
+  return values_->GetIntParam(resource::kExperimental, 0);
+}
+
+void ResourceParams::SetExperimental(int e) {
+  return values_->SetIntParam(resource::kExperimental, e);
 }
 
 }  // namespace iroha
