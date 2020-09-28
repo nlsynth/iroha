@@ -28,6 +28,9 @@ bool StageScheduler::Build() {
     ms.insns_ = body_insns;
     macro_stages_.push_back(ms);
   }
+  if (macro_stages_.size() == 0) {
+    return false;
+  }
   return true;
 }
 
@@ -44,7 +47,8 @@ int StageScheduler::GetPipelineStageLength() {
 
 bool StageScheduler::IsBodyInsn(IInsn *insn) {
   IInsn *compare_insn = lb_->GetCompareInsn();
-  if (insn == compare_insn) {
+  IInsn *increment_insn = lb_->GetIncrementInsn();
+  if (insn == compare_insn || insn == increment_insn) {
     return false;
   }
   IResource *res = insn->GetResource();

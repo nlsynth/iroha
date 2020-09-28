@@ -118,7 +118,13 @@ void Pipeliner::ConnectPipeline() {
   // From last.
   IState *lst = pipeline_stages_[pipeline_stages_.size() - 1];
   IInsn *linsn = DesignUtil::GetTransitionInsn(lst);
-  linsn->target_states_.push_back(lb_->GetExitState());
+  if (pipeline_stages_.size() == 1) {
+    // exit, current.
+    linsn->target_states_.push_back(linsn->target_states_[0]);
+    linsn->target_states_[0] = lb_->GetExitState();
+  } else {
+    linsn->target_states_.push_back(lb_->GetExitState());
+  }
 }
 
 void Pipeliner::SetupCounter() {
@@ -190,6 +196,7 @@ void Pipeliner::SetupExit() {
   int llen = ssch_->GetMacroStageCount();
   IState *st = pipeline_stages_[(llen - 1) * interval_ + (interval_ - 1)];
   IInsn *tr_insn = DesignUtil::GetTransitionInsn(st);
+  // next, current
   tr_insn->target_states_.push_back(st);
   IRegister *cond = new IRegister(tab_, RegName("cond_ps", 0));
   cond->value_type_.SetWidth(0);
@@ -212,10 +219,12 @@ void Pipeliner::SetupExit() {
   compare->inputs_.push_back(counter_wires_[llen - 1]);
   st->insns_.push_back(compare);
 }
+
 string Pipeliner::RegName(const string &base, int index) {
   IRegister *orig_counter = lb_->GetRegister();
   return orig_counter->GetName() + base + Util::Itoa(index);
 }
+
 }  // namespace pipeline
 }  // namespace opt
 }  // namespace iroha
