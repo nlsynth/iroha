@@ -16,6 +16,10 @@ PipelinePass::~PipelinePass() {}
 Pass *PipelinePass::Create() { return new PipelinePass(); }
 
 bool PipelinePass::ApplyForTable(const string &key, ITable *table) {
+  bool is_exp = false;
+  if (name_ == "pipeline_x") {
+    is_exp = true;
+  }
   int n = 0;
   vector<IRegister *> loop_regs;
   for (IRegister *reg : table->registers_) {
@@ -24,6 +28,9 @@ bool PipelinePass::ApplyForTable(const string &key, ITable *table) {
       continue;
     }
     if (!params->GetIsPipeline()) {
+      continue;
+    }
+    if (params->GetExperimental() && !is_exp) {
       continue;
     }
     loop_regs.push_back(reg);

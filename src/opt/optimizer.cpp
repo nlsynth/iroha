@@ -53,6 +53,7 @@ void Optimizer::Init() {
   RegisterPass("alloc_resource", &sched::SchedPass::Create);
   RegisterPass("wire_insn", &sched::SchedPass::Create);
   RegisterPass("pipeline", &pipeline::PipelinePass::Create);
+  RegisterPass("pipeline_x", &pipeline::PipelinePass::Create);
   RegisterPass("unroll", &unroll::UnrollPass::Create);
   RegisterPass("study", &Study::Create);
   CompoundPass::Init();
