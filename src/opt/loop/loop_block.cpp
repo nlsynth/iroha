@@ -53,6 +53,9 @@ bool LoopBlock::Build() {
   }
   loop_count_ = compare_insn_->inputs_[0]->GetInitialValue().GetValue0();
   IState *tr_st = FindTransition(compare_st_, compare_insn_);
+  if (tr_st == nullptr) {
+    return false;
+  }
   branch_insn_ = DesignUtil::FindTransitionInsn(tr_st);
   exit_st_ = branch_insn_->target_states_[0];
   if (exit_st_ == nullptr) {
@@ -117,7 +120,7 @@ IInsn *LoopBlock::CompareResult(IInsn *insn) {
 
 IState *LoopBlock::FindTransition(IState *compare_st, IInsn *compare_insn) {
   IRegister *compare_reg = compare_insn->outputs_[0];
-  for (IState *st = OptUtil::GetOneNextState(compare_st); st != nullptr;
+  for (IState *st = compare_st; st != nullptr;
        st = OptUtil::GetOneNextState(st)) {
     for (IInsn *insn : st->insns_) {
       IResourceClass *rc = insn->GetResource()->GetClass();
