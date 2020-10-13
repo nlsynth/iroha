@@ -76,11 +76,35 @@ void Pipeliner::PlaceState(int pidx, int lidx) {
       continue;
     }
     IInsn *new_insn = new IInsn(res);
-    new_insn->inputs_ = insn->inputs_;
-    new_insn->outputs_ = insn->outputs_;
+    UpdateRegs(pst, insn->inputs_, &new_insn->inputs_);
+    UpdateRegs(pst, insn->outputs_, &new_insn->outputs_);
     pst->insns_.push_back(new_insn);
     insn_to_stage_[new_insn] = lidx;
   }
+}
+
+void Pipeliner::UpdateRegs(IState *st, vector<IRegister *> &src,
+                           vector<IRegister *> *dst) {
+  for (IRegister *r : src) {
+    dst->push_back(MayUpdateWireReg(st, r));
+  }
+}
+
+IRegister *Pipeliner::MayUpdateWireReg(IState *st, IRegister *reg) {
+  if (!reg->IsStateLocal()) {
+    return reg;
+  }
+  auto key = make_tuple(st, reg);
+  auto it = wire_to_reg_.find(key);
+  if (it == wire_to_reg_.end()) {
+    IRegister *nreg = new IRegister(tab_, reg->GetName());
+    tab_->registers_.push_back(nreg);
+    wire_to_reg_[key] = nreg;
+    nreg->SetStateLocal(true);
+    nreg->value_type_ = reg->value_type_;
+    reg = nreg;
+  }
+  return reg;
 }
 
 void Pipeliner::UpdateCounterRead() {
