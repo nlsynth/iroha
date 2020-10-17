@@ -26,7 +26,11 @@ bool Pipeliner::Pipeline() {
   lb_->Annotate(opt_log_);
   ostream &os = opt_log_->GetDumpStream();
   os << "Pipeliner " << ssch_->GetMacroStageCount() << " states, "
-     << lb_->GetLoopCount() << " loop, interval=" << interval_ << " <br/>";
+     << lb_->GetLoopCount() << " loop, interval=" << interval_ << " <br/>\n";
+  if (!CollectWRRegs()) {
+    os << "Give up due to multiple writes<br/>\n";
+    return false;
+  }
   // prepare states.
   prologue_st_ = new IState(tab_);
   tab_->states_.push_back(prologue_st_);
@@ -247,6 +251,31 @@ void Pipeliner::SetupExit() {
 string Pipeliner::RegName(const string &base, int index) {
   IRegister *orig_counter = lb_->GetRegister();
   return orig_counter->GetName() + base + Util::Itoa(index);
+}
+
+bool Pipeliner::CollectWRRegs() {
+  set<IRegister *> written_regs;
+  for (IState *st : lb_->GetStates()) {
+    for (IInsn *insn : st->insns_) {
+      // Reads.
+      for (IRegister *reg : insn->inputs_) {
+        if (written_regs.find(reg) != written_regs.end()) {
+          // WIP.
+        }
+      }
+      // Writes.
+      for (IRegister *reg : insn->outputs_) {
+        if (written_regs.find(reg) != written_regs.end()) {
+          return false;
+        }
+        if (!reg->IsNormal()) {
+          continue;
+        }
+        written_regs.insert(reg);
+      }
+    }
+  }
+  return true;
 }
 
 }  // namespace pipeline

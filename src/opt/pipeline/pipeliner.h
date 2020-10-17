@@ -28,6 +28,7 @@ class Pipeliner {
   void SetupExit();
   void UpdateCounterRead();
   string RegName(const string &base, int index);
+  bool CollectWRRegs();
 
   ITable *tab_;
   StageScheduler *ssch_;
