@@ -4,6 +4,7 @@
 #include "design/design_util.h"
 #include "iroha/i_design.h"
 #include "iroha/resource_class.h"
+#include "iroha/stl_util.h"
 #include "opt/loop/loop_block.h"
 #include "opt/optimizer_log.h"
 #include "opt/pipeline/stage_scheduler.h"
@@ -21,6 +22,8 @@ Pipeliner::Pipeliner(ITable *tab, StageScheduler *ssch)
       prologue_st_(nullptr) {
   opt_log_ = tab->GetModule()->GetDesign()->GetOptimizerLog();
 }
+
+Pipeliner::~Pipeliner() { STLDeleteSecondElements(&wr_deps_); }
 
 bool Pipeliner::Pipeline() {
   lb_->Annotate(opt_log_);
@@ -40,6 +43,7 @@ bool Pipeliner::Pipeline() {
     pipeline_stages_.push_back(st);
     tab_->states_.push_back(st);
   }
+  PrepareRegPipeline();
   // s0
   // s0 s1
   // s0 s1 s2
@@ -80,24 +84,26 @@ void Pipeliner::PlaceState(int pidx, int lidx) {
       continue;
     }
     IInsn *new_insn = new IInsn(res);
-    UpdateRegs(pst, insn->inputs_, &new_insn->inputs_);
-    UpdateRegs(pst, insn->outputs_, &new_insn->outputs_);
+    UpdateRegs(pst, false, insn->inputs_, &new_insn->inputs_);
+    UpdateRegs(pst, true, insn->outputs_, &new_insn->outputs_);
     pst->insns_.push_back(new_insn);
     insn_to_stage_[new_insn] = lidx;
   }
 }
 
-void Pipeliner::UpdateRegs(IState *st, vector<IRegister *> &src,
+void Pipeliner::UpdateRegs(IState *st, bool is_output, vector<IRegister *> &src,
                            vector<IRegister *> *dst) {
-  for (IRegister *r : src) {
-    dst->push_back(MayUpdateWireReg(st, r));
+  for (IRegister *reg : src) {
+    if (reg->IsStateLocal()) {
+      reg = MayUpdateWireReg(st, reg);
+    } else if (reg->IsNormal() && !is_output) {
+      reg = LookupStagedReg(st, reg);
+    }
+    dst->push_back(reg);
   }
 }
 
 IRegister *Pipeliner::MayUpdateWireReg(IState *st, IRegister *reg) {
-  if (!reg->IsStateLocal()) {
-    return reg;
-  }
   auto key = make_tuple(st, reg);
   auto it = wire_to_reg_.find(key);
   if (it == wire_to_reg_.end()) {
@@ -278,7 +284,6 @@ bool Pipeliner::CollectWRRegs() {
     ++sindex;
   }
   ostream &os = opt_log_->GetDumpStream();
-  os << "In pipleine register W-R dependencies.<br/>\n";
   for (auto it : last_read_pos) {
     IRegister *reg = it.first;
     auto jt = write_pos.find(reg);
@@ -287,11 +292,34 @@ bool Pipeliner::CollectWRRegs() {
       continue;
     }
     auto &sts = lb_->GetStates();
-    os << "r_" << reg->GetId() << " " << reg->GetName()
-       << " w:" << sts[jt->second]->GetId() << " r:" << sts[it.second]->GetId()
-       << "<br/>\n";
+    IState *wst = sts[jt->second];
+    IState *rst = sts[it.second];
+    if (jt->second < it.second) {
+      // Write -> Read.
+      WRDep *dep = new WRDep();
+      dep->wst_ = wst;
+      dep->rst_ = rst;
+      wr_deps_[reg] = dep;
+    }
+  }
+  if (wr_deps_.size() > 0) {
+    os << "In pipleine register W-R dependencies.<br/>\n";
+    for (auto p : wr_deps_) {
+      WRDep *d = p.second;
+      IRegister *reg = p.first;
+      os << "r_" << reg->GetId() << " " << reg->GetName()
+         << " w:" << d->wst_->GetId() << " r:" << d->rst_->GetId() << "<br/>\n";
+    }
   }
   return true;
+}
+
+void Pipeliner::PrepareRegPipeline() {
+  // WIP
+}
+
+IRegister *Pipeliner::LookupStagedReg(IState *st, IRegister *reg) {
+  return reg;
 }
 
 }  // namespace pipeline
