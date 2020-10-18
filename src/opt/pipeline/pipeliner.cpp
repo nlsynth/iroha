@@ -291,14 +291,13 @@ bool Pipeliner::CollectWRRegs() {
       // no write in this loop.
       continue;
     }
-    auto &sts = lb_->GetStates();
-    IState *wst = sts[jt->second];
-    IState *rst = sts[it.second];
-    if (jt->second < it.second) {
+    int windex = jt->second;
+    int rindex = it.second;
+    if (windex < rindex) {
       // Write -> Read.
       WRDep *dep = new WRDep();
-      dep->wst_ = wst;
-      dep->rst_ = rst;
+      dep->wst_index_ = windex;
+      dep->rst_index_ = rindex;
       wr_deps_[reg] = dep;
     }
   }
@@ -307,15 +306,34 @@ bool Pipeliner::CollectWRRegs() {
     for (auto p : wr_deps_) {
       WRDep *d = p.second;
       IRegister *reg = p.first;
+      auto &sts = lb_->GetStates();
       os << "r_" << reg->GetId() << " " << reg->GetName()
-         << " w:" << d->wst_->GetId() << " r:" << d->rst_->GetId() << "<br/>\n";
+         << " w:" << sts[d->wst_index_]->GetId()
+         << " r:" << sts[d->rst_index_]->GetId() << "<br/>\n";
     }
   }
   return true;
 }
 
 void Pipeliner::PrepareRegPipeline() {
-  // WIP
+  IResource *assign = DesignUtil::FindAssignResource(tab_);
+  for (auto p : wr_deps_) {
+    WRDep *d = p.second;
+    IRegister *src = p.first;
+    for (int i = d->wst_index_; i < d->rst_index_; ++i) {
+      int pindex = i * interval_ + (interval_ - 1);
+      IState *pst = pipeline_stages_[pindex];
+      IInsn *insn = new IInsn(assign);
+      insn->inputs_.push_back(src);
+      IRegister *dst = new IRegister(tab_, src->GetName());
+      tab_->registers_.push_back(dst);
+      insn->outputs_.push_back(dst);
+      dst->value_type_ = src->value_type_;
+      pst->insns_.push_back(insn);
+      // for next macro stage.
+      src = dst;
+    }
+  }
 }
 
 IRegister *Pipeliner::LookupStagedReg(IState *st, IRegister *reg) {
