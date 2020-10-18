@@ -254,26 +254,42 @@ string Pipeliner::RegName(const string &base, int index) {
 }
 
 bool Pipeliner::CollectWRRegs() {
-  set<IRegister *> written_regs;
+  map<IRegister *, int> write_pos;
+  map<IRegister *, int> last_read_pos;
+  int sindex = 0;
   for (IState *st : lb_->GetStates()) {
     for (IInsn *insn : st->insns_) {
       // Reads.
       for (IRegister *reg : insn->inputs_) {
-        if (written_regs.find(reg) != written_regs.end()) {
-          // WIP.
-        }
+        last_read_pos[reg] = sindex;
       }
       // Writes.
       for (IRegister *reg : insn->outputs_) {
-        if (written_regs.find(reg) != written_regs.end()) {
+        if (write_pos.find(reg) != write_pos.end()) {
+          // write conflicts.
           return false;
         }
         if (!reg->IsNormal()) {
           continue;
         }
-        written_regs.insert(reg);
+        write_pos[reg] = sindex;
       }
     }
+    ++sindex;
+  }
+  ostream &os = opt_log_->GetDumpStream();
+  os << "In pipleine register W-R dependencies.<br/>\n";
+  for (auto it : last_read_pos) {
+    IRegister *reg = it.first;
+    auto jt = write_pos.find(reg);
+    if (jt == write_pos.end()) {
+      // no write in this loop.
+      continue;
+    }
+    auto &sts = lb_->GetStates();
+    os << "r_" << reg->GetId() << " " << reg->GetName()
+       << " w:" << sts[jt->second]->GetId() << " r:" << sts[it.second]->GetId()
+       << "<br/>\n";
   }
   return true;
 }
