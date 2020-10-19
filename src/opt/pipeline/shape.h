@@ -14,10 +14,12 @@ class Shape {
  public:
   Shape(StageScheduler *ssch);
 
-  vector<pair<int, int>> GetPipelineLocation();
+  // pipeline macro stage, loop index.
+  vector<pair<int, int>> &GetPipelineLocation();
 
  private:
   StageScheduler *ssch_;
+  vector<pair<int, int>> locs_;
 };
 
 }  // namespace pipeline
