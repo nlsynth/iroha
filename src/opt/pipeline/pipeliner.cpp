@@ -7,6 +7,7 @@
 #include "iroha/stl_util.h"
 #include "opt/loop/loop_block.h"
 #include "opt/optimizer_log.h"
+#include "opt/pipeline/shape.h"
 #include "opt/pipeline/stage_scheduler.h"
 
 namespace iroha {
@@ -44,25 +45,10 @@ bool Pipeliner::Pipeline() {
     tab_->states_.push_back(st);
   }
   PrepareRegPipeline();
-  // s0
-  // s0 s1
-  // s0 s1 s2
-  // .. ..
-  // s0 .. .. s{n-1}
-  int ns = ssch_->GetMacroStageCount();
-  for (int i = 0; i < ns; ++i) {
-    for (int j = 0; j <= i; ++j) {
-      PlaceState(i, j);
-    }
-  }
-  // -- s1 s2 .. s{n-1}
-  // -- -- s2 .. s{n-1}
-  //             ..
-  //             s{n-1}
-  for (int i = 1; i < ns; ++i) {
-    for (int j = i; j < ns; ++j) {
-      PlaceState(i + ns - 1, j);
-    }
+  Shape shape(ssch_);
+  vector<pair<int, int>> loc = shape.GetPipelineLocation();
+  for (pair<int, int> &p : loc) {
+    PlaceState(p.first, p.second);
   }
   SetupCounter();
   SetupCounterIncrement();
