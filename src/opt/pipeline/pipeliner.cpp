@@ -320,6 +320,7 @@ void Pipeliner::PrepareRegPipeline() {
   for (auto p : wr_deps_) {
     WRDep *d = p.second;
     IRegister *src = p.first;
+    // WIP: Inject to correct places.
     for (int i = d->wst_index_; i < d->rst_index_; ++i) {
       int pindex = i * interval_ + (interval_ - 1);
       IState *pst = pipeline_stages_[pindex];
@@ -330,6 +331,8 @@ void Pipeliner::PrepareRegPipeline() {
       insn->outputs_.push_back(dst);
       dst->value_type_ = src->value_type_;
       pst->insns_.push_back(insn);
+      ostream &os = opt_log_->Insn(insn);
+      os << "~";
       // for next macro stage.
       src = dst;
     }

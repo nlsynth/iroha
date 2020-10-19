@@ -68,6 +68,10 @@ ostream &OptimizerLog::GetDumpStream() {
 
 ostream &OptimizerLog::Table(const ITable *tab) { return table_[tab]; }
 
+ostream &OptimizerLog::State(const IState *st) { return state_[st]; }
+
+ostream &OptimizerLog::Insn(const IInsn *insn) { return insn_[insn]; }
+
 string OptimizerLog::GetTableAnnotation(const ITable *tab) const {
   auto it = table_.find(tab);
   if (it == table_.end()) {
@@ -75,8 +79,6 @@ string OptimizerLog::GetTableAnnotation(const ITable *tab) const {
   }
   return it->second.str();
 }
-
-ostream &OptimizerLog::State(const IState *st) { return state_[st]; }
 
 void OptimizerLog::SetStateColorIndex(const IState *st, int idx) {
   state_color_[st] = idx;
@@ -86,6 +88,14 @@ string OptimizerLog::GetStateAnnotation(const IState *st) const {
   auto it = state_.find(st);
   if (it == state_.end()) {
     return string();
+  }
+  return it->second.str();
+}
+
+string OptimizerLog::GetInsnAnnotation(const IInsn *insn) const {
+  auto it = insn_.find(insn);
+  if (it == insn_.end()) {
+    return "";
   }
   return it->second.str();
 }

@@ -37,7 +37,7 @@ void HtmlWriter::WriteIntermediateTable(const ITable &tab) { WriteTable(tab); }
 void HtmlWriter::WriteTable(const ITable &tab) {
   os_ << "<div>\n"
       << " table: " << tab.GetId() << "<br>\n";
-  if (opt_log_) {
+  if (opt_log_ != nullptr) {
     os_ << " " << opt_log_->GetTableAnnotation(&tab) << "\n";
   }
   WriteRegisters(tab);
@@ -62,7 +62,7 @@ void HtmlWriter::WriteTableStates(const ITable &tab) {
   int in_block_index = 0;
   for (auto *st : tab.states_) {
     in_block_index++;
-    if (opt_log_) {
+    if (opt_log_ != nullptr) {
       int tmp_block_index = opt_log_->GetStateColorIndex(st);
       if (tmp_block_index != block_index) {
         in_block_index = 0;
@@ -73,7 +73,7 @@ void HtmlWriter::WriteTableStates(const ITable &tab) {
     os_ << "    <tr" << StateRowStyle(color_index, in_block_index) << ">\n";
     os_ << "    <td>\n"
         << "     " << st->GetId() << "\n";
-    if (opt_log_) {
+    if (opt_log_ != nullptr) {
       os_ << " " << opt_log_->GetStateAnnotation(st);
     }
     os_ << "    </td>\n";
@@ -108,7 +108,11 @@ void HtmlWriter::WriteInsn(const IInsn &insn) {
   for (auto *reg : insn.outputs_) {
     WriteRegisterId(*reg);
   }
-  os_ << ")\n";
+  os_ << ")";
+  if (opt_log_ != nullptr) {
+    os_ << " " << opt_log_->GetInsnAnnotation(&insn);
+  }
+  os_ << "\n";
 }
 
 void HtmlWriter::WriteRegisterId(const IRegister &reg) {
