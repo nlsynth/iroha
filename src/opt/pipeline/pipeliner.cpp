@@ -302,12 +302,15 @@ bool Pipeliner::CollectWRRegs() {
 }
 
 void Pipeliner::PrepareRegPipeline() {
+  Shape shape(ssch_);
+
   IResource *assign = DesignUtil::FindAssignResource(tab_);
   for (auto p : wr_deps_) {
     WRDep *d = p.second;
     IRegister *src = p.first;
     // WIP: Inject to correct places.
-    for (int i = d->wst_index_; i < d->rst_index_; ++i) {
+    vector<int> v = shape.GetPipeLineIndexRange(d->wst_index_, d->rst_index_);
+    for (int i : v) {
       int pindex = i * interval_ + (interval_ - 1);
       IState *pst = pipeline_stages_[pindex];
       IInsn *insn = new IInsn(assign);

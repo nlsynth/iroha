@@ -36,6 +36,18 @@ vector<pair<int, int>> &Shape::GetPipelineLocation() {
   return locs_;
 }
 
+vector<int> Shape::GetPipeLineIndexRange(int s, int e) {
+  vector<int> v;
+  vector<pair<int, int>> &pl = GetPipelineLocation();
+  for (auto &p : pl) {
+    int lindex = p.second;
+    if (lindex >= s && lindex < e) {
+      v.push_back(p.first);
+    }
+  }
+  return v;
+}
+
 }  // namespace pipeline
 }  // namespace opt
 }  // namespace iroha
