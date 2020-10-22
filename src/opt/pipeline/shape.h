@@ -16,7 +16,7 @@ class Shape {
 
   // pipeline macro stage, loop index.
   vector<pair<int, int>> &GetPipelineLocation();
-  vector<int> GetPipeLineIndexRange(int s, int e);
+  vector<pair<int, int>> GetPipeLineIndexRange(int s, int e);
 
  private:
   StageScheduler *ssch_;

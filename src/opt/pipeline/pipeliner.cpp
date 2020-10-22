@@ -308,17 +308,25 @@ void Pipeliner::PrepareRegPipeline() {
   for (auto p : wr_deps_) {
     WRDep *d = p.second;
     IRegister *src = p.first;
-    // WIP: Inject to correct places.
-    vector<int> v = shape.GetPipeLineIndexRange(d->wst_index_, d->rst_index_);
-    for (int i : v) {
-      int pindex = i * interval_ + (interval_ - 1);
+    // WIP: Rewrite reads. May rewrite write to reg insn.
+    vector<pair<int, int>> v =
+        shape.GetPipeLineIndexRange(d->wst_index_, d->rst_index_);
+    vector<IRegister *> regs;
+    for (int i = d->wst_index_; i < d->rst_index_; ++i) {
+      IRegister *r = new IRegister(tab_, src->GetName() + "_s" + Util::Itoa(i));
+      r->value_type_ = src->value_type_;
+      regs.push_back(r);
+      tab_->registers_.push_back(r);
+    }
+    for (auto &p : v) {
+      int macrostage = p.first;
+      int lindex = p.second;
+      int pindex = macrostage * interval_ + (interval_ - 1);
       IState *pst = pipeline_stages_[pindex];
       IInsn *insn = new IInsn(assign);
       insn->inputs_.push_back(src);
-      IRegister *dst = new IRegister(tab_, src->GetName());
-      tab_->registers_.push_back(dst);
+      IRegister *dst = regs[lindex - d->wst_index_];
       insn->outputs_.push_back(dst);
-      dst->value_type_ = src->value_type_;
       pst->insns_.push_back(insn);
       ostream &os = opt_log_->Insn(insn);
       os << "~";
