@@ -15,6 +15,8 @@ class WRDep {
   // state in the loop.
   int wst_index_;
   int rst_index_;
+  // keyed by state index in the loop.
+  map<int, IRegister *> regs_;
 };
 
 class Pipeliner {
@@ -27,8 +29,8 @@ class Pipeliner {
  private:
   void PlaceState(int pidx, int idx);
   IRegister *MayUpdateWireReg(IState *st, IRegister *reg);
-  void UpdateRegs(IState *st, bool is_output, vector<IRegister *> &src,
-                  vector<IRegister *> *dst);
+  void UpdateRegs(IState *st, int lidx, bool is_output,
+                  vector<IRegister *> &src, vector<IRegister *> *dst);
   void ConnectPipelineState();
   void ConnectPipeline();
   void SetupCounter();
@@ -38,7 +40,7 @@ class Pipeliner {
   string RegName(const string &base, int index);
   bool CollectWRRegs();
   void PrepareRegPipeline();
-  IRegister *LookupStagedReg(IState *st, IRegister *reg);
+  IRegister *LookupStagedReg(int lidx, IRegister *reg);
 
   ITable *tab_;
   StageScheduler *ssch_;

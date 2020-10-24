@@ -70,20 +70,20 @@ void Pipeliner::PlaceState(int pidx, int lidx) {
       continue;
     }
     IInsn *new_insn = new IInsn(res);
-    UpdateRegs(pst, false, insn->inputs_, &new_insn->inputs_);
-    UpdateRegs(pst, true, insn->outputs_, &new_insn->outputs_);
+    UpdateRegs(pst, lidx, false, insn->inputs_, &new_insn->inputs_);
+    UpdateRegs(pst, lidx, true, insn->outputs_, &new_insn->outputs_);
     pst->insns_.push_back(new_insn);
     insn_to_stage_[new_insn] = lidx;
   }
 }
 
-void Pipeliner::UpdateRegs(IState *st, bool is_output, vector<IRegister *> &src,
-                           vector<IRegister *> *dst) {
+void Pipeliner::UpdateRegs(IState *st, int lidx, bool is_output,
+                           vector<IRegister *> &src, vector<IRegister *> *dst) {
   for (IRegister *reg : src) {
     if (reg->IsStateLocal()) {
       reg = MayUpdateWireReg(st, reg);
     } else if (reg->IsNormal() && !is_output) {
-      reg = LookupStagedReg(st, reg);
+      reg = LookupStagedReg(lidx, reg);
     }
     dst->push_back(reg);
   }
@@ -312,11 +312,12 @@ void Pipeliner::PrepareRegPipeline() {
     vector<pair<int, int>> v =
         shape.GetPipeLineIndexRange(d->wst_index_, d->rst_index_);
     vector<IRegister *> regs;
-    for (int i = d->wst_index_; i < d->rst_index_; ++i) {
+    for (int i = d->wst_index_; i <= d->rst_index_; ++i) {
       IRegister *r = new IRegister(tab_, src->GetName() + "_s" + Util::Itoa(i));
       r->value_type_ = src->value_type_;
       regs.push_back(r);
       tab_->registers_.push_back(r);
+      d->regs_[i] = r;
     }
     for (auto &p : v) {
       int macrostage = p.first;
@@ -336,7 +337,16 @@ void Pipeliner::PrepareRegPipeline() {
   }
 }
 
-IRegister *Pipeliner::LookupStagedReg(IState *st, IRegister *reg) {
+IRegister *Pipeliner::LookupStagedReg(int lidx, IRegister *reg) {
+  auto it = wr_deps_.find(reg);
+  if (it == wr_deps_.end()) {
+    return reg;
+  }
+  WRDep *dep = it->second;
+  auto jt = dep->regs_.find(lidx);
+  if (jt != dep->regs_.end()) {
+    return jt->second;
+  }
   return reg;
 }
 
