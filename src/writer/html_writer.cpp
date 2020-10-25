@@ -120,6 +120,9 @@ void HtmlWriter::WriteRegisterId(const IRegister &reg) {
   if (reg.IsStateLocal()) {
     os_ << "*";
   }
+  if (reg.IsConst()) {
+    os_ << "[" << reg.GetInitialValue().GetValue0() << "]";
+  }
 }
 
 void HtmlWriter::WriteRegisters(const ITable &tab) {
