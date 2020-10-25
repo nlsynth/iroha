@@ -16,6 +16,7 @@ class WRDep {
   int wst_index_;
   int rst_index_;
   // keyed by state index in the loop.
+  // write in index-th state and read in index+1th state.
   map<int, IRegister *> regs_;
 };
 

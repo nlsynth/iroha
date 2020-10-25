@@ -313,7 +313,7 @@ void Pipeliner::PrepareRegPipeline() {
     vector<pair<int, int>> v =
         shape.GetPipeLineIndexRange(d->wst_index_, d->rst_index_);
     vector<IRegister *> regs;
-    for (int i = d->wst_index_; i <= d->rst_index_; ++i) {
+    for (int i = d->wst_index_; i < d->rst_index_; ++i) {
       IRegister *r = new IRegister(tab_, src->GetName() + "_s" + Util::Itoa(i));
       r->value_type_ = src->value_type_;
       regs.push_back(r);
@@ -344,7 +344,7 @@ IRegister *Pipeliner::LookupStagedReg(int lidx, IRegister *reg) {
     return reg;
   }
   WRDep *dep = it->second;
-  auto jt = dep->regs_.find(lidx);
+  auto jt = dep->regs_.find(lidx - 1);
   if (jt != dep->regs_.end()) {
     return jt->second;
   }
