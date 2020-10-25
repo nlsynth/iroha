@@ -303,37 +303,43 @@ bool Pipeliner::CollectWRRegs() {
 }
 
 void Pipeliner::PrepareRegPipeline() {
-  Shape shape(ssch_);
-
-  IResource *assign = DesignUtil::FindAssignResource(tab_);
+  // Prepare regs.
   for (auto p : wr_deps_) {
     WRDep *d = p.second;
-    IRegister *src = p.first;
-    // WIP: Rewrite reads. May rewrite write to reg insn.
-    vector<pair<int, int>> v =
-        shape.GetPipeLineIndexRange(d->wst_index_, d->rst_index_);
+    IRegister *reg = p.first;
     vector<IRegister *> regs;
     for (int i = d->wst_index_; i < d->rst_index_; ++i) {
-      IRegister *r = new IRegister(tab_, src->GetName() + "_s" + Util::Itoa(i));
-      r->value_type_ = src->value_type_;
+      IRegister *r = new IRegister(tab_, reg->GetName() + "_s" + Util::Itoa(i));
+      r->value_type_ = reg->value_type_;
       regs.push_back(r);
       tab_->registers_.push_back(r);
       d->regs_[i] = r;
     }
+  }
+  // Update for stages.
+  Shape shape(ssch_);
+  IResource *assign = DesignUtil::FindAssignResource(tab_);
+  for (auto p : wr_deps_) {
+    WRDep *d = p.second;
+    vector<pair<int, int>> v =
+        shape.GetPipeLineIndexRange(d->wst_index_, d->rst_index_);
     for (auto &p : v) {
       int macrostage = p.first;
       int lindex = p.second;
+      if (lindex == d->wst_index_) {
+        // rewrite of insn->outputs_ is performed later.
+        continue;
+      }
       int pindex = macrostage * interval_ + (interval_ - 1);
       IState *pst = pipeline_stages_[pindex];
       IInsn *insn = new IInsn(assign);
+      IRegister *src = d->regs_[lindex - 1];
       insn->inputs_.push_back(src);
-      IRegister *dst = regs[lindex - d->wst_index_];
+      IRegister *dst = d->regs_[lindex];
       insn->outputs_.push_back(dst);
       pst->insns_.push_back(insn);
       ostream &os = opt_log_->Insn(insn);
       os << "~";
-      // for next macro stage.
-      src = dst;
     }
   }
 }
