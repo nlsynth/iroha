@@ -81,12 +81,13 @@ bool Optimizer::ApplyPass(const string &name) {
   unique_ptr<Pass> pass(factory());
   pass->SetName(name);
   pass->SetOptimizer(this);
-  auto *annotation = design_->GetOptimizerLog();
-  pass->SetOptimizerLog(annotation);
-  annotation->StartPass(name);
+  auto *opt_log = design_->GetOptimizerLog();
+  pass->SetOptimizerLog(opt_log);
+  opt_log->StartPass(name);
   bool isOk = pass->Apply(design_);
   if (isOk) {
     Validator::Validate(design_);
+    DumpTables();
   }
   return isOk;
 }
@@ -104,6 +105,15 @@ void Optimizer::DumpIntermediateToFiles(const string &fn) {
   }
   auto *an = design_->GetOptimizerLog();
   an->WriteToFiles(fn);
+}
+
+void Optimizer::DumpTables() {
+  auto *opt_log = design_->GetOptimizerLog();
+  for (auto *mod : design_->modules_) {
+    for (auto *tab : mod->tables_) {
+      opt_log->DumpTable(tab);
+    }
+  }
 }
 
 }  // namespace opt

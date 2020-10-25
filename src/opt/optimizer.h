@@ -27,6 +27,8 @@ class Optimizer : public OptAPI {
   platform::PlatformDB *GetPlatformDB();
 
  protected:
+  void DumpTables();
+
   IDesign *design_;
   std::unique_ptr<platform::PlatformDB> platform_db_;
 

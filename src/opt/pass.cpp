@@ -37,7 +37,6 @@ bool Pass::ApplyForModule(const string &key, IModule *module) {
   bool all_ok = true;
   for (auto *table : module->tables_) {
     all_ok &= ApplyForTable(key, table);
-    opt_log_->DumpTable(table);
   }
   return all_ok;
 }
