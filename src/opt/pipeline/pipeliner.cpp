@@ -50,6 +50,7 @@ bool Pipeliner::Pipeline() {
   for (pair<int, int> &p : loc) {
     PlaceState(p.first, p.second);
   }
+  UpdatePipelineRegWrite();
   SetupCounter();
   SetupCounterIncrement();
   UpdateCounterRead();
@@ -348,6 +349,50 @@ IRegister *Pipeliner::LookupStagedReg(int lidx, IRegister *reg) {
     return jt->second;
   }
   return reg;
+}
+
+void Pipeliner::UpdatePipelineRegWrite() {
+  IResource *assign = DesignUtil::FindAssignResource(tab_);
+  for (IState *st : pipeline_stages_) {
+    vector<IInsn *> new_insns;
+    for (IInsn *insn : st->insns_) {
+      for (int i = 0; i < insn->outputs_.size(); ++i) {
+        IRegister *reg = insn->outputs_[i];
+        auto it = wr_deps_.find(reg);
+        if (it == wr_deps_.end()) {
+          continue;
+        }
+        WRDep *dep = it->second;
+        IRegister *preg0 = (dep->regs_.begin()->second);
+        if (reg->IsStateLocal()) {
+          // preg0 <- reg
+          IInsn *a = new IInsn(assign);
+          a->inputs_.push_back(reg);
+          a->outputs_.push_back(preg0);
+          new_insns.push_back(a);
+        } else {
+          IRegister *w = new IRegister(tab_, reg->GetName());
+          w->SetStateLocal(true);
+          w->value_type_ = reg->value_type_;
+          tab_->registers_.push_back(w);
+          insn->outputs_[i] = w;
+          // reg <- w
+          IInsn *a = new IInsn(assign);
+          a->inputs_.push_back(w);
+          a->outputs_.push_back(reg);
+          new_insns.push_back(a);
+          // preg0 <- w
+          IInsn *b = new IInsn(assign);
+          b->inputs_.push_back(w);
+          b->outputs_.push_back(preg0);
+          new_insns.push_back(b);
+        }
+      }
+    }
+    for (IInsn *insn : new_insns) {
+      st->insns_.push_back(insn);
+    }
+  }
 }
 
 }  // namespace pipeline

@@ -40,6 +40,7 @@ class Pipeliner {
   string RegName(const string &base, int index);
   bool CollectWRRegs();
   void PrepareRegPipeline();
+  void UpdatePipelineRegWrite();
   IRegister *LookupStagedReg(int lidx, IRegister *reg);
 
   ITable *tab_;
