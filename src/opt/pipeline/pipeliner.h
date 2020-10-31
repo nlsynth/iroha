@@ -9,16 +9,7 @@ namespace opt {
 namespace pipeline {
 
 class StageScheduler;
-// Write -> Last read info.
-class WRDep {
- public:
-  // state in the loop.
-  int wst_index_;
-  int rst_index_;
-  // keyed by state index in the loop.
-  // write in index-th state and read in index+1th state.
-  map<int, IRegister *> regs_;
-};
+class WRDep;
 
 class Pipeliner {
  public:

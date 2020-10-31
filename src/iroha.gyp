@@ -139,6 +139,8 @@
                 'opt/pipeline/pipeliner.h',
                 'opt/pipeline/pipeline_pass.cpp',
                 'opt/pipeline/pipeline_pass.h',
+                'opt/pipeline/reg_info.cpp',
+                'opt/pipeline/reg_info.h',
                 'opt/pipeline/shape.cpp',
                 'opt/pipeline/shape.h',
                 'opt/pipeline/stage_scheduler.cpp',

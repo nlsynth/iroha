@@ -7,6 +7,7 @@
 #include "iroha/stl_util.h"
 #include "opt/loop/loop_block.h"
 #include "opt/optimizer_log.h"
+#include "opt/pipeline/reg_info.h"
 #include "opt/pipeline/shape.h"
 #include "opt/pipeline/stage_scheduler.h"
 
