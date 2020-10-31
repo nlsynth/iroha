@@ -5,6 +5,7 @@
 #include "opt/loop/loop_block.h"
 #include "opt/optimizer_log.h"
 #include "opt/pipeline/pipeliner.h"
+#include "opt/pipeline/reg_info.h"
 #include "opt/pipeline/stage_scheduler.h"
 
 namespace iroha {
@@ -47,8 +48,12 @@ bool PipelinePass::ApplyForTable(const string &key, ITable *table) {
     if (!ssch.Build()) {
       continue;
     }
+    RegInfo regInfo(&lb);
+    if (!regInfo.BuildWRDep(opt_log_)) {
+      continue;
+    }
     ++n;
-    Pipeliner pipeliner(table, &ssch);
+    Pipeliner pipeliner(table, &ssch, &regInfo);
     pipeliner.Pipeline();
   }
   ostream &os = opt_log_->GetDumpStream();

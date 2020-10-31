@@ -4,7 +4,6 @@
 #include "design/design_util.h"
 #include "iroha/i_design.h"
 #include "iroha/resource_class.h"
-#include "iroha/stl_util.h"
 #include "opt/loop/loop_block.h"
 #include "opt/optimizer_log.h"
 #include "opt/pipeline/reg_info.h"
@@ -15,9 +14,10 @@ namespace iroha {
 namespace opt {
 namespace pipeline {
 
-Pipeliner::Pipeliner(ITable *tab, StageScheduler *ssch)
+Pipeliner::Pipeliner(ITable *tab, StageScheduler *ssch, RegInfo *reg_info)
     : tab_(tab),
       ssch_(ssch),
+      reg_info_(reg_info),
       lb_(ssch->GetLoop()),
       interval_(ssch_->GetInterval()),
       opt_log_(nullptr),
@@ -25,14 +25,14 @@ Pipeliner::Pipeliner(ITable *tab, StageScheduler *ssch)
   opt_log_ = tab->GetModule()->GetDesign()->GetOptimizerLog();
 }
 
-Pipeliner::~Pipeliner() { STLDeleteSecondElements(&wr_deps_); }
+Pipeliner::~Pipeliner() {}
 
 bool Pipeliner::Pipeline() {
   lb_->Annotate(opt_log_);
   ostream &os = opt_log_->GetDumpStream();
   os << "Pipeliner " << ssch_->GetMacroStageCount() << " states, "
      << lb_->GetLoopCount() << " loop, interval=" << interval_ << " <br/>\n";
-  if (!CollectWRRegs()) {
+  if (!reg_info_->BuildWRDep(opt_log_)) {
     os << "Give up due to multiple writes<br/>\n";
     return false;
   }
@@ -247,65 +247,9 @@ string Pipeliner::RegName(const string &base, int index) {
   return orig_counter->GetName() + base + Util::Itoa(index);
 }
 
-bool Pipeliner::CollectWRRegs() {
-  map<IRegister *, int> write_pos;
-  map<IRegister *, int> last_read_pos;
-  int sindex = 0;
-  for (IState *st : lb_->GetStates()) {
-    for (IInsn *insn : st->insns_) {
-      // Reads.
-      for (IRegister *reg : insn->inputs_) {
-        last_read_pos[reg] = sindex;
-      }
-      // Writes.
-      for (IRegister *reg : insn->outputs_) {
-        if (write_pos.find(reg) != write_pos.end()) {
-          // write conflicts.
-          return false;
-        }
-        if (!reg->IsNormal()) {
-          continue;
-        }
-        write_pos[reg] = sindex;
-      }
-    }
-    ++sindex;
-  }
-  ostream &os = opt_log_->GetDumpStream();
-  for (auto it : last_read_pos) {
-    IRegister *reg = it.first;
-    auto jt = write_pos.find(reg);
-    if (jt == write_pos.end()) {
-      // no write in this loop.
-      continue;
-    }
-    int windex = jt->second;
-    int rindex = it.second;
-    if (windex < rindex) {
-      // Write -> Read.
-      WRDep *dep = new WRDep();
-      dep->wst_index_ = windex;
-      dep->rst_index_ = rindex;
-      wr_deps_[reg] = dep;
-    }
-  }
-  if (wr_deps_.size() > 0) {
-    os << "In pipleine register W-R dependencies.<br/>\n";
-    for (auto p : wr_deps_) {
-      WRDep *d = p.second;
-      IRegister *reg = p.first;
-      auto &sts = lb_->GetStates();
-      os << "r_" << reg->GetId() << " " << reg->GetName()
-         << " w:" << sts[d->wst_index_]->GetId()
-         << " r:" << sts[d->rst_index_]->GetId() << "<br/>\n";
-    }
-  }
-  return true;
-}
-
 void Pipeliner::PrepareRegPipeline() {
   // Prepare regs.
-  for (auto p : wr_deps_) {
+  for (auto p : reg_info_->wr_deps_) {
     WRDep *d = p.second;
     IRegister *reg = p.first;
     vector<IRegister *> regs;
@@ -320,7 +264,7 @@ void Pipeliner::PrepareRegPipeline() {
   // Update for stages.
   Shape shape(ssch_);
   IResource *assign = DesignUtil::FindAssignResource(tab_);
-  for (auto p : wr_deps_) {
+  for (auto p : reg_info_->wr_deps_) {
     WRDep *d = p.second;
     vector<pair<int, int>> v =
         shape.GetPipeLineIndexRange(d->wst_index_, d->rst_index_);
@@ -346,8 +290,8 @@ void Pipeliner::PrepareRegPipeline() {
 }
 
 IRegister *Pipeliner::LookupStagedReg(int lidx, IRegister *reg) {
-  auto it = wr_deps_.find(reg);
-  if (it == wr_deps_.end()) {
+  auto it = reg_info_->wr_deps_.find(reg);
+  if (it == reg_info_->wr_deps_.end()) {
     return reg;
   }
   WRDep *dep = it->second;
@@ -365,8 +309,8 @@ void Pipeliner::UpdatePipelineRegWrite() {
     for (IInsn *insn : st->insns_) {
       for (int i = 0; i < insn->outputs_.size(); ++i) {
         IRegister *reg = insn->outputs_[i];
-        auto it = wr_deps_.find(reg);
-        if (it == wr_deps_.end()) {
+        auto it = reg_info_->wr_deps_.find(reg);
+        if (it == reg_info_->wr_deps_.end()) {
           continue;
         }
         WRDep *dep = it->second;

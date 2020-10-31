@@ -19,6 +19,17 @@ class WRDep {
   map<int, IRegister *> regs_;
 };
 
+class RegInfo {
+ public:
+  RegInfo(loop::LoopBlock *lb);
+  ~RegInfo();
+
+  bool BuildWRDep(OptimizerLog *opt_log);
+
+  loop::LoopBlock *lb_;
+  map<IRegister *, WRDep *> wr_deps_;
+};
+
 }  // namespace pipeline
 }  // namespace opt
 }  // namespace iroha

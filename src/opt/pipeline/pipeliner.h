@@ -8,12 +8,13 @@ namespace iroha {
 namespace opt {
 namespace pipeline {
 
+class RegInfo;
 class StageScheduler;
 class WRDep;
 
 class Pipeliner {
  public:
-  Pipeliner(ITable *tab, StageScheduler *ssch);
+  Pipeliner(ITable *tab, StageScheduler *ssch, RegInfo *reg_info);
   ~Pipeliner();
 
   bool Pipeline();
@@ -30,13 +31,13 @@ class Pipeliner {
   void SetupExit();
   void UpdateCounterRead();
   string RegName(const string &base, int index);
-  bool CollectWRRegs();
   void PrepareRegPipeline();
   void UpdatePipelineRegWrite();
   IRegister *LookupStagedReg(int lidx, IRegister *reg);
 
   ITable *tab_;
   StageScheduler *ssch_;
+  RegInfo *reg_info_;
   loop::LoopBlock *lb_;
   int interval_;
   OptimizerLog *opt_log_;
@@ -49,7 +50,6 @@ class Pipeliner {
   map<IInsn *, int> insn_to_stage_;
   // mapping from a wire in the loop to a wire in the pipeline.
   map<tuple<IState *, IRegister *>, IRegister *> wire_to_reg_;
-  map<IRegister *, WRDep *> wr_deps_;
 };
 
 }  // namespace pipeline
