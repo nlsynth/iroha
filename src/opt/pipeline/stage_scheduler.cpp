@@ -25,7 +25,9 @@ bool StageScheduler::Build() {
       continue;
     }
     MacroStage ms;
-    ms.insns_ = body_insns;
+    StageInsns si;
+    si.insns_ = body_insns;
+    ms.stages_.push_back(si);
     macro_stages_.push_back(ms);
   }
   if (macro_stages_.size() == 0) {

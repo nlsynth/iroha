@@ -9,9 +9,14 @@ namespace opt {
 namespace pipeline {
 
 // Certain stage with 0, 1, ... interval -1.
-class MacroStage {
+class StageInsns {
  public:
   vector<IInsn *> insns_;
+};
+
+class MacroStage {
+ public:
+  vector<StageInsns> stages_;
 };
 
 class StageScheduler {

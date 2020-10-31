@@ -32,10 +32,6 @@ bool Pipeliner::Pipeline() {
   ostream &os = opt_log_->GetDumpStream();
   os << "Pipeliner " << ssch_->GetMacroStageCount() << " states, "
      << lb_->GetLoopCount() << " loop, interval=" << interval_ << " <br/>\n";
-  if (!reg_info_->BuildWRDep(opt_log_)) {
-    os << "Give up due to multiple writes<br/>\n";
-    return false;
-  }
   // prepare states.
   prologue_st_ = new IState(tab_);
   tab_->states_.push_back(prologue_st_);
@@ -62,20 +58,27 @@ bool Pipeliner::Pipeline() {
 }
 
 void Pipeliner::PlaceState(int pidx, int lidx) {
-  IState *pst = pipeline_stages_[pidx * interval_];
-  ostream &os = opt_log_->State(pst);
-  os << "[" << lidx << "]";
   MacroStage &ms = ssch_->GetMacroStage(lidx);
-  for (IInsn *insn : ms.insns_) {
-    IResource *res = insn->GetResource();
-    if (resource::IsTransition(*(res->GetClass()))) {
-      continue;
+  for (int st = 0; st < ms.stages_.size(); ++st) {
+    IState *pst = pipeline_stages_[pidx * interval_ + st];
+    ostream &os = opt_log_->State(pst);
+    os << "[" << lidx;
+    if (ms.stages_.size() > 1) {
+      os << ":" << st;
     }
-    IInsn *new_insn = new IInsn(res);
-    UpdateRegs(pst, lidx, false, insn->inputs_, &new_insn->inputs_);
-    UpdateRegs(pst, lidx, true, insn->outputs_, &new_insn->outputs_);
-    pst->insns_.push_back(new_insn);
-    insn_to_stage_[new_insn] = lidx;
+    os << "]";
+    StageInsns &si = ms.stages_[st];
+    for (IInsn *insn : si.insns_) {
+      IResource *res = insn->GetResource();
+      if (resource::IsTransition(*(res->GetClass()))) {
+        continue;
+      }
+      IInsn *new_insn = new IInsn(res);
+      UpdateRegs(pst, lidx, false, insn->inputs_, &new_insn->inputs_);
+      UpdateRegs(pst, lidx, true, insn->outputs_, &new_insn->outputs_);
+      pst->insns_.push_back(new_insn);
+      insn_to_stage_[new_insn] = lidx;
+    }
   }
 }
 
