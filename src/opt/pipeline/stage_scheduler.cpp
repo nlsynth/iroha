@@ -17,6 +17,7 @@ bool StageScheduler::Build() {
     return false;
   }
   interval_ = CalculateInterval();
+  ScheduleLocalStages();
   return ScheduleInsns();
 }
 
@@ -81,26 +82,32 @@ void StageScheduler::GetStageConstraint(IState *st) {
 
 bool StageScheduler::ScheduleInsns() {
   auto &sts = lb_->GetStates();
-  for (IState *st : sts) {
-    vector<IInsn *> body_insns;
-    for (IInsn *insn : st->insns_) {
-      if (IsBodyInsn(insn)) {
-        body_insns.push_back(insn);
-      }
-    }
-    if (body_insns.size() == 0) {
-      continue;
-    }
-    MacroStage ms;
-    StageInsns si;
-    si.insns_ = body_insns;
-    ms.stages_.push_back(si);
-    macro_stages_.push_back(ms);
+  for (int i = 0; i < sts.size(); ++i) {
+    IState *st = sts[i];
+    int c = stage_constraints_[i];
+    ScheduleStateInsns(st, c);
   }
   if (macro_stages_.size() == 0) {
     return false;
   }
   return true;
+}
+
+void StageScheduler::ScheduleStateInsns(IState *st, int local_index) {
+  vector<IInsn *> body_insns;
+  for (IInsn *insn : st->insns_) {
+    if (IsBodyInsn(insn)) {
+      body_insns.push_back(insn);
+    }
+  }
+  if (body_insns.size() == 0) {
+    return;
+  }
+  MacroStage ms;
+  StageInsns si;
+  si.insns_ = body_insns;
+  ms.stages_.push_back(si);
+  macro_stages_.push_back(ms);
 }
 
 int StageScheduler::CalculateInterval() {
@@ -111,6 +118,13 @@ int StageScheduler::CalculateInterval() {
     }
   }
   return max + 1;
+}
+
+void StageScheduler::ScheduleLocalStages() {
+  for (int c : stage_constraints_) {
+    (void)c;  // WIP.
+    local_stage_indexes_.push_back(0);
+  }
 }
 
 }  // namespace pipeline

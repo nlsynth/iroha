@@ -33,14 +33,17 @@ class StageScheduler {
  private:
   bool IsBodyInsn(IInsn *insn);
   bool ScheduleInsns();
+  void ScheduleStateInsns(IState *st, int local_index);
   bool BuildStageConstraints();
   void GetStageConstraint(IState *st);
   int CalculateInterval();
+  void ScheduleLocalStages();
 
   loop::LoopBlock *lb_;
   int interval_;
   vector<MacroStage> macro_stages_;
   vector<int> stage_constraints_;
+  vector<int> local_stage_indexes_;
 };
 
 }  // namespace pipeline
