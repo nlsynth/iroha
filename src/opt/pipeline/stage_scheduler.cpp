@@ -121,9 +121,17 @@ int StageScheduler::CalculateInterval() {
 }
 
 void StageScheduler::ScheduleLocalStages() {
+  int next = 0;
   for (int c : stage_constraints_) {
-    (void)c;  // WIP.
-    local_stage_indexes_.push_back(0);
+    if (c >= 0 || c != next) {
+      // fix up to the constraint.
+      next = c;
+    }
+    local_stage_indexes_.push_back(next);
+    ++next;
+    if (next == interval_) {
+      next = 0;
+    }
   }
 }
 
