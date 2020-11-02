@@ -13,27 +13,10 @@ StageScheduler::StageScheduler(loop::LoopBlock *lb) : lb_(lb), interval_(1) {}
 loop::LoopBlock *StageScheduler::GetLoop() { return lb_; }
 
 bool StageScheduler::Build() {
-  auto &sts = lb_->GetStates();
-  for (IState *st : sts) {
-    vector<IInsn *> body_insns;
-    for (IInsn *insn : st->insns_) {
-      if (IsBodyInsn(insn)) {
-        body_insns.push_back(insn);
-      }
-    }
-    if (body_insns.size() == 0) {
-      continue;
-    }
-    MacroStage ms;
-    StageInsns si;
-    si.insns_ = body_insns;
-    ms.stages_.push_back(si);
-    macro_stages_.push_back(ms);
-  }
-  if (macro_stages_.size() == 0) {
+  if (!BuildStageConstraints()) {
     return false;
   }
-  return true;
+  return ScheduleInsns();
 }
 
 MacroStage &StageScheduler::GetMacroStage(int s) { return macro_stages_[s]; }
@@ -55,6 +38,65 @@ bool StageScheduler::IsBodyInsn(IInsn *insn) {
   }
   IResource *res = insn->GetResource();
   if (resource::IsTransition(*(res->GetClass()))) {
+    return false;
+  }
+  return true;
+}
+
+bool StageScheduler::BuildStageConstraints() {
+  auto &sts = lb_->GetStates();
+  for (IState *st : sts) {
+    GetStageConstraint(st);
+  }
+  if (sts.size() != stage_constraints_.size()) {
+    return false;
+  }
+  return true;
+}
+
+void StageScheduler::GetStageConstraint(IState *st) {
+  int c = -1;
+  for (IInsn *insn : st->insns_) {
+    IResource *res = insn->GetResource();
+    if (resource::IsArray(*(res->GetClass()))) {
+      if (insn->inputs_.size() == 1 && insn->outputs_.size() == 0) {
+        // Address phase of read.
+        if (c > -1 && c != 0) {
+          return;
+        }
+        c = 0;
+      }
+      if (insn->inputs_.size() == 0 && insn->outputs_.size() == 1) {
+        // Data phase of read.
+        if (c > -1 && c != 1) {
+          return;
+        }
+        c = 1;
+      }
+    }
+  }
+  stage_constraints_.push_back(c);
+}
+
+bool StageScheduler::ScheduleInsns() {
+  auto &sts = lb_->GetStates();
+  for (IState *st : sts) {
+    vector<IInsn *> body_insns;
+    for (IInsn *insn : st->insns_) {
+      if (IsBodyInsn(insn)) {
+        body_insns.push_back(insn);
+      }
+    }
+    if (body_insns.size() == 0) {
+      continue;
+    }
+    MacroStage ms;
+    StageInsns si;
+    si.insns_ = body_insns;
+    ms.stages_.push_back(si);
+    macro_stages_.push_back(ms);
+  }
+  if (macro_stages_.size() == 0) {
     return false;
   }
   return true;
