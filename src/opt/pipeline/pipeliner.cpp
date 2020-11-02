@@ -76,6 +76,7 @@ void Pipeliner::PlaceState(int pidx, int lidx) {
       IInsn *new_insn = new IInsn(res);
       UpdateRegs(pst, lidx, false, insn->inputs_, &new_insn->inputs_);
       UpdateRegs(pst, lidx, true, insn->outputs_, &new_insn->outputs_);
+      new_insn->SetOperand(insn->GetOperand());
       pst->insns_.push_back(new_insn);
       insn_to_stage_[new_insn] = lidx;
     }
