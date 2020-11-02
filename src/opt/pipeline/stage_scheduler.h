@@ -35,6 +35,7 @@ class StageScheduler {
   bool ScheduleInsns();
   bool BuildStageConstraints();
   void GetStageConstraint(IState *st);
+  int CalculateInterval();
 
   loop::LoopBlock *lb_;
   int interval_;

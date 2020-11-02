@@ -16,6 +16,7 @@ bool StageScheduler::Build() {
   if (!BuildStageConstraints()) {
     return false;
   }
+  interval_ = CalculateInterval();
   return ScheduleInsns();
 }
 
@@ -100,6 +101,16 @@ bool StageScheduler::ScheduleInsns() {
     return false;
   }
   return true;
+}
+
+int StageScheduler::CalculateInterval() {
+  int max = 0;
+  for (int c : stage_constraints_) {
+    if (c > max) {
+      max = c;
+    }
+  }
+  return max + 1;
 }
 
 }  // namespace pipeline
