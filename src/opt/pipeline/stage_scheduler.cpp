@@ -19,6 +19,7 @@ bool StageScheduler::Build() {
   interval_ = CalculateInterval();
   ScheduleLocalStages();
   ScheduleMacroStages();
+  PrepareStages();
   return ScheduleInsns();
 }
 
@@ -44,6 +45,23 @@ bool StageScheduler::IsBodyInsn(IInsn *insn) {
     return false;
   }
   return true;
+}
+
+void StageScheduler::PrepareStages() {
+  int max = -1;
+  for (int c : macro_stage_indexes_) {
+    if (max < c) {
+      max = c;
+    }
+  }
+  for (int i = 0; i <= max; ++i) {
+    MacroStage ms;
+    for (int j = 0; j < interval_; ++j) {
+      StageInsns si;
+      ms.stages_.push_back(si);
+    }
+    macro_stages_.push_back(ms);
+  }
 }
 
 bool StageScheduler::BuildStageConstraints() {
@@ -89,8 +107,9 @@ bool StageScheduler::ScheduleInsns() {
   auto &sts = lb_->GetStates();
   for (int i = 0; i < sts.size(); ++i) {
     IState *st = sts[i];
-    int c = stage_constraints_[i];
-    ScheduleStateInsns(st, c);
+    int lc = local_stage_indexes_[i];
+    int mc = macro_stage_indexes_[i];
+    ScheduleStateInsns(st, mc, lc);
   }
   if (macro_stages_.size() == 0) {
     return false;
@@ -98,7 +117,8 @@ bool StageScheduler::ScheduleInsns() {
   return true;
 }
 
-void StageScheduler::ScheduleStateInsns(IState *st, int local_index) {
+void StageScheduler::ScheduleStateInsns(IState *st, int macro_index,
+                                        int local_index) {
   vector<IInsn *> body_insns;
   for (IInsn *insn : st->insns_) {
     if (IsBodyInsn(insn)) {
@@ -108,11 +128,8 @@ void StageScheduler::ScheduleStateInsns(IState *st, int local_index) {
   if (body_insns.size() == 0) {
     return;
   }
-  MacroStage ms;
-  StageInsns si;
+  StageInsns &si = macro_stages_[macro_index].stages_[local_index];
   si.insns_ = body_insns;
-  ms.stages_.push_back(si);
-  macro_stages_.push_back(ms);
 }
 
 int StageScheduler::CalculateInterval() {
@@ -128,7 +145,7 @@ int StageScheduler::CalculateInterval() {
 void StageScheduler::ScheduleLocalStages() {
   int next = 0;
   for (int c : stage_constraints_) {
-    if (c >= 0 || c != next) {
+    if (c >= 0 && c != next) {
       // fix up to the constraint.
       next = c;
     }

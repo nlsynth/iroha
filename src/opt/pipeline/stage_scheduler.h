@@ -33,12 +33,13 @@ class StageScheduler {
  private:
   bool IsBodyInsn(IInsn *insn);
   bool ScheduleInsns();
-  void ScheduleStateInsns(IState *st, int local_index);
+  void ScheduleStateInsns(IState *st, int macro_index, int local_index);
   bool BuildStageConstraints();
   void GetStageConstraint(IState *st);
   int CalculateInterval();
   void ScheduleLocalStages();
   void ScheduleMacroStages();
+  void PrepareStages();
 
   loop::LoopBlock *lb_;
   int interval_;
