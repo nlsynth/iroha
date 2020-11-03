@@ -45,7 +45,9 @@ bool Pipeliner::Pipeline() {
   Shape shape(ssch_);
   vector<pair<int, int>> loc = shape.GetPipelineLocation();
   for (pair<int, int> &p : loc) {
-    PlaceState(p.first, p.second);
+    int pipeline_macro_stage_index = p.first;
+    int loop_macro_stage_index = p.second;
+    PlaceState(pipeline_macro_stage_index, loop_macro_stage_index);
   }
   UpdatePipelineRegWrite();
   SetupCounter();
@@ -57,12 +59,13 @@ bool Pipeliner::Pipeline() {
   return true;
 }
 
-void Pipeliner::PlaceState(int pidx, int lidx) {
-  MacroStage &ms = ssch_->GetMacroStage(lidx);
+void Pipeliner::PlaceState(int pipeline_macro_stage_index,
+                           int loop_macro_stage_index) {
+  MacroStage &ms = ssch_->GetMacroStage(loop_macro_stage_index);
   for (int st = 0; st < ms.stages_.size(); ++st) {
-    IState *pst = pipeline_stages_[pidx * interval_ + st];
+    IState *pst = pipeline_stages_[pipeline_macro_stage_index * interval_ + st];
     ostream &os = opt_log_->State(pst);
-    os << "[" << lidx;
+    os << "[" << loop_macro_stage_index;
     if (ms.stages_.size() > 1) {
       os << ":" << st;
     }
@@ -74,20 +77,22 @@ void Pipeliner::PlaceState(int pidx, int lidx) {
         continue;
       }
       IInsn *new_insn = new IInsn(res);
-      UpdateRegs(pst, lidx, false, insn->inputs_, &new_insn->inputs_);
-      UpdateRegs(pst, lidx, true, insn->outputs_, &new_insn->outputs_);
+      UpdateRegs(pst, loop_macro_stage_index, false, insn->inputs_,
+                 &new_insn->inputs_);
+      UpdateRegs(pst, loop_macro_stage_index, true, insn->outputs_,
+                 &new_insn->outputs_);
       new_insn->SetOperand(insn->GetOperand());
       pst->insns_.push_back(new_insn);
-      insn_to_stage_[new_insn] = lidx;
+      insn_to_stage_[new_insn] = loop_macro_stage_index;
     }
   }
 }
 
-void Pipeliner::UpdateRegs(IState *st, int lidx, bool is_output,
+void Pipeliner::UpdateRegs(IState *pst, int lidx, bool is_output,
                            vector<IRegister *> &src, vector<IRegister *> *dst) {
   for (IRegister *reg : src) {
     if (reg->IsStateLocal()) {
-      reg = MayUpdateWireReg(st, reg);
+      reg = MayUpdateWireReg(pst, reg);
     } else if (reg->IsNormal() && !is_output) {
       reg = LookupStagedReg(lidx, reg);
     }
@@ -95,8 +100,8 @@ void Pipeliner::UpdateRegs(IState *st, int lidx, bool is_output,
   }
 }
 
-IRegister *Pipeliner::MayUpdateWireReg(IState *st, IRegister *reg) {
-  auto key = make_tuple(st, reg);
+IRegister *Pipeliner::MayUpdateWireReg(IState *pst, IRegister *reg) {
+  auto key = make_tuple(pst, reg);
   auto it = wire_to_reg_.find(key);
   if (it == wire_to_reg_.end()) {
     IRegister *nreg = new IRegister(tab_, reg->GetName());
@@ -105,6 +110,8 @@ IRegister *Pipeliner::MayUpdateWireReg(IState *st, IRegister *reg) {
     nreg->SetStateLocal(true);
     nreg->value_type_ = reg->value_type_;
     reg = nreg;
+  } else {
+    reg = it->second;
   }
   return reg;
 }

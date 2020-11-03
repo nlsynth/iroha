@@ -20,9 +20,9 @@ class Pipeliner {
   bool Pipeline();
 
  private:
-  void PlaceState(int pidx, int idx);
-  IRegister *MayUpdateWireReg(IState *st, IRegister *reg);
-  void UpdateRegs(IState *st, int lidx, bool is_output,
+  void PlaceState(int pipeline_macro_stage_index, int loop_macro_stage_index);
+  IRegister *MayUpdateWireReg(IState *pst, IRegister *reg);
+  void UpdateRegs(IState *pst, int lidx, bool is_output,
                   vector<IRegister *> &src, vector<IRegister *> *dst);
   void ConnectPipelineState();
   void ConnectPipeline();
@@ -48,7 +48,8 @@ class Pipeliner {
   vector<IRegister *> counter_wires_;
 
   map<IInsn *, int> insn_to_stage_;
-  // mapping from a wire in the loop to a wire in the pipeline.
+  // mapping from <pipeline state & a wire in the loop> to a wire in the
+  // pipeline.
   map<tuple<IState *, IRegister *>, IRegister *> wire_to_reg_;
 };
 
