@@ -18,6 +18,7 @@ bool StageScheduler::Build() {
   }
   interval_ = CalculateInterval();
   ScheduleLocalStages();
+  ScheduleMacroStages();
   return ScheduleInsns();
 }
 
@@ -48,8 +49,10 @@ bool StageScheduler::IsBodyInsn(IInsn *insn) {
 bool StageScheduler::BuildStageConstraints() {
   auto &sts = lb_->GetStates();
   for (IState *st : sts) {
+    // pushes constraint value back of stage_constraints_ on success.
     GetStageConstraint(st);
   }
+  // checks if all constraints are set.
   if (sts.size() != stage_constraints_.size()) {
     return false;
   }
@@ -64,6 +67,7 @@ void StageScheduler::GetStageConstraint(IState *st) {
       if (insn->inputs_.size() == 1 && insn->outputs_.size() == 0) {
         // Address phase of read.
         if (c > -1 && c != 0) {
+          // already has a different constraint.
           return;
         }
         c = 0;
@@ -71,6 +75,7 @@ void StageScheduler::GetStageConstraint(IState *st) {
       if (insn->inputs_.size() == 0 && insn->outputs_.size() == 1) {
         // Data phase of read.
         if (c > -1 && c != 1) {
+          // already has a different constraint.
           return;
         }
         c = 1;
@@ -132,6 +137,20 @@ void StageScheduler::ScheduleLocalStages() {
     if (next == interval_) {
       next = 0;
     }
+  }
+}
+
+void StageScheduler::ScheduleMacroStages() {
+  int prev = -1;
+  int st = 0;
+  for (int c : local_stage_indexes_) {
+    if (c <= prev) {
+      // proceed if current stage can't be scheduled at the same stage as the
+      // previous.
+      st++;
+    }
+    macro_stage_indexes_.push_back(st);
+    prev = c;
   }
 }
 

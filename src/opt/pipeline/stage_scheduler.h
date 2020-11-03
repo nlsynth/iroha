@@ -38,12 +38,14 @@ class StageScheduler {
   void GetStageConstraint(IState *st);
   int CalculateInterval();
   void ScheduleLocalStages();
+  void ScheduleMacroStages();
 
   loop::LoopBlock *lb_;
   int interval_;
   vector<MacroStage> macro_stages_;
   vector<int> stage_constraints_;
   vector<int> local_stage_indexes_;
+  vector<int> macro_stage_indexes_;
 };
 
 }  // namespace pipeline
