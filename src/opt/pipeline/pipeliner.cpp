@@ -167,6 +167,8 @@ void Pipeliner::SetupCounter() {
     IRegister *counter = new IRegister(tab_, RegName("ps", i));
     counter->value_type_ = orig_counter->value_type_;
     tab_->registers_.push_back(counter);
+    ostream &os = opt_log_->Reg(counter);
+    os << "counter:" << i;
     counters_.push_back(counter);
     IRegister *counter_wire = new IRegister(tab_, RegName("psw", i));
     counter_wire->SetStateLocal(true);
@@ -227,10 +229,11 @@ void Pipeliner::SetupCounterIncrement() {
 
 void Pipeliner::SetupExit() {
   int llen = ssch_->GetMacroStageCount();
+  IState *st0 = pipeline_stages_[(llen - 1) * interval_];
   IState *st = pipeline_stages_[(llen - 1) * interval_ + (interval_ - 1)];
   IInsn *tr_insn = DesignUtil::GetTransitionInsn(st);
   // next, current
-  tr_insn->target_states_.push_back(st);
+  tr_insn->target_states_.push_back(st0);
   IRegister *cond = new IRegister(tab_, RegName("cond_ps", 0));
   cond->value_type_.SetWidth(0);
   cond->SetStateLocal(true);
