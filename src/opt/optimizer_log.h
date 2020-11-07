@@ -35,12 +35,14 @@ class OptimizerLog {
   ostream &Table(const ITable *tab);
   ostream &State(const IState *st);
   ostream &Insn(const IInsn *insn);
+  ostream &Reg(const IRegister *reg);
   void SetStateColorIndex(const IState *st, int idx);
 
   // Called by HTML dumper.
   string GetTableAnnotation(const ITable *tab) const;
   string GetStateAnnotation(const IState *st) const;
   string GetInsnAnnotation(const IInsn *insn) const;
+  string GetRegAnnotation(const IRegister *reg) const;
   int GetStateColorIndex(const IState *st) const;
 
  private:
@@ -57,6 +59,7 @@ class OptimizerLog {
   map<const ITable *, ostringstream> table_;
   map<const IState *, ostringstream> state_;
   map<const IInsn *, ostringstream> insn_;
+  map<const IRegister *, ostringstream> reg_;
   map<const IState *, int> state_color_;
 };
 

@@ -148,6 +148,9 @@ void HtmlWriter::WriteRegister(const IRegister &reg) {
   } else {
     os_ << " (" << reg.value_type_.GetWidth() << ")";
   }
+  if (opt_log_ != nullptr) {
+    os_ << " " << opt_log_->GetRegAnnotation(&reg);
+  }
   os_ << "\n";
 }
 

@@ -72,6 +72,8 @@ ostream &OptimizerLog::State(const IState *st) { return state_[st]; }
 
 ostream &OptimizerLog::Insn(const IInsn *insn) { return insn_[insn]; }
 
+ostream &OptimizerLog::Reg(const IRegister *reg) { return reg_[reg]; }
+
 string OptimizerLog::GetTableAnnotation(const ITable *tab) const {
   auto it = table_.find(tab);
   if (it == table_.end()) {
@@ -95,6 +97,14 @@ string OptimizerLog::GetStateAnnotation(const IState *st) const {
 string OptimizerLog::GetInsnAnnotation(const IInsn *insn) const {
   auto it = insn_.find(insn);
   if (it == insn_.end()) {
+    return "";
+  }
+  return it->second.str();
+}
+
+string OptimizerLog::GetRegAnnotation(const IRegister *reg) const {
+  auto it = reg_.find(reg);
+  if (it == reg_.end()) {
     return "";
   }
   return it->second.str();
