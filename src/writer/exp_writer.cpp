@@ -34,7 +34,7 @@ void ExpWriter::WriteHeader() {
       << "; \n"
       << "; (REGISTER id name storage-type (type width) initial)\n"
       << "; (RESOURCE id class (input-types) (output-types) (params) (array))\n"
-      << "; (INSN id res res-id (opr) (target-st) (inputs) (outputs) (deps))\n\n";
+      << "; (INSN id res res-id (opr) (target-st) (inputs) (outputs) (deps) (conditions))\n\n";
 }
 
 void ExpWriter::WriteModule(const IModule &mod) {
@@ -232,6 +232,8 @@ void ExpWriter::WriteInsn(const IInsn &insn) {
   WriteInsnParams(insn.outputs_);
   // Depending insns.
   WriteDependingInsns(insn.depending_insns_);
+  // Conditions.
+  WriteInsnParams(insn.conditions_);
   os_ << ")\n";
 }
 

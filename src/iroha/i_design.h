@@ -155,6 +155,7 @@ class IInsn {
   vector<IRegister *> outputs_;
   vector<IState *> target_states_;
   vector<IInsn *> depending_insns_;
+  vector<IRegister *> conditions_;
 
  private:
   IResource *resource_;

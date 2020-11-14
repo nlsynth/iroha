@@ -8,7 +8,7 @@ namespace iroha {
 namespace builder {
 
 FsmBuilder::FsmBuilder(ITable *table, DesignBuilder *builder)
-  : table_(table), builder_(builder), initial_state_id_(-1) {
+    : table_(table), builder_(builder), initial_state_id_(-1) {
   Init();
 }
 
@@ -51,22 +51,22 @@ void FsmBuilder::ResolveInsns() {
     for (int i = 2; i < e->vec.size(); ++i) {
       const string &tag = e->vec[i]->vec[0]->atom.str;
       if (tag == "INSN") {
-	IInsn *insn = BuildInsn(e->vec[i]);
-	exp_to_insn[e->vec[i]] = insn;
-	if (insn != nullptr) {
-	  st->insns_.push_back(insn);
-	}
+        IInsn *insn = BuildInsn(e->vec[i]);
+        exp_to_insn[e->vec[i]] = insn;
+        if (insn != nullptr) {
+          st->insns_.push_back(insn);
+        }
       } else if (tag == "PROFILE") {
-	BuildProfile(e->vec[i], st);
+        BuildProfile(e->vec[i], st);
       } else {
-	builder_->SetError() << "Only INSN or PROFILE is allowed in a state";
+        builder_->SetError() << "Only INSN or PROFILE is allowed in a state";
       }
     }
     // Post process to resolve depending insns.
     for (int i = 2; i < e->vec.size(); ++i) {
       const string &tag = e->vec[i]->vec[0]->atom.str;
       if (tag == "INSN") {
-	ResolveDependingInsns(e->vec[i], exp_to_insn[e->vec[i]]);
+        ResolveDependingInsns(e->vec[i], exp_to_insn[e->vec[i]]);
       }
     }
   }
@@ -74,8 +74,7 @@ void FsmBuilder::ResolveInsns() {
   if (initial_state_id_ > -1) {
     IState *initial_st = states_[initial_state_id_];
     if (initial_st == nullptr) {
-      builder_->SetError() << "Unknown initial state id: "
-			   << initial_state_id_;
+      builder_->SetError() << "Unknown initial state id: " << initial_state_id_;
       return;
     }
     table_->SetInitialState(initial_st);
@@ -106,6 +105,7 @@ IInsn *FsmBuilder::BuildInsn(Exp *e) {
   // 6: inputs
   // 7: outputs
   // 8: depending insns (optional)
+  // 9: condition registers (optional)
   if (e->vec.size() < 8) {
     builder_->SetError() << "Malformed INSN";
     return nullptr;
@@ -137,6 +137,11 @@ IInsn *FsmBuilder::BuildInsn(Exp *e) {
   }
   for (auto *output : e->vec[7]->vec) {
     BuildInsnParams(output, &insn->outputs_);
+  }
+  if (e->vec.size() > 9) {
+    for (auto *cond : e->vec[9]->vec) {
+      BuildInsnParams(cond, &insn->conditions_);
+    }
   }
   return insn;
 }
