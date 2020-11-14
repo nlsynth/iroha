@@ -5,6 +5,7 @@
 #include "iroha/logging.h"
 #include "opt/array_elimination.h"
 #include "opt/array_split_rdata.h"
+#include "opt/branch_elimination/branch_elimination_pass.h"
 #include "opt/clean/empty_state.h"
 #include "opt/clean/empty_table.h"
 #include "opt/clean/pseudo_resource.h"
@@ -38,6 +39,8 @@ Optimizer::~Optimizer() {}
 void Optimizer::Init() {
   RegisterPass("array_elimination", &ArrayElimination::Create);
   RegisterPass("array_split_rdata", &ArraySplitRData::Create);
+  RegisterPass("branch_elmination",
+               &branch_elimination::BranchElminationPass::Create);
   RegisterPass("clean_empty_state", &clean::CleanEmptyStatePass::Create);
   RegisterPass("clean_empty_table", &clean::CleanEmptyTablePass::Create);
   RegisterPass("clean_unreachable_state",
