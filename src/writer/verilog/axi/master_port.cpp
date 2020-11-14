@@ -1,8 +1,8 @@
 #include "writer/verilog/axi/master_port.h"
 
 #include "design/design_util.h"
-#include "iroha/insn_operands.h"
 #include "iroha/i_design.h"
+#include "iroha/insn_operands.h"
 #include "iroha/logging.h"
 #include "writer/module_template.h"
 #include "writer/verilog/axi/master_controller.h"
@@ -20,8 +20,7 @@ namespace verilog {
 namespace axi {
 
 MasterPort::MasterPort(const IResource &res, const Table &table)
-  : AxiPort(res, table) {
-}
+    : AxiPort(res, table) {}
 
 void MasterPort::BuildResource() {
   CHECK(tab_.GetITable() == res_.GetTable());
@@ -29,7 +28,7 @@ void MasterPort::BuildResource() {
   BuildControllerInstance(s);
   if (!IsExclusiveAccessor()) {
     SharedMemoryAccessor::BuildMemoryAccessorResource(*this, true, false,
-						      res_.GetParentResource());
+                                                      res_.GetParentResource());
   }
 
   ostream &os = tab_.ResourceSectionStream();
@@ -38,7 +37,7 @@ void MasterPort::BuildResource() {
      << "  reg " << ReqPort() << ";\n"
      << "  wire " << AckPort() << ";\n";
   PortConfig cfg = AxiPort::GetPortConfig(res_);
-  os << "  reg [" << cfg.SramMSB() << ":0] " << LenPort() << ";\n"
+  os << "  reg [" << std::min(cfg.SramMSB(), 7) << ":0] " << LenPort() << ";\n"
      << "  reg [" << cfg.SramMSB() << ":0] " << StartPort() << ";\n";
 
   ostream &is = tab_.InitialValueSectionStream();
@@ -53,8 +52,8 @@ void MasterPort::BuildResource() {
   if (accessors.size() == 0) {
     ss << "0;\n";
   } else {
-    ss << "(" << JoinStatesWithSubState(accessors, 0) << ") && !"
-       << AckPort() <<";\n";
+    ss << "(" << JoinStatesWithSubState(accessors, 0) << ") && !" << AckPort()
+       << ";\n";
   }
   map<IState *, IInsn *> writers;
   CollectResourceCallers("write", &writers);
@@ -62,8 +61,8 @@ void MasterPort::BuildResource() {
   if (writers.size() == 0) {
     ss << "0;\n";
   } else {
-    ss << "(" << JoinStatesWithSubState(writers, 0)  << ") && !"
-       << AckPort() <<";\n";
+    ss << "(" << JoinStatesWithSubState(writers, 0) << ") && !" << AckPort()
+       << ";\n";
   }
 }
 
@@ -73,8 +72,9 @@ void MasterPort::BuildInsn(IInsn *insn, State *st) {
   ostream &os = st->StateBodySectionStream();
   os << I << "// AXI access request\n"
      << I << "if (" << insn_st << " == 0) begin\n"
-     << I << "  " << AddrPort() << " <= "
-     << InsnWriter::RegisterValue(*insn->inputs_[0], tab_.GetNames()) << ";\n";
+     << I << "  " << AddrPort()
+     << " <= " << InsnWriter::RegisterValue(*insn->inputs_[0], tab_.GetNames())
+     << ";\n";
   // Length.
   os << I << "  " << LenPort() << " <= ";
   if (insn->inputs_.size() >= 2) {
@@ -114,9 +114,8 @@ string MasterPort::ControllerName(const IResource &res) {
   return s;
 }
 
-void MasterPort::WriteController(const IResource &res,
-				 bool reset_polarity,
-				 ostream &os) {
+void MasterPort::WriteController(const IResource &res, bool reset_polarity,
+                                 ostream &os) {
   MasterController c(res, reset_polarity);
   c.Write(os);
 }
@@ -125,17 +124,14 @@ void MasterPort::BuildControllerInstance(const string &wires) {
   tab_.GetEmbeddedModules()->RequestAxiMasterController(&res_);
   ostream &es = tmpl_->GetStream(kEmbeddedInstanceSection);
   string name = ControllerName(res_);
-  es << "  " << name << " inst_" << PortSuffix()
-     << "_" << name << "(";
+  es << "  " << name << " inst_" << PortSuffix() << "_" << name << "(";
   OutputSRAMConnection(es);
   es << ", .addr(" << AddrPort() << "), "
      << ".wen(" << WenPort() << "), "
      << ".req(" << ReqPort() << "), "
      << ".len(" << LenPort() << "), "
      << ".start(" << StartPort() << "), "
-     << ".ack(" << AckPort() << ") "
-     << wires
-     << ");\n";
+     << ".ack(" << AckPort() << ") " << wires << ");\n";
 }
 
 string MasterPort::BuildPortToExt() {
@@ -165,13 +161,9 @@ void MasterPort::GetReadWrite(const IResource &res, bool *r, bool *w) {
   }
 }
 
-string MasterPort::LenPort() {
-  return "axi_len" + PortSuffix();
-}
+string MasterPort::LenPort() { return "axi_len" + PortSuffix(); }
 
-string MasterPort::StartPort() {
-  return "axi_start" + PortSuffix();
-}
+string MasterPort::StartPort() { return "axi_start" + PortSuffix(); }
 
 }  // namespace axi
 }  // namespace verilog

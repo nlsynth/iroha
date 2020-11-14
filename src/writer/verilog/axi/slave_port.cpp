@@ -17,15 +17,14 @@ namespace verilog {
 namespace axi {
 
 SlavePort::SlavePort(const IResource &res, const Table &table)
-  : AxiPort(res, table) {
-}
+    : AxiPort(res, table) {}
 
 void SlavePort::BuildResource() {
   string wires_to_ext = BuildPortToExt();
   BuildControllerInstance(wires_to_ext);
   if (!IsExclusiveAccessor()) {
     SharedMemoryAccessor::BuildMemoryAccessorResource(*this, true, false,
-						      res_.GetParentResource());
+                                                      res_.GetParentResource());
   }
 
   ostream &os = tab_.ResourceSectionStream();
@@ -59,13 +58,12 @@ string SlavePort::ControllerName(const IResource &res) {
   const IResource *mem_res = res.GetParentResource();
   IArray *array = mem_res->GetArray();
   int addr_width = array->GetAddressWidth();
-  return "axi_slave_controller_a" + Util::Itoa(addr_width) +
-    "d" + Util::Itoa(array->GetDataType().GetWidth());
+  return "axi_slave_controller_a" + Util::Itoa(addr_width) + "d" +
+         Util::Itoa(array->GetDataType().GetWidth());
 }
 
-void SlavePort::WriteController(const IResource &res,
-				bool reset_polarity,
-				ostream &os) {
+void SlavePort::WriteController(const IResource &res, bool reset_polarity,
+                                ostream &os) {
   SlaveController c(res, reset_polarity);
   c.Write(os);
 }
@@ -74,12 +72,10 @@ void SlavePort::BuildControllerInstance(const string &wires_to_ext) {
   tab_.GetEmbeddedModules()->RequestAxiSlaveController(&res_);
   ostream &es = tmpl_->GetStream(kEmbeddedInstanceSection);
   string name = ControllerName(res_);
-  es << "  " << name << " inst_" << PortSuffix()
-     << "_" << name << "(";
+  es << "  " << name << " inst_" << PortSuffix() << "_" << name << "(";
   OutputSRAMConnection(es);
   OutputNotifierConnection(es);
-  es << wires_to_ext
-     << ");\n";
+  es << wires_to_ext << ");\n";
 }
 
 string SlavePort::BuildPortToExt() {
@@ -95,17 +91,13 @@ string SlavePort::BuildPortToExt() {
 }
 
 void SlavePort::OutputNotifierConnection(ostream &os) {
-  os << ", .access_notify(" << NotifyWire()
-     << "), .access_ack(" << NotifyAckWire() << ")";
+  os << ", .access_notify(" << NotifyWire() << "), .access_ack("
+     << NotifyAckWire() << ")";
 }
 
-string SlavePort::NotifyWire() {
-  return "access_notify" + PortSuffix();
-}
+string SlavePort::NotifyWire() { return "access_notify" + PortSuffix(); }
 
-string SlavePort::NotifyAckWire() {
-  return "access_ack" + PortSuffix();
-}
+string SlavePort::NotifyAckWire() { return "access_ack" + PortSuffix(); }
 
 }  // namespace axi
 }  // namespace verilog

@@ -9,27 +9,23 @@
 namespace iroha {
 namespace writer {
 namespace verilog {
-namespace axi {  
+namespace axi {
 
-SlaveController::SlaveController(const IResource &res,
-				 bool reset_polarity)
-  : AxiController(res, reset_polarity) {
+SlaveController::SlaveController(const IResource &res, bool reset_polarity)
+    : AxiController(res, reset_polarity) {
   ports_.reset(new PortSet);
 }
 
-SlaveController::~SlaveController() {
-}
+SlaveController::~SlaveController() {}
 
 void SlaveController::Write(ostream &os) {
   string name = SlavePort::ControllerName(res_);
-  os << "// slave controller: "
-     << name << "\n";
+  os << "// slave controller: " << name << "\n";
   AddSramPorts();
   AddNotifierPorts();
   string initials;
-  ChannelGenerator ch(cfg_,
-		      ChannelGenerator::CONTROLLER_PORTS_AND_REG_INITIALS,
-		      false, nullptr, ports_.get(), &initials);
+  ChannelGenerator ch(cfg_, ChannelGenerator::CONTROLLER_PORTS_AND_REG_INITIALS,
+                      false, nullptr, ports_.get(), &initials);
   ch.GenerateChannel(true, true);
   WriteModuleHeader(name, os);
   ports_->Output(PortSet::PORT_MODULE_HEAD, os);
@@ -55,16 +51,15 @@ void SlaveController::Write(ostream &os) {
      << "  assign sram_addr = sram_addr_src;\n\n";
 
   os << "  always @(posedge clk) begin\n"
-     << "    if (" << (reset_polarity_ ? "" : "!")
-     << ResetName(reset_polarity_) << ") begin\n"
+     << "    if (" << (reset_polarity_ ? "" : "!") << ResetName(reset_polarity_)
+     << ") begin\n"
      << "      st <= S_IDLE;\n"
      << "      first_addr <= 0;\n"
      << "      last_write <= 0;\n"
      << "      rlen <= 0;\n"
      << "      sram_req <= 0;\n"
      << "      access_notify <= 0;\n";
-  os << initials
-     << "    end else begin\n";
+  os << initials << "    end else begin\n";
   OutputFSM(os);
   os << "    end\n"
      << "  end\n";
@@ -74,7 +69,7 @@ void SlaveController::Write(ostream &os) {
 void SlaveController::AddPorts(const PortConfig &cfg, Module *mod, string *s) {
   PortSet *ports = mod->GetPortSet();
   ChannelGenerator ch(cfg, ChannelGenerator::PORTS_TO_EXT_AND_CONNECTIONS,
-		      false, mod, ports, s);
+                      false, mod, ports, s);
   ch.GenerateChannel(true, true);
 }
 
@@ -89,7 +84,8 @@ void SlaveController::OutputFSM(ostream &os) {
      << "          if (ARVALID) begin\n"
      << "            if (ARREADY) begin\n"
      << "              ARREADY <= 0;\n"
-     << "              sram_addr_src <= ARADDR[" << (cfg_.sram_addr_width - 1 + data_shift) << ":" << data_shift << "];\n"
+     << "              sram_addr_src <= ARADDR["
+     << (cfg_.sram_addr_width - 1 + data_shift) << ":" << data_shift << "];\n"
      << "              rlen <= ARLEN;\n"
      << "              if (sram_EXCLUSIVE) begin\n"
      << "                st <= S_READ;\n"
@@ -104,7 +100,8 @@ void SlaveController::OutputFSM(ostream &os) {
      << "            if (AWREADY) begin\n"
      << "              AWREADY <= 0;\n"
      << "              first_addr <= 1;\n"
-     << "              sram_addr_src <= AWADDR[" << (cfg_.sram_addr_width - 1 + data_shift) << ":" << data_shift << "];\n"
+     << "              sram_addr_src <= AWADDR["
+     << (cfg_.sram_addr_width - 1 + data_shift) << ":" << data_shift << "];\n"
      << "              if (sram_EXCLUSIVE) begin\n"
      << "                st <= S_WRITE;\n"
      << "              end else begin\n"
