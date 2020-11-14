@@ -17,6 +17,7 @@ class SSAConverter {
 
  private:
   void InjectInitialValueAssigns();
+  IRegister *InjectInitialValueAssignForReg(IRegister *reg);
 
   ITable *table_;
   OptimizerLog *opt_log_;
