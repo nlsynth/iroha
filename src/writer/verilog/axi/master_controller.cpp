@@ -74,10 +74,11 @@ void MasterController::Write(ostream &os) {
        << "  reg [" << cfg_.sram_addr_width << ":0] wmax;\n\n";
   }
   if (r_) {
-    os << "  reg [" << cfg_.sram_addr_width << ":0] ridx;\n"
+    os << "  reg [" << (cfg_.sram_addr_width - 1) << ":0] ridx;\n"
        << "  reg read_last;\n\n";
   }
   if (w_) {
+    // 1bit wider to compare with wmax.
     os << "  reg [" << cfg_.sram_addr_width << ":0] widx;\n\n";
   }
   os << "  always @(posedge clk) begin\n"
