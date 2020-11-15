@@ -3,6 +3,7 @@
 #include "iroha/i_design.h"
 #include "writer/verilog/axi/channel_generator.h"
 #include "writer/verilog/axi/master_port.h"
+#include "writer/verilog/insn_writer.h"
 #include "writer/verilog/module.h"
 #include "writer/verilog/port.h"
 #include "writer/verilog/port_set.h"
@@ -132,16 +133,18 @@ void MasterController::OutputMainFsm(ostream &os) {
       os << "            ridx <= 0;\n";
     }
     os << "            st <= S_ADDR_WAIT;\n";
+    string len =
+        InsnWriter::AdjustWidth("len", std::min(cfg_.sram_addr_width, 8), 8);
     if (r_ && !w_) {
       os << "            ARVALID <= 1;\n"
          << "            ARADDR <= addr;\n"
-         << "            ARLEN <= len;\n"
+         << "            ARLEN <= " << len << ";\n"
          << "            ARSIZE <= " << rwsize << ";\n";
     }
     if (!r_ && w_) {
       os << "            AWVALID <= 1;\n"
          << "            AWADDR <= addr;\n"
-         << "            AWLEN <= len;\n"
+         << "            AWLEN <= " << len << ";\n"
          << "            AWSIZE <= " << rwsize << ";\n"
          << "            sram_addr_src <= start;\n"
          << "            wmax <= len;\n";
@@ -150,14 +153,14 @@ void MasterController::OutputMainFsm(ostream &os) {
       os << "            if (wen) begin\n"
          << "              AWVALID <= 1;\n"
          << "              AWADDR <= addr;\n"
-         << "              AWLEN <= len;\n"
+         << "              AWLEN <= " << len << ";\n"
          << "              AWSIZE <= " << rwsize << ";\n"
          << "              sram_addr_src <= start;\n"
          << "              wmax <= len;\n"
          << "            end else begin\n"
          << "              ARVALID <= 1;\n"
          << "              ARADDR <= addr;\n"
-         << "              ARLEN <= len;\n"
+         << "              ARLEN <= " << len << ";\n"
          << "              ARSIZE <= " << rwsize << ";\n"
          << "            end\n";
     }

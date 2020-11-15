@@ -89,6 +89,17 @@ string InsnWriter::MultiCycleStateName(const IResource &res) {
          Util::Itoa(res.GetId());
 }
 
+string InsnWriter::AdjustWidth(const string &val, int ow, int tw) {
+  if (ow == tw) {
+    return val;
+  }
+  if (ow > tw) {
+    return "(" + val + ")[" + Util::Itoa(tw - 1) + ":0]";
+  }
+  int d = tw - ow;
+  return "{" + Util::Itoa(d) + "'b0, " + val + "}";
+}
+
 }  // namespace verilog
 }  // namespace writer
 }  // namespace iroha

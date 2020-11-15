@@ -9,7 +9,7 @@ namespace writer {
 namespace verilog {
 
 class InsnWriter {
-public:
+ public:
   InsnWriter(const IInsn *insn, const State *st, ostream &os);
 
   void Print();
@@ -24,8 +24,10 @@ public:
   // Up to each resource.
   static string InsnSpecificWireName(const IInsn &insn);
   static string MultiCycleStateName(const IResource &res);
+  // Original width to Target width.
+  static string AdjustWidth(const string &val, int ow, int tw);
 
-private:
+ private:
   const IInsn *insn_;
   const State *st_;
   ostream &os_;
