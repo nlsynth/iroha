@@ -167,8 +167,10 @@ void Resource::BuildAssignInsn(IInsn *insn, State *st) {
        << InsnWriter::RegisterValue(*insn->inputs_[0], st->GetNames()) << ";\n";
   } else {
     ostream &os = st->StateBodySectionStream();
-    os << "          " << insn->outputs_[0]->GetName()
-       << " <= " << InsnWriter::RegisterValue(*insn->inputs_[0], st->GetNames())
+    IRegister *lhs = insn->outputs_[0];
+    os << "          " << lhs->GetName() << " <= "
+       << InsnWriter::RegisterValueWithConstWidth(
+              *insn->inputs_[0], lhs->value_type_.GetWidth(), st->GetNames())
        << ";\n";
   }
 }

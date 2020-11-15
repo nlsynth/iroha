@@ -16,6 +16,8 @@ class InsnWriter {
   void Assert();
 
   static string RegisterValue(const IRegister &reg, Names *names);
+  static string RegisterValueWithConstWidth(const IRegister &reg, int width,
+                                            Names *names);
   static string ConstValue(const IRegister &reg);
   static string CustomResourceName(const string &name, const IResource &res);
   static string ResourceName(const IResource &res);

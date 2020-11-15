@@ -30,6 +30,18 @@ string InsnWriter::RegisterValue(const IRegister &reg, Names *names) {
   }
 }
 
+string InsnWriter::RegisterValueWithConstWidth(const IRegister &reg, int width,
+                                               Names *names) {
+  if (reg.IsConst()) {
+    if (width == 0) {
+      width = 1;
+    }
+    return Util::Itoa(width) + "'d" +
+           Util::ULLtoA(reg.GetInitialValue().GetValue0());
+  }
+  return RegisterValue(reg, names);
+}
+
 string InsnWriter::ConstValue(const IRegister &reg) {
   CHECK(reg.IsConst());
   return Util::Itoa(reg.GetInitialValue().GetValue0());
