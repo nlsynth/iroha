@@ -94,7 +94,7 @@ string InsnWriter::AdjustWidth(const string &val, int ow, int tw) {
     return val;
   }
   if (ow > tw) {
-    return "(" + val + ")[" + Util::Itoa(tw - 1) + ":0]";
+    return val + "[" + Util::Itoa(tw - 1) + ":0]";
   }
   int d = tw - ow;
   return "{" + Util::Itoa(d) + "'b0, " + val + "}";

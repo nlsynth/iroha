@@ -10,7 +10,7 @@ namespace verilog {
 namespace axi {
 
 class MasterPort : public AxiPort {
-public:
+ public:
   MasterPort(const IResource &res, const Table &table);
 
   virtual void BuildResource();
@@ -19,10 +19,10 @@ public:
   static void GetReadWrite(const IResource &res, bool *r, bool *w);
 
   static string ControllerName(const IResource &res);
-  static void WriteController(const IResource &res,
-			      bool reset_polarity, ostream &os);
+  static void WriteController(const IResource &res, bool reset_polarity,
+                              ostream &os);
 
-private:
+ private:
   void BuildControllerInstance(const string &wires);
   string BuildPortToExt();
   // Other ports are defined in axi_port.h.

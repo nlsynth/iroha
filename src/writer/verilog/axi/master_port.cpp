@@ -70,15 +70,22 @@ void MasterPort::BuildInsn(IInsn *insn, State *st) {
   static const char I[] = "          ";
   string insn_st = InsnWriter::MultiCycleStateName(*(insn->GetResource()));
   ostream &os = st->StateBodySectionStream();
+  PortConfig cfg = AxiPort::GetPortConfig(res_);
+  IRegister *addr = insn->inputs_[0];
   os << I << "// AXI access request\n"
      << I << "if (" << insn_st << " == 0) begin\n"
-     << I << "  " << AddrPort()
-     << " <= " << InsnWriter::RegisterValue(*insn->inputs_[0], tab_.GetNames())
+     << I << "  " << AddrPort() << " <= "
+     << InsnWriter::AdjustWidth(
+            InsnWriter::RegisterValue(*addr, tab_.GetNames()),
+            addr->value_type_.GetWidth(), cfg.axi_addr_width)
      << ";\n";
   // Length.
   os << I << "  " << LenPort() << " <= ";
   if (insn->inputs_.size() >= 2) {
-    os << InsnWriter::RegisterValue(*insn->inputs_[1], tab_.GetNames());
+    IRegister *len = insn->inputs_[1];
+    os << InsnWriter::AdjustWidth(
+        InsnWriter::RegisterValue(*len, tab_.GetNames()),
+        len->value_type_.GetWidth(), 8);
   } else {
     os << "~0";
   }
@@ -86,7 +93,10 @@ void MasterPort::BuildInsn(IInsn *insn, State *st) {
   // Start.
   os << I << "  " << StartPort() << " <= ";
   if (insn->inputs_.size() >= 3) {
-    os << InsnWriter::RegisterValue(*insn->inputs_[2], tab_.GetNames());
+    IRegister *start = insn->inputs_[2];
+    os << InsnWriter::AdjustWidth(
+        InsnWriter::RegisterValue(*start, tab_.GetNames()),
+        start->value_type_.GetWidth(), cfg.sram_addr_width);
   } else {
     os << "0";
   }
