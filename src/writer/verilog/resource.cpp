@@ -1,5 +1,7 @@
 #include "writer/verilog/resource.h"
 
+#include <set>
+
 #include "iroha/i_design.h"
 #include "iroha/logging.h"
 #include "iroha/resource_class.h"
@@ -39,8 +41,6 @@
 #include "writer/verilog/ticker.h"
 #include "writer/verilog/ticker_accessor.h"
 
-#include <set>
-
 namespace iroha {
 namespace writer {
 namespace verilog {
@@ -53,17 +53,13 @@ Resource *Resource::Create(const IResource &res, const Table &table) {
   if (resource::IsTaskCall(*klass)) {
     return new TaskCall(res, table);
   }
-  if (resource::IsExclusiveBinOp(*klass) ||
-      resource::IsLightBinOp(*klass) ||
-      resource::IsLightUniOp(*klass) ||
-      resource::IsBitShiftOp(*klass) ||
-      resource::IsBitSel(*klass) ||
-      resource::IsBitConcat(*klass) ||
+  if (resource::IsExclusiveBinOp(*klass) || resource::IsLightBinOp(*klass) ||
+      resource::IsLightUniOp(*klass) || resource::IsBitShiftOp(*klass) ||
+      resource::IsBitSel(*klass) || resource::IsBitConcat(*klass) ||
       resource::IsSelect(*klass)) {
     return new Operator(res, table);
   }
-  if (resource::IsExtInput(*klass) ||
-      resource::IsExtOutput(*klass)) {
+  if (resource::IsExtInput(*klass) || resource::IsExtOutput(*klass)) {
     return new ExtIO(res, table);
   }
   if (resource::IsExtInputAccessor(*klass) ||
@@ -108,21 +104,17 @@ Resource *Resource::Create(const IResource &res, const Table &table) {
   if (resource::IsExtCombinational(*klass)) {
     return new ExtCombinational(res, table);
   }
-  if (resource::IsExtTask(*klass) ||
-      resource::IsExtTaskDone(*klass)) {
+  if (resource::IsExtTask(*klass) || resource::IsExtTaskDone(*klass)) {
     return new ExtTask(res, table);
   }
   if (resource::IsFifo(*klass)) {
     return new Fifo(res, table);
   }
-  if (resource::IsFifoReader(*klass) ||
-      resource::IsFifoWriter(*klass)) {
+  if (resource::IsFifoReader(*klass) || resource::IsFifoWriter(*klass)) {
     return new FifoAccessor(res, table);
   }
-  if (resource::IsExtTaskCall(*klass) ||
-      resource::IsExtTaskWait(*klass) ||
-      resource::IsExtFlowCall(*klass) ||
-      resource::IsExtFlowResult(*klass)) {
+  if (resource::IsExtTaskCall(*klass) || resource::IsExtTaskWait(*klass) ||
+      resource::IsExtFlowCall(*klass) || resource::IsExtFlowResult(*klass)) {
     return new ExtTaskCall(res, table);
   }
   if (resource::IsTicker(*klass)) {
@@ -137,38 +129,25 @@ Resource *Resource::Create(const IResource &res, const Table &table) {
   if (resource::IsStudy(*klass)) {
     return new Study(res, table);
   }
-  if (resource::IsStudyReader(*klass) ||
-      resource::IsStudyWriter(*klass)) {
+  if (resource::IsStudyReader(*klass) || resource::IsStudyWriter(*klass)) {
     return new StudyAccessor(res, table);
   }
   return new Resource(res, table);
 }
 
 Resource::Resource(const IResource &res, const Table &table)
-  : res_(res), tab_(table) {
+    : res_(res), tab_(table) {
   tmpl_ = tab_.GetModuleTemplate();
 }
 
-Resource::~Resource() {
-}
+Resource::~Resource() {}
 
-void Resource::BuildResource() {
-}
+void Resource::BuildResource() {}
 
 void Resource::BuildInsn(IInsn *insn, State *st) {
-  ostream &os = st->StateBodySectionStream();
   auto *rc = res_.GetClass();
   if (resource::IsSet(*rc)) {
-    if (insn->outputs_[0]->IsStateLocal()) {
-      ostream &ws = tab_.InsnWireValueSectionStream();
-      ws << "  assign " << insn->outputs_[0]->GetName() << " = "
-	 << InsnWriter::RegisterValue(*insn->inputs_[0], st->GetNames())
-	 << ";\n";
-    } else {
-      os << "          " << insn->outputs_[0]->GetName() << " <= "
-	 << InsnWriter::RegisterValue(*insn->inputs_[0], st->GetNames())
-	 << ";\n";
-    }
+    BuildAssignInsn(insn, st);
     return;
   }
   ostream &ts = st->StateTransitionSectionStream();
@@ -181,11 +160,23 @@ void Resource::BuildInsn(IInsn *insn, State *st) {
   }
 }
 
-void Resource::CollectNames(Names *names) {
+void Resource::BuildAssignInsn(IInsn *insn, State *st) {
+  if (insn->outputs_[0]->IsStateLocal()) {
+    ostream &ws = tab_.InsnWireValueSectionStream();
+    ws << "  assign " << insn->outputs_[0]->GetName() << " = "
+       << InsnWriter::RegisterValue(*insn->inputs_[0], st->GetNames()) << ";\n";
+  } else {
+    ostream &os = st->StateBodySectionStream();
+    os << "          " << insn->outputs_[0]->GetName()
+       << " <= " << InsnWriter::RegisterValue(*insn->inputs_[0], st->GetNames())
+       << ";\n";
+  }
 }
 
+void Resource::CollectNames(Names *names) {}
+
 void Resource::CollectResourceCallers(const string &opr,
-				      map<IState *, IInsn *> *callers) const {
+                                      map<IState *, IInsn *> *callers) const {
   vector<string> v;
   Util::SplitStringUsing(opr, ",", &v);
   set<string> oprs;
@@ -198,17 +189,16 @@ void Resource::CollectResourceCallers(const string &opr,
   for (auto *st : res_.GetTable()->states_) {
     for (auto *insn : st->insns_) {
       if (insn->GetResource() == &res_ &&
-	  (opr == "*" || oprs.find(insn->GetOperand()) != oprs.end())) {
-	callers->insert(make_pair(st, insn));
+          (opr == "*" || oprs.find(insn->GetOperand()) != oprs.end())) {
+        callers->insert(make_pair(st, insn));
       }
     }
   }
 }
 
 void Resource::WriteInputSel(const string &name,
-			     const map<IState *, IInsn *> &callers,
-			     int nth,
-			     ostream &os) {
+                             const map<IState *, IInsn *> &callers, int nth,
+                             ostream &os) {
   WriteWire(name, res_.input_types_[nth], os);
   os << "  assign " << name << " = ";
 
@@ -219,17 +209,17 @@ void Resource::WriteInputSel(const string &name,
     if (cond.empty()) {
       cond = InsnWriter::RegisterValue(*insn->inputs_[nth], tab_.GetNames());
     } else {
-      cond = "(" + tab_.StateVariable() + " == " +
-	tab_.StateName(st->GetId()) + ") ? " +
-	InsnWriter::RegisterValue(*insn->inputs_[nth], tab_.GetNames()) +
-	" : (" + cond + ")";
+      cond = "(" + tab_.StateVariable() + " == " + tab_.StateName(st->GetId()) +
+             ") ? " +
+             InsnWriter::RegisterValue(*insn->inputs_[nth], tab_.GetNames()) +
+             " : (" + cond + ")";
     }
   }
   os << cond << ";\n";
 }
 
 void Resource::WriteWire(const string &name, const IValueType &type,
-			 ostream &os) {
+                         ostream &os) {
   os << "  wire ";
   if (type.IsSigned()) {
     os << "signed ";
@@ -242,7 +232,7 @@ void Resource::WriteWire(const string &name, const IValueType &type,
 }
 
 void Resource::WriteStateUnion(const map<IState *, IInsn *> &callers,
-			       ostream &os) {
+                               ostream &os) {
   if (callers.size() == 0) {
     os << "0";
   }
@@ -261,39 +251,36 @@ string Resource::JoinStates(const map<IState *, IInsn *> &sts) const {
   for (auto &p : sts) {
     IState *st = p.first;
     conds.push_back("(" + tab_.StateVariable() + " == " +
-		    Table::StateNameFromTable(*tab_.GetITable(), st->GetId()) +
-		    ")");
+                    Table::StateNameFromTable(*tab_.GetITable(), st->GetId()) +
+                    ")");
   }
   return Util::Join(conds, " || ");
 }
 
 string Resource::JoinStatesWithSubState(const map<IState *, IInsn *> &sts,
-					int sub) const {
+                                        int sub) const {
   vector<string> conds;
   for (auto &p : sts) {
     IState *st = p.first;
     IInsn *insn = p.second;
-    conds.push_back("(" + tab_.GetStateCondition(st) +
-		    " && " +
-		    InsnWriter::MultiCycleStateName(*insn->GetResource()) +
-		    " == " + Util::Itoa(sub) +
-		    ")");
+    conds.push_back("(" + tab_.GetStateCondition(st) + " && " +
+                    InsnWriter::MultiCycleStateName(*insn->GetResource()) +
+                    " == " + Util::Itoa(sub) + ")");
   }
   return Util::Join(conds, " || ");
 }
 
-string Resource::SelectValueByStateWithCallers(const map<IState *, IInsn *> &callers,
-					       const string &default_value) {
+string Resource::SelectValueByStateWithCallers(
+    const map<IState *, IInsn *> &callers, const string &default_value) {
   string v = default_value;
   for (auto &c : callers) {
     IState *st = c.first;
     IInsn *insn = c.second;
     if (insn->inputs_.size() == 1) {
       string stCond = tab_.GetStateCondition(st);
-      v = "((" + stCond +
-	") ? " +
-	InsnWriter::RegisterValue(*insn->inputs_[0], tab_.GetNames()) +
-	" : " + v + ")";
+      v = "((" + stCond + ") ? " +
+          InsnWriter::RegisterValue(*insn->inputs_[0], tab_.GetNames()) +
+          " : " + v + ")";
     }
   }
   return v;
@@ -306,7 +293,7 @@ string Resource::SelectValueByState(const string &default_value) {
 }
 
 void Resource::AddPortToTop(const string &port, bool is_output,
-			    bool from_embedded, int width) {
+                            bool from_embedded, int width) {
   // Owner module.
   Port::PortType type;
   if (is_output) {
@@ -335,17 +322,11 @@ void Resource::AddPortToTop(const string &port, bool is_output,
   }
 }
 
-ModuleTemplate *Resource::GetModuleTemplate() const {
-  return tmpl_;
-}
+ModuleTemplate *Resource::GetModuleTemplate() const { return tmpl_; }
 
-const Table &Resource::GetTable() const {
-  return tab_;
-}
+const Table &Resource::GetTable() const { return tab_; }
 
-const IResource &Resource::GetIResource() const {
-  return res_;
-}
+const IResource &Resource::GetIResource() const { return res_; }
 
 void Resource::BuildEmbeddedModule(const string &connection) {
   auto *params = res_.GetParams();
@@ -355,10 +336,11 @@ void Resource::BuildEmbeddedModule(const string &connection) {
   ostream &is = tmpl_->GetStream(kEmbeddedInstanceSection);
   string name = params->GetEmbeddedModuleName();
   is << "  // " << name << "\n"
-     << "  "  << name << " inst_" << tab_.GetITable()->GetId()
-     << "_" << res_.GetId() << "_" << name << "(";
+     << "  " << name << " inst_" << tab_.GetITable()->GetId() << "_"
+     << res_.GetId() << "_" << name << "(";
   is << "." << params->GetEmbeddedModuleClk() << "(" << ports->GetClk() << "), "
-     << "." << params->GetEmbeddedModuleReset() << "(" << ports->GetReset() << ")";
+     << "." << params->GetEmbeddedModuleReset() << "(" << ports->GetReset()
+     << ")";
   is << connection;
   is << ");\n";
 }

@@ -2,16 +2,16 @@
 #ifndef _writer_verilog_resource_h_
 #define _writer_verilog_resource_h_
 
-#include "writer/verilog/common.h"
-
 #include <map>
+
+#include "writer/verilog/common.h"
 
 namespace iroha {
 namespace writer {
 namespace verilog {
 
 class Resource {
-public:
+ public:
   Resource(const IResource &res, const Table &tab);
   virtual ~Resource();
 
@@ -25,25 +25,23 @@ public:
   const Table &GetTable() const;
   const IResource &GetIResource() const;
 
-  string JoinStatesWithSubState(const map<IState *, IInsn *> &sts, int sub) const;
+  string JoinStatesWithSubState(const map<IState *, IInsn *> &sts,
+                                int sub) const;
   void CollectResourceCallers(const string &opr,
-			      map<IState *, IInsn *> *callers) const;
+                              map<IState *, IInsn *> *callers) const;
 
-protected:
-  void WriteInputSel(const string &name,
-		     const map<IState *, IInsn *> &callers,
-		     int nth,
-		     ostream &os);
-  void WriteWire(const string &name, const IValueType &type,
-		 ostream &os);
+ protected:
+  void BuildAssignInsn(IInsn *insn, State *st);
+  void WriteInputSel(const string &name, const map<IState *, IInsn *> &callers,
+                     int nth, ostream &os);
+  void WriteWire(const string &name, const IValueType &type, ostream &os);
   string JoinStates(const map<IState *, IInsn *> &sts) const;
-  void WriteStateUnion(const map<IState *, IInsn *> &callers,
-		       ostream &os);
+  void WriteStateUnion(const map<IState *, IInsn *> &callers, ostream &os);
   string SelectValueByState(const string &default_value);
   string SelectValueByStateWithCallers(const map<IState *, IInsn *> &callers,
-				       const string &default_value);
+                                       const string &default_value);
   void AddPortToTop(const string &port, bool is_output, bool from_embedded,
-		    int width);
+                    int width);
   void BuildEmbeddedModule(const string &connection);
 
   const IResource &res_;
