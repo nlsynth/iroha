@@ -48,10 +48,10 @@ void ArrayResource::BuildMemInsn(IInsn *insn, State *st) {
        << SigName("rdata") << ";\n";
   }
 
+  IArray *array = res_.GetArray();
   static const char I[] = "          ";
   ostream &os = st->StateBodySectionStream();
   if (opr == "sram_read_address" || opr == "sram_write") {
-    IArray *array = res_.GetArray();
     os << I << SigName("addr") << " <= "
        << InsnWriter::RegisterValueWithConstWidth(
               *(insn->inputs_[0]), array->GetAddressWidth(), tab_.GetNames())
@@ -59,7 +59,9 @@ void ArrayResource::BuildMemInsn(IInsn *insn, State *st) {
   }
   if (opr == "sram_write") {
     os << I << SigName("wdata") << " <= "
-       << InsnWriter::RegisterValue(*(insn->inputs_[1]), tab_.GetNames())
+       << InsnWriter::RegisterValueWithConstWidth(
+              *(insn->inputs_[1]), array->GetDataType().GetWidth(),
+              tab_.GetNames())
        << ";\n";
   }
 }
