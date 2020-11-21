@@ -58,10 +58,15 @@ void PhiCleaner::ProcessInsn(map<IRegister *, RegDef *> *last_defs, IState *st,
     }
     (*last_defs)[reg] = reg_def;
   }
-  if (insn->GetResource() != phi_) {
-    return;
+  if (insn->GetResource() == phi_) {
+    ProcessPhiInsn(last_defs, st, insn);
   }
+}
+
+void PhiCleaner::ProcessPhiInsn(map<IRegister *, RegDef *> *last_defs,
+                                IState *st, IInsn *insn) {
   if (insn->inputs_.size() == 1) {
+    // Just an assign if the number of input is 1.
     IInsn *assign_insn = new IInsn(assign_);
     assign_insn->inputs_ = insn->inputs_;
     assign_insn->outputs_ = insn->outputs_;

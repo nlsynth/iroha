@@ -19,6 +19,8 @@ class PhiCleaner {
   void ProcessBB(BB *bb);
   void ProcessInsn(map<IRegister *, RegDef *> *last_defs, IState *st,
                    IInsn *insn);
+  void ProcessPhiInsn(map<IRegister *, RegDef *> *last_defs, IState *st,
+                      IInsn *insn);
   void EmitSelector(map<IRegister *, RegDef *> *last_defs, IState *st,
                     IInsn *phi_insn);
 
