@@ -104,6 +104,10 @@ void PhiBuilder::UpdateVersionsForInsn(
         reg_def = d;
       }
     }
+    if (reg_def == nullptr) {
+      // state local.
+      continue;
+    }
     (*reg_to_last_def)[reg_def->reg] = reg_def;
     *it = FindVersionedReg(reg_def);
   }
