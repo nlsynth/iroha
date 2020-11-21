@@ -33,11 +33,13 @@ DataFlow *DataFlowCollector::Create() {
 }
 
 void DataFlowCollector::Log(ostream &os) {
+  os << "Data flow<br/>\n";
   for (auto p : bb_info_) {
     os << "bb:" << p.first->bb_id_ << "<br>\n";
     for (auto *reg_def : p.second->reaches_) {
-      os << " def: insn:" << reg_def->insn->GetId()
-         << " reg: " << reg_def->reg->GetName() << "<br>\n";
+      IRegister *reg = reg_def->reg;
+      os << " def: insn:" << reg_def->insn->GetId() << " reg:" << reg->GetId()
+         << " " << reg->GetName() << "<br>\n";
     }
   }
 }
