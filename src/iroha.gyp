@@ -188,6 +188,8 @@
                 'opt/sched/virtual_resource_set.h',
                 'opt/sched/wire_plan.cpp',
                 'opt/sched/wire_plan.h',
+                'opt/ssa/condition_value_range.cpp',
+                'opt/ssa/condition_value_range.h',
                 'opt/ssa/phi_builder.cpp',
                 'opt/ssa/phi_builder.h',
                 'opt/ssa/phi_cleaner.cpp',

@@ -8,6 +8,8 @@ namespace iroha {
 namespace opt {
 namespace ssa {
 
+class ConditionValueRange;
+
 class PhiCleaner {
  public:
   PhiCleaner(ITable *table, OptimizerLog *opt_log);
@@ -19,15 +21,18 @@ class PhiCleaner {
   void ProcessBB(BB *bb);
   void ProcessInsn(map<IRegister *, RegDef *> *last_defs, IState *st,
                    IInsn *insn);
-  void ProcessPhiInsn(map<IRegister *, RegDef *> *last_defs, IState *st,
-                      IInsn *insn);
-  void EmitSelector(map<IRegister *, RegDef *> *last_defs, IState *st,
+  void ProcessPhiInsn(map<IRegister *, RegDef *> *last_defs, IState *phi_st,
+                      IInsn *phi_insn);
+  void EmitSelector(map<IRegister *, RegDef *> *last_defs, IState *phi_st,
                     IInsn *phi_insn);
+  IRegister *GetConditionReg(map<IRegister *, RegDef *> *last_defs,
+                             IInsn *phi_insn, bool *order01);
 
   ITable *table_;
   OptimizerLog *opt_log_;
   unique_ptr<BBSet> bset_;
   unique_ptr<DataFlow> data_flow_;
+  unique_ptr<ConditionValueRange> cv_range_;
   IResource *phi_;
   IResource *sel_;
   IResource *assign_;
