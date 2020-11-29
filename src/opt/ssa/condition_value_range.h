@@ -28,7 +28,7 @@ class ConditionValueRange {
 
  private:
   void BuildForTransition(IState *st, IInsn *insn);
-  void PropagateConditionValue(PerCondition *pc, int n, set<IState *> *sts);
+  void PropagateConditionValue(PerCondition *pc, int nth, set<IState *> *sts);
 
   ITable *table_;
   map<IRegister *, PerCondition *> per_cond_;

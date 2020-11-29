@@ -54,11 +54,35 @@ void ConditionValueRange::BuildForTransition(IState *st, IInsn *insn) {
   for (int i = 0; i < insn->target_states_.size(); ++i) {
     set<IState *> sts;
     PropagateConditionValue(pc, i, &sts);
+    // WIP: sts is a set of IState where value of cond can be i.
   }
 }
 
-void ConditionValueRange::PropagateConditionValue(PerCondition *pc, int n,
-                                                  set<IState *> *sts) {}
+void ConditionValueRange::PropagateConditionValue(PerCondition *pc, int nth,
+                                                  set<IState *> *sts) {
+  set<IState *> seen;
+  set<IState *> frontier;
+  IInsn *initial_tr_insn = DesignUtil::FindTransitionInsn(pc->st);
+  frontier.insert(initial_tr_insn->target_states_[nth]);
+  while (frontier.size() > 0) {
+    IState *st = *(frontier.begin());
+    frontier.erase(st);
+    if (st == pc->st) {
+      continue;
+    }
+    if (seen.find(st) != seen.end()) {
+      continue;
+    }
+    seen.insert(st);
+    IInsn *tr_insn = DesignUtil::FindTransitionInsn(st);
+    if (tr_insn == nullptr) {
+      continue;
+    }
+    for (IState *next_st : tr_insn->target_states_) {
+      frontier.insert(next_st);
+    }
+  }
+}
 
 }  // namespace ssa
 }  // namespace opt
