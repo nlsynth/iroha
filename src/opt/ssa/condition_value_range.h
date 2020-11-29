@@ -16,6 +16,7 @@ struct ConditionResult {
 class PerCondition {
  public:
   IState *st;
+  map<IState *, int> value;
 };
 
 class ConditionValueRange {

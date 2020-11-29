@@ -51,10 +51,20 @@ void ConditionValueRange::BuildForTransition(IState *st, IInsn *insn) {
   PerCondition *pc = new PerCondition();
   pc->st = st;
   per_cond_[cond] = pc;
+  map<IState *, set<int>> values;
   for (int i = 0; i < insn->target_states_.size(); ++i) {
     set<IState *> sts;
     PropagateConditionValue(pc, i, &sts);
-    // WIP: sts is a set of IState where value of cond can be i.
+    for (IState *st : sts) {
+      values[st].insert(i);
+    }
+  }
+  for (auto &p : values) {
+    if (p.second.size() == 1) {
+      int v = *(p.second.begin());
+      IState *s = p.first;
+      pc->value[s] = v;
+    }
   }
 }
 
