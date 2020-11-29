@@ -13,15 +13,25 @@ struct ConditionResult {
   bool order01;
 };
 
+class PerCondition {
+ public:
+  IState *st;
+};
+
 class ConditionValueRange {
  public:
   ConditionValueRange(ITable *table);
+  ~ConditionValueRange();
 
   void Build();
   ConditionResult Query(const vector<IRegister *> &regs);
 
  private:
+  void BuildForTransition(IState *st, IInsn *insn);
+  void PropagateConditionValue(PerCondition *pc, int n, set<IState *> *sts);
+
   ITable *table_;
+  map<IRegister *, PerCondition *> per_cond_;
 };
 
 }  // namespace ssa

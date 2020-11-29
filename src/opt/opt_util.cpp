@@ -7,18 +7,16 @@
 namespace iroha {
 namespace opt {
 
-TransitionInfo::TransitionInfo() : nr_branch_(0), nr_join_(0) {
-}
+TransitionInfo::TransitionInfo() : nr_branch_(0), nr_join_(0) {}
 
 void OptUtil::CollectReachableStates(ITable *tab, set<IState *> *reachable) {
-  CollectReachableStatesWithExclude(tab, tab->GetInitialState(),
-				    nullptr, reachable);
+  CollectReachableStatesWithExclude(tab, tab->GetInitialState(), nullptr,
+                                    reachable);
 }
 
-void OptUtil::CollectReachableStatesWithExclude(ITable *tab,
-						IState *initial,
-						IState *exclude,
-						set<IState *> *reachable) {
+void OptUtil::CollectReachableStatesWithExclude(ITable *tab, IState *initial,
+                                                IState *exclude,
+                                                set<IState *> *reachable) {
   map<IState *, set<IState *> > targets;
   CollectTransitionTargets(tab, &targets);
   set<IState *> frontier;
@@ -32,18 +30,18 @@ void OptUtil::CollectReachableStatesWithExclude(ITable *tab,
     auto nexts = targets[s];
     for (IState *ns : nexts) {
       if (ns == exclude) {
-	// ignore.
-	continue;
+        // ignore.
+        continue;
       }
       if (reachable->find(ns) == reachable->end()) {
-	frontier.insert(ns);
+        frontier.insert(ns);
       }
     }
   }
 }
 
-void OptUtil::CollectTransitionInfo(ITable *tab,
-				    map<IState *, TransitionInfo> *transition_info) {
+void OptUtil::CollectTransitionInfo(
+    ITable *tab, map<IState *, TransitionInfo> *transition_info) {
   IResource *tr = DesignUtil::FindTransitionResource(tab);
   set<IState *> reachables;
   CollectReachableStates(tab, &reachables);
@@ -53,15 +51,15 @@ void OptUtil::CollectTransitionInfo(ITable *tab,
     if (tr_insn) {
       info.nr_branch_ = tr_insn->target_states_.size();
       for (auto target_st : tr_insn->target_states_) {
-	TransitionInfo &target_info = (*transition_info)[target_st];
-	++target_info.nr_join_;
+        TransitionInfo &target_info = (*transition_info)[target_st];
+        ++target_info.nr_join_;
       }
     }
   }
 }
 
 void OptUtil::CollectTransitionTargets(ITable *tab,
-				       map<IState *, set<IState *> > *targets) {
+                                       map<IState *, set<IState *> > *targets) {
   IResource *tr = DesignUtil::FindTransitionResource(tab);
   for (auto st : tab->states_) {
     IInsn *tr_insn = DesignUtil::FindInsnByResource(st, tr);
