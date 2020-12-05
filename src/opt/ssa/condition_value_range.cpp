@@ -13,6 +13,7 @@ ConditionValueRange::ConditionValueRange(ITable *table) : table_(table) {}
 
 ConditionValueRange::~ConditionValueRange() {
   STLDeleteSecondElements(&per_cond_);
+  STLDeleteSecondElements(&per_state_);
 }
 
 void ConditionValueRange::Build() {
@@ -38,6 +39,10 @@ void ConditionValueRange::Build() {
   for (auto &p : branches) {
     BuildForTransition(p.first, p.second);
   }
+  for (auto &pc : per_cond_) {
+    BuildForState(pc.first, pc.second);
+  }
+  BuildRegToAssignState(reachable);
 }
 
 ConditionResult ConditionValueRange::Query(const vector<IRegister *> &regs) {
@@ -90,6 +95,40 @@ void ConditionValueRange::PropagateConditionValue(PerCondition *pc, int nth,
     }
     for (IState *next_st : tr_insn->target_states_) {
       frontier.insert(next_st);
+    }
+  }
+}
+
+void ConditionValueRange::BuildForState(IRegister *cond, PerCondition *pc) {
+  for (auto &sv : pc->value) {
+    PerState *ps = GetPerState(sv.first);
+    ps->regs.insert(cond);
+  }
+}
+
+PerState *ConditionValueRange::GetPerState(IState *st) {
+  auto it = per_state_.find(st);
+  if (it != per_state_.end()) {
+    return it->second;
+  }
+  PerState *ps = new PerState();
+  per_state_[st] = ps;
+  return ps;
+}
+
+void ConditionValueRange::BuildRegToAssignState(set<IState *> reachable) {
+  map<IRegister *, set<IState *>> raw;
+  for (IState *st : reachable) {
+    for (IInsn *insn : st->insns_) {
+      for (IRegister *oreg : insn->outputs_) {
+        raw[oreg].insert(st);
+      }
+    }
+  }
+  for (auto &p : raw) {
+    auto &s = p.second;
+    if (s.size() == 1) {
+      reg_to_assign_state_[p.first] = *(s.begin());
     }
   }
 }
