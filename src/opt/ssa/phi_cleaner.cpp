@@ -21,7 +21,7 @@ void PhiCleaner::Perform() {
   assign_ = DesignTool::GetOneResource(table_, resource::kSet);
   bset_.reset(BBSet::Create(table_, false, opt_log_));
   data_flow_.reset(DataFlow::Create(bset_.get(), opt_log_));
-  cv_range_.reset(new ConditionValueRange(table_));
+  cv_range_.reset(new ConditionValueRange(table_, opt_log_));
   cv_range_->Build();
 
   for (RegDef *reg_def : data_flow_->all_defs_) {

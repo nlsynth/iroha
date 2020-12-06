@@ -4,12 +4,14 @@
 #include "iroha/i_design.h"
 #include "iroha/stl_util.h"
 #include "opt/opt_util.h"
+#include "opt/optimizer_log.h"
 
 namespace iroha {
 namespace opt {
 namespace ssa {
 
-ConditionValueRange::ConditionValueRange(ITable *table) : table_(table) {}
+ConditionValueRange::ConditionValueRange(ITable *table, OptimizerLog *opt_log)
+    : table_(table), opt_log_(opt_log) {}
 
 ConditionValueRange::~ConditionValueRange() {
   STLDeleteSecondElements(&per_cond_);
@@ -43,6 +45,7 @@ void ConditionValueRange::Build() {
     BuildForState(pc.first, pc.second);
   }
   BuildRegToAssignState(reachable);
+  DumpToLog();
 }
 
 ConditionResult ConditionValueRange::Query(const vector<IRegister *> &regs) {
@@ -102,7 +105,7 @@ void ConditionValueRange::PropagateConditionValue(PerCondition *pc, int nth,
 void ConditionValueRange::BuildForState(IRegister *cond, PerCondition *pc) {
   for (auto &sv : pc->value) {
     PerState *ps = GetPerState(sv.first);
-    ps->regs.insert(cond);
+    ps->cond_regs.insert(cond);
   }
 }
 
@@ -130,6 +133,21 @@ void ConditionValueRange::BuildRegToAssignState(set<IState *> reachable) {
     if (s.size() == 1) {
       reg_to_assign_state_[p.first] = *(s.begin());
     }
+  }
+}
+
+void ConditionValueRange::DumpToLog() {
+  for (auto &p : per_state_) {
+    PerState *ps = p.second;
+    if (ps->cond_regs.size() == 0) {
+      continue;
+    }
+    ostream &os = opt_log_->State(p.first);
+    os << "[";
+    for (IRegister *reg : ps->cond_regs) {
+      os << "r" << reg->GetId() << " ";
+    }
+    os << "]";
   }
 }
 

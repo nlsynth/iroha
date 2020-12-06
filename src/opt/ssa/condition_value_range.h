@@ -25,12 +25,12 @@ class PerCondition {
 class PerState {
  public:
   // condition regs which have only 1 possible value at this state.
-  set<IRegister *> regs;
+  set<IRegister *> cond_regs;
 };
 
 class ConditionValueRange {
  public:
-  ConditionValueRange(ITable *table);
+  ConditionValueRange(ITable *table, OptimizerLog *opt_log);
   ~ConditionValueRange();
 
   void Build();
@@ -42,8 +42,10 @@ class ConditionValueRange {
   void BuildForState(IRegister *cond, PerCondition *pc);
   void BuildRegToAssignState(set<IState *> reachable);
   PerState *GetPerState(IState *st);
+  void DumpToLog();
 
   ITable *table_;
+  OptimizerLog *opt_log_;
   map<IRegister *, PerCondition *> per_cond_;
   map<IState *, PerState *> per_state_;
   map<IRegister *, IState *> reg_to_assign_state_;
