@@ -96,6 +96,7 @@ void ConditionValueRange::PropagateConditionValue(PerCondition *pc, int nth,
     if (tr_insn == nullptr) {
       continue;
     }
+    sts->insert(st);
     for (IState *next_st : tr_insn->target_states_) {
       frontier.insert(next_st);
     }
@@ -142,10 +143,13 @@ void ConditionValueRange::DumpToLog() {
     if (ps->cond_regs.size() == 0) {
       continue;
     }
+    IState *st = p.first;
     ostream &os = opt_log_->State(p.first);
     os << "[";
     for (IRegister *reg : ps->cond_regs) {
-      os << "r" << reg->GetId() << " ";
+      PerCondition *pc = per_cond_[reg];
+      int value = pc->value[st];
+      os << "r" << reg->GetId() << ":" << value << " ";
     }
     os << "]";
   }
