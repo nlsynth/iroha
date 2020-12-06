@@ -51,6 +51,31 @@ void ConditionValueRange::Build() {
 ConditionResult ConditionValueRange::Query(const vector<IRegister *> &regs) {
   ConditionResult res;
   res.cond_reg = nullptr;
+  if (regs.size() != 2) {
+    return res;
+  }
+  set<IRegister *> c0;
+  GetCandidateConditions(regs[0], &c0);
+  set<IRegister *> c1;
+  GetCandidateConditions(regs[1], &c1);
+  for (IRegister *cond_reg : table_->registers_) {
+    if (c0.find(cond_reg) == c0.end()) {
+      continue;
+    }
+    if (c1.find(cond_reg) == c1.end()) {
+      continue;
+    }
+    if (CheckConditionValue(cond_reg, regs[0], 0) &&
+        CheckConditionValue(cond_reg, regs[1], 1)) {
+      res.cond_reg = cond_reg;
+      res.order01 = true;
+    }
+    if (CheckConditionValue(cond_reg, regs[0], 1) &&
+        CheckConditionValue(cond_reg, regs[1], 0)) {
+      res.cond_reg = cond_reg;
+      res.order01 = false;
+    }
+  }
   return res;
 }
 
@@ -135,6 +160,14 @@ void ConditionValueRange::BuildRegToAssignState(set<IState *> reachable) {
       reg_to_assign_state_[p.first] = *(s.begin());
     }
   }
+}
+
+void ConditionValueRange::GetCandidateConditions(IRegister *reg,
+                                                 set<IRegister *> *cond_regs) {}
+
+bool ConditionValueRange::CheckConditionValue(IRegister *cond_reg,
+                                              IRegister *reg, int value) {
+  return false;
 }
 
 void ConditionValueRange::DumpToLog() {

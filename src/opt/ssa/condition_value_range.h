@@ -42,6 +42,8 @@ class ConditionValueRange {
   void BuildForState(IRegister *cond, PerCondition *pc);
   void BuildRegToAssignState(set<IState *> reachable);
   PerState *GetPerState(IState *st);
+  void GetCandidateConditions(IRegister *reg, set<IRegister *> *cond_regs);
+  bool CheckConditionValue(IRegister *cond_reg, IRegister *reg, int value);
   void DumpToLog();
 
   ITable *table_;
