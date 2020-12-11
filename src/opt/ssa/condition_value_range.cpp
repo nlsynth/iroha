@@ -133,15 +133,18 @@ void ConditionValueRange::PropagateConditionValue(PerCondition *pc, int nth,
 
 void ConditionValueRange::BuildForState(IRegister *cond, PerCondition *pc) {
   for (auto &sv : pc->value) {
-    PerState *ps = GetPerState(sv.first);
+    PerState *ps = GetPerState(sv.first, true);
     ps->cond_regs.insert(cond);
   }
 }
 
-PerState *ConditionValueRange::GetPerState(IState *st) {
+PerState *ConditionValueRange::GetPerState(IState *st, bool cr) {
   auto it = per_state_.find(st);
   if (it != per_state_.end()) {
     return it->second;
+  }
+  if (!cr) {
+    return nullptr;
   }
   PerState *ps = new PerState();
   per_state_[st] = ps;
@@ -168,7 +171,7 @@ void ConditionValueRange::BuildRegToAssignState(set<IState *> reachable) {
 void ConditionValueRange::GetCandidateConditions(IRegister *reg,
                                                  set<IRegister *> *cond_regs) {
   IState *st = reg_to_assign_state_[reg];
-  PerState *ps = per_state_[st];
+  PerState *ps = GetPerState(st, false);
   if (ps == nullptr) {
     // This state is a branch state.
     IInsn *tr_insn = DesignUtil::FindTransitionInsn(st);
@@ -183,7 +186,7 @@ void ConditionValueRange::GetCandidateConditions(IRegister *reg,
 bool ConditionValueRange::CheckConditionValue(IRegister *cond_reg,
                                               IRegister *reg, int value) {
   IState *st = reg_to_assign_state_[reg];
-  PerState *ps = per_state_[st];
+  PerState *ps = GetPerState(st, false);
   if (ps == nullptr) {
     return true;
   }
