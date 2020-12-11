@@ -163,7 +163,19 @@ void ConditionValueRange::BuildRegToAssignState(set<IState *> reachable) {
 }
 
 void ConditionValueRange::GetCandidateConditions(IRegister *reg,
-                                                 set<IRegister *> *cond_regs) {}
+                                                 set<IRegister *> *cond_regs) {
+  IState *st = reg_to_assign_state_[reg];
+  PerState *ps = per_state_[st];
+  if (ps == nullptr) {
+    // This state is a branch state.
+    IInsn *tr_insn = DesignUtil::FindTransitionInsn(st);
+    cond_regs->insert(tr_insn->inputs_[0]);
+    return;
+  }
+  for (IRegister *cr : ps->cond_regs) {
+    cond_regs->insert(cr);
+  }
+}
 
 bool ConditionValueRange::CheckConditionValue(IRegister *cond_reg,
                                               IRegister *reg, int value) {
