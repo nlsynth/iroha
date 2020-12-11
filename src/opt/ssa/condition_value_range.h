@@ -16,7 +16,7 @@ struct ConditionResult {
 
 class PerCondition {
  public:
-  IState *st;
+  IState *branch_st;
   // Mapping from a state to the value of condition reg.
   // (in case if only 1 value is determined).
   map<IState *, int> value;
@@ -37,7 +37,7 @@ class ConditionValueRange {
   ConditionResult Query(const vector<IRegister *> &regs);
 
  private:
-  void BuildForTransition(IState *st, IInsn *insn);
+  void BuildForBranch(IState *st, IInsn *insn);
   void PropagateConditionValue(PerCondition *pc, int nth, set<IState *> *sts);
   void BuildForState(IRegister *cond, PerCondition *pc);
   void BuildRegToAssignState(set<IState *> reachable);

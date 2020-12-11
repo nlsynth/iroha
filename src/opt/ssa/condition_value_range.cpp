@@ -39,7 +39,7 @@ void ConditionValueRange::Build() {
     return;
   }
   for (auto &p : branches) {
-    BuildForTransition(p.first, p.second);
+    BuildForBranch(p.first, p.second);
   }
   for (auto &pc : per_cond_) {
     BuildForState(pc.first, pc.second);
@@ -76,13 +76,16 @@ ConditionResult ConditionValueRange::Query(const vector<IRegister *> &regs) {
       res.order01 = false;
     }
   }
+  if (res.cond_reg != nullptr && res.cond_reg->IsStateLocal()) {
+    res.cond_reg = nullptr;
+  }
   return res;
 }
 
-void ConditionValueRange::BuildForTransition(IState *st, IInsn *insn) {
+void ConditionValueRange::BuildForBranch(IState *st, IInsn *insn) {
   IRegister *cond = insn->inputs_[0];
   PerCondition *pc = new PerCondition();
-  pc->st = st;
+  pc->branch_st = st;
   per_cond_[cond] = pc;
   map<IState *, set<int>> values;
   for (int i = 0; i < insn->target_states_.size(); ++i) {
@@ -105,12 +108,12 @@ void ConditionValueRange::PropagateConditionValue(PerCondition *pc, int nth,
                                                   set<IState *> *sts) {
   set<IState *> seen;
   set<IState *> frontier;
-  IInsn *initial_tr_insn = DesignUtil::FindTransitionInsn(pc->st);
+  IInsn *initial_tr_insn = DesignUtil::FindTransitionInsn(pc->branch_st);
   frontier.insert(initial_tr_insn->target_states_[nth]);
   while (frontier.size() > 0) {
     IState *st = *(frontier.begin());
     frontier.erase(st);
-    if (st == pc->st) {
+    if (st == pc->branch_st) {
       continue;
     }
     if (seen.find(st) != seen.end()) {
@@ -179,6 +182,18 @@ void ConditionValueRange::GetCandidateConditions(IRegister *reg,
 
 bool ConditionValueRange::CheckConditionValue(IRegister *cond_reg,
                                               IRegister *reg, int value) {
+  IState *st = reg_to_assign_state_[reg];
+  PerState *ps = per_state_[st];
+  if (ps == nullptr) {
+    return true;
+  }
+  PerCondition *pc = per_cond_[cond_reg];
+  auto it = pc->value.find(st);
+  if (it != pc->value.end()) {
+    if (it->second == value) {
+      return true;
+    }
+  }
   return false;
 }
 
