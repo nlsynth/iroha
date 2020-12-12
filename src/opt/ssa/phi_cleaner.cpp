@@ -87,7 +87,6 @@ void PhiCleaner::EmitSelector(map<IRegister *, RegDef *> *last_defs,
   IRegister *cond_reg = GetConditionReg(last_defs, phi_insn, &order01);
   // Emit a selector.
   IInsn *sel_insn = new IInsn(sel_);
-  sel_insn->inputs_.push_back(cond_reg);
   for (IRegister *reg : phi_insn->inputs_) {
     if (order01) {
       sel_insn->inputs_.push_back(reg);
@@ -95,6 +94,7 @@ void PhiCleaner::EmitSelector(map<IRegister *, RegDef *> *last_defs,
       sel_insn->inputs_.insert(sel_insn->inputs_.begin(), reg);
     }
   }
+  sel_insn->inputs_.insert(sel_insn->inputs_.begin(), cond_reg);
   IRegister *output_reg = *(phi_insn->outputs_.begin());
   sel_insn->outputs_.push_back(output_reg);
   phi_st->insns_.push_back(sel_insn);

@@ -45,6 +45,7 @@ class ConditionValueRange {
   void GetCandidateConditions(IRegister *reg, set<IRegister *> *cond_regs);
   bool CheckConditionValue(IRegister *cond_reg, IRegister *reg, int value);
   void DumpToLog();
+  IRegister *DeLocalizeRegister(IRegister *reg);
 
   ITable *table_;
   OptimizerLog *opt_log_;

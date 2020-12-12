@@ -77,9 +77,28 @@ ConditionResult ConditionValueRange::Query(const vector<IRegister *> &regs) {
     }
   }
   if (res.cond_reg != nullptr && res.cond_reg->IsStateLocal()) {
-    res.cond_reg = nullptr;
+    res.cond_reg = DeLocalizeRegister(res.cond_reg);
   }
   return res;
+}
+
+IRegister *ConditionValueRange::DeLocalizeRegister(IRegister *reg) {
+  if (!reg->IsStateLocal()) {
+    return reg;
+  }
+  IState *st = reg_to_assign_state_[reg];
+  IResource *assign = DesignUtil::FindAssignResource(table_);
+  // Finds already existing non state local.
+  for (IInsn *insn : st->insns_) {
+    if (insn->GetResource() == assign && insn->inputs_[0] == reg) {
+      IRegister *r = insn->outputs_[0];
+      if (r->IsNormal()) {
+        return r;
+      }
+    }
+  }
+  // NOTE: Not allocating a new register for now.
+  return nullptr;
 }
 
 void ConditionValueRange::BuildForBranch(IState *st, IInsn *insn) {
