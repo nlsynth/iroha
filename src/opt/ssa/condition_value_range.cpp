@@ -187,12 +187,10 @@ void ConditionValueRange::GetCandidateConditions(IRegister *reg,
 bool ConditionValueRange::CheckConditionValue(IRegister *cond_reg,
                                               IRegister *reg, int value) {
   IState *st = reg_to_assign_state_[reg];
-  PerState *ps = GetPerState(st, false);
-  if (ps == nullptr) {
-    // This state doesn't have a value.
+  PerCondition *pc = per_cond_[cond_reg];
+  if (pc->branch_st == st) {
     return true;
   }
-  PerCondition *pc = per_cond_[cond_reg];
   auto it = pc->state_to_value.find(st);
   if (it != pc->state_to_value.end()) {
     if (it->second == value) {
