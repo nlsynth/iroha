@@ -42,7 +42,7 @@ void ConditionValueRange::Build() {
     BuildForBranch(p.first, p.second);
   }
   for (auto &pc : per_cond_) {
-    BuildForState(pc.first, pc.second);
+    BuildForStateWithValue(pc.first, pc.second);
   }
   BuildRegToAssignState(reachable);
   DumpToLog();
@@ -99,7 +99,7 @@ void ConditionValueRange::BuildForBranch(IState *st, IInsn *insn) {
     if (p.second.size() == 1) {
       int v = *(p.second.begin());
       IState *s = p.first;
-      pc->value[s] = v;
+      pc->state_to_value[s] = v;
     }
   }
 }
@@ -131,8 +131,9 @@ void ConditionValueRange::PropagateConditionValue(PerCondition *pc, int nth,
   }
 }
 
-void ConditionValueRange::BuildForState(IRegister *cond, PerCondition *pc) {
-  for (auto &sv : pc->value) {
+void ConditionValueRange::BuildForStateWithValue(IRegister *cond,
+                                                 PerCondition *pc) {
+  for (auto &sv : pc->state_to_value) {
     PerState *ps = GetPerState(sv.first, true);
     ps->cond_regs.insert(cond);
   }
@@ -188,11 +189,12 @@ bool ConditionValueRange::CheckConditionValue(IRegister *cond_reg,
   IState *st = reg_to_assign_state_[reg];
   PerState *ps = GetPerState(st, false);
   if (ps == nullptr) {
+    // This state doesn't have a value.
     return true;
   }
   PerCondition *pc = per_cond_[cond_reg];
-  auto it = pc->value.find(st);
-  if (it != pc->value.end()) {
+  auto it = pc->state_to_value.find(st);
+  if (it != pc->state_to_value.end()) {
     if (it->second == value) {
       return true;
     }
@@ -211,7 +213,7 @@ void ConditionValueRange::DumpToLog() {
     os << "[";
     for (IRegister *reg : ps->cond_regs) {
       PerCondition *pc = per_cond_[reg];
-      int value = pc->value[st];
+      int value = pc->state_to_value[st];
       os << "r" << reg->GetId() << ":" << value << " ";
     }
     os << "]";
