@@ -28,6 +28,17 @@ class PerState {
   set<IRegister *> cond_regs;
 };
 
+struct CheckResult {
+  bool ok;
+  // s0 | next(s1, s2) | reg <= v0 - This assign is on_branch
+  // s1 | next(s2)     | reg <= v1 - This assign is not on_branch
+  // s2 | ...
+  bool on_branch;
+};
+
+// ConditionValueRange tries to find a condition register c where PHI(r0, r1)
+// can be rewritten to c0 ? r1 : r0 (or c0 ? r0 : r1).
+// This can fail if there are loops and joins.
 class ConditionValueRange {
  public:
   ConditionValueRange(ITable *table, OptimizerLog *opt_log);
@@ -43,7 +54,8 @@ class ConditionValueRange {
   void BuildRegToAssignState(set<IState *> reachable);
   PerState *GetPerState(IState *st, bool cr);
   void GetCandidateConditions(IRegister *reg, set<IRegister *> *cond_regs);
-  bool CheckConditionValue(IRegister *cond_reg, IRegister *reg, int value);
+  CheckResult CheckConditionValue(IRegister *cond_reg, IRegister *reg,
+                                  int value);
   void DumpToLog();
   IRegister *DeLocalizeRegister(IRegister *reg);
 

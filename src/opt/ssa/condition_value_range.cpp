@@ -65,13 +65,15 @@ ConditionResult ConditionValueRange::Query(const vector<IRegister *> &regs) {
     if (c1.find(cond_reg) == c1.end()) {
       continue;
     }
-    if (CheckConditionValue(cond_reg, regs[0], 0) &&
-        CheckConditionValue(cond_reg, regs[1], 1)) {
+    CheckResult cr00 = CheckConditionValue(cond_reg, regs[0], 0);
+    CheckResult cr11 = CheckConditionValue(cond_reg, regs[1], 1);
+    if (cr00.ok && cr11.ok && (!cr00.on_branch || !cr11.on_branch)) {
       res.cond_reg = cond_reg;
       res.order01 = true;
     }
-    if (CheckConditionValue(cond_reg, regs[0], 1) &&
-        CheckConditionValue(cond_reg, regs[1], 0)) {
+    CheckResult cr01 = CheckConditionValue(cond_reg, regs[0], 1);
+    CheckResult cr10 = CheckConditionValue(cond_reg, regs[1], 0);
+    if (cr01.ok && cr10.ok && (!cr01.on_branch || !cr10.on_branch)) {
       res.cond_reg = cond_reg;
       res.order01 = false;
     }
@@ -203,20 +205,26 @@ void ConditionValueRange::GetCandidateConditions(IRegister *reg,
   }
 }
 
-bool ConditionValueRange::CheckConditionValue(IRegister *cond_reg,
-                                              IRegister *reg, int value) {
+CheckResult ConditionValueRange::CheckConditionValue(IRegister *cond_reg,
+                                                     IRegister *reg,
+                                                     int value) {
+  CheckResult res;
   IState *st = reg_to_assign_state_[reg];
   PerCondition *pc = per_cond_[cond_reg];
   if (pc->branch_st == st) {
-    return true;
+    res.ok = true;
+    res.on_branch = true;
+    return res;
   }
+  res.ok = false;
+  res.on_branch = false;
   auto it = pc->state_to_value.find(st);
   if (it != pc->state_to_value.end()) {
     if (it->second == value) {
-      return true;
+      res.ok = true;
     }
   }
-  return false;
+  return res;
 }
 
 void ConditionValueRange::DumpToLog() {
