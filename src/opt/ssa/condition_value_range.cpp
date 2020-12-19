@@ -197,7 +197,9 @@ void ConditionValueRange::GetCandidateConditions(IRegister *reg,
   if (ps == nullptr) {
     // This state is a branch state.
     IInsn *tr_insn = DesignUtil::FindTransitionInsn(st);
-    cond_regs->insert(tr_insn->inputs_[0]);
+    if (tr_insn->inputs_.size() > 0) {
+      cond_regs->insert(tr_insn->inputs_[0]);
+    }
     return;
   }
   for (IRegister *cr : ps->cond_regs) {
