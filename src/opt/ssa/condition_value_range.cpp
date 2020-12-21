@@ -109,7 +109,8 @@ void ConditionValueRange::BuildForBranch(IState *st, IInsn *insn) {
   pc->branch_st = st;
   per_cond_[cond] = pc;
   map<IState *, set<int>> values;
-  for (int i = 0; i < insn->target_states_.size(); ++i) {
+  // i == -1 for initial value from initial state.
+  for (int i = -1; i < insn->target_states_.size(); ++i) {
     set<IState *> sts;
     PropagateConditionValue(pc, i, &sts);
     for (IState *st : sts) {
@@ -130,7 +131,12 @@ void ConditionValueRange::PropagateConditionValue(PerCondition *pc, int nth,
   set<IState *> seen;
   set<IState *> frontier;
   IInsn *initial_tr_insn = DesignUtil::FindTransitionInsn(pc->branch_st);
-  frontier.insert(initial_tr_insn->target_states_[nth]);
+  if (nth < 0) {
+    // nth == -1 for initial value from initial state.
+    frontier.insert(table_->GetInitialState());
+  } else {
+    frontier.insert(initial_tr_insn->target_states_[nth]);
+  }
   while (frontier.size() > 0) {
     IState *st = *(frontier.begin());
     frontier.erase(st);
