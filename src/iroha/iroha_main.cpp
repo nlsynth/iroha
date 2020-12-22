@@ -160,6 +160,18 @@ int main(int argc, char **argv) {
     files.push_back(arg);
   }
 
+  if (!(html || verilog || dot)) {
+    if (Util::EndsWith(output, ".html")) {
+      html = true;
+    }
+    if (Util::EndsWith(output, ".v")) {
+      verilog = true;
+    }
+    if (Util::EndsWith(output, ".dot")) {
+      dot = true;
+    }
+  }
+
   Iroha::Init();
 
   if (files.empty() || showVersion) {

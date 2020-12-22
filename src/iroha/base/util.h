@@ -10,7 +10,7 @@ using namespace std;
 namespace iroha {
 
 class Util {
-public:
+ public:
   static string Itoa(int i);
   static int Atoi(const string &a);
   static uint64_t AtoULL(const string &a);
@@ -19,11 +19,12 @@ public:
   static bool IsInteger(const string &a);
   static void SetImportPaths(const vector<string> &paths);
   static void SplitStringUsing(const string &str, const char *delim,
-			       vector<string> *output);
+                               vector<string> *output);
   static string ToLower(const string &s);
   static string Join(const vector<string> &v, const string &sep);
   static istream *OpenFile(const string &s);
   static string BaseName(const string &fn);
+  static bool EndsWith(const string &s, const string &suffix);
 
   static vector<string> import_paths_;
 };

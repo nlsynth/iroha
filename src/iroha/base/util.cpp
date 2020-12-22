@@ -1,7 +1,8 @@
 #include "iroha/base/util.h"
 
-#include <algorithm>
 #include <string.h>
+
+#include <algorithm>
 #include <fstream>
 #include <sstream>
 
@@ -46,23 +47,21 @@ int Util::Log2(uint64_t u) {
   return r;
 }
 
-bool Util::IsInteger(const string &a) {
-  return Atoi(a) != 0 || a == "0";
-}
+bool Util::IsInteger(const string &a) { return Atoi(a) != 0 || a == "0"; }
 
 void Util::SetImportPaths(const vector<string> &paths) {
   import_paths_ = paths;
 }
 
 void Util::SplitStringUsing(const string &str, const char *delim,
-			    vector<string> *output) {
+                            vector<string> *output) {
   int cur = 0;
   while (cur < str.size()) {
     int len = 0;
     while (cur + len < str.size()) {
       char c = str.c_str()[cur + len];
       if (strchr(delim, c) != nullptr) {
-	break;
+        break;
       }
       ++len;
     }
@@ -117,6 +116,17 @@ string Util::BaseName(const string &fn) {
   }
   ++p;
   return string(p);
+}
+
+bool Util::EndsWith(const string &s, const string &suffix) {
+  if (s.length() < suffix.length()) {
+    return false;
+  }
+  auto pos = s.find(suffix);
+  if (pos == string::npos) {
+    return false;
+  }
+  return pos + suffix.length() == s.length();
 }
 
 }  // namespace iroha
