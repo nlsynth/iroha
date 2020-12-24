@@ -125,7 +125,8 @@ class IRegister {
   bool IsStateLocal() const;
   // For convenience (!IsStateLocal() && !IsConst()).
   bool IsNormal() const;
-  ResourceParams *GetParams(bool cr);
+  ResourceParams *GetMutableParams(bool cr);
+  ResourceParams *GetParams() const;
 
   IValueType value_type_;
 

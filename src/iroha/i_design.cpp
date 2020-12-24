@@ -156,12 +156,14 @@ bool IRegister::IsStateLocal() const { return state_local_; }
 
 bool IRegister::IsNormal() const { return !state_local_ && !is_const_; }
 
-ResourceParams *IRegister::GetParams(bool cr) {
+ResourceParams *IRegister::GetMutableParams(bool cr) {
   if (params_.get() == nullptr && cr) {
     params_.reset(new ResourceParams);
   }
   return params_.get();
 }
+
+ResourceParams *IRegister::GetParams() const { return params_.get(); }
 
 IInsn::IInsn(IResource *resource) : resource_(resource), id_(-1) {
   IDesign *design = resource_->GetTable()->GetModule()->GetDesign();

@@ -18,7 +18,7 @@ bool UnrollPass::ApplyForTable(const string &key, ITable *table) {
   int n = 0;
   vector<IRegister *> loop_regs;
   for (IRegister *reg : table->registers_) {
-    auto *params = reg->GetParams(false);
+    auto *params = reg->GetMutableParams(false);
     if (params == nullptr) {
       continue;
     }
@@ -35,7 +35,7 @@ bool UnrollPass::ApplyForTable(const string &key, ITable *table) {
       continue;
     }
     ++n;
-    auto *params = reg->GetParams(false);
+    auto *params = reg->GetMutableParams(false);
     int unroll_count = params->GetLoopUnroll();
     Unroller unroller(table, &lb, unroll_count);
     unroller.Unroll();

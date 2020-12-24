@@ -11,8 +11,7 @@ namespace iroha {
 namespace writer {
 
 ExpWriter::ExpWriter(const IDesign *design, ostream &os)
-  : design_(design), os_(os) {
-}
+    : design_(design), os_(os) {}
 
 void ExpWriter::Write() {
   WriteHeader();
@@ -34,7 +33,8 @@ void ExpWriter::WriteHeader() {
       << "; \n"
       << "; (REGISTER id name storage-type (type width) initial)\n"
       << "; (RESOURCE id class (input-types) (output-types) (params) (array))\n"
-      << "; (INSN id res res-id (opr) (target-st) (inputs) (outputs) (deps) (conditions))\n\n";
+      << "; (INSN id res res-id (opr) (target-st) (inputs) (outputs) (deps) "
+         "(conditions))\n\n";
 }
 
 void ExpWriter::WriteModule(const IModule &mod) {
@@ -78,8 +78,8 @@ void ExpWriter::WriteResources(const ITable &tab) {
 
 void ExpWriter::WriteResource(const IResource &res) {
   const IResourceClass &rc = *(res.GetClass());
-  os_ << "      (RESOURCE " << res.GetId()
-      << " " << res.GetClass()->GetName() << "\n";
+  os_ << "      (RESOURCE " << res.GetId() << " " << res.GetClass()->GetName()
+      << "\n";
   os_ << "        ";
   WriteResourceTypes(res.input_types_);
   os_ << " ";
@@ -126,8 +126,8 @@ void ExpWriter::WriteCalleeTaskDesc(const IResource &res) {
   const ITable *table = res.GetCalleeTable();
   CHECK(table) << "callee table isn't specified";
   const IModule *mod = table->GetModule();
-  os_ << "        (CALLEE-TABLE " << mod->GetId() << " "
-      << table->GetId() << ")\n";
+  os_ << "        (CALLEE-TABLE " << mod->GetId() << " " << table->GetId()
+      << ")\n";
 }
 
 void ExpWriter::WriteParentResourceDesc(const IResource &res) {
@@ -135,8 +135,8 @@ void ExpWriter::WriteParentResourceDesc(const IResource &res) {
   CHECK(source) << "Missing PARENT-RESOURCE";
   const ITable *table = source->GetTable();
   const IModule *mod = table->GetModule();
-  os_ << "        (PARENT-RESOURCE " <<  mod->GetId() << " "
-      << table->GetId() << " " << source->GetId() << ")\n";
+  os_ << "        (PARENT-RESOURCE " << mod->GetId() << " " << table->GetId()
+      << " " << source->GetId() << ")\n";
 }
 
 void ExpWriter::WriteInitialState(const ITable &tab) {
@@ -174,7 +174,7 @@ void ExpWriter::WriteRegisters(const ITable &tab) {
       os_ << "()";
     }
     os_ << "\n";
-    auto *params = reg->GetParams(false);
+    auto *params = reg->GetMutableParams(false);
     if (params != nullptr) {
       WriteResourceParams(*params, "        ");
     }
@@ -193,14 +193,13 @@ void ExpWriter::WriteValueType(const IValueType &type) {
   os_ << " " << type.GetWidth() << ")";
 }
 
-void ExpWriter::WriteValue(const Numeric &value) {
-  os_ << value.GetValue0();
-}
+void ExpWriter::WriteValue(const Numeric &value) { os_ << value.GetValue0(); }
 
 void ExpWriter::WriteState(const IState &st) {
   os_ << "    (STATE " << st.GetId() << "\n";
   const IProfile &profile = st.GetProfile();
-  if (profile.valid_ && (profile.raw_count_ > 0 || profile.normalized_count_ > 0)) {
+  if (profile.valid_ &&
+      (profile.raw_count_ > 0 || profile.normalized_count_ > 0)) {
     WriteProfile(profile);
   }
   for (auto *insn : st.insns_) {
@@ -272,7 +271,7 @@ void ExpWriter::WriteResourceTypes(const vector<IValueType> &types) {
 }
 
 void ExpWriter::WriteResourceParams(const ResourceParams &params,
-				    const char *indent) {
+                                    const char *indent) {
   os_ << indent << "(PARAMS";
   vector<string> keys = params.GetParamKeys();
   if (!keys.empty()) {
@@ -318,8 +317,8 @@ void ExpWriter::WriteArrayImage(const IArrayImage &im) {
 void ExpWriter::WriteResourceDesc(const IResource &res) {
   ITable *tab = res.GetTable();
   IModule *mod = tab->GetModule();
-  os_ << "(" << mod->GetId() << " " << tab->GetId() << " "
-      << res.GetId() << ")";
+  os_ << "(" << mod->GetId() << " " << tab->GetId() << " " << res.GetId()
+      << ")";
 }
 
 void ExpWriter::WriteStr(const string &str) {
@@ -385,7 +384,7 @@ void ExpWriter::WriteNodeDef(const platform::DefNode &node) {
     bool is_first = true;
     for (platform::DefNode *child : node.nodes_) {
       if (!is_first) {
-	os_ << " ";
+        os_ << " ";
       }
       is_first = false;
       WriteNodeDef(*child);

@@ -24,7 +24,7 @@ bool PipelinePass::ApplyForTable(const string &key, ITable *table) {
   int n = 0;
   vector<IRegister *> loop_regs;
   for (IRegister *reg : table->registers_) {
-    auto *params = reg->GetParams(false);
+    auto *params = reg->GetMutableParams(false);
     if (params == nullptr) {
       continue;
     }

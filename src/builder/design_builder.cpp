@@ -1,8 +1,8 @@
 #include "builder/design_builder.h"
 
-#include "builder/reader.h"
 #include "builder/fsm_builder.h"
 #include "builder/platform_builder.h"
+#include "builder/reader.h"
 #include "builder/tree_builder.h"
 #include "iroha/i_design.h"
 #include "iroha/logging.h"
@@ -26,11 +26,9 @@ IDesign *DesignBuilder::ReadDesign(const string &fn, bool search) {
   return nullptr;
 }
 
-DesignBuilder::DesignBuilder() : has_error_(false) {
-}
+DesignBuilder::DesignBuilder() : has_error_(false) {}
 
-DesignBuilder::~DesignBuilder() {
-}
+DesignBuilder::~DesignBuilder() {}
 
 IDesign *DesignBuilder::Build(vector<Exp *> &exps) {
   IDesign *design = new IDesign;
@@ -44,9 +42,9 @@ IDesign *DesignBuilder::Build(vector<Exp *> &exps) {
     if (element_name == "MODULE") {
       IModule *module = BuildModule(root, design);
       if (module) {
-	design->modules_.push_back(module);
+        design->modules_.push_back(module);
       } else {
-	SetError();
+        SetError();
       }
     } else if (element_name == "PARAMS") {
       BuildResourceParams(root, design->GetParams());
@@ -56,8 +54,7 @@ IDesign *DesignBuilder::Build(vector<Exp *> &exps) {
       PlatformBuilder builder(*this);
       builder.BuildPlatform(root, design);
     } else {
-      SetError() << "Unsupported toplevel expression: "
-		 << element_name;
+      SetError() << "Unsupported toplevel expression: " << element_name;
     }
   }
   if (!HasError()) {
@@ -99,17 +96,17 @@ IModule *DesignBuilder::BuildModule(Exp *e, IDesign *design) {
     if (element_name == "TABLE") {
       ITable *table = BuildTable(element, module);
       if (table) {
-	module->tables_.push_back(table);
+        module->tables_.push_back(table);
       } else {
-	SetError() << "Failed to build a table";
+        SetError() << "Failed to build a table";
       }
     } else if (element_name == "PARAMS") {
       BuildResourceParams(element, module->GetParams());
     } else if (element_name == "PARENT") {
       if (element->Size() != 2) {
-	SetError();
+        SetError();
       } else {
-	tree_builder_->AddParentModule(Util::Atoi(element->Str(1)), module);
+        tree_builder_->AddParentModule(Util::Atoi(element->Str(1)), module);
       }
     } else {
       SetError() << "Unknown element in MODULE: " << element_name;
@@ -216,11 +213,11 @@ IRegister *DesignBuilder::BuildRegister(Exp *e, ITable *table) {
     value.SetValue0(Util::AtoULL(ini));
     value.type_ = reg->value_type_;
     Numeric::DefaultManager()->MayPopulateStorage(value.type_,
-						  value.GetMutableArray());
+                                                  value.GetMutableArray());
     reg->SetInitialValue(value);
   }
   if (e->Size() >= 7) {
-    BuildResourceParams(e->vec[6], reg->GetParams(true));
+    BuildResourceParams(e->vec[6], reg->GetMutableParams(true));
   }
   return reg;
 }
@@ -233,8 +230,7 @@ void DesignBuilder::BuildResources(Exp *e, ITable *table) {
       return;
     }
     IResource *res = BuildResource(element, table);
-    if (res != nullptr &&
-	!resource::IsTransition(*res->GetClass())) {
+    if (res != nullptr && !resource::IsTransition(*res->GetClass())) {
       table->resources_.push_back(res);
     }
   }
@@ -287,24 +283,22 @@ IResource *DesignBuilder::BuildResource(Exp *e, ITable *table) {
       BuildArray(element, res);
     } else if (element_name == "CALLEE-TABLE") {
       if (element->Size() == 3) {
-	tree_builder_->AddCalleeTable(Util::Atoi(element->Str(1)),
-				      Util::Atoi(element->Str(2)),
-				      res);
+        tree_builder_->AddCalleeTable(Util::Atoi(element->Str(1)),
+                                      Util::Atoi(element->Str(2)), res);
       } else {
-	SetError() << "Invalid module spec";
-	return nullptr;
+        SetError() << "Invalid module spec";
+        return nullptr;
       }
     } else if (element_name == "PARENT-RESOURCE" ||
-	       // For compatibility
-	       element_name == "SHARED-REG") {
+               // For compatibility
+               element_name == "SHARED-REG") {
       int sz = element->Size();
       if (sz == 4) {
-	tree_builder_->AddParentResource(Util::Atoi(element->Str(1)),
-					 Util::Atoi(element->Str(2)),
-					 Util::Atoi(element->Str(3)),
-					 res);
+        tree_builder_->AddParentResource(Util::Atoi(element->Str(1)),
+                                         Util::Atoi(element->Str(2)),
+                                         Util::Atoi(element->Str(3)), res);
       } else {
-	SetError() << "Invalid PARENT-RESOURCE spec";
+        SetError() << "Invalid PARENT-RESOURCE spec";
       }
     } else {
       SetError() << "Invalid additional resource parameter";
@@ -343,8 +337,8 @@ void DesignBuilder::BuildArray(Exp *e, IResource *res) {
     SetError() << "Array should be either RAM or ROM";
     return;
   }
-  IArray *array = new IArray(res, address_width, data_type,
-			     is_external, is_ram);
+  IArray *array =
+      new IArray(res, address_width, data_type, is_external, is_ram);
   res->SetArray(array);
   if (sz == 6) {
     int imid = Util::Atoi(e->Str(5));
@@ -412,9 +406,7 @@ void DesignBuilder::BuildArrayImage(Exp *e, IDesign *design) {
   design->array_images_.push_back(array_image);
 }
 
-bool DesignBuilder::HasError() {
-  return has_error_;
-}
+bool DesignBuilder::HasError() { return has_error_; }
 
 }  // namespace builder
 }  // namespace iroha
