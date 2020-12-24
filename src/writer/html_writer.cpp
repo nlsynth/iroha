@@ -1,6 +1,7 @@
 #include "writer/html_writer.h"
 
 #include "iroha/i_design.h"
+#include "iroha/resource_params.h"
 #include "opt/optimizer_log.h"
 
 namespace iroha {
@@ -148,6 +149,10 @@ void HtmlWriter::WriteRegister(const IRegister &reg) {
   } else {
     os_ << " (" << reg.value_type_.GetWidth() << ")";
   }
+  auto *params = reg.GetParams();
+  if (params != nullptr) {
+    WriteResourceParams(*params);
+  }
   if (opt_log_ != nullptr) {
     os_ << " " << opt_log_->GetRegAnnotation(&reg);
   }
@@ -170,6 +175,15 @@ void HtmlWriter::WriteResources(const ITable &tab) {
 
 void HtmlWriter::WriteResource(const IResource &res) {
   os_ << "    <li>" << res.GetId() << ":" << res.GetClass()->GetName() << "\n";
+}
+
+void HtmlWriter::WriteResourceParams(const ResourceParams &params) {
+  vector<string> keys = params.GetParamKeys();
+  for (string &key : keys) {
+    os_ << " " << key << "=";
+    vector<string> values = params.GetValues(key);
+    os_ << Util::Join(values, ",");
+  }
 }
 
 string HtmlWriter::StateRowStyle(int block_index, int in_block_index) {

@@ -32,6 +32,7 @@ class HtmlWriter {
   void WriteResources(const ITable &tab);
   void WriteResource(const IResource &res);
   void WriteValue(const Numeric &val);
+  void WriteResourceParams(const ResourceParams &params);
   string StateRowStyle(int block_index, int in_block_index);
 
   const IDesign *design_;
