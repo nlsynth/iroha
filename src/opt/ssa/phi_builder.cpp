@@ -2,6 +2,7 @@
 
 #include "design/design_tool.h"
 #include "iroha/resource_class.h"
+#include "iroha/resource_params.h"
 #include "iroha/stl_util.h"
 #include "opt/bb_set.h"
 #include "opt/data_flow.h"
@@ -135,8 +136,13 @@ IRegister *PhiBuilder::FindVersionedReg(RegDef *reg_def) {
     reg = new IRegister(table_,
                         reg_def->reg->GetName() + "_v" + Util::Itoa(version));
     reg->value_type_ = reg_def->reg->value_type_;
-    table_->registers_.push_back(reg);
+    auto *src_params = reg_def->reg->GetParams();
+    if (src_params != nullptr) {
+      ResourceParams *dst_params = reg->GetMutableParams(true);
+      dst_params->Merge(src_params);
+    }
     pr->versions_[version] = reg;
+    table_->registers_.push_back(reg);
   }
   return reg;
 }
