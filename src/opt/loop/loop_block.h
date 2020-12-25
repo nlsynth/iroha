@@ -34,7 +34,8 @@ class LoopBlock {
   void Annotate(OptimizerLog *log);
 
  private:
-  void FindInitialAssign(IState *st, IInsn *insn);
+  IState *FindInitialAssign();
+  IState *CheckInitialAssign(IState *st, IInsn *insn);
   IInsn *CompareResult(IInsn *insn);
   IState *FindTransition(IState *compare_st, IInsn *compare_insn);
   void CollectLoopStates(IState *exit_st, IState *compare_st);

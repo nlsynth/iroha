@@ -27,11 +27,7 @@ bool LoopBlock::Build() {
   // * Compare with a constant.
   // * Branch to exit or enter the loop.
   // * Increment the index.
-  for (IState *st : tab_->states_) {
-    for (IInsn *insn : st->insns_) {
-      FindInitialAssign(st, insn);
-    }
-  }
+  initial_assign_st_ = FindInitialAssign();
   if (initial_assign_st_ == nullptr) {
     return false;
   }
@@ -74,22 +70,37 @@ IRegister *LoopBlock::GetRegister() { return reg_; }
 
 vector<IState *> &LoopBlock::GetStates() { return states_; }
 
-void LoopBlock::FindInitialAssign(IState *st, IInsn *insn) {
+IState *LoopBlock::FindInitialAssign() {
+  IState *res_st = nullptr;
+  for (IState *st : tab_->states_) {
+    for (IInsn *insn : st->insns_) {
+      IState *assign_st = CheckInitialAssign(st, insn);
+      if (assign_st != nullptr && res_st != nullptr) {
+        // Only one is allowed.
+        return nullptr;
+      }
+      res_st = assign_st;
+    }
+  }
+  return res_st;
+}
+
+IState *LoopBlock::CheckInitialAssign(IState *st, IInsn *insn) {
   IResourceClass *rc = insn->GetResource()->GetClass();
   if (!resource::IsSet(*rc)) {
-    return;
+    return nullptr;
   }
   if (insn->outputs_.size() != 1 || insn->inputs_.size() != 1) {
-    return;
+    return nullptr;
   }
   if (insn->outputs_[0] != reg_) {
-    return;
+    return nullptr;
   }
   IRegister *rhs = insn->inputs_[0];
   if (!rhs->IsConst()) {
-    return;
+    return nullptr;
   }
-  initial_assign_st_ = st;
+  return st;
 }
 
 void LoopBlock::FindIncrementInsn() {
