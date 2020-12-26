@@ -117,7 +117,7 @@ IRegister *Pipeliner::MayUpdateWireReg(IState *pst, IRegister *reg) {
 }
 
 void Pipeliner::UpdateCounterRead() {
-  IRegister *counter = lb_->GetRegister();
+  IRegister *counter = lb_->GetCounterRegister();
   for (IState *st : pipeline_stages_) {
     for (IInsn *insn : st->insns_) {
       auto it = insn_to_stage_.find(insn);
@@ -162,7 +162,7 @@ void Pipeliner::ConnectPipeline() {
 
 void Pipeliner::SetupCounter() {
   int llen = ssch_->GetMacroStageCount();
-  IRegister *orig_counter = lb_->GetRegister();
+  IRegister *orig_counter = lb_->GetCounterRegister();
   for (int i = 0; i < llen; ++i) {
     IRegister *counter = new IRegister(tab_, RegName("ps", i));
     counter->value_type_ = orig_counter->value_type_;
@@ -197,8 +197,9 @@ void Pipeliner::SetupCounter() {
 
 void Pipeliner::SetupCounterIncrement() {
   // Assign at the prologue.
+  // counter0 <- orig counter.
   IInsn *insn = new IInsn(DesignUtil::FindAssignResource(tab_));
-  IRegister *orig_counter = lb_->GetRegister();
+  IRegister *orig_counter = lb_->GetCounterRegister();
   insn->inputs_.push_back(orig_counter);
   IRegister *counter0 = counters_[0];
   insn->outputs_.push_back(counter0);
@@ -257,7 +258,7 @@ void Pipeliner::SetupExit() {
 }
 
 string Pipeliner::RegName(const string &base, int index) {
-  IRegister *orig_counter = lb_->GetRegister();
+  IRegister *orig_counter = lb_->GetCounterRegister();
   return orig_counter->GetName() + base + Util::Itoa(index);
 }
 

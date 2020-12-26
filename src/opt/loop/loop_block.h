@@ -22,7 +22,7 @@ class LoopBlock {
 
   int GetLoopCount();
   ITable *GetTable();
-  IRegister *GetRegister();
+  IRegister *GetCounterRegister();
   vector<IState *> &GetStates();
   IState *GetEntryAssignState();
   IState *GetExitState();
