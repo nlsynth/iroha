@@ -79,7 +79,9 @@ IState *LoopBlock::FindInitialAssign() {
         // Only one is allowed.
         return nullptr;
       }
-      res_st = assign_st;
+      if (assign_st != nullptr) {
+        res_st = assign_st;
+      }
     }
   }
   return res_st;
@@ -87,6 +89,14 @@ IState *LoopBlock::FindInitialAssign() {
 
 IState *LoopBlock::CheckInitialAssign(IState *st, IInsn *insn) {
   IResourceClass *rc = insn->GetResource()->GetClass();
+  if (resource::IsSelect(*rc)) {
+    // after PHI removal.
+    // reg <- select(...)
+    if (insn->outputs_[0] != reg_) {
+      return nullptr;
+    }
+    return st;
+  }
   if (!resource::IsSet(*rc)) {
     return nullptr;
   }
