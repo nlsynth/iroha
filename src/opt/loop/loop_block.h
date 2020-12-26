@@ -22,6 +22,7 @@ class LoopBlock {
 
   int GetLoopCount();
   ITable *GetTable();
+  IRegister *GetInitialCounterValue();
   IRegister *GetCounterRegister();
   vector<IState *> &GetStates();
   IState *GetEntryAssignState();
@@ -34,15 +35,18 @@ class LoopBlock {
   void Annotate(OptimizerLog *log);
 
  private:
-  IState *FindInitialAssign();
+  pair<IState *, IInsn *> FindInitialAssign();
+  IRegister *FindInitialValue(IInsn *insn);
   IState *CheckInitialAssign(IState *st, IInsn *insn);
+  pair<IState *, IInsn *> FindCompareInsn(IState *initial_assign_st);
   IInsn *CompareResult(IInsn *insn);
   IState *FindTransition(IState *compare_st, IInsn *compare_insn);
   void CollectLoopStates(IState *exit_st, IState *compare_st);
   void FindIncrementInsn();
 
   ITable *tab_;
-  IRegister *reg_;
+  IRegister *counter_reg_;
+  IRegister *counter_initial_reg_;
   IState *initial_assign_st_;
   IState *compare_st_;
   IInsn *compare_insn_;

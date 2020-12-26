@@ -197,10 +197,10 @@ void Pipeliner::SetupCounter() {
 
 void Pipeliner::SetupCounterIncrement() {
   // Assign at the prologue.
-  // counter0 <- orig counter.
+  // counter0 <- counter initial.
   IInsn *insn = new IInsn(DesignUtil::FindAssignResource(tab_));
-  IRegister *orig_counter = lb_->GetCounterRegister();
-  insn->inputs_.push_back(orig_counter);
+  IRegister *counter_initial = lb_->GetInitialCounterValue();
+  insn->inputs_.push_back(counter_initial);
   IRegister *counter0 = counters_[0];
   insn->outputs_.push_back(counter0);
   prologue_st_->insns_.push_back(insn);

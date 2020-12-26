@@ -12,7 +12,8 @@ namespace loop {
 
 LoopBlock::LoopBlock(ITable *tab, IRegister *reg)
     : tab_(tab),
-      reg_(reg),
+      counter_reg_(reg),
+      counter_initial_reg_(nullptr),
       initial_assign_st_(nullptr),
       compare_st_(nullptr),
       compare_insn_(nullptr),
@@ -27,23 +28,15 @@ bool LoopBlock::Build() {
   // * Compare with a constant.
   // * Branch to exit or enter the loop.
   // * Increment the index.
-  initial_assign_st_ = FindInitialAssign();
+  auto ap = FindInitialAssign();
+  initial_assign_st_ = ap.first;
   if (initial_assign_st_ == nullptr) {
     return false;
   }
-  for (IState *st = initial_assign_st_; st != nullptr;
-       st = OptUtil::GetOneNextState(st)) {
-    for (IInsn *insn : st->insns_) {
-      compare_insn_ = CompareResult(insn);
-      if (compare_insn_ != nullptr) {
-        compare_st_ = st;
-        break;
-      }
-    }
-    if (compare_insn_ != nullptr) {
-      break;
-    }
-  }
+  counter_initial_reg_ = FindInitialValue(ap.second);
+  auto cp = FindCompareInsn(initial_assign_st_);
+  compare_st_ = cp.first;
+  compare_insn_ = cp.second;
   if (compare_insn_ == nullptr) {
     return false;
   }
@@ -66,25 +59,68 @@ int LoopBlock::GetLoopCount() { return loop_count_; }
 
 ITable *LoopBlock::GetTable() { return tab_; }
 
-IRegister *LoopBlock::GetCounterRegister() { return reg_; }
+IRegister *LoopBlock::GetInitialCounterValue() {
+  if (counter_initial_reg_ != nullptr) {
+    return counter_initial_reg_;
+  }
+  return counter_reg_;
+}
+
+IRegister *LoopBlock::GetCounterRegister() { return counter_reg_; }
 
 vector<IState *> &LoopBlock::GetStates() { return states_; }
 
-IState *LoopBlock::FindInitialAssign() {
+pair<IState *, IInsn *> LoopBlock::FindCompareInsn(IState *initial_assign_st) {
+  IState *compare_st = nullptr;
+  IInsn *compare_insn = nullptr;
+  for (IState *st = initial_assign_st; st != nullptr;
+       st = OptUtil::GetOneNextState(st)) {
+    for (IInsn *insn : st->insns_) {
+      compare_insn = CompareResult(insn);
+      if (compare_insn != nullptr) {
+        compare_st = st;
+        break;
+      }
+    }
+    if (compare_insn != nullptr) {
+      break;
+    }
+  }
+  return make_pair(compare_st, compare_insn);
+}
+
+pair<IState *, IInsn *> LoopBlock::FindInitialAssign() {
   IState *res_st = nullptr;
+  IInsn *res_insn = nullptr;
   for (IState *st : tab_->states_) {
     for (IInsn *insn : st->insns_) {
       IState *assign_st = CheckInitialAssign(st, insn);
       if (assign_st != nullptr && res_st != nullptr) {
         // Only one is allowed.
-        return nullptr;
+        return make_pair(nullptr, nullptr);
       }
       if (assign_st != nullptr) {
         res_st = assign_st;
+        res_insn = insn;
       }
     }
   }
-  return res_st;
+  return make_pair(res_st, res_insn);
+}
+
+IRegister *LoopBlock::FindInitialValue(IInsn *insn) {
+  IResourceClass *rc = insn->GetResource()->GetClass();
+  if (!resource::IsSelect(*rc)) {
+    return nullptr;
+  }
+  for (int i = 1; i < insn->inputs_.size(); ++i) {
+    IRegister *reg = insn->inputs_[i];
+    // WIP: Actual initial value is given from assign from constant.
+    if (reg->HasInitialValue()) {
+      return reg;
+    }
+  }
+  return nullptr;
 }
 
 IState *LoopBlock::CheckInitialAssign(IState *st, IInsn *insn) {
@@ -92,7 +128,7 @@ IState *LoopBlock::CheckInitialAssign(IState *st, IInsn *insn) {
   if (resource::IsSelect(*rc)) {
     // after PHI removal.
     // reg <- select(...)
-    if (insn->outputs_[0] != reg_) {
+    if (insn->outputs_[0] != counter_reg_) {
       return nullptr;
     }
     return st;
@@ -103,7 +139,7 @@ IState *LoopBlock::CheckInitialAssign(IState *st, IInsn *insn) {
   if (insn->outputs_.size() != 1 || insn->inputs_.size() != 1) {
     return nullptr;
   }
-  if (insn->outputs_[0] != reg_) {
+  if (insn->outputs_[0] != counter_reg_) {
     return nullptr;
   }
   IRegister *rhs = insn->inputs_[0];
@@ -118,7 +154,7 @@ void LoopBlock::FindIncrementInsn() {
     for (IInsn *insn : st->insns_) {
       IResourceClass *rc = insn->GetResource()->GetClass();
       if (resource::IsAdd(*rc)) {
-        if (insn->outputs_[0] == reg_) {
+        if (insn->outputs_[0] == counter_reg_) {
           increment_insn_ = insn;
           return;
         }
@@ -133,7 +169,7 @@ IInsn *LoopBlock::CompareResult(IInsn *insn) {
     return nullptr;
   }
   // CONST >GT> counter
-  if (insn->inputs_[0]->IsConst() && insn->inputs_[1] == reg_) {
+  if (insn->inputs_[0]->IsConst() && insn->inputs_[1] == counter_reg_) {
     return insn;
   }
   return nullptr;
