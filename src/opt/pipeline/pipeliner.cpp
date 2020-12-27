@@ -90,9 +90,12 @@ void Pipeliner::PlaceState(int pipeline_macro_stage_index,
 
 void Pipeliner::UpdateRegs(IState *pst, int lidx, bool is_output,
                            vector<IRegister *> &src, vector<IRegister *> *dst) {
+  IRegister *counter = lb_->GetCounterRegister();
   for (IRegister *reg : src) {
     if (reg->IsStateLocal()) {
       reg = MayUpdateWireReg(pst, reg);
+    } else if (counter == reg) {
+      // doesn't update.
     } else if (reg->IsNormal() && !is_output) {
       reg = LookupStagedReg(lidx, reg);
     }
