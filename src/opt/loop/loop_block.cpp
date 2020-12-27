@@ -28,6 +28,7 @@ bool LoopBlock::Build() {
   // * Compare with a constant.
   // * Branch to exit or enter the loop.
   // * Increment the index.
+  BuildConstRegMap();
   auto ap = FindInitialAssign();
   initial_assign_st_ = ap.first;
   if (initial_assign_st_ == nullptr) {
@@ -115,8 +116,7 @@ IRegister *LoopBlock::FindInitialValue(IInsn *insn) {
   }
   for (int i = 1; i < insn->inputs_.size(); ++i) {
     IRegister *reg = insn->inputs_[i];
-    // WIP: Actual initial value is given from assign from constant.
-    if (reg->HasInitialValue()) {
+    if (reg->HasInitialValue() || regs_with_const_.count(reg) == 1) {
       return reg;
     }
   }
@@ -216,6 +216,42 @@ IInsn *LoopBlock::GetCompareInsn() { return compare_insn_; }
 IInsn *LoopBlock::GetBranchInsn() { return branch_insn_; }
 
 IInsn *LoopBlock::GetIncrementInsn() { return increment_insn_; }
+
+void LoopBlock::BuildConstRegMap() {
+  for (IRegister *reg : tab_->registers_) {
+    if (reg->IsConst()) {
+      regs_with_const_.insert(reg);
+    }
+  }
+  map<IRegister *, set<IInsn *>> assigns;
+  for (IState *st : tab_->states_) {
+    for (IInsn *insn : st->insns_) {
+      for (IRegister *oreg : insn->outputs_) {
+        assigns[oreg].insert(insn);
+      }
+    }
+  }
+  set<IRegister *> regs_from_const;
+  for (IState *st : tab_->states_) {
+    for (IInsn *insn : st->insns_) {
+      IResourceClass *rc = insn->GetResource()->GetClass();
+      if (!resource::IsSet(*rc)) {
+        continue;
+      }
+      IRegister *oreg = insn->outputs_[0];
+      if (assigns[oreg].size() != 1) {
+        continue;
+      }
+      IRegister *ireg = insn->inputs_[0];
+      if (regs_with_const_.count(ireg) == 1) {
+        regs_from_const.insert(oreg);
+      }
+    }
+  }
+  for (IRegister *r : regs_from_const) {
+    regs_with_const_.insert(r);
+  }
+}
 
 void LoopBlock::Annotate(OptimizerLog *log) {
   int n = 0;

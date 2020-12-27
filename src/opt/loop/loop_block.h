@@ -43,6 +43,7 @@ class LoopBlock {
   IState *FindTransition(IState *compare_st, IInsn *compare_insn);
   void CollectLoopStates(IState *exit_st, IState *compare_st);
   void FindIncrementInsn();
+  void BuildConstRegMap();
 
   ITable *tab_;
   IRegister *counter_reg_;
@@ -55,6 +56,7 @@ class LoopBlock {
   IInsn *increment_insn_;
   int loop_count_;
   vector<IState *> states_;
+  set<IRegister *> regs_with_const_;
 };
 
 }  // namespace loop
