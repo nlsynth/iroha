@@ -16,8 +16,16 @@ class InsnCondition {
   bool Build(OptimizerLog *log);
 
  private:
+  void CollectBranches(OptimizerLog *log);
+  void PropagateCondValue(IState *st);
+  bool InLoop(IState *st);
+  bool IsEntry(IState *st);
+  void CollectReachable(IState *init_st, set<IState *> *sts);
+
   ITable *tab_;
   loop::LoopBlock *lb_;
+  set<IState *> states_;
+  vector<IState *> branches_;
 };
 
 }  // namespace pipeline
