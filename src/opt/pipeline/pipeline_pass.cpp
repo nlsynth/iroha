@@ -4,6 +4,7 @@
 #include "iroha/resource_params.h"
 #include "opt/loop/loop_block.h"
 #include "opt/optimizer_log.h"
+#include "opt/pipeline/insn_condition.h"
 #include "opt/pipeline/pipeliner.h"
 #include "opt/pipeline/reg_info.h"
 #include "opt/pipeline/stage_scheduler.h"
@@ -52,8 +53,12 @@ bool PipelinePass::ApplyForTable(const string &key, ITable *table) {
     if (!regInfo.BuildWRDep(opt_log_)) {
       continue;
     }
+    InsnCondition insnCond(&lb);
+    if (!insnCond.Build(opt_log_)) {
+      continue;
+    }
     ++n;
-    Pipeliner pipeliner(table, &ssch, &regInfo);
+    Pipeliner pipeliner(table, &ssch, &regInfo, &insnCond);
     pipeliner.Pipeline();
   }
   ostream &os = opt_log_->GetDumpStream();

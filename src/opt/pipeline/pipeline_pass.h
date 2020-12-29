@@ -27,4 +27,4 @@ class PipelinePass : public Pass {
 }  // namespace opt
 }  // namespace iroha
 
-#endif  // _opt_unroll_pipeline_pass_h_
+#endif  // _opt_pipeline_pipeline_pass_h_

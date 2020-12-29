@@ -14,10 +14,12 @@ namespace iroha {
 namespace opt {
 namespace pipeline {
 
-Pipeliner::Pipeliner(ITable *tab, StageScheduler *ssch, RegInfo *reg_info)
+Pipeliner::Pipeliner(ITable *tab, StageScheduler *ssch, RegInfo *reg_info,
+                     InsnCondition *insn_cond)
     : tab_(tab),
       ssch_(ssch),
       reg_info_(reg_info),
+      insn_cond_(insn_cond),
       lb_(ssch->GetLoop()),
       interval_(ssch_->GetInterval()),
       opt_log_(nullptr),

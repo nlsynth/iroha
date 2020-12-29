@@ -137,6 +137,8 @@
                 'opt/pass.h',
                 'opt/branch_elimination/branch_elimination_pass.cpp',
                 'opt/branch_elimination/branch_elimination_pass.h',
+                'opt/pipeline/insn_condition.cpp',
+                'opt/pipeline/insn_condition.h',
                 'opt/pipeline/pipeliner.cpp',
                 'opt/pipeline/pipeliner.h',
                 'opt/pipeline/pipeline_pass.cpp',

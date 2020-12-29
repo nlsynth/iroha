@@ -8,13 +8,15 @@ namespace iroha {
 namespace opt {
 namespace pipeline {
 
+class InsnCondition;
 class RegInfo;
 class StageScheduler;
 class WRDep;
 
 class Pipeliner {
  public:
-  Pipeliner(ITable *tab, StageScheduler *ssch, RegInfo *reg_info);
+  Pipeliner(ITable *tab, StageScheduler *ssch, RegInfo *reg_info,
+            InsnCondition *insn_cond);
   ~Pipeliner();
 
   bool Pipeline();
@@ -38,6 +40,7 @@ class Pipeliner {
   ITable *tab_;
   StageScheduler *ssch_;
   RegInfo *reg_info_;
+  InsnCondition *insn_cond_;
   loop::LoopBlock *lb_;
   int interval_;
   OptimizerLog *opt_log_;
