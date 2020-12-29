@@ -2,6 +2,7 @@
 
 #include "design/design_util.h"
 #include "iroha/i_design.h"
+#include "iroha/stl_util.h"
 #include "opt/loop/loop_block.h"
 #include "opt/optimizer_log.h"
 
@@ -11,6 +12,8 @@ namespace pipeline {
 
 InsnCondition::InsnCondition(loop::LoopBlock *lb)
     : tab_(lb->GetTable()), lb_(lb) {}
+
+InsnCondition::~InsnCondition() { STLDeleteSecondElements(&cond_info_); }
 
 bool InsnCondition::Build(OptimizerLog *log) {
   for (IState *st : lb_->GetStates()) {
@@ -46,8 +49,8 @@ void InsnCondition::CollectBranches(OptimizerLog *log) {
   }
 }
 
-void InsnCondition::PropagateCondValue(IState *st) {
-  IInsn *tr = DesignUtil::FindTransitionInsn(st);
+void InsnCondition::PropagateCondValue(IState *branch_st) {
+  IInsn *tr = DesignUtil::FindTransitionInsn(branch_st);
   map<IState *, set<int>> values;
   for (int i = 0; i < tr->target_states_.size(); ++i) {
     IState *next_st = tr->target_states_[i];
@@ -64,7 +67,16 @@ void InsnCondition::PropagateCondValue(IState *st) {
       state_values[p.first] = v;
     }
   }
-  // WIP.
+  IRegister *cond_reg = tr->inputs_[0];
+  for (auto &p : state_values) {
+    IState *st = p.first;
+    InsnConditionInfo *info = cond_info_[st];
+    if (info == nullptr) {
+      info = new InsnConditionInfo();
+      cond_info_[st] = info;
+    }
+    info->cond_to_value[cond_reg] = p.second;
+  }
 }
 
 void InsnCondition::CollectReachable(IState *init_st, set<IState *> *sts) {

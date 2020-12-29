@@ -8,16 +8,21 @@ namespace iroha {
 namespace opt {
 namespace pipeline {
 
+struct InsnConditionInfo {
+  map<IRegister *, int> cond_to_value;
+};
+
 // Finds conditional executions in a pipeline.
 class InsnCondition {
  public:
   InsnCondition(loop::LoopBlock *lb);
+  ~InsnCondition();
 
   bool Build(OptimizerLog *log);
 
  private:
   void CollectBranches(OptimizerLog *log);
-  void PropagateCondValue(IState *st);
+  void PropagateCondValue(IState *branch_st);
   bool InLoop(IState *st);
   bool IsEntry(IState *st);
   void CollectReachable(IState *init_st, set<IState *> *sts);
@@ -26,6 +31,7 @@ class InsnCondition {
   loop::LoopBlock *lb_;
   set<IState *> states_;
   vector<IState *> branches_;
+  map<IState *, InsnConditionInfo *> cond_info_;
 };
 
 }  // namespace pipeline
