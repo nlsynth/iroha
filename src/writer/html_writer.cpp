@@ -110,6 +110,13 @@ void HtmlWriter::WriteInsn(const IInsn &insn) {
     WriteRegisterId(*reg);
   }
   os_ << ")";
+  if (insn.conditions_.size() > 0) {
+    os_ << "{";
+    for (auto *reg : insn.conditions_) {
+      WriteRegisterId(*reg);
+    }
+    os_ << "}";
+  }
   if (opt_log_ != nullptr) {
     os_ << " " << opt_log_->GetInsnAnnotation(&insn);
   }
