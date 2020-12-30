@@ -19,39 +19,33 @@ int ResourceAttr::NumMultiCycleInsn(const IState *st) {
 bool ResourceAttr::IsMultiCycleInsn(IInsn *insn) {
   IResource *res = insn->GetResource();
   IResourceClass &rc = *(res->GetClass());
-  if (resource::IsTaskCall(rc) ||
-      resource::IsSharedMemory(rc) ||
+  if (resource::IsTaskCall(rc) || resource::IsSharedMemory(rc) ||
       resource::IsSharedMemoryReader(rc) ||
-      resource::IsSharedMemoryWriter(rc) ||
-      resource::IsExtTaskDone(rc) ||
-      resource::IsExtTaskCall(rc) ||
-      resource::IsExtTaskWait(rc)) {
+      resource::IsSharedMemoryWriter(rc) || resource::IsExtTaskDone(rc) ||
+      resource::IsExtTaskCall(rc) || resource::IsExtTaskWait(rc)) {
     return true;
   }
-  if (resource::IsStudy(rc) ||
-      resource::IsStudyReader(rc) ||
+  if (resource::IsStudy(rc) || resource::IsStudyReader(rc) ||
       resource::IsStudyWriter(rc)) {
     return true;
   }
-  if (resource::IsAxiMasterPort(rc) ||
-      resource::IsAxiSlavePort(rc) ||
+  if (resource::IsAxiMasterPort(rc) || resource::IsAxiSlavePort(rc) ||
       resource::IsSramIf(rc)) {
     return true;
   }
-  if (resource::IsFifo(rc) ||
-      resource::IsFifoReader(rc)) {
+  if (resource::IsFifo(rc) || resource::IsFifoReader(rc)) {
     return true;
   }
-  if ((resource::IsExtInput(rc) || resource::IsExtInputAccessor(rc)) && insn->GetOperand() == operand::kWait) {
+  if ((resource::IsExtInput(rc) || resource::IsExtInputAccessor(rc)) &&
+      insn->GetOperand() == operand::kWait) {
     return true;
   }
-  if (resource::IsFifoWriter(rc) &&
-      insn->GetOperand() != operand::kNoWait) {
+  if (resource::IsFifoWriter(rc) && insn->GetOperand() != operand::kNoWait) {
     return true;
   }
   if (resource::IsSharedRegReader(rc)) {
     if (insn->GetOperand() == operand::kWaitNotify ||
-    insn->GetOperand() == operand::kGetMailbox) {
+        insn->GetOperand() == operand::kGetMailbox) {
       return true;
     }
   }
@@ -65,18 +59,12 @@ bool ResourceAttr::IsMultiCycleInsn(IInsn *insn) {
 
 bool ResourceAttr::IsExtAccessResource(IResource *res) {
   IResourceClass &rc = *(res->GetClass());
-  if (resource::IsExtInput(rc) ||
-      resource::IsExtInputAccessor(rc) ||
-      resource::IsExtOutput(rc) ||
-      resource::IsExtOutputAccessor(rc) ||
-      resource::IsAxiMasterPort(rc) ||
-      resource::IsAxiSlavePort(rc) ||
-      resource::IsSramIf(rc) ||
-      resource::IsExtTask(rc) ||
-      resource::IsExtTaskDone(rc) ||
-      resource::IsExtTaskCall(rc) ||
-      resource::IsExtTaskWait(rc) ||
-      resource::IsSharedRegExtWriter(rc)) {
+  if (resource::IsExtInput(rc) || resource::IsExtInputAccessor(rc) ||
+      resource::IsExtOutput(rc) || resource::IsExtOutputAccessor(rc) ||
+      resource::IsAxiMasterPort(rc) || resource::IsAxiSlavePort(rc) ||
+      resource::IsSramIf(rc) || resource::IsExtTask(rc) ||
+      resource::IsExtTaskDone(rc) || resource::IsExtTaskCall(rc) ||
+      resource::IsExtTaskWait(rc) || resource::IsSharedRegExtWriter(rc)) {
     return true;
   }
   if (resource::IsArray(rc) && res->GetArray() != nullptr &&
@@ -84,6 +72,14 @@ bool ResourceAttr::IsExtAccessResource(IResource *res) {
     return true;
   }
   return false;
+}
+
+bool ResourceAttr::IsSideEffectInsn(IInsn *insn) {
+  IResourceClass &rc = *(insn->GetResource()->GetClass());
+  if (resource::IsPrint(rc)) {
+    return true;
+  }
+  return IsExtAccessInsn(insn);
 }
 
 bool ResourceAttr::IsExtWaitInsn(IInsn *insn) {
@@ -121,9 +117,9 @@ bool ResourceAttr::IsDuplicatableResource(IResource *res) {
 bool ResourceAttr::IsOrderedResource(IResource *res) {
   IResourceClass &rc = *(res->GetClass());
   if (resource::IsArray(rc) || resource::IsSharedMemoryReplica(rc) ||
-      resource::IsSharedMemoryReader(rc) ||resource::IsSharedMemoryWriter(rc) ||
-      resource::IsSharedRegReader(rc) ||resource::IsSharedRegWriter(rc) ||
-      resource::IsTicker(rc)) {
+      resource::IsSharedMemoryReader(rc) ||
+      resource::IsSharedMemoryWriter(rc) || resource::IsSharedRegReader(rc) ||
+      resource::IsSharedRegWriter(rc) || resource::IsTicker(rc)) {
     return true;
   }
   return false;

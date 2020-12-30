@@ -7,6 +7,8 @@
 namespace iroha {
 namespace resource {
 
+bool IsPrint(const IResourceClass &rc) { return (rc.GetName() == kPrint); }
+
 bool IsTransition(const IResourceClass &rc) {
   return (rc.GetName() == kTransition);
 }
