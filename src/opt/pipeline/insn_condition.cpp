@@ -2,6 +2,7 @@
 
 #include "design/design_util.h"
 #include "iroha/i_design.h"
+#include "iroha/resource_attr.h"
 #include "iroha/stl_util.h"
 #include "opt/loop/loop_block.h"
 #include "opt/optimizer_log.h"
@@ -19,11 +20,26 @@ bool InsnCondition::Build(OptimizerLog *log) {
   for (IState *st : lb_->GetStates()) {
     states_.insert(st);
   }
-  CollectBranches(log);
+  CollectBranches();
   for (IState *st : branches_) {
     PropagateCondValue(st);
   }
+  CollectSideEffectInsns();
+  Dump(log);
   return true;
+}
+
+void InsnCondition::Dump(OptimizerLog *log) {
+  for (IState *br : branches_) {
+    log->State(br) << "X";
+  }
+  for (auto &p : cond_info_) {
+    ostream &os = log->State(p.first);
+    InsnConditionInfo *info = p.second;
+    for (auto &q : info->cond_to_value) {
+      os << " " << q.first->GetId() << ":" << q.second;
+    }
+  }
 }
 
 bool InsnCondition::InLoop(IState *st) { return (states_.count(st) == 1); }
@@ -33,7 +49,7 @@ bool InsnCondition::IsEntry(IState *st) {
   return (sts[0] == st);
 }
 
-void InsnCondition::CollectBranches(OptimizerLog *log) {
+void InsnCondition::CollectBranches() {
   for (IState *st : lb_->GetStates()) {
     IInsn *tr = DesignUtil::FindTransitionInsn(st);
     int valid_branch = 0;
@@ -44,7 +60,6 @@ void InsnCondition::CollectBranches(OptimizerLog *log) {
     }
     if (valid_branch > 1) {
       branches_.push_back(st);
-      log->State(st) << "X";
     }
   }
 }
@@ -92,6 +107,28 @@ void InsnCondition::CollectReachable(IState *init_st, set<IState *> *sts) {
         continue;
       }
       frontier.insert(tst);
+    }
+  }
+}
+
+void InsnCondition::CollectSideEffectInsns() {
+  for (IState *st : lb_->GetStates()) {
+    auto it = cond_info_.find(st);
+    if (it == cond_info_.end()) {
+      continue;
+    }
+    InsnConditionInfo *info = it->second;
+    vector<IInsn *> side_effect_insns;
+    for (IInsn *insn : st->insns_) {
+      if (ResourceAttr::IsSideEffectInsn(insn)) {
+        side_effect_insns.push_back(insn);
+      }
+    }
+    if (side_effect_insns.size() == 0) {
+      continue;
+    }
+    for (IInsn *insn : side_effect_insns) {
+      info->insns_.push_back(make_pair(st, insn));
     }
   }
 }

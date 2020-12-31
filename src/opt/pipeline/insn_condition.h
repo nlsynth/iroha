@@ -10,6 +10,7 @@ namespace pipeline {
 
 struct InsnConditionInfo {
   map<IRegister *, int> cond_to_value;
+  vector<pair<IState *, IInsn *>> insns_;
 };
 
 // Finds conditional executions in a pipeline.
@@ -21,11 +22,13 @@ class InsnCondition {
   bool Build(OptimizerLog *log);
 
  private:
-  void CollectBranches(OptimizerLog *log);
+  void CollectBranches();
   void PropagateCondValue(IState *branch_st);
   bool InLoop(IState *st);
   bool IsEntry(IState *st);
   void CollectReachable(IState *init_st, set<IState *> *sts);
+  void CollectSideEffectInsns();
+  void Dump(OptimizerLog *log);
 
   ITable *tab_;
   loop::LoopBlock *lb_;
