@@ -53,12 +53,23 @@ bool LoopBlock::Build() {
   }
   CollectLoopStates(exit_st_, compare_st_);
   FindIncrementInsn();
+  for (int i = 0; i < states_.size(); ++i) {
+    state_to_index_[states_[i]] = i;
+  }
   return true;
 }
 
 int LoopBlock::GetLoopCount() { return loop_count_; }
 
 ITable *LoopBlock::GetTable() { return tab_; }
+
+int LoopBlock::GetIndexFromState(IState *st) {
+  auto it = state_to_index_.find(st);
+  if (it == state_to_index_.end()) {
+    return -1;
+  }
+  return it->second;
+}
 
 IRegister *LoopBlock::GetInitialCounterValue() {
   if (counter_initial_reg_ != nullptr) {

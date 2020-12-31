@@ -31,6 +31,7 @@ class LoopBlock {
   IInsn *GetCompareInsn();
   IInsn *GetBranchInsn();
   IInsn *GetIncrementInsn();
+  int GetIndexFromState(IState *st);
 
   void Annotate(OptimizerLog *log);
 
@@ -57,6 +58,7 @@ class LoopBlock {
   int loop_count_;
   vector<IState *> states_;
   set<IRegister *> regs_with_const_;
+  map<IState *, int> state_to_index_;
 };
 
 }  // namespace loop

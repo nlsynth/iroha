@@ -8,9 +8,15 @@ namespace iroha {
 namespace opt {
 namespace pipeline {
 
-struct InsnConditionInfo {
-  map<IRegister *, int> cond_to_value;
-  vector<pair<IState *, IInsn *>> insns_;
+// per state.
+struct InsnConditionValueInfo {
+  map<IRegister *, int> cond_to_value_;
+  vector<IInsn *> insns_;
+};
+
+struct ConditionRegInfo {
+  IState *branch_st_;
+  int last_use_;
 };
 
 // Finds conditional executions in a pipeline.
@@ -28,13 +34,16 @@ class InsnCondition {
   bool IsEntry(IState *st);
   void CollectReachable(IState *init_st, set<IState *> *sts);
   void CollectSideEffectInsns();
+  void BuildConditionRegInfo();
+  ConditionRegInfo *GetCondRegInfo(IRegister *cond_reg);
   void Dump(OptimizerLog *log);
 
   ITable *tab_;
   loop::LoopBlock *lb_;
   set<IState *> states_;
   vector<IState *> branches_;
-  map<IState *, InsnConditionInfo *> cond_info_;
+  map<IState *, InsnConditionValueInfo *> cond_value_info_;
+  map<IRegister *, ConditionRegInfo *> cond_reg_info_;
 };
 
 }  // namespace pipeline
