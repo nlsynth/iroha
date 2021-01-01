@@ -33,6 +33,16 @@ bool InsnCondition::Build(OptimizerLog *log) {
   return true;
 }
 
+vector<IRegister *> InsnCondition::GetConditions() {
+  vector<IRegister *> cond_regs;
+  for (IRegister *reg : tab_->registers_) {
+    if (cond_reg_info_.count(reg) == 1) {
+      cond_regs.push_back(reg);
+    }
+  }
+  return cond_regs;
+}
+
 void InsnCondition::Dump(OptimizerLog *log) {
   for (IState *br : branches_) {
     log->State(br) << "X";

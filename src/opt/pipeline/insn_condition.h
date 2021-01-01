@@ -26,6 +26,7 @@ class InsnCondition {
   ~InsnCondition();
 
   bool Build(OptimizerLog *log);
+  vector<IRegister *> GetConditions();
 
  private:
   void CollectBranches();

@@ -58,7 +58,7 @@ void StageScheduler::PrepareStages() {
     MacroStage ms;
     for (int j = 0; j < interval_; ++j) {
       StageInsns si;
-      ms.stages_.push_back(si);
+      ms.local_stages_.push_back(si);
     }
     macro_stages_.push_back(ms);
   }
@@ -128,7 +128,7 @@ void StageScheduler::ScheduleStateInsns(IState *st, int macro_index,
   if (body_insns.size() == 0) {
     return;
   }
-  StageInsns &si = macro_stages_[macro_index].stages_[local_index];
+  StageInsns &si = macro_stages_[macro_index].local_stages_[local_index];
   si.insns_ = body_insns;
 }
 

@@ -16,7 +16,7 @@ class StageInsns {
 
 class MacroStage {
  public:
-  vector<StageInsns> stages_;
+  vector<StageInsns> local_stages_;
 };
 
 class StageScheduler {

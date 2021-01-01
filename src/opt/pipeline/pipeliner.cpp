@@ -43,7 +43,7 @@ bool Pipeliner::Pipeline() {
     pipeline_stages_.push_back(st);
     tab_->states_.push_back(st);
   }
-  PrepareRegPipeline();
+  PrepareRegWriteReadPipeline();
   Shape shape(ssch_);
   vector<pair<int, int>> loc = shape.GetPipelineLocation();
   for (pair<int, int> &p : loc) {
@@ -52,6 +52,7 @@ bool Pipeliner::Pipeline() {
     PlaceState(pipeline_macro_stage_index, loop_macro_stage_index);
   }
   UpdatePipelineRegWrite();
+  PrepareInsnCondRegPipeline();
   SetupCounter();
   SetupCounterIncrement();
   UpdateCounterRead();
@@ -64,15 +65,16 @@ bool Pipeliner::Pipeline() {
 void Pipeliner::PlaceState(int pipeline_macro_stage_index,
                            int loop_macro_stage_index) {
   MacroStage &ms = ssch_->GetMacroStage(loop_macro_stage_index);
-  for (int st = 0; st < ms.stages_.size(); ++st) {
-    IState *pst = pipeline_stages_[pipeline_macro_stage_index * interval_ + st];
+  for (int lst = 0; lst < ms.local_stages_.size(); ++lst) {
+    IState *pst =
+        pipeline_stages_[pipeline_macro_stage_index * interval_ + lst];
     ostream &os = opt_log_->State(pst);
     os << "[" << loop_macro_stage_index;
-    if (ms.stages_.size() > 1) {
-      os << ":" << st;
+    if (ms.local_stages_.size() > 1) {
+      os << ":" << lst;
     }
     os << "]";
-    StageInsns &si = ms.stages_[st];
+    StageInsns &si = ms.local_stages_[lst];
     for (IInsn *insn : si.insns_) {
       IResource *res = insn->GetResource();
       if (resource::IsTransition(*(res->GetClass()))) {
@@ -267,7 +269,7 @@ string Pipeliner::RegName(const string &base, int index) {
   return orig_counter->GetName() + base + Util::Itoa(index);
 }
 
-void Pipeliner::PrepareRegPipeline() {
+void Pipeliner::PrepareRegWriteReadPipeline() {
   // Prepare regs.
   for (auto p : reg_info_->wr_deps_) {
     WRDep *d = p.second;
@@ -308,6 +310,7 @@ void Pipeliner::PrepareRegPipeline() {
     }
   }
 }
+void Pipeliner::PrepareInsnCondRegPipeline() {}
 
 IRegister *Pipeliner::LookupStagedReg(int lidx, IRegister *reg) {
   auto it = reg_info_->wr_deps_.find(reg);
