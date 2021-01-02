@@ -54,6 +54,14 @@ void InsnCondition::Dump(OptimizerLog *log) {
       os << " " << q.first->GetId() << ":" << q.second;
     }
   }
+  for (auto &q : cond_reg_info_) {
+    ostream &os = log->Reg(q.first);
+    ConditionRegInfo *info = q.second;
+    os << " *C" << info->last_use_ << " ";
+    for (auto &v : info->values_) {
+      os << v;
+    }
+  }
 }
 
 bool InsnCondition::InLoop(IState *st) { return (states_.count(st) == 1); }
@@ -171,6 +179,10 @@ void InsnCondition::BuildConditionRegInfo() {
       ConditionRegInfo *reg_info = GetCondRegInfo(cond_reg);
       if (reg_info->last_use_ > st_index) {
         reg_info->last_use_ = st_index;
+      }
+      auto it = cvinfo->cond_to_value_.find(cond_reg);
+      if (it != cvinfo->cond_to_value_.end()) {
+        reg_info->values_.insert(it->second);
       }
     }
   }

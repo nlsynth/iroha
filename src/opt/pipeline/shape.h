@@ -13,6 +13,7 @@ class StageScheduler;
 class Shape {
  public:
   Shape(StageScheduler *ssch);
+  ~Shape();
 
   // pipeline macro stage, loop index.
   vector<pair<int, int>> &GetPipelineLocation();

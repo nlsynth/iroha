@@ -17,6 +17,7 @@ struct InsnConditionValueInfo {
 struct ConditionRegInfo {
   IState *branch_st_;
   int last_use_;
+  set<int> values_;
 };
 
 // Finds conditional executions in a pipeline.

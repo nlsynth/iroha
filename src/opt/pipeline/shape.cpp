@@ -8,6 +8,8 @@ namespace pipeline {
 
 Shape::Shape(StageScheduler *ssch) : ssch_(ssch) {}
 
+Shape::~Shape() {}
+
 vector<pair<int, int>> &Shape::GetPipelineLocation() {
   if (locs_.size() != 0) {
     return locs_;

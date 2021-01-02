@@ -6,6 +6,7 @@
 #include "iroha/resource_class.h"
 #include "opt/loop/loop_block.h"
 #include "opt/optimizer_log.h"
+#include "opt/pipeline/insn_condition.h"
 #include "opt/pipeline/reg_info.h"
 #include "opt/pipeline/shape.h"
 #include "opt/pipeline/stage_scheduler.h"
@@ -23,6 +24,7 @@ Pipeliner::Pipeliner(ITable *tab, StageScheduler *ssch, RegInfo *reg_info,
       lb_(ssch->GetLoop()),
       interval_(ssch_->GetInterval()),
       opt_log_(nullptr),
+      shape_(new Shape(ssch)),
       prologue_st_(nullptr) {
   opt_log_ = tab->GetModule()->GetDesign()->GetOptimizerLog();
 }
@@ -44,8 +46,7 @@ bool Pipeliner::Pipeline() {
     tab_->states_.push_back(st);
   }
   PrepareRegWriteReadPipeline();
-  Shape shape(ssch_);
-  vector<pair<int, int>> loc = shape.GetPipelineLocation();
+  vector<pair<int, int>> loc = shape_->GetPipelineLocation();
   for (pair<int, int> &p : loc) {
     int pipeline_macro_stage_index = p.first;
     int loop_macro_stage_index = p.second;
@@ -284,12 +285,11 @@ void Pipeliner::PrepareRegWriteReadPipeline() {
     }
   }
   // Update for stages.
-  Shape shape(ssch_);
   IResource *assign = DesignUtil::FindAssignResource(tab_);
   for (auto p : reg_info_->wr_deps_) {
     WRDep *d = p.second;
     vector<pair<int, int>> v =
-        shape.GetPipeLineIndexRange(d->wst_index_, d->rst_index_);
+        shape_->GetPipeLineIndexRange(d->wst_index_, d->rst_index_);
     for (auto &p : v) {
       int macrostage = p.first;
       int lindex = p.second;
@@ -310,7 +310,9 @@ void Pipeliner::PrepareRegWriteReadPipeline() {
     }
   }
 }
-void Pipeliner::PrepareInsnCondRegPipeline() {}
+void Pipeliner::PrepareInsnCondRegPipeline() {
+  vector<IRegister *> cond_regs = insn_cond_->GetConditions();
+}
 
 IRegister *Pipeliner::LookupStagedReg(int lidx, IRegister *reg) {
   auto it = reg_info_->wr_deps_.find(reg);

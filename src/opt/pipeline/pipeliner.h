@@ -10,6 +10,7 @@ namespace pipeline {
 
 class InsnCondition;
 class RegInfo;
+class Shape;
 class StageScheduler;
 class WRDep;
 
@@ -45,6 +46,7 @@ class Pipeliner {
   loop::LoopBlock *lb_;
   int interval_;
   OptimizerLog *opt_log_;
+  std::unique_ptr<Shape> shape_;
   // prologue -> pipeline[0] -> pipeline[1] ...
   IState *prologue_st_;
   vector<IState *> pipeline_stages_;
