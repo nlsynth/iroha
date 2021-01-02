@@ -44,7 +44,9 @@ class StageScheduler {
   loop::LoopBlock *lb_;
   int interval_;
   vector<MacroStage> macro_stages_;
+  // [loop state index] = 0, 1,,, (-1 for unconstrainted).
   vector<int> stage_constraints_;
+  // Indexed by loop state index.
   vector<int> local_stage_indexes_;
   vector<int> macro_stage_indexes_;
 };

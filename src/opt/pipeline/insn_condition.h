@@ -28,6 +28,8 @@ class InsnCondition {
 
   bool Build(OptimizerLog *log);
   vector<IRegister *> GetConditions();
+  int GetConditionStateIndex(IRegister *reg);
+  int GetConditionLastUseStateIndex(IRegister *cond_reg);
 
  private:
   void CollectBranches();

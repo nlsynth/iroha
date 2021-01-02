@@ -43,6 +43,16 @@ vector<IRegister *> InsnCondition::GetConditions() {
   return cond_regs;
 }
 
+int InsnCondition::GetConditionStateIndex(IRegister *cond_reg) {
+  auto *cr = GetCondRegInfo(cond_reg);
+  return lb_->GetIndexFromState(cr->branch_st_);
+}
+
+int InsnCondition::GetConditionLastUseStateIndex(IRegister *cond_reg) {
+  auto *cr = GetCondRegInfo(cond_reg);
+  return cr->last_use_;
+}
+
 void InsnCondition::Dump(OptimizerLog *log) {
   for (IState *br : branches_) {
     log->State(br) << "X";

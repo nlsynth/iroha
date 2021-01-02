@@ -281,7 +281,7 @@ void Pipeliner::PrepareRegWriteReadPipeline() {
       r->value_type_ = reg->value_type_;
       regs.push_back(r);
       tab_->registers_.push_back(r);
-      d->regs_[i] = r;
+      d->loop_state_regs_[i] = r;
     }
   }
   // Update for stages.
@@ -300,9 +300,9 @@ void Pipeliner::PrepareRegWriteReadPipeline() {
       int pindex = macrostage * interval_ + (interval_ - 1);
       IState *pst = pipeline_stages_[pindex];
       IInsn *insn = new IInsn(assign);
-      IRegister *src = d->regs_[lindex - 1];
+      IRegister *src = d->loop_state_regs_[lindex - 1];
       insn->inputs_.push_back(src);
-      IRegister *dst = d->regs_[lindex];
+      IRegister *dst = d->loop_state_regs_[lindex];
       insn->outputs_.push_back(dst);
       pst->insns_.push_back(insn);
       ostream &os = opt_log_->Insn(insn);
@@ -312,6 +312,9 @@ void Pipeliner::PrepareRegWriteReadPipeline() {
 }
 void Pipeliner::PrepareInsnCondRegPipeline() {
   vector<IRegister *> cond_regs = insn_cond_->GetConditions();
+  for (IRegister *reg : cond_regs) {
+    (void)reg;  // WIP.
+  }
 }
 
 IRegister *Pipeliner::LookupStagedReg(int lidx, IRegister *reg) {
@@ -320,8 +323,8 @@ IRegister *Pipeliner::LookupStagedReg(int lidx, IRegister *reg) {
     return reg;
   }
   WRDep *dep = it->second;
-  auto jt = dep->regs_.find(lidx - 1);
-  if (jt != dep->regs_.end()) {
+  auto jt = dep->loop_state_regs_.find(lidx - 1);
+  if (jt != dep->loop_state_regs_.end()) {
     return jt->second;
   }
   return reg;
@@ -339,7 +342,7 @@ void Pipeliner::UpdatePipelineRegWrite() {
           continue;
         }
         WRDep *dep = it->second;
-        IRegister *preg0 = (dep->regs_.begin()->second);
+        IRegister *preg0 = (dep->loop_state_regs_.begin()->second);
         if (reg->IsStateLocal()) {
           // preg0 <- reg
           IInsn *a = new IInsn(assign);
