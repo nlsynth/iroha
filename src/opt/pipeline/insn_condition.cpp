@@ -57,7 +57,8 @@ void InsnCondition::Dump(OptimizerLog *log) {
   for (auto &q : cond_reg_info_) {
     ostream &os = log->Reg(q.first);
     ConditionRegInfo *info = q.second;
-    os << " *C" << info->last_use_ << " ";
+    int cond_st = lb_->GetIndexFromState(info->branch_st_);
+    os << " *C" << cond_st << ":" << info->last_use_ << " ";
     for (auto &v : info->values_) {
       os << v;
     }
@@ -177,7 +178,7 @@ void InsnCondition::BuildConditionRegInfo() {
     for (auto &r : cvinfo->cond_to_value_) {
       IRegister *cond_reg = r.first;
       ConditionRegInfo *reg_info = GetCondRegInfo(cond_reg);
-      if (reg_info->last_use_ > st_index) {
+      if (reg_info->last_use_ < st_index) {
         reg_info->last_use_ = st_index;
       }
       auto it = cvinfo->cond_to_value_.find(cond_reg);
