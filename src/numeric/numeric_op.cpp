@@ -20,67 +20,68 @@ void Op::Sub0(const NumericValue &x, const NumericValue &y, NumericValue *a) {
   a->SetValue0(x.GetValue0() - y.GetValue0());
 }
 
-void Op::MakeConst0(uint64_t value, NumericValue *v) {
-  v->SetValue0(value);
+void Op::MakeConst0(uint64_t value, NumericValue *v) { v->SetValue0(value); }
+
+void Op::MakeConst(uint64_t value, const NumericWidth &w, NumericValue *v) {
+  if (w.IsExtraWide()) {
+    v->extra_wide_value_->Clear();
+    v->extra_wide_value_->value_[0] = value;
+  } else {
+    MakeConst0(value, v);
+  }
 }
 
 void Op::CalcBinOp(BinOp op, const NumericValue &x, const NumericValue &y,
-		   const NumericWidth &w, NumericValue *res) {
+                   const NumericWidth &w, NumericValue *res) {
   if (w.IsWide()) {
     switch (op) {
-    case BINOP_LSHIFT:
-    case BINOP_RSHIFT:
-      {
-	int c = y.GetValue0();
-	if (w.IsExtraWide()) {
-	  WideOp::ShiftExtraWide(x, c, (op == BINOP_LSHIFT), res);
-	} else {
-	  WideOp::Shift(x, c, (op == BINOP_LSHIFT), res);
-	}
-      }
-      break;
-    case BINOP_AND:
-    case BINOP_OR:
-    case BINOP_XOR:
-      {
-	WideOp::BinBitOp(op, x, y, res);
-      }
-      break;
-    case BINOP_MUL:
-    case BINOP_DIV:
-      // These are not usable for wide nums.
-      return;
-      break;
+      case BINOP_LSHIFT:
+      case BINOP_RSHIFT: {
+        int c = y.GetValue0();
+        if (w.IsExtraWide()) {
+          WideOp::ShiftExtraWide(x, c, (op == BINOP_LSHIFT), res);
+        } else {
+          WideOp::Shift(x, c, (op == BINOP_LSHIFT), res);
+        }
+      } break;
+      case BINOP_AND:
+      case BINOP_OR:
+      case BINOP_XOR: {
+        WideOp::BinBitOp(op, x, y, res);
+      } break;
+      case BINOP_MUL:
+      case BINOP_DIV:
+        // These are not usable for wide nums.
+        return;
+        break;
     }
     return;
   }
   switch (op) {
-  case BINOP_LSHIFT:
-  case BINOP_RSHIFT:
-    {
+    case BINOP_LSHIFT:
+    case BINOP_RSHIFT: {
       int c = y.GetValue0();
       if (op == BINOP_LSHIFT) {
-	res->SetValue0(x.GetValue0() << c);
+        res->SetValue0(x.GetValue0() << c);
       } else {
-	res->SetValue0(x.GetValue0() >> c);
+        res->SetValue0(x.GetValue0() >> c);
       }
-    }
-    break;
-  case BINOP_AND:
-    res->SetValue0(x.GetValue0() & y.GetValue0());
-    break;
-  case BINOP_OR:
-    res->SetValue0(x.GetValue0() | y.GetValue0());
-    break;
-  case BINOP_XOR:
-    res->SetValue0(x.GetValue0() ^ y.GetValue0());
-    break;
-  case BINOP_MUL:
-    res->SetValue0(x.GetValue0() * y.GetValue0());
-    break;
-  case BINOP_DIV:
-    res->SetValue0(x.GetValue0() / y.GetValue0());
-    break;
+    } break;
+    case BINOP_AND:
+      res->SetValue0(x.GetValue0() & y.GetValue0());
+      break;
+    case BINOP_OR:
+      res->SetValue0(x.GetValue0() | y.GetValue0());
+      break;
+    case BINOP_XOR:
+      res->SetValue0(x.GetValue0() ^ y.GetValue0());
+      break;
+    case BINOP_MUL:
+      res->SetValue0(x.GetValue0() * y.GetValue0());
+      break;
+    case BINOP_DIV:
+      res->SetValue0(x.GetValue0() / y.GetValue0());
+      break;
   }
 }
 
@@ -95,7 +96,7 @@ void Op::Clear(NumericWidth &w, NumericValue *val) {
       val->extra_wide_value_->Clear();
     } else {
       for (int i = 0; i < 8; ++i) {
-	val->value_[i] = 0;
+        val->value_[i] = 0;
       }
     }
   } else {
@@ -104,7 +105,7 @@ void Op::Clear(NumericWidth &w, NumericValue *val) {
 }
 
 void Op::Set(const NumericWidth &sw, const NumericValue &src,
-	     const NumericWidth &dw, NumericValue *dst) {
+             const NumericWidth &dw, NumericValue *dst) {
   const uint64_t *sv;
   if (sw.IsExtraWide()) {
     sv = src.extra_wide_value_->value_;
@@ -134,7 +135,7 @@ void Op::Set(const NumericWidth &sw, const NumericValue &src,
 }
 
 bool Op::Eq(const NumericWidth &w, const NumericValue &v1,
-	    const NumericValue &v2) {
+            const NumericValue &v2) {
   const uint64_t *s1;
   const uint64_t *s2;
   if (w.IsExtraWide()) {
@@ -163,14 +164,14 @@ bool Op::Eq(const NumericWidth &w, const NumericValue &v1,
 
 bool Op::Compare0(CompareOp op, const NumericValue &x, const NumericValue &y) {
   switch (op) {
-  case COMPARE_LT:
-    return x.GetValue0() < y.GetValue0();
-  case COMPARE_GT:
-    return x.GetValue0() > y.GetValue0();
-  case COMPARE_EQ:
-    return x.GetValue0() == y.GetValue0();
-  default:
-    break;
+    case COMPARE_LT:
+      return x.GetValue0() < y.GetValue0();
+    case COMPARE_GT:
+      return x.GetValue0() > y.GetValue0();
+    case COMPARE_EQ:
+      return x.GetValue0() == y.GetValue0();
+    default:
+      break;
   }
   return true;
 }
@@ -189,8 +190,7 @@ void Op::FixupValueWidth(const NumericWidth &w, NumericValue *val) {
 }
 
 void Op::SelectBits(const NumericValue &num, const NumericWidth &num_width,
-		    int h, int l,
-		    NumericValue *res, NumericWidth *res_width) {
+                    int h, int l, NumericValue *res, NumericWidth *res_width) {
   int width = h - l + 1;
   if (res_width != nullptr) {
     *res_width = NumericWidth(false, width);
@@ -210,8 +210,8 @@ void Op::SelectBits(const NumericValue &num, const NumericWidth &num_width,
 }
 
 void Op::Concat(const NumericValue &x, const NumericWidth &xw,
-		const NumericValue &y, const NumericWidth &yw,
-		NumericValue *a, NumericWidth *aw) {
+                const NumericValue &y, const NumericWidth &yw, NumericValue *a,
+                NumericWidth *aw) {
   NumericWidth w(false, xw.GetWidth() + yw.GetWidth());
   if (w.IsWide()) {
     WideOp::Concat(x, xw, y, yw, a, aw);
@@ -224,9 +224,9 @@ void Op::Concat(const NumericValue &x, const NumericWidth &xw,
 }
 
 void Op::ConcatWithStorage(const NumericValue &x, const NumericWidth &xw,
-			   const NumericValue &y, const NumericWidth &yw,
-			   NumericManager *mgr,
-			   NumericValue *a, NumericWidth *aw) {
+                           const NumericValue &y, const NumericWidth &yw,
+                           NumericManager *mgr, NumericValue *a,
+                           NumericWidth *aw) {
   NumericWidth w;
   w.SetWidth(xw.GetWidth() + yw.GetWidth());
   Numeric::MayPopulateStorage(w, mgr, a);
@@ -234,10 +234,9 @@ void Op::ConcatWithStorage(const NumericValue &x, const NumericWidth &xw,
 }
 
 void Op::SelectBitsWithStorage(const NumericValue &num,
-			       const NumericWidth &num_width,
-			       int h, int l,
-			       NumericManager *mgr,
-			       NumericValue *res, NumericWidth *res_width) {
+                               const NumericWidth &num_width, int h, int l,
+                               NumericManager *mgr, NumericValue *res,
+                               NumericWidth *res_width) {
   NumericWidth w;
   w.SetWidth(h - l + 1);
   Numeric::MayPopulateStorage(w, mgr, res);
