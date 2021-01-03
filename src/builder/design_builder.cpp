@@ -209,12 +209,12 @@ IRegister *DesignBuilder::BuildRegister(Exp *e, ITable *table) {
   if (!e->Str(5).empty()) {
     // Initial value
     const string &ini = e->Str(5);
-    Numeric value;
-    value.SetValue0(Util::AtoULL(ini));
-    value.type_ = reg->value_type_;
-    Numeric::DefaultManager()->MayPopulateStorage(value.type_,
-                                                  value.GetMutableArray());
-    reg->SetInitialValue(value);
+    Numeric num;
+    num.SetValue0(Util::AtoULL(ini));
+    num.type_ = reg->value_type_;
+    Numeric::DefaultManager()->MayPopulateStorage(num.type_,
+                                                  num.GetMutableValue());
+    reg->SetInitialValue(num);
   }
   if (e->Size() >= 7) {
     BuildResourceParams(e->vec[6], reg->GetMutableParams(true));

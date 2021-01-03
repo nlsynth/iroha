@@ -56,7 +56,7 @@ uint64_t NumericLiteral::Parse0b(const std::string &token) {
 }
 
 void NumericLiteral::ToNumeric(NumericManager *mgr, Numeric *numeric) {
-  iroha::Op::MakeConst0(value, numeric->GetMutableArray());
+  iroha::Op::MakeConst0(value, numeric->GetMutableValue());
   if (width > -1) {
     numeric->type_.SetWidth(width);
   }

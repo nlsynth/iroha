@@ -87,13 +87,13 @@ void Numeric::DeleteManager(NumericManager *mgr) {
 
 void Numeric::CopyValue(const Numeric &src, NumericManager *mgr, Numeric *dst) {
   if (!src.type_.IsExtraWide()) {
-    *(dst->GetMutableArray()) = src.GetArray();
+    *(dst->GetMutableValue()) = src.GetValue();
     return;
   }
   if (mgr == nullptr) {
-    mgr = src.GetArray().extra_wide_value_->owner_;
+    mgr = src.GetValue().extra_wide_value_->owner_;
   }
-  mgr->CopyValue(src, dst->GetMutableArray());
+  mgr->CopyValue(src, dst->GetMutableValue());
 }
 
 void Numeric::CopyValueWithWidth(const NumericValue &src_value,
@@ -164,9 +164,9 @@ void Numeric::MayExpandStorage(NumericManager *mgr, Numeric *n) {
   if (!n->type_.IsExtraWide()) {
     return;
   }
-  NumericValue savedValue = n->GetArray();
-  MayPopulateStorage(n->type_, mgr, n->GetMutableArray());
-  NumericValue *nv = n->GetMutableArray();
+  NumericValue savedValue = n->GetValue();
+  MayPopulateStorage(n->type_, mgr, n->GetMutableValue());
+  NumericValue *nv = n->GetMutableValue();
   nv->extra_wide_value_->Clear();
   for (int i = 0; i < 8; ++i) {
     nv->extra_wide_value_->value_[i] = savedValue.value_[i];

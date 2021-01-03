@@ -30,7 +30,7 @@ void NumericManager::StartGC() {
 
 void NumericManager::MarkStorage(const Numeric *n) {
   // This may contain addresses of undefined locations.
-  marked_values_.insert(n->GetArray().extra_wide_value_);
+  marked_values_.insert(n->GetValue().extra_wide_value_);
 }
 
 void NumericManager::DoGC() {
@@ -48,10 +48,10 @@ void NumericManager::DoGC() {
 
 void NumericManager::CopyValue(const Numeric &src, NumericValue *dst) {
   if (!src.type_.IsExtraWide()) {
-    *dst = src.GetArray();
+    *dst = src.GetValue();
     return;
   }
-  ExtraWideValue *ev = new ExtraWideValue(*src.GetArray().extra_wide_value_);
+  ExtraWideValue *ev = new ExtraWideValue(*src.GetValue().extra_wide_value_);
   dst->extra_wide_value_ = ev;
   ev->owner_ = this;
   values_.insert(ev);

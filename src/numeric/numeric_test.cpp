@@ -19,7 +19,7 @@ class Tool {
 public:
   static uint64_t GetValue(const Numeric &n, int idx) {
     ASSERT(n.type_.IsWide());
-    return n.GetArray().value_[idx];
+    return n.GetValue().value_[idx];
   }
 };
 
@@ -29,7 +29,7 @@ void Shift() {
   TEST_CASE("Shift");
   Numeric n;
   n.type_.SetWidth(512);
-  Op::Clear(n.type_, n.GetMutableArray());
+  Op::Clear(n.type_, n.GetMutableValue());
   n.SetValue0(0xfffffffffffffff0ULL);
   cout << "n=" << n.Format() << "\n";
   ASSERT_EQ(0xfffffffffffffff0UL, n.GetValue0());
@@ -37,38 +37,38 @@ void Shift() {
 
   Numeric m;
   m.type_.SetWidth(512);
-  Op::Clear(m.type_, m.GetMutableArray());
+  Op::Clear(m.type_, m.GetMutableValue());
   // Left
   cout << "Left Shift\n";
-  WideOp::Shift(n.GetArray(), 1, true, m.GetMutableArray());
+  WideOp::Shift(n.GetValue(), 1, true, m.GetMutableValue());
   cout << "m=" << m.Format() << "\n";
   ASSERT_EQ(1, Tool::GetValue(m, 1));
 
-  WideOp::Shift(n.GetArray(), 64, true, m.GetMutableArray());
+  WideOp::Shift(n.GetValue(), 64, true, m.GetMutableValue());
   cout << "m=" << m.Format() << "\n";
   ASSERT_EQ(0, Tool::GetValue(m, 0));
   ASSERT_EQ(Tool::GetValue(n, 0), Tool::GetValue(m, 1));
 
-  WideOp::Shift(n.GetArray(), 65, true, m.GetMutableArray());
+  WideOp::Shift(n.GetValue(), 65, true, m.GetMutableValue());
   cout << "m=" << m.Format() << "\n";
   ASSERT_EQ(1, Tool::GetValue(m, 2));
 
-  WideOp::Shift(n.GetArray(), 385, true, m.GetMutableArray());
+  WideOp::Shift(n.GetValue(), 385, true, m.GetMutableValue());
   cout << "m=" << m.Format() << "\n";
   ASSERT_EQ(1, Tool::GetValue(m, 7));
 
   // Right
   cout << "Right Shift\n";
   n = m;
-  WideOp::Shift(n.GetArray(), 0, false, m.GetMutableArray());
+  WideOp::Shift(n.GetValue(), 0, false, m.GetMutableValue());
   cout << "m=" << m.Format() << "\n";
   ASSERT_EQ(1, Tool::GetValue(m, 7));
 
-  WideOp::Shift(n.GetArray(), 64, false, m.GetMutableArray());
+  WideOp::Shift(n.GetValue(), 64, false, m.GetMutableValue());
   cout << "m=" << m.Format() << "\n";
   ASSERT_EQ(1, Tool::GetValue(m, 6));
 
-  WideOp::Shift(n.GetArray(), 65, false, m.GetMutableArray());
+  WideOp::Shift(n.GetValue(), 65, false, m.GetMutableValue());
   cout << "m=" << m.Format() << "\n";
   ASSERT_EQ(0xfffffffffffffff0ULL, Tool::GetValue(m, 5));
 }
@@ -76,15 +76,15 @@ void Shift() {
 void Concat() {
   TEST_CASE("Concat");
   Numeric m, n;
-  Numeric::Clear(m.type_, m.GetMutableArray());
+  Numeric::Clear(m.type_, m.GetMutableValue());
   m.type_.SetWidth(64);
   m.SetValue0(0x5555555555555550ULL);
-  Numeric::Clear(n.type_, n.GetMutableArray());
+  Numeric::Clear(n.type_, n.GetMutableValue());
   n.type_.SetWidth(63);
   n.SetValue0(0x5555555555555550ULL);
   Numeric r;
-  Op::Concat(m.GetArray(), m.type_, n.GetArray(), n.type_,
-	     r.GetMutableArray(), &r.type_);
+  Op::Concat(m.GetValue(), m.type_, n.GetValue(), n.type_,
+	     r.GetMutableValue(), &r.type_);
   cout << "r=" << r.Format() << "\n";
   ASSERT(r.type_.GetWidth() == 127);
   ASSERT_EQ(0x5555555555555550ULL, Tool::GetValue(r, 0));
@@ -94,16 +94,16 @@ void Concat() {
 void Fixup() {
   TEST_CASE("Fixup");
   Numeric n;
-  Numeric::Clear(n.type_, n.GetMutableArray());
+  Numeric::Clear(n.type_, n.GetMutableValue());
   n.type_.SetWidth(68);
   n.SetValue0(0xfffffffffffffff0ULL);
   Numeric m;
-  WideOp::Shift(n.GetArray(), 16, true, m.GetMutableArray());
+  WideOp::Shift(n.GetValue(), 16, true, m.GetMutableValue());
   m.type_ = n.type_;
   cout << "m=" << m.Format() << "\n";
   ASSERT_EQ(65535, Tool::GetValue(m, 1));
 
-  Op::FixupValueWidth(m.type_, m.GetMutableArray());
+  Op::FixupValueWidth(m.type_, m.GetMutableValue());
   cout << "m=" << m.Format() << "\n";
   ASSERT_EQ(15, Tool::GetValue(m, 1));
 }
@@ -120,15 +120,15 @@ void Basic() {
 
   Numeric w;
   w.type_.SetWidth(512);
-  Op::Clear(w.type_, w.GetMutableArray());
+  Op::Clear(w.type_, w.GetMutableValue());
   cout << "w=" << w.Format() << "\n";
-  ASSERT(Op::IsZero(w.type_, w.GetArray()));
+  ASSERT(Op::IsZero(w.type_, w.GetValue()));
 }
 
 void ExtraWide() {
   TEST_CASE("ExtraWide");
   Numeric n;
-  Numeric::Clear(n.type_, n.GetMutableArray());
+  Numeric::Clear(n.type_, n.GetMutableValue());
   n.SetValue0(2);
   n.type_.SetWidth(1024);
   Numeric::MayExpandStorage(nullptr, &n);
@@ -136,28 +136,28 @@ void ExtraWide() {
 
   Numeric nn;
   nn.type_.SetWidth(768);
-  Numeric::MayPopulateStorage(nn.type_, nullptr, nn.GetMutableArray());
+  Numeric::MayPopulateStorage(nn.type_, nullptr, nn.GetMutableValue());
 
-  Op::SelectBits(n.GetArray(), n.type_,
-		 768, 1, nn.GetMutableArray(), nullptr);
+  Op::SelectBits(n.GetValue(), n.type_,
+		 768, 1, nn.GetMutableValue(), nullptr);
   ASSERT(nn.GetValue0() == 1);
 
   Numeric m;
-  Op::SelectBits(n.GetArray(), n.type_,
-		 512, 1, m.GetMutableArray(), nullptr);
+  Op::SelectBits(n.GetValue(), n.type_,
+		 512, 1, m.GetMutableValue(), nullptr);
   ASSERT(m.GetValue0() == 1);
 }
 
 void Set() {
   TEST_CASE("Set");
   Numeric s;
-  Numeric::Clear(s.type_, s.GetMutableArray());
+  Numeric::Clear(s.type_, s.GetMutableValue());
   s.SetValue0(1);
   s.type_.SetWidth(64);
 
   Numeric d;
   d.type_.SetWidth(64);
-  Op::Set(s.type_, s.GetArray(), d.type_, d.GetMutableArray());
+  Op::Set(s.type_, s.GetValue(), d.type_, d.GetMutableValue());
   ASSERT(d.GetValue0() == 1);
 }
 
@@ -168,9 +168,9 @@ void Eq() {
   n1.SetValue0(0x105);
   n2.type_.SetWidth(8);
   n2.SetValue0(0x05);
-  ASSERT(Op::Eq(n1.type_, n1.GetArray(), n2.GetArray()));
+  ASSERT(Op::Eq(n1.type_, n1.GetValue(), n2.GetValue()));
   n1.type_.SetWidth(9);
-  ASSERT(!Op::Eq(n1.type_, n1.GetArray(), n2.GetArray()));
+  ASSERT(!Op::Eq(n1.type_, n1.GetValue(), n2.GetValue()));
 }
 
 void Literal() {

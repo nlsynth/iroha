@@ -7,6 +7,7 @@
 
 namespace iroha {
 
+// Numeric = Value AND Width (namely NumericValue and NumericWidth).
 class Numeric {
 public:
   Numeric();
@@ -22,10 +23,10 @@ public:
     }
   }
   void SetValue0(uint64_t value);
-  const NumericValue &GetArray() const {
+  const NumericValue &GetValue() const {
     return value_;
   }
-  NumericValue *GetMutableArray() {
+  NumericValue *GetMutableValue() {
     return &value_;
   }
   std::string Format() const;
