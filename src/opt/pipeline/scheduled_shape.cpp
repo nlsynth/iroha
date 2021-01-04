@@ -1,4 +1,4 @@
-#include "opt/pipeline/shape.h"
+#include "opt/pipeline/scheduled_shape.h"
 
 #include "opt/pipeline/stage_scheduler.h"
 
@@ -6,11 +6,11 @@ namespace iroha {
 namespace opt {
 namespace pipeline {
 
-Shape::Shape(StageScheduler *ssch) : ssch_(ssch) {}
+ScheduledShape::ScheduledShape(StageScheduler *ssch) : ssch_(ssch) {}
 
-Shape::~Shape() {}
+ScheduledShape::~ScheduledShape() {}
 
-vector<pair<int, int>> &Shape::GetPipelineLocation() {
+vector<pair<int, int>> &ScheduledShape::GetPipelineLocation() {
   if (locs_.size() != 0) {
     return locs_;
   }
@@ -38,7 +38,7 @@ vector<pair<int, int>> &Shape::GetPipelineLocation() {
   return locs_;
 }
 
-vector<pair<int, int>> Shape::GetPipeLineIndexRange(int s, int e) {
+vector<pair<int, int>> ScheduledShape::GetPipeLineIndexRange(int s, int e) {
   vector<pair<int, int>> v;
   vector<pair<int, int>> &pl = GetPipelineLocation();
   for (auto &p : pl) {

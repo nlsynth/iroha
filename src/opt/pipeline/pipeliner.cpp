@@ -8,7 +8,7 @@
 #include "opt/optimizer_log.h"
 #include "opt/pipeline/insn_condition.h"
 #include "opt/pipeline/reg_info.h"
-#include "opt/pipeline/shape.h"
+#include "opt/pipeline/scheduled_shape.h"
 #include "opt/pipeline/stage_scheduler.h"
 
 namespace iroha {
@@ -24,7 +24,7 @@ Pipeliner::Pipeliner(ITable *tab, StageScheduler *ssch, RegInfo *reg_info,
       lb_(ssch->GetLoop()),
       interval_(ssch_->GetInterval()),
       opt_log_(nullptr),
-      shape_(new Shape(ssch)),
+      scheduled_shape_(new ScheduledShape(ssch)),
       prologue_st_(nullptr) {
   opt_log_ = tab->GetModule()->GetDesign()->GetOptimizerLog();
 }
@@ -46,7 +46,7 @@ bool Pipeliner::Pipeline() {
     tab_->states_.push_back(st);
   }
   PrepareRegWriteReadPipeline();
-  vector<pair<int, int>> loc = shape_->GetPipelineLocation();
+  vector<pair<int, int>> loc = scheduled_shape_->GetPipelineLocation();
   for (pair<int, int> &p : loc) {
     int pipeline_macro_stage_index = p.first;
     int loop_macro_stage_index = p.second;
@@ -289,7 +289,7 @@ void Pipeliner::PrepareRegWriteReadPipeline() {
   for (auto p : reg_info_->wr_deps_) {
     WRDep *d = p.second;
     vector<pair<int, int>> v =
-        shape_->GetPipeLineIndexRange(d->wst_index_, d->rst_index_);
+        scheduled_shape_->GetPipeLineIndexRange(d->wst_index_, d->rst_index_);
     for (auto &p : v) {
       int macrostage = p.first;
       int lindex = p.second;

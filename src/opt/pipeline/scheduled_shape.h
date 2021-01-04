@@ -1,6 +1,6 @@
 // -*- C++ -*-
-#ifndef _opt_pipeline_shape_h_
-#define _opt_pipeline_shape_h_
+#ifndef _opt_pipeline_scheduled_shape_h_
+#define _opt_pipeline_scheduled_shape_h_
 
 #include "opt/common.h"
 
@@ -10,10 +10,10 @@ namespace pipeline {
 
 class StageScheduler;
 
-class Shape {
+class ScheduledShape {
  public:
-  Shape(StageScheduler *ssch);
-  ~Shape();
+  ScheduledShape(StageScheduler *ssch);
+  ~ScheduledShape();
 
   // pipeline macro stage, loop index.
   vector<pair<int, int>> &GetPipelineLocation();
@@ -28,4 +28,4 @@ class Shape {
 }  // namespace opt
 }  // namespace iroha
 
-#endif  // _opt_pipeline_shape_h_
+#endif  // _opt_pipeline_scheduled_shape_h_
