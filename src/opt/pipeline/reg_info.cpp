@@ -4,6 +4,7 @@
 #include "iroha/stl_util.h"
 #include "opt/loop/loop_block.h"
 #include "opt/optimizer_log.h"
+#include "opt/pipeline/stage_scheduler.h"
 
 namespace iroha {
 namespace opt {
@@ -13,7 +14,16 @@ RegInfo::RegInfo(loop::LoopBlock *lb) : lb_(lb) {}
 
 RegInfo::~RegInfo() { STLDeleteSecondElements(&wr_deps_); }
 
-bool RegInfo::BuildWRDep(OptimizerLog *opt_log) {
+bool RegInfo::BuildWRDep(StageScheduler *ssch, OptimizerLog *opt_log) {
+  if (!BuildLoopState(opt_log)) {
+    return false;
+  }
+  SetMacroStageIndex(ssch);
+  Dump(opt_log);
+  return true;
+}
+
+bool RegInfo::BuildLoopState(OptimizerLog *opt_log) {
   map<IRegister *, int> write_pos;
   map<IRegister *, int> last_read_pos;
   int sindex = 0;
@@ -56,8 +66,15 @@ bool RegInfo::BuildWRDep(OptimizerLog *opt_log) {
       wr_deps_[reg] = dep;
     }
   }
-  Dump(opt_log);
   return true;
+}
+
+void RegInfo::SetMacroStageIndex(StageScheduler *ssch) {
+  for (auto p : wr_deps_) {
+    WRDep *d = p.second;
+    d->read_mst_index_ = ssch->GetMacroStageFromLoopIndex(d->read_lst_index_);
+    d->write_mst_index_ = ssch->GetMacroStageFromLoopIndex(d->write_lst_index_);
+  }
 }
 
 void RegInfo::Dump(OptimizerLog *opt_log) {
@@ -71,8 +88,11 @@ void RegInfo::Dump(OptimizerLog *opt_log) {
     IRegister *reg = p.first;
     auto &sts = lb_->GetStates();
     os << "r_" << reg->GetId() << " " << reg->GetName()
-       << " w:" << sts[d->write_lst_index_]->GetId()
-       << " r:" << sts[d->read_lst_index_]->GetId() << "<br/>\n";
+       << " w:" << sts[d->write_lst_index_]->GetId() << " ("
+       << d->write_mst_index_ << ")"
+       << " r:" << sts[d->read_lst_index_]->GetId() << " ("
+       << d->read_mst_index_ << ")"
+       << "<br/>\n";
   }
 }
 

@@ -171,6 +171,10 @@ void StageScheduler::ScheduleMacroStages() {
   }
 }
 
+int StageScheduler::GetMacroStageFromLoopIndex(int i) {
+  return macro_stage_indexes_[i];
+}
+
 }  // namespace pipeline
 }  // namespace opt
 }  // namespace iroha

@@ -29,6 +29,7 @@ class StageScheduler {
   int GetPipelineStageLength();
   int GetMacroStageCount();
   MacroStage &GetMacroStage(int s);
+  int GetMacroStageFromLoopIndex(int i);
 
  private:
   bool IsBodyInsn(IInsn *insn);
