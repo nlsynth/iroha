@@ -26,6 +26,12 @@ class RegInfo {
 
   bool BuildWRDep(OptimizerLog *opt_log);
 
+  map<IRegister *, WRDep *> &GetWRDeps();
+  WRDep *GetWRDep(IRegister *reg);
+
+ private:
+  void Dump(OptimizerLog *opt_log);
+
   loop::LoopBlock *lb_;
   map<IRegister *, WRDep *> wr_deps_;
 };

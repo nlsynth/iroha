@@ -275,7 +275,7 @@ string Pipeliner::RegName(const string &base, int index) {
 
 void Pipeliner::PrepareRegWriteReadPipeline() {
   // Prepare regs.
-  for (auto p : reg_info_->wr_deps_) {
+  for (auto p : reg_info_->GetWRDeps()) {
     WRDep *d = p.second;
     IRegister *reg = p.first;
     vector<IRegister *> regs;
@@ -289,7 +289,7 @@ void Pipeliner::PrepareRegWriteReadPipeline() {
   }
   // Update for stages.
   IResource *assign = DesignUtil::FindAssignResource(tab_);
-  for (auto p : reg_info_->wr_deps_) {
+  for (auto p : reg_info_->GetWRDeps()) {
     WRDep *d = p.second;
     vector<pair<int, int>> v = scheduled_shape_->GetPipeLineIndexRange(
         d->write_lst_index_, d->read_lst_index_);
@@ -321,11 +321,10 @@ void Pipeliner::PrepareInsnCondRegPipeline() {
 }
 
 IRegister *Pipeliner::LookupStagedReg(int lidx, IRegister *reg) {
-  auto it = reg_info_->wr_deps_.find(reg);
-  if (it == reg_info_->wr_deps_.end()) {
+  WRDep *dep = reg_info_->GetWRDep(reg);
+  if (dep == nullptr) {
     return reg;
   }
-  WRDep *dep = it->second;
   auto jt = dep->loop_state_regs_.find(lidx - 1);
   if (jt != dep->loop_state_regs_.end()) {
     return jt->second;
@@ -340,11 +339,10 @@ void Pipeliner::UpdatePipelineRegWrite() {
     for (IInsn *insn : st->insns_) {
       for (int i = 0; i < insn->outputs_.size(); ++i) {
         IRegister *reg = insn->outputs_[i];
-        auto it = reg_info_->wr_deps_.find(reg);
-        if (it == reg_info_->wr_deps_.end()) {
+        WRDep *dep = reg_info_->GetWRDep(reg);
+        if (dep == nullptr) {
           continue;
         }
-        WRDep *dep = it->second;
         IRegister *preg0 = (dep->loop_state_regs_.begin()->second);
         if (reg->IsStateLocal()) {
           // preg0 <- reg

@@ -39,7 +39,6 @@ bool RegInfo::BuildWRDep(OptimizerLog *opt_log) {
     }
     ++sindex;
   }
-  ostream &os = opt_log->GetDumpStream();
   for (auto it : last_read_pos) {
     IRegister *reg = it.first;
     auto jt = write_pos.find(reg);
@@ -57,18 +56,34 @@ bool RegInfo::BuildWRDep(OptimizerLog *opt_log) {
       wr_deps_[reg] = dep;
     }
   }
-  if (wr_deps_.size() > 0) {
-    os << "In pipleine register W-R dependencies.<br/>\n";
-    for (auto p : wr_deps_) {
-      WRDep *d = p.second;
-      IRegister *reg = p.first;
-      auto &sts = lb_->GetStates();
-      os << "r_" << reg->GetId() << " " << reg->GetName()
-         << " w:" << sts[d->write_lst_index_]->GetId()
-         << " r:" << sts[d->read_lst_index_]->GetId() << "<br/>\n";
-    }
-  }
+  Dump(opt_log);
   return true;
+}
+
+void RegInfo::Dump(OptimizerLog *opt_log) {
+  if (wr_deps_.size() == 0) {
+    return;
+  }
+  ostream &os = opt_log->GetDumpStream();
+  os << "In pipleine register W-R dependencies.<br/>\n";
+  for (auto p : wr_deps_) {
+    WRDep *d = p.second;
+    IRegister *reg = p.first;
+    auto &sts = lb_->GetStates();
+    os << "r_" << reg->GetId() << " " << reg->GetName()
+       << " w:" << sts[d->write_lst_index_]->GetId()
+       << " r:" << sts[d->read_lst_index_]->GetId() << "<br/>\n";
+  }
+}
+
+map<IRegister *, WRDep *> &RegInfo::GetWRDeps() { return wr_deps_; }
+
+WRDep *RegInfo::GetWRDep(IRegister *reg) {
+  auto it = wr_deps_.find(reg);
+  if (it == wr_deps_.end()) {
+    return nullptr;
+  }
+  return it->second;
 }
 
 }  // namespace pipeline
