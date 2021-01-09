@@ -23,6 +23,7 @@ class Pipeliner {
   bool Pipeline();
 
  private:
+  void PrepareStates();
   void PlaceState(int pipeline_macro_stage_index, int loop_macro_stage_index);
   IRegister *MayUpdateWireReg(IState *pst, IRegister *reg);
   void UpdateRegs(IState *pst, int lidx, bool is_output,

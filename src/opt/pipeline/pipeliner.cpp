@@ -36,15 +36,7 @@ bool Pipeliner::Pipeline() {
   ostream &os = opt_log_->GetDumpStream();
   os << "Pipeliner " << ssch_->GetMacroStageCount() << " states, "
      << lb_->GetLoopCount() << " loop, interval=" << interval_ << " <br/>\n";
-  // prepare states.
-  prologue_st_ = new IState(tab_);
-  tab_->states_.push_back(prologue_st_);
-  int plen = ssch_->GetPipelineStageLength();
-  for (int i = 0; i < plen; ++i) {
-    IState *st = new IState(tab_);
-    pipeline_stages_.push_back(st);
-    tab_->states_.push_back(st);
-  }
+  PrepareStates();
   PrepareRegWriteReadPipeline();
   vector<pair<int, int>> loc = scheduled_shape_->GetPipelineLocation();
   for (pair<int, int> &p : loc) {
@@ -61,6 +53,17 @@ bool Pipeliner::Pipeline() {
   SetupExit();
   ConnectPipeline();
   return true;
+}
+
+void Pipeliner::PrepareStates() {
+  prologue_st_ = new IState(tab_);
+  tab_->states_.push_back(prologue_st_);
+  int plen = ssch_->GetPipelineStageLength();
+  for (int i = 0; i < plen; ++i) {
+    IState *st = new IState(tab_);
+    pipeline_stages_.push_back(st);
+    tab_->states_.push_back(st);
+  }
 }
 
 void Pipeliner::PlaceState(int pipeline_macro_stage_index,
@@ -276,7 +279,7 @@ void Pipeliner::PrepareRegWriteReadPipeline() {
     WRDep *d = p.second;
     IRegister *reg = p.first;
     vector<IRegister *> regs;
-    for (int i = d->wst_index_; i < d->rst_index_; ++i) {
+    for (int i = d->write_lst_index_; i < d->read_lst_index_; ++i) {
       IRegister *r = new IRegister(tab_, reg->GetName() + "_s" + Util::Itoa(i));
       r->value_type_ = reg->value_type_;
       regs.push_back(r);
@@ -288,12 +291,12 @@ void Pipeliner::PrepareRegWriteReadPipeline() {
   IResource *assign = DesignUtil::FindAssignResource(tab_);
   for (auto p : reg_info_->wr_deps_) {
     WRDep *d = p.second;
-    vector<pair<int, int>> v =
-        scheduled_shape_->GetPipeLineIndexRange(d->wst_index_, d->rst_index_);
+    vector<pair<int, int>> v = scheduled_shape_->GetPipeLineIndexRange(
+        d->write_lst_index_, d->read_lst_index_);
     for (auto &p : v) {
       int macrostage = p.first;
       int lindex = p.second;
-      if (lindex == d->wst_index_) {
+      if (lindex == d->write_lst_index_) {
         // rewrite of insn->outputs_ is performed later.
         continue;
       }

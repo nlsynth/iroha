@@ -52,8 +52,8 @@ bool RegInfo::BuildWRDep(OptimizerLog *opt_log) {
     if (windex < rindex) {
       // Write -> Read.
       WRDep *dep = new WRDep();
-      dep->wst_index_ = windex;
-      dep->rst_index_ = rindex;
+      dep->write_lst_index_ = windex;
+      dep->read_lst_index_ = rindex;
       wr_deps_[reg] = dep;
     }
   }
@@ -64,8 +64,8 @@ bool RegInfo::BuildWRDep(OptimizerLog *opt_log) {
       IRegister *reg = p.first;
       auto &sts = lb_->GetStates();
       os << "r_" << reg->GetId() << " " << reg->GetName()
-         << " w:" << sts[d->wst_index_]->GetId()
-         << " r:" << sts[d->rst_index_]->GetId() << "<br/>\n";
+         << " w:" << sts[d->write_lst_index_]->GetId()
+         << " r:" << sts[d->read_lst_index_]->GetId() << "<br/>\n";
     }
   }
   return true;

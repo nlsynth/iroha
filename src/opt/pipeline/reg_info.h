@@ -12,8 +12,8 @@ namespace pipeline {
 class WRDep {
  public:
   // state in the loop.
-  int wst_index_;
-  int rst_index_;
+  int write_lst_index_;
+  int read_lst_index_;
   // keyed by state index in the loop.
   // write in index-th state and read in index+1th state.
   map<int, IRegister *> loop_state_regs_;
