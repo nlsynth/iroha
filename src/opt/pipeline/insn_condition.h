@@ -8,6 +8,8 @@ namespace iroha {
 namespace opt {
 namespace pipeline {
 
+class StageScheduler;
+
 // per state.
 struct InsnConditionValueInfo {
   map<IRegister *, int> cond_to_value_;
@@ -16,18 +18,20 @@ struct InsnConditionValueInfo {
 
 struct ConditionRegInfo {
   IState *branch_st_;
-  int last_use_;
+  int last_use_lst_;
+  int last_use_mst_;
   set<int> values_;
 };
 
 // Finds conditional executions in a pipeline.
 class InsnCondition {
  public:
-  InsnCondition(loop::LoopBlock *lb);
+  InsnCondition(loop::LoopBlock *lb, StageScheduler *ssch);
   ~InsnCondition();
 
   bool Build(OptimizerLog *log);
   vector<IRegister *> GetConditions();
+  // In macro stage.
   int GetConditionStateIndex(IRegister *reg);
   int GetConditionLastUseStateIndex(IRegister *cond_reg);
 
@@ -40,10 +44,12 @@ class InsnCondition {
   void CollectSideEffectInsns();
   void BuildConditionRegInfo();
   ConditionRegInfo *GetCondRegInfo(IRegister *cond_reg);
+  void SetMacroStageIndex();
   void Dump(OptimizerLog *log);
 
   ITable *tab_;
   loop::LoopBlock *lb_;
+  StageScheduler *ssch_;
   set<IState *> states_;
   vector<IState *> branches_;
   map<IState *, InsnConditionValueInfo *> cond_value_info_;

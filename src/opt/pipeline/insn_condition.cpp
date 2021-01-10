@@ -6,13 +6,14 @@
 #include "iroha/stl_util.h"
 #include "opt/loop/loop_block.h"
 #include "opt/optimizer_log.h"
+#include "opt/pipeline/stage_scheduler.h"
 
 namespace iroha {
 namespace opt {
 namespace pipeline {
 
-InsnCondition::InsnCondition(loop::LoopBlock *lb)
-    : tab_(lb->GetTable()), lb_(lb) {}
+InsnCondition::InsnCondition(loop::LoopBlock *lb, StageScheduler *ssch)
+    : tab_(lb->GetTable()), lb_(lb), ssch_(ssch) {}
 
 InsnCondition::~InsnCondition() {
   STLDeleteSecondElements(&cond_value_info_);
@@ -29,6 +30,7 @@ bool InsnCondition::Build(OptimizerLog *log) {
   }
   CollectSideEffectInsns();
   BuildConditionRegInfo();
+  SetMacroStageIndex();
   Dump(log);
   return true;
 }
@@ -50,7 +52,7 @@ int InsnCondition::GetConditionStateIndex(IRegister *cond_reg) {
 
 int InsnCondition::GetConditionLastUseStateIndex(IRegister *cond_reg) {
   auto *cr = GetCondRegInfo(cond_reg);
-  return cr->last_use_;
+  return cr->last_use_mst_;
 }
 
 void InsnCondition::Dump(OptimizerLog *log) {
@@ -68,7 +70,7 @@ void InsnCondition::Dump(OptimizerLog *log) {
     ostream &os = log->Reg(q.first);
     ConditionRegInfo *info = q.second;
     int cond_st = lb_->GetIndexFromState(info->branch_st_);
-    os << " *C" << cond_st << ":" << info->last_use_ << " ";
+    os << " *C" << cond_st << ":" << info->last_use_lst_ << " ";
     for (auto &v : info->values_) {
       os << v;
     }
@@ -173,7 +175,7 @@ ConditionRegInfo *InsnCondition::GetCondRegInfo(IRegister *cond_reg) {
   auto it = cond_reg_info_.find(cond_reg);
   if (it == cond_reg_info_.end()) {
     reg_info = new ConditionRegInfo();
-    reg_info->last_use_ = -1;
+    reg_info->last_use_lst_ = -1;
     cond_reg_info_[cond_reg] = reg_info;
   } else {
     reg_info = it->second;
@@ -188,14 +190,22 @@ void InsnCondition::BuildConditionRegInfo() {
     for (auto &r : cvinfo->cond_to_value_) {
       IRegister *cond_reg = r.first;
       ConditionRegInfo *reg_info = GetCondRegInfo(cond_reg);
-      if (reg_info->last_use_ < st_index) {
-        reg_info->last_use_ = st_index;
+      if (reg_info->last_use_lst_ < st_index) {
+        reg_info->last_use_lst_ = st_index;
       }
       auto it = cvinfo->cond_to_value_.find(cond_reg);
       if (it != cvinfo->cond_to_value_.end()) {
         reg_info->values_.insert(it->second);
       }
     }
+  }
+}
+
+void InsnCondition::SetMacroStageIndex() {
+  for (auto &p : cond_reg_info_) {
+    ConditionRegInfo *info = p.second;
+    info->last_use_mst_ =
+        ssch_->GetMacroStageFromLoopIndex(info->last_use_lst_);
   }
 }
 

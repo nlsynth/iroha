@@ -53,7 +53,7 @@ bool PipelinePass::ApplyForTable(const string &key, ITable *table) {
     if (!regInfo.BuildWRDep(opt_log_)) {
       continue;
     }
-    InsnCondition insnCond(&lb);
+    InsnCondition insnCond(&lb, &ssch);
     if (!insnCond.Build(opt_log_)) {
       continue;
     }
