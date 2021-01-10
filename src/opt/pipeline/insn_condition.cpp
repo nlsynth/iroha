@@ -47,12 +47,18 @@ vector<IRegister *> InsnCondition::GetConditions() {
 
 int InsnCondition::GetConditionStateIndex(IRegister *cond_reg) {
   auto *cr = GetCondRegInfo(cond_reg);
-  return lb_->GetIndexFromState(cr->branch_st_);
+  return cr->branch_mst_;
 }
 
 int InsnCondition::GetConditionLastUseStateIndex(IRegister *cond_reg) {
   auto *cr = GetCondRegInfo(cond_reg);
   return cr->last_use_mst_;
+}
+
+map<int, IRegister *> &InsnCondition::GetConditionRegStages(
+    IRegister *cond_reg) {
+  auto *cr = GetCondRegInfo(cond_reg);
+  return cr->macro_stage_regs_;
 }
 
 void InsnCondition::Dump(OptimizerLog *log) {
@@ -206,6 +212,7 @@ void InsnCondition::SetMacroStageIndex() {
     ConditionRegInfo *info = p.second;
     info->last_use_mst_ =
         ssch_->GetMacroStageFromLoopIndex(info->last_use_lst_);
+    info->branch_mst_ = lb_->GetIndexFromState(info->branch_st_);
   }
 }
 

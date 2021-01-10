@@ -18,8 +18,11 @@ struct InsnConditionValueInfo {
 
 struct ConditionRegInfo {
   IState *branch_st_;
+  int branch_mst_;
   int last_use_lst_;
   int last_use_mst_;
+  map<int, IRegister *> macro_stage_regs_;
+
   set<int> values_;
 };
 
@@ -34,6 +37,7 @@ class InsnCondition {
   // In macro stage.
   int GetConditionStateIndex(IRegister *reg);
   int GetConditionLastUseStateIndex(IRegister *cond_reg);
+  map<int, IRegister *> &GetConditionRegStages(IRegister *cond_reg);
 
  private:
   void CollectBranches();
