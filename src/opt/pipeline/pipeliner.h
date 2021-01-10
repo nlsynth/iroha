@@ -37,7 +37,8 @@ class Pipeliner {
   string RegName(const string &base, int index);
   void PrepareRegWriteReadPipelineStages();
   void PrepareRegWriteReadPipelineRegs();
-  void PrepareInsnCondRegPipeline();
+  void PrepareInsnCondRegPipelineStages();
+  void PrepareInsnCondRegPipelineRegs();
   void UpdatePipelineRegWrite();
   IRegister *LookupStagedReg(int lidx, IRegister *reg);
 

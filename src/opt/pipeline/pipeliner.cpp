@@ -46,7 +46,7 @@ bool Pipeliner::Pipeline() {
     PlaceState(pipeline_macro_stage_index, loop_macro_stage_index);
   }
   UpdatePipelineRegWrite();
-  PrepareInsnCondRegPipeline();
+  PrepareInsnCondRegPipelineRegs();
   SetupCounter();
   SetupCounterIncrement();
   UpdateCounterRead();
@@ -312,23 +312,32 @@ void Pipeliner::PrepareRegWriteReadPipelineRegs() {
   for (auto p : reg_info_->GetWRDeps()) {
     WRDep *d = p.second;
     IRegister *reg = p.first;
-    vector<IRegister *> regs;
     for (int i = d->write_mst_index_; i < d->read_mst_index_; ++i) {
       IRegister *r = new IRegister(tab_, reg->GetName() + "_s" + Util::Itoa(i));
       r->value_type_ = reg->value_type_;
-      regs.push_back(r);
       tab_->registers_.push_back(r);
       d->macro_stage_regs_[i] = r;
     }
   }
 }
 
-void Pipeliner::PrepareInsnCondRegPipeline() {
+void Pipeliner::PrepareInsnCondRegPipelineRegs() {
   vector<IRegister *> cond_regs = insn_cond_->GetConditions();
   for (IRegister *reg : cond_regs) {
-    (void)reg;  // WIP.
+    auto &m = insn_cond_->GetConditionRegStages(reg);
+    int cond_st = insn_cond_->GetConditionStateIndex(reg);
+    int last_st = insn_cond_->GetConditionLastUseStateIndex(reg);
+    for (int i = cond_st; i < last_st; ++i) {
+      IRegister *r =
+          new IRegister(tab_, reg->GetName() + "_cs" + Util::Itoa(i));
+      r->value_type_.SetWidth(0);
+      m[i] = r;
+      tab_->registers_.push_back(r);
+    }
   }
 }
+
+void Pipeliner::PrepareInsnCondRegPipelineStages() {}
 
 IRegister *Pipeliner::LookupStagedReg(int lidx, IRegister *reg) {
   WRDep *dep = reg_info_->GetWRDep(reg);
