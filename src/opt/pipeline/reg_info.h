@@ -19,9 +19,9 @@ class WRDep {
   // state in macro stage.
   int write_mst_index_;
   int read_mst_index_;
-  // keyed by state index in the loop.
-  // write in index-th state and read in index+1th state.
-  map<int, IRegister *> loop_state_regs_;
+  // keyed by macro stage index in the pipeline.
+  // write in index-th state and read in index+1th stage.
+  map<int, IRegister *> macro_stage_regs_;
 };
 
 class RegInfo {
