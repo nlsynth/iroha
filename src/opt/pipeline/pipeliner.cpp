@@ -37,7 +37,8 @@ bool Pipeliner::Pipeline() {
   os << "Pipeliner " << ssch_->GetMacroStageCount() << " states, "
      << lb_->GetLoopCount() << " loop, interval=" << interval_ << " <br/>\n";
   PrepareStates();
-  PrepareRegWriteReadPipeline();
+  PrepareRegWriteReadPipelineRegs();
+  PrepareRegWriteReadPipelineStages();
   vector<pair<int, int>> loc = scheduled_shape_->GetPipelineLocation();
   for (pair<int, int> &p : loc) {
     int pipeline_macro_stage_index = p.first;
@@ -273,33 +274,20 @@ string Pipeliner::RegName(const string &base, int index) {
   return orig_counter->GetName() + base + Util::Itoa(index);
 }
 
-void Pipeliner::PrepareRegWriteReadPipeline() {
-  // Prepare regs.
-  for (auto p : reg_info_->GetWRDeps()) {
-    WRDep *d = p.second;
-    IRegister *reg = p.first;
-    vector<IRegister *> regs;
-    for (int i = d->write_lst_index_; i < d->read_lst_index_; ++i) {
-      IRegister *r = new IRegister(tab_, reg->GetName() + "_s" + Util::Itoa(i));
-      r->value_type_ = reg->value_type_;
-      regs.push_back(r);
-      tab_->registers_.push_back(r);
-      d->loop_state_regs_[i] = r;
-    }
-  }
-  // Update for stages.
+void Pipeliner::PrepareRegWriteReadPipelineStages() {
   IResource *assign = DesignUtil::FindAssignResource(tab_);
   for (auto p : reg_info_->GetWRDeps()) {
     WRDep *d = p.second;
     vector<pair<int, int>> v = scheduled_shape_->GetPipeLineIndexRange(
-        d->write_lst_index_, d->read_lst_index_);
-    for (auto &p : v) {
-      int macrostage = p.first;
-      int lindex = p.second;
-      if (lindex == d->write_lst_index_) {
+        d->write_mst_index_, d->read_mst_index_);
+    for (auto &q : v) {
+      int macrostage = q.first;
+      int lindex = q.second;
+      if (lindex == d->write_mst_index_) {
         // rewrite of insn->outputs_ is performed later.
         continue;
       }
+      // Last local stage of the macro stage.
       int pindex = macrostage * interval_ + (interval_ - 1);
       IState *pst = pipeline_stages_[pindex];
       IInsn *insn = new IInsn(assign);
@@ -313,6 +301,22 @@ void Pipeliner::PrepareRegWriteReadPipeline() {
     }
   }
 }
+
+void Pipeliner::PrepareRegWriteReadPipelineRegs() {
+  for (auto p : reg_info_->GetWRDeps()) {
+    WRDep *d = p.second;
+    IRegister *reg = p.first;
+    vector<IRegister *> regs;
+    for (int i = d->write_lst_index_; i < d->read_lst_index_; ++i) {
+      IRegister *r = new IRegister(tab_, reg->GetName() + "_s" + Util::Itoa(i));
+      r->value_type_ = reg->value_type_;
+      regs.push_back(r);
+      tab_->registers_.push_back(r);
+      d->loop_state_regs_[i] = r;
+    }
+  }
+}
+
 void Pipeliner::PrepareInsnCondRegPipeline() {
   vector<IRegister *> cond_regs = insn_cond_->GetConditions();
   for (IRegister *reg : cond_regs) {
