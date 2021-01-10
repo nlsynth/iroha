@@ -10,15 +10,16 @@ namespace iroha {
 namespace opt {
 namespace pipeline {
 
-RegInfo::RegInfo(loop::LoopBlock *lb) : lb_(lb) {}
+RegInfo::RegInfo(loop::LoopBlock *lb, StageScheduler *ssch)
+    : lb_(lb), ssch_(ssch) {}
 
 RegInfo::~RegInfo() { STLDeleteSecondElements(&wr_deps_); }
 
-bool RegInfo::BuildWRDep(StageScheduler *ssch, OptimizerLog *opt_log) {
+bool RegInfo::BuildWRDep(OptimizerLog *opt_log) {
   if (!BuildLoopState(opt_log)) {
     return false;
   }
-  SetMacroStageIndex(ssch);
+  SetMacroStageIndex();
   Dump(opt_log);
   return true;
 }
@@ -69,11 +70,12 @@ bool RegInfo::BuildLoopState(OptimizerLog *opt_log) {
   return true;
 }
 
-void RegInfo::SetMacroStageIndex(StageScheduler *ssch) {
+void RegInfo::SetMacroStageIndex() {
   for (auto p : wr_deps_) {
     WRDep *d = p.second;
-    d->read_mst_index_ = ssch->GetMacroStageFromLoopIndex(d->read_lst_index_);
-    d->write_mst_index_ = ssch->GetMacroStageFromLoopIndex(d->write_lst_index_);
+    d->read_mst_index_ = ssch_->GetMacroStageFromLoopIndex(d->read_lst_index_);
+    d->write_mst_index_ =
+        ssch_->GetMacroStageFromLoopIndex(d->write_lst_index_);
   }
 }
 

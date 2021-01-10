@@ -49,8 +49,8 @@ bool PipelinePass::ApplyForTable(const string &key, ITable *table) {
     if (!ssch.Build()) {
       continue;
     }
-    RegInfo regInfo(&lb);
-    if (!regInfo.BuildWRDep(&ssch, opt_log_)) {
+    RegInfo regInfo(&lb, &ssch);
+    if (!regInfo.BuildWRDep(opt_log_)) {
       continue;
     }
     InsnCondition insnCond(&lb);

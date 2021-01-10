@@ -26,20 +26,21 @@ class WRDep {
 
 class RegInfo {
  public:
-  RegInfo(loop::LoopBlock *lb);
+  RegInfo(loop::LoopBlock *lb, StageScheduler *ssch);
   ~RegInfo();
 
-  bool BuildWRDep(StageScheduler *ssch, OptimizerLog *opt_log);
+  bool BuildWRDep(OptimizerLog *opt_log);
 
   map<IRegister *, WRDep *> &GetWRDeps();
   WRDep *GetWRDep(IRegister *reg);
 
  private:
   bool BuildLoopState(OptimizerLog *opt_log);
-  void SetMacroStageIndex(StageScheduler *ssch);
+  void SetMacroStageIndex();
   void Dump(OptimizerLog *opt_log);
 
   loop::LoopBlock *lb_;
+  StageScheduler *ssch_;
   map<IRegister *, WRDep *> wr_deps_;
 };
 
