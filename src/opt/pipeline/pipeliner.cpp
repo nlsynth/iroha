@@ -126,9 +126,9 @@ IRegister *Pipeliner::MayUpdateWireReg(IState *pst, IRegister *reg) {
     tab_->registers_.push_back(nreg);
     nreg->SetStateLocal(true);
     nreg->value_type_ = reg->value_type_;
-    reg = nreg;
-    orig_wire_to_stage_wire_[key] = nreg;
     stage_wire_to_orig_wire_[nreg] = reg;
+    orig_wire_to_stage_wire_[key] = nreg;
+    reg = nreg;
   } else {
     reg = it->second;
   }
