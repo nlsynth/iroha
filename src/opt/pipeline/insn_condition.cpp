@@ -35,6 +35,10 @@ bool InsnCondition::Build(OptimizerLog *log) {
   return true;
 }
 
+bool InsnCondition::IsCondReg(IRegister *reg) {
+  return (cond_reg_info_.count(reg) == 1);
+}
+
 vector<IRegister *> InsnCondition::GetConditions() {
   vector<IRegister *> cond_regs;
   for (IRegister *reg : tab_->registers_) {

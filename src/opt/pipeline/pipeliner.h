@@ -42,10 +42,11 @@ class Pipeliner {
   // Condition reg access.
   void PrepareInsnCondRegPipelineStages();
   void PrepareInsnCondRegPipelineRegs();
-  void SetInstructionConditions();
+  void SetInsnCondRegs();
 
   void PipelineRegs(int start, int end, map<int, IRegister *> &regs);
   IRegister *LookupStagedReg(int lidx, IRegister *reg);
+  IRegister *LookupOriginalWire(IRegister *wire_reg);
 
   ITable *tab_;
   StageScheduler *ssch_;
@@ -65,7 +66,8 @@ class Pipeliner {
   map<IInsn *, int> insn_to_stage_;
   // mapping from <pipeline state & a wire in the loop> to a wire in the
   // pipeline.
-  map<tuple<IState *, IRegister *>, IRegister *> wire_to_reg_;
+  map<tuple<IState *, IRegister *>, IRegister *> orig_wire_to_stage_wire_;
+  map<IRegister *, IRegister *> stage_wire_to_orig_wire_;
 };
 
 }  // namespace pipeline

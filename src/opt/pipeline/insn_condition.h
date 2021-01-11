@@ -34,6 +34,7 @@ class InsnCondition {
 
   bool Build(OptimizerLog *log);
   vector<IRegister *> GetConditions();
+  bool IsCondReg(IRegister *reg);
   // In macro stage.
   int GetConditionStateIndex(IRegister *reg);
   int GetConditionLastUseStateIndex(IRegister *cond_reg);

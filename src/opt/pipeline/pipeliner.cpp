@@ -51,7 +51,7 @@ bool Pipeliner::Pipeline() {
   // Access to condition regs.
   PrepareInsnCondRegPipelineRegs();
   PrepareInsnCondRegPipelineStages();
-  SetInstructionConditions();
+  SetInsnCondRegs();
 
   SetupCounter();
   SetupCounterIncrement();
@@ -120,18 +120,26 @@ void Pipeliner::UpdateRegs(IState *pst, int lidx, bool is_output,
 
 IRegister *Pipeliner::MayUpdateWireReg(IState *pst, IRegister *reg) {
   auto key = make_tuple(pst, reg);
-  auto it = wire_to_reg_.find(key);
-  if (it == wire_to_reg_.end()) {
+  auto it = orig_wire_to_stage_wire_.find(key);
+  if (it == orig_wire_to_stage_wire_.end()) {
     IRegister *nreg = new IRegister(tab_, reg->GetName());
     tab_->registers_.push_back(nreg);
-    wire_to_reg_[key] = nreg;
     nreg->SetStateLocal(true);
     nreg->value_type_ = reg->value_type_;
     reg = nreg;
+    orig_wire_to_stage_wire_[key] = nreg;
+    stage_wire_to_orig_wire_[nreg] = reg;
   } else {
     reg = it->second;
   }
   return reg;
+}
+
+IRegister *Pipeliner::LookupOriginalWire(IRegister *wire_reg) {
+  if (stage_wire_to_orig_wire_.count(wire_reg) == 1) {
+    return stage_wire_to_orig_wire_[wire_reg];
+  }
+  return wire_reg;
 }
 
 void Pipeliner::UpdateCounterRead() {
@@ -356,7 +364,20 @@ void Pipeliner::PrepareInsnCondRegPipelineStages() {
   }
 }
 
-void Pipeliner::SetInstructionConditions() {}
+void Pipeliner::SetInsnCondRegs() {
+  for (IState *st : pipeline_stages_) {
+    vector<IInsn *> new_insns;
+    for (IInsn *insn : st->insns_) {
+      for (IRegister *oreg : insn->outputs_) {
+        IRegister *raw = LookupOriginalWire(oreg);
+        if (!insn_cond_->IsCondReg(raw)) {
+          continue;
+        }
+        // WIP.
+      }
+    }
+  }
+}
 
 IRegister *Pipeliner::LookupStagedReg(int lidx, IRegister *reg) {
   WRDep *dep = reg_info_->GetWRDep(reg);
