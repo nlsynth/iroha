@@ -3,6 +3,7 @@
 #include "design/design_tool.h"
 #include "design/design_util.h"
 #include "iroha/i_design.h"
+#include "iroha/logging.h"
 #include "iroha/resource_class.h"
 #include "opt/loop/loop_block.h"
 #include "opt/optimizer_log.h"
@@ -319,7 +320,7 @@ void Pipeliner::PipelineRegs(int start, int end, map<int, IRegister *> &regs) {
     insn->outputs_.push_back(dst);
     pst->insns_.push_back(insn);
     ostream &os = opt_log_->Insn(insn);
-    os << "~";
+    os << "~p";
   }
 }
 
@@ -366,16 +367,23 @@ void Pipeliner::PrepareInsnCondRegPipelineStages() {
 
 void Pipeliner::SetInsnCondRegs() {
   for (IState *st : pipeline_stages_) {
-    vector<IInsn *> new_insns;
+    vector<IInsn *> new_insns = st->insns_;
     for (IInsn *insn : st->insns_) {
       for (IRegister *oreg : insn->outputs_) {
         IRegister *raw = LookupOriginalWire(oreg);
         if (!insn_cond_->IsCondReg(raw)) {
           continue;
         }
-        // WIP.
+        CHECK(oreg->IsStateLocal());
+        IInsn *a = new IInsn(assign_);
+        a->inputs_.push_back(oreg);
+        a->outputs_.push_back(insn_cond_->GetFirstConditionRegStage(raw));
+        ostream &os = opt_log_->Insn(a);
+        os << "~c";
+        new_insns.push_back(a);
       }
     }
+    st->insns_ = new_insns;
   }
 }
 

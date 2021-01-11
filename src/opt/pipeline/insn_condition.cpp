@@ -65,6 +65,11 @@ map<int, IRegister *> &InsnCondition::GetConditionRegStages(
   return cr->macro_stage_regs_;
 }
 
+IRegister *InsnCondition::GetFirstConditionRegStage(IRegister *cond_reg) {
+  auto &m = GetConditionRegStages(cond_reg);
+  return m.begin()->second;
+}
+
 void InsnCondition::Dump(OptimizerLog *log) {
   for (IState *br : branches_) {
     log->State(br) << "X";
