@@ -40,6 +40,7 @@ class Pipeliner {
   void PrepareInsnCondRegPipelineStages();
   void PrepareInsnCondRegPipelineRegs();
   void UpdatePipelineRegWrite();
+  void PipelineRegs(int start, int end, map<int, IRegister *> &regs);
   IRegister *LookupStagedReg(int lidx, IRegister *reg);
 
   ITable *tab_;
@@ -50,6 +51,7 @@ class Pipeliner {
   int interval_;
   OptimizerLog *opt_log_;
   std::unique_ptr<ScheduledShape> scheduled_shape_;
+  IResource *assign_;
   // prologue -> pipeline[0] -> pipeline[1] ...
   IState *prologue_st_;
   vector<IState *> pipeline_stages_;

@@ -27,6 +27,7 @@ Pipeliner::Pipeliner(ITable *tab, StageScheduler *ssch, RegInfo *reg_info,
       scheduled_shape_(new ScheduledShape(ssch)),
       prologue_st_(nullptr) {
   opt_log_ = tab->GetModule()->GetDesign()->GetOptimizerLog();
+  assign_ = DesignUtil::FindAssignResource(tab_);
 }
 
 Pipeliner::~Pipeliner() {}
@@ -188,7 +189,6 @@ void Pipeliner::SetupCounter() {
     tab_->registers_.push_back(counter_wire);
     counter_wires_.push_back(counter_wire);
   }
-  IResource *assign = DesignUtil::FindAssignResource(tab_);
   for (int i = 0; i < llen * 2 - 1; ++i) {
     IState *st = pipeline_stages_[i * interval_ + (interval_ - 1)];
     int start = 0;
@@ -199,7 +199,7 @@ void Pipeliner::SetupCounter() {
       if (j + 1 >= counters_.size()) {
         continue;
       }
-      IInsn *insn = new IInsn(assign);
+      IInsn *insn = new IInsn(assign_);
       st->insns_.push_back(insn);
       insn->inputs_.push_back(counters_[j]);
       insn->outputs_.push_back(counters_[j + 1]);
@@ -223,7 +223,6 @@ void Pipeliner::SetupCounterIncrement() {
   adder->input_types_.push_back(counter0->value_type_);
   adder->input_types_.push_back(counter0->value_type_);
   adder->output_types_.push_back(counter0->value_type_);
-  IResource *assign = DesignUtil::FindAssignResource(tab_);
   IRegister *one = DesignTool::AllocConstNum(tab_, cwidth, 1);
   for (int i = 0; i < llen; ++i) {
     IInsn *add_insn = new IInsn(adder);
@@ -232,7 +231,7 @@ void Pipeliner::SetupCounterIncrement() {
     add_insn->outputs_.push_back(counter_wires_[i]);
     pipeline_stages_[i * interval_ + (interval_ - 1)]->insns_.push_back(
         add_insn);
-    IInsn *wire_to_reg = new IInsn(assign);
+    IInsn *wire_to_reg = new IInsn(assign_);
     wire_to_reg->inputs_.push_back(counter_wires_[i]);
     wire_to_reg->outputs_.push_back(counter0);
     pipeline_stages_[i * interval_ + (interval_ - 1)]->insns_.push_back(
@@ -275,36 +274,39 @@ string Pipeliner::RegName(const string &base, int index) {
 }
 
 void Pipeliner::PrepareRegWriteReadPipelineStages() {
-  IResource *assign = DesignUtil::FindAssignResource(tab_);
   for (auto p : reg_info_->GetWRDeps()) {
     WRDep *d = p.second;
-    vector<pair<int, int>> v = scheduled_shape_->GetPipeLineIndexRange(
-        d->write_mst_index_, d->read_mst_index_);
-    // 0:   0
-    // 1:   0 1
-    //      ...
-    // mst: 0 1 ... mindex ...
-    // *            r[mindex] <- r[mindex-1]
-    //      ...
-    for (auto &q : v) {
-      int macrostage = q.first;
-      int mindex = q.second;
-      if (mindex == d->write_mst_index_) {
-        // rewrite of insn->outputs_ is performed later.
-        continue;
-      }
-      // Last local stage of the macro stage.
-      int pindex = macrostage * interval_ + (interval_ - 1);
-      IState *pst = pipeline_stages_[pindex];
-      IInsn *insn = new IInsn(assign);
-      IRegister *src = d->macro_stage_regs_[mindex - 1];
-      insn->inputs_.push_back(src);
-      IRegister *dst = d->macro_stage_regs_[mindex];
-      insn->outputs_.push_back(dst);
-      pst->insns_.push_back(insn);
-      ostream &os = opt_log_->Insn(insn);
-      os << "~";
+    PipelineRegs(d->write_mst_index_, d->read_mst_index_, d->macro_stage_regs_);
+  }
+}
+
+void Pipeliner::PipelineRegs(int start, int end, map<int, IRegister *> &regs) {
+  vector<pair<int, int>> v =
+      scheduled_shape_->GetPipeLineIndexRange(start, end);
+  // 0:   0
+  // 1:   0 1
+  //      ...
+  // mst: 0 1 ... mindex ...
+  // *            r[mindex] <- r[mindex-1]
+  //      ...
+  for (auto &q : v) {
+    int macrostage = q.first;
+    int mindex = q.second;
+    if (mindex == start) {
+      // rewrite of insn->outputs_ is performed later.
+      continue;
     }
+    // Last local stage of the macro stage.
+    int pindex = macrostage * interval_ + (interval_ - 1);
+    IState *pst = pipeline_stages_[pindex];
+    IInsn *insn = new IInsn(assign_);
+    IRegister *src = regs[mindex - 1];
+    insn->inputs_.push_back(src);
+    IRegister *dst = regs[mindex];
+    insn->outputs_.push_back(dst);
+    pst->insns_.push_back(insn);
+    ostream &os = opt_log_->Insn(insn);
+    os << "~";
   }
 }
 
@@ -337,7 +339,17 @@ void Pipeliner::PrepareInsnCondRegPipelineRegs() {
   }
 }
 
-void Pipeliner::PrepareInsnCondRegPipelineStages() {}
+void Pipeliner::PrepareInsnCondRegPipelineStages() {
+  vector<IRegister *> cond_regs = insn_cond_->GetConditions();
+  for (IRegister *reg : cond_regs) {
+    int cond_mst = insn_cond_->GetConditionStateIndex(reg);
+    int last_mst = insn_cond_->GetConditionLastUseStateIndex(reg);
+    auto &m = insn_cond_->GetConditionRegStages(reg);
+    vector<pair<int, int>> v =
+        scheduled_shape_->GetPipeLineIndexRange(cond_mst, last_mst);
+    PipelineRegs(cond_mst, last_mst, m);
+  }
+}
 
 IRegister *Pipeliner::LookupStagedReg(int lidx, IRegister *reg) {
   WRDep *dep = reg_info_->GetWRDep(reg);
@@ -352,7 +364,6 @@ IRegister *Pipeliner::LookupStagedReg(int lidx, IRegister *reg) {
 }
 
 void Pipeliner::UpdatePipelineRegWrite() {
-  IResource *assign = DesignUtil::FindAssignResource(tab_);
   for (IState *st : pipeline_stages_) {
     vector<IInsn *> new_insns;
     for (IInsn *insn : st->insns_) {
@@ -366,7 +377,7 @@ void Pipeliner::UpdatePipelineRegWrite() {
         IRegister *preg0 = (dep->macro_stage_regs_.begin()->second);
         if (reg->IsStateLocal()) {
           // preg0 <- reg
-          IInsn *a = new IInsn(assign);
+          IInsn *a = new IInsn(assign_);
           a->inputs_.push_back(reg);
           a->outputs_.push_back(preg0);
           new_insns.push_back(a);
@@ -377,12 +388,12 @@ void Pipeliner::UpdatePipelineRegWrite() {
           tab_->registers_.push_back(w);
           insn->outputs_[i] = w;
           // reg <- w
-          IInsn *a = new IInsn(assign);
+          IInsn *a = new IInsn(assign_);
           a->inputs_.push_back(w);
           a->outputs_.push_back(reg);
           new_insns.push_back(a);
           // preg0 <- w
-          IInsn *b = new IInsn(assign);
+          IInsn *b = new IInsn(assign_);
           b->inputs_.push_back(w);
           b->outputs_.push_back(preg0);
           new_insns.push_back(b);
