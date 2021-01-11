@@ -12,6 +12,10 @@ namespace iroha {
 
 void DesignTool::Validate(IDesign *design) { Validator::Validate(design); }
 
+void DesignTool::ValidateTable(ITable *table) {
+  Validator::ValidateTable(table);
+}
+
 IInsn *DesignTool::AddNextState(IState *cur, IState *next) {
   IInsn *insn = DesignUtil::GetTransitionInsn(cur);
   insn->target_states_.push_back(next);
