@@ -4,6 +4,7 @@
 #include "design/design_util.h"
 #include "iroha/i_design.h"
 #include "iroha/logging.h"
+#include "iroha/resource_attr.h"
 #include "iroha/resource_class.h"
 #include "opt/loop/loop_block.h"
 #include "opt/optimizer_log.h"
@@ -52,6 +53,7 @@ bool Pipeliner::Pipeline() {
   // Access to condition regs.
   PrepareInsnCondRegPipelineRegs();
   PrepareInsnCondRegPipelineStages();
+  AssignInitialInsnCondRegs();
   SetInsnCondRegs();
 
   SetupCounter();
@@ -365,7 +367,7 @@ void Pipeliner::PrepareInsnCondRegPipelineStages() {
   }
 }
 
-void Pipeliner::SetInsnCondRegs() {
+void Pipeliner::AssignInitialInsnCondRegs() {
   for (IState *st : pipeline_stages_) {
     vector<IInsn *> new_insns = st->insns_;
     for (IInsn *insn : st->insns_) {
@@ -384,6 +386,21 @@ void Pipeliner::SetInsnCondRegs() {
       }
     }
     st->insns_ = new_insns;
+  }
+}
+
+void Pipeliner::SetInsnCondRegs() {
+  for (IState *st : pipeline_stages_) {
+    for (IInsn *insn : st->insns_) {
+      if (!ResourceAttr::IsSideEffectInsn(insn)) {
+        continue;
+      }
+      int mst = insn_to_stage_[insn];
+      IRegister *cond = insn_cond_->GetInsnCondition(mst);
+      if (cond != nullptr) {
+        insn->conditions_.push_back(cond);
+      }
+    }
   }
 }
 

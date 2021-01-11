@@ -40,6 +40,7 @@ class InsnCondition {
   int GetConditionLastUseStateIndex(IRegister *cond_reg);
   map<int, IRegister *> &GetConditionRegStages(IRegister *cond_reg);
   IRegister *GetFirstConditionRegStage(IRegister *cond_reg);
+  IRegister *GetInsnCondition(int nthst);
 
  private:
   void CollectBranches();

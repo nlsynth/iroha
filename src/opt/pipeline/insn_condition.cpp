@@ -225,6 +225,11 @@ void InsnCondition::SetMacroStageIndex() {
   }
 }
 
+IRegister *InsnCondition::GetInsnCondition(int nthst) {
+  // wIP.
+  return nullptr;
+}
+
 }  // namespace pipeline
 }  // namespace opt
 }  // namespace iroha

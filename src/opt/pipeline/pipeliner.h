@@ -42,6 +42,7 @@ class Pipeliner {
   // Condition reg access.
   void PrepareInsnCondRegPipelineStages();
   void PrepareInsnCondRegPipelineRegs();
+  void AssignInitialInsnCondRegs();
   void SetInsnCondRegs();
 
   void PipelineRegs(int start, int end, map<int, IRegister *> &regs);
