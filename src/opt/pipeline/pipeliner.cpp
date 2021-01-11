@@ -38,16 +38,21 @@ bool Pipeliner::Pipeline() {
   os << "Pipeliner " << ssch_->GetMacroStageCount() << " states, "
      << lb_->GetLoopCount() << " loop, interval=" << interval_ << " <br/>\n";
   PrepareStates();
-  PrepareRegWriteReadPipelineRegs();
-  PrepareRegWriteReadPipelineStages();
   vector<pair<int, int>> loc = scheduled_shape_->GetPipelineLocation();
   for (pair<int, int> &p : loc) {
     int pipeline_macro_stage_index = p.first;
     int loop_macro_stage_index = p.second;
     PlaceState(pipeline_macro_stage_index, loop_macro_stage_index);
   }
-  UpdatePipelineRegWrite();
+  // Write -> Read deps.
+  PrepareRegWriteReadPipelineRegs();
+  PrepareRegWriteReadPipelineStages();
+  UpdateRegWriteReadPipelineAccess();
+  // Access to condition regs.
   PrepareInsnCondRegPipelineRegs();
+  PrepareInsnCondRegPipelineStages();
+  SetInstructionConditions();
+
   SetupCounter();
   SetupCounterIncrement();
   UpdateCounterRead();
@@ -351,6 +356,8 @@ void Pipeliner::PrepareInsnCondRegPipelineStages() {
   }
 }
 
+void Pipeliner::SetInstructionConditions() {}
+
 IRegister *Pipeliner::LookupStagedReg(int lidx, IRegister *reg) {
   WRDep *dep = reg_info_->GetWRDep(reg);
   if (dep == nullptr) {
@@ -363,7 +370,7 @@ IRegister *Pipeliner::LookupStagedReg(int lidx, IRegister *reg) {
   return reg;
 }
 
-void Pipeliner::UpdatePipelineRegWrite() {
+void Pipeliner::UpdateRegWriteReadPipelineAccess() {
   for (IState *st : pipeline_stages_) {
     vector<IInsn *> new_insns;
     for (IInsn *insn : st->insns_) {

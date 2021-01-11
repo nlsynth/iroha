@@ -35,11 +35,15 @@ class Pipeliner {
   void SetupExit();
   void UpdateCounterRead();
   string RegName(const string &base, int index);
-  void PrepareRegWriteReadPipelineStages();
+  // Write -> Read deps.
   void PrepareRegWriteReadPipelineRegs();
+  void PrepareRegWriteReadPipelineStages();
+  void UpdateRegWriteReadPipelineAccess();
+  // Condition reg access.
   void PrepareInsnCondRegPipelineStages();
   void PrepareInsnCondRegPipelineRegs();
-  void UpdatePipelineRegWrite();
+  void SetInstructionConditions();
+
   void PipelineRegs(int start, int end, map<int, IRegister *> &regs);
   IRegister *LookupStagedReg(int lidx, IRegister *reg);
 
