@@ -17,7 +17,7 @@ vector<pair<int, int>> &ScheduledShape::GetPipelineLocation() {
   // macro stage:
   // 0:    s0              (0,0)
   // 1:    s0 s1           (1,0),(1,1)
-  // 2:    s0 s1 s2        (2,0),(1,1),(1,2)
+  // 2:    s0 s1 s2        (2,0),(2,1),(2,2)
   //       .. ..
   // n-1:  s0 .. .. s{n-1} (n-1,0),(n-1,1)..(n-1,n-1)
   int ns = ssch_->GetMacroStageCount();
@@ -26,10 +26,10 @@ vector<pair<int, int>> &ScheduledShape::GetPipelineLocation() {
       locs_.push_back(make_pair(i, j));
     }
   }
-  // n:    -- s1 s2 .. s{n-1}
+  // n:    -- s1 s2 .. s{n-1}   (n,1),(n,2)..(n,n-1)
   //       -- -- s2 .. s{n-1}
   //             ..
-  // 2n-1:             s{n-1}
+  // 2n-1:             s{n-1}               (2n-1,n-1)
   for (int i = 1; i < ns; ++i) {
     for (int j = i; j < ns; ++j) {
       locs_.push_back(make_pair(i + ns - 1, j));

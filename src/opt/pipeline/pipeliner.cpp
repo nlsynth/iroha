@@ -42,7 +42,9 @@ bool Pipeliner::Pipeline() {
   PrepareStates();
   vector<pair<int, int>> loc = scheduled_shape_->GetPipelineLocation();
   for (pair<int, int> &p : loc) {
+    // 0..2n-1
     int pipeline_macro_stage_index = p.first;
+    // 0..n-1
     int loop_macro_stage_index = p.second;
     PlaceState(pipeline_macro_stage_index, loop_macro_stage_index);
   }
@@ -101,7 +103,7 @@ void Pipeliner::PlaceState(int pipeline_macro_stage_index,
                  &new_insn->outputs_);
       new_insn->SetOperand(insn->GetOperand());
       pst->insns_.push_back(new_insn);
-      insn_to_stage_[new_insn] = loop_macro_stage_index;
+      insn_to_macro_stage_[new_insn] = loop_macro_stage_index;
     }
   }
 }
@@ -149,14 +151,14 @@ void Pipeliner::UpdateCounterRead() {
   IRegister *counter = lb_->GetCounterRegister();
   for (IState *st : pipeline_stages_) {
     for (IInsn *insn : st->insns_) {
-      auto it = insn_to_stage_.find(insn);
-      if (it == insn_to_stage_.end()) {
+      auto it = insn_to_macro_stage_.find(insn);
+      if (it == insn_to_macro_stage_.end()) {
         continue;
       }
-      int stage = it->second;
+      int macro_stage = it->second;
       for (int i = 0; i < insn->inputs_.size(); ++i) {
         if (insn->inputs_[i] == counter) {
-          insn->inputs_[i] = counters_[stage];
+          insn->inputs_[i] = counters_[macro_stage];
         }
       }
     }
@@ -395,7 +397,7 @@ void Pipeliner::SetInsnCondRegs() {
       if (!ResourceAttr::IsSideEffectInsn(insn)) {
         continue;
       }
-      int mst = insn_to_stage_[insn];
+      int mst = insn_to_macro_stage_[insn];
       IRegister *cond = insn_cond_->GetInsnCondition(mst);
       if (cond != nullptr) {
         insn->conditions_.push_back(cond);

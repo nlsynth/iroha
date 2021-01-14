@@ -226,7 +226,7 @@ void InsnCondition::SetMacroStageIndex() {
 }
 
 IRegister *InsnCondition::GetInsnCondition(int nthst) {
-  // wIP.
+  // WIP.
   return nullptr;
 }
 
