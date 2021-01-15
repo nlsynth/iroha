@@ -14,6 +14,7 @@ class StageScheduler;
 struct InsnConditionValueInfo {
   map<IRegister *, int> cond_to_value_;
   vector<IInsn *> insns_;
+  IRegister *GetCondRegister(int v);
 };
 
 struct ConditionRegInfo {

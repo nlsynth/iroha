@@ -2,6 +2,7 @@
 
 #include "design/design_util.h"
 #include "iroha/i_design.h"
+#include "iroha/logging.h"
 #include "iroha/resource_attr.h"
 #include "iroha/stl_util.h"
 #include "opt/loop/loop_block.h"
@@ -11,6 +12,21 @@
 namespace iroha {
 namespace opt {
 namespace pipeline {
+
+IRegister *InsnConditionValueInfo::GetCondRegister(int value) {
+  vector<IRegister *> regs;
+  for (auto it : cond_to_value_) {
+    if (it.second == value) {
+      regs.push_back(it.first);
+    }
+  }
+  if (regs.size() == 0) {
+    return nullptr;
+  }
+  // TODO: Needs some stable order.
+  CHECK(regs.size() == 1);
+  return regs[0];
+}
 
 InsnCondition::InsnCondition(loop::LoopBlock *lb, StageScheduler *ssch)
     : tab_(lb->GetTable()), lb_(lb), ssch_(ssch) {}
@@ -229,9 +245,10 @@ IRegister *InsnCondition::GetInsnCondition(int nthst) {
   auto sts = lb_->GetStates();
   IState *st = sts[nthst];
   auto *info = cond_value_info_[st];
-  (void)info;
-  // WIP.
-  return nullptr;
+  if (info == nullptr) {
+    return nullptr;
+  }
+  return info->GetCondRegister(1);
 }
 
 }  // namespace pipeline
