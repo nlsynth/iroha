@@ -226,6 +226,10 @@ void InsnCondition::SetMacroStageIndex() {
 }
 
 IRegister *InsnCondition::GetInsnCondition(int nthst) {
+  auto sts = lb_->GetStates();
+  IState *st = sts[nthst];
+  auto *info = cond_value_info_[st];
+  (void)info;
   // WIP.
   return nullptr;
 }

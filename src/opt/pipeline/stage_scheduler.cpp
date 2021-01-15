@@ -109,7 +109,7 @@ bool StageScheduler::ScheduleInsns() {
     IState *st = sts[i];
     int lc = local_stage_indexes_[i];
     int mc = macro_stage_indexes_[i];
-    ScheduleStateInsns(st, mc, lc);
+    ScheduleStateInsns(st, mc, lc, i);
   }
   if (macro_stages_.size() == 0) {
     return false;
@@ -118,7 +118,7 @@ bool StageScheduler::ScheduleInsns() {
 }
 
 void StageScheduler::ScheduleStateInsns(IState *st, int macro_index,
-                                        int local_index) {
+                                        int local_index, int loop_state_index) {
   vector<IInsn *> body_insns;
   for (IInsn *insn : st->insns_) {
     if (IsBodyInsn(insn)) {
@@ -130,6 +130,7 @@ void StageScheduler::ScheduleStateInsns(IState *st, int macro_index,
   }
   StageInsns &si = macro_stages_[macro_index].local_stages_[local_index];
   si.insns_ = body_insns;
+  si.loop_state_index_ = loop_state_index;
 }
 
 int StageScheduler::CalculateInterval() {

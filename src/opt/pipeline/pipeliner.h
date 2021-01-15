@@ -66,6 +66,7 @@ class Pipeliner {
   vector<IRegister *> counter_wires_;
 
   map<IInsn *, int> insn_to_macro_stage_;
+  map<IInsn *, int> insn_to_loop_state_index_;
   // mapping from <pipeline state & a wire in the loop> to a wire in the
   // pipeline.
   map<tuple<IState *, IRegister *>, IRegister *> orig_wire_to_stage_wire_;

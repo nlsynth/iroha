@@ -104,6 +104,7 @@ void Pipeliner::PlaceState(int pipeline_macro_stage_index,
       new_insn->SetOperand(insn->GetOperand());
       pst->insns_.push_back(new_insn);
       insn_to_macro_stage_[new_insn] = loop_macro_stage_index;
+      insn_to_loop_state_index_[new_insn] = si.loop_state_index_;
     }
   }
 }
@@ -397,8 +398,8 @@ void Pipeliner::SetInsnCondRegs() {
       if (!ResourceAttr::IsSideEffectInsn(insn)) {
         continue;
       }
-      int mst = insn_to_macro_stage_[insn];
-      IRegister *cond = insn_cond_->GetInsnCondition(mst);
+      int lst = insn_to_loop_state_index_[insn];
+      IRegister *cond = insn_cond_->GetInsnCondition(lst);
       if (cond != nullptr) {
         insn->conditions_.push_back(cond);
       }

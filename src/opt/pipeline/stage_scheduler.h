@@ -11,6 +11,7 @@ namespace pipeline {
 // Certain stage with 0, 1, ... interval -1.
 class StageInsns {
  public:
+  int loop_state_index_;
   vector<IInsn *> insns_;
 };
 
@@ -34,7 +35,8 @@ class StageScheduler {
  private:
   bool IsBodyInsn(IInsn *insn);
   bool ScheduleInsns();
-  void ScheduleStateInsns(IState *st, int macro_index, int local_index);
+  void ScheduleStateInsns(IState *st, int macro_index, int local_index,
+                          int loop_state_index);
   bool BuildStageConstraints();
   void GetStageConstraint(IState *st);
   int CalculateInterval();
