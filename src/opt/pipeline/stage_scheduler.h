@@ -30,7 +30,7 @@ class StageScheduler {
   int GetPipelineStageLength();
   int GetMacroStageCount();
   MacroStage &GetMacroStage(int s);
-  int GetMacroStageFromLoopIndex(int i);
+  int GetMacroStageFromLoopStateIndex(int i);
 
  private:
   bool IsBodyInsn(IInsn *insn);
@@ -50,8 +50,8 @@ class StageScheduler {
   // [loop state index] = 0, 1,,, (-1 for unconstrainted).
   vector<int> stage_constraints_;
   // Indexed by loop state index.
-  vector<int> local_stage_indexes_;
-  vector<int> macro_stage_indexes_;
+  vector<int> loop_state_to_local_stage_;
+  vector<int> loop_state_to_macro_stage_;
 };
 
 }  // namespace pipeline

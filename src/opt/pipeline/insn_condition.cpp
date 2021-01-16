@@ -236,7 +236,7 @@ void InsnCondition::SetMacroStageIndex() {
   for (auto &p : cond_reg_info_) {
     ConditionRegInfo *info = p.second;
     info->last_use_mst_ =
-        ssch_->GetMacroStageFromLoopIndex(info->last_use_lst_);
+        ssch_->GetMacroStageFromLoopStateIndex(info->last_use_lst_);
     info->branch_mst_ = lb_->GetIndexFromState(info->branch_st_);
   }
 }

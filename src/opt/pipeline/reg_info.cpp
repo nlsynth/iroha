@@ -73,9 +73,10 @@ bool RegInfo::BuildLoopState(OptimizerLog *opt_log) {
 void RegInfo::SetMacroStageIndex() {
   for (auto p : wr_deps_) {
     WRDep *d = p.second;
-    d->read_mst_index_ = ssch_->GetMacroStageFromLoopIndex(d->read_lst_index_);
+    d->read_mst_index_ =
+        ssch_->GetMacroStageFromLoopStateIndex(d->read_lst_index_);
     d->write_mst_index_ =
-        ssch_->GetMacroStageFromLoopIndex(d->write_lst_index_);
+        ssch_->GetMacroStageFromLoopStateIndex(d->write_lst_index_);
   }
 }
 

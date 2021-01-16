@@ -49,7 +49,7 @@ bool StageScheduler::IsBodyInsn(IInsn *insn) {
 
 void StageScheduler::PrepareStages() {
   int max = -1;
-  for (int c : macro_stage_indexes_) {
+  for (int c : loop_state_to_macro_stage_) {
     if (max < c) {
       max = c;
     }
@@ -107,8 +107,8 @@ bool StageScheduler::ScheduleInsns() {
   auto &sts = lb_->GetStates();
   for (int i = 0; i < sts.size(); ++i) {
     IState *st = sts[i];
-    int lc = local_stage_indexes_[i];
-    int mc = macro_stage_indexes_[i];
+    int lc = loop_state_to_local_stage_[i];
+    int mc = loop_state_to_macro_stage_[i];
     ScheduleStateInsns(st, mc, lc, i);
   }
   if (macro_stages_.size() == 0) {
@@ -150,7 +150,7 @@ void StageScheduler::ScheduleLocalStages() {
       // fix up to the constraint.
       next = c;
     }
-    local_stage_indexes_.push_back(next);
+    loop_state_to_local_stage_.push_back(next);
     ++next;
     if (next == interval_) {
       next = 0;
@@ -161,19 +161,19 @@ void StageScheduler::ScheduleLocalStages() {
 void StageScheduler::ScheduleMacroStages() {
   int prev = -1;
   int st = 0;
-  for (int c : local_stage_indexes_) {
+  for (int c : loop_state_to_local_stage_) {
     if (c <= prev) {
       // proceed if current stage can't be scheduled at the same stage as the
       // previous.
       st++;
     }
-    macro_stage_indexes_.push_back(st);
+    loop_state_to_macro_stage_.push_back(st);
     prev = c;
   }
 }
 
-int StageScheduler::GetMacroStageFromLoopIndex(int i) {
-  return macro_stage_indexes_[i];
+int StageScheduler::GetMacroStageFromLoopStateIndex(int i) {
+  return loop_state_to_macro_stage_[i];
 }
 
 }  // namespace pipeline
