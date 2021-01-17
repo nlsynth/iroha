@@ -63,6 +63,7 @@ const char kStudyReader[] = "study-reader";
 const char kStudyWriter[] = "study-writer";
 
 bool IsPrint(const IResourceClass &rc);
+bool IsAssert(const IResourceClass &rc);
 bool IsTransition(const IResourceClass &rc);
 bool IsSelect(const IResourceClass &rc);
 bool IsExclusiveBinOp(const IResourceClass &rc);

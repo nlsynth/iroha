@@ -12,6 +12,7 @@
 #include "writer/verilog/axi/master_port.h"
 #include "writer/verilog/axi/slave_port.h"
 #include "writer/verilog/dataflow_in.h"
+#include "writer/verilog/debug_resource.h"
 #include "writer/verilog/embedded_modules.h"
 #include "writer/verilog/ext_combinational.h"
 #include "writer/verilog/ext_io.h"
@@ -132,6 +133,9 @@ Resource *Resource::Create(const IResource &res, const Table &table) {
   if (resource::IsStudyReader(*klass) || resource::IsStudyWriter(*klass)) {
     return new StudyAccessor(res, table);
   }
+  if (resource::IsPrint(*klass) || resource::IsAssert(*klass)) {
+    return new DebugResource(res, table);
+  }
   return new Resource(res, table);
 }
 
@@ -148,15 +152,6 @@ void Resource::BuildInsn(IInsn *insn, State *st) {
   auto *rc = res_.GetClass();
   if (resource::IsSet(*rc)) {
     BuildAssignInsn(insn, st);
-    return;
-  }
-  ostream &ts = st->StateTransitionSectionStream();
-  InsnWriter writer(insn, st, ts);
-  const string &rc_name = rc->GetName();
-  if (rc_name == resource::kPrint) {
-    writer.Print();
-  } else if (rc_name == resource::kAssert) {
-    writer.Assert();
   }
 }
 

@@ -299,6 +299,8 @@
                 'writer/verilog/dataflow_table.h',
                 'writer/verilog/debug_marker.cpp',
                 'writer/verilog/debug_marker.h',
+                'writer/verilog/debug_resource.cpp',
+                'writer/verilog/debug_resource.h',
                 'writer/verilog/embedded_modules.cpp',
                 'writer/verilog/embedded_modules.h',
                 'writer/verilog/ext_combinational.cpp',

@@ -9,6 +9,8 @@ namespace resource {
 
 bool IsPrint(const IResourceClass &rc) { return (rc.GetName() == kPrint); }
 
+bool IsAssert(const IResourceClass &rc) { return (rc.GetName() == kAssert); }
+
 bool IsTransition(const IResourceClass &rc) {
   return (rc.GetName() == kTransition);
 }
