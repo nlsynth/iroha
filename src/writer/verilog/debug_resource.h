@@ -19,6 +19,10 @@ class DebugResource : public Resource {
   virtual void BuildResource() override;
   virtual void BuildInsn(IInsn *insn, State *st) override;
   virtual void CollectNames(Names *names) override;
+
+ private:
+  void Print(IInsn *insn, State *st);
+  void Assert(IInsn *insn, State *st);
 };
 
 }  // namespace verilog

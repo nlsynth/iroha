@@ -10,11 +10,6 @@ namespace verilog {
 
 class InsnWriter {
  public:
-  InsnWriter(const IInsn *insn, const State *st, ostream &os);
-
-  void Print();
-  void Assert();
-
   static string RegisterValue(const IRegister &reg, Names *names);
   static string RegisterValueWithConstWidth(const IRegister &reg, int width,
                                             Names *names);
@@ -28,11 +23,6 @@ class InsnWriter {
   static string MultiCycleStateName(const IResource &res);
   // Original width to Target width.
   static string AdjustWidth(const string &val, int ow, int tw);
-
- private:
-  const IInsn *insn_;
-  const State *st_;
-  ostream &os_;
 };
 
 }  // namespace verilog

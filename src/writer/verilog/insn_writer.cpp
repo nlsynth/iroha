@@ -14,9 +14,6 @@ namespace iroha {
 namespace writer {
 namespace verilog {
 
-InsnWriter::InsnWriter(const IInsn *insn, const State *st, ostream &os)
-    : insn_(insn), st_(st), os_(os) {}
-
 string InsnWriter::RegisterValue(const IRegister &reg, Names *names) {
   if (reg.IsConst()) {
     int w = reg.value_type_.GetWidth();
@@ -55,30 +52,6 @@ string InsnWriter::CustomResourceName(const string &name,
 
 string InsnWriter::ResourceName(const IResource &res) {
   return CustomResourceName(res.GetClass()->GetName(), res);
-}
-
-void InsnWriter::Print() {
-  for (int i = 0; i < insn_->inputs_.size(); ++i) {
-    IRegister *reg = insn_->inputs_[i];
-    os_ << I << "$display(\"%m:" << insn_->GetResource()->GetTable()->GetId()
-        << ":" << insn_->GetId() << " %d\", "
-        << RegisterValue(*reg, st_->GetNames()) << ");\n";
-  }
-}
-
-void InsnWriter::Assert() {
-  os_ << I << "if (!(";
-  for (int i = 0; i < insn_->inputs_.size(); ++i) {
-    if (i > 0) {
-      os_ << " && ";
-    }
-    IRegister *reg = insn_->inputs_[i];
-    os_ << "(" << RegisterValue(*reg, st_->GetNames()) << " === 1)";
-  }
-  os_ << ")) begin\n";
-  os_ << I << "  $display(\"ASSERTION FAILURE: " << st_->GetIState()->GetId()
-      << "\");\n";
-  os_ << I << "end\n";
 }
 
 string InsnWriter::InsnOutputWireName(const IInsn &insn, int nth) {
