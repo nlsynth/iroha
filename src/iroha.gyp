@@ -317,6 +317,8 @@
                 'writer/verilog/fifo.h',
                 'writer/verilog/fifo_accessor.cpp',
                 'writer/verilog/fifo_accessor.h',
+                'writer/verilog/indent.cpp',
+                'writer/verilog/indent.h',
                 'writer/verilog/insn_writer.cpp',
                 'writer/verilog/insn_writer.h',
                 'writer/verilog/internal_sram.cpp',

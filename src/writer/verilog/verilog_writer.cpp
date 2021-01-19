@@ -1,12 +1,13 @@
 #include "writer/verilog/verilog_writer.h"
 
 #include "design/design_util.h"
-#include "iroha/logging.h"
 #include "iroha/i_design.h"
+#include "iroha/logging.h"
 #include "iroha/resource_params.h"
 #include "iroha/stl_util.h"
 #include "writer/names.h"
 #include "writer/verilog/embedded_modules.h"
+#include "writer/verilog/indent.h"
 #include "writer/verilog/internal_sram.h"
 #include "writer/verilog/module.h"
 #include "writer/verilog/port.h"
@@ -18,15 +19,19 @@ namespace writer {
 namespace verilog {
 
 VerilogWriter::VerilogWriter(const IDesign *design, const Connection &conn,
-			     const string &flavor, bool debug, ostream &os)
-  : design_(design), conn_(conn), flavor_(flavor), debug_(debug), os_(os),
-    embedded_modules_(new EmbeddedModules), with_self_contained_(false),
-    output_vcd_(false), names_root_(new Names(nullptr)),
-    reset_polarity_(false) {
-}
+                             const string &flavor, bool debug, ostream &os)
+    : design_(design),
+      conn_(conn),
+      flavor_(flavor),
+      debug_(debug),
+      final_os_(os),
+      embedded_modules_(new EmbeddedModules),
+      with_self_contained_(false),
+      output_vcd_(false),
+      names_root_(new Names(nullptr)),
+      reset_polarity_(false) {}
 
-VerilogWriter::~VerilogWriter() {
-}
+VerilogWriter::~VerilogWriter() {}
 
 bool VerilogWriter::Write() {
   names_root_->ReservePrefix("insn");
@@ -73,12 +78,14 @@ bool VerilogWriter::Write() {
     return false;
   }
   STLDeleteSecondElements(&modules_);
+  Indent indent(os_.str());
+  final_os_ << indent.DoIndent();
   return true;
 }
 
 void VerilogWriter::SetShellModuleName(const string &n,
-				       bool with_self_contained,
-				       bool output_vcd) {
+                                       bool with_self_contained,
+                                       bool output_vcd) {
   shell_module_name_ = n;
   with_self_contained_ = with_self_contained;
   output_vcd_ = output_vcd;
@@ -92,9 +99,7 @@ Module *VerilogWriter::GetByIModule(const IModule *mod) const {
   return nullptr;
 }
 
-bool VerilogWriter::GetResetPolarity() const {
-  return reset_polarity_;
-}
+bool VerilogWriter::GetResetPolarity() const { return reset_polarity_; }
 
 void VerilogWriter::ResolveResetPolarity(const IModule *root) {
   if (root->GetParams()->HasResetPolarity()) {
@@ -110,9 +115,8 @@ void VerilogWriter::PrepareModulesRec(const IModule *imod) {
   for (IModule *child : children) {
     PrepareModulesRec(child);
   }
-  Module *mod = new Module(imod, this, conn_,
-			   embedded_modules_.get(),
-			   names_root_->NewChildNames());
+  Module *mod = new Module(imod, this, conn_, embedded_modules_.get(),
+                           names_root_->NewChildNames());
   modules_[imod] = mod;
   ordered_modules_.push_back(mod);
 }
@@ -138,7 +142,7 @@ void VerilogWriter::BuildModules(const IModule *imod) {
 void VerilogWriter::BuildChildModuleSection() {
   for (auto *mod : ordered_modules_) {
     vector<IModule *> child_imods =
-      DesignUtil::GetChildModules(mod->GetIModule());
+        DesignUtil::GetChildModules(mod->GetIModule());
     vector<Module *> mods;
     for (auto *imod : child_imods) {
       mods.push_back(modules_[imod]);
@@ -161,7 +165,7 @@ void VerilogWriter::WriteShellModule(const Module *mod) {
   std::unique_ptr<SelfShell> shell;
   if (with_self_contained_) {
     shell.reset(new SelfShell(design_, ports, reset_polarity_,
-			      embedded_modules_.get()));
+                              embedded_modules_.get()));
     shell->WriteWireDecl(os_);
   }
   string name = mod->GetName();
@@ -183,10 +187,10 @@ void VerilogWriter::WriteShellModule(const Module *mod) {
   }
   if (output_vcd_) {
     os_ << "\n"
-	<< "initial begin\n"
-	<< "    $dumpfile(\"/tmp/" << shell_module_name_ << ".vcd\");\n"
-	<< "    $dumpvars(0, " << name << "_inst);\n"
-	<< "  end\n";
+        << "initial begin\n"
+        << "    $dumpfile(\"/tmp/" << shell_module_name_ << ".vcd\");\n"
+        << "    $dumpvars(0, " << name << "_inst);\n"
+        << "  end\n";
   }
   os_ << "\nendmodule  // " << shell_module_name_ << "\n";
   os_ << "`endif  // STRIP_SHELL\n";
@@ -198,8 +202,10 @@ void VerilogWriter::WriteShellModule(const Module *mod) {
   os_ << "//";
   ports->OutputWithFlavor(PortSet::AXI_USER_ASSIGN_TEMPLATE, flavor_, os_);
   os_ << "\n";
-  os_ << "// NOTE: This can be used by your script to auto generate the instantiation and connections.\n"
-      << "// :connection: " << shell_module_name_ << ":" << shell_module_name_ << "_inst ";
+  os_ << "// NOTE: This can be used by your script to auto generate the "
+         "instantiation and connections.\n"
+      << "// :connection: " << shell_module_name_ << ":" << shell_module_name_
+      << "_inst ";
   ports->Output(PortSet::PORT_CONNECTION_DATA, os_);
   os_ << "\n";
 }
@@ -208,7 +214,7 @@ void VerilogWriter::WriteSelfClockGenerator(const Module *mod) {
   const PortSet *ports = mod->GetPortSet();
   const string &clk = ports->GetClk();
   const string &rst = ports->GetReset();
-  os_ << "  reg " << clk << ", " <<  rst << ";\n\n"
+  os_ << "  reg " << clk << ", " << rst << ";\n\n"
       << "  initial begin\n"
       << "    " << clk << " <= 0;\n"
       << "    " << rst << " <= " << (reset_polarity_ ? "1" : "0") << ";\n"
