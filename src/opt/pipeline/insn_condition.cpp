@@ -1,5 +1,7 @@
 #include "opt/pipeline/insn_condition.h"
 
+#include <utility>
+
 #include "design/design_util.h"
 #include "iroha/i_design.h"
 #include "iroha/logging.h"
@@ -13,7 +15,7 @@ namespace iroha {
 namespace opt {
 namespace pipeline {
 
-IRegister *InsnConditionValueInfo::GetCondRegister(int value) {
+IRegister *StateConditionInfo::GetCondRegisterByValue(int value) {
   vector<IRegister *> regs;
   for (auto it : cond_to_value_) {
     if (it.second == value) {
@@ -92,7 +94,7 @@ void InsnCondition::Dump(OptimizerLog *log) {
   }
   for (auto &p : cond_value_info_) {
     ostream &os = log->State(p.first);
-    InsnConditionValueInfo *info = p.second;
+    StateConditionInfo *info = p.second;
     for (auto &q : info->cond_to_value_) {
       os << " " << q.first->GetId() << ":" << q.second;
     }
@@ -132,30 +134,31 @@ void InsnCondition::CollectBranches() {
 
 void InsnCondition::PropagateCondValue(IState *branch_st) {
   IInsn *tr = DesignUtil::FindTransitionInsn(branch_st);
-  map<IState *, set<int>> values;
+  map<IState *, set<int>> state_to_values;
   for (int i = 0; i < tr->target_states_.size(); ++i) {
     IState *next_st = tr->target_states_[i];
     set<IState *> reachable;
     CollectReachable(next_st, &reachable);
     for (IState *st : reachable) {
-      values[st].insert(i);
+      state_to_values[st].insert(i);
     }
   }
-  map<IState *, int> state_values;
-  for (auto &p : values) {
+  map<IState *, int> state_to_one_value;
+  for (auto &p : state_to_values) {
     if (p.second.size() == 1) {
       int v = *(p.second.begin());
-      state_values[p.first] = v;
+      state_to_one_value[p.first] = v;
     }
   }
   IRegister *cond_reg = tr->inputs_[0];
-  for (auto &p : state_values) {
+  for (auto &p : state_to_one_value) {
     IState *st = p.first;
-    InsnConditionValueInfo *info = cond_value_info_[st];
+    StateConditionInfo *info = cond_value_info_[st];
     if (info == nullptr) {
-      info = new InsnConditionValueInfo();
+      info = new StateConditionInfo();
       cond_value_info_[st] = info;
     }
+    // value at the state.
     info->cond_to_value_[cond_reg] = p.second;
   }
   ConditionRegInfo *reg_info = GetCondRegInfo(cond_reg);
@@ -185,7 +188,7 @@ void InsnCondition::CollectSideEffectInsns() {
     if (it == cond_value_info_.end()) {
       continue;
     }
-    InsnConditionValueInfo *info = it->second;
+    StateConditionInfo *info = it->second;
     vector<IInsn *> side_effect_insns;
     for (IInsn *insn : st->insns_) {
       if (ResourceAttr::IsSideEffectInsn(insn)) {
@@ -216,7 +219,7 @@ ConditionRegInfo *InsnCondition::GetCondRegInfo(IRegister *cond_reg) {
 
 void InsnCondition::BuildConditionRegInfo() {
   for (auto &p : cond_value_info_) {
-    InsnConditionValueInfo *cvinfo = p.second;
+    StateConditionInfo *cvinfo = p.second;
     int st_index = lb_->GetIndexFromState(p.first);
     for (auto &r : cvinfo->cond_to_value_) {
       IRegister *cond_reg = r.first;
@@ -241,14 +244,19 @@ void InsnCondition::SetMacroStageIndex() {
   }
 }
 
-IRegister *InsnCondition::GetInsnCondition(int nthst) {
+pair<IRegister *, int> InsnCondition::GetInsnCondition(int nthst) {
   auto sts = lb_->GetStates();
   IState *st = sts[nthst];
   auto *info = cond_value_info_[st];
   if (info == nullptr) {
-    return nullptr;
+    return make_pair(nullptr, 0);
   }
-  return info->GetCondRegister(1);
+  // Prefers 1, then tries 0.
+  IRegister *cond_reg = info->GetCondRegisterByValue(1);
+  if (cond_reg != nullptr) {
+    return make_pair(cond_reg, 1);
+  }
+  return make_pair(info->GetCondRegisterByValue(0), 0);
 }
 
 }  // namespace pipeline

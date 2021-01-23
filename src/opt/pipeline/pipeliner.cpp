@@ -399,9 +399,13 @@ void Pipeliner::SetInsnCondRegs() {
         continue;
       }
       int lst = insn_to_loop_state_index_[insn];
-      IRegister *cond = insn_cond_->GetInsnCondition(lst);
-      if (cond != nullptr) {
-        auto &m = insn_cond_->GetConditionRegStages(cond);
+      auto cond = insn_cond_->GetInsnCondition(lst);
+      IRegister *cond_reg = cond.first;
+      int cond_value = cond.second;
+      if (cond_reg != nullptr) {
+        // WIP.
+        CHECK(cond_value == 1);
+        auto &m = insn_cond_->GetConditionRegStages(cond_reg);
         int mst = insn_to_macro_stage_[insn];
         insn->conditions_.push_back(m[mst - 1]);
       }

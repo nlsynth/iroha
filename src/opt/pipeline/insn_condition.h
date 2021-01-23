@@ -11,10 +11,10 @@ namespace pipeline {
 class StageScheduler;
 
 // per state.
-struct InsnConditionValueInfo {
+struct StateConditionInfo {
   map<IRegister *, int> cond_to_value_;
   vector<IInsn *> insns_;
-  IRegister *GetCondRegister(int v);
+  IRegister *GetCondRegisterByValue(int v);
 };
 
 struct ConditionRegInfo {
@@ -41,7 +41,7 @@ class InsnCondition {
   int GetConditionLastUseStateIndex(IRegister *cond_reg);
   map<int, IRegister *> &GetConditionRegStages(IRegister *cond_reg);
   IRegister *GetFirstConditionRegStage(IRegister *cond_reg);
-  IRegister *GetInsnCondition(int nthst);
+  pair<IRegister *, int> GetInsnCondition(int nthst);
 
  private:
   void CollectBranches();
@@ -60,7 +60,7 @@ class InsnCondition {
   StageScheduler *ssch_;
   set<IState *> states_;
   vector<IState *> branches_;
-  map<IState *, InsnConditionValueInfo *> cond_value_info_;
+  map<IState *, StateConditionInfo *> cond_value_info_;
   map<IRegister *, ConditionRegInfo *> cond_reg_info_;
 };
 
