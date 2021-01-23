@@ -48,6 +48,7 @@ class Pipeliner {
   void PipelineRegs(int start, int end, map<int, IRegister *> &regs);
   IRegister *LookupStagedReg(int lidx, IRegister *reg);
   IRegister *LookupOriginalWire(IRegister *wire_reg);
+  IRegister *Negate(IRegister *reg, IState *st);
 
   ITable *tab_;
   StageScheduler *ssch_;

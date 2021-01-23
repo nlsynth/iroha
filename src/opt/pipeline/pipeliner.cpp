@@ -403,14 +403,29 @@ void Pipeliner::SetInsnCondRegs() {
       IRegister *cond_reg = cond.first;
       int cond_value = cond.second;
       if (cond_reg != nullptr) {
-        // WIP.
-        CHECK(cond_value == 1);
         auto &m = insn_cond_->GetConditionRegStages(cond_reg);
         int mst = insn_to_macro_stage_[insn];
-        insn->conditions_.push_back(m[mst - 1]);
+        IRegister *stage_cond = m[mst - 1];
+        if (cond_value == 0) {
+          stage_cond = Negate(stage_cond, st);
+        }
+        insn->conditions_.push_back(stage_cond);
       }
     }
   }
+}
+
+IRegister *Pipeliner::Negate(IRegister *reg, IState *st) {
+  IRegister *nreg = new IRegister(tab_, reg->GetName() + "_n");
+  nreg->value_type_.SetWidth(0);
+  nreg->SetStateLocal(true);
+  tab_->registers_.push_back(nreg);
+  IResource *neg = DesignTool::GetOneResource(tab_, resource::kBitInv);
+  IInsn *insn = new IInsn(neg);
+  insn->inputs_.push_back(reg);
+  insn->outputs_.push_back(nreg);
+  st->insns_.push_back(insn);
+  return nreg;
 }
 
 IRegister *Pipeliner::LookupStagedReg(int lidx, IRegister *reg) {
