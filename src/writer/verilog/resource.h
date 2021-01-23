@@ -43,6 +43,8 @@ class Resource {
   void AddPortToTop(const string &port, bool is_output, bool from_embedded,
                     int width);
   void BuildEmbeddedModule(const string &connection);
+  void BeginCondition(IInsn *insn, Names *names, ostream &os);
+  void EndCondition(IInsn *insn, ostream &os);
 
   const IResource &res_;
   const Table &tab_;

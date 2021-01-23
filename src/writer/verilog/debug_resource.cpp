@@ -18,11 +18,14 @@ void DebugResource::BuildResource() {}
 
 void DebugResource::BuildInsn(IInsn *insn, State *st) {
   auto *rc = res_.GetClass();
+  ostream &os = st->StateTransitionSectionStream();
+  BeginCondition(insn, st->GetNames(), os);
   if (resource::IsPrint(*rc)) {
     Print(insn, st);
   } else if (resource::IsAssert(*rc)) {
     Assert(insn, st);
   }
+  EndCondition(insn, os);
 }
 
 void DebugResource::CollectNames(Names *names) {}

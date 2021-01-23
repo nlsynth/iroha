@@ -342,6 +342,24 @@ void Resource::BuildEmbeddedModule(const string &connection) {
   is << ");\n";
 }
 
+void Resource::BeginCondition(IInsn *insn, Names *names, ostream &os) {
+  if (insn->conditions_.size() == 0) {
+    return;
+  }
+  vector<string> conds;
+  for (IRegister *reg : insn->conditions_) {
+    conds.push_back(InsnWriter::RegisterValue(*reg, names));
+  }
+  os << "if (" << Util::Join(conds, " && ") << ") begin\n";
+}
+
+void Resource::EndCondition(IInsn *insn, ostream &os) {
+  if (insn->conditions_.size() == 0) {
+    return;
+  }
+  os << "end\n";
+}
+
 }  // namespace verilog
 }  // namespace writer
 }  // namespace iroha
