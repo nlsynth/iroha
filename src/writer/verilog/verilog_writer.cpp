@@ -78,7 +78,8 @@ bool VerilogWriter::Write() {
     return false;
   }
   STLDeleteSecondElements(&modules_);
-  Indent indent(os_.str());
+  string s = os_.str();
+  Indent indent(s);
   final_os_ << indent.DoIndent();
   return true;
 }
