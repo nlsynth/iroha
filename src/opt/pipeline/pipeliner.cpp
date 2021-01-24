@@ -374,15 +374,21 @@ void Pipeliner::AssignInitialInsnCondRegs() {
   for (IState *st : pipeline_stages_) {
     vector<IInsn *> new_insns = st->insns_;
     for (IInsn *insn : st->insns_) {
-      for (IRegister *oreg : insn->outputs_) {
-        IRegister *raw = LookupOriginalWire(oreg);
-        if (!insn_cond_->IsCondReg(raw)) {
+      for (int nth = 0; nth < insn->outputs_.size(); ++nth) {
+        IRegister *oreg = insn->outputs_[nth];
+        IRegister *raw_reg = LookupOriginalWire(oreg);
+        if (!insn_cond_->IsCondReg(raw_reg)) {
           continue;
         }
-        CHECK(oreg->IsStateLocal());
+        IRegister *cond_reg = oreg;
+        if (!oreg->IsStateLocal()) {
+          IInsn *wire_insn = InjectOutputWire(insn, nth);
+          new_insns.push_back(wire_insn);
+          cond_reg = insn->outputs_[nth];
+        }
         IInsn *a = new IInsn(assign_);
-        a->inputs_.push_back(oreg);
-        a->outputs_.push_back(insn_cond_->GetFirstConditionRegStage(raw));
+        a->inputs_.push_back(cond_reg);
+        a->outputs_.push_back(insn_cond_->GetFirstConditionRegStage(raw_reg));
         ostream &os = opt_log_->Insn(a);
         os << "~c";
         new_insns.push_back(a);
@@ -390,6 +396,19 @@ void Pipeliner::AssignInitialInsnCondRegs() {
     }
     st->insns_ = new_insns;
   }
+}
+
+IInsn *Pipeliner::InjectOutputWire(IInsn *insn, int nth) {
+  IRegister *reg = insn->outputs_[nth];
+  IRegister *wire = new IRegister(tab_, reg->GetName() + "_ow");
+  tab_->registers_.push_back(wire);
+  wire->value_type_ = reg->value_type_;
+  wire->SetStateLocal(true);
+  IInsn *wire_insn = new IInsn(assign_);
+  wire_insn->inputs_.push_back(wire);
+  wire_insn->outputs_.push_back(reg);
+  insn->outputs_[nth] = wire;
+  return wire_insn;
 }
 
 void Pipeliner::SetInsnCondRegs() {
