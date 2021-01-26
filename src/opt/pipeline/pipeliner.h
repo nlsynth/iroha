@@ -49,8 +49,6 @@ class Pipeliner {
   IRegister *LookupStagedReg(int lidx, IRegister *reg);
   IRegister *LookupOriginalWire(IRegister *wire_reg);
   IRegister *Negate(IRegister *reg, IState *st);
-  // returns assign insn which assigns wire to reg.
-  IInsn *InjectOutputWire(IInsn *insn, int nth);
 
   ITable *tab_;
   StageScheduler *ssch_;
