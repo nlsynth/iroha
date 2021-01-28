@@ -22,25 +22,15 @@ ArrayResource::ArrayResource(const IResource &res, const Table &table)
     : Resource(res, table) {}
 
 void ArrayResource::BuildResource() {
-  auto *klass = res_.GetClass();
-  if (resource::IsArray(*klass)) {
-    IArray *array = res_.GetArray();
-    if (array->IsExternal()) {
-      BuildExternalSRAM();
-    } else {
-      BuildInternalSRAM();
-    }
+  IArray *array = res_.GetArray();
+  if (array->IsExternal()) {
+    BuildExternalSRAM();
+  } else {
+    BuildInternalSRAM();
   }
 }
 
 void ArrayResource::BuildInsn(IInsn *insn, State *st) {
-  auto *klass = res_.GetClass();
-  if (resource::IsArray(*klass)) {
-    BuildMemInsn(insn, st);
-  }
-}
-
-void ArrayResource::BuildMemInsn(IInsn *insn, State *st) {
   const string &opr = insn->GetOperand();
   if (opr == operand::kSramReadData) {
     ostream &ws = tab_.InsnWireValueSectionStream();

@@ -10,22 +10,21 @@ namespace verilog {
 
 // SharedMemoryReplica inherits this.
 class ArrayResource : public Resource {
-public:
+ public:
   ArrayResource(const IResource &res, const Table &table);
-  virtual ~ArrayResource() {};
+  virtual ~ArrayResource(){};
 
   virtual void BuildResource() override;
   virtual void BuildInsn(IInsn *insn, State *st) override;
 
   static string SigName(const IResource &res, const string &sig);
 
-private:
+ private:
   void BuildExternalSRAM();
   void BuildInternalSRAM();
   void BuildSRAMWrite();
 
-protected:
-  void BuildMemInsn(IInsn *insn, State *st);
+ protected:
   string SigName(const string &sig);
   virtual IArray *GetArray();
 };
