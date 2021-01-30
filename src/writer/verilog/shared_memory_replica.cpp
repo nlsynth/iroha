@@ -16,33 +16,33 @@ namespace writer {
 namespace verilog {
 
 SharedMemoryReplica::SharedMemoryReplica(const IResource &res,
-					 const Table &table)
-  : ArrayResource(res, table) {
-}
+                                         const Table &table)
+    : ArrayResource(res, table) {}
 
 void SharedMemoryReplica::BuildResource() {
   IResource *parent = res_.GetParentResource();
   IArray *array = parent->GetArray();
-  InternalSRAM *sram =
-    tab_.GetEmbeddedModules()->RequestInternalSRAM(*tab_.GetModule(),
-						   *array, 2);
+  InternalSRAM *sram = tab_.GetEmbeddedModules()->RequestInternalSRAM(
+      *tab_.GetModule(), *array, 2);
   ostream &es = tmpl_->GetStream(kEmbeddedInstanceSection);
   string name = sram->GetModuleName();
-  string inst = name + "_inst_" + Util::Itoa(tab_.GetITable()->GetId()) +
-    "_" + Util::Itoa(res_.GetId());
+  string inst = name + "_inst_" + Util::Itoa(tab_.GetITable()->GetId()) + "_" +
+                Util::Itoa(res_.GetId());
   auto *ports = tab_.GetPortSet();
   string rn = SharedMemory::GetName(*parent);
   string addr_wire = wire::Names::ResourceWire(rn, "addr");
   string wdata_wire = wire::Names::ResourceWire(rn, "wdata");
   string wen_wire = wire::Names::ResourceWire(rn, "wen");
   es << "  " << name << " " << inst << "("
-     << ".clk(" << ports->GetClk() << ")"
-    // port 0 to read.
+     << ".clk(" << ports->GetClk()
+     << ")"
+     // port 0 to read.
      << ", ." << sram->GetResetPinName() << "(" << ports->GetReset() << ")"
      << ", ." << sram->GetAddrPin(0) << "(" << SigName("addr") << ")"
      << ", ." << sram->GetRdataPin(0) << "(" << SigName("rdata") << ")"
-     << ", ." << sram->GetWenPin(0) << "(1'b0)"
-    // port 1 to write.
+     << ", ." << sram->GetWenPin(0)
+     << "(1'b0)"
+     // port 1 to write.
      << ", ." << sram->GetAddrPin(1) << "(" << addr_wire << ")"
      << ", ." << sram->GetWdataPin(1) << "(" << wdata_wire << ")"
      << ", ." << sram->GetWenPin(1) << "(" << wen_wire << ")"
@@ -53,11 +53,10 @@ void SharedMemoryReplica::BuildResource() {
 }
 
 void SharedMemoryReplica::BuildInsn(IInsn *insn, State *st) {
-  BuildMemInsn(insn, st);
+  ArrayResource::BuildInsn(insn, st);
 }
 
-void SharedMemoryReplica::CollectNames(Names *names) {
-}
+void SharedMemoryReplica::CollectNames(Names *names) {}
 
 IArray *SharedMemoryReplica::GetArray() {
   IResource *parent = res_.GetParentResource();
