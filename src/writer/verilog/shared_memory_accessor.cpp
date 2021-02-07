@@ -13,17 +13,18 @@ namespace writer {
 namespace verilog {
 
 SharedMemoryAccessor::SharedMemoryAccessor(const IResource &res,
-					   const Table &table)
-  : Resource(res, table) {
-}
+                                           const Table &table)
+    : Resource(res, table) {}
 
 void SharedMemoryAccessor::BuildResource() {
   auto *klass = res_.GetClass();
   if (resource::IsSharedMemoryReader(*klass)) {
-    BuildMemoryAccessorResource(*this, false, true, res_.GetParentResource());
+    BuildMemoryAccessorResource(*this, /* do_write */ false, /* gen_reg */ true,
+                                res_.GetParentResource());
   }
   if (resource::IsSharedMemoryWriter(*klass)) {
-    BuildMemoryAccessorResource(*this, true, true, res_.GetParentResource());
+    BuildMemoryAccessorResource(*this, /* do_write */ true, /* gen_reg */ true,
+                                res_.GetParentResource());
   }
 }
 
@@ -32,9 +33,9 @@ void SharedMemoryAccessor::BuildInsn(IInsn *insn, State *st) {
 }
 
 void SharedMemoryAccessor::BuildMemoryAccessorResource(const Resource &accessor,
-						       bool do_write,
-						       bool gen_reg,
-						       const IResource *mem) {
+                                                       bool do_write,
+                                                       bool gen_reg,
+                                                       const IResource *mem) {
   IArray *array = mem->GetArray();
   int addr_width = array->GetAddressWidth();
   int data_width = array->GetDataType().GetWidth();
@@ -49,15 +50,15 @@ void SharedMemoryAccessor::BuildMemoryAccessorResource(const Resource &accessor,
   }
   string rn = SharedMemory::GetName(*mem);
   // Addr.
-  rs << "  " << storage << " " << Table::WidthSpec(addr_width)
+  rs << "  " << storage << " " << Table::WidthSpec(addr_width) << AddrSrc(res)
+     << ";\n";
+  rs << "  assign " << wire::Names::AccessorWire(rn, &res, "addr") << " = "
      << AddrSrc(res) << ";\n";
-  rs << "  assign " << wire::Names::AccessorWire(rn, &res, "addr")
-     << " = " << AddrSrc(res) << ";\n";
   // Req.
   string req = ReqSrc(res);
   rs << "  " << storage << " " << req << ";\n";
-  rs << "  assign " << wire::Names::AccessorWire(rn, &res, "req")
-     << " = " << req << ";\n";
+  rs << "  assign " << wire::Names::AccessorWire(rn, &res, "req") << " = "
+     << req << ";\n";
   const Table &tab = accessor.GetTable();
   ostream &is = tab.InitialValueSectionStream();
   if (gen_reg) {
@@ -66,14 +67,14 @@ void SharedMemoryAccessor::BuildMemoryAccessorResource(const Resource &accessor,
   // WData and WEn.
   if (do_write) {
     string wdata = WDataSrc(res);
-    rs << "  " << storage << " " << Table::WidthSpec(data_width)
+    rs << "  " << storage << " " << Table::WidthSpec(data_width) << wdata
+       << ";\n";
+    rs << "  assign " << wire::Names::AccessorWire(rn, &res, "wdata") << " = "
        << wdata << ";\n";
-    rs << "  assign " << wire::Names::AccessorWire(rn, &res, "wdata")
-       << " = " << wdata << ";\n";
     string wen = WEnSrc(res);
     rs << "  " << storage << " " << wen << ";\n";
-    rs << "  assign " << wire::Names::AccessorWire(rn, &res, "wen")
-       << " = " << wen << ";\n";
+    rs << "  assign " << wire::Names::AccessorWire(rn, &res, "wen") << " = "
+       << wen << ";\n";
   }
 
   auto *klass = res.GetClass();
@@ -87,9 +88,8 @@ void SharedMemoryAccessor::BuildMemoryAccessorResource(const Resource &accessor,
   if (gen_reg) {
     ss << "      " << ReqSrc(res) << " <= (";
     if (callers.size() > 0) {
-      ss << accessor.JoinStatesWithSubState(callers, 0)
-	 << ") && !" << ack
-	 << ";\n";
+      ss << accessor.JoinStatesWithSubState(callers, 0) << ") && !" << ack
+         << ";\n";
     } else {
       ss << "0);\n";
     }
@@ -101,10 +101,10 @@ void SharedMemoryAccessor::BuildMemoryAccessorResource(const Resource &accessor,
     map<IState *, IInsn *> writers;
     if (resource::IsSharedMemory(*klass)) {
       for (auto it : callers) {
-	IInsn *insn = it.second;
-	if (insn->inputs_.size() == 2) {
-	  writers[it.first] = it.second;
-	}
+        IInsn *insn = it.second;
+        if (insn->inputs_.size() == 2) {
+          writers[it.first] = it.second;
+        }
       }
     } else {
       writers = callers;
@@ -113,14 +113,13 @@ void SharedMemoryAccessor::BuildMemoryAccessorResource(const Resource &accessor,
     if (wen.empty()) {
       wen = "0";
     }
-    ss << "      " << WEnSrc(res) << " <= "
-       << wen << " && !" << ack << ";\n";
+    ss << "      " << WEnSrc(res) << " <= " << wen << " && !" << ack << ";\n";
   }
 }
 
 void SharedMemoryAccessor::BuildAccessInsn(IInsn *insn, State *st,
-					   const IResource &res,
-					   const Table &tab) {
+                                           const IResource &res,
+                                           const Table &tab) {
   ostream &os = st->StateBodySectionStream();
   static const char I[] = "          ";
   string st_name = InsnWriter::MultiCycleStateName(*(insn->GetResource()));
@@ -132,14 +131,13 @@ void SharedMemoryAccessor::BuildAccessInsn(IInsn *insn, State *st,
     mem = res.GetParentResource();
   }
   os << I << "if (" << st_name << " == 0) begin\n";
-  os << I << "  " << AddrSrc(res) << " <= "
-     << InsnWriter::RegisterValue(*insn->inputs_[0], tab.GetNames())
+  os << I << "  " << AddrSrc(res)
+     << " <= " << InsnWriter::RegisterValue(*insn->inputs_[0], tab.GetNames())
      << ";\n";
   if (resource::IsSharedMemoryWriter(*klass) ||
-      (resource::IsSharedMemory(*klass) &&
-       insn->inputs_.size() == 2)) {
-    os << I << "  " << WDataSrc(res) << " <= "
-       << InsnWriter::RegisterValue(*insn->inputs_[1], tab.GetNames())
+      (resource::IsSharedMemory(*klass) && insn->inputs_.size() == 2)) {
+    os << I << "  " << WDataSrc(res)
+       << " <= " << InsnWriter::RegisterValue(*insn->inputs_[1], tab.GetNames())
        << ";\n";
   }
   string rn = SharedMemory::GetName(*mem);
@@ -148,15 +146,12 @@ void SharedMemoryAccessor::BuildAccessInsn(IInsn *insn, State *st,
   os << I << "  if (" << ack << ") begin\n"
      << I << "    " << st_name << " <= 3;\n";
   if (resource::IsSharedMemoryReader(*klass) ||
-      (resource::IsSharedMemory(*klass) &&
-       insn->outputs_.size() == 1)) {
-    os << I << "    "
-       << SharedMemory::MemoryRdataBuf(*mem, &res)
-       << " <= " << rdata
-       << ";\n";
+      (resource::IsSharedMemory(*klass) && insn->outputs_.size() == 1)) {
+    os << I << "    " << SharedMemory::MemoryRdataBuf(*mem, &res)
+       << " <= " << rdata << ";\n";
     ostream &ws = tab.InsnWireValueSectionStream();
-    ws << "  assign " << InsnWriter::InsnOutputWireName(*insn, 0)
-       << " = " << SharedMemory::MemoryRdataBuf(*mem, &res) << ";\n";
+    ws << "  assign " << InsnWriter::InsnOutputWireName(*insn, 0) << " = "
+       << SharedMemory::MemoryRdataBuf(*mem, &res) << ";\n";
   }
   os << I << "  end\n";
   os << I << "end\n";
@@ -187,7 +182,7 @@ const IResource *SharedMemoryAccessor::GetMem(const IResource &accessor) {
 }
 
 string SharedMemoryAccessor::SrcName(const IResource &accessor,
-				     const string &name) {
+                                     const string &name) {
   const auto *mem = GetMem(accessor);
   string rn = SharedMemory::GetName(*mem);
   return wire::Names::AccessorSignalBase(rn, &accessor, name.c_str()) + "_src";

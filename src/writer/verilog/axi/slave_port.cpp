@@ -23,8 +23,9 @@ void SlavePort::BuildResource() {
   string wires_to_ext = BuildPortToExt();
   BuildControllerInstance(wires_to_ext);
   if (!IsExclusiveAccessor()) {
-    SharedMemoryAccessor::BuildMemoryAccessorResource(*this, true, false,
-                                                      res_.GetParentResource());
+    SharedMemoryAccessor::BuildMemoryAccessorResource(
+        *this, /* do_write */ true, /* gen_reg */ false,
+        res_.GetParentResource());
   }
 
   ostream &os = tab_.ResourceSectionStream();

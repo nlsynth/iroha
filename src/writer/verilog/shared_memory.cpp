@@ -23,12 +23,12 @@ namespace writer {
 namespace verilog {
 
 SharedMemory::SharedMemory(const IResource &res, const Table &table)
-  : Resource(res, table) {
-}
+    : Resource(res, table) {}
 
 void SharedMemory::BuildResource() {
   BuildMemoryResource();
-  SharedMemoryAccessor::BuildMemoryAccessorResource(*this, true, true, &res_);
+  SharedMemoryAccessor::BuildMemoryAccessorResource(*this, /* do_write */ true,
+                                                    /* gen_reg */ true, &res_);
 }
 
 void SharedMemory::BuildMemoryResource() {
@@ -40,7 +40,7 @@ void SharedMemory::BuildMemoryResource() {
   vector<const IResource *> accessors;
   accessors.push_back(&res_);
   auto &non_self_accessors =
-    tab_.GetModule()->GetConnection().GetSharedMemoryAccessors(&res_);
+      tab_.GetModule()->GetConnection().GetSharedMemoryAccessors(&res_);
   for (IResource *r : non_self_accessors) {
     accessors.push_back(r);
   }
@@ -70,20 +70,19 @@ void SharedMemory::BuildExternalMemoryConnection() {
     prefix = p;
   }
   AddPortToTop(prefix + "_addr", true, true, array->GetAddressWidth());
-  AddPortToTop(prefix + "_wdata", true, true,
-	       array->GetDataType().GetWidth());
+  AddPortToTop(prefix + "_wdata", true, true, array->GetDataType().GetWidth());
   AddPortToTop(prefix + "_wdata_en", true, true, 0);
   AddPortToTop(prefix + "_rdata", false, false,
-	       array->GetDataType().GetWidth());
+               array->GetDataType().GetWidth());
 
   ostream &rs = tab_.ResourceSectionStream();
   string rn = SharedMemory::GetName(res_);
-  rs << "  assign " << prefix << "_addr = "
-     << wire::Names::ResourceWire(rn, "addr") << ";\n";
-  rs << "  assign " << prefix << "_wdata = "
-     << wire::Names::ResourceWire(rn, "wdata") << ";\n";
-  rs << "  assign " << wire::Names::ResourceWire(rn, "rdata")
-     << " = " << prefix << "_rdata;\n";
+  rs << "  assign " << prefix
+     << "_addr = " << wire::Names::ResourceWire(rn, "addr") << ";\n";
+  rs << "  assign " << prefix
+     << "_wdata = " << wire::Names::ResourceWire(rn, "wdata") << ";\n";
+  rs << "  assign " << wire::Names::ResourceWire(rn, "rdata") << " = " << prefix
+     << "_rdata;\n";
 
   FixupWen(wire::Names::ResourceWire(rn, "wen"), prefix + "_wdata_en");
 }
@@ -91,20 +90,18 @@ void SharedMemory::BuildExternalMemoryConnection() {
 void SharedMemory::BuildMemoryInstance() {
   int num_ports = 1;
   auto &port_users =
-    tab_.GetModule()->GetConnection().GetSharedMemoryPort1Accessors(&res_);
+      tab_.GetModule()->GetConnection().GetSharedMemoryPort1Accessors(&res_);
   if (port_users.size() > 0) {
     CHECK(port_users.size() == 1);
     num_ports = 2;
   }
-  InternalSRAM *sram =
-    tab_.GetEmbeddedModules()->RequestInternalSRAM(*tab_.GetModule(),
-						   *res_.GetArray(),
-						   num_ports);
+  InternalSRAM *sram = tab_.GetEmbeddedModules()->RequestInternalSRAM(
+      *tab_.GetModule(), *res_.GetArray(), num_ports);
   auto *ports = tab_.GetPortSet();
   ostream &es = tmpl_->GetStream(kEmbeddedInstanceSection);
   string name = sram->GetModuleName();
-  string inst = name + "_inst_" + Util::Itoa(tab_.GetITable()->GetId()) +
-    "_" + Util::Itoa(res_.GetId());
+  string inst = name + "_inst_" + Util::Itoa(tab_.GetITable()->GetId()) + "_" +
+                Util::Itoa(res_.GetId());
   string rn = SharedMemory::GetName(res_);
   string addr_wire = wire::Names::ResourceWire(rn, "addr");
   string rdata_wire = wire::Names::ResourceWire(rn, "rdata");
@@ -116,27 +113,26 @@ void SharedMemory::BuildMemoryInstance() {
      << ".clk(" << ports->GetClk() << ")"
      << ", ." << sram->GetResetPinName() << "(" << ports->GetReset() << ")"
      << ", ." << sram->GetAddrPin(0) << "(" << addr_wire << ")"
-     << ", ." << sram->GetRdataPin(0) <<"(" << rdata_wire << ")"
-     << ", ." << sram->GetWdataPin(0) <<"(" << wdata_wire << ")"
-     << ", ." << sram->GetWenPin(0) <<"(" << wen << ")";
+     << ", ." << sram->GetRdataPin(0) << "(" << rdata_wire << ")"
+     << ", ." << sram->GetWdataPin(0) << "(" << wdata_wire << ")"
+     << ", ." << sram->GetWenPin(0) << "(" << wen << ")";
   if (num_ports == 2) {
     // AXI controller connects to port 1.
-    es << ", ." << sram->GetAddrPin(1) << "("
-       << MemoryAddrPin(res_, 1, nullptr) << ")"
-       << ", ." << sram->GetRdataPin(1) <<"("
-       << MemoryRdataPin(res_, 1) << ")"
-       << ", ." << sram->GetWdataPin(1) <<"("
+    es << ", ." << sram->GetAddrPin(1) << "(" << MemoryAddrPin(res_, 1, nullptr)
+       << ")"
+       << ", ." << sram->GetRdataPin(1) << "(" << MemoryRdataPin(res_, 1) << ")"
+       << ", ." << sram->GetWdataPin(1) << "("
        << MemoryWdataPin(res_, 1, nullptr) << ")"
-       << ", ." << sram->GetWenPin(1) <<"("
-       << MemoryWenPin(res_, 1, nullptr) << ")";
+       << ", ." << sram->GetWenPin(1) << "(" << MemoryWenPin(res_, 1, nullptr)
+       << ")";
   }
-  es <<");\n";
+  es << ");\n";
   ostream &rs = tab_.ResourceSectionStream();
   if (num_ports == 2) {
     rs << "  wire " << sram->AddressWidthSpec() << " "
        << MemoryAddrPin(res_, 1, nullptr) << ";\n";
-    rs << "  wire " << sram->DataWidthSpec() << " "
-       << MemoryRdataPin(res_, 1) << ";\n";
+    rs << "  wire " << sram->DataWidthSpec() << " " << MemoryRdataPin(res_, 1)
+       << ";\n";
     rs << "  wire " << sram->DataWidthSpec() << " "
        << MemoryWdataPin(res_, 1, nullptr) << ";\n";
     rs << "  wire " << MemoryWenPin(res_, 1, nullptr) << ";\n";
@@ -156,8 +152,7 @@ void SharedMemory::FixupWen(const string &wen_wire, const string &wen) {
   ostream &ss = tab_.StateOutputSectionStream();
   ss << "      " << wen_reg << " <= " << wen << ";\n";
   ostream &rvs = tab_.ResourceValueSectionStream();
-  rvs << "  assign " << wen << " = "
-      << wen_wire << " && !" << wen_reg << ";\n";
+  rvs << "  assign " << wen << " = " << wen_wire << " && !" << wen_reg << ";\n";
 }
 
 void SharedMemory::BuildAccessWireAll(vector<const IResource *> &accessors) {
@@ -169,23 +164,21 @@ void SharedMemory::BuildAccessWireAll(vector<const IResource *> &accessors) {
     auto *klass = accessor->GetClass();
     wire::AccessorInfo *ainfo = ws->AddAccessor(accessor);
     ainfo->SetDistance(accessor->GetParams()->GetDistance());
-    ainfo->AddSignal("addr", wire::AccessorSignalType::ACCESSOR_WRITE_ARG,
-		     aw);
+    ainfo->AddSignal("addr", wire::AccessorSignalType::ACCESSOR_WRITE_ARG, aw);
     ainfo->AddSignal("req", wire::AccessorSignalType::ACCESSOR_REQ, 0);
     ainfo->AddSignal("ack", wire::AccessorSignalType::ACCESSOR_ACK, 0);
     if (!resource::IsSharedMemoryReader(*klass)) {
       // SharedMemory, SharedMemoryWriter, AxiMaster, AxiSlave.
-      wire::AccessorSignal *asig =
-	ainfo->AddSignal("wen", wire::AccessorSignalType::ACCESSOR_WRITE_ARG,
-			 0);
+      wire::AccessorSignal *asig = ainfo->AddSignal(
+          "wen", wire::AccessorSignalType::ACCESSOR_WRITE_ARG, 0);
       asig->sig_desc_->default0_ = true;
       ainfo->AddSignal("wdata", wire::AccessorSignalType::ACCESSOR_WRITE_ARG,
-		       dw);
+                       dw);
     }
     if (!resource::IsSharedMemoryWriter(*klass)) {
       // SharedMemory, SharedMemoryReader, AxiMaster, AxiSlave.
       ainfo->AddSignal("rdata", wire::AccessorSignalType::ACCESSOR_READ_ARG,
-		       dw);
+                       dw);
     }
   }
   ws->Build();
@@ -196,59 +189,52 @@ void SharedMemory::BuildInsn(IInsn *insn, State *st) {
 }
 
 string SharedMemory::GetName(const IResource &res) {
-  return "mem_"+ Util::Itoa(res.GetTable()->GetModule()->GetId()) +
-    "_" + Util::Itoa(res.GetTable()->GetId()) +
-    "_" + Util::Itoa(res.GetId());
+  return "mem_" + Util::Itoa(res.GetTable()->GetModule()->GetId()) + "_" +
+         Util::Itoa(res.GetTable()->GetId()) + "_" + Util::Itoa(res.GetId());
 }
 
 string SharedMemory::MemoryPinPrefix(const IResource &mem,
-				     const IResource *accessor) {
+                                     const IResource *accessor) {
   string s = GetName(mem);
   if (accessor == nullptr) {
     return s;
   }
   if (accessor != nullptr) {
-    s += "_" + Util::Itoa(accessor->GetTable()->GetModule()->GetId()) +
-      "_" + Util::Itoa(accessor->GetTable()->GetId()) +
-      "_" + Util::Itoa(accessor->GetId());
+    s += "_" + Util::Itoa(accessor->GetTable()->GetModule()->GetId()) + "_" +
+         Util::Itoa(accessor->GetTable()->GetId()) + "_" +
+         Util::Itoa(accessor->GetId());
   }
   return s;
 }
 
 string SharedMemory::MemoryRdataBuf(const IResource &res,
-				    const IResource *accessor) {
+                                    const IResource *accessor) {
   return MemoryPinPrefix(res, accessor) + "_rbuf";
 }
 
-string SharedMemory::MemoryAddrPin(const IResource &res,
-				   int nth_port,
-				   const IResource *accessor) {
-  return MemoryPinPrefix(res, accessor) +
-    "_p" + Util::Itoa(nth_port) + "_addr";
+string SharedMemory::MemoryAddrPin(const IResource &res, int nth_port,
+                                   const IResource *accessor) {
+  return MemoryPinPrefix(res, accessor) + "_p" + Util::Itoa(nth_port) + "_addr";
 }
 
 string SharedMemory::MemoryRdataPin(const IResource &res, int nth_port) {
-  return MemoryPinPrefix(res, nullptr) +
-    "_p" + Util::Itoa(nth_port) + "_rdata";
+  return MemoryPinPrefix(res, nullptr) + "_p" + Util::Itoa(nth_port) + "_rdata";
 }
 
-string SharedMemory::MemoryWdataPin(const IResource &res,
-				    int nth_port,
-				    const IResource *accessor) {
-  return MemoryPinPrefix(res, accessor) +
-    "_p" + Util::Itoa(nth_port) + "_wdata";
+string SharedMemory::MemoryWdataPin(const IResource &res, int nth_port,
+                                    const IResource *accessor) {
+  return MemoryPinPrefix(res, accessor) + "_p" + Util::Itoa(nth_port) +
+         "_wdata";
 }
 
-string SharedMemory::MemoryWenPin(const IResource &res,
-				  int nth_port,
-				  const IResource *accessor) {
-  return MemoryPinPrefix(res, accessor) +
-    "_p" + Util::Itoa(nth_port) + "_wen";
+string SharedMemory::MemoryWenPin(const IResource &res, int nth_port,
+                                  const IResource *accessor) {
+  return MemoryPinPrefix(res, accessor) + "_p" + Util::Itoa(nth_port) + "_wen";
 }
 
 string SharedMemory::MemoryWenReg(const IResource &res, int nth_port) {
-  return MemoryPinPrefix(res, nullptr) +
-    "_p" + Util::Itoa(nth_port) + "_wen_reg";
+  return MemoryPinPrefix(res, nullptr) + "_p" + Util::Itoa(nth_port) +
+         "_wen_reg";
 }
 
 }  // namespace verilog
