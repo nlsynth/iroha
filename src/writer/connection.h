@@ -2,19 +2,19 @@
 #ifndef _writer_connection_h_
 #define _writer_connection_h_
 
-#include "iroha/common.h"
-
 #include <map>
 #include <set>
+
+#include "iroha/common.h"
 
 namespace iroha {
 namespace writer {
 
 // Keyed by owner (parent) resource.
 class AccessorInfo {
-public:
+ public:
   vector<IResource *> task_callers_;
-  vector<IResource *> shared_memory_accessors_;
+  vector<IResource *> shared_memory_port0_accessors_;
   // resources accesses secondary port (port1) of this memory resource.
   vector<IResource *> shared_memory_port1_accessors_;
   vector<IResource *> shared_reg_readers_;
@@ -31,7 +31,7 @@ public:
 };
 
 class Connection {
-public:
+ public:
   Connection(const IDesign *design);
   ~Connection();
 
@@ -43,8 +43,10 @@ public:
   const vector<IResource *> &GetSharedRegExtWriters(const IResource *res) const;
   const vector<IResource *> &GetSharedRegReaders(const IResource *res) const;
   const vector<IResource *> &GetSharedRegChildren(const IResource *res) const;
-  const vector<IResource *> &GetSharedMemoryAccessors(const IResource *res) const;
-  const vector<IResource *> &GetSharedMemoryPort1Accessors(const IResource *res) const;
+  const vector<IResource *> &GetSharedMemoryAccessors(
+      const IResource *res) const;
+  const vector<IResource *> &GetSharedMemoryPort1Accessors(
+      const IResource *res) const;
   const vector<IResource *> &GetFifoWriters(const IResource *res) const;
   const vector<IResource *> &GetFifoReaders(const IResource *res) const;
   const vector<IResource *> &GetExtInputAccessors(const IResource *res) const;
@@ -54,9 +56,10 @@ public:
 
   static const IModule *GetCommonRoot(const IModule *m1, const IModule *m2);
 
-private:
-  const vector<IResource *> *GetResourceVector(const map<const IResource *,
-					       vector<IResource *>> &m, const IResource *res) const;
+ private:
+  const vector<IResource *> *GetResourceVector(
+      const map<const IResource *, vector<IResource *>> &m,
+      const IResource *res) const;
   void ProcessTable(ITable *tab);
   void ProcessSharedRegAccessors(ITable *tab);
   void ProcessSharedMemoryAccessors(ITable *tab);

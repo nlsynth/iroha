@@ -80,12 +80,12 @@ void Connection::ProcessSharedMemoryAccessors(ITable *tab) {
     auto *params = res->GetParams();
     if (resource::IsSharedMemoryReader(*rc) ||
         resource::IsSharedMemoryWriter(*rc)) {
-      ai->shared_memory_accessors_.push_back(res);
+      ai->shared_memory_port0_accessors_.push_back(res);
     }
     if (resource::IsAxiMasterPort(*rc) || resource::IsAxiSlavePort(*rc) ||
         resource::IsSramIf(*rc)) {
       if (params->GetSramPortIndex() == "0") {
-        ai->shared_memory_accessors_.push_back(res);
+        ai->shared_memory_port0_accessors_.push_back(res);
       } else {
         // Exclusive access only by a DMAC.
         ai->shared_memory_port1_accessors_.push_back(res);
@@ -202,7 +202,7 @@ const vector<IResource *> &Connection::GetSharedRegChildren(
 const vector<IResource *> &Connection::GetSharedMemoryAccessors(
     const IResource *res) const {
   const auto *ai = GetAccessorInfo(res);
-  return ai->shared_memory_accessors_;
+  return ai->shared_memory_port0_accessors_;
 }
 
 const vector<IResource *> &Connection::GetSharedMemoryPort1Accessors(
