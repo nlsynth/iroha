@@ -37,14 +37,14 @@ void SharedMemory::BuildMemoryResource() {
   } else {
     BuildMemoryInstance();
   }
-  vector<const IResource *> accessors;
-  accessors.push_back(&res_);
+  vector<const IResource *> port0_accessors;
+  port0_accessors.push_back(&res_);
   auto &non_self_accessors =
       tab_.GetModule()->GetConnection().GetSharedMemoryPort0Accessors(&res_);
   for (IResource *r : non_self_accessors) {
-    accessors.push_back(r);
+    port0_accessors.push_back(r);
   }
-  BuildAccessWireAll(accessors);
+  BuildAccessWireAll(port0_accessors);
   BuildAck();
 }
 
@@ -89,10 +89,11 @@ void SharedMemory::BuildExternalMemoryConnection() {
 
 void SharedMemory::BuildMemoryInstance() {
   int num_ports = 1;
-  auto &port_users =
+  auto &port1_users =
       tab_.GetModule()->GetConnection().GetSharedMemoryPort1Accessors(&res_);
-  if (port_users.size() > 0) {
-    CHECK(port_users.size() == 1);
+  if (port1_users.size() > 0) {
+    // Assumes an AXI accessor.
+    CHECK(port1_users.size() == 1);
     num_ports = 2;
   }
   InternalSRAM *sram = tab_.GetEmbeddedModules()->RequestInternalSRAM(
