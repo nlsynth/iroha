@@ -199,7 +199,7 @@ const vector<IResource *> &Connection::GetSharedRegChildren(
   return ai->shared_reg_children_;
 }
 
-const vector<IResource *> &Connection::GetSharedMemoryAccessors(
+const vector<IResource *> &Connection::GetSharedMemoryPort0Accessors(
     const IResource *res) const {
   const auto *ai = GetAccessorInfo(res);
   return ai->shared_memory_port0_accessors_;

@@ -40,7 +40,7 @@ void SharedMemory::BuildMemoryResource() {
   vector<const IResource *> accessors;
   accessors.push_back(&res_);
   auto &non_self_accessors =
-      tab_.GetModule()->GetConnection().GetSharedMemoryAccessors(&res_);
+      tab_.GetModule()->GetConnection().GetSharedMemoryPort0Accessors(&res_);
   for (IResource *r : non_self_accessors) {
     accessors.push_back(r);
   }

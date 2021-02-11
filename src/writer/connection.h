@@ -43,7 +43,7 @@ class Connection {
   const vector<IResource *> &GetSharedRegExtWriters(const IResource *res) const;
   const vector<IResource *> &GetSharedRegReaders(const IResource *res) const;
   const vector<IResource *> &GetSharedRegChildren(const IResource *res) const;
-  const vector<IResource *> &GetSharedMemoryAccessors(
+  const vector<IResource *> &GetSharedMemoryPort0Accessors(
       const IResource *res) const;
   const vector<IResource *> &GetSharedMemoryPort1Accessors(
       const IResource *res) const;
