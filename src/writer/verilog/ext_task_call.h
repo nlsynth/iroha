@@ -9,14 +9,14 @@ namespace writer {
 namespace verilog {
 
 class ExtTaskCall : public Resource {
-public:
+ public:
   ExtTaskCall(const IResource &res, const Table &table);
-  virtual ~ExtTaskCall() {};
+  virtual ~ExtTaskCall(){};
 
   virtual void BuildResource();
   virtual void BuildInsn(IInsn *insn, State *st);
 
-private:
+ private:
   void BuildExtTaskCallResource();
   void BuildTaskCallInsn(IInsn *insn, State *st);
   void BuildTaskWaitInsn(IInsn *insn, State *st);
@@ -27,9 +27,8 @@ private:
   bool UseHandShake() const;
   // Finds corresponding ext-task-wait resource.
   const IResource *GetWaitResource() const;
-  void AddPort(const string &name, const string &wire_name,
-	       bool is_output, int width,
-	       string *connection);
+  void AddPort(const string &name, const string &wire_name, bool is_output,
+               int width, string *connection);
   void AddIO(string *connection);
   void AddIOPorts(bool is_output, string *connection);
 };
