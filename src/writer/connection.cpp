@@ -74,8 +74,10 @@ void Connection::ProcessSharedRegAccessors(ITable *tab) {
 }
 
 void Connection::ProcessSharedMemoryAccessors(ITable *tab) {
+  set<AccessorInfo *> accessor_infos;
   for (IResource *res : tab->resources_) {
     auto *ai = FindAccessorInfo(res->GetParentResource());
+    accessor_infos.insert(ai);
     auto *rc = res->GetClass();
     auto *params = res->GetParams();
     if (resource::IsSharedMemoryReader(*rc) ||
@@ -91,6 +93,24 @@ void Connection::ProcessSharedMemoryAccessors(ITable *tab) {
         ai->shared_memory_port1_accessors_.push_back(res);
       }
     }
+  }
+  for (auto *ai : accessor_infos) {
+    if (ai->shared_memory_port1_accessors_.size() < 2) {
+      continue;
+    }
+    // assume AxiMaster and SramIf is on port1. Move AxiMaster to port0.
+    vector<IResource *> port1;
+    for (IResource *res : ai->shared_memory_port1_accessors_) {
+      auto *rc = res->GetClass();
+      if (resource::IsAxiMasterPort(*rc)) {
+        ai->shared_memory_port0_accessors_.push_back(res);
+      } else if (resource::IsSramIf(*rc)) {
+        port1.push_back(res);
+      } else {
+        CHECK(false);
+      }
+    }
+    ai->shared_memory_port1_accessors_ = port1;
   }
 }
 

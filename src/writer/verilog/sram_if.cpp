@@ -13,8 +13,7 @@ namespace writer {
 namespace verilog {
 
 SramIf::SramIf(const IResource &res, const Table &table)
-  : Resource(res, table) {
-}
+    : Resource(res, table) {}
 
 void SramIf::BuildResource() {
   Module *mod = tab_.GetModule();
@@ -22,14 +21,14 @@ void SramIf::BuildResource() {
   ostream &os = tab_.ResourceSectionStream();
   IResource *mem = res_.GetParentResource();
   string prefix = res_.GetParams()->GetPortNamePrefix();
-  os << "  assign " << SharedMemory::MemoryAddrPin(*mem, 1, nullptr)
-     << " = " << prefix << "addr;\n";
-  os << "  assign " << SharedMemory::MemoryWenPin(*mem, 1, nullptr)
-     << " = " << prefix << "wen;\n";
-  os << "  assign " << SharedMemory::MemoryWdataPin(*mem, 1, nullptr)
-     << " = " << prefix << "wdata;\n";
-  os << "  assign " << prefix << "rdata = "
-     << SharedMemory::MemoryRdataPin(*mem, 1) << ";\n";
+  os << "  assign " << SharedMemory::MemoryAddrPin(*mem, 1, nullptr) << " = "
+     << prefix << "addr;\n";
+  os << "  assign " << SharedMemory::MemoryWenPin(*mem, 1, nullptr) << " = "
+     << prefix << "wen;\n";
+  os << "  assign " << SharedMemory::MemoryWdataPin(*mem, 1, nullptr) << " = "
+     << prefix << "wdata;\n";
+  os << "  assign " << prefix
+     << "rdata = " << SharedMemory::MemoryRdataPin(*mem, 1) << ";\n";
 
   map<IState *, IInsn *> callers;
   CollectResourceCallers("*", &callers);
@@ -66,8 +65,7 @@ void SramIf::BuildInsn(IInsn *insn, State *st) {
      << I << "end\n";
 }
 
-void SramIf::CollectNames(Names *names) {
-}
+void SramIf::CollectNames(Names *names) {}
 
 void SramIf::AddPorts(Module *mod) {
   string prefix = res_.GetParams()->GetPortNamePrefix();
@@ -95,7 +93,6 @@ string SramIf::WenPort(IResource *res) {
   string prefix = res->GetParams()->GetPortNamePrefix();
   return prefix + "wen";
 }
-
 
 }  // namespace verilog
 }  // namespace writer
