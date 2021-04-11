@@ -9,16 +9,17 @@ namespace writer {
 namespace verilog {
 
 class SelfShell {
-public:
+ public:
   SelfShell(const IDesign *design, const PortSet *ports, bool reset_polarity,
-	    EmbeddedModules *embedded_modules);
+            EmbeddedModules *embedded_modules);
 
   void WriteWireDecl(ostream &os);
   void WritePortConnection(ostream &os);
   void WriteShellFSM(ostream &os);
 
-private:
+ private:
   void ProcessModule(IModule *mod);
+  void ProcessResource(IResource *res);
   void GenConnection(const string &sig, ostream &os);
 
   const IDesign *design_;

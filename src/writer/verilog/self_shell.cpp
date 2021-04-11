@@ -8,8 +8,8 @@
 #include "writer/verilog/embedded_modules.h"
 #include "writer/verilog/ext_task.h"
 #include "writer/verilog/internal_sram.h"
-#include "writer/verilog/sram_if.h"
 #include "writer/verilog/port_set.h"
+#include "writer/verilog/sram_if.h"
 #include "writer/verilog/table.h"
 
 namespace iroha {
@@ -17,9 +17,11 @@ namespace writer {
 namespace verilog {
 
 SelfShell::SelfShell(const IDesign *design, const PortSet *ports,
-		     bool reset_polarity, EmbeddedModules *embedded_modules)
-  : design_(design), ports_(ports), reset_polarity_(reset_polarity),
-    embedded_modules_(embedded_modules) {
+                     bool reset_polarity, EmbeddedModules *embedded_modules)
+    : design_(design),
+      ports_(ports),
+      reset_polarity_(reset_polarity),
+      embedded_modules_(embedded_modules) {
   for (IModule *mod : design->modules_) {
     ProcessModule(mod);
   }
@@ -54,17 +56,15 @@ void SelfShell::WriteWireDecl(ostream &os) {
        << "  assign " << res_valid << " = 1;\n";
     for (int i = 0; i < res->output_types_.size(); ++i) {
       string d = ExtTask::DataPin(res, i);
-      os << "  wire "
-	      << Table::WidthSpec(res->output_types_[i].GetWidth())
-	      << d << ";\n"
-	      << "  assign " << d << " = 0;\n";
+      os << "  wire " << Table::WidthSpec(res->output_types_[i].GetWidth()) << d
+         << ";\n"
+         << "  assign " << d << " = 0;\n";
     }
   }
   for (IResource *res : ext_ram_) {
     IArray *arr = res->GetArray();
     int data_width = arr->GetDataType().GetWidth();
-    os << "  wire "
-       << Table::WidthSpec(arr->GetAddressWidth())
+    os << "  wire " << Table::WidthSpec(arr->GetAddressWidth())
        << ArrayResource::SigName(*res, "addr") << ";\n";
     os << "  wire " << Table::WidthSpec(data_width)
        << ArrayResource::SigName(*res, "rdata") << ";\n";
@@ -73,12 +73,13 @@ void SelfShell::WriteWireDecl(ostream &os) {
     os << "  wire " << ArrayResource::SigName(*res, "wdata_en") << ";\n";
 
     InternalSRAM *sram =
-      embedded_modules_->RequestInternalSRAM(*arr, 1, reset_polarity_);
+        embedded_modules_->RequestInternalSRAM(*arr, 1, reset_polarity_);
     string inst = "_" + Util::Itoa(res->GetTable()->GetModule()->GetId()) +
-      "_" + Util::Itoa(res->GetTable()->GetId()) + "_" +
-      Util::Itoa(res->GetId());
-    os << "  " << sram->GetModuleName() << " " << sram->GetModuleName()
-       << inst  << "(" << ".clk(" << ports_->GetClk() << ")"
+                  "_" + Util::Itoa(res->GetTable()->GetId()) + "_" +
+                  Util::Itoa(res->GetId());
+    os << "  " << sram->GetModuleName() << " " << sram->GetModuleName() << inst
+       << "("
+       << ".clk(" << ports_->GetClk() << ")"
        << ", ." << sram->GetResetPinName() << "(" << ports_->GetReset() << ")"
        << ", ." << sram->GetAddrPin(0) << "("
        << ArrayResource::SigName(*res, "addr") << ")"
@@ -151,33 +152,36 @@ void SelfShell::WriteShellFSM(ostream &os) {
 void SelfShell::ProcessModule(IModule *mod) {
   for (ITable *tab : mod->tables_) {
     for (IResource *res : tab->resources_) {
-      auto *klass = res->GetClass();
-      if (resource::IsAxiMasterPort(*klass) ||
-      resource::IsAxiSlavePort(*klass)) {
-        axi_.push_back(res);
-      }
-      if (resource::IsExtInput(*klass)) {
-        ext_input_.push_back(res);
-      }
-      if (resource::IsExtTask(*klass)) {
-        ext_task_entry_.push_back(res);
-      }
-      if (resource::IsExtTaskCall(*klass)) {
-        ext_task_call_.push_back(res);
-      }
-      if (resource::IsExtTaskWait(*klass)) {
-        ext_task_wait_.push_back(res);
-      }
-      if (resource::IsArray(*klass)) {
-	      IArray *ar = res->GetArray();
-	      if (ar != nullptr && ar->IsExternal()) {
-	        ext_ram_.push_back(res);
-	      }
-      }
-      if (resource::IsSramIf(*klass)) {
-        sram_if_.push_back(res);
-      }
+      ProcessResource(res);
     }
+  }
+}
+
+void SelfShell::ProcessResource(IResource *res) {
+  auto *klass = res->GetClass();
+  if (resource::IsAxiMasterPort(*klass) || resource::IsAxiSlavePort(*klass)) {
+    axi_.push_back(res);
+  }
+  if (resource::IsExtInput(*klass)) {
+    ext_input_.push_back(res);
+  }
+  if (resource::IsExtTask(*klass)) {
+    ext_task_entry_.push_back(res);
+  }
+  if (resource::IsExtTaskCall(*klass)) {
+    ext_task_call_.push_back(res);
+  }
+  if (resource::IsExtTaskWait(*klass)) {
+    ext_task_wait_.push_back(res);
+  }
+  if (resource::IsArray(*klass)) {
+    IArray *ar = res->GetArray();
+    if (ar != nullptr && ar->IsExternal()) {
+      ext_ram_.push_back(res);
+    }
+  }
+  if (resource::IsSramIf(*klass)) {
+    sram_if_.push_back(res);
   }
 }
 
