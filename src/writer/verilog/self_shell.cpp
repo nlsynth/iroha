@@ -40,6 +40,13 @@ void SelfShell::WriteWireDecl(ostream &os) {
     os << "  wire " << Table::WidthSpec(width) << input_port << ";\n";
     os << "  assign " << input_port << " = 0;\n";
   }
+  for (IResource *res : ext_output_) {
+    auto *params = res->GetParams();
+    string output_port;
+    int width;
+    params->GetExtOutputPort(&output_port, &width);
+    os << "  wire " << Table::WidthSpec(width) << output_port << ";\n";
+  }
   for (IResource *res : ext_task_entry_) {
     string v = ExtTask::ReqValidPin(res);
     os << "  wire " << v << ";\n"
@@ -72,6 +79,7 @@ void SelfShell::WriteWireDecl(ostream &os) {
        << ArrayResource::SigName(*res, "wdata") << ";\n";
     os << "  wire " << ArrayResource::SigName(*res, "wdata_en") << ";\n";
 
+    // Internal of shell module and external of the design itself.
     InternalSRAM *sram =
         embedded_modules_->RequestInternalSRAM(*arr, 1, reset_polarity_);
     string inst = "_" + Util::Itoa(res->GetTable()->GetModule()->GetId()) +
@@ -108,6 +116,13 @@ void SelfShell::WritePortConnection(ostream &os) {
     int width;
     params->GetExtInputPort(&input_port, &width);
     GenConnection(input_port, os);
+  }
+  for (IResource *res : ext_output_) {
+    auto *params = res->GetParams();
+    string output_port;
+    int width;
+    params->GetExtOutputPort(&output_port, &width);
+    GenConnection(output_port, os);
   }
   for (IResource *res : ext_task_entry_) {
     string v = ExtTask::ReqValidPin(res);
@@ -164,6 +179,9 @@ void SelfShell::ProcessResource(IResource *res) {
   }
   if (resource::IsExtInput(*klass)) {
     ext_input_.push_back(res);
+  }
+  if (resource::IsExtOutput(*klass)) {
+    ext_output_.push_back(res);
   }
   if (resource::IsExtTask(*klass)) {
     ext_task_entry_.push_back(res);

@@ -28,8 +28,8 @@ class VerilogWriter {
   void BuildModules(const IModule *imod);
   void BuildChildModuleSection();
   void WriteShellModule(const Module *mod);
-  void WriteSelfClockGenerator(const Module *mod);
-  void WriteSelfClockConnection(const Module *mod);
+  void WriteSelfClockGenerator(const Module *root_mod);
+  void WriteSelfClockConnection(const Module *root_mod);
   void ResolveResetPolarity(const IModule *root);
 
   const IDesign *design_;

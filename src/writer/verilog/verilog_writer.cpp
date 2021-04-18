@@ -152,8 +152,8 @@ void VerilogWriter::BuildChildModuleSection() {
   }
 }
 
-void VerilogWriter::WriteShellModule(const Module *mod) {
-  const PortSet *ports = mod->GetPortSet();
+void VerilogWriter::WriteShellModule(const Module *root_mod) {
+  const PortSet *ports = root_mod->GetPortSet();
   os_ << "`ifndef STRIP_SHELL\n";
   os_ << "module " << shell_module_name_ << "(";
   if (!with_self_contained_) {
@@ -161,7 +161,7 @@ void VerilogWriter::WriteShellModule(const Module *mod) {
   }
   os_ << ");\n";
   if (with_self_contained_) {
-    WriteSelfClockGenerator(mod);
+    WriteSelfClockGenerator(root_mod);
   }
   std::unique_ptr<SelfShell> shell;
   if (with_self_contained_) {
@@ -169,7 +169,7 @@ void VerilogWriter::WriteShellModule(const Module *mod) {
                               embedded_modules_.get()));
     shell->WriteWireDecl(os_);
   }
-  string name = mod->GetName();
+  string name = root_mod->GetName();
   if (design_->GetParams()->GetModuleNamePrefix().empty()) {
     name = shell_module_name_ + "_" + name;
   } else {
@@ -177,7 +177,7 @@ void VerilogWriter::WriteShellModule(const Module *mod) {
   }
   os_ << "  " << name << " " << name << "_inst(";
   if (with_self_contained_) {
-    WriteSelfClockConnection(mod);
+    WriteSelfClockConnection(root_mod);
     shell->WritePortConnection(os_);
   } else {
     ports->Output(PortSet::PORT_CONNECTION, os_);
@@ -211,8 +211,8 @@ void VerilogWriter::WriteShellModule(const Module *mod) {
   os_ << "\n";
 }
 
-void VerilogWriter::WriteSelfClockGenerator(const Module *mod) {
-  const PortSet *ports = mod->GetPortSet();
+void VerilogWriter::WriteSelfClockGenerator(const Module *root_mod) {
+  const PortSet *ports = root_mod->GetPortSet();
   const string &clk = ports->GetClk();
   const string &rst = ports->GetReset();
   os_ << "  reg " << clk << ", " << rst << ";\n\n"
@@ -229,8 +229,8 @@ void VerilogWriter::WriteSelfClockGenerator(const Module *mod) {
       << "  end\n\n";
 }
 
-void VerilogWriter::WriteSelfClockConnection(const Module *mod) {
-  const PortSet *ports = mod->GetPortSet();
+void VerilogWriter::WriteSelfClockConnection(const Module *root_mod) {
+  const PortSet *ports = root_mod->GetPortSet();
   const string &clk = ports->GetClk();
   const string &rst = ports->GetReset();
   os_ << "." << clk << "(" << clk << "), ." << rst << "(" << rst << ")";
