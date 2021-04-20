@@ -46,6 +46,10 @@ void SelfShell::WriteWireDecl(ostream &os) {
     int width;
     params->GetExtOutputPort(&output_port, &width);
     os << "  wire " << Table::WidthSpec(width) << output_port << ";\n";
+    os << "  always @(" << output_port << ") begin\n"
+       << "    $display(\"%t, " << output_port << "=%x\", $time, "
+       << output_port << ");\n"
+       << "  end\n";
   }
   for (IResource *res : ext_task_entry_) {
     string v = ExtTask::ReqValidPin(res);
