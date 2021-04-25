@@ -49,7 +49,7 @@ void SelfShell::WriteWireDecl(ostream &os) {
     os << "  always @(" << output_port << ") begin\n"
        << "    $display(\"%t, " << output_port << "=%x\", $time, "
        << output_port << ");\n"
-       << "  end\n";
+       << "  end\n\n";
   }
   for (IResource *res : ext_task_entry_) {
     string v = ExtTask::ReqValidPin(res);
@@ -57,9 +57,17 @@ void SelfShell::WriteWireDecl(ostream &os) {
        << "  assign " << v << " = 0;\n";
   }
   for (IResource *res : ext_task_call_) {
+    string name = res->GetParams()->GetExtTaskName();
     string req_ready = ExtTask::ReqReadyPin(res);
-    os << "  wire " << req_ready << ";\n"
+    string req_valid = ExtTask::ReqValidPin(res);
+    os << "  wire " << req_valid << ";\n"
+       << "  wire " << req_ready << ";\n"
        << "  assign " << req_ready << " = 1;\n";
+    os << "  always @(posedge clk) begin\n"
+       << "    if (!rst && " << req_valid << ") begin\n"
+       << "    $display(\"task call " << name << "()\");\n"
+       << "    end\n"
+       << "  end\n\n";
   }
   for (IResource *res : ext_task_wait_) {
     string res_valid = ExtTask::ResValidPin(res->GetParentResource());
@@ -135,7 +143,9 @@ void SelfShell::WritePortConnection(ostream &os) {
   for (IResource *res : ext_task_call_) {
     if (res->GetParams()->GetEmbeddedModuleFileName().empty()) {
       string req_ready = ExtTask::ReqReadyPin(res);
+      string req_valid = ExtTask::ReqValidPin(res);
       GenConnection(req_ready, os);
+      GenConnection(req_valid, os);
     }
   }
   for (IResource *res : ext_task_wait_) {
