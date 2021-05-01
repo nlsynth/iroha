@@ -60,12 +60,28 @@ void SelfShell::WriteWireDecl(ostream &os) {
     string name = res->GetParams()->GetExtTaskName();
     string req_ready = ExtTask::ReqReadyPin(res);
     string req_valid = ExtTask::ReqValidPin(res);
+    int n = ExtTask::NumArgs(res);
+    for (int i = 0; i < n; ++i) {
+      os << "  wire " << Table::WidthSpec(ExtTask::ArgWidth(res, i))
+         << ExtTask::ArgPin(res, i) << ";\n";
+    }
     os << "  wire " << req_valid << ";\n"
        << "  wire " << req_ready << ";\n"
        << "  assign " << req_ready << " = 1;\n";
     os << "  always @(posedge clk) begin\n"
        << "    if (!rst && " << req_valid << ") begin\n"
-       << "    $display(\"task call " << name << "()\");\n"
+       << "    $display(\"task call " << name << "(";
+    for (int i = 0; i < n; ++i) {
+      if (i > 0) {
+        os << " ,";
+      }
+      os << "%d";
+    }
+    os << ")\"";
+    for (int i = 0; i < n; ++i) {
+      os << ", " << ExtTask::ArgPin(res, i);
+    }
+    os << ");\n"
        << "    end\n"
        << "  end\n\n";
   }
@@ -146,6 +162,10 @@ void SelfShell::WritePortConnection(ostream &os) {
       string req_valid = ExtTask::ReqValidPin(res);
       GenConnection(req_ready, os);
       GenConnection(req_valid, os);
+      int n = ExtTask::NumArgs(res);
+      for (int i = 0; i < n; ++i) {
+        GenConnection(ExtTask::ArgPin(res, i), os);
+      }
     }
   }
   for (IResource *res : ext_task_wait_) {

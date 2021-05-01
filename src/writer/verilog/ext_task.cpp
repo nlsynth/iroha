@@ -18,8 +18,7 @@ namespace writer {
 namespace verilog {
 
 ExtTask::ExtTask(const IResource &res, const Table &table)
-  : Resource(res, table) {
-}
+    : Resource(res, table) {}
 
 bool ExtTask::IsExtTask(const Table &table) {
   ITable *i_table = table.GetITable();
@@ -63,6 +62,12 @@ string ExtTask::ArgPin(const IResource *res, int nth) {
   return PinName(res, "req_" + Util::Itoa(nth));
 }
 
+int ExtTask::ArgWidth(const IResource *res, int nth) {
+  return res->input_types_[nth].GetWidth();
+}
+
+int ExtTask::NumArgs(const IResource *res) { return res->input_types_.size(); }
+
 string ExtTask::DataPin(const IResource *res, int nth) {
   IResource *parent = nullptr;
   if (res != nullptr) {
@@ -78,9 +83,9 @@ string ExtTask::PinName(const IResource *res, const string &name) {
     auto *klass = res->GetClass();
     // Internal. Neither ext-task nor ext stub (non embedded).
     if (!resource::IsExtTask(*klass) &&
-	!(resource::IsExtTaskCall(*klass) && !prefix.empty())) {
-      suffix = "_" + Util::Itoa(res->GetTable()->GetId()) + "_"
-	+ Util::Itoa(res->GetId());
+        !(resource::IsExtTaskCall(*klass) && !prefix.empty())) {
+      suffix = "_" + Util::Itoa(res->GetTable()->GetId()) + "_" +
+               Util::Itoa(res->GetId());
     }
     if (!prefix.empty()) {
       return prefix + "_" + name + suffix;
@@ -108,8 +113,8 @@ void ExtTask::BuildInsn(IInsn *insn, State *st) {
        << I << "  " << insn_st << " <= 1;\n";
     for (int i = 0; i < res_.input_types_.size(); ++i) {
       os << I << "  " << DataPin(&res_, i) << " <= "
-	 << InsnWriter::RegisterValue(*insn->inputs_[i], tab_.GetNames())
-	 << ";\n";
+         << InsnWriter::RegisterValue(*insn->inputs_[i], tab_.GetNames())
+         << ";\n";
     }
     os << I << "end\n";
     os << I << "if (" << insn_st << " == 1) begin\n"
@@ -127,27 +132,24 @@ void ExtTask::BuildExtTask() {
      << "      " << ResValidPin(&res_) << " <= 0;\n"
      << "      " << BusyPin(&res_) << " <= 0;\n";
   ostream &ss = tab_.StateOutputSectionStream();
-  ss << "      " << ReqReadyPin(&res_) << " <= "
-     << ReqValidPin(&res_) << " & ("
-     << tab_.StateVariable() << " == "
-     << tab_.StateName(Task::kTaskEntryStateId) << ")"
+  ss << "      " << ReqReadyPin(&res_) << " <= " << ReqValidPin(&res_) << " & ("
+     << tab_.StateVariable()
+     << " == " << tab_.StateName(Task::kTaskEntryStateId) << ")"
      << ";\n";
-  ss << "      " << BusyPin(&res_) << " <= !("
-     << tab_.StateVariable() << " == "
-     << tab_.StateName(Task::kTaskEntryStateId) << ");\n";
+  ss << "      " << BusyPin(&res_) << " <= !(" << tab_.StateVariable()
+     << " == " << tab_.StateName(Task::kTaskEntryStateId) << ");\n";
   ITable *i_table = tab_.GetITable();
   IInsn *task_entry_insn = DesignUtil::FindTaskEntryInsn(i_table);
   ostream &rs = tab_.ResourceSectionStream();
   ostream &ws = tab_.InsnWireValueSectionStream();
   ostream &ts = tab_.TaskEntrySectionStream();
   for (int i = 0; i < res_.output_types_.size(); ++i) {
-    rs << "  reg "
-       << Table::WidthSpec(res_.output_types_[i].GetWidth())
-       << " " << ArgCaptureReg(i) << ";\n";
+    rs << "  reg " << Table::WidthSpec(res_.output_types_[i].GetWidth()) << " "
+       << ArgCaptureReg(i) << ";\n";
     ws << "  assign " << InsnWriter::InsnOutputWireName(*task_entry_insn, i)
        << " = " << ArgCaptureReg(i) << ";\n";
-    ts << "            " << ArgCaptureReg(i) << " <= "
-       << ArgPin(&res_, i) << ";\n";
+    ts << "            " << ArgCaptureReg(i) << " <= " << ArgPin(&res_, i)
+       << ";\n";
   }
   BuildPorts();
 }
@@ -162,21 +164,20 @@ void ExtTask::BuildPorts() {
   AddPortToTop(ResReadyPin(&res_), false, false, 0);
   for (int i = 0; i < res_.output_types_.size(); ++i) {
     AddPortToTop(ArgPin(&res_, i), false, false,
-		 res_.output_types_[i].GetWidth());
+                 res_.output_types_[i].GetWidth());
   }
-  IResource *done_res =
-    DesignUtil::FindOneResourceByClassName(tab_.GetITable(),
-					   resource::kExtTaskDone);
+  IResource *done_res = DesignUtil::FindOneResourceByClassName(
+      tab_.GetITable(), resource::kExtTaskDone);
   CHECK(done_res);
   for (int i = 0; i < done_res->input_types_.size(); ++i) {
     AddPortToTop(DataPin(done_res, i), true, false,
-		 done_res->input_types_[i].GetWidth());
+                 done_res->input_types_[i].GetWidth());
   }
 }
 
 string ExtTask::ArgCaptureReg(int nth) {
-  return "ext_task_arg_" + Util::Itoa(tab_.GetITable()->GetId()) + "_"
-    + Util::Itoa(nth);
+  return "ext_task_arg_" + Util::Itoa(tab_.GetITable()->GetId()) + "_" +
+         Util::Itoa(nth);
 }
 
 }  // namespace verilog

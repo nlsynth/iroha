@@ -9,9 +9,9 @@ namespace writer {
 namespace verilog {
 
 class ExtTask : public Resource {
-public:
+ public:
   ExtTask(const IResource &res, const Table &table);
-  virtual ~ExtTask() {};
+  virtual ~ExtTask(){};
 
   static bool IsExtTask(const Table &table);
   static string TaskReadyPin(const Table &table);
@@ -21,13 +21,15 @@ public:
   static string ResValidPin(const IResource *res);
   static string ResReadyPin(const IResource *res);
   static string ArgPin(const IResource *res, int nth);
+  static int ArgWidth(const IResource *res, int nth);
+  static int NumArgs(const IResource *res);
   // This one takes ext-task-done resource.
   static string DataPin(const IResource *res, int nth);
 
   virtual void BuildResource();
   virtual void BuildInsn(IInsn *insn, State *st);
 
-private:
+ private:
   void BuildExtTask();
   void BuildPorts();
   string ArgCaptureReg(int nth);
