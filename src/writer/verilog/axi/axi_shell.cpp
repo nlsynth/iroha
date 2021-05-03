@@ -19,16 +19,14 @@ AxiShell::AxiShell(IResource *res) : res_(res) {
   p_ = config.prefix;
 }
 
-string AxiShell::P(const string &p) {
-  return p_ + p;
-}
+string AxiShell::P(const string &p) { return p_ + p; }
 
 void AxiShell::WriteWireDecl(ostream &os) {
   PortConfig config = AxiPort::GetPortConfig(*res_);
   os << "  // AXI shell wires: " << config.prefix << "\n";
   string s;
-  ChannelGenerator ch(config, ChannelGenerator::SHELL_WIRE_DECL,
-		      is_master_, nullptr, nullptr, &s);
+  ChannelGenerator ch(config, ChannelGenerator::SHELL_WIRE_DECL, is_master_,
+                      nullptr, nullptr, &s);
   ch.GenerateChannel(true, true);
   os << s << "\n";
 }
@@ -38,16 +36,20 @@ void AxiShell::WritePortConnection(ostream &os) {
   os << "  /* AXI shell: " << config.prefix << " */";
   string s;
   ChannelGenerator ch(config, ChannelGenerator::SHELL_PORT_CONNECTION,
-		      is_master_, nullptr, nullptr, &s);
+                      is_master_, nullptr, nullptr, &s);
   ch.GenerateChannel(true, true);
   os << s;
 }
 
 void AxiShell::WriteFSM(const PortSet *ports, bool reset_polarity,
-			ostream &os) {
-  if (!is_master_) {
-    return;
+                        ostream &os) {
+  if (is_master_) {
+    WriteMasterFSM(ports, reset_polarity, os);
   }
+}
+
+void AxiShell::WriteMasterFSM(const PortSet *ports, bool reset_polarity,
+                              ostream &os) {
   PortConfig config = AxiPort::GetPortConfig(*res_);
   os << "\n"
      << "  // WIP: AXI shell FSM: " << config.prefix << "\n";
@@ -65,7 +67,8 @@ void AxiShell::WriteFSM(const PortSet *ports, bool reset_polarity,
      << "      // READ\n"
      << "      " << P("ARREADY") << " <= " << P("ARVALID") << ";\n"
      << "      " << P("RVALID") << " <= " << P("RREADY") << ";\n"
-     << "      " << P("RLAST") << " <= " << P("RREADY") << " && (" << P("ARLEN_") << " == 255);\n"
+     << "      " << P("RLAST") << " <= " << P("RREADY") << " && ("
+     << P("ARLEN_") << " == 255);\n"
      << "      if (" << P("ARVALID") << ") begin\n"
      << "        " << P("ARLEN_") << " <= " << P("ARLEN") << ";\n"
      << "      end\n"
@@ -78,14 +81,28 @@ void AxiShell::WriteFSM(const PortSet *ports, bool reset_polarity,
      << "      // WRITE\n"
      << "      " << P("AWREADY") << " <= " << P("AWVALID") << ";\n"
      << "      " << P("WREADY") << " <= " << P("WVALID") << ";\n"
-     << "      if (!" << P("BVALID") << " && " << P("WLAST") << " && " << P("WREADY") << ") begin\n"
+     << "      if (!" << P("BVALID") << " && " << P("WLAST") << " && "
+     << P("WREADY") << ") begin\n"
      << "        " << P("BVALID") << " <= 1;\n"
      << "      end\n"
      << "      if (" << P("BVALID") << " && " << P("BREADY") << ") begin\n"
      << "        " << P("BVALID") << " <= 0;\n"
-     << "      end\n"
-     << "    end\n"
+     << "      end\n";
+  WriteMasterMonitor(ports, os);
+  os << "    end\n"
      << "  end\n";
+}
+
+void AxiShell::WriteMasterMonitor(const PortSet *ports, ostream &os) {
+  os << "// AXI monitor\n"
+     << "if (" << P("ARVALID") << " && " << P("ARREADY") << ") begin\n"
+     << "  $display(\"%t AXI master " << p_ << " read: %x len=%d\", $time, "
+     << P("ARADDR") << ", " << P("ARLEN") << "+1);"
+     << "end\n"
+     << "if (" << P("AWVALID") << " && " << P("AWREADY") << ") begin\n"
+     << "  $display(\"%t AXI master " << p_ << " write: %x len=%d\", $time, "
+     << P("AWADDR") << ", " << P("AWLEN") << "+1);"
+     << "end\n";
 }
 
 }  // namespace axi

@@ -10,15 +10,18 @@ namespace verilog {
 namespace axi {
 
 class AxiShell {
-public:
+ public:
   AxiShell(IResource *res);
 
   void WriteWireDecl(ostream &os);
   void WritePortConnection(ostream &os);
   void WriteFSM(const PortSet *ports, bool reset_polarity, ostream &os);
 
-private:
+ private:
   string P(const string &p);
+  void WriteMasterFSM(const PortSet *ports, bool reset_polarity, ostream &os);
+  void WriteMasterMonitor(const PortSet *ports, ostream &os);
+
   IResource *res_;
   bool is_master_;
   string p_;
