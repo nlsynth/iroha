@@ -393,6 +393,8 @@
                 './',
             ],
             'sources': [
+                'iroha/base/file.cpp',
+                'iroha/base/file.h',
                 'iroha/base/util.cpp',
                 'iroha/base/util.h',
             ],

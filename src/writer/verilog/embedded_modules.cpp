@@ -1,5 +1,8 @@
 #include "writer/verilog/embedded_modules.h"
 
+#include <set>
+
+#include "iroha/base/file.h"
 #include "iroha/i_design.h"
 #include "iroha/logging.h"
 #include "iroha/resource_class.h"
@@ -12,15 +15,11 @@
 #include "writer/verilog/wire/mux.h"
 #include "writer/verilog/wire/wire_set.h"
 
-#include <set>
-
 namespace iroha {
 namespace writer {
 namespace verilog {
 
-EmbeddedModules::~EmbeddedModules() {
-  STLDeleteValues(&wire_sets_);
-}
+EmbeddedModules::~EmbeddedModules() { STLDeleteValues(&wire_sets_); }
 
 void EmbeddedModules::RequestModule(const ResourceParams &params) {
   string name = params.GetEmbeddedModuleFileName();
@@ -70,13 +69,13 @@ bool EmbeddedModules::Write(bool reset_polarity, ostream &os) {
     if (resource::IsAxiMasterPort(*(res->GetClass()))) {
       name = axi::MasterPort::ControllerName(*res);
       if (controllers.find(name) != controllers.end()) {
-	continue;
+        continue;
       }
       axi::MasterPort::WriteController(*res, reset_polarity, os);
     } else {
       name = axi::SlavePort::ControllerName(*res);
       if (controllers.find(name) != controllers.end()) {
-	continue;
+        continue;
       }
       axi::SlavePort::WriteController(*res, reset_polarity, os);
     }
@@ -90,8 +89,8 @@ bool EmbeddedModules::Write(bool reset_polarity, ostream &os) {
 }
 
 bool EmbeddedModules::CopyFile(const string &fn, const string &rst,
-			       bool reset_polarity, ostream &os) {
-  istream *ifs = Util::OpenFile(fn);
+                               bool reset_polarity, ostream &os) {
+  istream *ifs = iroha::File::OpenFile(fn);
   if (ifs == nullptr) {
     LOG(ERROR) << "Failed to open: " << fn;
     return false;
@@ -111,7 +110,7 @@ bool EmbeddedModules::CopyFile(const string &fn, const string &rst,
       string r = "(" + rst + ")";
       int pos = line.find(r);
       if (pos != string::npos) {
-	line = line.replace(pos, r.size(), "(!" + rst + ")");
+        line = line.replace(pos, r.size(), "(!" + rst + ")");
       }
     }
     os << line << "\n";
@@ -121,15 +120,14 @@ bool EmbeddedModules::CopyFile(const string &fn, const string &rst,
 }
 
 InternalSRAM *EmbeddedModules::RequestInternalSRAM(const Module &mod,
-						   const IArray &arr,
-						   int num_ports) {
+                                                   const IArray &arr,
+                                                   int num_ports) {
   return RequestInternalSRAM(arr, num_ports, mod.GetResetPolarity());
-
 }
 
 InternalSRAM *EmbeddedModules::RequestInternalSRAM(const IArray &arr,
-						   int num_ports,
-						   bool reset_polarity) {
+                                                   int num_ports,
+                                                   bool reset_polarity) {
   InternalSRAM *sram = new InternalSRAM(arr, num_ports, reset_polarity);
   srams_.push_back(sram);
   return sram;

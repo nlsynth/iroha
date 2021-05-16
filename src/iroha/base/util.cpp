@@ -3,12 +3,9 @@
 #include <string.h>
 
 #include <algorithm>
-#include <fstream>
 #include <sstream>
 
 namespace iroha {
-
-vector<string> Util::import_paths_;
 
 string Util::Itoa(int i) {
   stringstream ss;
@@ -49,10 +46,6 @@ int Util::Log2(uint64_t u) {
 
 bool Util::IsInteger(const string &a) { return Atoi(a) != 0 || a == "0"; }
 
-void Util::SetImportPaths(const vector<string> &paths) {
-  import_paths_ = paths;
-}
-
 void Util::SplitStringUsing(const string &str, const char *delim,
                             vector<string> *output) {
   int cur = 0;
@@ -87,35 +80,6 @@ string Util::Join(const vector<string> &v, const string &sep) {
     is_first = false;
   }
   return r;
-}
-
-istream *Util::OpenFile(const string &s) {
-  // TODO: Search import_paths_ first.
-  ifstream *ifs = new ifstream(s);
-  if (!ifs->fail()) {
-    return ifs;
-  }
-  delete ifs;
-  if (s.find("/") == 0 || s.find(".") == 0) {
-    return nullptr;
-  }
-  for (const string &p : import_paths_) {
-    ifs = new ifstream(p + "/" + s);
-    if (!ifs->fail()) {
-      return ifs;
-    }
-    delete ifs;
-  }
-  return nullptr;
-}
-
-string Util::BaseName(const string &fn) {
-  const char *p = strrchr(fn.c_str(), '/');
-  if (!p) {
-    return fn;
-  }
-  ++p;
-  return string(p);
 }
 
 bool Util::EndsWith(const string &s, const string &suffix) {

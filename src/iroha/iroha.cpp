@@ -27,6 +27,7 @@
 
 #include "builder/design_builder.h"
 #include "design/design_tool.h"
+#include "iroha/base/file.h"
 #include "opt/optimizer.h"
 #include "writer/writer.h"
 
@@ -39,7 +40,7 @@ WriterAPI::~WriterAPI() {}
 void Iroha::Init() { opt::Optimizer::Init(); }
 
 void Iroha::SetImportPaths(const vector<string> &paths) {
-  Util::SetImportPaths(paths);
+  File::SetImportPaths(paths);
 }
 
 IDesign *Iroha::ReadDesignFromFile(const string &fn) {

@@ -2,6 +2,7 @@
 
 #include <fstream>
 
+#include "iroha/base/file.h"
 #include "iroha/i_design.h"
 #include "iroha/stl_util.h"
 #include "writer/writer.h"
@@ -52,7 +53,7 @@ void OptimizerLog::WriteToFiles(const string &baseFn) {
   for (auto &p : sections_) {
     OptimizerLogSection *ls = p.second;
     string linkFn = ls->dumpFileName(baseFn, p.first);
-    linkFn = Util::BaseName(linkFn);
+    linkFn = File::BaseName(linkFn);
     os << "<a href=\"" << linkFn << "\">" << linkFn << "</a>\n";
   }
   writer::Writer::WriteDumpFooter(os);

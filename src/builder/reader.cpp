@@ -1,7 +1,10 @@
 #include "builder/reader.h"
 
-#include <fstream>
 #include <ctype.h>
+
+#include <fstream>
+
+#include "iroha/base/file.h"
 
 namespace iroha {
 namespace builder {
@@ -30,9 +33,7 @@ const string &Exp::Str(int nth) {
   return empty_string;
 }
 
-int Exp::Size() {
-  return vec.size();
-}
+int Exp::Size() { return vec.size(); }
 
 File::~File() {
   for (Exp *e : exps) {
@@ -47,7 +48,7 @@ File *Reader::ReadFile(const string &fn, bool search) {
     ifs = &cin;
   } else {
     if (search) {
-      ifs = Util::OpenFile(fn);
+      ifs = iroha::File::OpenFile(fn);
     } else {
       ifs = new std::ifstream(fn);
     }
@@ -88,8 +89,7 @@ void Reader::DumpExp(Exp *s) {
   cout << ")";
 }
 
-Reader::Reader(istream &ifs) : ifs_(ifs), column_(0), has_error_(false) {
-}
+Reader::Reader(istream &ifs) : ifs_(ifs), column_(0), has_error_(false) {}
 
 File *Reader::Read() {
   File *f = new File;
@@ -100,7 +100,7 @@ File *Reader::Read() {
     if (HasError()) {
       delete e;
       for (Exp *cur : f->exps) {
-	delete cur;
+        delete cur;
       }
       f->exps.clear();
       break;
@@ -156,7 +156,7 @@ Exp *Reader::ReadList() {
 }
 
 bool Reader::EnsureLine() {
- again:
+again:
   if (column_ == cur_line_.size()) {
     if (ifs_.eof()) {
       return false;
@@ -176,7 +176,7 @@ string Reader::ReadToken() {
     unread_token_.clear();
     return tmp;
   }
- again:
+again:
   if (!EnsureLine()) {
     return string();
   }
@@ -201,9 +201,9 @@ string Reader::ReadToken() {
   while (column_ < cur_line_.size()) {
     if (in_quote) {
       if (*c == '"' && len > 0) {
-	++column_;
-	++len;
-	break;
+        ++column_;
+        ++len;
+        break;
       }
     } else if (*c > 0 && isspace(*c)) {
       break;
@@ -222,21 +222,13 @@ string Reader::ReadToken() {
   return string(start, len);
 }
 
-void Reader::UnreadToken(string &t) {
-  unread_token_ = t;
-}
+void Reader::UnreadToken(string &t) { unread_token_ = t; }
 
-const char *Reader::CurrentChar() {
-  return cur_line_.c_str() + column_;
-}
+const char *Reader::CurrentChar() { return cur_line_.c_str() + column_; }
 
-void Reader::SetError() {
-  has_error_ = true;
-}
+void Reader::SetError() { has_error_ = true; }
 
-bool Reader::HasError() {
-  return has_error_;
-}
+bool Reader::HasError() { return has_error_; }
 
 }  // namespace builder
 }  // namespace iroha
