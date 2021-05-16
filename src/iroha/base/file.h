@@ -16,6 +16,9 @@ class File {
   static istream *OpenFile(const string &s);
   static string BaseName(const string &fn);
 
+ private:
+  static bool UseSearchPath(const string &fn);
+
   static vector<string> import_paths_;
 };
 

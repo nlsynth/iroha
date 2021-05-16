@@ -13,23 +13,30 @@ void File::SetImportPaths(const vector<string> &paths) {
 }
 
 istream *File::OpenFile(const string &s) {
-  // TODO: Search import_paths_ first.
-  ifstream *ifs = new ifstream(s);
+  ifstream *ifs;
+  if (UseSearchPath(s)) {
+    for (const string &p : import_paths_) {
+      ifs = new ifstream(p + "/" + s);
+      if (!ifs->fail()) {
+        return ifs;
+      }
+      delete ifs;
+    }
+  }
+  ifs = new ifstream(s);
   if (!ifs->fail()) {
     return ifs;
   }
   delete ifs;
-  if (s.find("/") == 0 || s.find(".") == 0) {
-    return nullptr;
-  }
-  for (const string &p : import_paths_) {
-    ifs = new ifstream(p + "/" + s);
-    if (!ifs->fail()) {
-      return ifs;
-    }
-    delete ifs;
-  }
   return nullptr;
+}
+
+bool File::UseSearchPath(const string &fn) {
+  // Don't use search path for absolute path or dot file.
+  if (fn.find("/") == 0 || fn.find(".") == 0) {
+    return false;
+  }
+  return true;
 }
 
 string File::BaseName(const string &fn) {
