@@ -3,10 +3,12 @@
 #include <string.h>
 
 #include <fstream>
+#include <sstream>
 
 namespace iroha {
 
 vector<string> File::import_paths_;
+map<string, string> File::file_data_;
 
 void File::SetImportPaths(const vector<string> &paths) {
   import_paths_ = paths;
@@ -28,6 +30,10 @@ istream *File::OpenFile(const string &s) {
     return ifs;
   }
   delete ifs;
+  auto it = file_data_.find(s);
+  if (it != file_data_.end()) {
+    return new istringstream(it->second);
+  }
   return nullptr;
 }
 
@@ -46,6 +52,10 @@ string File::BaseName(const string &fn) {
   }
   ++p;
   return string(p);
+}
+
+void File::RegisterFile(const string &fn, const string &data) {
+  file_data_[fn] = data;
 }
 
 }  // namespace iroha
