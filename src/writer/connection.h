@@ -67,6 +67,7 @@ class Connection {
   void ProcessExtIOAccessors(ITable *tab);
   void ProcessTickerAccessors(ITable *tab);
   void ProcessStudyAccessors(ITable *tab);
+  void AssignMemoryAccessorPort(AccessorInfo *ainfo);
   AccessorInfo *FindAccessorInfo(const IResource *res);
 
   const IDesign *design_;

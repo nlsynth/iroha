@@ -95,23 +95,27 @@ void Connection::ProcessSharedMemoryAccessors(ITable *tab) {
     }
   }
   for (auto *ai : accessor_infos) {
-    if (ai->shared_memory_port1_accessors_.size() < 2) {
-      continue;
-    }
-    // assume AxiMaster and SramIf is on port1. Move AxiMaster to port0.
-    vector<IResource *> port1;
-    for (IResource *res : ai->shared_memory_port1_accessors_) {
-      auto *rc = res->GetClass();
-      if (resource::IsAxiMasterPort(*rc)) {
-        ai->shared_memory_port0_accessors_.push_back(res);
-      } else if (resource::IsSramIf(*rc)) {
-        port1.push_back(res);
-      } else {
-        CHECK(false);
-      }
-    }
-    ai->shared_memory_port1_accessors_ = port1;
+    AssignMemoryAccessorPort(ai);
   }
+}
+
+void Connection::AssignMemoryAccessorPort(AccessorInfo *ainfo) {
+  if (ainfo->shared_memory_port1_accessors_.size() < 2) {
+    return;
+  }
+  // assume AxiMaster and SramIf is on port1. Move AxiMaster to port0.
+  vector<IResource *> port1;
+  for (IResource *res : ainfo->shared_memory_port1_accessors_) {
+    auto *rc = res->GetClass();
+    if (resource::IsAxiMasterPort(*rc)) {
+      ainfo->shared_memory_port0_accessors_.push_back(res);
+    } else if (resource::IsSramIf(*rc)) {
+      port1.push_back(res);
+    } else {
+      CHECK(false);
+    }
+  }
+  ainfo->shared_memory_port1_accessors_ = port1;
 }
 
 void Connection::ProcessFifoAccessors(ITable *tab) {
