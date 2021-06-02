@@ -17,6 +17,7 @@ class AccessorInfo {
   vector<IResource *> shared_memory_port0_accessors_;
   // resources accesses secondary port (port1) of this memory resource.
   vector<IResource *> shared_memory_port1_accessors_;
+  vector<IResource *> shared_memory_unassigned_accessors_;
   vector<IResource *> shared_reg_readers_;
   vector<IResource *> shared_reg_writers_;
   vector<IResource *> shared_reg_ext_writers_;

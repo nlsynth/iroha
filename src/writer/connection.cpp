@@ -78,21 +78,7 @@ void Connection::ProcessSharedMemoryAccessors(ITable *tab) {
   for (IResource *res : tab->resources_) {
     auto *ai = FindAccessorInfo(res->GetParentResource());
     accessor_infos.insert(ai);
-    auto *rc = res->GetClass();
-    auto *params = res->GetParams();
-    if (resource::IsSharedMemoryReader(*rc) ||
-        resource::IsSharedMemoryWriter(*rc)) {
-      ai->shared_memory_port0_accessors_.push_back(res);
-    }
-    if (resource::IsAxiMasterPort(*rc) || resource::IsAxiSlavePort(*rc) ||
-        resource::IsSramIf(*rc)) {
-      if (params->GetSramPortIndex() == "0") {
-        ai->shared_memory_port0_accessors_.push_back(res);
-      } else {
-        // Exclusive access only by a DMAC.
-        ai->shared_memory_port1_accessors_.push_back(res);
-      }
-    }
+    ai->shared_memory_unassigned_accessors_.push_back(res);
   }
   for (auto *ai : accessor_infos) {
     AssignMemoryAccessorPort(ai);
@@ -100,6 +86,24 @@ void Connection::ProcessSharedMemoryAccessors(ITable *tab) {
 }
 
 void Connection::AssignMemoryAccessorPort(AccessorInfo *ainfo) {
+  for (IResource *res : ainfo->shared_memory_unassigned_accessors_) {
+    auto *rc = res->GetClass();
+    auto *params = res->GetParams();
+    if (resource::IsSharedMemoryReader(*rc) ||
+        resource::IsSharedMemoryWriter(*rc)) {
+      ainfo->shared_memory_port0_accessors_.push_back(res);
+    }
+    if (resource::IsAxiMasterPort(*rc) || resource::IsAxiSlavePort(*rc) ||
+        resource::IsSramIf(*rc)) {
+      if (params->GetSramPortIndex() == "0") {
+        ainfo->shared_memory_port0_accessors_.push_back(res);
+      } else {
+        // Exclusive access only by a DMAC.
+        ainfo->shared_memory_port1_accessors_.push_back(res);
+      }
+    }
+  }
+  ainfo->shared_memory_unassigned_accessors_.clear();
   if (ainfo->shared_memory_port1_accessors_.size() < 2) {
     return;
   }
