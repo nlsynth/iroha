@@ -22,6 +22,13 @@ void Connection::Build() {
       ProcessTable(tab);
     }
   }
+  // Port assignment after table traversal.
+  for (auto it : accessors_) {
+    AccessorInfo *ai = it.second;
+    if (ai->shared_memory_unassigned_accessors_.size() > 0) {
+      AssignMemoryAccessorPort(ai);
+    }
+  }
 }
 
 void Connection::ProcessTable(ITable *tab) {
@@ -79,9 +86,6 @@ void Connection::ProcessSharedMemoryAccessors(ITable *tab) {
     auto *ai = FindAccessorInfo(res->GetParentResource());
     accessor_infos.insert(ai);
     ai->shared_memory_unassigned_accessors_.push_back(res);
-  }
-  for (auto *ai : accessor_infos) {
-    AssignMemoryAccessorPort(ai);
   }
 }
 
