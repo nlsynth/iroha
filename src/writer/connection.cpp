@@ -86,40 +86,42 @@ void Connection::ProcessSharedMemoryAccessors(ITable *tab) {
 }
 
 void Connection::AssignMemoryAccessorPort(AccessorInfo *ainfo) {
+  vector<IResource *> shared;
+  vector<IResource *> exclusive;
+  vector<IResource *> prefer_exclusive;
   for (IResource *res : ainfo->shared_memory_unassigned_accessors_) {
     auto *rc = res->GetClass();
     auto *params = res->GetParams();
     if (resource::IsSharedMemoryReader(*rc) ||
         resource::IsSharedMemoryWriter(*rc)) {
-      ainfo->shared_memory_port0_accessors_.push_back(res);
+      shared.push_back(res);
     }
-    if (resource::IsAxiMasterPort(*rc) || resource::IsAxiSlavePort(*rc) ||
-        resource::IsSramIf(*rc)) {
+    if (resource::IsSramIf(*rc)) {
+      exclusive.push_back(res);
+    }
+    if (resource::IsAxiMasterPort(*rc) || resource::IsAxiSlavePort(*rc)) {
       if (params->GetSramPortIndex() == "0") {
-        ainfo->shared_memory_port0_accessors_.push_back(res);
+        shared.push_back(res);
       } else {
-        // Exclusive access only by a DMAC.
-        ainfo->shared_memory_port1_accessors_.push_back(res);
+        prefer_exclusive.push_back(res);
       }
     }
   }
   ainfo->shared_memory_unassigned_accessors_.clear();
-  if (ainfo->shared_memory_port1_accessors_.size() < 2) {
-    return;
+  for (IResource *res : shared) {
+    ainfo->shared_memory_port0_accessors_.push_back(res);
   }
-  // assume AxiMaster and SramIf is on port1. Move AxiMaster to port0.
-  vector<IResource *> port1;
-  for (IResource *res : ainfo->shared_memory_port1_accessors_) {
-    auto *rc = res->GetClass();
-    if (resource::IsAxiMasterPort(*rc)) {
-      ainfo->shared_memory_port0_accessors_.push_back(res);
-    } else if (resource::IsSramIf(*rc)) {
-      port1.push_back(res);
+  for (IResource *res : exclusive) {
+    CHECK(ainfo->shared_memory_port1_accessors_.size() == 0);
+    ainfo->shared_memory_port1_accessors_.push_back(res);
+  }
+  for (IResource *res : prefer_exclusive) {
+    if (ainfo->shared_memory_port1_accessors_.size() == 0) {
+      ainfo->shared_memory_port1_accessors_.push_back(res);
     } else {
-      CHECK(false);
+      ainfo->shared_memory_port0_accessors_.push_back(res);
     }
   }
-  ainfo->shared_memory_port1_accessors_ = port1;
 }
 
 void Connection::ProcessFifoAccessors(ITable *tab) {
