@@ -8,7 +8,11 @@
         'defines': ['PACKAGE="iroha"', 'VERSION="0.0.1"'],
         'xcode_settings': {
             'OTHER_CFLAGS': [
+                "-std=c++11",
+                "-stdlib=libc++"
             ],
+            'MACOSX_DEPLOYMENT_TARGET': '10.7',
+            'CLANG_CXX_LIBRARY': 'libc++'
         },
     },
     'targets': [
@@ -399,5 +403,5 @@
                 'iroha/base/util.h',
             ],
         },
-    ]
+    ],
 }
