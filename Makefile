@@ -1,4 +1,5 @@
 include config.mk
+export V
 
 prefix ?= /usr/local
 pkgdir ?= /tmp
