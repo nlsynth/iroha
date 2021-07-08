@@ -22,10 +22,12 @@ clean:
 	rm -f iroha
 
 install: install-data
-	install -D iroha $(prefix)/bin/iroha
+	mkdir -p $(prefix)/bin
+	install iroha $(prefix)/bin/iroha
 
 install-data:
-	install -D lib/generic-platform.iroha $(prefix)/share/iroha/generic-platform.iroha
+	mkdir -p $(prefix)/share/iroha
+	install lib/generic-platform.iroha $(prefix)/share/iroha/generic-platform.iroha
 
 pkg-data:
 	cp lib/generic-platform.iroha $(pkgdir)/
